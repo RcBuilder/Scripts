@@ -1,0 +1,47 @@
+Bug:
+getting empty value when trying to read the request payload json content as string
+
+Error:
+empty value
+
+Cause:
+the body content can only be read once by design! 
+so if we are using the auto binder of the framework we will receive an empty value
+when trying to read the body content from a fliter etc.
+
+Read json Content as string:
+actionContext.Request.Content.ReadAsStringAsync().Result
+
+Solution:
+remove ANY [FromBody] binding from the action signature and read it manually using the ReadAsStringAsync context method
+
+example:
+// request body
+{
+  "displayWidth": 200,
+  "displayHeight": 200,
+  "mhe:path": "somePath"
+}
+
+// action filter which try to read the json content as string 
+public class HandlePayload : ActionFilterAttribute {
+     public override void OnActionExecuting(HttpActionContext actionContext) {
+         var jsonBody = actionContext.Request.Content.ReadAsStringAsync().Result;
+         base.OnActionExecuting(actionContext);
+     }
+}
+
+// action definition 
+[HandlePayload]        
+[HttpPost]
+[Route("api/contentItem/test")]        
+public void TEST(Placement placement) { ... }
+
+in the above example the jsonBody will always be EMPTY!!
+if we'll change the TEST method to NOT use the framework binder (see below), the jsonBody will have the payload content.
+
+// action definition 
+[HandlePayload]        
+[HttpPost]
+[Route("api/contentItem/test")]        
+public void TEST() { ... }

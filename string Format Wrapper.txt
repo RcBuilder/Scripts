@@ -1,0 +1,12 @@
+public void WriteMessage(string message){
+     Console.WriteLine(message);
+}
+
+public void WriteMessage(string format, params string[] values){
+     this.WriteMessage(string.Format(format, values));
+}
+
+--- 
+
+WriteMessage("no format");
+WriteMessage("format {0} {1} {2}", "p1", "p2", "p3");

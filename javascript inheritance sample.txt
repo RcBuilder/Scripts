@@ -1,0 +1,62 @@
+function LinkItem(params) {
+    var nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    var defaults = { startDate: new Date(), dueDate: nextWeek, basePath: 'Root' };
+
+    this.id = params.id || '';
+    this.title = params.title || '';
+    this.callbackUrl = params.callbackUrl || '';
+    this.startDate = params.startDate || defaults.startDate;
+    this.dueDate = params.dueDate || defaults.dueDate;
+    this.iconURL = params.iconURL || '';
+    this.location = params.location || '';
+    this.basePath = params.basePath || defaults.basePath;
+    this.custom = {};
+}
+LinkItem.prototype.isGradable = function () {
+    return this.scoreType != undefined;
+}
+LinkItem.prototype.GenerateCustomParam = function () {
+    var rand = Math.ceil(Math.random() * 1000);
+    this.custom['p' + rand] = 'v' + rand;
+
+}
+
+function Assignment(params) {
+    var defaults = { scoreType: '', scorePossible: 100 };
+
+    LinkItem.call(this, params); // call base constractor (Assignment object is the caller - this)
+    this.scoreType = params.scoreType || defaults.scoreType;
+    this.scorePossible = params.scorePossible || defaults.scorePossible;
+}
+Assignment.prototype = new LinkItem({});
+
+
+-------------------------------------------------
+
+
+var assignment = new Assignment({
+                id: $scope.newAssignment.id,
+                title: $scope.newAssignment.title,
+                callbackUrl: $scope.newAssignment.callbackUrl,
+                startDate: startDate,
+                dueDate: dueDate,
+                iconURL: $scope.newAssignment.iconURL,
+                basePath: $scope.newAssignment.basePath,
+                location: $scope.newAssignment.location,
+                scoreType: $scope.scoreType,
+                scorePossible: $scope.newAssignment.scorePossible                
+            });
+
+var link = new LinkItem({
+                id: $scope.newAssignment.id,
+                title: $scope.newAssignment.title,
+                callbackUrl: $scope.newAssignment.callbackUrl,
+                startDate: startDate,
+                dueDate: dueDate,
+                iconURL: $scope.newAssignment.iconURL,
+                basePath: $scope.newAssignment.basePath,
+                location: $scope.newAssignment.location,
+            });
+        }

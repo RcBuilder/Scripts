@@ -1,0 +1,22 @@
+
+public override void OnActionExecuting(HttpActionContext actionContext) {
+   ...
+   ...
+
+   var jsonBody = actionContext.Request.Content.ReadAsStringAsync().Result;
+
+   ...
+   ...
+
+   base.OnActionExecuting(actionContext);
+}
+
+-------
+
+notice!
+the body content can only be read once by design! 
+so if we are using the auto binder of the framework we will receive an empty value 
+when trying to read the body content from a fliter etc.
+
+see 'BUG - REST - Web Api request payload json content as string always returns empty.txt'
+see 'REST - Web Api ModelBinder - custom binder.txt'

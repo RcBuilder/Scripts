@@ -1,0 +1,24 @@
+Bug:
+generic 500 error on the web.config file when trying to launch app
+
+Error:
+HTTP Error 500.19 - Internal Server Error
++
+Config File  ....web.config
+
+Cause:
+some error occured within the web.config xml file
+
+Find the cause:
+- go to 
+  https://support.microsoft.com/en-us/help/942055/-http-error-500-19-error-when-you-open-an-iis-7-0-webpage
+
+- look for the specified error id persents at your error page 
+  e.g: Error Code: 0x8007000d
+
+note:
+might relate to the applicationHost.config which is the parent of all web.config files
+the applicationHost.config located in C:\Users\RobiC\Documents\IISExpress\config
+
+Solution:
+fix your config file

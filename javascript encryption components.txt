@@ -1,0 +1,16 @@
+see also 'CryptoJS' folder
+
+
+---------------------
+
+-- USING --
+
+var textString = 'Hello world'; // Utf8-encoded string
+var words = CryptoJS.enc.Utf8.parse(textString); // WordArray object
+var base64 = CryptoJS.enc.Base64.stringify(words); // string: 'SGVsbG8gd29ybGQ='
+
+--
+
+var base64 = 'SGVsbG8gd29ybGQ=';
+var words = CryptoJS.enc.Base64.parse(base64);
+var textString = CryptoJS.enc.Utf8.stringify(words); // 'Hello world'

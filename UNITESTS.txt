@@ -1,0 +1,619 @@
+UNITESTS
+========
+
+****************************
+* General
+* Assert
+* Mock<T>
+* Mock<MyMock>
+* Verify
+* It.IsAny<T>
+* It.IsRegex
+* It.IsInRange
+* Dependency Injection 
+* NUnit Utility
+* Example
+****************************
+
+
+
+General
+-------
+* use the attribute [Test] to declare a method as a unitest method.
+* all the methods are void and refer as TRUE by default, exception will set it as FALSE.
+* Assert - a class which contains a logical conditions, used for setting the method result (TRUE/FALSE).
+* we can add a multiple asserts in each method.
+* Mock - a dummy class for testing (can be created manually or using the Mock<T>).
+* Mock<T> - allows us to create a dummy mock class, we can use the Setup method to override each method implementation within the Mock class.
+* we can add EVENTS which will take place before or after each test method execution, 
+  to implement such events we need to create a new method and just decorate it using the [TearDown] and [Setup] attributes, 
+  where as [TearDown] stands for postExecution and [Setup] stands for PerExecution.
+* note! when unitests requires - we'll have to use a dependency injection (repository etc.) which later we'll have the abillity to inject a MOCK class
+
+Assert
+------
+Assert.AreEqual                
+Assert.AreNotEqual
+Assert.AreNotSame
+Assert.AreSame
+Assert.Greater
+Assert.GreaterOrEqual
+Assert.Contains
+Assert.DoesNotThrow
+Assert.False
+Assert.IsEmpty
+Assert.IsFalse
+Assert.IsInstanceOf
+Assert.IsInstanceOfType
+Assert.IsNaN
+Assert.IsNotEmpty
+Assert.IsNotInstanceOf
+Assert.IsNotInstanceOfType
+Assert.IsNotNull
+Assert.IsNotNullOrEmpty
+Assert.IsNull
+Assert.IsNullOrEmpty
+Assert.IsTrue
+Assert.Less
+Assert.LessOrEqual
+Assert.NotNull
+Assert.Null
+Assert.True
+...
+...
+
+Mock<T>
+-------
+using: using Moq;
+
+built-in helper which generates a mocking class based on the supplied interface. 
+note! can use class with virtual properties and functions
+
+use 'Setup' method to configure the mocking class implementation (define properties, methods logic etc.) 
+
+structure:
+var mock = new Mock<T>();
+mock.Setup([expression]).Returns([value]);
+
+example:
+
+public interface IMyClass { 
+    string Name { set; get; }
+    string Fun(string p);
+}
+
+public class MyClass : IMyClass{ 
+    public string Name { set; get; }
+    public string Fun(string p) {
+        return p;
+    }
+}
+
+Mock<MyMock>
+------------
+also see 'Mock<T>'
+
+we can use the T as our created mock class in order to earn some built-in features of the Mock like Verify 
+
+note: all methods which desire to use the Mock<T> wrapper features must be marked as virtual!
+note: class must be set as public!
+
+important! MUST set CallBase to be true in order to use the internal Object methods and NOT the wrapper mock 
+
+example:
+
+var mock = new Mock<MyMock>() { CallBase = true };
+...
+...
+mock.Verify(x => x.SaveCourseContext(It.IsAny<SSOContext>()), Times.AtLeastOnce);
+
+internal class MyMock : IMyMock
+{
+	public virtual void SaveUserContext(SSOContext ssoContext){ }
+
+    public virtual void SaveCourseContext(SSOContext ssoContext){ }
+}
+
+Verify
+------
+counts the number of calls made to the specified method
+
+structure:
+mock.Verify([expression], [Times]);
+
+Times:
+- AtLeast(int callCount);
+- AtLeastOnce();
+- AtMost(int callCount);
+- AtMostOnce();
+- Between(int callCountFrom, int callCountTo, Range rangeKind);
+- Exactly(int callCount);
+- Never();
+- Once();
+
+
+[Test]
+public void TEMP() {
+    var myClassMock = new Mock<IMyClass>();
+    myClassMock.Setup(x => x.Name).Returns("TEST NAME");
+    myClassMock.Setup(x => x.Fun("AAA")).Returns("TEST FUN");
+
+    var name = myClassMock.Object.Name; // TEST NAME
+    var resultFun = myClassMock.Object.Fun("AAA"); // TEST FUN
+
+	...
+	...
+}
+
+[Test]
+------
+use this attribute to include methods that will be part of the tests set
+
+e.g:
+public class MyTests {
+	[Test]
+	public void FunA(){ ... } 
+
+	[Test]
+	public void FunB(){ ... }
+}
+
+[Setup]
+-------
+use this attribute to setup a mocks globaly for the entire tests method within this class
+
+e.g:
+public class MyTests {
+	IRepository repository;
+
+	[SetUp]
+    public void Setup(){
+		var mockRepository = new Mock<ISomeRepository>();
+
+		// override behaviour
+		mockRepository.Setup(x => x.Get(It.IsAny<string>())).Returns(
+			return new List<string>{ 
+				"A", "B", "C", "D" 
+			}
+		);
+
+		repository = mockRepository.Object; 
+	}
+
+	[Test]
+	public void FunA(){ ... } 
+
+	[Test]
+	public void FunB(){ ... }
+}
+
+TestCase
+--------
+[TestCase("value1", "value2")]
+[TestCase("value10", "value20")]
+[TestCase("", "")]
+[TestCase(null, null)]
+public void FunWithCases(string p1, string p2){
+	
+}
+
+ImprovisedContainer
+-------------------
+// TODO Complete sample
+
+public class ImprovisedContainer {
+    static IConstructors constructors = new ConcreteConstructors();
+
+    public static IConstructors Constructors {
+        get { return constructors; }
+        set { constructors = value; }
+    }
+}
+
+public interface IConstructors {
+    IClass1 Class1();
+    IClass2 Class2();
+    IClass3 Class3();
+}
+
+public class ConcreteConstructors : IConstructors
+{
+    public IClass1 Class1()
+    {
+        return new Class1();
+    }
+
+    public IClass2 Class2()
+    {
+        return new Class2();
+    }
+
+    public IClass3 Class3()
+    {
+        return new Class3();
+    }
+}
+
+It.IsAny<T>
+-----------
+
+override a method behaviour using any instance of T 
+
+structure:
+var mock = new Mock<T>();
+mock.Setup(x => x.SomeMethod(It.IsAny<T>())).Returns([value]);
+
+example:
+
+public interface ISomeInterface { ... }
+public class ClassA : ISomeInterface { ... }
+public class ClassB : ISomeInterface { ... }
+
+public interface IMyClass { 
+    User Foo(string name);
+    List<User> Foo2(ISomeInterface p);
+}
+
+public class MyClass : IMyClass { 
+    public User Foo(string name) {
+        return DAL.GetUserByName(name);
+    }
+
+	public List<User> Foo2(ISomeInterface p) {
+        return DAL.GetUsersList(p.groupId);
+    }
+}
+
+[Test]
+public void TEMP() {
+    var myClassMock = new Mock<IMyClass>();
+
+	// any string will return the user 100 entity
+	myClassMock.Setup(x => x.Foo(It.IsAny<string>())).Returns(
+		new User{ ID = 100, Name = "U100" }
+	);
+
+	myClassMock.Setup(x => x.Foo2(It.IsAny<ISomeInterface>())).Returns(
+		new List<User> { 
+			new User{ ID = 1, Name = "U1" }, 
+			new User{ ID = 2, Name = "U2" }
+		}
+	);
+    
+    var resultFoo = myClassMock.Object.Foo("AAA"); // user 100
+	var resultFoo2_A = myClassMock.Object.Foo2(new ClassA()); // users 1 and 2
+	var resultFoo2_B = myClassMock.Object.Foo2(new ClassB()); // users 1 and 2
+
+	...
+	...
+}
+
+---
+
+example:
+
+public interface ISomeInterface { }
+public class ClassA : ISomeInterface {  }
+public class ClassB : ISomeInterface {  }
+
+public interface IMyClass {
+    string Foo(string name);
+    List<string> Foo2(ISomeInterface p);
+}
+
+public class MyClass : IMyClass { 
+    public string Foo(string name) {
+        return name;
+    }
+
+	public List<string> Foo2(ISomeInterface p) {
+        return new List<string> { "A", "B", "C" };
+    }
+}
+
+[Test]
+public void TEMP() {
+    var myClassMock = new Mock<IMyClass>();
+
+	// any string will return the user 100 entity
+	myClassMock.Setup(x => x.Foo(It.IsAny<string>())).Returns("ABCD");
+
+	myClassMock.Setup(x => x.Foo2(It.IsAny<ISomeInterface>())).Returns(new List<string> { "1", "2" });
+    
+    var resultFoo_A = myClassMock.Object.Foo("AAA");
+	var resultFoo_B = myClassMock.Object.Foo("BBB"); 
+	var resultFoo2_A = myClassMock.Object.Foo2(new ClassA());
+	var resultFoo2_B = myClassMock.Object.Foo2(new ClassB());
+
+    Assert.IsTrue(resultFoo_A == "ABCD"); // true
+	Assert.IsTrue(resultFoo_B == "ABCD"); // true
+
+	Assert.IsFalse(resultFoo_A == "AAA"); // true (IsFalse)
+	Assert.IsFalse(resultFoo_B == "BBB"); // true (IsFalse)
+
+    Assert.IsTrue(resultFoo2_A.Contains("1")); // true
+    Assert.IsTrue(resultFoo2_B.Contains("1")); // true
+}
+
+It.IsRegex
+----------
+
+override a method behaviour if the argument match the regex expression
+
+structure:
+var mock = new Mock<T>();
+mock.Setup(x => x.SomeMethod(It.IsRegex([pattern]))).Returns([value]);
+
+example:
+
+[Test]
+public void TEMP() {
+    var myClassMock = new Mock<IMyClass>();
+    myClassMock.Setup(x => x.Foo(It.IsRegex("[A-Z]{1}", System.Text.RegularExpressions.RegexOptions.IgnoreCase))).Returns("SUCCESS");
+
+    var resultFoo_A = myClassMock.Object.Foo("A");
+    var resultFoo_B = myClassMock.Object.Foo("1");
+
+    Assert.IsTrue(resultFoo_A == "SUCCESS"); // true
+    Assert.IsTrue(resultFoo_B == "SUCCESS"); // false
+
+	...
+	...
+}
+
+It.IsInRange
+------------
+
+override a method behaviour if the argument is within the supplied range
+
+structure:
+var mock = new Mock<T>();
+mock.Setup(x => x.SomeMethod(It.IsInRange([from], [to], [range kind]))).Returns([value]);
+
+example:
+
+public interface IMyClass{
+    bool Foo(int num);
+}
+
+public class MyClass : IMyClass{
+    public bool Foo(int num){
+        return false;
+    }
+}
+
+[Test]
+public void TEMP()
+{
+    var myClassMock = new Mock<IMyClass>();
+
+	// returns true for numbers between 1 and 10 (includes)
+    myClassMock.Setup(x => x.Foo(It.IsInRange(1, 10, Range.Inclusive))).Returns(true);
+
+    Assert.IsTrue(myClassMock.Object.Foo(1)); // true
+    Assert.IsTrue(myClassMock.Object.Foo(11)); // false
+}
+
+NUnit Utility   
+-------------
+use this utility to execute those defined test methods.
+
+* load project:
+  file -> open project -> bin -> choose the dll file
+
+* Debugging:
+  we can attach the visual studio debugger to the NUnit agent 
+  (in vs) debug menu -> attach to process -> nunit-agent.exe
+
+Dependency Injection 
+--------------------
+note: repository driven example
+
+* create an interface 
+* create the actual repository which inplement the created interface 
+* create a logical class which gets a instance of the interface. 
+* inject the real repository whenever you use the logical class on the site.
+
+* create a new class for repository mocking which also implement the interface above.
+* inject the dummy repository whenever you use the logical class for unitests.
+
+structure:
+public interface IRepository {
+    IEnumerable<string> Get();    
+}
+
+// real repository
+public class SomeRepository : IRepository{
+	public IEnumerable<string> Get() {
+		return DAL.Get(); // from db
+	}
+}
+
+// mock repository
+public class SomeRepositoryMOCK : IRepository{
+	public IEnumerable<string> Get() {
+		return new List<string>{ "NameA", "NameB", "NameC", "NameD", "NameE" };
+	}
+}
+
+// bll class (gets the repository)
+public class SomeBLL
+{    
+	private IRepository repository;
+
+    public SomeBLL() : this(new SomeRepository()) { }
+    public SomeBLL(IRepository repository) {
+        this.repository = repository;
+    }
+}
+
+// on site
+var bll = new SomeBLL();
+
+// on test method
+var bll = new SomeBLL(new SomeRepositoryMOCK());
+
+
+
+-------------------------------------------------------------------------------------------------
+
+Example
+-------
+namespace MHCampus.BL.Tests
+{
+    class OAuthAuthorizationManagerTest
+    {        
+        [Setup]
+        public void Setup() {
+            ...
+        }
+
+		[TearDown]
+        public void TearDown() {
+            ...
+        }
+
+        [Test]
+        public void Check_User_OAuthDisabled()
+        {
+            var request = new OAuthPermissionRequest
+            {
+                providerKey = "D", // provider with disabled OAuth mechanism
+                serviceType = typeof(OAuthDummyService),
+                action = "FunA",
+                authorizeAnywayAndLog = false
+            };
+
+            var oAuthPermissionsChecker = new BL.OAuthPermissionsChecker(request, new BL.Providers(new ProvidersRepositoryMock()));
+            Assert.IsTrue(oAuthPermissionsChecker.IsAuthrized());
+        }
+	}
+}
+
+---
+
+public interface IProvidersRepository
+{
+    IEnumerable<Provider> Get();
+    IEnumerable<OAuthProviderPermission> GetPermissions();
+    IEnumerable<OAuthPermission> GetPermissions(int Id);
+    int UpdatePermissions(int Id, IEnumerable<OAuthPermission> Permissions);
+    int UpdateOperationOAuthEnabled(int Id, bool OperationOAuthEnabled);
+}
+
+---
+
+// real providers repository
+public class Providers : IProvidersRepository
+{
+	....
+}
+
+// dummy providers repository (MOCK)
+public class ProvidersRepositoryMock : IProvidersRepository
+{
+    public IEnumerable<Provider> Get()
+    {
+        return new List<Provider>
+        {
+            new Provider{ Id = 1, Name = "A", Key = "A", Secert = "A", OperationOAuthEnabled = true },
+            new Provider{ Id = 2, Name = "B", Key = "B", Secert = "B", OperationOAuthEnabled = true },
+            new Provider{ Id = 3, Name = "C", Key = "C", Secert = "C", OperationOAuthEnabled = true },
+            new Provider{ Id = 4, Name = "D", Key = "D", Secert = "D", OperationOAuthEnabled = false },
+            new Provider{ Id = 5, Name = "E", Key = "E", Secert = "E", OperationOAuthEnabled = true }
+        };
+    }
+
+    public IEnumerable<OAuthProviderPermission> GetPermissions()
+    {
+        return new List<OAuthProviderPermission>
+        {
+            new OAuthProviderPermission{ ProviderId = 1, PermissionId = 1 },
+            new OAuthProviderPermission{ ProviderId = 1, PermissionId = 2 },
+            new OAuthProviderPermission{ ProviderId = 1, PermissionId = 3 },
+            new OAuthProviderPermission{ ProviderId = 2, PermissionId = 1 },
+            new OAuthProviderPermission{ ProviderId = 2, PermissionId = 2 },
+            new OAuthProviderPermission{ ProviderId = 3, PermissionId = 1 },
+            new OAuthProviderPermission{ ProviderId = 3, PermissionId = 4 },
+            new OAuthProviderPermission{ ProviderId = 4, PermissionId = 2 }                             
+        };
+    }
+
+    public IEnumerable<OAuthPermission> GetPermissions(int Id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public int UpdatePermissions(int Id, IEnumerable<OAuthPermission> Permissions)
+    {
+        throw new NotImplementedException();
+    }
+
+    public int UpdateOperationOAuthEnabled(int Id, bool OperationOAuthEnabled)
+    {
+        throw new NotImplementedException();
+    }
+}
+
+
+public class ProvidersBLL
+{    
+	private IProvidersRepository providersRepository;
+
+    public Providers() : this(new DAL.Repositories.Providers()) { }
+    public Providers(IProvidersRepository providersRepository)
+    {
+        this.providersRepository = providersRepository;
+    }
+}
+
+-------------------------------------------------------------------------------------------------
+
+More Info
+---------
+using example: 
+'SSO LTI Unitests - McgrawHill.txt'
+
+HttpContext Mock:
+'MyHttpPostWorker.cs'
+'Create a POST HttpContext using SimpleWorkerRequest.txt'
+'MOCK HttpContext - Unitests.txt'
+
+
+
+-------------------------------------------------------------------------------------------------
+
+Environment Built-in Framework
+------------------------------
+- Type: NUnit 
+- Test Explorer 
+  Test -> Windows -> Test Explorer
+- Grouping 
+  the grouping button can be found at the left-top corner of the test explorer window 
+  each click switches between the grouping options 
+  grouping options: Namespace, Class, Project and Traits
+- Traits
+  used for a custom grouping based on categories we defines 
+  in order to define a category, we need to use the Category attribute 
+  e.g: 
+  // we've created 2 categories in this example: Assignments and Courses
+  [Category("Assignments")]
+  public void TEST_Assignment_Test1(){ ... }
+
+  [Category("Assignments")]
+  public void TEST_Assignment_Test2(){ ... }
+
+  [Category("Courses")]
+  public void TEST_Course_Test1(){ ... }
+
+  [Category("Courses")]
+  public void TEST_Course_Test2(){ ... }
+
+- Execution:
+  we can execute a unitests in 2 ways 
+  - using the 'play' button in the Test Explorer window 
+  - using 'run tests' menu item in the right click menu 
+    right click on the method or class to  perform -> run Tests   
+
+
+

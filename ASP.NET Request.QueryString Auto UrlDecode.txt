@@ -1,0 +1,12 @@
+
+
+ASP.NET automatically calls UrlDecode() when you access a property by key index! 
+
+e.g: 
+?p1=a%26b&p2=a%2Bb
+
+var v1 = Request.QueryString["p1"]; // a&b 
+var v2 = Request.QueryString["p2"]; // a+b
+
+
+

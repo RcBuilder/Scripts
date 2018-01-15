@@ -1,0 +1,15 @@
+Visual Studio Custom Tools 
+--------------------------
+
+add
+- Tools > External Tools > Add
+- set Title, Command to execute, Arguments and the Initial directory 
+- OK 
+
+using
+- Tools > [your Tool]
+
+e.g:
+Title: Git CMD
+Command: C:\Program Files\Git\git-cmd.exe
+Initial directory: C:\Users\RobiC\Desktop\GitHub

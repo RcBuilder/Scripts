@@ -1,0 +1,23 @@
+module.factory('serializer', function () {
+    return {
+        // dependencies: angular
+        serialize: function (obj, pretty) { 
+            pretty = pretty || false; // true for a pretty json view instead of a single line
+            return angular.toJson(obj, pretty);
+        },
+        stringify: function(obj){
+            return JSON.stringify(obj);  
+        },
+        encodedJson: function (obj) {            
+            return encodeURIComponent(JSON.stringify(obj));
+        },
+        urlEncode: function (value) {
+            return encodeURIComponent(value);
+        },
+	// dependencies: CryptoJS
+        toBase64: function (value) { 
+            var wordArray = CryptoJS.enc.Utf8.parse(value);
+            return CryptoJS.enc.Base64.stringify(wordArray);
+        }
+    }
+});

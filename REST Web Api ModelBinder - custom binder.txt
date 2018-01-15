@@ -1,0 +1,48 @@
+### ModelBinder ###
+allows us to create custom binding logic 
+can be added as a specific model parameter attribute. 
+
+-- STEPS --
+
+1. add the System.Web.Http.ModelBinding namespace
+2. create a custom binder class, derived from IModelBinder interface
+3. decorate the model parameter to apply this custom binder on it.
+
+-- SAMPLE --
+
+using System.Web.Http.ModelBinding;
+
+// custom binder
+public class CustomModelBinder : IModelBinder{                
+    public bool BindModel(HttpActionContext actionContext, ModelBindingContext bindingContext) {
+        var jsonBody = actionContext.Request.Content.ReadAsStringAsync().Result;
+        var placement = JsonConvert.DeserializeObject<Placement>(jsonBody);
+        bindingContext.Model = placement;
+        return true;
+    }
+}
+
+
+
+// use our custom binder (CustomModelBinder class)
+[HttpPost]
+[Route("api/contentItem/test1")]        
+public void Fun1([ModelBinder(typeof(CustomModelBinder))]Placement placement) {
+     ...
+}
+
+// use the default binder provided by the framework    
+[HttpPost]
+[Route("api/contentItem/test2")]    
+public void Fun2(Placement placement) {
+     ...
+}
+
+// using 
+POST api/contentItem/test1
+body:
+{
+  "displayWidth": 200,
+  "displayHeight": 200,
+  "mhe:path": "somePath"
+}

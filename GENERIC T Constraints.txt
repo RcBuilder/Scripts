@@ -1,0 +1,113 @@
+GENERIC T Constraints
+=====================
+
+FILTER TYPES
+------------
+* struct  
+  T must be value types
+
+* class   
+  T must be reference types
+
+* new()   
+  T must have a public parameterless constructor 
+
+  note! returns true for all value types!
+  reminder! any struct has a built-in parameterless constructor (can't added explicitly)
+
+  note! returns true for all classes with no explicit constructors!
+  reminder! any class gets a default parameterless constructor if not defined any other constructor/s
+
+* [class]  
+  T must be or derive from the specified base class
+
+* [interface]  
+  T must be or implement the specified interface
+
+* U
+
+USING
+-----
+
+interface iDemo { }
+class DemoA : iDemo { }
+class DemoB : DemoA { }
+class DemoC : DemoB {
+    public DemoC(int p) { }
+}
+
+class DemoZ {
+    public DemoZ(int p) { }
+}
+
+struct StructA { }
+
+--
+
+static void FunA<T>(T t) where T : iDemo { }
+static void FunB<T1, T2>(T1 t1, T2 t2) where T1 : iDemo where T2 : iDemo { }
+static void FunC<T>(T t) where T : struct { }
+static void FunD<T>(T t) where T : class { }        
+static void FunE<T>(T t) where T : new() { }
+static void FunF<T>(T t) where T : DemoA { }
+static void FunG<T>(T t) where T : iDemo, new() { }
+static void FunH<T1, T2>(T1 t1, T2 t2) where T1 : T2 { }
+
+EXAMPLES
+--------
+
+// interface filter
+FunA(new DemoA()); // OK -> DemoA is iDemo
+FunA(new DemoC(1)); // OK -> DemoC is iDemo
+FunA(new DemoZ(1)); // Compilation Error -> DemoZ is NOT iDemo
+FunA("ABCD");// Compilation Error -> string is NOT iDemo
+
+// multiple T filters (T1, T2 ...)
+FunB(new DemoA(), new DemoB()); // OK -> both DemoA and DemoB are iDemo
+FunB(new DemoA(), new DemoZ(1)); // Compilation Error -> DemoZ is NOT iDemo 
+FunB("ABCD", 1234); // Compilation Error -> both string and int are NOT iDemo
+
+// struct filter (value type)
+FunC(DateTime.Now); // OK -> DateTime is a struct
+FunC(1234); // OK -> int is a struct
+FunC("ABCD"); // Compilation Error -> string is NOT a struct
+FunC(new DemoA()); // Compilation Error -> DemoA is NOT a struct
+FunC(new DemoZ(1)); // Compilation Error -> DemoZ is NOT a struct
+
+// class filter (reference type)
+FunD("ABCD"); // OK -> string is a class
+FunD(new DemoA()); // OK -> DemoA is a class
+FunD(new DemoZ(1)); // OK -> DemoZ is a class
+FunD(DateTime.Now); // Compilation Error -> DateTime is NOT a class
+FunD(1234); // Compilation Error -> int is NOT a class
+
+// parameterless constructor filter
+FunE(DateTime.Now); // OK -> struct has a built-in parameterless constructor
+FunE(1234); // OK -> struct has a built-in parameterless constructor
+FunE(new StructA()); // OK -> struct has a built-in parameterless constructor
+FunE(new DemoA()); // OK -> class has a default parameterless constructor
+FunE(new DemoC(1)); // Compilation Error -> DemoC has NO parameterless constructor
+FunE(new DemoZ(1)); // Compilation Error -> DemoZ has NO parameterless constructor
+FunE("ABCD"); // Compilation Error -> string has NO parameterless constructor
+
+// specific class filter
+FunF(new DemoA()); // OK -> DemoA is a DemoA           
+FunF(new DemoB()); // OK -> DemoB is a DemoA
+FunF(new DemoC(1)); // OK -> DemoC is a DemoA
+FunF(new DemoZ(1)); // Compilation Error -> DemoZ is NOT a DemoA
+FunF(1234); // Compilation Error -> int is NOT a DemoA
+FunF("ABCD"); // Compilation Error -> string is NOT a DemoA
+
+// multiple filters (AND operator)
+FunG(new DemoA()); // OK -> DemoA is iDemo and has a default parameterless constructor          
+FunG(new DemoB()); // OK -> DemoB is iDemo and has a default parameterless constructor
+FunG(new DemoC(1)); // Compilation Error -> DemoC is iDemo BUT it has NO parameterless constructor
+FunG(new DemoZ(1)); // Compilation Error -> DemoZ is NOT iDemo
+FunG(1234); // Compilation Error -> int is NOT iDemo  
+
+// types T equalization
+FunH(100, 200); // OK -> both T are int
+FunH(new DemoA(), new DemoA()); // OK -> both T are DemoA
+FunH(100, 50.5); // Compilation Error -> int is NOT equals to float  
+FunH(100, "100"); // Compilation Error -> int is NOT equals to string              
+FunH(new DemoA(), new DemoB()); // Compilation Error -> DemoA is NOT equals to DemoB
