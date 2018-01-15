@@ -1,0 +1,873 @@
+=====================
+Source
+Installation
+What is Git?
+Console Types
+How to start
+Git Commands 
+Navigation
+Navigation CMD Keys
+Date Format
+CMD Multiple options
+What is tree-ish
+Configfuration
+Terms
+Common Files
+Ignore
+Reset
+HEAD pointer
+Conflics
+SSH keys
+Aliases
+Connect To a Server
+Get Latest
+Fast-forward merge
+Coparing Branches
+Staging Index
+Clone
+Commit
+Diff view
+Files
+GitHub Desktop
+GitHub
+=====================
+
+
+Source
+------
+https://git-scm.com/
+https://git-scm.com/downloads
+
+Installation
+------------
+- Git-2.10.1-64-bit.exe  // git engine
+- GitHubDesktop-Setup.exe  // desktop app
+
+What is Git?
+------------
+a distributed version control system (VCS)
+created by Linus Torvalds (linux creator) on April 2005
+open source
+track on changes (aka changesets)
+No central repository, each repository consists of group of changesets! 
+its common to create a master repository and sync the latest changesets to it but its NOT a git convention.
+no network access required! 
+
+note: 
+can use ANY editor to edit files within a gitHub local folder
+
+---
+
+history:
+- SSCS = Source Code Control System (single user, single file, text files)
+- RCS = Revision Control System (single user, single file, text files)
+- CVS = Concurrent Version System (multiple users, multiple files, text files)
+- SVN = Apache Subversion (multiple users, multiple files, any files)
+
+SCCS vs RCS:
+- SSCS saves the original file and a snapshot for each changeset so in order to get version 4 it applies changesets 2,3,4 on top of the original file (version 1)
+  whereas RCS saves it backwards, the original is the latest file with all the changes and if we want an early version, it downgrade it by removing the added changes 
+  so to get version 1, it takes latest version (version 4) and remove the changes added in changesets 1,2,3 
+
+Console Types
+-------------
+- Git CMD
+  git engine commands using the command prompt (windows style) 
+
+- Git BASH (UNIX commands)
+  git engine commands using a bath emulator (linux style)
+
+- Git GUI
+  git engine with no command line involes.
+
+How to start
+------------
+1. create a folder and add files to it 
+2. (git cmd) direct to the folder path 
+   e.g 
+   > cd C:\Users\RobiC\Desktop\GitHub\LyndaCourse
+3. > git init 
+4. > git add .  // staging index
+5. > git commit -m "first commit"  // repository
+
+Git Commands 
+------------
+git commands legend:
+> git help
+> git init
+> git add
+> git checkout
+> git rm
+> git commit
+> git log
+> git branch
+> git merge
+> git clone
+> git config
+> git show
+> git diff
+> git reset
+> git ls-tree
+> git revert
+> git stash
+> git remote
+> git fetch
+> git push
+> git pull
+> git clone
+
+---
+
+git commands:
+note that we can use ANY of the known cmd command using the Git CMD dialog 
+> npm install // install the dependencies registered within the package.json file
+> cls // clear screen
+> git help // get general help 
+> git help [command] // get more info about the specified command
+> git --version // get the engine installed version
+> git init // create the repository (empty)
+> git add . // add ALL files to the staging index
+> git add [folderName]/ // add ALL fileswithin the specified folder to staging index
+> git add [fileName] // add a specific file to staging index
+> git add --all // update all files changes 
+> git checkout [fileName] // get repository latest version for a specific file (also used to discard changes - UNDO)
+> git checkout [commitGuid] // get repository specific version (use git log to get retrieve the guide)
+> git checkout [branchName] // switch to a different branch
+> git checkout -b [NewBranchName] // create a new branch and switch to it
+> git checkout master // switch to the master branch
+> git checkout -a // show all repositories (including the unmapped ones)
+> git checkout -b [source] [destination] // map a specific branch (use checkout -a to see the list)
+> git rm [fileName] // delete a file (can also be achieved by manual deletion and 'add' command)
+> git rm --cached [fileName] // delete a file from the staging index and NOT from the local copy
+> git rm -f [fileName] // force a file deletion EVEN if it hasn't chekced-in to the staging yet
+> git mv [fileName] [NewLocation] // remove a file (can be also used for renaming a file)
+> git commit -m "[message]" // commit/check-in
+> git commit [fileName] -m [message] // commit/check-in a spesific file
+> git commit -a -m "[message]" // commit ALL modification to both staging and repository (not apply on NEW files)
+> git commit --amend // modify the latest commit (which is pointed by the HEAD)
+> git status // get reposiroty status
+> git log // commits log (includes a unique guid foreach commit)
+> git log [tree-ish] // commits log for a specific tree-ish
+> git log [branchName] // commits log for a specific branch
+> git log [remoteBranch] // commits log for a remote specific branch (e.g: myGitHubServer/master)
+> git log [fileName] // commits log for a specific file
+> git log -n [rowscount] // commits log (top x)
+> git log --oneline // commits log as a line per log view
+> git log --format=oneline // same as --oneline but with the full commit guide
+> git log --since="[dateFormat]" // commits log, from date (see 'date Format')
+> git log --until="[dateFormat]" // commits log, to date (see 'date Format')
+> git log --author="[name]" // commits log (search by author)
+> git log --grep="[pattern]" // commits log (search by regEx pattern) 
+> git log [commitGuidA]..[commitGuidB] // commits log by range, from commitGuidA till commitGuidB e.g: 2907d12..acf8750
+> git log [commitGuidA].. // // commits log by range, from commitGuidA till the end e.g: 2907d12..
+> git log -p // commits log + differences (diff command)
+> git log --stat // commits log + changes statistics
+> git log --summary // commits log + changes summary
+> git log --graph // commits log using a graph view (great for branching)
+> git log --decorate // commits log + the pointed branch (tip)
+> git log --all // commits log - all branches
+> git branch // show the local branches list (the active marks with a small star)
+> git branch -r // show the remote branches list
+> git branch -a // show both the remote and local branches list
+> git branch [branchName] // create a new branch 
+> git branch -m [branchName] [newBranchName] // rename a branch
+> git branch -D [branchName] // delete a branch
+> git branch --merged // show all the branches fully including within the current branch (ALL their's commits are included)
+> git merge [branchName] // merge the specified branch (source) to the active branch (target)
+> git merge --no-ff [branchName] // don't fast-forward the merged branch, do a merge commit anyway (see 'fast-forward merge')
+> git merge --abort // abort the merge 
+> git clone [gitPath] // clone the master branch of a git project directly to your machine
+> git clone -b [branchName] [gitPath] // clone a specific branch of a git project directly to your machine
+> git clone --mirror [gitPath] .git // clone a git project with ALL its branches directly to your machine
+> git config [key] "[value]" // project level configuration
+> git config --system [key] "[value]" // system level configuration (see 'Configfuration keys')
+> git config --global [key] "[value]" // user level configuration (see 'Configfuration keys')
+> git config --list // get list of defined configuration
+> git config [key] //get specific configuration by key
+> git show [tree-ish] // show commit content
+> git show [commitGuid] // show commit content
+> git show [blobGuid] // show file content (use ls-tree to get the blob guid)
+> git diff [tree-ish] // show differences (see 'what is tree-ish')
+> git diff [tree-ish]..[tree-ish] // show differences (see 'what is tree-ish')
+> git diff // show differences (local copy vs staging)
+> git diff [fileName] // show differences for the specified file (local copy vs staging)
+> git diff [commitGuid] // show differences for the specified commit (local copy vs repository) [tree-ish]
+> git diff [commitGuid] [fileName] // show differences for the specified commit for a specific file
+> git diff --staged // show differences (staging vs repository)
+> git diff --color-words // show differences - highlight the words instead of the rows
+> git diff [commitGuidA]..[commitGuidB] // show differences between commitGuidA and commitGuidB (e.g: 2907d12..acf8750) [tree-ish]
+> git diff [branchName]..[branchName] // show differences between branches e.g: master..branchA [tree-ish]
+> git diff [branchName]..[remoteBranch] // show differences between local and remote branches (e.g: master..myGitHubServer/master) [tree-ish]
+> git diff --stat // show differences + changes statistics
+> git diff --summary // show differences + changes summary
+> git diff -b // show differences (ignore space changes)
+> git diff -w // show differences (ignore all spaces)
+> git reset HEAD [fileName] // reset staging index to be as the latest commit (undo staging changes)
+> git reset [resetType] [commitGuid] // change HEAD pointer to points to a specific changeset (see 'reset types')
+> git clean -f // remove all files that exist in the local copy and NOT in the staging index (for debug mode, use -n insead)
+> git revert [commitGuid] // revert a commit (adding a new commit with the previous state)
+> git ls-tree [tree-ish] // show files list in the specified tree-ish (see 'what is tree-ish')
+> git stash save "[message]" // create a stash
+> git stash list // stashes list 
+> git stash show [stashName] // show stash content (summary)
+> git stash show -p [stashName] // show stash content (changes)
+> git stash pop [stashName] // open stash (pop it out and remove it from the stash)
+> git stash apply [stashName] // open stash (live a copy in the stash)
+> git stash drop [stashName] // delete a stash
+> git stash clear // drop ALL stashes!
+> git remote // show remote servers list
+> git remote -v // show remote servers list (extended)
+> git remote rm [remoteName] // delete a remote referecne
+> git remote add [remoteName] [remotePath] // add a new remote server (see 'add a remote server')
+> git push // push a branch content to the remote server (based on the tracking server connected to the active branch) 
+> git push -u [remoteName] [branchName] // push a branch to the remote server (see 'server pointer')
+> git push -u [remoteName] --delete [branchName] // delete a remote branch
+> git push -u [remoteName] :[branchName] // delete a remote branch
+> git fetch [remoteName] // pull content from the server (see 'server pointer')
+> git pull [remoteName] [branchName] // git fetch + git merge
+> git clone [remotePath] // create a local copy from a remote github repository, use the remote folder name
+> git clone [remotePath] [folderName] // create a local copy from a remote github repository + create a new folder (see 'clone a remote repository')
+
+---
+
+git logs samples:
+- git log about.txt
+- git log -n 4
+- git log 2907d12..acf8750
+- git log 2907d12..
+- git log 2907d12
+- git log --oneline
+- git log --oneline -n 6
+- git log --since="2017-09-01"
+- git log --until="2017-09-15"
+- git log --since="2017-09-01" --until="2017-09-15"
+- git log --since="2017-09-01" -n 8 
+- git log --since="2017-09-01" --oneline
+- git log --since="2017-09-01" about.txt
+- git log --since="2017-09-01" --oneline about.txt
+- git log --author="RcBuilder"
+- git log --author="RcBuilder" about.txt
+- git log --since="2017-09-01" --author="RcBuilder" --oneline
+- git log --grep="temp" --oneline
+- git log --oneline myGitHubServer/master 
+
+Navigation
+----------
+see 'what is tree-ish'
+see git 'ls-tree' command
+
+Navigation CMD Keys
+-------------------
+f = forward 
+b = backwards 
+q = quit
+
+Date Format
+-----------
+- yyyy-MM-dd
+  e.g: 2016-05-16
+- full name
+  e.g: 2 weeks ago
+  e.g: 3 days ago 
+- short name
+  e.g: 2.weeks
+  e.g: 3.days
+
+CMD Multiple options
+--------------------
+- git [command] [options]
+e.g:
+> git commit -a -m "sample"
+> git commit -am "sample" (shortcut)
+
+What is tree-ish
+----------------
+a git tree reference!
+represents a reference to a commit. can be several types such as branchName, branchGuide... 
+also supports in patterns (a special parsing syntax) 
+- HEAD 
+- branchName // e.g: master 
+- remote branchName // e.g: myGitHubServer/master
+- tagName 
+- commitGuid // e.g: acf87504... 
+  note: can use partial guid
+
+- pattern
+  // e.g: acf87504^ represents a refernce to the parent commit of acf87504 commit
+  // e.g: master^ represents a refernce to the parent of the master branch
+  // e.g: HEAD^ represents a refernce to the parent of the HEAD pointer
+  ^ = (up) parent // go one step up				
+
+  // e.g: HEAD~2 represents a refernce to the parent of the parent of the HEAD pointer (two steps up)
+  ~ = (upX) generations // go x steps up 
+
+Configfuration
+--------------
+Configfuration levels:
+- System level 
+  Program Files\Git\etc\gitconfig
+  > git config --system ...
+
+- User level
+  $HOME\.gitconfig
+  git config --global ...
+
+- Project Level
+  myProject/.get/config
+  > git config ...
+
+Configfuration keys:
+reference: https://git-scm.com/docs/git-config
+- aliases (see 'aliases')
+- samples:
+  > git config --global user.name "RcBuilder"
+  > git config --global user.email "RcBuilder@walla.com"
+  > git config --global core.editor "notepad.exe" 
+  > git config --global color.ui true
+  > git config --global core.excludesfile "D://.gitignore_global"
+
+Terms
+-----
+repository - project
+branch - is a snapshot of a different branch (usually the master) to work on which later can be reviewed, discussed and merged
+commit - saved changes (to the repository)
+checkout - get a version (from the repository)
+pull request - create a comparison between 2 branches (usually your active one with the master) and share it with others for review 
+
+Common Files
+------------
+readme.md:
+a common page which represents an entry point and usually provides an extra information or instructions 
+about the project. 
+this file has its own language in order to support a few view modes. (e.g: # represents an header)
+among a lot of cool staff that we can add to this page we can find links, images, icons and more.. 
+full list can be found here: https://guides.github.com/features/mastering-markdown/
+
+.gitignore file:
+this file serves as an ignore list.
+add to it all files/folders with no need of tracking (images, dll's etc.)
+a line foreach exclusion.
+also see 'ignore'
+
+package.json:
+contains a list of the project dependencies and some project metadata
+the command > npm install is looking for this file and auto installs all the dependencies registered within it
+
+.git file:
+this file has all the project data relevant to the git hub, by removing it we'll get a disconnection from the hub (which means it becomes a stand-alone project).
+if we want a new repository which based on an existing branch, we can make a clone of the required branch, then remote the .git files, 
+change the code as per needs, and once we have the completed project - use the > git init command to connect it to the hub as a new repository.
+
+Ignore
+------
+allows us to set an ignore list of files we don't want to be tracked by the git engine.
+- create a .gitignore file under the root
+  manually or using the cmd (> notepad .gitignore)
+- add rules to this file - one rule foreach line!
+- supports a file name or a basic regex phrases
+- supported regex: * ? [aeiou] [0-9] !
+- use # for comments
+- we can use a global ignore list (see 'excludesfile' in 'Configfuration keys')
+- files which are already being tracked MUST un-tracked in order to be added to an ignore list! (see 'un-track a file')
+
+(e.g)
+*.php  // ignore all php files
+!index.php // don't ignore index.php 
+folderA/ // ignore all files within folderA folder
+
+Reset
+-----
+used for 2 purposes 
+- revert staging changes by pulling files from the repository changeset pointed by the HEAD pointer
+- change the HEAD pointer (soft, mixed or hard)
+
+---
+
+reset types:
+--soft  // change the repository HEAD pointer alone
+--mixed // change the repository HEAD pointer and set the staging index to look the same
+--hard  // change the repository HEAD pointer and set both the staging index and the local copy to look the same
+
+---
+
+change the HEAD pointer:
+> git reset [resetType] [commitGuid]
+
+---
+
+undo staging changes:
+> git reset HEAD index.txt
+note that the HEAD doesn't move! - only pulls the specific file from the repository head pointer to the staging
+
+HEAD pointer
+------------
+this pointer points to the last commit made
+(master)
+commit1 -> commit 2 -> commit 3 // HEAD points on commit3
+
+Stash
+-----
+kind of a local shelveset, used to save local changes which we don't want as part of a commit. 
+mostly when switching between branches and want to save the branch state.
+structure:
+stash@{[n]}: On [branchName]: [stashTitle] // n = stash index
+e.g:
+> git checkout branchA // switch to the branchA branch 
+> git stash save "my first stash" // create a shelveset
+> git stash list // show shelvesets list
+  stash@{0}: On branchA: my first stash
+> git stash show -p stash@{0} // show a shelveset
+> git stash pop stash@{0} // open the shelveset to the active branch
+
+Conflics
+--------
+git marks the conflicts within the file content itself 
+if uses << and >> to specify the conflict for us. it puts each branch name and it's related version
+
+e.g: // a phone number has been added in both master(ACTIVE) and branchE
+<<<<<<< HEAD
+phone: 054-561-4020
+=======
+phone: 054-560-0000
+>>>>>>> branchE
+
+how to create a conflict:
+- create a new branch and make some changes on it
+- switch back to the master and create some changes to the same content you've changed in the branch
+- use git merge command 
+- a CONFLICT message will appear and a conflict marks will be added to the file itself.
+
+how to resolve a conflict:
+1. abort merge 
+   > git merge --abort
+2. resolve it manually 
+3. use winMerge tool (or any other merging utility)
+
+SSH keys
+--------
+connect to gitHub using SSH:
+1. add config global details:
+  > git config --global user.name "RcBuilder"
+  > git config --global user.email "RcBuilder@walla.com"
+2. generate SSH keys
+   see 'generate SSH keys'
+3. open the created ssh key (.pub) and copy-paste its content
+   note: use notepad
+4. create an SSH keys on gitHub, use the copied .pub content from the previous chapter 
+   see 'add an SSH keys on gitHub'
+5. add an SSH remote server 
+   see 'add a remote server'
+6. configure which SSH key to relay to the server 
+
+---
+
+configure SSH keys distribution:
+we can define which SSH keys to pass foreach host.
+in order to do so, we need to create a new config file within the SSH keys folder.
+this can be used for working with multiple remote vendors from the same machine (e.g: gitlab and github)
+SSH keys folder: C:\Users\RobiC\.ssh
+tip: we also have a 'known_hosts' file which provides us the list of known hosts 
+
+steps:
+1. create a new config file (file with no extension)
+2. define each host and it's related key 
+
+e.g:
+// config 
+// in this sample, any attempt to connect to gitlab.com will pass the 'id_rsa_gitlab' ssh key
+// whereas any attempt to connect to github.com will pass the 'id_rsa_github' ssh key
+Host gitlab.com
+    HostName gitlab.com
+    User git
+    IdentityFile ~/.ssh/id_rsa_gitlab
+
+Host github.com
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_rsa_github
+
+---
+
+add a remote server:
+- git remote add [remoteName] [remotePath]
+
+e.g:
+> git remote add "gitHubServerHTTPS" "https://github.com/RcBuilder/LyndaCourse.git"
+> git remote add "gitHubServerSSH" "git@github.com:RcBuilder/LyndaCourse.git"
+
+github and gitlab support 2 options: HTTPS or SSH 
+when usign SSH, a public key is passing on any attempt to connect the remote server 
+
+---
+
+add an SSH keys on gitHub:
+1. Settings -> SSH Keys (left pane)
+2. click on 'New SSH key'
+3. set title
+4. set the key value (a .pub file content)
+
+note: 
+the listed SSH keys are keys that associated with this github account and have a permissions to connect using the SSH endpoint 
+see 'gitHub clone endpoint'
+
+---
+
+gitHub clone endpoint:
+1. code (tab) -> choose the master branch 
+2. click on 'Clone or download' button
+3. choose the desired endpoint (HTTPS or SSH)
+4. copy the provided endpoint
+
+---
+
+generate SSH keys:
+1. open GitBash dialog (note: not Git CMD)
+2. ssh-keygen -t rsa
+3. set the key name and location (e.g: .ssh/myKeyForGithub)
+   default location: C:\Users\RobiC\.ssh\
+   default key: id_rsa.pub   
+   note: 
+   when using a different value than the default id_rsa, we MUST add a config file to specify which keys to pass to which host (see 'configure SSH keys distribution')
+4. set a password 
+   recommendation: leave blank to prevent repeated password requests
+5. a new .pub file has created in the specified folder from chapter 3
+   (e.g: C:\Users\RobiC\.ssh\myKeyForGithub.pub)
+
+Aliases
+-------
+alias is a shortcut we can create for any of the git commands.
+aliases are store wihtin the gitconfig file. 
+syntax:
+git config --global alias.[alias] "[command]"
+
+e.g: 
+> git config --global alias.st "status" // create an alias
+> git config --global alias.dfs "diff --staged" 
+> git config --global alias.top "log --oneline -n 5 --stat --decorate"
+
+using:
+> git st  // use an alias (equivalent to 'git status')
+> git dfs 
+> git top
+
+Connect To a Server
+-------------------
+create a new repository and push it to the server:
+- git init
+- git commit ...(N)
+- git remote add [remoteName] [serverPath] // create a new remote named [remoteName]
+  see 'add a remote server'
+- git push -u [remoteName] [branchName] // push the [branchName] branch to the [remoteName] server
+
+e.g:
+> git commit -am "1st commit"
+> git commit -am "2nd commit"
+> git remote add myGitHubServer https://github.com/RcBuilder/LyndaCourse.git
+> git push -u myGitHubServer master
+
+---
+
+push an existing repository to the server:
+- git remote add [remoteName] [serverPath] // create a new remote named [remoteName]
+  see 'add a remote server'
+- git push -u [remoteName] [branchName] // push the [branchName] branch to the [remoteName] server
+
+e.g:
+> git remote add myGitHubServer https://github.com/RcBuilder/LyndaCourse.git 
+> git push -u myGitHubServer master
+
+---
+
+server pointer:
+a pointer to the latest sync against the server. 
+points to the commit which makes the push/fetch to/from the server.  
+
+when we do a push - the server pointer points to the latest commit.
+
+schema:
+// before push
+server [A]-[B]-[C]
+local [A]-[B]-[C]-[D] 
+
+// after push
+the HEAD and the server pointers points to [D]
+server [A]-[B]-[C]-[D] 
+local [A]-[B]-[C]-[D] 
+
+when we do a fetch - the server pointer points to the server version whereas the HEAD still points to the previous one, we have to use merge in order to move the HEAD to the server latest version! 
+reminder: the fetch itself DOES NOT change the HEAD pointer, ONLY the server master pointer!
+
+schema:
+// before push
+server [A]-[B]-[C]-[D]
+local [A]-[B]-[C] 
+
+// after push
+the server pointer points to [D] whereas the HEAD still points to [C], use merge command!  
+server [A]-[B]-[C]-[D] 
+local [A]-[B]-[C]-[D] 
+
+Get Latest
+----------
+- (optional) git branch -a // use the branch -a command to find the branches names 
+- git fetch [remoteName] // use fetch command to pull the latest changes from the remote server
+- (optional) git diff [remoteName]..[branchName] // use the diff command to compare between the server pointer and the working copy
+- git merge [remoteName] [branchName] // use the merge command to merge the HEAD to the latest pulled branch
+
+note: can use git pull instead (git pull = git fetch + git merge)!
+
+e.g:
+> git branch -a // (optional) find out the branches names
+> git fetch myGitHubServer
+> git diff myGitHubServer/master..master // (optional) check differences
+> git merge myGitHubServer/master master
+OR
+> git pull myGitHubServer
+
+
+Fast-forward merge
+------------------
+if the HEAD pointer set to the same commit that the source branch has created from, meaning no commits has been made on the target branch (no changes on the active branch), 
+the git engine copy the branch and refer to it as a regular commit and move the HEAD accordingly - this is called fast-forward merge.
+instead of creating a new commit on the active branch (usually master) and merge the changes - it just copy the source branch as and set the HEAD pointer on it. 
+use the --no-ff option to strongly create a merge instead of a regular commit for such cases
+
+Coparing Branches
+-----------------
+- git diff [branchName]..[branchName]  // show differences between branches
+
+e.g:
+> git diff master..branchA  // show differences between 'master' branch and 'branchA' branch
+> git diff branchA..branchB  // show differences between 'branchA' branch and 'branchB' branch
+
+Staging Index
+-------------
+- local copy -> staging index -> repository
+
+a middleware between the local copy and the repository 
+when using a 'git commit' command, only changes within the staging index are tranfered to the repository 
+so we can define which of our local changes will be applied to the server and on which we are still working.
+use 'git add' command to move update the staging index.
+
+steps:
+> make some local changes (add file, delete file, change file content etc.)
+> git add . // to add the changes to staging index
+> git commit -m "some changes" // to add the changes to the repository
+
+
+Clone
+-----
+clone a remote repository:
+- go to the local root folder 
+- git clone [remotePath] [folderName]
+
+e.g:
+> cd C:\Users\RobiC\Desktop\GitHub
+> git clone https://github.com/RcBuilder/LyndaCourse.git LyndaCourse // creates a 'LyndaCourse' folder and copy all files from the specified githab server into it
+
+---
+
+clone (master branch only):
+- clone a git project directly to your machine
+- note: by default, when cloning a project, only the master branch is mapped to the local copy
+1. > git clone [gitPath] 
+2. > npm install
+
+---
+
+clone (specific branch only):
+- clone a git project directly to your machine
+1. > git clone -b [branchName] [gitPath] 
+2. > npm install
+
+---
+
+clone (all branches):
+- clone a git project with ALL its branches directly to your machine
+1. > git clone --mirror [gitPath] .git
+2. > git config --bool core.bare false
+3. > git reset --hard
+
+
+Commit
+------
+change the latest commit message:
+> git commit --amend -m "the message has been changed"
+
+---
+
+commit to the remote server:
+- get latest version from the remote server (see 'get latest')
+- push the merged version back to the remote server
+
+e.g:
+> git pull myGitHubServer 
+> git push -u myGitHubServer master
+
+schema:
+// before fetch
+the HEAD points to [D1] and the server pointer points to [D]
+[E] and [F] on the server are commits added by others, [D1] is a local branch created from the [D] branch 
+server [A]-[B]-[C]-[D]-[E]-[F]
+local [A]-[B]-[C]-[D]
+				  [D1]
+
+// after fetch
+the HEAD points to [D1] and the server pointer points to [F]
+the fetch command get the latest remote server commits and set the server pointer on the same master as defined in the server (sync process)
+server [A]-[B]-[C]-[D]-[E]-[F]
+local [A]-[B]-[C]-[D]-[E]-[F]
+				  [D1]
+
+// after merge local to latest (D1 to F)
+the HEAD and the server pointers points to [F]
+server [A]-[B]-[C]-[D]-[E]-[F]
+local [A]-[B]-[C]-[D]-[E]-[F]
+
+Diff view
+---------
+diff line number:
+@@ [sign -/+][start from],[num of lines] 
+e.g: 
+@@ -71,7 // code remove (- sign), count 7 lines from line number 71
+
+---
+
+diff -+:
+- represents a removal of content
++ represents an addition of content
+
+---
+
+change-sets identity hash:
+git generates a checksum for each change-set.
+based on SHA-1 hash algorithm.
+40 characters hex value 
+
+
+Files
+-----
+un-track a file:
+> git rm --staged fileA.txt
+
+remove a file:
+> git mv fileA.txt folderA/fileA.txt
+
+rename a file:
+> git mv fileA.txt fileB.txt 
+
+GitHub Desktop
+--------------
+actions:
+- Clone - download a project from the server
+- Create - generate a new local project 
+- Add - add an existing local repository
+- Publish - publish a new content to the server 
+
+GitHub
+------
+What is GitHub?
+a git repositories host.
+a code hosting platform which built on the Git engine
+
+---
+
+Project types:
+- private projects (paid)
+- public projects (free)
+
+---
+
+create new repository:
+1. click on the '+' sign at the upper right corner -> new repository
+2. set the repository name 
+3. choose the repository level (private or public)
+4. checked th 'Initialize this repository with a README' option
+
+---
+
+private repository:
+the private repositories option is for paying users only! 
+if you want to use it you'll have to update an active credit card to your profile 
+currently it costs 7$ for unlimited private repositories and can be canceled any time
+
+---
+
+create a branch:
+1. click on the dropdown located at the top of the file list (branch: master)
+2. type a branch name
+3. create branch 
+
+---
+
+a common branch life process:
+1. create a branch from master (etc.) 
+2. make some changes on it
+3. commit your changes 
+4. open a pull request 
+5. discuss the changes with your colleague and code-review them 
+6. merge it to the master in order to apply your changes
+7. delete the branch
+
+---
+
+create a new file:
+1. use the 'Create new file' on the '<> Code' tab 
+2. set the file name 
+3. add some content 
+4. set a commit title and message 
+5. click on the 'Commit new file' button
+
+---
+
+pull request:
+after you commit your changes and finish your work on your new branch 
+you need to open a pull request to share your changes with others.
+then, they can code-review your changes, add comments and discuss it before merging it to the master branch.
+pull request shows the differences between the 2 branches
+
+---
+
+open a pull request:
+1. ('Pull requests' tab) click on the 'New pull request' right green button 
+2. select the 2 branches to compare 
+3. review the changes
+4. click on 'Create pull request' button
+5. set the title and description
+
+---
+
+add comments on pull request:
+after you create a pull request off your changes and share them with other, anyone can add a comment for 
+each code line of the differences.
+use the blue '+' sign near each code line to add comment on that specific line.
+once a comment has added, one can reply to that.
+
+---
+
+merge branches:
+1. enter the pull request
+2. click on 'Merge pull request' button
+3. click 'Confirm merge'.
+4. click 'Delete branch' button to remove the current branch (recommended)
+
+---
+
+@mention system:
+send an email notification (pull request comments, edit contents etc.)
+using: @UserName
+
+---
+
+Pulse - repository activities summary
+Graphs - repository statistics
+
+---
+
+Collaborators:
+adding gitHub users to a repository.
+1. Settings -> Collaborators
+2. find the user 
+3. click on 'add collaborator' // this will give the required permissions to that user to collaborate
+4. send the gitHub repository url to the collaborator in order for him to clone the repository locally 
+
