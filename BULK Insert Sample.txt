@@ -1,0 +1,53 @@
+-- bulk insert from text file to the temporary table --
+create table #tbl([content] varchar(MAX))
+BULK INSERT #tbl
+FROM 'C:\\Downloads\\NoImage_26_09_2010.txt'
+WITH 
+      (
+	-- FIRSTROW = 2,
+         --FIELDTERMINATOR ='', -- field delimiter --
+         ROWTERMINATOR ='\n' -- row delimiter --
+      )
+
+declare @tblUsers table(Id int primary key)
+
+-- extruct the members ids from the text -- 
+insert into @tblUsers
+select distinct SUBSTRING([content],11,6) from #tbl 
+where LEFT([content],10) = 'the member'
+
+-- drop the temporary table --
+drop table #tbl
+
+select * from @tblUsers
+
+/*
+	TIME = 26/09/2010 12:03:29
+	METHOD = GroupProcess()
+	the member 600526 has picture path in DB without the physical image : 6325989227092187506005261c.jpg
+
+	TIME = 26/09/2010 12:03:29
+	METHOD = GroupProcess()
+	the member 600526 has picture path in DB without the physical image : 6325996938896875006005262c.jpg
+
+	TIME = 26/09/2010 12:03:29
+	METHOD = GroupProcess()
+	the member 600526 has picture path in DB without the physical image : 6325996939559375006005263c.jpg
+
+	TIME = 26/09/2010 12:03:39
+	METHOD = GroupProcess()
+	the member 901098 has picture path in DB without the physical image : 6340014464314062509010981.jpg
+
+	TIME = 26/09/2010 12:03:42
+	METHOD = GroupProcess()
+	the member 501181 has picture path in DB without the physical image : 6319449471351562505011811.jpg
+
+	TIME = 26/09/2010 12:04:12
+	METHOD = GroupProcess()
+	the member 603846 has picture path in DB without the physical image : 6326125883754687506038461.jpg
+
+	TIME = 26/09/2010 12:04:15
+	METHOD = GroupProcess()
+	the member 904617 has picture path in DB without the physical image : 6340987718272104199046171.jpg
+
+*/

@@ -1,0 +1,105 @@
+Event within a base abstract class 
+----------------------------------
+
+note!
+You can only access an event in the declaring class!
+
+---
+
+// using 
+static void Main(string[] args)
+{
+	var loader = new ParamsLoader();
+    loader.ParamsLoaded += (sender, e) => {
+        Console.WriteLine("params loaded {0}, {1}", e.p1, e.p2);
+    };
+
+    Console.WriteLine("execute load params method");
+    loader.LoadParams("someValue");
+}
+
+public class LoadParamsEventArgs : EventArgs 
+{
+    public int p1 { get; set; }
+    public string p2 { get; set; }
+}
+
+public abstract class baseParamsLoader
+{
+    public event EventHandler<LoadParamsEventArgs> ParamsLoaded;
+
+    public abstract void LoadParams(string query);
+
+    protected void OnParamsLoaded(LoadParamsEventArgs args)
+    {
+        if (ParamsLoaded != null)
+            ParamsLoaded(null, args);
+    }
+}
+
+public class ParamsLoader : baseParamsLoader
+{
+    public override void LoadParams(string query)
+    {
+        // code ...
+        Thread.Sleep(2000);
+
+        OnParamsLoaded(new LoadParamsEventArgs { 
+            p1 = 0, p2 = "abcd" 
+        });
+    }
+}
+
+=======================================================
+
+-- MHC Implementation Sample --
+
+public abstract class SSOFlow : ISSOFlow {
+    public event EventHandler<SSOContextLoadedEventArgs> SSOContextLoaded;
+
+    public abstract SSORedirectionInfo Run(HttpContext httpContext, ISSOSource source, IRequestType requestType, IProcessOAuth processOAuth);
+
+    protected void OnSSOContextLoaded(SSOContextLoadedEventArgs args)
+    {
+        if (SSOContextLoaded != null)
+            SSOContextLoaded(null, args);
+    }
+}   
+
+
+public class SSORedirectFlow : SSOFlow {
+	public override SSORedirectionInfo Run(HttpContext httpContext, ISSOSource sourceIn, IRequestType requestType, IProcessOAuth processOAuth = null)
+        {
+		...
+		...
+		
+		var ssoContext = ..
+		OnSSOContextLoaded(new SSOContextLoadedEventArgs(ssoContext));
+
+		...
+		...
+	}
+}
+
+public class SSOContextLoadedEventArgs : EventArgs 
+{
+    public SSOContext SSOContext { get; set; }
+
+    public SSOContextLoadedEventArgs(SSOContext SSOContext)
+    {
+        this.SSOContext = SSOContext;
+    }
+}
+
+--
+
+using:
+
+var flow = new SSORedirectFlow();
+flow.SSOContextLoaded += ((s, args) => {	
+	....
+	....
+}
+
+var redirectionInfo = flow.Run(httpContext, sourceIn, requestType, processOAuth);
+

@@ -1,0 +1,19 @@
+
+casting between numeric types
+-----------------------------
+
+backstage process:
+convert to binary
+cut-off the bits quantity match the new type
+convert to number
+
+samples:
+Console.WriteLine((int)Convert.ToInt64("10000000001"));  // 1410065409
+
+Int16 num = 1234; // 0000010011010010
+Console.WriteLine((byte)num); // 210
+
+
+// 0000010011010010
+// byte: 00000100 | byte: 11010010
+// 11010010 = 210

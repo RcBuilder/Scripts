@@ -1,0 +1,11 @@
+public static List<TOut> AsList<TIn, TOut>(IEnumerable<TIn> me) 
+	where TIn: class /* interface */
+	where TOut: class 
+{
+        var typeTIn = typeof(TIn);
+        if (!typeTIn.IsInterface)
+            throw new ArgumentException(string.Format("{0} is NOT an Interface!", typeTIn.Name));
+
+	....
+	....	 	
+}

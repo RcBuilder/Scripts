@@ -1,0 +1,15 @@
+static void Fun(int p1, string p2) { }
+
+static void Main(string[] args)
+{
+	var lst = new List<Action<int, string>>();
+
+    var a = new Action<int, string>(Fun);
+    lst.Add(a);
+
+    Action<int, string> b = delegate(int p1, string p2) { };
+    lst.Add(b);
+
+    Action<int, string> c = (p1, p2) => { }; // shortcut of b
+    lst.Add(c);
+}

@@ -1,0 +1,50 @@
+interface IItem { }
+
+class Item : IItem { }
+class Item2 : IItem { }
+
+static IEnumerable<IItem> Fun() {
+    return new List<Item> { 
+        new Item { },
+        new Item { },
+        new Item { }
+    };
+}
+
+static IEnumerable<IItem> Fun2() {
+    return new List<IItem> { 
+        new Item { },
+        new Item { },
+        new Item2 { }
+    };
+}
+
+static IEnumerable<IItem> Fun3() {
+    return null;
+}
+
+static void Main(string[] args) {
+    ///List<Item> res = Fun().Cast<Item>().ToList(); // OK
+    ///List<Item> res2 = Fun2().Cast<Item>().ToList(); // Exception (InvalidCastException)
+    ///List<Item> res3 = Fun3().Cast<Item>().ToList(); // Exception (ArgumentNullException)
+
+	List<Item> res = Fun().AsList<IItem, Item>(); // OK
+	List<Item> res2 = Fun2().AsList<IItem, Item>(); // Exception
+	List<Item> res3 = Fun3().AsList<IItem, Item>(); // OK (NULL)
+}
+
+
+----------------------------------
+
+public static class Extension {
+    public static List<TOut> AsList<TIn, TOut>(this IEnumerable<TIn> me) where TIn: class where TOut: class {
+        var typeTIn = typeof(TIn);
+        if (!typeTIn.IsInterface)
+            throw new ArgumentException(string.Format("{0} is NOT an Interface!", typeTIn.Name));
+
+        if (me == null)
+            return null;
+
+        return me.Cast<TOut>().ToList();
+    }
+}

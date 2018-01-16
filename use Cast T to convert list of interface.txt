@@ -1,0 +1,34 @@
+interface IItem { }
+
+class Item : IItem { }
+class Item2 : IItem { }
+
+static IEnumerable<IItem> Fun() {
+    return new List<Item> { 
+        new Item { },
+        new Item { },
+        new Item { }
+    };
+}
+
+static IEnumerable<IItem> Fun2(){
+    return new List<IItem> { 
+        new Item { },
+        new Item { },
+        new Item2 { }
+    };
+}
+
+static IEnumerable<IItem> Fun3(){
+    return null;
+}
+
+static void Main(string[] args){
+    List<Item> res = Fun().Cast<Item>().ToList(); // OK
+    List<Item> res2 = Fun2().Cast<Item>().ToList(); // Exception (InvalidCastException)
+    List<Item> res3 = Fun3().Cast<Item>().ToList(); // Exception (ArgumentNullException)
+}	
+
+
+note! 
+for a generic solution see 'AsList List Extension - Generic T Cast interface.txt'
