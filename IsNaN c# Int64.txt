@@ -1,0 +1,12 @@
+static bool IsNaN(string value) { 
+            Int64 Result;
+            return !Int64.TryParse(value, out Result);            
+        }
+
+
+Console.WriteLine(IsNaN("12345"));
+            Console.WriteLine(IsNaN("-12345"));
+            Console.WriteLine(IsNaN("123.456"));
+            Console.WriteLine(IsNaN("1A234"));
+            Console.WriteLine(IsNaN("A1234"));
+            Console.WriteLine(IsNaN("1234A"));

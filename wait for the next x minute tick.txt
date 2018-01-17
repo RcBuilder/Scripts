@@ -1,0 +1,5 @@
+var spanTicks = TimeSpan.FromMinutes(5).Ticks;
+var timeTicks = ((DateTime.Now.Ticks / spanTicks) * spanTicks) + spanTicks;
+
+var difference = new DateTime(timeTicks) - DateTime.Now;
+Thread.Sleep(difference);

@@ -1,0 +1,17 @@
+Rad Software - Sumo Trace to HTML form
+-----------------------------------------
+
+[using Rad Software]
+
+steps: 
+1. copy the form body params from the sumo window (Request.Params.AllKeys)
+2. add an extra linebreak at the end (to match the last item)
+3. paste the content into the Rad software Input window
+4. use the following expressions to generate the form HTML content.
+5. copy-paste it into an html page and wrap it with FORM
+
+Regular Expression:
+(?<key>[^-]+)\s+-\s+(?<value>[^\n]*?)\r\n
+
+Replace Expression:
+<input type="hidden" name="${key}" value="${value}" />\r\n

@@ -1,0 +1,217 @@
+protected void Application_Start() {
+     GlobalConfiguration.Configuration.Formatters.XmlFormatter.UseXmlSerializer = true; 
+}
+
+-----------------
+
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Xml.Serialization;
+
+namespace PropertySuiteAPI.Models
+{
+    /*
+        <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+        <properties>
+            <property>                            
+                <order>PB303388</order>                        
+                <demographics demographic="Device" stat_type="REACH">
+                    <value category="mobile">585</value>                            
+                    <value category="desktop">64</value>
+                    <value category="tablet">150</value>
+                </demographics>
+                <demographics demographic="Gender" stat_type="REACH">
+                    <value category="unknown">14</value>
+                    <value category="female">914</value>
+                    <value category="male">444</value>
+                </demographics>
+                <demographics demographic="Age" stat_type="REACH">
+                    <value category="25-34">292</value>
+                    <value category="35-44">478</value>
+                    <value category="45-54">426</value>
+                    <value category="55-64">176</value>
+                </demographics>
+                <demographics demographic="Device" stat_type="CLICK">
+                    <value category="mobile">46</value>                            
+                    <value category="desktop">2</value>
+                    <value category="tablet">4</value>
+                </demographics>
+                    <demographics demographic="Gender" stat_type="CLICK">
+                    <value category="unknown">1</value>
+                    <value category="female">78</value>
+                    <value category="male">34</value>
+                </demographics>
+                <demographics demographic="Age" stat_type="CLICK">
+                    <value category="25-34">16</value>
+                    <value category="35-44">31</value>
+                    <value category="45-54">41</value>
+                    <value category="55-64">25</value>
+                </demographics>
+            </property>
+        </properties>  
+    */
+   
+    [XmlRoot(ElementName = "properties", Namespace="")]
+    public class PerformanceReport
+    {
+        [JsonProperty(PropertyName = "property")]
+        [XmlElement(ElementName = "property")]
+        public List<Row> Rows { set; get; }
+
+        public PerformanceReport() {
+            this.Rows = new List<Row>();
+        }
+    }
+
+    public class Row
+    {
+        [JsonProperty(PropertyName = "order")]
+        [XmlElement(ElementName = "order")]
+        public string Id { set; get; }
+
+        [JsonProperty(PropertyName = "demographics")]
+        [XmlElement(ElementName = "demographics")]
+        public List<Demographics> Items { set; get; }
+
+        public Row() {
+            this.Items = new List<Demographics>();
+        }
+    }
+
+    public class Demographics {
+        [JsonProperty(PropertyName = "demographic")]
+        [XmlAttribute(AttributeName = "demographic")]
+        public string Name { set; get; }
+
+        [JsonProperty(PropertyName = "stat_type")]
+        [XmlAttribute(AttributeName = "stat_type")]
+        public string Type { set; get; }
+
+        [XmlElement(ElementName="value")]        
+        public List<DemographicValue> Values { set; get; }
+
+        public Demographics() {
+            this.Values = new List<DemographicValue>();
+        }
+    }
+    
+    public class DemographicValue
+    {
+        [JsonProperty(PropertyName = "category")]
+        [XmlAttribute(AttributeName = "category")]
+        public string Category { set; get; }
+
+        [JsonProperty(PropertyName = "count")]
+        [XmlText]
+        public int Count { set; get; }
+    }
+}
+
+-----------------
+
+[HttpGet]
+        [Route("properties/report/performance")]
+        public PerformanceReport GetPerformanceReport()
+        {                        
+            var proxy = new GoogleAdwordsProxy();
+            if (proxy == null)
+                return null;
+
+            // get reports rows 
+            var genderRows = proxy.GetGenderReportRows(eDateSlice.ALL_TIME);
+            var ageRangeRows = proxy.GetAgeRangeReportRows(eDateSlice.ALL_TIME);
+            var deviceRows = proxy.GetDeviceReportRows(eDateSlice.ALL_TIME);
+
+            // campaign unique ids
+            IEnumerable<string> campaignsNames = new List<string>();
+            campaignsNames = campaignsNames.Concat(genderRows.Select(x => x.CampaignName));
+            campaignsNames = campaignsNames.Concat(ageRangeRows.Select(x => x.CampaignName));
+            campaignsNames = campaignsNames.Concat(deviceRows.Select(x => x.CampaignName));
+            campaignsNames = campaignsNames.Distinct().ToList();
+                    
+            var report = new PerformanceReport();
+                        
+            foreach (var campaignName in campaignsNames)
+            {
+                var groupedByCampaign = new
+                {
+                    ImpressionsByGender = genderRows.Where(x => x.CampaignName == campaignName),
+                    ImpressionsByAgeRange = ageRangeRows.Where(x => x.CampaignName == campaignName),
+                    ImpressionsByDevice = deviceRows.Where(x => x.CampaignName == campaignName)
+                };
+                
+                report.Rows.Add(new Row {
+                    Id = campaignName,
+                    Items = new List<Demographics> {
+
+                        /* Impressions */
+                        new Demographics {
+                            Name = "Device",
+                            Type = "REACH",
+                            Values = groupedByCampaign.ImpressionsByDevice.Select(x => 
+                                new DemographicValue {
+                                    Category = x.Device,
+                                    Count = x.Impressions
+                                }
+                            ).ToList()                            
+                        },
+                        new Demographics {
+                            Name = "Gender",
+                            Type = "REACH",
+                            Values = groupedByCampaign.ImpressionsByGender.Select(x =>
+                                new DemographicValue {
+                                    Category = x.Gender,
+                                    Count = x.Impressions
+                                }
+                            ).ToList()
+                        },
+                        new Demographics {
+                            Name = "Age",
+                            Type = "REACH",
+                            Values = groupedByCampaign.ImpressionsByAgeRange.Select(x =>
+                                new DemographicValue {
+                                    Category = x.AgeRange,
+                                    Count = x.Impressions
+                                }
+                            ).ToList()
+                        },
+
+                        /* Clicks */
+                        new Demographics {
+                            Name = "Device",
+                            Type = "CLICK",
+                            Values = groupedByCampaign.ImpressionsByDevice.Select(x =>
+                                new DemographicValue {
+                                    Category = x.Device,
+                                    Count = x.Clicks
+                                }
+                            ).ToList()
+                        },
+                        new Demographics {
+                            Name = "Gender",
+                            Type = "CLICK",
+                            Values = groupedByCampaign.ImpressionsByGender.Select(x =>
+                                new DemographicValue {
+                                    Category = x.Gender,
+                                    Count = x.Clicks
+                                }
+                            ).ToList()
+                        },
+                        new Demographics {
+                            Name = "Age",
+                            Type = "CLICK",
+                            Values = groupedByCampaign.ImpressionsByAgeRange.Select(x =>
+                                new DemographicValue {
+                                    Category = x.AgeRange,
+                                    Count = x.Clicks
+                                }
+                            ).ToList()
+                        }
+
+                    }
+                });
+            }
+            
+            return report;
+        }

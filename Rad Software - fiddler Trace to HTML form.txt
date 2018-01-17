@@ -1,0 +1,18 @@
+Rad Software - fiddler Trace to HTML form
+-----------------------------------------
+
+[using Rad Software]
+
+steps: 
+1. copy the form body params from the fiddler window (tab: TextView)
+2. add an extra '&' character at the end (to fetch the last item)
+3. paste the content into the Rad software Input window
+4. use the following expressions to generate the form HTML content.
+5. copy-paste it into an html page and wrap it with FORM
+
+Regular Expression:
+(?<key>[^=]+)=(?<value>[^\n]*?)&
+(?<key>[^-]+)-(?<value>[^\n]*?)\r\n
+
+Replace Expression:
+<input type="hidden" name="${key}" value="${value}" />\r\n

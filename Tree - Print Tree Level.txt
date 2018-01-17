@@ -1,0 +1,32 @@
+public class TreeNode {
+        public string Value { get; set; }
+        public TreeNode Left { get; set; }
+        public TreeNode Right { get; set; }
+    }
+
+----
+
+var tree = new TreeNode {
+                Value = "1",
+                Left = new TreeNode {
+                    Value = "2",
+                    Left = new TreeNode {
+                        Value = "4"
+                    },
+                    Right = new TreeNode {
+                        Value = "5"
+                    },
+                },
+                Right = new TreeNode {
+                    Value = "3",
+                    Left = new TreeNode {
+                        Value = "6"
+                    }
+                },
+            };
+
+----
+
+PrintTreeLevel(tree, 2); // 2 3 
+PrintTreeLevel(tree, 3); // 4 5 6
+PrintTreeLevel(tree, 5); // 

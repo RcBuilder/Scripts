@@ -1,0 +1,8 @@
+create procedure #mytempSP as
+begin
+   select 1
+end
+
+exec #mytempSP
+
+--drop procedure #mytempSP

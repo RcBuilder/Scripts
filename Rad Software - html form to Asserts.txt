@@ -1,0 +1,25 @@
+Rad Software - html form to Asserts
+-----------------------------------
+
+[using Rad Software]
+
+steps: 
+1. copy the form html content from the fiddler window (tab: Response TextView)
+3. paste the content into the Rad software Input window
+4. use the following expressions to generate the dictionary.
+5. copy-paste it into the unitest class 
+
+Regular Expression:
+<input \s+ type='hidden' \s+ name='(?<key>.+)' \s+ value='(?<value>.*?)'/>
+
+Replace Expression:
+Assert.IsTrue(ssoRedirectionInfo.PostData["${key}"] == "${value}");
+
+---
+
+Assert.IsTrue(ssoRedirectionInfo.PostData["oauth_timestamp"] == "1505808719");
+Assert.IsTrue(ssoRedirectionInfo.PostData["oauth_version"] == "1.0");
+Assert.IsTrue(ssoRedirectionInfo.PostData["oauth_nonce"] == "NjM2NDEzOTExMTkzMTMzOTAx");
+Assert.IsTrue(ssoRedirectionInfo.PostData["oauth_signature_method"] == "HMAC-SHA1");
+Assert.IsTrue(ssoRedirectionInfo.PostData["custom_lms_type"] == "Canvas");
+Assert.IsTrue(ssoRedirectionInfo.PostData["custom_mhc_login_id"] == "instructorwvAJr");

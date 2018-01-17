@@ -1,0 +1,35 @@
+Rad Software - fiddler Trace to Unitest context
+-----------------------------------------------
+
+[using Rad Software]
+
+steps: 
+1. copy the form body params from the fiddler window (tab: TextView)
+2. add an extra '&' character at the end (to fetch the last item)
+3. paste the content into the Rad software Input window
+4. use the following expressions to generate the form HTML content.
+5. copy-paste it into the unitest class 
+
+Regular Expression:
+(?<key>[^=]+)=(?<value>[^$]*?)&
+
+Replace Expression:
+PostData.Add("${key}", "${value}");\r\n
+
+
+---
+
+
+[Test]
+public void TEST_FLOW_CANVAS_TO_CONNECT_1x1_INSTRUCTOR_ASSIGNMENT()
+{
+        var PostData = new Dictionary<string, string>();
+
+	// your copied replaced content 
+        PostData.Add("lti_message_type", "basic-lti-launch-request");
+        PostData.Add("lti_version", "LTI-1p0");
+	....
+	....
+	....	
+	
+}

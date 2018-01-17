@@ -1,0 +1,6 @@
+docs:
+http://redistogo.com/documentation/introduction_to_redis
+
+change host and port:
+redis-cli -h my-host -p 1234
+redis-cli -h 127.0.0.1 -p 6379

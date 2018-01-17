@@ -1,0 +1,18 @@
+Rad Software - Sumo Trace to Fiddler Composer
+---------------------------------------------
+
+[using Rad Software]
+
+steps: 
+1. copy the form body params from the sumo window (Request.Params.AllKeys)
+2. add an extra linebreak at the end (to match the last item)
+3. paste the content into the Rad software Input window
+4. use the following expressions to generate the composer content.
+5. remove the unnecessary last '&' char 
+6. copy-paste it into an composer body pane 
+
+Regular Expression:
+(?<key>[^-]+)\s+-\s+(?<value>[^\n]*?)\r\n
+
+Replace Expression:
+${key}=${value}&

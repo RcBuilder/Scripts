@@ -1,0 +1,39 @@
+Immediate window Commands
+-------------------------
+
+note! 
+not ONLY in debug mode
+
+--
+
+>cmd  // switch to the command window
+>immed  // switch to the immediate window
+
+--
+
+>cls
+>of // open file dialog
+>print // open print dialog
+
+--
+
+// Debug.Print
+>Debug.Print num1;
+>Debug.Print "1234";
+
+--
+
+// method 
+// e.g fun(3,2) - result: 5
+// static int fun(int n1, int n2){ return n1 + n2; }
+fun(3,2)
+
+--
+
+// code sequence
+var num1 = 10;
+10
+var num2 = 3;
+3
+var num3 = num1 * num2;
+30
