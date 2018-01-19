@@ -1,0 +1,12 @@
+empty() // remove all nodes
+
+------
+
+e.g:
+
+ var container = $('#favorites').find('[role="main"]');
+        container.empty();
+
+        $.each(data, function (i, favorite) {
+            container.append('<p>' + favorite.value + '</p>');
+        });

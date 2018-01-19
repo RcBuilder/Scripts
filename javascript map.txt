@@ -1,0 +1,90 @@
+javascript map
+--------------
+
+structure:
+[array].map([method]);
+
+note: can provide a pre-defined/system fuction 
+e.g: 
+items.map(Math.sqrt);
+
+e.g:
+function fun1(item){ ... }
+items.map(fun1);
+
+-----------------------
+
+var numbers = [1, 4, 9, 144, 16];
+
+// return a new array
+var roots = numbers.map(Math.sqrt); 
+Logger.log(roots); // [1.0, 2.0, 3.0, 12.0, 4.0]
+
+-
+
+var multiple2 = numbers.map(function(item){
+    return item * 2;
+}); 
+Logger.log(multiple2); // [2.0, 8.0, 18.0, 288.0, 32.0]
+
+-----------------------
+  
+var items = [
+    { id: 1, name: 'A' },
+    { id: 2, name: 'B' },
+    { id: 3, name: 'C' },
+];
+    
+// return a new array 
+var itemsMapped1 = items.map(function(item){
+    return item.id + '-' + item.name;
+}); 
+    
+Logger.log(itemsMapped1); // [1-A, 2-B, 3-C]
+
+-
+
+// return a new array with extended objects
+var itemsMapped2 = items.map(function(item){
+    return { id: item.id, name: item.name, p1: 'v1' };
+});     
+
+Logger.log(itemsMapped2); // [{p1=v1, name=A, id=1.0}, {p1=v1, name=B, id=2.0}, {p1=v1, name=C, id=3.0}]
+
+-     
+  
+// return a new array of json representation
+var itemsJson = items.map(JSON.stringify); 
+Logger.log(itemsJson); // [{"id":1,"name":"A"}, {"id":2,"name":"B"}, {"id":3,"name":"C"}]  
+
+- 
+
+// before    
+Logger.log(items); // [{name=A, id=1.0}, {name=B, id=2.0}, {name=C, id=3.0}]
+    
+// apply the map of the source array
+items.map(function(item){    
+    item.name = item.name + '-after-mapping'
+    return item;
+}); 
+    
+// after
+Logger.log(items); // [{name=A-after-mapping, id=1.0}, {name=B-after-mapping, id=2.0}, {name=C-after-mapping, id=3.0}]
+
+-----------------------
+
+// e.g:
+var metaData = [
+  { account: '269-153-4479', emails: 'rcbuilder@walla.com' },
+  { account: '269-153-4478', emails: 'rcbuilder@walla.com' },
+  { account: '269-153-4477', emails: 'rcbuilder@walla.com' }
+];
+
+function toAccount(e){
+  return e.account;
+}
+
+function main() {
+  var accounts = metaData.map(toAccount);
+  Logger.log(accounts); // ['269-153-4479', '269-153-4478', '269-153-4477']
+}

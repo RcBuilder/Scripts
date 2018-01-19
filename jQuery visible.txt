@@ -1,0 +1,1 @@
+var elements = $('#signature-generator-preview').find('*:visible');

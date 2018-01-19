@@ -1,0 +1,8 @@
+TRUNCATE TABLE [tableName]
+
+SET IDENTITY_INSERT [tableName] ON
+
+INSERT INTO [tableName](RowId, C1, C2...)
+values(1, 'V1', 'V2'...)
+
+SET IDENTITY_INSERT [tableName] OFF

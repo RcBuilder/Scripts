@@ -1,0 +1,3 @@
+var select = $(this);
+var selectedIndex = parseInt(select.prop('selectedIndex')); // selected index
+select.val() // selected text

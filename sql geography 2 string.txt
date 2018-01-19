@@ -1,0 +1,4 @@
+declare @c geography = 0xE6100000010CC3D32B6519824140BB61DBA2CC164040
+select convert(varchar(100), @c)
+
+-- POINT (32.17812 35.0164)

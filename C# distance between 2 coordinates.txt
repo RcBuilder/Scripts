@@ -1,0 +1,6 @@
+using System.Device.Location
+
+
+var sCoord = new GeoCoordinate(32.0974738, 34.84808380000004);
+var eCoord = new GeoCoordinate(32.1781363, 35.016072800000074);
+Console.WriteLine("{0} km", sCoord.GetDistanceTo(eCoord) / 1000);

@@ -1,0 +1,79 @@
+/*
+    <?xml version="1.0"?>
+    <properties>
+        <property>
+            <reference>12434</reference>
+            <order>PB303388</order>
+            <demographics stat_type="REACH" demographic="Device">
+                <value category="mobile">585</value>
+                <value category="desktop">64</value>
+                <value tablet="desktop">150</value>
+            </demographics>
+            <demographics stat_type="REACH" demographic="Gender">
+                <value category="unknown">14</value>
+                <value category="female">914</value>
+                <value tablet="male">444</value>
+            </demographics>
+            <demographics stat_type="REACH" demographic="Age">
+                <value category="25-34">292</value>
+                <value category="35-44">478</value>
+                <value tablet="45-54">426</value>
+                <value tablet="55-64">176</value>
+            </demographics>
+        </property>
+    </properties> 
+*/
+
+-----------------------------
+
+var xProperties = new List<XElement>();
+xProperties.Add(
+    new XElement("property", 
+        new XElement("reference") { Value = "12434" },
+        new XElement("order") { Value = "PB303388" },
+        new XElement("demographics", 
+            new XAttribute("demographic", "Device"), 
+            new XAttribute("stat_type", "REACH"),
+            new XElement("value",
+                new XAttribute("category", "mobile")                            
+            ) { Value = "585" },
+            new XElement("value",
+                new XAttribute("category", "desktop")
+            ) { Value = "64" },
+            new XElement("value",
+                new XAttribute("tablet", "desktop")
+            ) { Value = "150" }
+        ),
+        new XElement("demographics",
+            new XAttribute("demographic", "Gender"),
+            new XAttribute("stat_type", "REACH"),
+            new XElement("value",
+                new XAttribute("category", "unknown")
+            ) { Value = "14" },
+            new XElement("value",
+                new XAttribute("category", "female")
+            ) { Value = "914" },
+            new XElement("value",
+                new XAttribute("tablet", "male")
+            ) { Value = "444" }
+        ),
+        new XElement("demographics",
+            new XAttribute("demographic", "Age"),
+            new XAttribute("stat_type", "REACH"),
+            new XElement("value",
+                new XAttribute("category", "25-34")
+            ) { Value = "292" },
+            new XElement("value",
+                new XAttribute("category", "35-44")
+            ) { Value = "478" },
+            new XElement("value",
+                new XAttribute("tablet", "45-54")
+            ) { Value = "426" },
+            new XElement("value",
+                new XAttribute("tablet", "55-64")
+            ) { Value = "176" }
+        )                    
+    )
+);
+            
+var xDoc = new XDocument(new XElement("properties", xProperties));

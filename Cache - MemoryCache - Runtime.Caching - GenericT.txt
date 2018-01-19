@@ -1,0 +1,39 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Caching; // cache
+
+// also see 'CacheServer.txt'
+
+namespace BLL
+{
+    /*  
+        USING EXAMPLE
+        =============
+        private const string CACHE_KEY = "Categories";
+
+        public static IEnumerable<Entities.Category> Get()
+        {
+            var categories = BLL.Cache.Get<IEnumerable<Entities.Category>>(CACHE_KEY);
+            if (categories == null) // load from data Base
+            {
+                categories = DAL.Repository.Categories.Get();
+                BLL.Cache.Set(CACHE_KEY, categories);
+            } 
+            return categories;
+        }
+    */
+
+    internal class Cache
+    {
+        public static T Get<T>(string Key)
+        {
+            return (T)MemoryCache.Default.Get(Key);
+        }
+
+        public static void Set<T>(string Key, T Item)
+        {
+            MemoryCache.Default.Set(Key, Item, DateTime.Now.AddHours(24));
+        }
+    }
+}  

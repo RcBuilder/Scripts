@@ -1,0 +1,7 @@
+var elements = $('#signature-generator-preview').find('*:visible').clone();
+
+    elements.find('[id]').each(function () {
+        this.id = ''; // clear ids to prevent duplications!
+    });
+
+    var html = elements.html();

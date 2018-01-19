@@ -1,0 +1,15 @@
+
+structure:
+Insert [selectorB] after [selectorA]
+$([selectorA]).after([selectorB]);
+
+e.g:
+$('#wrapper p:first').after('#newItem');
+
+using:
+var logoContainer = $('#signature-generator-logo');
+var rootContainer = $('#signature-generator-content');
+rootContainer.find('p#signature-generator-name:first').after(logoContainer);
+
+
+

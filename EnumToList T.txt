@@ -1,0 +1,20 @@
+public class Common
+    {
+        public static Dictionary<int, string> EnumToList<T>() where T : struct
+        {
+            try
+            {
+                if (!typeof(T).IsEnum)
+                    throw new ArgumentException("T is not an ENUM!");
+
+                var res = new Dictionary<int, string>();
+                foreach (var e in Enum.GetValues(typeof(T)))
+                    res.Add((byte)e, e.ToString());
+                return res;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
