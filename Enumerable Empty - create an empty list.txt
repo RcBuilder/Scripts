@@ -1,0 +1,34 @@
+
+// returns an empty list of T
+Enumerable.Empty<T>()
+
+e.g:
+public IEnumerable<Delivery> GetInProgressDeliveries(string restaurantId)
+{
+    var deliveriesController = new DeliveriesController();
+    var waiting = deliveriesController.Search(
+        new SearchDeliveriesRequest
+        {
+            RestaurantId = restaurantId,
+            OrderBy = "DeliveryTime",
+            OrderByDirection = eOrderByDirection.ASC,
+            PageNum = 1,
+            PageSize = 50,
+            StatusId = 1, /* WAITING */
+        }
+    ).SearchResults ?? Enumerable.Empty<Delivery>();
+
+    var taken = deliveriesController.Search(
+        new SearchDeliveriesRequest
+        {
+            RestaurantId = restaurantId,
+            OrderBy = "DeliveryTime",
+            OrderByDirection = eOrderByDirection.ASC,
+            PageNum = 1,
+            PageSize = 50,
+            StatusId = 2, /* TAKEN */
+        }
+    ).SearchResults ?? Enumerable.Empty<Delivery>();
+            
+    return taken.Concat(waiting);
+}

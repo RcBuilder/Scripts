@@ -1,0 +1,60 @@
+RegExp class
+============
+
+syntax:
+-------
+var regex = new RegExp([pattern], [flags]);
+var match = regex.exec([input]);
+
+multi matches:
+--------------
+var regex = new RegExp([pattern], [flags]);
+var matches = [];
+var match;
+while ((match = regex.exec(input)) != null) {
+   matches.push(match);
+}
+
+flags:
+------
+g = global
+i = ignore case
+m = multiline
+u = unicode
+
+constructor:
+------------
+supports both string and regex patterns
+
+note!
+a regex pattern wrapped with /.../ 
+and doesn't require the escapes within its pattern content (e.g: /price:\d+/)
+
+samples:
+new RegExp('price:\\d+', 'i'); 
+new RegExp(/price:\d+/, 'i');
+
+using:
+------
+
+pattern = '<h1\\s+class="product-name">\\s*<a .*?>(.*?)</a>&nbsp;\\|&nbsp;(.*?)\\s*</h1>';      
+regex = new RegExp(pattern, 'i'); // i = ignoreCase
+
+var matchA = regex.exec(input);
+Logger.log('%s %s', matchA[1], matchA[2]);
+
+
+pattern = '<p\\s+itemprop="price"\\s+content="(\\d+)">.*?</p>';      
+regex = new RegExp(pattern, 'gim'); // m = multilines, g = global
+        
+var prices = [];        
+while ((match = regex.exec(input)) != null) {
+   prices.push(match[1]);
+}
+Logger.log('%s', prices);      
+        
+var price = 0;
+if(prices.length > 0){
+   prices.sort(); // sort the array by price
+   price = prices[0]; // take the lower price
+}

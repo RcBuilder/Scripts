@@ -1,0 +1,814 @@
+Data Flow
+---------
+1. Collectors
+   collect the data 
+
+2. Operators
+  search and analyze the data
+
+3. Alerts and Dashboards
+  visualize and monitor
+
+Collectors
+----------
+- also called Sources
+- the units that collect the data and save it to the sumo logic servers. 
+- types: 
+  1. installed collector // agent on your host which collect and send the data into the sumo logic servers 
+  2. hosted collector // REST service located in the sumo logic servers which gets HTTP POST calls from your host and store the data on sumo logic.
+
+Metadata
+--------
+- any message contains the following metadata:
+  * _collector // collector name 
+  * _source // source name
+  * _sourceHost // host name 
+  * _sourceName // log file path
+  * _sourceCategory // [custom] category filter (see '_sourceCategory metadata')
+
+_sourceCategory metadata
+------------------------
+- custom value which can be anything we'd like. 
+- usually used for categorize the data in order to filter it later.  
+- tip: sumo logic supports wildCard and regex filters so we can apply them on the _sourceCategory values 
+  e.g: 
+  [search] _sourceCategory=API/SomeAPI/FunA   // filter all api logs from FunA of SomeAPI 
+  [search] _sourceCategory=API/OtherAPI/FunA  // filter all api logs from FunA of OtherAPI
+  [search] _sourceCategory=API/SomeAPI/*      // filter all api logs from SomeAPI
+  [search] _sourceCategory=API/*			  // filter all api logs (including SomeAPI and OtherAPI)
+
+Dashboards
+----------
+- visualize stats. 
+- collection of dashboard panels. 
+- dashboard panel:
+  provides a graphical representation of data (see 'Chart Types') 
+  built from a search query.
+  by clicking a panel we will be sent to the search window with the actual query used to build this panel.
+
+- tip:
+  we can grab a query from a prepared panel, tweak it a bit and create new panels from it.
+
+- add:
+  once we've created an table data and set it as a chart, all we've left to do in order to 
+  add it as panel to the dashboard is to click on the 'Add to Dashboard' button in the right corner of the result window. 
+
+  steps:
+  1. create the search query and execute.
+  2. convert the result into a chart (see 'Graphs') 
+  3. click on 'Add to Dashboard' button
+  4. add some title to the new panel.
+  5. choose the dashboard to add the panel to (or create a new one).
+  6. click 'Add'
+
+- rearrange: 
+  rearrange the dashboard by moving panels within the dashboard and change their scale.
+
+- define time slice:
+  choose the time slice for the dashboard from the drop down located at the right of the top menu 
+  or turn on the 'LIVE MODE' switch instead!    
+
+  note: on 'LIVE MODE' the data is going to be refresh any few seconds.
+
+- share:
+  to share a dashboard, click on the share icon (paper with arrow) located at the top dashboard menu.
+  check the 'Anyone in my organization can view this dashboard' option, copy the generated shared link and share it!
+
+- title/test panels:
+  we can also add panels with only title or text.
+
+  steps:
+  1. click on the 'more' button (3 vertical dots) 
+  2. Add Panel
+  3. choose title or text radio 
+  4. add data
+  5. click 'Submit'
+
+- filters:
+  use the filter icon at the top menu to add custom filters to each panel or to the whole dashboard.  
+  filter is basically a dynamic data to plant within the panel query (e.g: a map panel to show logs by country based on your ip) 
+
+  TODO
+
+  tip: 
+  we can use dashboard and panels as templates with filters
+
+Chart Types
+-----------
+- Table
+- Bar
+- Column
+- Line
+- Area
+- Pie
+- Box Plot
+- Google Maps
+- Single Value
+
+Search Engine
+-------------
+- use pipe '|' to add search operations to the search query.
+  e.g: 
+  [search] _sourceCategory=API/SomeAPI/*
+		   | parse "\"GET * HTTP/1.1\" * * " as url, statusCode, size
+		   | parse regex "(?<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
+		   | count by statusCode
+
+- the operator AND is implicit so we don't have to specify it.
+  e.g: 
+  [search] _sourceCategory=API/SomeAPI/FunA ERROR 
+  equals to 
+  [search] _sourceCategory=API/SomeAPI/FunA AND ERROR
+
+  note!
+  space replaced to AND so if we want to use text which includes space (more then a single word) we have to use quote it.
+  e.g: 
+  [search] _sourceCategory=API/SomeAPI/FunA "ERROR while trying ..." 
+
+- add copied text as filter: 
+  * select the text
+  * right click
+  * add the selected text as AND  // this will add the selected content as AND operator to the existing filter. 
+
+  note! 
+  we can also use this technique for the following operators: AND, AND NOT, OR, OR NOT and parsing (see 'Parsing') 
+
+- time slice selector:
+  there's a drop down on the right (just before the start button) which determine the filter time slice 
+  it populated with pre-defined common values such as 'Today', 'Last 15 Minutes', 'Last 3 Hours' etc.
+
+  note!
+  for custom values see 'time slice selector - custom values'
+
+- time slice selector - custom values:
+  * syntax:
+    // V = value, T = type (see 'types' under 'Time Slice')
+    -VT	  // offset from now 
+	-V1T1-V2T2  // from specific offset 
+	dd/MM hh:mm - dd/MM hh:mm  // from specific time 
+
+    e.g: 
+	-45m  // logs from the last 45 minutes 
+	-2h   // logs from the last 2 hours
+	-45m-30m  // logs for 45 minutes starting from 30 minutes ago 
+	29/12 1:00 - 29/12 1:07  // logs for 7 minutes from 1:00 AM till 1:07 AM on the 29 dec
+
+   * preview:
+     there's a small popup which is showing us the full time slice in a fully formatted date 
+
+     e.g: 
+     // slice = -45m, current = 29/12/2016 2:15:40
+     29/12/2016 1:30:40 PM -0300
+     29/12/2016 2:15:40 PM -0300
+
+	 // slice = -45m-30m, current = 29/12/2016 2:15:40
+	 // the offset is 30 minutes ago 1:45:40, take 45 minutes from there 1:00:40
+     29/12/2016 1:00:40 PM -0300
+     29/12/2016 1:45:40 PM -0300
+
+- parsing:
+  see 'Parsing'
+
+- timeslice:
+  see 'Time Slice operator'
+
+- transpose:
+  see 'Transpose operator'
+
+- where:
+  see 'Where operator'
+
+- sort:
+  see 'Sort operator'
+
+- count:
+  see 'Count by operator'
+
+- outlier:
+  see 'Outlier operator'
+
+- lookup:
+  see 'Lookup operator'
+
+- logreduce:
+  see 'Log Reduce operator'
+
+- fields Browser:
+  located at the left pane. shows us the available columns for each query.   
+  the available columns come from the metadata and the field extraction rules (see 'Field Extraction Rules' and 'Metadata')
+
+  vantage!
+  each column includes built-in stats once we click it  
+
+- operations columns:
+  some search operations generates columns which can be used in the search query or just be printed.
+  use under-score sign '_' to get those columns (_timeslice, _count etc.)
+
+Log Reduce operator
+-------------------
+- use this operation to auto reduce logs by letting the engine to identify recurring patterns.
+- the LogReduce button located near the result paging bar do the exact same action, 
+  it just adds the logreduce operator to the query
+- a very useful feature which groups logs by patterns and ease our issues exploring
+- tip:
+  in some scenarios this option may reduce a 60 pages of data into a single one and saves us a lot of vital time! 
+
+- syntax:
+  logreduce
+
+- e.g:
+  [search] _sourceCategory=API/SomeAPI/*
+		   | logreduce 
+
+Time Slice operator
+-------------------
+- use this operation to slice the result by a defined time.
+
+- types:
+  m = minute
+  d = days
+  h = hours
+
+- syntax:
+  // V = value, T = type (see 'types')
+  timeslice VT
+
+  e.g: 
+  timeslice 10m // slice logs by 10 minutes
+
+- usually used together with the 'transpose' operator (see 'Transpose operator');
+- generates a new column '_timeslice' which can be used for other operations
+
+- e.g:
+  // slice logs per minute and create a table view
+  [search] _sourceCategory=API/SomeAPI/*
+		   | parse "\"GET * HTTP/1.1\" * * " as url, statusCode, size
+		   | timeslice 1m
+		   | count by statusCode, _timeslice	
+		   | transpose row _timeslice column statusCode  
+
+Transpose operator
+------------------
+- convert list view to table view!
+- similar to PIVOT on sql and excel.
+- usually used together with the 'timeslice' operator (see 'Time Slice operator');
+
+- syntax:  
+  transpose row [row] column [column]
+
+- e.g:
+  [search] _sourceCategory=API/SomeAPI/*
+		   | parse "\"GET * HTTP/1.1\" * * " as url, statusCode, size
+		   | timeslice 1m
+		   | count by statusCode, _timeslice	
+		   | transpose row _timeslice column statusCode  
+
+   result:
+   Time		200		404		500
+   10:17	63		1		3
+   10:18	78		8		6
+   10:19	102		11		6
+   10:20	23		7		14
+   10:21	18		3		0
+
+Where operator
+--------------
+- query filter
+- use it to filter selected data
+- syntax:  
+  where [condition]
+
+- e.g:
+  // only logs with status code 404 
+  [search] _sourceCategory=API/SomeAPI/*
+		   | parse "\"GET * HTTP/1.1\" * * " as url, statusCode, size
+		   | where statusCode = 404
+
+Graphs
+------
+- also called charts
+- we can change the table view to graph view by a single click on the graph type we'd like.
+  the graph buttons located above the results.
+- each graph button reveals a different graph type (see 'Chart Types')    
+- the graph buttons apears on the 'Aggregates' tab.
+- use an aggreagation operator (count by etc.) to create a result which can be get a graph visualization.
+- tip: its very common to blend timeslice with transpose and some aggregation operator to generate 
+       a table and then convert it into graph and even save it as dashboard!
+
+- e.g:
+  // click on the graph buttons at the top of the result
+  [search] _sourceCategory=API/SomeAPI/*
+		   | parse "\"GET * HTTP/1.1\" * * " as url, statusCode, size
+		   | timeslice 1m
+		   | count by statusCode, _timeslice	
+		   | transpose row _timeslice column statusCode  
+
+- once we're on the graph mode, the columns that assemble the graph apear on the right, 
+  we can turn each of them on/off by clicking on it!  
+
+  note that the status is temporary and its not  reflected in the query, we can turn column on/off permanent 
+  by adding a 'where' clause and just filter them out!  
+
+  e.g:
+  [search] _sourceCategory=API/SomeAPI/*		
+		   | parse "\"GET * HTTP/1.1\" * * " as url, statusCode, size
+		   | where statusCode != 200
+		   | timeslice 1m
+		   | count by statusCode, _timeslice	
+		   | transpose row _timeslice column statusCode 
+
+- Settings:
+  use the settings button to change the graph appearence 
+  properties, axis, series, legend and colors. 
+  e.g: change a specific column to be a line-chart whereas all the others are showing as bars
+
+Outlier operator
+----------------
+- serve as an outlier detector
+  it tries to identifies any outliers by calculation a standard deviation!
+
+- analytics columns:
+  when using the outlier operator, the engine generates an extra analytics columns (_upper, _lower, _error, _violation etc.)
+  in order to figure-out where/when we have an outliers.
+
+  note that the engine add the outlier requested column as prefix for ALL those extra analytics columns!
+  e.g: 
+  outlier status_code ... 
+  will generate columns such as status_code_upper, status_code_lower, status_code_error, status_code_violation and so on ...
+
+- very useful for alerts (see 'Alerts' and '_violation column') 
+
+- _violation column: 
+  one of the generated analytics columns is _violation, this column indicates on the outliers and commonly used for alerts (see 'Alerts')
+  this is a boolean typed column and once an outlier found, the value of the column is set to 1. 
+
+  we can use this column in a 'where' clause to filter ONLY the outliers.  
+  e.g:
+  | where status_code_violation > 0
+
+- syntax:  
+  outlier [column] [options]
+
+- options:
+  1. window // number
+     the reference time back to calculate the current point standard deviation
+	 "go back x data points to determine the standard deviation"
+
+  2. consecutive // number
+     determine for how many outliers in a row to show a pink triangle.
+	 if the value set to 1, show it for each outlier found.
+
+  3. threshold // number
+     the number of standard deviations allowed 
+
+  4. direction // +/- (note: can use both)
+     the direction (above and below the threshold) to show the outliers.
+	 use +- for both. 
+
+- result view:
+  use the Aggregates window (Aggregates tab on the result) to analyze the deviation
+  it shows us a line-chart in blue which represents the data surrounded by a soft blue area which stands for the standard deviation caluculated, 
+  if there's an outlier found (data that is out of the standard deviation) - it will be lighted with a pink triangle
+  the deviation threshold can be determined via the options 
+
+- e.g:
+  // calculate standard deviation by the previous 10 mitutes at time, show any outlier fount that above or below 2 standard deviations
+  [search] _sourceCategory=API/SomeAPI/*		
+		   | parse "\"GET * HTTP/1.1\" * * " as url, statusCode, size		   
+		   | timeslice 1m
+		   | count(statusCode) as 'status_code' by _timeslice	
+		   | outlier status_code window=10, consecutive=1, threshold=2, direction=+-
+
+Count by operator
+----------------- 
+- aggregation function 
+- also serves as group by
+- count rows by the specified column/s value
+
+- syntax:  
+  count by [column1], [column2] ..
+  count([column1]) by [column2]
+  count([column1]) as '[name]' by [column2]
+
+- generates a new column '_count' which can be used for other operations 
+
+- we can count a specific column
+  e.g: count by statusCode
+
+- we can count by multiple columns
+  e.g: count by statusCode, ip
+
+- we can count one column by other 
+  e.g: count(statusCode) by _timeslice
+
+- the column name can be changed by using the 'as' keyword
+  e.g: count(statusCode) as 'status_code' by _timeslice
+
+Sort operator
+-------------
+- sort function 
+- sort the logs by the specified column value
+
+- syntax:  
+  sort [column]
+  
+- e.g: 
+  [search] _sourceCategory=API/*		
+		   | parse regex "(?<log_ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"		      
+		   | count by log_ip
+		   | sort _count
+
+Lookup operator
+---------------
+- use this operator to fetch data from a 3rd party service. 
+- syntax: 
+  lookup [columns] from [service] on [join]
+  
+ - get ip latitude and longitude from geo service:
+
+   contract:
+   see 'Geo Lookup'
+     
+   using:
+   [search] _sourceCategory=API/*		
+		   | parse regex "(?<log_ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
+		   | lookup latitude, longitude from geo://default on ip = log_ip		   
+		   | count by latitude, longitude
+		   | sort _count
+
+   // only from the US
+   [search] _sourceCategory=API/*		
+		   | parse regex "(?<log_ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
+		   | lookup latitude, longitude, country_code, country_name, city from geo://default on ip = log_ip		
+		   | where country_code = "US"
+		   | count by latitude, longitude, country_code, country_name, city
+		   | sort _count
+
+Geo Lookup
+----------
+- source
+  https://help.sumologic.com/Dashboards_and_Alerts/Dashboards/Chart_Panel_Types/Map_Charts
+
+- a location serive available from within the sumo logic search bar using the lookup operator.
+  (see 'Lookup operator')
+
+- service
+  geo://default
+
+- columns
+  ip
+  latitude
+  longitude       
+  country_code
+  country_name
+  region
+  city
+  postal_code
+  area_code
+  metro_code
+
+Alerts
+------
+- a feature which alerts you when the specified condition was met. 
+- an alert is basically a scheduled task with condition.
+ 
+- create:
+  once a search query was established we can set an alert on it by clicking the 'Save as' button which will open a dialog.
+  
+  steps:
+  1. create a search query to base th alert on.
+  2. click on the 'Save as' button to open the save dialog.   
+  3. click on 'Schedule this search' button to open the alert dialog.
+  4. choose the alert execution frequency (hourly etc.)
+  5. choose the query time slice (Last 60 minutes etc.) 
+  6. set the alert condition.
+     note! there are 2 options here: notify on complete or when a condition is met.
+  7. specify the alert type (see 'Alert Types')
+  8. click on 'Save'
+
+- Alert Types:
+  * Email
+  * Webhook // Rest API service (HipChat etc.)
+
+- outliers alert:
+  in order to create an alert for outliers, we'll have to create an outlier search query 
+  and use the generated _violation column as our alert condition (_violation > 0)
+  see ('_violation column' section under 'Outlier operator') 
+
+- send Alerts To HipChat:
+  use the Webhook alert type to define the hipchat account to send alerts to.
+
+Parsing
+-------
+- written on the search window.
+- types:
+  * Anchor (see 'Anchor Parsing') 
+  * Regex (see 'Regex Parsing')   
+  * JSON
+  * KeyValue
+  * CSV
+  * XML
+  * Delimited
+
+  documentation: 
+  https://help.sumologic.com/Search/Search_Query_Language/01_Parse_Operators
+
+- parse field
+
+  e.g:
+  parse field=_sourceName "D:\\Logs\\MHCampus\\w3wp_*_*_*.txt" as processId, v2, date
+
+Anchor Parsing 
+--------------
+- parse using an anchor.
+- syntax:
+  parse "[anchor * *  anchor * ...]" as [field], [field] ...
+
+  e.g:  
+  // anchors = GET and HTTP/1.1
+  [search] _sourceCategory=API/SomeAPI/*
+		   | parse "\"GET * HTTP/1.1\" * * " as url, statusCode, size
+  
+  // "GET /images/1.jpg HTTP/1.1" 200 5100  
+  [column] url = /images/1.jpg
+  [column] statusCode = 200
+  [column] size = 5100
+  
+  result:
+  url				statusCode				size
+  /images/1.jpg		200						5100
+  /images/2.jpg		200						4650
+  /images/3.jpg		404						9011
+  ...
+  ...
+
+- the parsing process generates a columns which can be reviewed or used for other queries.
+  
+  e.g:
+  // count * group by statusCode 
+  [search] _sourceCategory=API/SomeAPI/*
+		   | parse "\"GET * HTTP/1.1\" * * " as url, statusCode, size
+		   | count by statusCode
+
+  result:
+  statusCode	_count
+  200			323  
+  404			81
+  ...
+  ...
+
+Regex Parsing
+-------------
+- parse using regex expression.
+- each group name within the pattern generates a new column.
+  e.g: 
+  for pattern "(?<a1>\d{1,3}-<a2>\d{8})" columns a1 and a2 will be created	
+
+- syntax:
+  parse regex "([pattern])"
+
+  e.g:  
+  // anchors = GET and HTTP/1.1
+  [search] _sourceCategory=API/SomeAPI/*
+		   | parse regex "(?<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
+  
+  // 212.197.0.3  
+  [column] ip = 212.197.0.3  
+  
+  result:
+  ip
+  212.197.0.3
+  212.197.10.34
+  127.0.0.1				  
+  ...
+  ...
+
+- the parsing process generates a columns which can be reviewed or used for other queries.
+  
+  e.g:
+  // count * group by statusCode 
+  [search] _sourceCategory=API/SomeAPI/*
+		   | parse regex "(?<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
+		   | count by ip
+
+  result:
+  ip			_count
+  127.0.0.1		1003  
+  212.197.0.3	8
+  ...
+  ...
+
+Field Extraction Rules
+----------------------
+- when using parsing, we create a temporary columns to the result (url, StatusCode, ip etc.)
+  the field extraction rules allow us to create a fixed columns!
+  once we established an extraction rule, the columns from the parsing phrase on this rule will be constant and we could use them on our queries 
+  without a parsing clause.
+  note that we'll have those columns only for the scope we defined on our extraction rule.
+
+- use the fields Browser to see the available columns (see 'fields Browser')
+
+- Rules screen
+  Manage (top menu) -> Field Extraction.
+
+- Create:
+  1. go to the Rules screen (see above)
+  2. click on the '+Add' button
+  3. set rule name
+  4. set the rule scope -> the search filter (_sourceCategory=API/SomeAPI/FunA etc.)
+  5  set the parse expressions
+  6. click on the 'Add' button
+
+- e.g:  
+  // given extraction rule: 
+  // phrase -> parse regex "(?<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})"
+  // scope -> _sourceCategory=API/SomeAPI/FunA
+  
+  // note that we can use the ip column due to there's an extraction rule for this search scope
+  [search] _sourceCategory=API/SomeAPI/FunA
+		   | count by ip
+
+
+Live Tail
+---------
+- real time logging!
+- the regular search has a few minutes delay, the live tail option is for immediate data. 
+
+- execute: 
+  Search (top menu) -> Live Tail
+
+- highlight:
+  in order to highlight important words or phrases use the [A] button on the right (near the Run blue button).
+  note: can highlight multiple terms! just click the [A] button again and again and set a new word each.
+
+
+Length operator
+---------------
+ - source:
+  https://help.sumologic.com/Search/Search_Query_Language/Search_Operators/length
+
+- syntax:
+  length([field])
+
+- e.g:
+  _sourceCategory=MHCampus.PROD.App  
+  | parse "query: *," as query
+  | where length(query) <= 20
+ 
+Limit operator
+--------------
+- source:
+  https://help.sumologic.com/Search/Search_Query_Language/Search_Operators/limit
+
+- syntax:
+  | limit [number]
+
+- e.g:  
+  // top 10 longest messages
+  _sourceCategory=MHCampus.PROD.App  
+  | sort by _size
+  | limit 10
+
+
+Size field
+-----------
+- represents the message length 
+- built-in column
+
+- e.g:
+  _sourceCategory=MHCampus.PROD.App
+  |where _size < 10
+
+fillmissing operator:
+---------------------
+
+- about:
+  When you run a standard group-by query, Sumo Logic only returns non-empty groups in the results.
+  the fillmissing operator changes this behaviour and returns a default value for empty groups!
+  similar to isNull of the ms-sql
+
+  reminder: 
+  the outlier operator cannot catch anomalies arising from missing data.
+
+- syntax:
+  fillmissing [generator]
+
+- generator types:
+  - timeslice   
+    return rows with default value instead of empty (no row) by timeslice 
+    e.g: fillmissing timeslice(15m)
+
+  - values
+    return rows with default value instead of empty (no row) by specific values 
+    note: returns default values ONLY for the defined values! (value1, value2 and value3) 
+    e.g: fillmissing values("value1", "value2", "value3")
+
+-  samples:
+   in the following examples, we'll get count 0 instead of empty groups
+
+   // example 1
+   _sourceCategory=MHCampus.QA.App ("[HandleAssignmentsQueue]" or "[HandleScoresQueue]")
+   | timeslice 15m
+   | count by _timeslice
+   | fillmissing timeslice(15m)
+   | sort by _timeslice
+   
+   result:
+   action				_count
+   27/03/2017 11:30:00		30
+   27/03/2017 11:15:00		0
+   27/03/2017 11:00:00		0
+   27/03/2017 10:45:00		52
+   ---
+   
+   // example 2
+   _sourceCategory=MHCampus.QA.App ("[HandleAssignmentsQueue]" or "[HandleScoresQueue]")
+   | parse "action [*] body" as action 
+   | count by action
+   | fillmissing values("HandleAssignmentsQueue", "HandleScoresQueue") in action
+   
+   result:
+   action				_count
+   HandleAssignmentsQueue		0
+   HandleScoresQueue		0
+   ---
+   
+   // example 3
+   _sourceCategory=MHCampus.QA.App ("[HandleAssignmentsQueue]" or "[HandleScoresQueue]")
+   | parse "action [*] body" as action 
+   | count by action
+   | fillmissing values("HandleAssignmentsQueue") in action
+   
+   result:
+   action				_count
+   HandleAssignmentsQueue		0
+
+
+If operator
+-----------
+- source:
+  https://help.sumologic.com/Search/Search_Query_Language/Search_Operators/if_operator_and_%3F
+
+- syntax:
+  A. if([condition], [true], [false]) as [fieldName]
+  B. [condition] ? [true] : [false] as [fieldName]
+
+- e.g:
+  if(status_code matches "5*", 1, 0) as servererror
+
+- e.g:
+  if(_size > 30000, "long", "short") as msgLength
+
+- e.g:
+  _size > 30000 ? "long" : "short" as msgLength
+ 
+Switch case  
+-----------
+- implemented by multipe if's statements
+- syntax:
+  if([condition], 
+		[condition], [value1], [condition], [value2],
+		[default])
+   )) as switchValue /*switch case*/
+
+- e.g:
+  _sourceCategory=MHCampus.PROD.App
+  | where _size > 30000
+  | if(_size > 30000 and _size < 40000, "3k-4k", if(_size > 40000 and _size < 50000, "4k-5k", if(_size > 50000 and _size < 60000, "5k-6k", "+6K"))) as range /*switch case*/
+  | sort by _size
+  | limit 10
+
+
+
+Samples
+-------
+_sourceCategory=MHCampus.PROD.App and ("Successfully placed GB API in Queue Url:")
+| parse "Queue Url: * ," as queue_url 
+| timeslice 1d
+| count(queue_url) as row_count by queue_url, _timeslice
+| sort row_count
+| transpose row _timeslice column queue_url
+
+
+_sourceCategory=MHCampus.PROD.App and "TIME-SPAN" and ("[HandleAssignmentsQueue]" or "[HandleScoresQueue]")
+| parse "TIME-SPAN: * Seconds" as time_in_queue 
+| timeslice 1d
+| avg(time_in_queue) as avg_time_in_queue, count(*) as row_count by _timeslice
+| sort avg_time_in_queue
+
+
+_sourceCategory=MHCampus.PROD.App "[HandleQueueResponse]"
+| parse field=_sourceName "D:\\Logs\\MHCampus\\GBQueueConsumer_*_*_*.txt" as processId, v2, date
+| timeslice 1d
+| count(processId) by processId, _timeslice
+| sort by _count
+| transpose row _timeslice column processId
+
+
+_sourceCategory=MHCampus.QALV.App ("[HandleAssignmentsQueue]" or "[HandleScoresQueue]")
+| parse "action [*] body" as action
+| parse field=_sourceName "D:\\Logs\\MHCampus\\GBQueueConsumer_*_*_*.txt" as processId, v2, v3
+| timeslice 10m
+| count by _timeslice, action, processId
+| transpose row _timeslice, action column processId
+| sort _timeslice

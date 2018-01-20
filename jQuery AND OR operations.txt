@@ -1,0 +1,19 @@
+AND operation
+-------------
+[condition][condition] ...
+
+e.g:
+// return all elements with name attribute equals 'txtName' AND color attribute 'blue' 
+var res = $('[name="txtName"][color="blue"]');
+
+
+OR operation
+------------
+[condition],[condition] ...
+
+// return all elements with name attribute equals 'txtName' OR color attribute 'blue
+$('[name="txtName"],[color="blue"]');
+
+-----
+
+var ticket = $('input[name="txtId"][value="' + participant.pId + '"]').closest('div.ticket');

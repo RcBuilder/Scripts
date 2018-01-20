@@ -1,0 +1,99 @@
+
+var consts = {
+    chargeTerminalURL: 'https://charge.com/paymentPage',
+    chargeTerminalNumber: 36041,
+    sheetServiceBase: 'https://services.com/api/SpreadSheet/',
+    sheetServiceActions: {
+        addAuthor: 'author/add',
+        updatePayment: 'payment/update',
+        updateParticipant: 'participant/update',        
+        getTickets: '{rowId}/tickets'
+    },
+};
+
+// using 
+var url = consts.sheetServiceBase;
+var action = consts.sheetServiceActions.updateParticipant;
+var action = consts.sheetServiceActions.getTickets.replace('{rowId}', _rowId);
+
+var url = consts.chargeTerminalURL;
+var terminal = consts.chargeTerminalNumber;
+
+var url = consts.sheetServiceBase.concat(consts.sheetServiceActions.addAuthor);
+
+---
+
+example
+=======
+
+note!
+taken from ATDConference project - tickets.js
+
+function GetTicketsAsync(_rowId, callback) {
+    $.ajax({
+        url: consts.sheetServiceBase.concat(consts.sheetServiceActions.getTickets.replace('{rowId}', _rowId)),
+        type: 'get',
+        // tickets { rowId, ticketA, ticketB, ticketC }
+        success: function (tickets) {            
+            if (tickets) {
+                console.log(tickets);
+
+                if (callback)
+                    callback.call(null, tickets);
+            }
+        },
+        error: function (xhr, status, error) {
+            alert('[ERROR] GetTicketsAsync: ' + xhr.status);
+        }
+    });
+}
+
+function AddAuthorDataAsync(_name, _phone, _email) {
+    var _rowId = Math.ceil(Math.random() * 100000).toString();
+
+    var _ticketA = $(".ticketsATotal").val(),
+        _ticketB = $(".ticketsBTotal").val(),
+        _ticketC = $(".ticketsCTotal").val();
+
+    $.ajax({
+        url: consts.sheetServiceBase.concat(consts.sheetServiceActions.addAuthor),
+        type: 'post',
+        data: {
+            rowId: _rowId,
+            name: _name,
+            email: _email,
+            phone: _phone,
+            ticketA: _ticketA,
+            ticketB: _ticketB,
+            ticketC: _ticketC
+        },
+        success: function (rowsUpdated) {
+            if (rowsUpdated > 0) {
+               // code ...
+            }
+        },
+        error: function (xhr, status, error) {
+            alert('[ERROR] AddAuthorDataAsync: ' + xhr.status);
+        }
+    });
+}
+
+function UpdateParticipantDataAsync(_rowId, _name, _phone, _email, callback) {
+    $.ajax({
+        url: consts.sheetServiceBase.concat(consts.sheetServiceActions.updateParticipant),
+        type: 'post',
+        data: {
+            rowId: _rowId,
+            name: _name,
+            email: _email,
+            phone: _phone,
+        },
+        success: function (rowsUpdated) {
+            if (callback)
+                callback.call(null, rowsUpdated);
+        },
+        error: function (xhr, status, error) {
+            alert('[ERROR] UpdateParticipantDataAsync: ' + xhr.status);
+        }
+    });
+}

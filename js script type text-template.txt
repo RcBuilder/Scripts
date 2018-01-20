@@ -1,0 +1,21 @@
+<div id="wrapper"></div>
+
+<script id="templateA" type="text/template">
+	// html ...    
+</script>
+<script id="templateB" type="text/template">
+	// html ...    
+</script>
+<script id="templateC" type="text/template">
+	// html ...    
+</script>
+
+---
+
+var templateA = $('#templateA').html();
+var templateB = $('#templateB').html();
+var templateC = $('#templateC').html();
+
+$('#wrapper').append(templateA);
+$('#wrapper').append(templateB);
+$('#wrapper').append(templateC);

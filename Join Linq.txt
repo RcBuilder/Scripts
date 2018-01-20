@@ -1,0 +1,69 @@
+var products = new [] { 
+    new { Id = 101, Name = "Product A", CategoryId = 2 },
+    new { Id = 102, Name = "Product B", CategoryId = 1 },
+    new { Id = 103, Name = "Product C", CategoryId = 1 },
+    new { Id = 104, Name = "Product D", CategoryId = 2 },
+    new { Id = 105, Name = "Product E", CategoryId = 3 },
+    new { Id = 106, Name = "Product F", CategoryId = 2 },
+    new { Id = 107, Name = "Product G", CategoryId = 3 },
+    new { Id = 108, Name = "Product H", CategoryId = 2 },
+    new { Id = 109, Name = "Product I", CategoryId = 1 }
+}.ToList();
+
+var categories = new[] { 
+    new { Id = 1, Name = "Category A" },
+    new { Id = 2, Name = "Category B" },
+    new { Id = 3, Name = "Category C" },
+    new { Id = 4, Name = "Category D" }
+}.ToList();
+
+
+using Join
+----------
+
+- syntax:
+[IEnumerable OUTER].Join([IEnumerable INNER], [Key OUTER], [Key INNER], [Result])             
+
+- example: 
+var joined = categories.Join(
+        products,
+        c => c.Id,
+        p => p.CategoryId,
+        (category, product) => new { Category = category, Product = product }
+);
+
+
+using Query syntax
+------------------
+
+- syntax:        
+from [a] in [IEnumerable OUTER]
+join [b] in [IEnumerable INNER] on [Key OUTER] equals [Key INNER]
+select new { ... }; 
+            
+- example: 
+var joined = from category in categories
+             join product in products on category.Id equals product.CategoryId
+             select new { Category = category, Product = product };
+
+result
+------
+
+note! 
+'Category D' doen't return
+
+- print:
+foreach (var item in joined)
+    Console.WriteLine("{0} - {1}", item.Category.Name, item.Product.Name);   
+
+- output:
+Category A - Product B
+Category A - Product C
+Category A - Product I
+Category B - Product A
+Category B - Product D
+Category B - Product F
+Category B - Product H
+Category C - Product E
+Category C - Product G
+

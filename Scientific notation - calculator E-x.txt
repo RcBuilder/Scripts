@@ -1,0 +1,9 @@
+calculator E-x 
+--------------
+aka Scientific notation
+
+E-x = 10^(-x)
+
+e.g:
+1.7E-4 = 1.7 * 10^(-4) 
+1.7E-4 = 1.7 / 10000 = 0.00017

@@ -1,0 +1,9 @@
+
+path:
+C:\Program Files\Microsoft SQL Server\[Instance]\MSSQL\DATA
+
+e.g:
+C:\Program Files\Microsoft SQL Server\MSSQL11.RCBUILDERSQL2012\MSSQL\DATA
+
+files:
+MDF and LDF

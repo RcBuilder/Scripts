@@ -1,0 +1,59 @@
+
+// NOTE! internal mode - this 'DataBase' layer only accessible within the current assembly!
+namespace DAL.DataBase
+{  
+    internal class Scooters
+    {
+        public static SqlDataReader Get(bool? IsAvailable, bool? IsActive)
+        {
+            try
+            {
+                SqlParameter[] prms = {
+                        new SqlParameter("@IsAvailable", IsAvailable),
+                        new SqlParameter("@IsActive", IsActive)
+                };
+
+                return SqlHelper.ExecuteReader(Config.Keys.ConnectionString, CommandType.StoredProcedure, "sp_Scooters_Get");
+            }
+            catch { return null; }
+        }
+    }
+}
+
+
+namespace DAL.Repository
+{
+    public class Scooters
+    {
+        public static List<Scooter> Get()
+        {
+            var dr = DataBase.Scooters.Get(null, null);
+            return ScootersLoader.Load(dr);
+        }
+
+        public static List<Scooter> GetAvailable()
+        {
+            var dr = DataBase.Scooters.Get(true, true);
+            return ScootersLoader.Load(dr);
+        }
+    }
+
+    internal class ScootersLoader{
+        public static List<Scooter> Load(SqlDataReader dr) {
+            if (dr == null) return null;
+
+            var scooters = new List<Scooter>();
+
+            using (dr)
+            {
+                if (dr.HasRows)
+                {
+                    while (dr.Read())
+                        scooters.Add(new Scooter { });
+                }
+            }
+
+            return scooters;
+        }
+    }
+}

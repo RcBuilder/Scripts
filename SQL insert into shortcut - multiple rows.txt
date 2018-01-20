@@ -1,0 +1,16 @@
+CREATE TABLE #nums (num int);
+
+INSERT INTO #nums 
+VALUES(1),(2),(1),(2),(7);
+
+select * from #nums
+
+--------------------------
+
+CREATE TABLE #letters (id int, name varchar(5));
+
+INSERT INTO #letters
+VALUES(1, 'A'),(2, 'B'),(1, 'C'),(2, 'D'),(7, 'E');
+
+select * from #letters
+-- drop table #letters

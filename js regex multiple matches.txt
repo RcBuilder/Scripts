@@ -1,0 +1,18 @@
+multiple matches using javascript regex
+
+1. add g flag
+2. use while to collect all the matches into an array 
+
+
+using
+-----
+var input = '...'
+ 
+var pattern = '<a\\s+href="http://www.fattal.co.il/([a-zA-Z\-]+)">[\\s\\w]+</a>';  
+     
+var regex = new RegExp(pattern, 'gmi'); // flags: i = ignore case, g = global, m = multi matches
+
+var matches = [];  
+var match;
+while(match = regex.exec(input))
+  matches.push({ name: match[1], price: match[2] });

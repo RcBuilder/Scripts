@@ -1,0 +1,26 @@
+public static Dictionary<string, string> Query2Dictionary(string query) {
+    try
+    {
+        query = query.Replace("?", string.Empty);
+
+        return query.Split('&')
+            .Select(x => new { key = x.Split('=')[0], value = x.Split('=')[1] })
+            .Distinct()
+            .ToDictionary(x => x.key, x => x.value);
+    }
+    catch{
+        return null;
+    }
+}
+
+---
+
+var queryParams = Helper.Query2Dictionary(Request.RequestUri.Query);
+if (queryParams == null)
+    return;
+
+// get param value
+// queryParams["[paramName]"]);
+
+// e.g: http://domain.com?a=1&b=2&name=Roby
+// var name = queryParams["name"]); // Roby

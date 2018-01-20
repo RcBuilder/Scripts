@@ -1,0 +1,197 @@
+Structure
+=========
+
+<div id="wrapper"></div>
+
+<script id="templateA" type="text/template">
+	// html ...    
+</script>
+<script id="templateB" type="text/template">
+	// html ...    
+</script>
+<script id="templateC" type="text/template">
+	// html ...    
+</script>
+
+---
+
+var templateA = $('#templateA').html();
+var templateB = $('#templateB').html();
+var templateC = $('#templateC').html();
+
+$('#wrapper').append(templateA);
+$('#wrapper').append(templateB);
+$('#wrapper').append(templateC);
+
+
+example
+=======
+
+note!
+taken from ATDConference project - ticketsSuccess.html
+
+<div id="ticketsWrapper"></div>
+
+<script id="templateTicketA" type="text/template">
+    <div class="ticket col-xs-12 col-md-3">
+        <div class="ticket-body">
+            <h4>TicketA</h4>
+            <fieldset>
+                <p>
+                    <label for="txtName">name</label>
+                    <input type="text" name="txtName" placeholder="" class="form-control" />
+                </p>
+            </fieldset>
+            <fieldset>
+                <p>
+                    <label for="txtEmail">email</label>
+                    <input type="email" name="txtEmail" placeholder="" class="form-control" />
+                </p>
+            </fieldset>
+            <fieldset>
+                <p>
+                    <label for="txtPhone">phone</label>
+                    <input type="tel" name="txtPhone" placeholder="" class="form-control" />
+                </p>
+            </fieldset>
+            <fieldset>
+                <p>
+                    <input type="button" value="save" class="saveTicket btn btn-success" />
+                </p>
+            </fieldset>
+        </div>
+    </div>
+</script>
+
+<script id="templateTicketB" type="text/template">
+    <div class="ticket col-xs-12 col-md-3">
+        <div class="ticket-body">
+            <h4>TicketB</h4>
+            <fieldset>
+                <p>
+                    <label for="txtName">name</label>
+                    <input type="text" name="txtName" placeholder="" class="form-control" />
+                </p>
+            </fieldset>
+            <fieldset>
+                <p>
+                    <label for="txtEmail">email</label>
+                    <input type="email" name="txtEmail" placeholder="" class="form-control" />
+                </p>
+            </fieldset>
+            <fieldset>
+                <p>
+                    <label for="txtPhone">phone</label>
+                    <input type="tel" name="txtPhone" placeholder="" class="form-control" />
+                </p>
+            </fieldset>
+            <fieldset>
+                <p>
+                    <input type="button" value="save" class="saveTicket btn btn-success" />
+                </p>
+            </fieldset>
+        </div>
+    </div>
+</script>
+
+---
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type='text/javascript' src="https://www.atdconf.com/wp-content/themes/atd/js/tickets.js"></script>
+<script>
+    // e.g: orderId=6676&a=11&b=22
+    function ParseParams() {
+        var result = [];
+
+        var query = location.href.split('?')[1];
+        var arr = query.split('&');
+        for (i in arr) {
+            var param = arr[i].split('=');
+            result[param[0]] = param[1];
+        }
+
+        return result;
+    }
+
+    $(document).ready(function () {
+        var queryParam = ParseParams();
+        var _rowId = queryParam['orderId'];
+        if (_rowId) {
+
+			// [REST Service] get the number of tickets to render by order id 
+            // returns: tickets { rowId, numOfTicketsA, numOfTicketsA }			
+            GetTicketsAsync(_rowId, function (tickets) {
+                var templateA = $('#templateTicketA').html();
+                var templateB = $('#templateTicketB').html();
+                
+                for (var i = 0; i< tickets.numOfTicketsA; i++)
+                    $('#ticketsWrapper').append(templateA));
+
+                for (var i = 0; i< tickets.numOfTicketsB; i++)
+                    $('#ticketsWrapper').append(templateB));
+            });
+        }
+
+		$('input#saveTickets').click(function () {
+            var tickets = $('div.ticket');
+
+            if (tickets.size() == 0)
+                return;
+
+            tickets.each(function () {
+                var current = $(this);
+
+                var _name = current.find('input[name="txtName"]').first().val();
+                var _phone = current.find('input[name="txtPhone"]').first().val();
+                var _email = current.find('input[name="txtEmail"]').first().val();
+
+                if (_name == '' || _email == '')
+                    return;
+
+				// [REST Service] save ticket data
+                UpdateParticipantDataAsync(_rowId, _name, _phone, _email, function (rowsUpdated) {
+                    if (rowsUpdated > 0) {
+                        current.find('.ticket-body').first().addClass('ticket-body-sucess');
+                    }
+                });
+            });
+        })
+    });
+</script>
+
+---
+
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<style>
+    .ticket {
+        text-align: center;
+        padding: 8px;
+        padding-right: 0px;
+        display: inline-block;
+        float: right;
+    }
+
+    .ticket .ticket-body {
+        background-color: #f6f6f6;
+        padding: 8px;
+        border: solid 1px #ddd;
+    }
+
+    .ticket .ticket-body-sucess {
+        background-color: #449d44;
+        color: #fff;
+    }
+
+    div#ticketsWrapper {
+        position: relative;
+    }
+
+    div#ticketsWrapper::after {
+        content: ".";
+        display: block;
+        clear: both;
+        visibility: hidden;
+        line-height: 0;
+        height: 0;
+    }
+</style>

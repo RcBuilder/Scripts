@@ -1,0 +1,20 @@
+public static byte[] FileDownloader(string FileURL) {
+    using (var client = new WebClient())
+        return FileDownloader(client, FileURL);
+}
+
+public static byte[] FileDownloader(WebClient client, string FileURL) {
+    byte[] FileData = null;
+    try
+    {
+        FileData = client.DownloadData(FileURL);
+    }
+    catch { }
+
+    return FileData;
+}
+
+----------------------------
+
+byte[] imageData = Common.FileDownloader(client, ImageURL);
+byte[] fileData = Common.FileDownloader(ResourceURI);

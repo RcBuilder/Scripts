@@ -1,0 +1,29 @@
+byte[] imageData = null;
+var imageURL = "http://propertysuiteapi.rcb.co.il/TEMP/2006557_300-200.png";
+
+using (var client = new WebClient()) {
+    imageData = client.DownloadData(imageURL);                
+}
+
+
+
+----------------------------------
+
+public class Common
+{
+	public static byte[] ImageDownloader(string ImageURL) {
+        using (var client = new WebClient())
+            return ImageDownloader(client, ImageURL);
+    }
+
+    public static byte[] ImageDownloader(WebClient client, string ImageURL) {
+        byte[] ImageData = null;
+        try
+        {                
+            ImageData = client.DownloadData(ImageURL);
+        }
+        catch { }
+
+        return ImageData;
+    }
+}

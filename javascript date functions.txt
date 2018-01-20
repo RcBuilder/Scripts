@@ -1,0 +1,90 @@
+  dateSignature: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    
+    if(month.length == 1) month = '0' + month; 
+    
+    return parseInt(year + month); // return yyyyMM as int
+  },
+  dateDiff: function (date1, date2, type) {
+        // type: days, hours, minutes, seconds
+        var datediff = date1.getTime() - date2.getTime();
+
+        switch (type.toLowerCase()) {
+            default:
+            case 'd':
+            case 'dd':
+            case 'day':
+            case 'days':
+                return parseInt(datediff / (24 * 60 * 60 * 1000));
+            case 'h':
+            case 'hh':
+            case 'hour':
+            case 'hours':
+                return parseInt(datediff / (60 * 60 * 1000));
+            case 'm':
+            case 'mm':
+            case 'minute':
+            case 'minutes':
+                return parseInt(datediff / (60 * 1000));
+            case 's':
+            case 'ss':
+            case 'second':
+            case 'seconds':
+                return parseInt(datediff / (1000));
+        }        
+    },
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  },
+  timeFormat: function (date) {
+        if (!(date instanceof Date))
+            return '';
+
+        var hours = date.getHours().toString();
+        var minutes = date.getMinutes().toString();
+        var seconds = date.getSeconds().toString();
+
+        if (hours.length == 1) hours = '0' + hours;
+        if (minutes.length == 1) minutes = '0' + minutes;
+        if (seconds.length == 1) seconds = '0' + seconds;
+
+        return hours + ':' + minutes + ':' + seconds;
+    },
+  getTheNextSunday: function(date){
+    var newDate = new Date(date.getTime()); 
+    
+    var numOfweekDays = 7;         
+    if(newDate.getDay() > 0)
+      newDate.setDate(newDate.getDate() + (numOfweekDays - newDate.getDay()));
+    return newDate;  
+  },
+  dateAdd: function(date, value, type){      
+    type = type || 'dd';
+    
+    var newDate = new Date(date.getTime());
+    
+    if(type == 'dd')
+      newDate.setDate(newDate.getDate() + value);
+    else if(type == 'MM')
+      newDate.setMonth(newDate.getMonth() + value);
+    
+    return newDate;  
+  }, 
+  getFirstDayOfMonth: function(date){
+    var newDate = new Date(date.getTime());
+    newDate.setDate(1);
+    return newDate;  
+  },
+  getLastDayOfMonth: function(date){
+    var newDate = new Date(date.getYear(), date.getMonth() + 1, 1);
+    newDate.setDate(newDate.getDate() - 1); // decrease one day from the first on the following month
+    return newDate;  
+  }

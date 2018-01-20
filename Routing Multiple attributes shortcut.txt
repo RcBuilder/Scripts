@@ -1,0 +1,9 @@
+* Routing Multiple attributes shortcut
+
+[AllowAnonymous]
+[HttpGet] 
+[Route("api/a/{p1}")]
+public ApiResponse FunA(string p1){ ... }
+
+[AllowAnonymous, HttpGet, Route("api/a/{p1}")]
+public ApiResponse FunA(string p1){ ... }

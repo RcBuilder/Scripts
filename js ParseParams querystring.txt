@@ -1,0 +1,33 @@
+function ParseParams() {
+    var result = [];
+
+    var query = location.href.split('?')[1];
+    var arr = query.split('&');
+    for (i in arr) {
+        var param = arr[i].split('=');
+        result[param[0]] = param[1];
+    }
+
+    return result;
+}
+
+-----------
+
+e.g:
+
+http://localhost/ticketsSuccess.html?a=1234&b=4567&c=someValue
+
+{
+	a: '1234',
+	b: '4567'
+	c: 'someValue'	
+}
+
+-----------
+
+using:
+
+var queryParam = ParseParams();
+console.log(queryParam['a']); // 1234
+console.log(queryParam['b']); // 4567
+console.log(queryParam['c']); // someValue

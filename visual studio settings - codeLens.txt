@@ -1,0 +1,9 @@
+visual studio codeLens
+----------------------
+
+turn off CodeLens-References 
+turn off property stats/info
+
+
+tools -> options -> text editor -> all languages 
+codeLens - disable
