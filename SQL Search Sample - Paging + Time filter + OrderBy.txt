@@ -1,0 +1,62 @@
+ALTER PROCEDURE [dbo].[sp_Deliveries_Search]	
+	@PageNum int = 1,
+	@PageSize tinyint = 10, 
+	@RestaurantId varchar(15) = null,
+	@EmployeeId varchar(9) = null,
+	@StatusId tinyint = null,
+	@PaymentStatusId tinyint = null,	
+	@FromTime smalldatetime = null,
+    @ToTime smalldatetime = null,    
+	@OrderBy varchar(20) = 'CreatedDate',
+    @OrderByDirection varchar(4) = 'DESC' -- DESC or ASC
+AS
+BEGIN	
+	SET NOCOUNT ON;
+
+	-- CREATE THE ORDER BY PHRASE --
+	declare @OrderByCase varchar(24) = @OrderBy + @OrderByDirection
+	--------
+	
+	-- PAGING CALCULATION --
+	declare @IndexFrom int = ((@PageNum - 1) * @PageSize) + 1
+	declare @IndexTo int = @PageNum * @PageSize
+	--------
+
+	-- TIME FILTER -- 
+	declare @addTimeFilter bit = 0;
+	if(@FromTime is not null AND @ToTime is not null)
+		set @addTimeFilter = 1;
+	
+	if(@addTimeFilter = 1) 
+	BEGIN
+		-- fix dates -- 
+		set @FromTime = cast((convert(varchar, @FromTime, 101) + ' 00:00:00') as smalldatetime)
+		set @ToTime = cast((convert(varchar, @ToTime, 101) + ' 23:59:00') as smalldatetime)
+	END		
+	--------
+
+	;WITH CTE_Deliveries as(
+		select	*,
+				COUNT(*) OVER() as 'RowsCount',
+				ROW_NUMBER() OVER ( 
+					order by 					
+					case when @OrderByCase = 'CreatedDateDESC'	then CreatedDate	end desc,
+					case when @OrderByCase = 'CreatedDateASC'	then CreatedDate	end asc,
+					case when @OrderByCase = 'DeliveredOnDESC'	then DeliveredOn	end desc,
+					case when @OrderByCase = 'DeliveredOnASC'	then DeliveredOn	end asc,
+					case when @OrderByCase = 'PriorityDESC'		then [Priority]		end desc,
+					case when @OrderByCase = 'PriorityASC'		then [Priority]		end asc,
+					case when @OrderByCase = 'TakenOnDESC'		then TakenOn		end desc,
+					case when @OrderByCase = 'TakenOnASC'		then TakenOn		end asc					
+				) as 'RowNumber'
+		from	Deliveries 	
+		where	IsDeleted = 0
+		and		(@EmployeeId is null OR EmployeeId = @EmployeeId) 
+		and		(@RestaurantId is null OR RestaurantId = @RestaurantId)
+		and		(@StatusId is null OR DeliveryStatusId = @StatusId)
+		and		(@PaymentStatusId is null OR PaymentStatusId = @PaymentStatusId)
+		and		(@addTimeFilter = 0 OR CreatedDate between @FromTime and @ToTime)
+	)
+	select * from CTE_Deliveries where RowNumber between @IndexFrom and @IndexTo
+	
+END

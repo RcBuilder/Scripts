@@ -1,0 +1,3 @@
+jQuery.contains(a, b)
+
+check if the a contained in b container

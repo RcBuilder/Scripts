@@ -1,0 +1,28 @@
+// noConflict = cancel the $ from the latest jQuery library loaded
+
+<!-- load jQuery 1.2.6 --> 
+<script type="text/javascript" src="http://example.com/jquery-1.2.6.js"></script> 
+<script type="text/javascript"> 
+	var jQuery_1_2_6 = $.noConflict(true); 
+</script>  
+
+<!-- load jQuery 1.4.2 --> 
+<script type="text/javascript" src="http://example.com/jquery-1.4.2.js"></script> 
+<script type="text/javascript">
+	var jQuery_1_4_2 = $.noConflict(true); 
+</script>
+
+---------------------------------
+
+<script type="text/javascript" src="http://example.com/jquery-1.2.6.js"></script> 
+<script type="text/javascript" src="http://example.com/jquery-1.4.2.js"></script> 
+<script type="text/javascript">
+	// cancel the $ from the latest jQuery library loaded (1.4.2) and define a new static instance of this ver
+	var jQuery_1_4_2 = $.noConflict(true); 
+
+	jQuery_1_4_2('#selector'); // using ver 1.4.2
+	$('#selector'); // using ver 1.2.6
+</script>
+
+
+            

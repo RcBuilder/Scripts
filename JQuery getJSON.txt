@@ -1,0 +1,31 @@
+$.getJSON([URL], [CALLBACK]);
+
+$.getJSON('JsonDataBase.js', function (data) { } );
+
+$.getJSON('JsonDataBase.js, function (data) {
+                        $.each(data, function (i, entry) {
+                            alert(entry.displayname);
+                        });
+                });
+
+----------
+
+JsonDataBase.js
+
+[
+	{ "displayname": "AUDUSD", "buyrate": 1.0275, "sellrate": 1.0274 }, 
+	{ "displayname": "EURGBP", "buyrate": 0.8466, "sellrate": 0.8465 }, 
+	{ "displayname": "EURNOK", "buyrate": 7.6045, "sellrate": 7.5968 }, 
+	{ "displayname": "GBPCAD", "buyrate": 1.5692, "sellrate": 1.5687 }, 
+	{ "displayname": "GBPUSD", "buyrate": 1.5568, "sellrate": 1.5567 }, 
+	{ "displayname": "USDCHF", "buyrate": 0.9271, "sellrate": 0.9269 }, 
+	{ "displayname": "USDJPY", "buyrate": 97.311, "sellrate": 7.3015 }, 
+	{ "displayname": "USDTRY", "buyrate": 1.7934, "sellrate": 1.7920 }, 
+	{ "displayname": "AUDCAD", "buyrate": 1.0357, "sellrate": 1.0354 }, 
+	{ "displayname": "AUDCHF", "buyrate": 0.9527, "sellrate": 0.9524 }, 
+	{ "displayname": "AUDNZD", "buyrate": 1.2081, "sellrate": 1.2077 }, 
+	{ "displayname": "GBPAUD", "buyrate": 1.5152, "sellrate": 1.5149 }, 
+	{ "displayname": "GOOGLE", "buyrate": 819.9900, "sellrate": 817.7000 }, 
+	{ "displayname": "APPLE", "buyrate": 439.4900, "sellrate": 439.1500 }, 
+	{ "displayname": "FACEBOOK", "buyrate": 27.5700, "sellrate": 27.5600}
+]

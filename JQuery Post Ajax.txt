@@ -1,0 +1,20 @@
+Javascript:
+-----------
+$.post(
+	"Add.aspx", // url
+    { // parameters
+        Name: 'Roby'
+        Phone: '0544788370',
+        Email: 'rc@walla.com',
+        Remarks: 'נסיון',
+    },
+    function(res){ //on success
+        alert(res);
+    }
+);	
+
+
+====================================
+Add.aspx:
+---------
+Response.Write(Request.Form["Remarks"]);

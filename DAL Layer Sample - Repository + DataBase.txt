@@ -1,0 +1,363 @@
+// NOTE! internal mode - this 'DataBase' layer only accessible within the current assembly!
+namespace DAL.DataBase
+{  
+    internal class Deliveries
+    {
+        public static SqlDataReader Get(int Id)
+        {
+            try
+            {
+                SqlParameter[] prms = {
+                        new SqlParameter("@DeliveryId", Id)
+                };
+
+                return SqlHelper.ExecuteReader(Config.Keys.ConnectionString, CommandType.StoredProcedure, "sp_Delivery_Get", prms);
+            }
+            catch { return null; }
+        }
+
+        public static SqlDataReader Search(int? PageNum, byte? PageSize, string RestaurantId, string EmployeeId, byte? StatusId, byte? PaymentStatusId, DateTime? FromTime, DateTime? ToTime, string OrderBy, string OrderByDirection)
+        {
+            try
+            {
+                var prms = new List<SqlParameter>();
+
+                if (PageNum.HasValue)
+                    prms.Add(new SqlParameter("@PageNum", PageNum));
+                if (PageSize.HasValue)
+                    prms.Add(new SqlParameter("@PageSize", PageSize));
+                if (!string.IsNullOrEmpty(RestaurantId))
+                    prms.Add(new SqlParameter("@RestaurantId", RestaurantId));
+                if (!string.IsNullOrEmpty(EmployeeId))
+                    prms.Add(new SqlParameter("@EmployeeId", EmployeeId));
+                if (StatusId.HasValue)
+                    prms.Add(new SqlParameter("@StatusId", StatusId));
+                if (PaymentStatusId.HasValue)
+                    prms.Add(new SqlParameter("@PaymentStatusId", PaymentStatusId));
+                if (FromTime.HasValue)
+                    prms.Add(new SqlParameter("@FromTime", FromTime));
+                if (ToTime.HasValue)
+                    prms.Add(new SqlParameter("@ToTime", ToTime));
+                if (!string.IsNullOrEmpty(OrderBy))
+                    prms.Add(new SqlParameter("@OrderBy", OrderBy));
+                if (!string.IsNullOrEmpty(OrderByDirection))
+                    prms.Add(new SqlParameter("@OrderByDirection", OrderByDirection));
+
+                return SqlHelper.ExecuteReader(Config.Keys.ConnectionString, CommandType.StoredProcedure, "sp_Deliveries_Search", prms.ToArray());
+            }
+            catch { return null; }
+        }
+
+        public static bool UpdatePaymentStatus(int Id, byte PaymentStatusId, string EmployeeId)
+        {
+            try
+            {
+                SqlParameter[] prms = {
+                        new SqlParameter("@DeliveryId", Id),
+                        new SqlParameter("@PaymentStatusId", PaymentStatusId),
+                        new SqlParameter("@EmployeeId", EmployeeId),
+                };
+
+                return SqlHelper.ExecuteNonQuery(Config.Keys.ConnectionString, CommandType.StoredProcedure, "sp_Delivery_Payment_Status_Update", prms) > 0;
+            }
+            catch { return false; }
+        }
+
+        public static bool UpdateStatus(int Id, byte StatusId, string EmployeeId)
+        {
+            try
+            {
+                SqlParameter[] prms = {
+                        new SqlParameter("@DeliveryId", Id),
+                        new SqlParameter("@StatusId", StatusId),
+                        new SqlParameter("@EmployeeId", EmployeeId),
+                };
+
+                return SqlHelper.ExecuteNonQuery(Config.Keys.ConnectionString, CommandType.StoredProcedure, "sp_Delivery_Status_Update", prms) > 0;
+            }
+            catch { return false; }
+        }
+
+        public static SqlDataReader GetPaymentStatuses()
+        {
+            try
+            {
+                return SqlHelper.ExecuteReader(Config.Keys.ConnectionString, CommandType.StoredProcedure, "sp_Delivery_Payment_Statuses_Get");
+            }
+            catch { return null; }
+        }
+
+        public static SqlDataReader GetStatuses()
+        {
+            try
+            {
+                return SqlHelper.ExecuteReader(Config.Keys.ConnectionString, CommandType.StoredProcedure, "sp_Delivery_Statuses_Get");
+            }
+            catch { return null; }
+        }
+
+        public static int Save(int Id, string EmployeeId, string RestaurantId, string ToAddress, byte StatusId, byte PaymentStatusId, DateTime? DeliveredOn, DateTime? TakenOn, float Amount, int Priority)
+        {
+            try
+            {
+                SqlParameter[] prms = {
+                        new SqlParameter("@Id", Id),
+                        new SqlParameter("@EmployeeId", EmployeeId),
+                        new SqlParameter("@RestaurantId", RestaurantId),
+                        new SqlParameter("@ToAddress", ToAddress),
+                        new SqlParameter("@StatusId", StatusId),
+                        new SqlParameter("@PaymentStatusId", PaymentStatusId),
+                        new SqlParameter("@DeliveredOn", DeliveredOn),
+                        new SqlParameter("@TakenOn", TakenOn),
+                        new SqlParameter("@Amount", Amount),
+                        new SqlParameter("@Priority", Priority),
+                };
+
+                return Convert.ToInt32(SqlHelper.ExecuteNonQuery(Config.Keys.ConnectionString, CommandType.StoredProcedure, "sp_Delivery_Save", prms));                
+            }
+            catch { return 0; }
+        }
+    }
+}
+
+----------------------------------------
+
+namespace DAL.Repository
+{
+    public class Deliveries
+    {
+        public static Delivery Get(int Id)
+        {
+            var dr = DataBase.Deliveries.Get(Id);
+            var result = DeliveriesLoader.Load(dr);
+            if (result == null || result.Count == 0)
+                return null;
+            return result.FirstOrDefault();
+        }
+
+        public static List<Delivery> Search(DeliverySearchParameters searchParameters)
+        {
+            var dr = DataBase.Deliveries.Search(searchParameters.PageNum, searchParameters.PageSize, searchParameters.RestaurantId, searchParameters.EmployeeId, searchParameters.StatusId, searchParameters.PaymentStatusId, searchParameters.FromTime, searchParameters.ToTime, searchParameters.OrderBy, searchParameters.OrderByDirection.ToString());
+            return DeliveriesLoader.Load(dr);
+        }
+
+        public static bool UpdatePaymentStatus(int Id, byte PaymentStatusId, string EmployeeId) {
+            return DataBase.Deliveries.UpdatePaymentStatus(Id, PaymentStatusId, EmployeeId);
+        }
+
+        public static bool UpdateStatus(int Id, byte StatusId, string EmployeeId)
+        {
+            return DataBase.Deliveries.UpdateStatus(Id, StatusId, EmployeeId);
+        }
+
+        public static List<DeliveryStatus> GetStatuses()
+        {
+            var cacheKey = CacheKeys.DeliveryStatuses;
+            var result = CacheServer.Instance.Get<List<DeliveryStatus>>(cacheKey);
+            if (result == null)
+            {
+                var dr = DataBase.Deliveries.GetStatuses();
+                result = DeliveriesLoader.LoadStatuses(dr);
+
+                if (result != null)
+                    CacheServer.Instance.Set(cacheKey, result, CacheServer.HighExpiry);
+            }
+            return result;
+        }
+
+        public static List<PaymentStatus> GetPaymentStatuses()
+        {
+            var cacheKey = CacheKeys.PaymentStatuses;
+            var result = CacheServer.Instance.Get<List<PaymentStatus>>(cacheKey);
+            if (result == null)
+            {
+                var dr = DataBase.Deliveries.GetPaymentStatuses();
+                result = DeliveriesLoader.LoadPaymentStatuses(dr);
+
+                if(result != null)
+                    CacheServer.Instance.Set(cacheKey, result, CacheServer.HighExpiry);
+            }
+            return result;
+        }
+
+        public static int Save(Delivery Delivery)
+        {
+            return DataBase.Deliveries.Save(Delivery.Id, Delivery.Employee.Id, Delivery.Restaurant.Id, Delivery.ToAddress, Delivery.Status.Id, Delivery.PaymentStatus.Id, Delivery.DeliveredOn, Delivery.TakenOn, Delivery.Amount, Delivery.Priority);
+        }
+    }
+
+    internal class DeliveriesLoader
+    {
+        public static List<Delivery> Load(SqlDataReader dr)
+        {
+            if (dr == null) return null;
+
+            var deliveries = new List<Delivery>();
+
+            using (dr)
+            {
+                if (dr.HasRows)
+                {
+                    while (dr.Read())
+                        deliveries.Add(new Delivery {
+                            Amount = Convert.ToSingle(dr["Amount"]),
+                            DeliveredOn = Convert.ToDateTime(dr["DeliveredOn"]),
+                            Employee = Employees.Get(dr["EmployeeId"].ToString()),
+                            Id = Convert.ToInt32(dr["Id"]),
+                            PaymentStatus = Deliveries.GetPaymentStatuses().SingleOrDefault(x => x.Id == Convert.ToByte(dr["PaymentStatusId"])),                            
+                            Restaurant = Restaurants.Get(dr["RestaurantId"].ToString()),
+                            Status = Deliveries.GetStatuses().SingleOrDefault(x => x.Id == Convert.ToByte(dr["DeliveryStatusId"])),
+                            TakenOn = Convert.ToDateTime(dr["TakenOn"]),
+                            ToAddress = dr["ToAddress"].ToString(),
+                            Priority = Convert.ToInt32(dr["Priority"]),
+                            Notes = dr["Notes"].ToString()
+                        });
+                }
+            }
+
+            return deliveries;
+        }
+
+        public static List<DeliveryStatus> LoadStatuses(SqlDataReader dr)
+        {
+            if (dr == null) return null;
+
+            var statuses = new List<DeliveryStatus>();
+
+            using (dr)
+            {
+                if (dr.HasRows)
+                {
+                    while (dr.Read())
+                        statuses.Add(new DeliveryStatus(Convert.ToByte(dr["Id"]), dr["Name"].ToString()));
+                }
+            }
+
+            return statuses;
+        }
+
+        public static List<PaymentStatus> LoadPaymentStatuses(SqlDataReader dr)
+        {
+            if (dr == null) return null;
+
+            var statuses = new List<PaymentStatus>();
+
+            using (dr)
+            {
+                if (dr.HasRows)
+                {
+                    while (dr.Read())
+                        statuses.Add(new PaymentStatus(Convert.ToByte(dr["Id"]), dr["Name"].ToString()));
+                }
+            }
+
+            return statuses;
+        }
+    }
+}
+
+----------------------------------------
+
+using Newtonsoft.Json;
+
+namespace Entities
+{
+    public class DeliverySearchParameters
+    {
+        [JsonProperty(PropertyName = "pageNum")]
+        public int? PageNum { get; set; }
+
+        [JsonProperty(PropertyName = "pageSize")]
+        public byte? PageSize { get; set; }
+
+        [JsonProperty(PropertyName = "restaurantId")]
+        public string RestaurantId { get; set; }
+
+        [JsonProperty(PropertyName = "employeeId")]
+        public string EmployeeId { get; set; }
+
+        [JsonProperty(PropertyName = "deliveryStatus")]
+        public byte? StatusId { get; set; }
+
+        [JsonProperty(PropertyName = "paymentStatus")]
+        public byte? PaymentStatusId { get; set; }
+
+        [JsonProperty(PropertyName = "priority")]
+        public int? Priority { get; set; }
+
+        [JsonProperty(PropertyName = "fromTime")]
+        public DateTime? FromTime { get; set; }
+
+        [JsonProperty(PropertyName = "toTime")]
+        public DateTime? ToTime { get; set; }
+
+        [JsonProperty(PropertyName = "orderBy")]
+        public string OrderBy { get; set; }
+
+        [JsonProperty(PropertyName = "orderByDirection")]
+        public eOrderByDirection OrderByDirection { get; set; }
+    }
+
+public class DeliveryStatus
+    {
+        [JsonProperty(PropertyName = "id")]
+        public byte Id { get; set; }
+
+        [JsonProperty(PropertyName = "name")]
+        public string Name { get; set; }
+
+        public DeliveryStatus(byte Id, string Name)
+        {
+            this.Id = Id;
+            this.Name = Name;
+        }
+    }
+
+public class Delivery
+    {
+        [JsonProperty(PropertyName = "id")]
+        public int Id { get; set; }
+
+        [JsonProperty(PropertyName = "deliveredOn")]
+        public string __DeliveredOn {
+            get { return this.DeliveredOn.ToString("yyyy-MM-dd"); }
+            set { this.DeliveredOn = DateTime.Parse(value); }
+        }
+        public DateTime DeliveredOn { get; set; }
+
+        [JsonProperty(PropertyName = "takenOn")]
+        public string __TakenOn
+        {
+            get { return this.TakenOn.ToString("yyyy-MM-dd"); }
+            set { this.TakenOn = DateTime.Parse(value); }
+        }
+        public DateTime TakenOn { get; set; }
+
+        [JsonProperty(PropertyName = "amount")]
+        public float Amount { get; set; }
+
+        [JsonProperty(PropertyName = "toAddress")]
+        public string ToAddress { get; set; }
+
+        [JsonProperty(PropertyName = "employee")]
+        public Employee Employee { set; get; }
+
+        [JsonProperty(PropertyName = "restaurant")]
+        public Restaurant Restaurant { set; get; }
+
+        [JsonProperty(PropertyName = "statusId")]
+        public DeliveryStatus Status { set; get; }
+
+        [JsonProperty(PropertyName = "paymentStatusId")]
+        public PaymentStatus PaymentStatus { set; get; }
+
+        [JsonProperty(PropertyName = "priority")]
+        public int Priority { set; get; }
+
+        [JsonProperty(PropertyName = "notes")]
+        public string Notes { set; get; }
+    }
+}
+
+
+

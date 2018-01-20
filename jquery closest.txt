@@ -1,0 +1,73 @@
+closest:
+--------
+
+$([selector]).closest([matchSelector])
+for each [selector] get the first element that matches the [matchSelector] found within itself and its ancestors (parents)
+
+in the below example, each click on product will search for the first products container in the DOM tree and will add a class to it.
+as you can see, the closest is differ from the parent by the fact that it continue up the tree DOM till it will 
+find a match. can be found on element which located several parents above. (e.g: see 'product 1.2.2')
+
+remark: works perfectly with ul and li.
+
+
+example:
+--------
+
+<style type="text/css">
+    .products{ width:400px; }
+    .products.selected
+    {
+            border:solid 3px red;
+    }
+        
+    .product{
+        height:40px;
+        line-height:40px;
+        text-align:center;
+        color:#fff;  
+        background-color:Gray; 
+        border:solid 3px #fff;      
+    }
+        
+    .level1{ }
+    .level2{ width: 75%; }
+    .level3{ width: 50%; }
+</style>
+
+
+
+<div>
+    <div class="products">
+        <div class="product level1">product 1</div>
+        <div>
+            <div class="product level2">product 1.1</div>
+            <div class="product level2">product 1.2</div>
+            <div>
+                <div class="product level3">product 1.2.1</div>
+                <div class="product level3">product 1.2.2</div>
+            </div>
+        </div>            
+    </div>
+    <div class="products">
+        <div class="product level1">product 2</div>
+        <div class="product level1">product 2</div>
+    </div>
+    <div class="products">
+        <div class="product level1">product 3</div>
+    </div>
+    <div class="products">
+        <div class="product level1">product 4</div>
+        <div>
+            <div class="product level2">product 4.1</div>
+            <div class="product level2">product 4.2</div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    $('.product').click(function () {
+        $(this).closest('.products').toggleClass('selected');
+    });
+</script>

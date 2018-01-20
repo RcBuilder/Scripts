@@ -1,0 +1,28 @@
+var services = {
+    deleteFavorite: function (id) {
+        $.ajax({
+            type: 'DELETE',
+            url: servicesSettings.base.concat(
+                    servicesSettings.actions.deleteFavoriteTemplate
+                    .replace('{0}', settings.getRestaurantId())
+                    .replace('{1}', id)
+            )
+        });
+    }
+}
+
+----
+
+function deleteFavorites() {
+    var itemsToDelete = $('#deleteFavorites').find('[role="main"] > [data-role="controlgroup"]:first [type="checkbox"]:checked');
+    
+    var promises = [];
+    itemsToDelete.each(function () {
+        promises.push(services.deleteFavorite($(this).attr('id')));
+    });
+
+    // wait ALL
+    $.when(promises).done(function () {
+        changePage('favorites');
+    });
+}

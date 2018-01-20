@@ -1,0 +1,18 @@
+CREATE TABLE #tblNums(num int);
+INSERT INTO #tblNums 
+VALUES (5),(8),(4),(3),(7),(8),(40),(27);
+
+;WITH CTE_STATS AS (
+  SELECT	
+    AVG(num) AS 'numAvg',
+    STDEVP(num) AS 'numDeviation'
+  FROM #tblNums
+)
+
+SELECT num
+FROM #tblNums AS N CROSS JOIN CTE_STATS S
+WHERE (num between S.numAvg - S.numDeviation and S.numAvg + S.numDeviation);
+
+drop table #tblNums
+
+-- Result:	5, 8, 4, 3, 7, 8

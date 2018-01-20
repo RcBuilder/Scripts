@@ -1,0 +1,17 @@
+jQuery one 
+----------
+event handler that executes only one time, after the first execution it unbound the event
+and will no longer be active.
+
+<input id="btn1" type="button" value="CLICK ME" />
+<input id="btn2" type="button" value="CLICK ME" />
+
+// after the first execution this event will unbound and will not fire anymore
+$('#btn1').one("click", function () {
+    console.log('btn1 CLICK');
+});
+
+// fire each click
+$('#btn2').bind("click", function () {
+    console.log('btn2 CLICK');
+});

@@ -1,0 +1,7 @@
+// Stop the currently-running animation on the matched elements
+
+$(".music-gallery-block .music-box").hover(function () {
+    $(this).find('.details-wrapper').stop(true, true).fadeIn();
+}, function () {
+    $(this).find('.details-wrapper').stop(true, true).fadeOut();
+});
