@@ -1,0 +1,28 @@
+#region IsSearchEngineBot:
+        public static bool IsSearchEngineBot(System.Web.HttpContext context)
+        {
+            List<string> robots = new List<string>();
+            robots.Add("googlebot");
+            robots.Add("spider");
+            robots.Add("yahoo");
+            robots.Add("architext");
+            robots.Add("baidu");  
+            robots.Add("msnbot");
+            robots.Add("scooter");
+            robots.Add("slurp");
+            robots.Add("teoma");
+            robots.Add("yandex");
+            
+
+            try {
+                string userAgent = context.Request.UserAgent.ToLower();
+                if(userAgent == string.Empty) return false;
+
+                foreach (string robot in robots)
+                    if (userAgent.Contains(robot))
+                        return true;
+                return false;
+            }
+            catch { return false; }
+        }
+        #endregion

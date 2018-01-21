@@ -1,0 +1,51 @@
+javascript foreach
+------------------
+
+- option 1 -
+
+function foreach(arr, callback) {
+    for (var i = 0; i < arr.length; i++)
+        callback.call(this, arr[i]);
+}
+
+var arr = ['Roby', 'Avi', 'Yaron', 'Shirly'];
+foreach(arr, function (item) { console.log(item); });
+
+
+
+- option 2 -
+
+function foreach(arr, callback) {
+    for (var i = 0; i < arr.length; i++)
+        callback.call(arr[i]);
+}
+
+var arr = ['Roby', 'Avi', 'Yaron', 'Shirly'];
+foreach(arr, function () { console.log(this); });
+
+
+
+- option 3 -
+
+function foreach(callback) {
+    for (var i = 0; i < this.length; i++)
+        callback(this[i]);
+}
+
+var arr = ['Roby', 'Avi', 'Yaron', 'Shirly'];
+foreach.call(arr, function (item) { console.log(item); });
+
+
+
+- option 4 -
+
+Array.prototype.foreach = function (callback) {
+    if (!(this instanceof Array)) return;
+    for (var i = 0; i < this.length; i++)
+          callback(this[i]);
+};
+
+var products = ['AA', 'BB', 'CC', 'DD'];
+products.foreach(function (product) {
+    console.log(product);
+});

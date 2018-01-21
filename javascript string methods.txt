@@ -1,0 +1,108 @@
+slice
+-----
+slice([start], [end]); // return a sub string between the [start] and [end] positions, zero based, can take negative indexes.
+slice([start]); // return a sub string starting from [start] position and till the end of the string, zero based, can take negative indexes.
+
+console.log('YELLOW BLUE RED GREEN'.slice(6, 10)); // BLUE
+console.log('YELLOW BLUE RED GREEN'.slice(-9, -6)); // RED (slice from the end of the string)
+console.log('YELLOW BLUE RED GREEN'.slice(6, -6)); // BLUE RED (slice from start index of +6 to the end index of -6 of the string)
+console.log('YELLOW BLUE RED GREEN'.slice(11)); // RED GREEN (split from index 10 till the end of the string) 
+console.log('YELLOW BLUE RED GREEN'.slice(-5)); // GREEN (split index 5 from the end of the string till the end)
+
+substring
+---------
+substring([start], [end]); // return a sub string between the [start] and [end] positions, zero based, only positive indexes allowed.
+substring([start]); // return a sub string starting from [start] position and till the end of the string, zero based, only positive indexes allowed.
+
+console.log('ONE TWO TREE FOUR'.substring(4, 7)); // TWO (sub string from index 4 to index 7)
+console.log('ONE TWO TREE FOUR'.substring(4)); // TWO TREE FOUR (sub string from index 4 till the end of the string)
+
+substr
+------
+substr([start], [length]); // return a sub string of [length] characters starting from [start] position, zero based, can take negative indexes.
+substr([start]); // return a sub string starting from [start] position and till the end of the string, zero based, can take negative indexes.
+
+console.log('ONE TWO TREE FOUR'.substr(4, 3)); // TWO (sub string of 3 characters starting from index 4)
+console.log('ONE TWO TREE FOUR'.substr(-9, 4)); // TREE  (sub string of 4 characters starting from the -9 index from the end of the string)
+console.log('ONE TWO TREE FOUR'.substr(-4)); // FOUR (sub string of the last 4 characters)
+console.log('ONE TWO TREE FOUR'.substr(13)); // FOUR (sub string from index 13 and till the end of the string)
+
+replace
+-------
+replace([to replace], [replacement]); // replace the [to replace] phrase match with the supplied [replacement], replace the first match.
+
+console.log('HELLO ROBY!'.replace('ROBY', 'AVI')); // HELLO AVI! (replace 'ROBY' with 'AVI' - single replacement)
+console.log('HELLO ROBY! HELLO AGAIN ROBY!'.replace('ROBY', 'AVI')); // HELLO AVI! HELLO AGAIN ROBY! (single replacement)
+console.log('HELLO ROBY! HELLO AGAIN ROBY!'.replace('ROBY', 'AVI').replace('ROBY', 'AVI')); // HELLO AVI! HELLO AGAIN AVI! (double replacement)
+
+indexOf
+-------
+indexOf([string]); // return the index of [string], zero based, return -1 if not exists
+
+console.log('ABCDEFGHIJKLMNOP'.indexOf('D')); // 3 (zero based index)
+console.log('YELLOW BLUE RED GREEN'.indexOf('BLUE')); // 6 (start index of 'BLUE' string)
+console.log('ABCDEFGHIJKLMNOP'.indexOf('Z')); // -1 (not exists)
+
+lastIndexOf
+-----------
+lastIndexOf([string]); // return the last index of [string], zero based, return -1 if not exists
+
+console.log('ABCD ABCD ABCD'.lastIndexOf('D')); // 13 (last 'D' character)
+
+search
+------
+search([string]);  // search for [string] and return the first match position, zero based, return -1 if not exists, equals to indexOf but can use regEx patterns
+
+console.log('ABC DDD CDD AAB'.search('CDD')); // 8 (start index of 'CDD' string)
+console.log('ABC DDD CDD AAB CDD CCX'.search('CDD')); // 8 (start index of the first 'CDD' string)
+console.log('ABC DDD CDD AAB'.search('RRR')); // -1 (not exists)
+
+toUpperCase
+-----------
+toUpperCase(); // return an upper case version of the string
+
+console.log('My Name is ROBY'.toUpperCase()); // MY NAME IS ROBY (uppercase)
+
+toLowerCase
+-----------
+toLowerCase(); // return an lower case version of the string
+
+console.log('My Name is ROBY'.toLowerCase()); // my name is roby (lowercase)
+
+concat
+------
+concat([arguments]); // concatenate arguments (any type) to a single long string, execute the toString method of each object
+
+console.log('HELLO'.concat(' ', 'WORLD', '!')); // HELLO WORLD! (concatenate multiples strings to a single long one)
+
+var o = { x: 4, z: 6 };
+o.toString = function () { return this.x + 'x' + this.z };
+console.log('VALUES:'.concat('some string', ',', 1, ',', 30.9, ',', o));  // VALUES:some string,1,30.9,4x6 (concatenate multiples objects to a single long string)
+
+charAt
+------
+charAt([position]); // return the character at index [position], return string empty if not exists such index. 
+
+console.log('HELLO WORLD'.charAt(0)); // H (character in index 0 - first character)
+console.log('HELLO WORLD'.charAt(1)); // E (character in index 1s)
+console.log('HELLO WORLD'.charAt(100)); // '' (not exists)
+
+notice!
+console.log('HELLO WORLD'[0]); // H (does not work in all browsers!! - use charAt instead)
+
+charCodeAt
+----------
+charCodeAt([position]); // return the ascii value of the character at index [position], return NaN if not exists such index. 
+
+console.log('HELLO WORLD'.charCodeAt(0)); // 72 (ascii value of character in index 0 - 'H')
+console.log('HELLO WORLD'.charCodeAt(1)); // 69 (ascii value of character in index 0 - 'E')
+console.log('HELLO WORLD'.charCodeAt(100)); // NaN (index not exists)
+
+split
+-----
+split([string]); // convert a string to an array, split it by [string] char or phrase.
+
+console.log('ONE TWO TREE FOUR'.split(' ').length); // 4 (convert string to array, split by ' ' character)
+console.log('ONE,TWO,TREE,FOUR'.split(',').length); // 4 (convert string to array, split by ' ' character)
+console.log('HELLO WORLD'.split('').length); // 11 (convert string to array of characters)
+console.log('VALUE1###VALUE2###VALUE3'.split('###').length); // 3 (convert string to array, split by '###' phrase)

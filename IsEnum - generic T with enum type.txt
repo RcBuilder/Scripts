@@ -1,0 +1,11 @@
+public static bool Fun1<T>(T value) where T : struct
+{
+    try
+    {
+        if (!typeof(T).IsEnum)
+            throw new ArgumentException("NOT AN ENUM TYPE");
+
+        // code ....
+    }
+    catch { }
+}

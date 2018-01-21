@@ -1,0 +1,14 @@
+js get function name:
+---------------------
+var fName = arguments.callee.name;
+
+
+remark:
+-------
+this works for this syntax:
+
+function myfunc() {}
+
+
+and not for this:
+myfunc: function () {}

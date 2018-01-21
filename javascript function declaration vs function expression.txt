@@ -1,0 +1,53 @@
+function declaration vs function expression
+===========================================
+
+function declaration
+--------------------
+
+- a function declaration defines a named function without variable assignment.
+- serve as standalone formation. 
+- definition MUST starts with function. 
+- DO NOT declare it on non-function blocks (if etc.)
+
+  // error!
+  if(false) { 
+     function fun1() { ... }
+  }
+  return fun1;  
+
+- hoisting fixes the order (see 'javascript HOISTED')
+
+- using:
+
+  function fun1(){ 
+	... 
+  }
+
+
+
+function expression
+-------------------
+
+- a function expression defines and assigns a function to a variable.
+- can be an anonymous or named function.
+- definition MUST NOT start with function. 
+
+- named functions will NOT be accessable outside of theirs scope
+
+  var a = function fun1(){ ... }
+  a(); // ok
+  fun1(); // Uncaught ReferenceError: fun1 is not defined
+
+
+- using:
+
+  // anonymous function expression
+  var fun1 = function (){ ... }
+
+  // named function expression 
+  var fun2 = function fun2(){ ... }
+
+  // self invoking function expression
+  (function () {
+     ...   
+  })();

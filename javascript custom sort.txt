@@ -1,0 +1,27 @@
+sort
+----
+sort([comparer]); // sort an array using a [comparer] function, the compare function should return a number that represents the order value
+sort(); // sort an array, alphabetical strings in ascending order
+
+[comparer] structure: function(a, b){ return a-b; } 
+
+
+// using 
+var arr_letters = ['D', 'B', 'F', 'C', 'A', 'E'];
+
+arr_letters.sort();
+console.log(arr_letters); // A,B,C,D,E,F (default sort) 
+
+---
+
+var arrProducts = [
+        { productId: 1, price: 30.4 },
+        { productId: 10, price: 120 },
+        { productId: 4, price: 5.48 },
+        { productId: 23, price: 12.2 },
+        { productId: 2, price: 490.12 },
+        { productId: 5, price: 120.1 }        
+    ];
+
+arrProducts.sort(function (a, b) { return a.price - b.price; });
+console.log(arrProducts); // sorted by price asc (custom sort)

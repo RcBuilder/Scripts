@@ -1,0 +1,30 @@
+﻿
+
+$.when(ajax1(), ajax2()).done(function(a1, a2){
+    console.log('finish all requests');
+});
+
+
+function ajax1()
+{
+	var url1 = "http://www.google.com";
+	return $.ajax(
+	{
+		url: url1,
+		type: "get",
+		dataType: "json",
+		cache: false,
+	});
+};
+
+function ajax2()
+{
+	var url1 = "http://www.yahoo.com";
+	return $.ajax(
+	{
+		url: url1,
+		type: "get",
+		dataType: "json",
+		cache: false,
+	});
+};

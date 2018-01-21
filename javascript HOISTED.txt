@@ -1,0 +1,52 @@
+javascript HOISTED
+------------------
+- hoisted is the action that's taken backstage by the javascript engine. 
+  it re-arranges the functions and the assignment function variables.
+  function declarations will be moved to the top of the block whereas function expression variables
+  also be moved to the top of the block as undefined and the assignment itself will be performed in its original line.
+
+- see also 'function declaration vs function expression'
+
+- using
+
+function fun1() { // 20
+    return fun2();
+    function fun2() { return 10; }        
+    function fun2() { return 20; }
+
+    /*
+        function fun2() { return 10; }
+        function fun2() { return 20; }
+        return fun2();
+    */
+}
+
+---
+
+function fun1() { // 10
+    var res = function fun2() { return 10; }
+    return res();
+    var res = function fun2() { return 20; }
+
+    /*
+    var res = undefined;
+    res = function fun2() { return 10; }
+    return res();
+    res = function fun2() { return 20; }
+    */
+}
+
+---
+
+function fun1() { // Uncaught TypeError: res is not a function
+    return res();
+    var res = function fun2() { return 10; }        
+    var res = function fun2() { return 20; }
+
+    /*
+    var res = undefined;
+    return res();
+    res = function fun2() { return 10; }        
+    res = function fun2() { return 20; }
+    */
+}

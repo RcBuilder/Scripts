@@ -1,0 +1,36 @@
+### json converter ###
+
+// generic<T> methods to convert json 2 ways
+
+using Newtonsoft.Json; // external dll
+
+public class JsonHelper
+{
+    public static string ToJson<T>(T obj)
+    {
+        return JsonConvert.SerializeObject(obj);
+    }
+
+    public static T LoadJson<T>(string json)
+    {
+        return JsonConvert.DeserializeObject<T>(json);
+    }
+}
+
+----
+
+// using examples
+
+public bool AddUserJson(CouchbaseUser user)
+{
+    string Key = string.Concat("USERS-", user.Id);
+    if (client.KeyExists(Key)) return false;
+    return client.Store(StoreMode.Add, Key, JsonHelper.ToJson<CouchbaseUser>(user));
+}
+
+public CouchbaseUser GetUserJson(string Id)
+{
+    string Key = string.Concat("USERS-", Id);
+    var value = client.Get<string>(Key);
+    return JsonHelper.LoadJson<CouchbaseUser>(value);
+}

@@ -1,0 +1,13 @@
+// using an object with properties as a dictionary
+var my_dictionary = {};
+
+my_dictionary['item1'] = 'value1';
+my_dictionary['item2'] = 'value2';
+my_dictionary['item3'] = 'value3';
+
+console.log(my_dictionary.item1);  // value1 
+console.log(my_dictionary['item1']);  // value1 
+        
+console.log(my_dictionary);  // {item1: "value1", item2: "value2", item3: "value3"} 
+delete my_dictionary['item2'];  // delete item (property)
+console.log(my_dictionary);  // {item1: "value1", item3: "value3"} 

@@ -1,0 +1,21 @@
+var Search = function(id){
+  for(var i = 0; i < this.length; i++)
+    if(this[i].id == id)
+      return this[i];
+  return null;
+};
+
+
+  var arrKW = []; // { id, text, currentQS, prevQS }
+  var arrGroups = []; // { id, text, currentQS, prevQS }
+  var arrCampaigns = []; // { id, text, currentQS, prevQS }
+  
+  arrKW.Search = Search;
+  arrGroups.Search = Search;
+  arrCampaigns.Search = Search;
+  
+  arrKW.push({ id:2, text:'', currentQS:33, prevQS:29 });
+  arrKW.push({ id:3, text:'', currentQS:12, prevQS:44 });
+  
+  Logger.log(arrKW.Search(1)); // null
+  Logger.log(arrKW.Search(3)); // object

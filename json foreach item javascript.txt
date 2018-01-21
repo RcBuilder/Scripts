@@ -1,0 +1,26 @@
+// json 
+
+var response = '[' +
+	'{ "prop1": 10, "prop2": "Roby", "prop3": "2015-01-09T10:52:17.0993231+02:00", "prop4": 30.6 },' +
+	'{ "prop1": 20, "prop2": "Avi", "prop3": "2015-01-10T10:52:17.0993231+02:00", "prop4": 51.1 },' +
+	'{ "prop1": 30, "prop2": "Shirly", "prop3": "2015-01-08T10:52:17.0993231+02:00", "prop4": 200.0 }' +
+']';
+
+
+// foreach
+
+var result = $.parseJSON(response);
+$.each(result, function (index, item) {
+            console.log(index+1 + '. ' + item.prop2);
+            console.log(index+1 + '. ' + result[index].prop2);
+});
+
+
+// result
+
+1. Roby     
+1. Roby       
+2. Avi     
+2. Avi       
+3. Shirly        
+3. Shirly 

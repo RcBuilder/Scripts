@@ -1,0 +1,22 @@
+
+-- test.js --
+
+var serviceA = function () {
+    var name = 'serviceA';
+
+    return {
+        funA: function () { alert('FUN A'); },
+        funB: function () { alert(name); },
+        funC: function (p1) { alert(p1); }
+    }
+};
+
+-----------------------------------
+
+$.get('Scripts/test.js').done(function (sourceCode) {
+        eval(sourceCode);
+        var aa = eval('serviceA()');
+        aa.funA();
+        aa.funB();
+        aa.funC('some param');
+    });

@@ -1,0 +1,11 @@
+<a href="" title="" class="Menu">aaaaaa</a>
+<a href="" title="" class="Menu">bbbbbb</a>
+<a href="" title="" class="Menu">cccccc</a>
+<a href="" title="" class="Menu">dddddd</a>
+<a href="" title="" class="Menu">eeeeee</a>
+<a href="" title="" class="Menu">ffffff</a>
+<a href="" title="" class="Menu">gggggg</a>
+
+
+var PageIndex = 1;
+$('a.Menu:eq('+ PageIndex +')').addClass('MenuSelected');

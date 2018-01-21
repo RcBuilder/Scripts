@@ -1,0 +1,1 @@
+var less_then_ie9 = navigator.userAgent.match(/MSIE\s(?!9.0)/);

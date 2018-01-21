@@ -1,0 +1,78 @@
+USING JSON
+----------
+$.ajax({
+            type: 'POST',
+            url: '/api/users', // 
+            dataType: 'json',
+            data: { Id: 145, FirstName: 'Roby', LastName: '2222', Age: 32 },           
+            success: function (data) {
+                $('<div>' + data.FirstName + '</div>').appendTo('#divUsers');
+            },
+            error: function (xhr) {
+                alert('STATUS = ' + xhr.status);
+            }
+        });
+
+USING STATUS CODES
+------------------
+$.ajax({
+            type: 'POST',
+            url: '/api/users',
+            dataType: 'json',
+            data: { Id: 145, FirstName: 'Roby', LastName: '2222', Age: 32 },
+            statusCode: {
+                200: function () { alert('OK'); },
+                201: function () { alert('Created'); },
+                404: function () { alert('NotFound'); }
+            }
+        });
+
+
+USING OTHER HTTP METHODs
+------------------------
+$.ajax({
+            type: 'PUT',
+            url: '/api/users', // gets user and return the updated users list
+            dataType: 'json',
+            data: { Id: 145, FirstName: 'Roby', LastName: '2222', Age: 32 },
+            success: function (data, textStatus, xhr) {
+                alert(xhr.status); // 200 OK
+                $.each(data, function (i, user) {
+                    $('<div>' + user.FirstName + '</div>').appendTo('#divUsers');
+                });
+            },
+            error: function (xhr) {
+                alert('STATUS = ' + xhr.status);
+            }
+        });
+
+
+$.ajax({
+            type: 'GET',
+            url: '/api/users', // return the users list
+            dataType: 'json',
+            success: function (data) {
+                $.each(data, function (i, user) {
+                    $('<div>' + user.FirstName + '</div>').appendTo('#divUsers');
+                });
+            },
+            error: function (xhr) {
+                alert('STATUS = ' + xhr.status);
+            }
+        });
+
+$.ajax({
+            type: 'POST',
+            url: '/api/users', // gets new user, add it to the users and return the user + code 201 created
+            dataType: 'json',
+            data: { Id: 122, FirstName: 'Avi', LastName: '3333', Age: 42 },
+            success: function (data, textStatus, xhr) {
+                alert(xhr.status); // 201 Created
+                $('<div>' + data.FirstName + '</div>').appendTo('#divUsers');
+            },
+            error: function (xhr) {
+                alert('STATUS = ' + xhr.status);
+            }
+        });
+
+notice! can also use any of the http methods such as 'POST', 'GET', 'DELETE', 'PUT' ...
