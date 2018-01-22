@@ -1,0 +1,16 @@
+Jquery :nth-child
+-----------------
+note! the same as in css3 
+
+structure
+---------
+:nth-child([index]) = the child in the specified index
+:nth-child([index]n) = every child in the specified index from the last match
+:nth-child([even/odd]) = odd or even
+
+using
+-----
+$('div > :nth-child(3)');     the third child of a div element
+$('div > :nth-child(even)');  every even child of a div element
+$('div > :nth-child(odd)');   every odd child of a div element
+$('div > :nth-child(3n)');    every third child of a div element

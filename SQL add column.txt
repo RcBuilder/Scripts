@@ -1,0 +1,12 @@
+
+	ALTER TABLE [TableName]
+	ADD  [ColumnName] [ColumnType] [OPTIONS]	 	
+
+	options:
+	[NULL/ NOT NULL] 
+	DEFAULT [DefaultValue]
+	IDENTITY(1,1)
+
+	sample:
+	ALTER TABLE TB_CONTENT_ITEMS 
+	ADD  ASSIGNMENT_ID NVARCHAR(100) NOT NULL DEFAULT ''

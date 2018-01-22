@@ -1,0 +1,33 @@
+function LinkItem(params) {
+    var nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    var defaults = { startDate: new Date(), dueDate: nextWeek };
+
+    this.id = params.id || '';
+    this.title = params.title || '';
+    this.callbackUrl = params.callbackUrl || '';
+    this.startDate = params.startDate || defaults.startDate;
+    this.dueDate = params.dueDate || defaults.dueDate;
+    this.location = params.location || '';
+}
+LinkItem.prototype.isGradable = function () {
+    return this.scoreType != undefined;
+}
+
+function Assignment(params) {
+    var defaults = { scoreType: '', scorePossible: 100 };
+
+    LinkItem.call(this, params); // call base constractor (Assignment object is the caller - this)
+    this.scoreType = params.scoreType || defaults.scoreType;
+    this.scorePossible = params.scorePossible || defaults.scorePossible;
+}
+Assignment.prototype = new LinkItem({});
+
+---
+
+var l = new LinkItem({});
+var a = new Assignment({});
+    
+alert(l.isGradable()); // false
+alert(a.isGradable()); // true

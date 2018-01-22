@@ -1,0 +1,19 @@
+Action act = () =>
+            {
+                for (var i = 0; i < 300; i++)
+                {
+                    Console.WriteLine("{0}. {1})", i, Thread.CurrentThread.ManagedThreadId);
+		    
+                }
+            };
+
+            var t1 = new Thread(new ThreadStart(act));
+            var t2 = new Thread(new ThreadStart(act));
+
+            t1.Start();
+            t2.Start();
+
+            t1.Join();
+            t2.Join();
+
+            Console.WriteLine("Completed"); 

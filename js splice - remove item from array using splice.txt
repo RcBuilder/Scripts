@@ -1,0 +1,31 @@
+// remove item from array
+
+var products = ['A','B','C','D','E','F'];
+
+var itemToRemoveIndex = 2; // C
+products.splice(itemToRemoveIndex, 1);
+
+console.log(products);
+
+output:
+A,B,D,E,F
+
+---
+
+// remove item from array + add new items in its location
+
+var products = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+var itemToRemoveIndex = 2; // C
+products.splice(itemToRemoveIndex, 1, 'B1', 'B2');
+
+console.log(products);
+
+output:
+A,B,B1,B2,D,E,F
+
+---
+
+reminder:
+Array.splice(start, deleteCount);
+Array.splice(start, deleteCount, item1, item2 ...);

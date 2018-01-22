@@ -1,0 +1,52 @@
+function LinkItem(params) {
+    var nextWeek = new Date();
+    nextWeek.setDate(nextWeek.getDate() + 7);
+
+    var defaults = { startDate: new Date(), dueDate: nextWeek };
+
+    this.id = params.id || '';
+    this.title = params.title || '';
+    this.callbackUrl = params.callbackUrl || '';
+    this.startDate = params.startDate || defaults.startDate;
+    this.dueDate = params.dueDate || defaults.dueDate;
+    this.location = params.location || '';
+}
+
+function Assignment(params) {
+    var defaults = { scoreType: '', scorePossible: 100 };
+
+    // [base constructor]
+    // call base constructor (Assignment object is the caller - this)
+    LinkItem.call(this, params); 
+
+    this.scoreType = params.scoreType || defaults.scoreType;
+    this.scorePossible = params.scorePossible || defaults.scorePossible;
+}
+Assignment.prototype = new LinkItem({});
+
+-------
+
+// USING 
+
+var assignment = new Assignment({
+                id: $scope.newAssignment.id,
+                title: $scope.newAssignment.title,
+                callbackUrl: $scope.newAssignment.callbackUrl,
+                startDate: startDate,
+                dueDate: dueDate,
+                iconURL: $scope.newAssignment.iconURL,
+                location: $scope.newAssignment.location,
+                scoreType: $scope.scoreType,
+                scorePossible: $scope.newAssignment.scorePossible          
+            });
+}
+        
+var link = new LinkItem({
+                id: $scope.newAssignment.id,
+                title: $scope.newAssignment.title,
+                callbackUrl: $scope.newAssignment.callbackUrl,
+                startDate: startDate,
+                dueDate: dueDate,
+                iconURL: $scope.newAssignment.iconURL,
+                location: $scope.newAssignment.location,
+});

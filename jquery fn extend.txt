@@ -1,0 +1,42 @@
+<ul>
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+            <li>4</li>
+            <li>5</li>
+        </ul>
+        <input type="button" value="clickMe" id="btn1" />
+
+---------
+
+jQuery.fn.extend({
+            toChar: function () {
+                if (!this instanceof HTMLUListElement)
+                    return;
+
+                $(this).find('li').each(function () {
+                    $(this).text($(this).text().charCodeAt(0));
+                });
+            },
+            evenMarker: function (color) {
+                if (!this instanceof HTMLUListElement)
+                    return;
+
+                $(this).find('li:nth-child(even)').css('color', color);
+            }
+        });
+
+        $('#btn1').click(function () {   
+            $('ul').toChar();
+            $('ul').evenMarker('red');
+        });
+
+---------
+
+// result
+
+        49
+        50 // red
+        51
+        52 // red
+        53

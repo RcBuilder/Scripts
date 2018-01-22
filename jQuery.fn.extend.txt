@@ -1,0 +1,5 @@
+jQuery.fn.extend({
+      funA: function () { ... }, 
+      funB: function () { ... }, 
+      funC: function () { ... }
+});

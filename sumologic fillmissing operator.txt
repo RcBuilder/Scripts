@@ -1,0 +1,66 @@
+fillmissing operator
+====================
+
+about:
+------
+When you run a standard group-by query, Sumo Logic only returns non-empty groups in the results.
+the fillmissing operator changes this behaviour and return a default value for empty groups!
+similar to isNull of the ms-sql
+
+reminder: 
+the outlier operator cannot catch anomalies arising from missing data.
+
+syntax:
+-------
+fillmissing [generator]
+
+generator types:
+- timeslice   
+  return rows with default value instead of empty (no row) by timeslice 
+  e.g: fillmissing timeslice(15m)
+
+- values
+  return rows with default value instead of empty (no row) by specific values 
+  note: returns default values ONLY for the defined values! (value1, value2 and value3) 
+  e.g: fillmissing values("value1", "value2", "value3")
+
+samples:
+--------
+in the following examples, we'll get count 0 instead of empty groups
+
+// example 1
+_sourceCategory=MHCampus.QA.App ("[HandleAssignmentsQueue]" or "[HandleScoresQueue]")
+| timeslice 15m
+| count by _timeslice
+| fillmissing timeslice(15m)
+| sort by _timeslice
+
+result:
+action				_count
+27/03/2017 11:30:00		30
+27/03/2017 11:15:00		0
+27/03/2017 11:00:00		0
+27/03/2017 10:45:00		52
+---
+
+// example 2
+_sourceCategory=MHCampus.QA.App ("[HandleAssignmentsQueue]" or "[HandleScoresQueue]")
+| parse "action [*] body" as action 
+| count by action
+| fillmissing values("HandleAssignmentsQueue", "HandleScoresQueue") in action
+
+result:
+action				_count
+HandleAssignmentsQueue		0
+HandleScoresQueue		0
+---
+
+// example 3
+_sourceCategory=MHCampus.QA.App ("[HandleAssignmentsQueue]" or "[HandleScoresQueue]")
+| parse "action [*] body" as action 
+| count by action
+| fillmissing values("HandleAssignmentsQueue") in action
+
+result:
+action				_count
+HandleAssignmentsQueue		0

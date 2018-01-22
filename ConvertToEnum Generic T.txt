@@ -1,0 +1,18 @@
+public static T ConvertToEnum<T>(string value) where T : struct
+        {
+            try
+            {
+                if (!typeof(T).IsEnum)
+                    throw new ArgumentException("T is not an ENUM!");
+                return (T)Enum.Parse(typeof(T), value, true);
+            }
+            catch{
+                return default(T);
+            }
+        }
+
+
+using:
+public enum eSourceIdType : byte { NULL, InternalId, UserName }
+
+var SourceIdType = ConvertToEnum<eSourceIdType>("InternalId");

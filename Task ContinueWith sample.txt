@@ -1,0 +1,2 @@
+var t1 = Task.Factory.StartNew(() => { return 1; }).ContinueWith(prev => { return prev.Result + 1; });
+Console.WriteLine(t1.Result); // 2

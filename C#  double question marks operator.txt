@@ -1,0 +1,18 @@
+C# ?? operator
+--------------
+
+syntax:
+// if b is not null -> a = b
+// if b is null -> a = c
+a = b ?? c 
+
+equivalent:
+if(b == null)
+  a = c;
+else 
+  a = b;
+
+e.g:
+string str = null, str2 = "abcd";
+Console.WriteLine(str ?? "default"); // default
+Console.WriteLine(str2 ?? "default"); // abcd            

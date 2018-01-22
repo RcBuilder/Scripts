@@ -1,0 +1,44 @@
+Conditional Serialization with Json.NET
+---------------------------------------
+
+structure:
+bool ShouldSerialize[MemberName]()
+
+using:
+[Serializable]
+    public class ClassD
+    {
+        [JsonProperty("id")]
+        public int Id { get; set; }
+
+        [JsonProperty("name")]
+        public string Name { get; set; }
+
+        [JsonProperty("age")]
+        public byte Age { get; set; }
+
+	// conditioned name serialization 
+	// only for non NULLs nor Empty values
+        public bool ShouldSerializeName(){
+            return !string.IsNullOrEmpty(this.Name);
+        }
+
+	// conditioned age serialization 
+	// only for ages above 20
+        public bool ShouldSerializeAge() {
+            return this.Age > 20;
+        }
+    }
+
+Console.WriteLine(JsonConvert.SerializeObject(new ClassD { Id = 1, Name = "Roby", Age = 44 })); 
+// {"id":1,"name":"Roby","age":44}
+
+Console.WriteLine(JsonConvert.SerializeObject(new ClassD { Id = 1, Name = "", Age = 21 })); 
+// {"id":1,"age":21}
+
+Console.WriteLine(JsonConvert.SerializeObject(new ClassD { Id = 1, Name = "", Age = 18 })); 
+// {"id":1}
+
+Console.WriteLine(JsonConvert.SerializeObject(new ClassD { Id = 1 })); 
+// {"id":1}
+

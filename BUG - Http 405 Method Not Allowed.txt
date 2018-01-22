@@ -1,0 +1,25 @@
+Bug:
+error 405 while trying to make an http request
+
+Error:
+Http 405 - Method Not Allowed
+
+Cause:
+missing configuration (WebDAV)
+
+Solution:
+<modules runAllManagedModulesForAllRequests="false">
+  <remove name="WebDAVModule"/>
+</modules>
+
+<handlers>
+  <remove name="WebDAV"/>
+</handlers>
+
+
+
+
+
+
+
+ 
