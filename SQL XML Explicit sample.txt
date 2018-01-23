@@ -1,0 +1,63 @@
+declare @tblKeys table([Key] char(1))
+declare @tblValues table([Key] char(1), Value varchar(20))
+
+insert into @tblKeys
+	select 'A' UNION 
+	select 'B' UNION
+	select 'C'
+
+insert into @tblValues
+	select 'A', '123' UNION 
+	select 'A', '456' UNION
+	select 'B', 'ABCD' UNION 
+	select 'B', 'EFGH' UNION
+	select 'C', 'HELLO'
+
+select 1 as tag,
+null as parent, 
+
+null as [ROOT!1],
+null as [ROW!2!Key],
+
+null as [ROW!3!Value]
+
+UNION ALL
+
+select 2 as tag,
+1 as parent, 
+
+null,
+[Key],
+null
+
+from @tblKeys
+
+UNION ALL
+
+select 3 as tag,
+2 as parent, 
+
+null,
+V.[Key],
+V.Value
+
+from @tblKeys K join @tblValues V on (K.[Key] = V.[Key])
+
+order by [ROW!2!Key] asc, tag asc
+FOR XML EXPLICIT
+
+------------------------------------------
+
+<ROOT>
+  <ROW Key="A">
+    <ROW Value="123" />
+    <ROW Value="456" />
+  </ROW>
+  <ROW Key="B">
+    <ROW Value="ABCD" />
+    <ROW Value="EFGH" />
+  </ROW>
+  <ROW Key="C">
+    <ROW Value="HELLO" />
+  </ROW>
+</ROOT>

@@ -1,0 +1,12 @@
+smalldatetime vs datetime 
+-------------------------
+
+smalldatetime used for less accurate dates, it not includes the seconds and milliseconds of the date 
+
+
+declare @dt1 datetime =      '2016-01-16 14:01:01'
+declare @dt2 smalldatetime = '2016-01-16 14:01:01'
+select @dt1, @dt2 
+
+-- 2016-01-16 14:01:01.000
+-- 2016-01-16 14:01:00

@@ -1,0 +1,45 @@
+IQueryable vs IEnumerable
+=========================
+
+* IEnumerable
+  use it on memory collections
+
+* IQueryable
+  use it when you reach to a DB to fetch the result (Linq2SQL, EF etc.)
+
+
+example
+=======
+
+// IEnumerable	
+using (var context = new MyDBContext()) 
+{
+	IEnumerable<User> users = context.Where(x=>x.Name.Contains("Roby"));
+	var user = users.Take(1);
+}
+
+// sql Query
+select *
+from Users
+where cast(charindex(N'Roby', Name) as int) > 0
+
+---
+
+// IQueryable
+using (var context = new MyDBContext()) 
+{
+	IQueryable<User> users = context.Where(x=>x.Name.Contains("Roby"));
+	var user = users.Take(1);
+}
+
+// sql Query
+select TOP(1) *
+from Users
+where cast(charindex(N'Roby', Name) as int) > 0
+
+
+note that with IEnumerable you get all the users contains 'Roby' (can be multiple rows)
+and later on you take a single one from that list 
+but with IQueryable you get only a single user directly from the sql!! (BEST PRACTICE)
+
+

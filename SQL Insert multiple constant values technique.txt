@@ -1,0 +1,17 @@
+declare @tbl1 table(Id int, Name varchar(50))
+insert into @tbl1
+values 
+(1, 'Roby'),
+(4, 'Ronen'),
+(5, 'Avi'),
+(6, 'Shirly'),
+(9, 'Gabi')
+
+OR 
+
+declare @tbl1 table(Id int, Name varchar(50))
+insert into @tbl1
+select 1, 'Roby' union allselect 4, 'Ronen' union all
+select 5, 'Avi' union all
+select 6, 'Shirly' union all
+select 9, 'Gabi'

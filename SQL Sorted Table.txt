@@ -1,0 +1,32 @@
+
+@SortExpression varchar(20),
+@SortDirection varchar(4)
+
+set @SORT = @SortExpression + @SortDirection
+
+----------------------------------
+
+declare @SORTED_DATA table(RowId int primary key identity(1,1),[ID] int, [RegDate] datetime, [EMail] nvarchar(MAX), [UserName] nvarchar(MAX), [Vouchers] money, [IPAddress] nvarchar(50), [Volume] money, [Deposits] money, [Credits] money, [Withdrawals] money, [LastActivity] datetime, [CKey] nvarchar(MAX),[FirstDepositAmount] money, [LastTradeDate] datetime, [FirstTradeDate] datetime, [AccountBalance] money, [PNL] money, [LastDepositDate] datetime, [IsSocial] bit, [Rating] int)
+	insert into @SORTED_DATA
+		SELECT * FROM @DATA  
+		order by 
+			case when @SORT = 'RegDateASC' then RegDate end asc,  
+			case when @SORT = 'RegDateDESC' then RegDate end desc,
+			case when @SORT = 'IDASC' then ID end asc,  
+			case when @SORT = 'IDDESC' then ID end desc,
+			case when @SORT = 'DepositsASC' then Deposits end asc,  
+			case when @SORT = 'DepositsDESC' then Deposits end desc,
+			case when @SORT = 'WithdrawalsASC' then Withdrawals end asc,  
+			case when @SORT = 'WithdrawalsDESC' then Withdrawals end desc,
+			case when @SORT = 'VolumeASC' then Volume end asc,  
+			case when @SORT = 'VolumeDESC' then Volume end desc,
+			case when @SORT = 'AccountBalanceASC' then AccountBalance end asc,  
+			case when @SORT = 'AccountBalanceDESC' then AccountBalance end desc,
+			case when @SORT = 'PNLASC' then PNL end asc,  
+			case when @SORT = 'PNLDESC' then PNL end desc,
+			case when @SORT = 'RatingASC' then Rating end asc,  
+			case when @SORT = 'RatingDESC' then Rating end desc,  
+			case when @SORT = 'VouchersASC' then Vouchers end asc,  
+			case when @SORT = 'VouchersDESC' then Vouchers end desc, 
+			case when @SORT = 'LastDepositASC' then LastDepositDate end asc,  
+			case when @SORT = 'LastDepositDESC' then LastDepositDate end desc  

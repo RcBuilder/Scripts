@@ -1,0 +1,76 @@
+// also see 'IP Activity limitation.txt'
+
+public class IPBlocker
+{
+    private const int maxActionsAllowed = 5; // max actions per [RangeInMinutes] range
+    private const int rangeInMinutes = 30; // range in minutes
+
+    private static Dictionary<string, Entities.ActionCounter> actionCounters = new Dictionary<string, Entities.ActionCounter>();
+
+    public static Entities.IPBlockerResponse IsBlocked(string IP)
+    {
+        if (!actionCounters.ContainsKey(IP))
+            actionCounters.Add(IP, new Entities.ActionCounter());
+
+        var IPActionCounter = actionCounters[IP];
+
+        var response = new Entities.IPBlockerResponse { 
+            actionCounter = IPActionCounter, 
+            IPAddress = IP,
+            isBlocked = false 
+        };
+
+        var ts = DateTime.Now - IPActionCounter.StartDate;
+        if (ts.TotalMinutes > rangeInMinutes)
+            ResetIPAction(IPActionCounter);
+
+        if (IPActionCounter.Counter >= maxActionsAllowed)
+            response.isBlocked = true;
+        else 
+            IPActionCounter.Counter++;
+
+        return response;
+    }
+
+    private static void ResetIPAction(Entities.ActionCounter IPActions)
+    {
+        IPActions.Counter = 0;
+        IPActions.StartDate = DateTime.Now;
+    }
+}
+
+----------------------------------
+
+// entities
+
+public class ActionCounter {
+    public DateTime StartDate { set; get; }
+    public int Counter { set; get; }
+
+    public ActionCounter(){
+        this.StartDate = DateTime.Now;           
+    }
+}
+
+public class IPBlockerResponse {
+    public bool isBlocked { set; get; }
+    public string IPAddress { set; get; }
+    public ActionCounter actionCounter { set; get; }
+
+    public IPBlockerResponse() {
+        this.isBlocked = false;
+        this.IPAddress = string.Empty;
+        this.actionCounter = new ActionCounter();
+    }
+}
+
+---------------------------------------
+
+// using 
+
+var blockerResponse = BLL.IPBlocker.IsBlocked(ControllerContext.HttpContext.Request.UserHostAddress);
+if (blockerResponse.isBlocked)
+{
+    BLL.Logs.Add(new Entities.Log { Name = "IP Blocker", Method = "LecturerController.Register", Title = string.Format("IP {0} was blocked", blockerResponse.IPAddress), Description = string.Format("{0} trials", blockerResponse.actionCounter.Counter), LogType = (byte)Entities.eLogType.Info });
+    return View();
+}

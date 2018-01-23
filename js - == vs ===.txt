@@ -1,0 +1,37 @@
+
+For value types (numbers):
+a === b returns true if a and b have the same value and are of the same type
+
+For reference types:
+a === b returns true if a and b reference the exact same object
+
+For strings:
+a === b returns true if a and b are both strings and contain the exact same characters
+
+
+----------
+
+/*
+    * == : compare with casting (if needed)
+    * === : compare without casting
+    * when using objects - the comparison will refer to the objects reference
+*/
+
+/*  primitive types  */
+var a = 13;
+var b = '13';
+var c = 13;
+        
+alert(a == b); // true (convert and compare)
+alert(a === b); // false (not the same type)
+alert(a === c); // true (same type and same value)
+
+/* objects */
+var d = new String('ROBY');
+var e = new String('ROBY');
+var f = 'ROBY';
+
+alert(d == e); // false (not the same reference)
+alert(d === e); // false (not the same reference)
+alert(f == e); // true (convert e to string and compare)
+alert(f === e); // false (not the same type)

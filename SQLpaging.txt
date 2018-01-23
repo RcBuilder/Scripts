@@ -1,0 +1,30 @@
+
+note! 
+can also use ROW_NUMBER() OVER clause with CTE instead of table variable 
+see example: 'SQL Search Sample - Paging + Time filter + OrderBy.txt'
+
+--------------
+
+declare @tblIds table(RowId int identity(1,1), ItemId int)
+....
+....
+
+-- filter the current page items --
+declare @FromIndex int, @ToIndex int, @RowCount int, @NumOfPages int
+set @FromIndex = ((@PageNum - 1) * @PageSize) + 1	
+set @ToIndex = (@PageNum * @PageSize)
+set @RowCount = (select count(*) from @tblIds)
+set @NumOfPages = ceiling(cast(@RowCount as float)/@PageSize)
+
+declare @tblFiltered table(ItemId int)
+insert into @tblFiltered(ItemId)
+	select ItemId from @tblIds where RowId between @FromIndex and @ToIndex 
+
+select	I.* 
+from	@tblFiltered T,dbo.Items I with(NoLock) 
+where	T.ItemId = I.Id
+
+select	@PageNum as 'PageNum',
+		@PageSize as 'PageSize',
+		@RowCount as 'RowCount',
+		@NumOfPages as 'NumOfPages'

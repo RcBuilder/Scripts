@@ -1,0 +1,93 @@
+-- =============================================
+-- Author:		<Roby>
+-- Create date: <04/08/2007>
+-- Description:	<Add New Search>
+-- Demo : spAddNewSearch 1,1,'aaa;bbb;ccc;','בדיקה','http://aaa.co.il'
+-- =============================================
+alter PROCEDURE spAddNewSearch
+	@UserId int,
+	@IE bit,
+	@SearchWords nvarchar(1500), -- top:15 words 100 chars each
+	@SearchName nvarchar(100),
+	@SearchUrl nvarchar(100)
+AS
+BEGIN
+	SET NOCOUNT ON;
+	
+	-- add search and get identity
+	declare @SearchIdentity int
+	
+    insert into dbo.Searches with(RowLock)
+	(UserId,SearchUrl,SearchName,IE)
+	values
+	(@UserId,@SearchUrl,@SearchName,@IE)
+	
+	set @SearchIdentity = @@IDENTITY
+
+	-- attach search words to the search above
+	
+	-- split the words string into values table 
+	declare @tblWords table(Row tinyint identity , Word nvarchar(100))
+	insert into @tblWords(Word) 
+	select * from dbo.Split(@SearchWords,';')	
+
+	declare @index tinyint,@total tinyint,@CurWord nvarchar(100)
+	set @index = 1	-- loop index --
+	set @total = (select count(*) from @tblWords) -- table length --
+	
+	while(@index < @total)
+	BEGIN
+		-- get the current word + add 1 to indexer --
+		set @CurWord = (select Word from @tblWords where Row = @index)
+		set @index = @index+1
+
+		insert into dbo.SearchResaults with(RowLock)
+		(SearchId,SearchWord)
+		values
+		(@SearchIdentity,@CurWord)
+	END
+END
+
+===========================================================================
+
+ALTER function [dbo].[Split](@String nvarchar (1500),@Delimiter nvarchar (5) = ',')
+returns @ValueTable table ([Value] nvarchar(4000))
+
+BEGIN
+
+ declare @NextString nvarchar(4000)
+ declare @Pos int
+ declare @NextPos int
+ declare @CommaCheck nvarchar(1)
+
+ --Initialize
+
+ set @NextString = ''
+ set @CommaCheck = right(@String,1) 
+
+ --Check for trailing Comma, if not exists, INSERT
+
+ --if (@CommaCheck <> @Delimiter )
+
+ set @String = @String + @Delimiter
+
+ --Get position of first Comma
+
+ set @Pos = charindex(@Delimiter,@String)
+ set @NextPos = 1
+
+ --Loop while there is still a comma in the String of levels
+
+ while (@pos <>  0)  
+ begin
+  set @NextString = substring(@String,1,@Pos - 1)
+
+  insert into @ValueTable ( [Value]) Values (@NextString)
+
+	 set @String = substring(@String,@pos +1,len(@String))
+	 set @NextPos = @Pos
+	 set @pos  = charindex(@Delimiter,@String)
+ end
+	return
+
+END

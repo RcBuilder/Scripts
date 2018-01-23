@@ -1,0 +1,8 @@
+--create table #Data(Id varchar(10))
+
+insert into #Data
+    select 'VALUE_' + cast(FLOOR(RAND() * 100) as varchar(3)) 
+GO 10	
+
+select * from #Data
+--drop table #Data

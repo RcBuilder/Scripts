@@ -1,0 +1,45 @@
+
+select 1 as tag,
+null as parent,
+
+null as [Products!1],
+
+null as [Type!2!Id],
+null as [Type!2!Name],
+
+null as [Product!3!Id],
+null as [Product!3!Title]
+
+UNION ALL
+
+select 2 as tag,
+1 as parent,
+
+null,
+
+Id,
+[Name],
+
+null,
+null
+
+from dbo.PartTypes with(NoLock)	
+
+UNION ALL
+
+select 3 as tag,
+2 as parent,
+
+null,
+
+T.Id, -- union to level 2 --
+null,
+
+P.Id,
+P.Title
+
+from dbo.Products P with(NoLock),dbo.PartTypes T with(NoLock)
+where P.PartType = T.Id -- union --
+
+order by [Type!2!Id] asc,tag asc
+FOR XML EXPLICIT

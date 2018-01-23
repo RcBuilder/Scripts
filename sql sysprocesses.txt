@@ -1,0 +1,21 @@
+
+//all processes(actions) executed in the table 'TEST'
+
+SELECT *
+FROM   sys.sysprocesses   
+where  DB_NAME(dbid) = 'TEST'
+
+--------------------------------------
+
+// group entire processes by table, login and num of processes
+
+SELECT 
+    DB_NAME(dbid) as DBName, 
+    COUNT(dbid) as NoOfConnections,
+    loginame as LoginName
+FROM
+    sys.sysprocesses
+WHERE 
+    dbid > 0
+GROUP BY 
+    dbid, loginame

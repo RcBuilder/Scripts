@@ -1,0 +1,17 @@
+<input type="text" id="txtInSearch" onkeyup="IsEnter(event);" />
+<input type="button" onclick="DoSearch()" /> 
+
+
+function IsEnter(evt) {
+    // firefox return (code 0) when using the keyCode property -> need to use charCode
+    var keyCode = (evt.keyCode > 0) ? evt.keyCode : evt.charCode;
+    if (keyCode == 13) DoSearch();
+}
+
+function DoSearch() {
+    var phrase = $('#txtInSearch').val();
+
+    if (phrase == '') return false;
+
+    document.location = '?q=' + escape(phrase);
+}

@@ -1,0 +1,5 @@
+using string:
+var dt = Date.parse('26/09/2013 14:22:43');
+
+using ajax:
+var serverTime = Date.parse($.ajax({ url: '../Handlers/ServerTime.ashx', async: false }).responseText);

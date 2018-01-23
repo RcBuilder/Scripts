@@ -1,0 +1,18 @@
+
+SQL QUERY LOOP USING GO:
+------------------------
+GO [x] - loop the query x times
+
+EXAMPLE:
+--------
+select NEWID()
+GO 20
+
+ANOTHER EXAMPLE:
+----------------
+// add 20 rows to MyTable table 
+insert into MyTable
+	select NEWID() -- uniqueidentifier --
+GO 20
+	
+--select * from MyTable

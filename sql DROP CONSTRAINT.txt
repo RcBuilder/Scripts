@@ -1,0 +1,5 @@
+
+ALTER TABLE [tableName] DROP CONSTRAINT [constraintName]
+
+e.g:
+ALTER TABLE [dbo].[Courses] DROP CONSTRAINT [FK_Courses_Categories]

@@ -1,0 +1,39 @@
+SQL UNION vs UNION ALL
+======================
+
+UNION ALL = all rows including duplicates
+UNION = distinct duplicates
+
+USING:
+------
+declare @tbl1 table(Id int, Name varchar(50))
+insert into @tbl1
+values 
+(1, 'Roby'),
+(4, 'Ronen'),
+(5, 'Avi'),
+(6, 'Shirly'),
+(9, 'Gabi')
+
+declare @tbl2 table(Id int, Name varchar(50))
+insert into @tbl2
+values
+(1, 'Roby'),
+(5, 'Avi'),
+(9, 'Gabi')
+
+/* 
+	DISTINCT DUPLICATES 
+	Roby, Avi and Gabi returns only one time - distinct
+*/
+select * from @tbl1
+UNION
+select * from @tbl2
+
+/* 
+	ALL ROWS INCLUDING DUPLICATES 
+	Roby, Avi and Gabi returns twice
+*/
+select * from @tbl1
+UNION ALL
+select * from @tbl2

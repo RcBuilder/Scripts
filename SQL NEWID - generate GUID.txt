@@ -1,0 +1,2 @@
+-- generate new guid --
+select NEWID()

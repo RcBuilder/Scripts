@@ -1,0 +1,76 @@
+Intersect
+=========
+- returns the common/shared items between two IEnumerable collections
+
+- structure:
+  [IEnumerable].Intersect([IEnumerable])
+  [IEnumerable].Intersect([IEnumerable], [IEqualityComparer]) // also see 'IEqualityComparer'
+
+Except
+======
+- returns the items present in the first collection but not in the second collection
+- left join
+
+- structure:
+  [IEnumerable].Except([IEnumerable])
+  [IEnumerable].Except([IEnumerable], [IEqualityComparer]) // also see 'IEqualityComparer'
+
+
+on primitive types
+------------------
+int[] numbers1 = { 100, 200, 300 };
+int[] numbers2 = { 100, 200, 400, 500 };
+
+var intersectNumbers = numbers1.Intersect(numbers2);
+foreach (var number in intersectNumbers)
+    Console.WriteLine(number);
+
+- output:
+100
+200
+
+var exceptNumbers = numbers1.Except(numbers2);
+foreach (var number in exceptNumbers)
+    Console.WriteLine(number);
+
+- output:
+300
+
+var exceptNumbers = numbers2.Except(numbers1);
+foreach (var number in exceptNumbers)
+    Console.WriteLine(number);
+
+- output:
+400
+500
+
+on complex types
+----------------
+var items = new List<Item> { 
+    new Item{ ID = 100, Name = "Item A" },
+    new Item{ ID = 101, Name = "Item B" },
+    new Item{ ID = 102, Name = "Item C" }            
+};
+
+var items2 = new List<Item> { 
+    new Item{ ID = 100, Name = "Item A" },
+    new Item{ ID = 103, Name = "Item D" },
+    new Item{ ID = 104, Name = "Item E" }            
+};
+
+var intersectItems = items.Intersect(items2, new ItemComparer());
+foreach (var item in intersectItems)
+    Console.WriteLine(item.Name);
+
+- output:
+Item A
+
+---
+
+var exceptItems = items.Except(items2, new ItemComparer());
+foreach (var item in exceptItems)
+    Console.WriteLine(item.Name);
+
+- output:
+Item B
+Item C

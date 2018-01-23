@@ -1,0 +1,1 @@
+int intValue = int.TryParse(stringValue, out intValue) ? intValue : 0;

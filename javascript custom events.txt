@@ -1,0 +1,128 @@
+
+javascript custom events
+========================
+
+html
+----
+
+<p id="p1">paragraph1</p>
+<p id="p2">paragraph2</p>
+<p id="p3">paragraph3</p>
+<p id="p4">paragraph4</p>
+<p id="p5">paragraph5</p>
+<p id="p6" event3>paragraph6</p>
+
+<span id="spn1">span1</span>
+<span id="spn2">span2</span>
+<span id="spn3">span3</span>
+<span id="spn4" event3>span4</span>
+
+<div id="div1">div1</div>
+<div id="div2">div2</div>
+<div id="div3">div3</div>
+<div id="div4" event3>div4</div>
+
+<input type="button" value="trigger" onclick="onMyEvent();" />
+<input type="button" value="trigger2" onclick="onMyEvent2();" />
+<input type="button" value="trigger3" onclick="onMyEvent3();" />
+
+events implementation
+---------------------
+
+function myEvent(e) {
+    // e.target = the element that triggered the event (can use 'this' keyword instead)
+    console.log($(e.target).html());
+}
+
+function myEvent2(e, param1, param2) {
+    console.log($(this).attr('id') + ', ' + param1 + ',  ' + param2);
+}
+
+function myEvent3(e, param1) {
+	// e.target.tagName = the tag name of the element that triggered the event (can use 'this' keyword instead)
+    console.log('hello from ' + e.target.tagName + ' - ' + param1);
+}
+
+register to events
+------------------
+
+// onMyEvent
+$('#p1').bind('myEvent', myEvent);
+$('#p3').bind('myEvent', myEvent);
+$('#p5').bind('myEvent', myEvent);
+$('#spn2').bind('myEvent', myEvent);
+$('#spn3').bind('myEvent', myEvent);
+$('#div1').bind('myEvent', myEvent);
+$('#div3').bind('myEvent', myEvent);
+
+// onMyEvent2
+$('#p2').bind('myEvent2', myEvent2); 
+$('#p5').bind('myEvent2', myEvent2);
+$('#div2').bind('myEvent2', myEvent2);
+
+// onMyEvent3
+$('[event3]').bind('myEvent3', myEvent3); // register multiple elemenets by adding a custom attribute
+
+function onMyEvent() {
+	//$('div').trigger('myEvent'); // trigger only for div elements!
+    $('*').trigger('myEvent'); // trigger for all elements!
+}
+
+function onMyEvent2() {
+    $('*').trigger('myEvent2', ['abcd', '1234']); // with params
+}
+
+function onMyEvent3() {
+    $('*').trigger('myEvent3', ['MY PARAM']); // with param
+} 
+
+result
+------
+
+// onMyEvent
+paragraph1 
+paragraph3 
+paragraph5 
+span2 
+span3 
+div1 
+div3 
+
+// onMyEvent2
+p2, abcd,  1234 
+p5, abcd,  1234 
+div2, abcd,  1234 
+
+// onMyEvent3
+hello from P - MY PARAM 
+hello from SPAN - MY PARAM 
+hello from DIV - MY PARAM 
+
+notice
+------
+
+* we can register multiple elemenets (depands on the selected jquery selector) 
+* recommendation : register multiple elemenets by adding a custom attribute technique (see example)
+* event 'target' property represents the element that triggered the event (can use 'this' keyword instead)
+* element 'tagName' property represents the name of the element tag (div, span etc.)
+* we can pass parameters to an event by adding an array of values when calling the event  
+* use 'bind' or 'on' to register to an event
+* use 'trigger' to execute an event call
+* jquery $('*') represents a selector of ALL elements 
+
+
+
+===================================
+
+
+// event
+function DragAndResize(e) {
+    $(e.target).draggable().resizable();
+}
+
+// delegate
+$('div').on('DragAndResize', DragAndResize); // register
+
+$(document).ready(function () {   
+    $('.layer-item').trigger('DragAndResize'); 
+});

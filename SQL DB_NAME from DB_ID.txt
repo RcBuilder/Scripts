@@ -1,0 +1,1 @@
+select DB_NAME([DB_ID])

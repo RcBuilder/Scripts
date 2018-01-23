@@ -1,0 +1,8 @@
+-- random number between 0....1 --
+select RAND()
+
+-- random number between 1-100 --
+select CEILING(RAND() * 100)
+
+-- random number between 0-99 --
+select FLOOR(RAND() * 100)

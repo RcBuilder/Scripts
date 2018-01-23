@@ -1,0 +1,4 @@
+insert into Updates(EventDate)
+
+select dateadd(day, FLOOR(RAND() * 50), getdate())
+GO 12

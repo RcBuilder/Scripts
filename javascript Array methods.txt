@@ -1,0 +1,148 @@
+concat
+------
+concat([array1, array2 ... arrayN]); // concatenate arrays to a single array
+
+var arr_colors = ['YELLOW', 'BLUE', 'RED', 'GREEN', 'PINK'];
+var arr_numbers = ['ONE', 'TWO', 'TREE', 'FOUR', 'FIVE'];
+
+var arr_colors_and_numbers = arr_colors.concat(arr_numbers); // concatenate arr_numbers array to arr_colors array
+console.log(arr_colors_and_numbers); // ['YELLOW', 'BLUE', 'RED', 'GREEN', 'PINK', 'ONE', 'TWO', 'TREE', 'FOUR', 'FIVE'] 
+console.log(arr_colors_and_numbers[6]); // 'TWO'
+
+indexOf
+-------
+indexOf([item], [start]); // return the index of the [item], starting from the [start] index, zero based, case sensitive, return -1 if not exists 
+indexOf([item]); // return the index of the [item], zero based, case sensitive, return -1 if not exists 
+
+var arr_colors = ['YELLOW', 'BLUE', 'RED', 'GREEN', 'PINK', 'RED', 'GREEN', 'RED'];
+
+console.log(arr_colors.indexOf('RED')); // 2
+console.log(arr_colors.indexOf('red')); // -1 (case sensitive)
+console.log(arr_colors.indexOf('RED', 3)); // 5
+
+lastIndexOf
+-----------
+lastIndexOf([item], [index]); // return the last index of the [item], refer the array elements from 0 index to the [index] index only, zero based, case sensitive, return -1 if not exists
+lastIndexOf([item]); // return the last index of the [item], zero based, case sensitive, return -1 if not exists
+
+var arr_colors = ['YELLOW', 'BLUE', 'RED', 'GREEN', 'PINK', 'RED', 'GREEN', 'RED'];
+
+console.log(arr_colors.lastIndexOf('RED')); // 7
+console.log(arr_colors.lastIndexOf('red')); // -1  (case sensitive)
+console.log(arr_colors.lastIndexOf('RED', 3)); // 2 (refer only to ['YELLOW', 'BLUE', 'RED', 'GREEN'] elements) 
+
+join
+----
+join([separator]); // join all the array elements into a string with the specified [separator] separator
+
+var arr_colors = ['YELLOW', 'BLUE', 'RED', 'GREEN', 'PINK'];
+
+var str_colors = arr_colors.join(',');
+console.log(str_colors); // 'YELLOW,BLUE,RED,GREEN,PINK' 
+
+var str_colors = arr_colors.join('|');
+console.log(str_colors); // 'YELLOW|BLUE|RED|GREEN|PINK' 
+
+reverse
+-------
+reverse(); // reverse the array elements 
+
+var arr_numbers = ['ONE', 'TWO', 'TREE', 'FOUR', 'FIVE'];
+
+var arr_numbers_reverse = arr_numbers.reverse();
+console.log(arr_numbers_reverse); // ['FIVE', 'FOUR', 'TREE', 'TWO', 'ONE']
+
+push
+----
+push(); // add element to the array
+
+pop
+---
+pop(); // removes the last element from the array and return it, LIFO based (stack)
+
+var arr = [];
+arr.push('AAA');
+arr.push('BBB');
+arr.push('CCC');
+
+console.log(arr.length); // 3
+
+console.log(arr.pop()); // CCC
+console.log(arr.pop()); // BBB
+console.log(arr.pop()); // AAA
+
+console.log(arr.length); // 0
+
+shift
+-----
+shift(); // removes the first element from the array and return it, FIFO based (queue)
+
+var arr = [];
+arr.push('AAA');
+arr.push('BBB');
+arr.push('CCC');
+
+console.log(arr.length); // 3
+
+console.log(arr.shift()); // AAA
+console.log(arr.shift()); // BBB
+console.log(arr.shift()); // CCC
+
+console.log(arr.length); // 0
+
+slice
+-----
+slice([start], [end]); // return a sub array between the [start] and [end] positions, zero based, can take negative indexes.
+slice([start]); // return a sub array starting from [start] position and till the end of the string, zero based, can take negative indexes.
+
+var arr_colors = ['YELLOW', 'BLUE', 'RED', 'GREEN', 'PINK'];
+
+console.log(arr_colors.slice(1)); // ['BLUE', 'RED', 'GREEN', 'PINK'] (elements from index 1 till the end of the array)
+console.log(arr_colors.slice(-1)); // ['PINK'] (elements from index -1 till the end of the array)
+console.log(arr_colors.slice(-3, -1)); // ['RED', 'GREEN'] (elements from index -3 to index -1 of the array)
+console.log(arr_colors.slice(1, -1)); // ['BLUE', 'RED', 'GREEN'] (elements from index 1 to index -1 of the array)
+console.log(arr_colors.slice(2, 3)); // ['RED'] (elements from index 2 to index 3 of the array) 
+console.log(arr_colors.slice(-3)); // ['RED', 'GREEN', 'PINK'] (elements from index -3 till the end of the array)
+
+splice
+------
+splice([index], [number of items], [item1, item2 ... itemN]); // removes [number of items] items from an array starting [index] index, replace them with [item1, item2 ... itemN] items, returns the removed item(s)
+splice([index], [number of items]); // removes [number of items] items from an array starting [index] index, returns the removed item(s)
+
+var arr_colors = ['YELLOW', 'BLUE', 'RED', 'GREEN', 'PINK'];
+
+var removed = arr_colors.splice(1, 2, 'PURPLE', 'GRAY', 'ORANGE'); // remove 2 items starting from index 1 ('BLUE', 'RED') and add 3 new items ('PURPLE', 'GRAY', 'ORANGE') within that location
+console.log(removed); // BLUE,RED
+console.log(arr_colors); // YELLOW,PURPLE,GRAY,ORANGE,GREEN,PINK
+
+sort
+----
+sort([comparer]); // sort an array using a [comparer] function, the compare function should return a number that represents the order value
+sort(); // sort an array, alphabetical strings in ascending order
+
+[comparer] structure: function(a, b){ return a-b; } 
+
+var arr_letters = ['D', 'B', 'F', 'C', 'A', 'E'];
+var arrProducts = [
+        { productId: 1, price: 30.4 },
+        { productId: 10, price: 120 },
+        { productId: 4, price: 5.48 },
+        { productId: 23, price: 12.2 },
+        { productId: 2, price: 490.12 },
+        { productId: 5, price: 120.1 }        
+    ];
+
+arr_letters.sort();
+console.log(arr_letters); // A,B,C,D,E,F (default sort) 
+
+arrProducts.sort(function (a, b) { return a.price - b.price; });
+console.log(arrProducts); // sorted by price asc (custom sort)
+
+toString
+--------
+toString(); // convert to string 
+
+var arr_colors = ['YELLOW', 'BLUE', 'RED', 'GREEN', 'PINK'];
+
+var str_colors = arr_colors.toString();
+console.log(str_colors); // 'YELLOW,BLUE,RED,GREEN,PINK'

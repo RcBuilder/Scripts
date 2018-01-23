@@ -1,0 +1,79 @@
+
+Transactions 
+============
+
+- a group of commands which are treated as a single unit. 
+- if failure occurs in any step within the transaction proccess - a rollback will be performed 
+- if all the steps were completed successfully - the transaction will be committed and the changes will apply permanently 
+
+structure
+---------
+BEGIN TRANSACTION
+BEGIN TRY
+
+	-- code here 
+
+	COMMIT TRANSACTION 
+END TRY
+BEGIN CATCH
+	ROLLBACK TRANSACTION 
+END CATCH 
+
+proccess
+--------
+- all the changes that are being made within the transaction, applied on the actual tables but they are temporary and can only 
+	be seen from the current thread.
+- if we'll open a new connection or query window we'll not be able to access the specific rows that were changed (they will be locked)
+	till the transaction will be completed (by commit or rollback).
+- note that we still can access to rows that are not locked via the transaction
+	so if, for example, the row with id 3 is locked by a transaction we will be able to access all the other rows 
+	but any query that will try to reach the row with id 3 will be waiting to the transaction to finish
+	hence, the line "select * from someTable" can't be performed but "select * from someTable where Id = 4" can be executed	   
+
+TRANSACTION ISOLATION LEVEL
+---------------------------
+- we can see the uncommitted changes that were made by the transaction (release the lock for READ) in other threads 
+	by setting the transaction isolation level to read uncommitted changes. 
+- code line:
+	SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+- note! to disable this feature and return it to the default state, set the isolation leve to be READ COMMITTED
+- example:
+	assuming we are locking row id 3, the following code will wait for the transaction to finish its proccess:
+	select * from [dbo].[Products] where Id = 3 // waiting
+	select * from [dbo].[Products] // waiting
+		    
+	an attempt to read any other (unlocked) row within the same table will succeed
+	select * from [dbo].[Products] where Id = 1 // row 3 is locked, row 1 doesn't!	  
+
+	to watch the uncommitted changes do as follow:
+	SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+	select * from [dbo].[Products] where Id = 3 // ok
+
+USING
+-----
+
+BEGIN TRANSACTION
+BEGIN TRY
+	
+	-- make some changes --
+	update [dbo].[Products] set Price = 1000 where Id = 1
+	update [dbo].[Products] set Price = 2000 where Id = 3
+
+	-- wait for 20 seconds --			
+	WAITFOR Delay '00:00:20' 
+
+	-- throw an exception --
+	RAISERROR('some error occurs!', 16, 1)  
+
+	-- commit the changes permanently --
+	COMMIT TRANSACTION
+END TRY
+BEGIN CATCH
+	 -- print the latest exception message --
+	PRINT(ERROR_MESSAGE())
+	       
+	-- rollback ALL the changes that were made by this transaction block! --
+	ROLLBACK TRANSACTION 
+END CATCH 
+
+select * from [dbo].[Products]
