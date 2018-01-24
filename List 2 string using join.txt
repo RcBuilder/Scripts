@@ -1,0 +1,7 @@
+Dictionary<string, int> keywords = new Dictionary<string, int>();
+keywords.Add("word1", 2);
+keywords.Add("word2", 1);
+keywords.Add("word3", 0);
+keywords.Add("word4", 5);
+
+string sKeywords = string.Join(", ",keywords.Keys.ToArray()); // word1, word2, word3, word4 

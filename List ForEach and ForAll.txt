@@ -1,0 +1,5 @@
+List ForEach and ForAll
+-----------------------
+var list = new List<string> { "A", "B", "C", "D", "E", "F" };
+list.ForEach(x => { Console.WriteLine(x); }); // foreach
+list.AsParallel().ForAll(x => { Console.WriteLine(x); }); // parallelism

@@ -1,0 +1,8 @@
+var reviews = new List<Review> { 
+    new Review { Rate = 4, value = "AAA" },
+    new Review { Rate = 8, value = "BBB" },
+    new Review { Rate = 10, value = "CCC" }
+};
+
+Console.WriteLine((float)reviews.Sum(x => x.Rate) / reviews.Count); // 7.333333
+Console.WriteLine(reviews.Average(x => x.Rate)); // 7.33333333333333

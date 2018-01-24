@@ -1,0 +1,68 @@
+
+// print All unique courses in class 
+
+result: 
+C#
+ASP.NET
+LESS
+HTML
+SQL
+SAAS
+CSS
+MVC
+MySQL
+NODE JS
+SERVICES
+
+-----------------------------------------------------
+
+// list of students 
+var students = new[]{ 
+    new { Id=10, Name = "Roby", Courses = new List<string>{ "C#", "ASP.NET", "LESS" } },
+    new { Id=20, Name = "Avi", Courses = new List<string>{ "ASP.NET", "HTML", "SQL" } },
+    new { Id=30, Name = "Ronen", Courses = new List<string>{ "SAAS", "CSS", "LESS" } },
+    new { Id=40, Name = "Rafi", Courses = new List<string>{ "MVC", "C#", "MySQL" } },
+    new { Id=50, Name = "Galit", Courses = new List<string>{ "MySQL", "NODE JS", "SERVICES" } }
+}.ToList();
+
+
+using Select
+------------
+using Select to return each student courses list will ends up in IEnumerable<List<string>> 
+due to each individual item returns a List.
+then we need to flatten all lists manually using the AddRange to concatenate them all. 
+recommendation: use SelectMany instead!
+
+* using:
+  IEnumerable<List<string>> coursesA = students.Select(x => x.Courses);
+  List<string> coursesA_Join = new List<string>();
+  foreach (var courses in coursesA)
+      coursesA_Join.AddRange(courses);
+
+  foreach (var course in coursesA_Join.Distinct())
+      Console.WriteLine(course);
+      
+
+using SelectMany
+----------------
+SelectMany flatten all the return Lists into a single one
+replace IEnumerable<List<T>> to IEnumerable<T>
+
+* using:
+  IEnumerable<string> coursesB = students.SelectMany(x => x.Courses).Distinct();
+
+  foreach (var course in coursesB)
+      Console.WriteLine(course);
+
+
+using query syntax
+------------------
+use nested 'from' clause to achieve the same result
+
+* using:
+  IEnumerable<string> coursesC = (from student in students
+                                from course in student.Courses
+                                select course).Distinct();
+
+  foreach (var course in coursesC)
+      Console.WriteLine(course);
