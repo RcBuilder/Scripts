@@ -1,0 +1,20 @@
+string[] names = { "Burke", "Connor", "Frank", 
+                       "Everett", "Albert", "George", 
+                       "Harris", "David" };
+
+IEnumerable<string> expr = from s in names
+                           where s.Length == 5
+                           orderby s
+                           select s.ToUpper();
+                           
+/* the same as the above - different syntax
+IEnumerable<string> expr = names
+                           .Where(s => s.Length == 5)
+                           .OrderBy(s => s)
+                           .Select(s => s.ToUpper());
+*/          
+                           
+foreach (string item in expr)
+    Response.Write(item + "<br />");
+     
+===================================================================    

@@ -1,0 +1,24 @@
+LINQ - Find vs Single vs First
+------------------------------
+
+Find() 
+get an item by primary key.
+return null if not exists. 
+look in the context before going to the database (EF).
+
+Single()
+get an single item by an expression. 
+throw an exception if not exists or there's more than one.
+
+SingleOrDefault()
+get an single item by an expression. 
+return null if not exists. 
+throw an exception if there's more than a one.
+
+First()
+get the first item by an expression. 
+throw an exception if not exists. 
+
+FirstOrDefault()
+get the first item by an expression. 
+return null if not exists. 
