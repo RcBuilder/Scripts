@@ -1,0 +1,1 @@
+<a href="sms:0528333333?&body=message content here" class="btn">send sms</a>
