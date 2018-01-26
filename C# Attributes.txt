@@ -1,0 +1,111 @@
+Attributes
+----------
+attributes designed to add additional info to an object.
+the info burnt into the assembly and you have to use Reflection to read them!
+
+tip: Assembly.GetExecutingAssembly() returns the current assembly for reflection usage.
+
+Create an Attribute
+-------------------
+attribute is basically a regular class that inherits from Attribute.
+you can add properties to your attribute, any property defined in the attribute can be fill with values in the attribute decoration.
+
+e.g: 
+public class SampleAttribute : Attribute {
+	public string Name { set;get; }
+	public int Version { set;get; }
+}
+
+using an Attribute
+------------------
+in order to use an attribute, you need to decorate your object (class, property etc.) with the attribute
+note that if your attribute suffix is 'Attribute' the .Net compiler will omit it in the intellisense 
+but you could use both with or without the suffix.
+
+e.g:
+public class SampleAttribute : Attribute {}
+
+[Sample] // can use [SampleAttribute] as well
+public class MyClass{
+	[Sample]
+	public int Id { set;get; }
+}
+
+you can also fill the attribute properties when define it. 
+use [Name] = [Value] syntax.
+
+e.g:
+public class SampleAttribute : Attribute {
+	public string Name { set;get; }
+	public int Version { set;get; }
+}
+
+[Sample(Name = "Roby", Version = 1)]
+public class MyClass{ }
+
+AttributeUsage
+--------------
+restricts your attributes only to the specified targets (default: ALL)
+
+in order to restrict the attribute to a specific target/s (class, property etc.) 
+all you need to do is decorate your attribute with AttributeUsage built-in attribute
+    
+e.g:
+[AttributeUsage(AttributeTargets.Class)] // restrict attribute only for classes
+public class SampleAttribute : Attribute { }
+
+[Sample] // ok
+public class MyClass{
+	[Sample] // exception!!! only classes can be decorated with this attribute 
+	public int Id { set;get; }
+}
+
+the above example will not be compiled due to an attempt to decorate a property 
+with 'only classes' attribute.
+
+example
+-------
+[AttributeUsage(AttributeTargets.Class)] // restrict attribute only for classes
+public class SampleAttribute : Attribute{
+    public string Desc { set; get; }
+    public int Version { set; get; }
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class AnotherSampleAttribute : Attribute { }
+
+[Sample(Desc = "this class is bla bla bla ... ", Version = 1)]
+public class MyClass {
+    public int Id { get; set; }
+    public string Name { get; set; }
+}
+
+[Sample(Desc = "this is a very important class that uses bla bla bla to bla bla ..", Version = 9)]
+[AnotherSample]
+public class MyClass2 {
+    public int RowId { get; set; }
+}
+
+// using reflection to read classes decorated with the SampleAttribute attribute
+var assembly = Assembly.GetExecutingAssembly();
+var types = assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(SampleAttribute), false).Count() > 0);
+foreach (var type in types)
+{
+    Console.WriteLine("{0}:", type.Name); 
+    foreach (SampleAttribute attr in type.GetCustomAttributes(typeof(SampleAttribute), false))
+        Console.WriteLine("{0}. {1}", attr.Version, attr.Desc);
+    foreach (var prop in type.GetProperties())
+        Console.WriteLine("{0} {1}", prop.Name, prop.PropertyType.Name);
+    Console.WriteLine("-----------------------------");
+}
+
+// result:
+MyClass:
+1. this class is bla bla bla ...
+Id Int32
+Name String
+-----------------------------
+MyClass2:
+9. this is a very important class that uses bla bla bla to bla bla ..
+RowId Int32
+-----------------------------

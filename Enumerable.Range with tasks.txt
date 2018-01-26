@@ -1,0 +1,42 @@
+
+Enumerable.Range([start], [count]).Select([Func]);
+Enumerable.Range([start], [count]).ToList().ForEach(Action); // foreach
+Enumerable.Range([start], [count]).AsParallel().ForAll(Action); // parallel
+Enumerable.Range([start], [count]).AsParallel().WithDegreeOfParallelism(5).ForAll(Action); // parallel + set max tasks to perform in parallel
+
+-------
+
+- Enumerable.Range -
+         
+Action myAction = () => {
+    Thread.Sleep(2000);
+    Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+};
+
+var tasks = Enumerable.Range(1, 10).Select(x => Task.Factory.StartNew(myAction)).ToArray();
+Task.WaitAll(tasks);  
+         
+result:
+create a range of 10 tasks 
+          
+tip: 
+use Enumerable.Range AsParallel() instead of creating the tasks manually 
+         
+-------
+          
+- Enumerable.Range ForEach vs ForAll -
+         
+Action myAction = () => {
+    Thread.Sleep(2000);
+    Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+};
+
+// 1st
+Enumerable.Range(1, 10).ToList().ForEach(x => { myAction(); });  // 20 seconds
+         
+// 2nd
+Enumerable.Range(1, 10).AsParallel().ForAll(x => { myAction(); }); // 6 seconds
+
+result:
+the 1st loop will exexute 10 instances of myAction one after the other in a single thread (whole proccess will take 20 sec)
+the 2sn loop will perform 10 instances of myAction in parallel (whole proccess will take 6 sec!!)

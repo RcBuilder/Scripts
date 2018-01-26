@@ -1,0 +1,20 @@
+<script>
+	document.ondblclick = SetChoosen;
+	function SetChoosen(evt)
+	{
+		var val = '';
+		if (window.getSelection)
+			val = window.getSelection();
+		else if (document.getSelection)
+			val = document.getSelection();
+		else if (document.selection)
+			val = document.selection.createRange().text;
+			
+		($('#txtSearchWord').val(val));	 
+	}
+</script>
+
+=====================================================
+<input id="txtSearchWord" type="text" class="textbox100" maxlength="100" />
+
+Remark: each dable click event - all selected text will entered to the text box

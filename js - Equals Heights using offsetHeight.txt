@@ -1,0 +1,17 @@
+// get 2 objects - compare theirs height to equal + add the extra parameter
+function EqualHeights(objFrom, ObjTo, ExtraHeight)
+{
+	var FromHeight = objFrom.offsetHeight;
+	var ToHeight = ObjTo.offsetHeight;
+	
+	if(parseInt(FromHeight) <  parseInt(ToHeight))
+		return;
+		
+	ObjTo.style.height = parseInt(FromHeight) + parseInt(ExtraHeight)  + 'px';
+}
+
+======================================================================
+
+// EqualHeights(from,to,extraHeight)
+// Set the 'tblspace' height to be 'tdright' height + 0px extra
+EqualHeights(document.getElementById('tdright'),document.getElementById('tblspace'),0);

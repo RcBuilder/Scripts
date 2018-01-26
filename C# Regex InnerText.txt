@@ -1,0 +1,20 @@
+
+public static string GetInnerText(string HTML)
+{
+    string pattern_body = "<body [^>]*>(?<Content>.*)</body>";
+    Match match = Regex.Match(HTML, pattern_body, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
+    string BODY_HTML = match.Groups["Content"].Value.Trim(); // html content within the BODY element
+
+    string BODY = string.Empty;
+
+    // remove scripts and styles
+    string pattern_scripts = "<script \\s* .*?>.*?</script>";
+    string pattern_styles = "<style \\s* .*?>.*?</style>";
+
+    BODY = Regex.Replace(BODY_HTML, pattern_scripts, string.Empty, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
+    BODY = Regex.Replace(BODY, pattern_styles, string.Empty, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace | RegexOptions.Singleline);
+
+    // remove all HTML elements - leaves only pure content
+    BODY = Regex.Replace(BODY, "<.*?>", string.Empty, RegexOptions.IgnoreCase | RegexOptions.Singleline);
+    return BODY;
+}

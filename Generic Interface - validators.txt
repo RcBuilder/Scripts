@@ -1,0 +1,51 @@
+interface IValidator{
+    bool isValid();
+}
+
+interface IValidator<T> : IValidator{
+    T value { get; }
+	new bool isValid();
+}
+
+class Validator1 : IValidator<string> {
+    public string value { private set; get; }
+
+    public bool isValid(){
+        return value.Contains("A");
+	}
+
+    public Validator1(string value){
+        this.value = value;
+    }
+}
+
+
+class Validator2 : IValidator<int>{
+    public int value { private set; get; }
+
+    public bool isValid(){
+        return value > 200;
+    }
+
+    public Validator2(int value){
+        this.value = value;
+    }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        var validators = new List<IValidator>{
+            new Validator1("ABCD"),
+            new Validator1("DCBA"),
+            new Validator2(203),
+            new Validator2(306)
+        };
+
+        var isValid = validators.All(x => x.isValid());
+        Console.WriteLine(isValid);
+        Console.ReadKey();
+    }
+}
+

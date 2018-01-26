@@ -1,0 +1,75 @@
+
+// void function, can take parameter/s
+Action<T> 
+
+// function that returning a value, can take parameter/s
+Func<TIn, TOut> 
+
+---
+
+// void action(int num);
+Action<int> action = (num) => { Console.WriteLine(num); };
+
+// string func(int num);
+Func<int, string> func = (num) => { return "#" + num.ToString(); };
+            
+// string func2(int num, int index);
+Func<int, int, string> func2 = (num, index) => { return index.ToString() + ". -> " + num.ToString(); };
+
+// bool func3(int num);
+Func<int, bool> func3 = (num) => { return num % 2 == 0; };
+
+--- 
+
+// using
+
+var lst = new List<int> { 1, 12, 44, 55, 3, 6, 61, 5 };
+
+lst.ForEach(action);
+/*
+	1
+	12
+	44
+	55
+	3
+	6
+	61
+	5
+*/
+
+
+foreach (var item in lst.Select(func))
+    Console.WriteLine(item);
+/*
+	#1
+	#12
+	#44
+	#55
+	#3
+	#6
+	#61
+	#5
+*/
+
+
+foreach (var item in lst.Select(func2))
+    Console.WriteLine(item);
+/*
+	0. -> 1
+	1. -> 12
+	2. -> 44
+	3. -> 55
+	4. -> 3
+	5. -> 6
+	6. -> 61
+	7. -> 5
+*/
+
+
+foreach (var item in lst.Where(func3))
+    Console.WriteLine(item);
+/*
+	12
+	44
+	6
+*/

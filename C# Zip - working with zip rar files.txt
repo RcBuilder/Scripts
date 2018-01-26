@@ -1,0 +1,154 @@
+
+// using the built-in ZipArchive class 
+// recommendation: use DotNetZip library - see below! 
+
+namespace: 
+System.IO.Compression
+
+// using memory stream
+using (var ms = new MemoryStream()) {
+    using (var zip = new ZipArchive(ms, ZipArchiveMode.Create, true))
+    {
+        var entry = zip.CreateEntry("test.txt");
+        using (var sw = new StreamWriter(entry.Open())) {
+            sw.WriteLine("bla bla bla.");
+        }
+    }
+
+    ms.Seek(0, SeekOrigin.Begin);
+
+	var zipPath = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "Content\\test.zip");
+    using (var fs = new FileStream(zipPath, FileMode.OpenOrCreate)) {
+        ms.CopyTo(fs);
+        fs.Flush();
+    }
+
+}
+
+==================================================================
+
+[DotNetZip]
+
+a wrapper dll which makes the work with zip files easier 
+
+nuget:
+Install-Package DotNetZip
+
+source:
+https://dotnetzip.codeplex.com/
+
+---
+
+// read zip file
+
+var zipPath = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "Content\\test.zip");
+
+var files = new List<string>();
+            
+using (var zip = new ZipFile(zipPath))           
+	foreach (var entry in zip.Entries)
+		files.Add(entry.FileName);  
+
+
+---
+
+// create a zip file (using memory stream)
+
+var zipPath = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "Content\\test.zip");
+
+using (var ms = new MemoryStream()) {
+    using (var zip = new ZipFile()) {
+        zip.AddEntry("test.txt", "bla bla bla.");
+        zip.Save(ms); // load to memory
+
+        ms.Seek(0, SeekOrigin.Begin);
+        ms.Flush();
+    }
+
+	// write from memory to a file
+    using (var fs = new FileStream(zipPath, FileMode.OpenOrCreate)) {
+        ms.CopyTo(fs);
+        fs.Flush();
+    }
+}
+
+---
+
+// create a zip file (using memory stream)
+// + files
+
+var basePath = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "Content\\");
+var zipPath = string.Concat(basePath, "test.zip");
+            
+using (var ms = new MemoryStream()) {
+    using (var zip = new ZipFile()){
+		// add content	
+        zip.AddEntry("bla.txt", "bla bla bla.");
+        zip.AddEntry("bli.txt", "bli bli bli.");
+
+		// add files from disk
+		// zip.AddFile(path, directory) - use "" for zip root directory
+        zip.AddFile(string.Concat(basePath, "bootstrap.min.js"), ""); 
+        zip.AddFile(string.Concat(basePath, "jquery-1.8.0.min.js"), "");
+
+        zip.Save(ms); // load to memory
+
+        ms.Seek(0, SeekOrigin.Begin);
+        ms.Flush();
+    }
+
+    // write from memory to a file
+    using (var fs = new FileStream(zipPath, FileMode.OpenOrCreate)) {
+        ms.CopyTo(fs);
+        fs.Flush();
+    }
+}
+
+---
+
+// create a zip file (using memory stream)
+// load files from directory
+
+var basePath = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "Content\\AdTemplates\\300x600");
+
+using (var ms = new MemoryStream()){
+    using (var zip = new ZipFile()) {         
+        foreach(var filePath in Directory.GetFiles(basePath))           
+            zip.AddFile(filePath, "");                    
+
+        zip.Save(ms); // load to memory
+
+        ms.Seek(0, SeekOrigin.Begin);
+        ms.Flush();
+    }
+
+    // write from memory to a file
+    var zipPath = string.Concat(basePath, "\\test.zip");
+    using (var fs = new FileStream(zipPath, FileMode.OpenOrCreate)) {
+        ms.CopyTo(fs);
+        fs.Flush();
+    }
+}
+
+---
+
+// more options:
+zip.AddDirectory(string)
+zip.AddFiles(IEnumerable<string>)
+
+--- 
+
+// load zip file as bytes
+
+byte[] data = null;
+
+// option1 - from uploaded file 
+data = File.ReadAllBytes(zipFileLocalPath);
+
+// option2 - from memory stream
+data = ms.ToArray();
+
+==================================================================
+
+using example: 
+see 'adwords API\UploadHTML5Ad.txt'

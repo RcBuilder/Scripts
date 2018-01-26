@@ -1,0 +1,28 @@
+Func vs Action
+--------------
+also see 'Func TIn TOut and  Action T.txt'
+
+Func always returns a value whereas Action only make some action and doesn't return any value
+both can get a values as parameter 
+
+------
+
+
+var lst = new List<string> { 
+	"A", "B", "C", "D", "E", "F" 
+};
+
+Func<string, bool> func = (item) => { 
+	return item == "A"; 
+};
+
+var res = lst.Where(func);
+foreach (var item in res)
+       Console.WriteLine(item);
+
+--
+
+Action<string> action = (item) => { 
+	Console.WriteLine(item); 
+};
+lst.ForEach(action);

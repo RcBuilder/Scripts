@@ -1,0 +1,35 @@
+OutputCache VaryByCustom:
+=========================
+
+// USER CONTROL
+
+<%@ OutputCache Duration="300" VaryByParam="none" VaryByCustom="session" %>
+...
+...
+<%=Guid.NewGuid() %>
+...
+...
+--------------------------------------------------------
+
+// GLOBAL ASAX
+
+public override string GetVaryByCustomString(HttpContext context, string custom)
+{
+        if (custom == "session")
+            return context.Session.SessionID;
+        
+        return base.GetVaryByCustomString(context, custom);
+}
+
+--------------------------------------------------------
+
+// Remarks
+
+* works only with user controls 
+* the attribute value VaryByCustom passes to the GetVaryByCustomString() override method in the global asax 
+* this solution comes to create output cache copies by specific value e.g sessionId   
+* in this example we create a cache copy per session - each 5 minutes (300 seconds) the cache will be refreshed
+  ( great solution for counters per user )
+* another using is if we want to create cache copy per some variable e.g language
+  ( copy for english, copy for hebrew and so on ...)
+* another using is to create cache copy for each explorer or IP .. 

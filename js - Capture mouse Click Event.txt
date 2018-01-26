@@ -1,0 +1,15 @@
+ //capture mouse click event
+document.onmousedown=CancelMenu;
+
+function CancelMenu(evt)
+{
+	mouseClick=window.event.button;
+        	
+    //mouseClick =1 : leftClick
+    //mouseClick =2 : rightClick     	
+	if(mouseClick==2)
+	{
+		alert("@Written By RcBuilder@");
+		return false;
+	}	    
+}

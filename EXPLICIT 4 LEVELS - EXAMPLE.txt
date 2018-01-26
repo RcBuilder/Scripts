@@ -1,0 +1,156 @@
+alter PROCEDURE spBlackList_xml_select
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	declare @Now smalldatetime
+	set @Now = getdate()
+	
+	select 1 as tag,
+	null as parent,
+	
+	null as [BlackList!1],
+	null as [Company!2!id],
+	null as [Company!2!nameHebrew],
+	null as [Company!2!nameEnglish],
+	null as [Company!2!email],
+	null as [Company!2!phone],
+	null as [Company!2!phone2],
+	null as [Company!2!fax],
+	null as [Job!3!id],
+	null as [Job!3!name],
+	null as [Job!3!email],
+	null as [Job!3!fax],
+	null as [Job!3!phone],
+	null as [Contact!4!id],
+	null as [Contact!4!name],
+	null as [Contact!4!email],
+	null as [Contact!4!phone],
+	null as [Contact!4!cellphone]
+
+	UNION ALL
+	
+	select 2 as tag,
+	1 as parent,
+
+	null,
+
+	id,
+	nameHebrew,
+	nameEnglish,
+	email,
+	phone,
+	phone2,
+	fax,
+
+	null,
+	null,
+	null,
+	null,
+	null,
+
+	null,
+	null,
+	null,
+	null,
+	null
+		
+	from Companies with(NoLock)
+	where BlackList = 1
+
+	UNION ALL
+
+	select 3 as tag,
+	2 as parent,
+
+	null,
+
+	J.companyId,
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+
+	J.JobID,
+	J.jobName,
+	J.email,
+	J.fax,
+	J.phone,
+
+	null,
+	null,
+	null,
+	null,
+	null
+		
+	from Companies C with(NoLock),
+		 Jobs J with(NoLock)
+	where C.id = J.companyId -- union --	
+	and   C.BlackList = 1
+	and   J.isConfirmed = 1
+	and	  J.isDeleted = 0
+	and   datediff(day,J.ValidUntil,@Now) <= 0
+
+	UNION ALL
+
+	select 4 as tag,
+	2 as parent,
+
+	null,
+
+	U.companyId,
+	null,
+	null,
+	null,
+	null,
+	null,
+	null,
+
+	null,
+	null,
+	null,
+	null,
+	null,
+
+	U.UserID,
+	U.firstName + ' ' + U.lastName,
+	U.email,
+	U.phone,
+	U.cellphone
+		
+	from Companies C with(NoLock),
+		 Users U with(NoLock)
+	where C.id = U.companyId -- union --	
+	and   C.BlackList = 1
+	and	  U.isDeleted = 0
+	
+	order by [Company!2!id],tag
+	FOR XML EXPLICIT
+END
+GO
+
+/*
+<BlackList>
+  <Company id="68" nameHebrew="ישראל יבמ" nameEnglish="IBM ISRAEL" email="jobil@il.ibm.com" phone="" phone2="" fax="">
+    <Contact id="141773" name="רונה  פוגל" email="vrona@il.ibm.com" />
+  </Company>
+  <Company id="171" nameHebrew="טרוול פאוור" nameEnglish="travel power" email="" phone="054-7570370" phone2="" fax="057-7948438" />
+  <Company id="177" nameHebrew="ל.מ. שרותי כח אדם" nameEnglish="" email="beer-shevadeskt@l-m.co.il" phone="08-6233172" phone2="" fax="08-6232471">
+    <Contact id="136025" name="מלינה  טפליצקי" email="shderot@l-m.co.il" />
+  </Company>
+  <Company id="472" nameHebrew="סלע מעבדות תוכנה " nameEnglish="Sela Software Labs" email="jobs@sela.co.il" phone="" phone2="" fax="" />
+  <Company id="502" nameHebrew="ICE- מקור" nameEnglish="" email="" phone="" phone2="" fax="">
+    <Job id="509251" name="ארט דירקטור /ית - מעצב /ת" email="aviad@sivaninhouse.co.il" fax="09-9504404" phone="" />
+    <Job id="531302" name="מתאמ /ת פגישות ורכז/ת הזדמנויות פרסום" email="job101@sion-info.com" fax="" phone="" />
+    <Job id="600721" name="תקציבאי /ת" email="job6@contactil.com" fax="" phone="" />
+  </Company>
+  <Company id="2815" nameHebrew="דה סייט" nameEnglish="" email="" phone="" phone2="" fax="">
+    <Job id="380522" name="מלצרים /ות" email="" fax="04-6364658" phone="052-4768672" />
+    <Contact id="269874" name="עדי קרביס" email="kerbis1@netvision.net.il" />
+  </Company>
+....
+....
+</BlackList>
+*/

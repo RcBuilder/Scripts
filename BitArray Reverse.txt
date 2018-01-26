@@ -1,0 +1,26 @@
+public static class Extensions {
+	public static void Reverse(this BitArray me) {            
+		for (int i=0, j = me.Length - 1; i < j; i++, j--)
+		{
+			var temp = me[j];
+			me[j] = me[i];
+			me[i] = temp;                
+		}
+	}
+}
+
+---
+
+byte value = 13;
+// bitArr = [true, false, true, true, false, false, false, false] 
+var bitArr = new BitArray(new byte[] { value });
+bitArr.Reverse();
+foreach (var bit in bitArr)
+    Console.Write((bool)bit ? "1" : "0"); // 00001101
+
+--- 
+
+note!
+BitArray is an array of booleans values, in order to give it the bit representation 
+we need to convert each bool value to 0 or 1 correspondingly  
+ 

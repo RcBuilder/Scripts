@@ -1,0 +1,56 @@
+
+Array.prototype.sort = function(comparer){
+    for(var i = 0; i< this.length; i++)
+      for(var j = i + 1; j< this.length; j++)
+      {
+        if(comparer(this[i], this[j]) > 0)
+        {
+          var temp = this[i];
+          this[i] = this[j];
+          this[j] = temp;
+        } 
+      }
+  };
+
+-------------------------------------
+  
+var arr = [
+    {name:'A', num:20, age: 21 },
+    {name:'B', num:14, age: 24 },
+    {name:'C', num:30, age: 23 },
+    {name:'D', num:15, age: 22 },
+    {name:'E', num:16, age: 20 }
+];
+
+// sort by num
+arr.sort(function(a, b){
+  return a.num - b.num
+});
+  
+for(var i = 0; i< arr.length; i++)
+  Logger.log(arr[i]);    
+
+output:
+{num=14.0, name=B, age=24.0}
+{num=15.0, name=D, age=22.0}
+{num=16.0, name=E, age=20.0}
+{num=20.0, name=A, age=21.0}
+{num=30.0, name=C, age=23.0}
+
+---
+
+// sort by age  
+arr.sort(function(a, b){
+  return a.age - b.age
+});
+  
+for(var i = 0; i< arr.length; i++)
+  Logger.log(arr[i]);    
+
+
+output:
+{num=16.0, name=E, age=20.0}
+{num=20.0, name=A, age=21.0}
+{num=15.0, name=D, age=22.0}
+{num=30.0, name=C, age=23.0}
+{num=14.0, name=B, age=24.0}

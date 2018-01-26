@@ -1,0 +1,15 @@
+
+public static Dictionary<int, string> EnumToList<T>() {
+    var res = new Dictionary<int,string>();
+    foreach(var e in Enum.GetValues(typeof(T)))
+        res.Add((int)e, e.ToString());
+    return res;
+}
+
+====================================
+
+ var data = EnumToList<eMyEnum>();
+cmb1.DataValueField = "Key";
+cmb1.DataTextField = "Value";
+cmb1.DataSource = data;
+cmb1.DataBind();

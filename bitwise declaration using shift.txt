@@ -1,0 +1,14 @@
+public enum eCompanies : int {
+            C1 = 1,
+            C2 = C1 << 1, // 2
+            C3 = C2 << 1, // 4
+            C4 = C3 << 1, // 8
+            C5 = C4 << 1  // 16
+        }
+
+
+Console.WriteLine((int)eCompanies.C1); 
+            Console.WriteLine((int)eCompanies.C2);
+            Console.WriteLine((int)eCompanies.C3);
+            Console.WriteLine((int)eCompanies.C4);
+            Console.WriteLine((int)eCompanies.C5);

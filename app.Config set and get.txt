@@ -1,0 +1,19 @@
+public class Config {
+    public static int CompanyId {
+        get { 
+			return Convert.ToInt32(ConfigurationManager.AppSettings["CompanyId"]); 
+		}
+        set {
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.None);
+            config.AppSettings.Settings["CompanyId"].Value = value.ToString();
+            config.Save(ConfigurationSaveMode.Modified);
+            ConfigurationManager.RefreshSection("appSettings");
+        }
+    }
+}
+
+---------
+
+<appSettings>
+	<add key="CompanyId" value="515271419" />
+</appSettings>

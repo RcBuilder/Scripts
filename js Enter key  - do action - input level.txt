@@ -1,0 +1,32 @@
+function fn_Keypress(e, method) {
+  if (typeof (e.keyCode) == 'number')
+      keycode = e.keyCode;
+  else if (typeof (e.which) == 'number')
+      keycode = e.which;
+  else if (typeof (e.charCode) == 'number')
+      keycode = e.charCode;
+  else return;
+
+  if (keycode == 13) {
+      method();
+      return false;
+  }
+
+  return true;
+}
+
+function WordSearch(){
+   // code ...
+}
+
+function SiteSearch(){
+   // code ...
+}
+
+-------------------------------------------------
+
+<input id="txtWordSearch" type="text" maxlength="150" onkeypress="return fn_Keypress(event,WordSearch);"  />
+<input id="txtSiteSearch" type="text" maxlength="150" onkeypress="return fn_Keypress(event,SiteSearch);"  />
+
+<a href="javascript:void(0);" onclick="WordSearch();">Word Search</a>
+<a href="javascript:void(0);" onclick="SiteSearch();">Site Search</a>

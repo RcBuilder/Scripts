@@ -1,0 +1,28 @@
+function check(value) {
+        var arr = [];
+
+        var valid = '[](){}';
+
+        for (var i = 0; i < value.length; i++)
+            if (valid.indexOf(value[i]) > -1)
+                arr.push(value[i]);
+        
+        if (arr.length % 2 > 0) return false;
+
+        for (var i = 0; i < arr.length / 2; i++)
+            if (arr[i] != flip(arr[arr.length - 1 - i]))
+                return false;
+        return true;
+    }
+
+    function flip(char) {
+        if (char == ']') return '[';
+        if (char == ')') return '(';
+        if (char == '}') return '{';
+        return '';
+    }
+
+
+    check('A(bb)'); // true
+    check('[aa(bb{cc})]'); // true
+    check('({[aaa])}'); // false

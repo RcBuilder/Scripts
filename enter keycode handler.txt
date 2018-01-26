@@ -1,0 +1,31 @@
+function fun1() {
+   alert('ENTER')
+}
+
+document.onkeydown = function(e) { 
+	keydown(e, fun1); 
+}
+
+function keydown(e,method) {
+    if (!e) {
+        if (!window.event) return;
+        e = window.event
+    }
+
+    var keycode;
+    if (typeof (e.keyCode) == 'number') 
+        keycode = e.keyCode;
+      else if (typeof (e.which) == 'number') 
+        keycode = e.which;
+      else if (typeof (e.charCode) == 'number')
+        keycode = e.charCode;
+      else return;
+
+      if (keycode == 13) {
+          // prevent the default postback using enter key
+          if (e.preventDefault)
+            e.preventDefault();
+          e.returnValue = false; 
+          method();
+      }
+}

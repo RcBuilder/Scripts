@@ -1,0 +1,36 @@
+Enumerable.Repeat
+=================
+- create an IEnumerable of T item created x times
+- structure:
+  IEnumerable<T> result = Enumerable.Repeat([item], [count]);
+
+ 
+var result = Enumerable.Repeat("Hello World", 5);
+foreach (var item in result)
+    Console.WriteLine(item);
+
+- output:
+Hello World
+Hello World
+Hello World
+Hello World
+Hello World
+
+---
+
+var categories = new[] { 
+    new { Id = 1, Name = "Category A" },
+    new { Id = 2, Name = "Category B" },
+    new { Id = 3, Name = "Category C" },
+    new { Id = 4, Name = "Category D" }
+}.ToList();
+
+var result = Enumerable.Repeat(categories[2], 4);
+foreach (var item in result)
+    Console.WriteLine(item.Name);
+
+- output:
+Category C
+Category C
+Category C
+Category C

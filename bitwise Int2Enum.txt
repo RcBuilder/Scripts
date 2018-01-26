@@ -1,0 +1,40 @@
+
+/*
+enum eAA { 
+	A = 1, 
+	B = A << 1, 
+	C = B << 1,
+	D = C << 1,
+	E = D << 1,
+	F = E << 1,
+	G = F << 1
+}
+*/
+
+
+enum eAA { A = 1, B = 2, C = 4, D = 8, E = 16, F = 32, G = 64 }
+
+public static void PrintBitwiseValue<T>(int value) where T : struct
+{
+    try
+    {
+        if (!typeof(T).IsEnum)
+            throw new ArgumentException("NOT AN ENUM TYPE");
+
+        T result = (T)Enum.Parse(typeof(T), "0");
+        int index = 1;
+        do
+        {                    
+            if ((value & 1) == 1) // check if the most right bit is on
+                Console.Write((T)Enum.Parse(typeof(T), index.ToString()));
+
+            index *= 2;
+            value >>= 1; // shift 1 bit to the right - check the next bit
+        } while (value > 0);
+    }
+    catch {  }
+}
+
+-------------------------------
+
+PrintBitwiseValue<eAA>(37); // ACF

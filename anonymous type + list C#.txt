@@ -1,0 +1,14 @@
+// anonymous type
+var student = new { Id = 10, Name = "Roby", Courses = new List<string> { "C#", "ASP.NET", "LESS" } };
+
+// list of anonymous type (const values)
+var students = new[]{ 
+         new { Id=10, Name = "Roby", Courses = new List<string>{ "C#", "ASP.NET", "LESS" } },
+         new { Id=20, Name = "Avi", Courses = new List<string>{ "ASP.NET", "HTML", "SQL" } },
+         new { Id=30, Name = "Ronen", Courses = new List<string>{ "SAAS", "CSS", "LESS" } },
+         new { Id=40, Name = "Rafi", Courses = new List<string>{ "MVC", "C#", "MySQL" } },
+         new { Id=50, Name = "Galit", Courses = new List<string>{ "MySQL", "NODE JS", "SERVICES" } }
+}.ToList();
+
+// list of anonymous type (loop)
+var list = Enumerable.Range(1, 5).Select(x => new { Index = x, Guid = Guid.NewGuid() }).ToList();

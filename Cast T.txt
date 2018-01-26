@@ -1,0 +1,58 @@
+Cast<T>
+=======
+
+extension method for IEnumerable. cast all the items as T, throw an exception for other types.
+usually used with collections of objects (ArrayList etc.)
+works on any class implements the IEnumerable. 
+
+also see 'OfType T.txt'
+
+using (ArrayList)
+-----------------
+
+var list = new ArrayList();
+list.Add(10);
+list.Add(20);            
+list.Add(30);
+list.Add(40);
+
+var asInts = list.Cast<int>();
+foreach (var num in asInts)
+     Console.WriteLine(num);
+
+result:
+10
+20
+30
+40
+
+note!
+all items must be int, otherwise an exception will be thrown.
+e.g: list.Add("50"); // throw 'Specified cast is not valid' exception
+
+
+using (Custom)
+--------------
+
+class MyList : IEnumerable {
+     private object[] items = new object[]{
+           100, 200, 300, 400
+     };
+
+     public IEnumerator GetEnumerator()
+     {
+          for (var i = 0; i < items.Length; i++)
+               yield return items[i];
+     }
+}
+
+var list = new MyList();
+var asInts = list.Cast<int>();
+foreach (var num in asInts)
+     Console.WriteLine(num);
+
+result:
+100
+200
+300
+400

@@ -1,0 +1,8 @@
+var Now = new Date();
+var 5daysFromNow = Now.getTime() + (5 * 24 * 60 * 60 * 1000);
+=============================================================
+5 days * 
+24 hours per day * 
+60 minutes per hour * 
+60 seconds per minute * 
+1000 milisecond per second

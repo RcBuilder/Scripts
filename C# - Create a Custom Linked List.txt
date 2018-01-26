@@ -1,0 +1,116 @@
+
+public class Node {
+    public int data { set; get; }
+    public Node next { set; get; }
+
+    public Node(int data) {
+        this.data = data;                
+    }
+
+    public void Print()
+    {
+        Console.Write("| {0} | -> ", this.data);
+        if (this.next != null)
+            this.next.Print();
+    }
+
+    public void AddToEnd(int data) {
+        if (this.next == null)
+            this.next = new Node(data); // this is the last node, add it here.
+        else
+            this.next.AddToEnd(data);  // propagate it down the chain
+    }
+
+    public void Add(int data)
+    {
+        if (this.next == null)
+            this.next = new Node(data); // this is the last node, add it here.
+        else if (this.next.data > data){
+            // position found - add it here
+            var newNode = new Node(data);
+            newNode.next = this.next;
+            this.next = newNode;
+        }
+        else this.next.Add(data);  // propagate it down the chain
+    }
+}
+
+---
+
+public class MyLinkedList {
+    public Node head { set; get; }
+
+    public void AddToEnd(int data) {
+        if (this.head == null) {
+            this.head = new Node(data);
+            return;
+        } 
+
+        this.head.AddToEnd(data);
+    }
+
+    public void AddToBeginning(int data) {
+        if (this.head == null) {
+            this.head = new Node(data);
+            return;
+        }
+
+        var newNode = new Node(data);
+        newNode.next = head;
+        head = newNode;
+    }
+
+    public void Add(int data) {
+        if (this.head == null) {
+            this.head = new Node(data);
+            return;
+        }
+
+        this.head.Add(data);
+
+        /*
+        var newNode = new Node(data);
+
+        // add the new node sorted 
+        // find the position to add it
+        var temp = head;
+        while (temp != null)
+        {
+            // the new node needs to be added as last
+            if (temp.next == null) {                        
+                temp.next = newNode;
+                break;
+            }
+
+            // add node at specific position 
+            if (temp.next.data > newNode.data) {
+                newNode.next = temp.next;
+                temp.next = newNode;
+                break;
+            }
+
+            temp = temp.next;
+        } 
+        */
+    }
+
+    public void Print() {
+        if (this.head == null) return;
+        this.head.Print();
+    }
+}
+
+------------------------
+
+// using
+
+var linkedList = new MyLinkedList();
+linkedList.AddToEnd(3);
+linkedList.AddToEnd(5);
+linkedList.AddToEnd(7);
+linkedList.AddToBeginning(2);
+linkedList.AddToBeginning(1);
+linkedList.Add(4);
+linkedList.Add(6);
+linkedList.Add(8);
+linkedList.Print(); // | 1 | -> | 2 | -> | 3 | -> | 4 | -> | 5 | -> | 6 | -> | 7 | -> | 8 | ->
