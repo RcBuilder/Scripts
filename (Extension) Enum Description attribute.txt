@@ -1,0 +1,40 @@
+using System.ComponentModel;
+
+public static class Extension
+    {
+        public static string GetDescription(this Enum me)
+        {
+            var enumItem = me.GetType().GetMember(me.ToString())[0];
+            var descriptionAttribute = enumItem.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if(descriptionAttribute == null || descriptionAttribute.Length == 0)
+                return string.Empty;
+            return ((DescriptionAttribute)descriptionAttribute[0]).Description;
+        }
+    }
+
+
+public enum eEnumWithDesc : byte { 
+        [Description("Roby Cohen")]
+        Roby,
+        [Description("Avi Cohen")]
+        Avi,
+        [Description("Ronen Levi")]
+        Ronen
+    }
+
+Console.WriteLine(eEnumWithDesc.Avi.GetDescription());
+Console.WriteLine(eEnumWithDesc.Roby.GetDescription());
+
+--
+
+// another using sample
+public enum ContentTypes: byte {
+        [Description("application/x-www-form-urlencoded")]
+        BASIC,
+        [Description("application/json")]
+        JSON,
+        [Description("application/xml")]
+        XML
+}
+
+WebReq.ContentType = ContentTypes.BASIC.GetDesc();
