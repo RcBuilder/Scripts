@@ -1,0 +1,9 @@
+[Required(ErrorMessage = "Required")]        
+        public DateTime BirthDate { get; set; }
+
+
+public int Age {
+            get {
+                return DateTime.Now.Year - this.BirthDate.Year;                
+            }
+        }

@@ -1,0 +1,50 @@
+APP GLOBAL EVENT
+----------------
+in this demo each error occurred using the MyClass.Fun1 method 
+will execute the MyClass_Error in the global.asax file
+in addition, the exception will be thrown
+
+public class MyClass {
+    public delegate void ErrorHandler(Exception ex);
+    public static event ErrorHandler Error; 
+
+    public static int Fun1(int num1, int num2) {
+        try {
+            return num1 / num2;
+        }
+        catch (Exception ex) { 
+            OnError(ex);
+            throw;
+        }
+        finally { }
+    }
+
+    private static void OnError(Exception ex)
+    {
+        if (Error != null)
+            Error(ex);
+    }
+}
+
+========================================================
+
+// in global.asax
+MyClass.Error += new MyClass.ErrorHandler(MyClass_Error);
+
+void MyClass_Error(Exception ex)
+{
+     // code ...
+}
+
+========================================================
+
+// in aspx file
+try
+{
+      Response.Write(string.Concat(MyClass.Fun1(100, 3), "<br />"));
+      Response.Write(string.Concat(MyClass.Fun1(35, 10), "<br />"));
+      Response.Write(string.Concat(MyClass.Fun1(3, 0), "<br />")); // ERROR
+      Response.Write(string.Concat(MyClass.Fun1(27, 9), "<br />"));
+      Response.Write(string.Concat(MyClass.Fun1(10, 2), "<br />"));
+}
+catch {}

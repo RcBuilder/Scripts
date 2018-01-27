@@ -1,0 +1,55 @@
+public class Blocker
+    {
+        private const int MaxSearches = 5; // max searches per x minutes
+        private const int RangeInMinutes = 1; // range in minutes
+
+        public static Dictionary<string, IPSearches> searches = new Dictionary<string, IPSearches>();
+
+        public static bool isBlocked(string IP)
+        {
+            if (!searches.ContainsKey(IP))
+                searches.Add(IP, new IPSearches());
+
+            IPSearches ipsearches = searches[IP];
+
+            TimeSpan ts = DateTime.Now - ipsearches.startDate;
+
+            if (ts.TotalMinutes > RangeInMinutes)
+                ipsearches.Reset();
+
+            if (ipsearches.Counter >= MaxSearches)
+                return true;
+
+            ipsearches.Add();
+            return false;
+        }
+    }
+
+    public class IPSearches
+    {
+        public DateTime startDate { private set; get; }
+        public int Counter { private set; get; }
+
+        public IPSearches()
+        {
+            this.startDate = DateTime.Now;
+            this.Counter = 0;
+        }
+
+        public void Add()
+        {
+            this.Counter++;
+        }
+
+        public void Reset()
+        {
+            this.startDate = DateTime.Now;
+            this.Counter = 0; // reset counter
+        }
+    }
+
+===========================================================================================
+
+string IP = context.Request.UserHostAddress;
+bool isblocked = Blocker.isBlocked(IP);
+context.Response.Write(isblocked ? "<span style=\"color:red;\">BLOCKED!!!</span>" : string.Format("NOT BLOCKED : {0} searches", Blocker.searches[IP].Counter));

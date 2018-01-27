@@ -1,0 +1,17 @@
+pattern:
+--------
+\+?[0-9\-]+
+
+examples:
+---------
++972344333332
++9723-44333332
+052-22233344
+05233333333
+1800-20-30-40
+
+using:
+------
+<asp:TextBox ID="txtPhone" runat="server" MaxLength="30" CssClass="inputText" />
+<asp:RequiredFieldValidator runat="server" ControlToValidate="txtPhone" Display="Dynamic" Text="Necessary" />
+<asp:RegularExpressionValidator runat="server" ControlToValidate="txtPhone" Display="Dynamic" Text="Incorrect Phone" ValidationExpression="\+?[0-9\-]+" />

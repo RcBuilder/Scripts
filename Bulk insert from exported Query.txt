@@ -1,0 +1,40 @@
+STEP 1: export data to .rpt file by the 'Results to file' option on the tool bar (near the stundart 'Results to Grid')
+STEP 2: do select query to export the wanted data
+        important: use custom seperator between each column
+EXP:         
+	select	CityID,
+			'|',
+			CityName,
+			'|',
+			CountryID, 
+			'|',
+			GeoLocation, 
+			'|',
+			isDeleted, 
+			'|',
+			CC_FIPS 
+	from	Cities 
+	where	GeoLocation is not null
+
+STEP 3: remove the header + footer of the file (leave only the columns pure data)
+STEP 4: use BULK INSERT statement in order to read the .rpt created file
+EXP:
+	create table #tblTestBULK(
+					CityID varchar(100),
+					CityName varchar(100),
+					CountryID varchar(100),
+					GeoLocation varchar(500),
+					isDeleted varchar(100),
+					CC_FIPS varchar(100)
+				)
+
+	BULK INSERT	#tblTestBULK
+	FROM 'C:\Users\RcBuilder\Desktop\aaa.rpt' with
+			(
+				FIELDTERMINATOR = '|', -- column split char  = ',' --
+				ROWTERMINATOR = '\n' -- row split char  = '\n' (new line) --
+			)
+
+	SELECT * FROM #tblTestBULK
+
+	drop table #tblTestBULK

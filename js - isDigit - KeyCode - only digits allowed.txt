@@ -1,0 +1,11 @@
+function isDigit(evt)
+{
+    // firefox return (code 0) when using the keyCode property -> need to use charCode
+    var keyCode = (evt.keyCode > 0)?evt.keyCode:evt.charCode;
+
+    // between 0 - 9  or left/right arrows or backspace
+    return ( (keyCode >=48 && keyCode <=57) || keyCode == 37 || keyCode == 39 || keyCode == 8);
+}
+
+
+<asp:TextBox ID="ItemQTY" runat="server" onkeydown="return isDigit(event);" MaxLength="5" Text="1" />

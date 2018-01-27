@@ -1,0 +1,46 @@
+JToken
+------
+JToken = raw json content
+
+allows us to send ANY json content without defining a strong type model!
+
+
+example
+-------
+
+public class DefaultController : ApiController 
+{
+
+    [HttpPost]
+    [Route("SendMessage/{queueKey}")]
+    public string SendMessage(string queueKey, [FromBody]JToken message) // JToken = raw json content
+    {
+	...
+	...
+    }
+}
+
+using
+-----
+
+we can send any json as the request body 
+
+{
+  a:1, 
+  b:2
+}
+
+{
+  id: 20,
+  name: "user1",
+  age: 34
+}
+
+{
+  name: "product A",
+  price: 400,
+  currency: "USD",
+  stock: 3400
+}
+
+and so on......

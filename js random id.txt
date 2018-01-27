@@ -1,0 +1,6 @@
+generateRandomId: function(){
+    var result = '';
+    for(var i=0;i<8;i++)
+      result = result.concat(Math.round(Math.random() * 9));
+    return result;
+  }

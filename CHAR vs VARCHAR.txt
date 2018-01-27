@@ -1,0 +1,17 @@
+CHAR(10) - 10 chars space
+VARCHAR(10) - max 10 chars
+VARCHAR(MAX) - no limit (NTEXT)
+
+remark:use N for unicode NVARCHAR,NCHAR etc.
+
+-----------------------------
+
+declare @char CHAR(10)
+set @char = 'AAA'
+
+declare @varchar VARCHAR(10)
+set @varchar = 'BBB'
+
+select DATALENGTH(@char),DATALENGTH(@varchar)
+
+result : 10,3

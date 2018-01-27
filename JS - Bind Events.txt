@@ -1,0 +1,33 @@
+FF:
+===
+addEventListener(eventName, MethodToRun , true/false);
+
+Remark: 
+false for bubbling , true for no bubbling
+
+document.getElementById('divAward').addEventListener(
+	'click', 
+	function (event) { alert(event); }, 
+	true
+); 
+
+Remark: 
+to cancel event just put blank method !
+
+-------------------------------------------------------------------
+
+IE 6:
+=====
+document.getElementById('divAward').attachEvent(
+	'onclick', 
+	function () { alert('a'); }
+);
+
+IE 7:
+=====
+document.getElementById('divAward').onclick = function () { 
+	alert('a'); 
+};
+
+Remark : 
+to cancel bubbling use window.event.cancelBubble = true;

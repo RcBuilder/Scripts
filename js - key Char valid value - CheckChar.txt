@@ -1,0 +1,13 @@
+function CheckChar(evt) {
+    var keyCode = (evt.keyCode > 0) ? evt.keyCode : evt.charCode;
+    var LETTER = String.fromCharCode(keyCode);
+    var validChars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 *!@#$%^&()'
+    return validChars.indexOf(LETTER) != -1
+}
+
+
+<input type="text" id="txt1" onkeypress="return CheckChar(event);" />
+
+
+note: 
+must be in the keypress event or latter event in the keydown the real char not recognized yet!!

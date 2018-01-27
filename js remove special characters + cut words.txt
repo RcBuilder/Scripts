@@ -1,0 +1,18 @@
+
+
+var specialCharacters = ['!','@','%',',','*','(',')'];
+var maxWordsAllowed = 10;
+      
+// non allowed characters    
+for(i in specialCharacters)
+{
+	var c = specialCharacters[i];
+	if(keyword.indexOf(c) == -1) continue;
+	keyword = keyword.split(c).join(''); // replace all
+}      
+      
+// two many words
+if(keyword.split(' ').length > maxWordsAllowed)
+keyword = keyword.split(' ').slice(0, 9).join(' '); // remove words
+        
+return keyword;

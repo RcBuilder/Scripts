@@ -1,0 +1,16 @@
+pattern:
+--------
+.{4,}  // at least 4 characters(any)
+
+examples:
+---------
+32434
+ASSDD
+AS#22a
+A@#DD
+
+using:
+------
+<asp:TextBox ID="txtPassword" runat="server" MaxLength="20" CssClass="inputText" TextMode="Password" />
+<asp:RequiredFieldValidator runat="server" ControlToValidate="txtPassword" Display="Dynamic" Text="Necessary" />
+<asp:RegularExpressionValidator runat="server" ControlToValidate="txtPassword" Display="Dynamic" Text="minimum 4 characters" ValidationExpression=".{4,}" />

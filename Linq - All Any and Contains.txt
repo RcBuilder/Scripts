@@ -1,0 +1,32 @@
+All
+===
+- returns true if ALL the items matching the condition (if even one item doesn't match - the return value will be false)
+- structure:
+  bool [IEnumerable].All([predicate])
+
+Any
+===
+- returns true if at least one item matching the condition (if none of the items matches - the return value will be false)
+- structure:
+  bool [IEnumerable].Any([predicate])
+
+Contains
+========
+- returns true if the supplied value contains within the list. 
+- if needed - use built-in or custom comparer to define the comparison logic
+- structure:
+  bool [IEnumerable].Contains([value], [IEqualityComparer]) // also see 'IEqualityComparer'
+
+USING
+-----
+
+int[] numbers = { 1, 2, 3, 4, 5, 6, 7 };
+
+bool isAllUnder9 = numbers.All(n => n < 9);
+Console.WriteLine(isAllUnder9); // true -> all the numbers are under 9
+
+bool isAnyAbove6 = numbers.Any(n => n > 6);
+Console.WriteLine(isAnyAbove6); // true -> 7 is above 6 - only 1 match required to returns true
+
+bool isContainsValue5 = numbers.Contains(5);
+Console.WriteLine(isContainsValue5); // true
