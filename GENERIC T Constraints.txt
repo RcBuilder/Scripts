@@ -4,10 +4,10 @@ GENERIC T Constraints
 FILTER TYPES
 ------------
 * struct  
-  T must be value types
+  T must be value type
 
 * class   
-  T must be reference types
+  T must be reference type
 
 * new()   
   T must have a public parameterless constructor 
@@ -25,6 +25,9 @@ FILTER TYPES
   T must be or implement the specified interface
 
 * U
+
+note: 
+use T1 : T2 to create an objects equality constraint (see FunH)
 
 USING
 -----
@@ -51,14 +54,14 @@ static void FunD<T>(T t) where T : class { }
 static void FunE<T>(T t) where T : new() { }
 static void FunF<T>(T t) where T : DemoA { }
 static void FunG<T>(T t) where T : iDemo, new() { }
-static void FunH<T1, T2>(T1 t1, T2 t2) where T1 : T2 { }
+static void FunH<T1, T2>(T1 t1, T2 t2) where T1 : T2 { } // same type!
 
 EXAMPLES
 --------
 
 // interface filter
 FunA(new DemoA()); // OK -> DemoA is iDemo
-FunA(new DemoC(1)); // OK -> DemoC is iDemo
+FunA(new DemoC(1)); // OK -> DemoA is iDemo
 FunA(new DemoZ(1)); // Compilation Error -> DemoZ is NOT iDemo
 FunA("ABCD");// Compilation Error -> string is NOT iDemo
 

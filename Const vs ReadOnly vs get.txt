@@ -1,0 +1,43 @@
+Const vs ReadOnly vs get
+========================
+
+const
+-----
+
+constant value - single value to all.
+always static (even if not defined as one).
+must be initialized at declaration time.
+can't be set from anywhere.
+
+ReadOnly
+--------
+
+can defined as regular property (per object) - different value each object.
+can be initialized at declaration time or within the constructor.
+after initialize can't be set.
+
+public readonly string myvalue;
+public myClass(value){ // constructor
+	myvalue = value;
+}
+	
+{ get; }
+--------
+
+property which can be read only.
+you can change within the class the data member which wrapped by the property.
+can't be initialized within the constructor.
+
+private string _myvalue; // can be accessed within the current class!
+public string myvalue{ get{ return _myvalue; } }
+
+
+ReadOnly vs { get; }
+--------------------
+use the { get; } approach 
+if you need to ensure your property value will never be changed from outside, 
+but you need to be able to change it from your class code.
+
+use the ReadOnly approach
+if you need to store a value which will never change once 
+its initial value has been set.

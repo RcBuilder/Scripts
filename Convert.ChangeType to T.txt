@@ -1,0 +1,3 @@
+
+// convert any object to T type
+(T)Convert.ChangeType(value, typeof(T))

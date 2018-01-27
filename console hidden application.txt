@@ -1,0 +1,13 @@
+console hidden application:
+---------------------------
+
+in order to create a console application without open a cmd window 
+use the following steps:
+
+1) create console application 
+2) project properties
+3) application tab 
+4) set output type to 'windows application'
+
+notice : in the console, do not write or read anything to or from the screen
+ 	 (console.writeline, console.readkey etc.) 

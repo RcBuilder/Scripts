@@ -1,0 +1,37 @@
+do
+{
+    Console.Clear();
+    Console.WriteLine("\n   CHOOSE ACTION:");
+    Console.WriteLine("  ==================================");
+    Console.WriteLine("   1 = Currencies");
+    Console.WriteLine("   2 = Markets");
+    Console.WriteLine("   3 = Market Summary"); 
+    Console.WriteLine("   --");
+    Console.WriteLine("   100 = exit");
+    Console.WriteLine("  ==================================");
+
+    var option = Console.ReadLine();
+    if (option == "100")
+        break;
+                
+    if (option == "1")
+    {
+        Console.WriteLine("Currencies");
+        // code ...
+    }
+
+    if (option == "2")
+    {
+        Console.WriteLine("Markets");
+	// code ...
+    }
+
+    if (option == "3")
+    {
+        Console.WriteLine("Market Summary");
+// code ...
+    }
+
+    Console.WriteLine("\nclick any key to continue.....");
+    Console.ReadKey(true);
+} while (true);

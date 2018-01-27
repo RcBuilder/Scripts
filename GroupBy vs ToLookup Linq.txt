@@ -1,0 +1,49 @@
+GroupBy vs ToLookup
+===================
+
+var products = new [] { 
+    new { Id = 101, Name = "Product A", CategoryId = 1, ManufacturerId = 1 },
+    new { Id = 102, Name = "Product B", CategoryId = 1, ManufacturerId = 1 },
+    new { Id = 103, Name = "Product C", CategoryId = 2, ManufacturerId = 1 },
+    new { Id = 104, Name = "Product D", CategoryId = 2, ManufacturerId = 1 },
+    new { Id = 105, Name = "Product E", CategoryId = 3, ManufacturerId = 2 },
+    new { Id = 106, Name = "Product F", CategoryId = 2, ManufacturerId = 2 },
+    new { Id = 107, Name = "Product G", CategoryId = 3, ManufacturerId = 2 },
+    new { Id = 108, Name = "Product H", CategoryId = 2, ManufacturerId = 3 },
+    new { Id = 109, Name = "Product I", CategoryId = 1, ManufacturerId = 3 }
+}.ToList();
+
+
+GroupBy
+-------
+- deferred execution (see 'deferred execution vs immediate execution Linq')
+- NO seek by Key 
+  groups[Key] // compilation error!!
+
+- using:
+var groups = products.GroupBy(p => p.ManufacturerId);
+
+foreach (var group in groups){
+    Console.WriteLine(group.Key);
+    foreach(var product in group)
+        Console.WriteLine("\t{0}", product.Name);
+}
+
+
+ToLookup
+--------
+- immediate execution (see 'deferred execution vs immediate execution Linq')
+- can seek by Key
+  lookup[Key] // OK
+
+- using:
+var lookup = products.ToLookup(p => p.ManufacturerId);
+
+foreach (var item in lookup){
+    Console.WriteLine(item.Key);
+    foreach (var product in lookup[item.Key])
+        Console.WriteLine("\t{0}", product.Name);
+}
+
+// can seek by key
+Console.WriteLine("{0} products found in Key 2", lookup[2].Count());

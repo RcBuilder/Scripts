@@ -1,0 +1,18 @@
+GetMacAddress
+=============
+using System.Net.NetworkInformation;
+
+public static string GetMacAddress() {
+    try {
+        var network = NetworkInterface.GetAllNetworkInterfaces();
+        var macAddress = network.Where(n => 
+			n.NetworkInterfaceType == NetworkInterfaceType.Ethernet && 
+			n.OperationalStatus == OperationalStatus.Up
+		).FirstOrDefault().GetPhysicalAddress().ToString();
+
+        return string.Concat("MAC-", macAddress);
+    }
+    catch {
+        return string.Empty;
+    }
+}

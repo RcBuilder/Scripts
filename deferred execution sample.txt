@@ -1,0 +1,70 @@
+
+// deferred execution
+
+var products = new[] {
+    new { Id = 101, Name = "Product A", CategoryId = 1 },
+    new { Id = 102, Name = "Product B", CategoryId = 1 },
+    new { Id = 103, Name = "Product C", CategoryId = 2 },
+    new { Id = 104, Name = "Product D", CategoryId = 2 },
+    new { Id = 105, Name = "Product E", CategoryId = 3 }
+}.ToList();
+
+// productsOfCategory3 is NOT executed here! 'Where' is a deferred operation
+var productsOfCategory3 = products.Where(p => p.CategoryId == 3);
+
+/*  
+	output:
+	Product E
+*/
+foreach (var p in productsOfCategory3) // deferred execution
+    Console.WriteLine(p.Name);
+
+products.Add(new { Id = 101, Name = "Product F", CategoryId = 3 });
+
+/*  
+	output:
+	Product E
+	Product F
+*/
+foreach (var p in productsOfCategory3) // deferred execution
+    Console.WriteLine(p.Name);
+
+
+----------------------------------------------
+
+// immediate execution
+
+var products = new[] {
+    new { Id = 101, Name = "Product A", CategoryId = 1 },
+    new { Id = 102, Name = "Product B", CategoryId = 1 },
+    new { Id = 103, Name = "Product C", CategoryId = 2 },
+    new { Id = 104, Name = "Product D", CategoryId = 2 },
+    new { Id = 105, Name = "Product E", CategoryId = 3 }
+}.ToList();
+
+// productsOfCategory3-list executed here! ToList is an immediate execution! 
+// productsOfCategory3-list had the collection and any other changes to the 'products' list will NOT affect it! 
+var productsOfCategory3-list = products.Where(p => p.CategoryId == 3).ToList(); 
+
+/*  
+	output:
+	Product E
+*/
+foreach (var p in productsOfCategory3-list) 
+    Console.WriteLine(p.Name);
+
+products.Add(new { Id = 101, Name = "Product F", CategoryId = 3 });
+
+/*  
+	output:
+	Product E	
+
+	note that 'Product F' does NOT exist here! 
+*/
+foreach (var p in productsOfCategory3-list) 
+    Console.WriteLine(p.Name);
+
+----------------------------------------------
+
+reference:
+also see 'deferred execution vs immediate execution.txt'

@@ -1,0 +1,88 @@
+GroupJoin
+=========
+- Group Joined Lists - join lists and then group them by the join key
+- if no join required (working on a single data source) - use GroupBy instead
+
+data source:
+
+var products = new [] { 
+    new { Id = 101, Name = "Product A", CategoryId = 2 },
+    new { Id = 102, Name = "Product B", CategoryId = 1 },
+    new { Id = 103, Name = "Product C", CategoryId = 1 },
+    new { Id = 104, Name = "Product D", CategoryId = 2 },
+    new { Id = 105, Name = "Product E", CategoryId = 3 },
+    new { Id = 106, Name = "Product F", CategoryId = 2 },
+    new { Id = 107, Name = "Product G", CategoryId = 3 },
+    new { Id = 108, Name = "Product H", CategoryId = 2 },
+    new { Id = 109, Name = "Product I", CategoryId = 1 }
+}.ToList();
+
+var categories = new[] { 
+    new { Id = 1, Name = "Category A" },
+    new { Id = 2, Name = "Category B" },
+    new { Id = 3, Name = "Category C" },
+    new { Id = 4, Name = "Category D" }
+}.ToList();
+
+
+using GroupJoin
+---------------
+
+- syntax:
+[IEnumerable OUTER].GroupJoin([IEnumerable INNER], [Key OUTER], [Key INNER], [Result])            
+
+- example: 
+var groupByCategory = categories.GroupJoin(
+        products, 
+        c => c.Id, 
+        p => p.CategoryId,
+        (category, productsInCategory) => new { Category = category, Products = productsInCategory }
+);
+
+
+using Query syntax
+------------------
+
+- syntax:        
+from [a] in [IEnumerable OUTER]
+join [b] in [IEnumerable INNER] on [Key OUTER] equals [Key INNER] into [Group]
+select new { ... }; 
+            
+- example: 
+var groupByCategory = from category in categories
+					  join product in products on category.Id equals product.CategoryId into cGroup
+					  select new { Category = category, Products = cGroup };
+
+result
+------
+
+note! 
+'Category D' also returns
+
+- print:
+foreach (var group in groupByCategory)
+{
+    Console.WriteLine("{0}", group.Category.Name);
+    foreach (var product in group.Products)
+        Console.WriteLine("\t{0}", product.Name);
+    Console.WriteLine(string.Empty);
+}
+
+- output:
+Category A
+	Product B
+	Product C
+	Product I
+
+Category B
+	Product A
+	Product D
+	Product F
+	Product H
+
+Category C
+	Product E
+	Product G
+
+Category D
+

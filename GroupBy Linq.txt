@@ -1,0 +1,118 @@
+GroupBy
+=======
+- also see 'GroupBy vs ToLookup'
+
+- Group By - make groups from a list by a specified key/s
+- if join required (working on a multiple data sources) - use GroupJoin instead
+- Key returns the current group value
+
+- group by multiple keys:
+  in order to perform a grouping by multiple key - use anonymous type -> new { p1, p2 .. }
+  new { x.CategoryId, x.ManufacturerId } - group products by CategoryId and ManufacturerId
+  group.Key contains the current group values (CategoryId and ManufacturerId)
+
+
+data source:
+
+var products = new [] { 
+    new { Id = 101, Name = "Product A", CategoryId = 1, ManufacturerId = 1 },
+    new { Id = 102, Name = "Product B", CategoryId = 1, ManufacturerId = 1 },
+    new { Id = 103, Name = "Product C", CategoryId = 2, ManufacturerId = 1 },
+    new { Id = 104, Name = "Product D", CategoryId = 2, ManufacturerId = 1 },
+    new { Id = 105, Name = "Product E", CategoryId = 3, ManufacturerId = 2 },
+    new { Id = 106, Name = "Product F", CategoryId = 2, ManufacturerId = 2 },
+    new { Id = 107, Name = "Product G", CategoryId = 3, ManufacturerId = 2 },
+    new { Id = 108, Name = "Product H", CategoryId = 2, ManufacturerId = 3 },
+    new { Id = 109, Name = "Product I", CategoryId = 1, ManufacturerId = 3 }
+}.ToList();
+
+
+using GroupBy
+-------------
+
+- syntax:
+[IEnumerable].GroupBy([properties])            
+
+- example: 
+var groupByCategory = products.GroupBy(p => p.CategoryId);
+
+- example (multiple keys): 
+var groupByMultiple = products.GroupBy(p => new { p.CategoryId, p.ManufacturerId }).OrderBy(p => p.Key.CategoryId);
+
+using Query syntax
+------------------
+
+- syntax:        
+from [a] in [IEnumerable]
+group [a] by [properties] into [Group]
+select [Group]; 
+            
+- example: 
+var groupByCategory = from p in products
+                      group p by p.CategoryId into eGroup
+                      select eGroup;
+
+- example (multiple keys): 
+var groupByMultiple = from p in products
+                      group p by new { p.CategoryId, p.ManufacturerId } into eGroup
+                      orderby eGroup.Key.CategoryId ascending
+                      select eGroup;
+
+results
+-------
+
+- print:
+foreach (var group in groupByCategory)
+{
+	Console.WriteLine("Category #{0}", group.Key); 
+	foreach(var product in group)
+		Console.WriteLine("\t{0}", product.Name);
+}
+
+- output:
+Category #1
+	Product A
+	Product B
+	Product I
+
+Category #2
+	Product C
+	Product D
+	Product F
+	Product H
+
+Category #3
+	Product E
+	Product G
+
+--- 
+
+- print:
+foreach (var group in groupByMultiple)
+{
+    Console.WriteLine("Category #{0} + Manufacturer #{1}", group.Key.CategoryId, group.Key.ManufacturerId);
+    foreach (var product in group)
+        Console.WriteLine("\t{0}", product.Name);
+}    
+
+- output:
+Category #1 + Manufacturer #1
+	Product A
+	Product B
+
+Category #1 + Manufacturer #3
+	Product I
+
+Category #2 + Manufacturer #1
+	Product C
+	Product D
+
+Category #2 + Manufacturer #2
+	Product F
+
+Category #2 + Manufacturer #3
+	Product H
+
+Category #3 + Manufacturer #2
+	Product E
+	Product G

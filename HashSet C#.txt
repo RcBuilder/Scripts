@@ -1,0 +1,73 @@
+HashSet
+=======
+
+- structure:
+    var hashSet = new HashSet<T>();
+    var hashSet = new HashSet<T>([IEqualityComparer]); // see 'IEqualityComparer'
+    var hashSet = new HashSet<T>([IEnumerable]);
+    var hashSet = new HashSet<T>([IEnumerable], [IEqualityComparer]);
+             
+- indexed List which allows us to determine if an item exists in the set or not.                
+- the index proccess is similar to the one used in dictionary (see 'C# Dictionary')
+- the original order which the items were inserted is lost due to the indexing logic. 
+- can't be accesses by index 
+    hashSet[index] // compilation error!
+             
+- HashSet implements ICollection interface but NOT implements IList interface
+- Performance:
+    Add() // List is FASTER than HashSet - due to the HashSet indexing logic
+    Contains() // HashSet is much FASTER than List - O(1) vs O(n)
+    Remove() // HashSet is much FASTER than List - O(1) vs O(n)
+             
+- tasks that can be solved using HashSet
+    e.g: 
+    task: remove duplicate values 
+    solution: go over the source list and add each unique item into HashSet, use the HashSet Contains method to find quickly O(1) if the item you desire to add already exists in the set or not.
+    note! Contains using HashSet is O(1) whereas Contains in List is O(n)!!
+
+	e.g: 
+    task: check for duplicate values
+    solution: same solution as the 'remove duplicate values' task above.
+
+	e.g: 
+    task: print unique values
+    solution: go over the source list and add each item into HashSet, then - print the HashSet. 
+    note! HashSet does NOT storing duplicates 
+             
+- UnionWith
+    hashSet.UnionWith([IEnumerable]);
+    allow us to union a IEnumerable with the currect hashSet (see example below)
+             
+- NOT STORING duplicates values, can also use IEqualityComparer to define the comparer
+    e.g:
+    var hashSet = new HashSet<string>();
+    hashSet.Add("C");
+    hashSet.Add("C");
+    hashSet.Add("C");
+    hashSet.Add("D");
+    hashSet.Add("A");
+    hashSet.Add("B");  
+                  
+    result: 
+    // only A, B, C and D exists in the Set (4 items)
+    Console.WriteLine(hashSet.Count); // 4 
+                  
+    ---    
+             
+    e.g:
+    // auto remove duplicates from a list
+    var list = new List<string> { "C", "C", "C", "D", "A", "B" };                                   
+    var hashSet = new HashSet<string>(list);  
+    Console.WriteLine(hashSet.Count); // 4 (C, D, A, B)
+             
+    ---
+             
+    e.g:
+    // using UnionWith
+    var list = new List<string> { "C", "C", "C"};
+    var list2 = new List<string> { "B", "B", "A" };
+                  
+    var hashSet = new HashSet<string>(list);
+    Console.WriteLine(hashSet.Count); // 1 (C)
+    hashSet.UnionWith(list2);
+    Console.WriteLine(hashSet.Count); // 3 (C, A, B)   

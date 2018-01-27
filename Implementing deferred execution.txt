@@ -1,0 +1,38 @@
+Implementing deferred execution
+-------------------------------
+also see 'deferred execution vs immediate execution Linq.txt'
+
+steps: 
+1. create a custom extension method for IEnumerable<T>
+2. use the yield keyword
+3. execute it to a variable 
+4. use it in foreach loop 
+
+--
+
+var products = new[] {
+    new Product { Id = 101, Name = "Product A", CategoryId = 1 },
+    new Product { Id = 102, Name = "Product B", CategoryId = 1 },
+    new Product { Id = 103, Name = "Product C", CategoryId = 2 },
+    new Product { Id = 104, Name = "Product D", CategoryId = 2 },
+    new Product { Id = 105, Name = "Product E", CategoryId = 3 }
+}.ToList();
+
+
+var productsOfCategory3 = products.GetByCategory(3); // Extension method that returns a deferred operation
+
+foreach (var p in productsOfCategory3) // deferred execution
+    Console.WriteLine(p.Name);
+
+--
+
+public static class Extensions {
+    public static IEnumerable<Product> GetByCategory(this IEnumerable<Product> me, int CategoryId) {
+        foreach (var p in me) {
+            Console.WriteLine("Accessing {0}", p.Name);
+
+            if (p.CategoryId == CategoryId)
+                yield return p;
+        }
+    }
+}

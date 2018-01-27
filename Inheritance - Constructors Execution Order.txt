@@ -1,0 +1,63 @@
+
+public class C1 {
+    public C1(){
+        Console.WriteLine("In C1 Constructor");    
+    }
+}
+
+public class C2 : C1 {
+    public C2() {
+        Console.WriteLine("In C2 Constructor");
+    }
+}
+
+public class C3 : C2 {
+    public C3(int Num) {
+        Console.WriteLine("In C3 Constructor");
+    }
+}
+
+// using 
+var c = new C3(2);
+
+// output
+In C1 Constructor
+In C2 Constructor
+In C3 Constructor
+
+note! 
+each constructor call, by default, to the empty constructor of the parent class 
+use ':base' in order to call a specific overload of the base constructor (see example below)
+
+------------------------------
+// using :base
+
+public class C1 {
+    public C1(){
+        Console.WriteLine("In C1 Constructor");    
+    }
+}
+
+public class C2 : C1 {
+    public C2() {
+        Console.WriteLine("In C2 Constructor");
+    }
+
+    public C2(int Num) {
+        Console.WriteLine("In C2 + Param Constructor");
+    }
+}
+
+public class C3 : C2 {
+    public C3(int Num) :base(Num) {
+        Console.WriteLine("In C3 Constructor");
+    }
+}
+
+// using 
+var c = new C3(2);
+
+// output
+In C1 Constructor
+In C2 + Param Constructor
+In C3 Constructor

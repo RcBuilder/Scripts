@@ -1,0 +1,39 @@
+
+task:
+print the categories and their products list who have NO products more expesive then 10
+
+solution:
+var productList = new []
+{                
+    new { Name = "Bamba", Price = 9, category = "Category.Sweets"},
+    new { Name = "Sky cheese", Price = 5, category = "Category.Dairy"},
+    new { Name = "Chicken Soup", Price = 8, category = "Category.Meat"},
+    new { Name = "KitKat", Price = 7, category = "Category.Sweets"},
+    new { Name = "Apples", Price = 5, category = "Category.Fruits"},
+    new { Name = "Butter", Price = 45, category = "Category.Dairy"},
+    new { Name = "Cream", Price = 9, category = "Category.Dairy"},
+    new { Name = "Kabab", Price = 5, category = "Category.Meat"},
+    new { Name = "Pairs", Price = 7, category = "Category.Fruits"}
+}.ToList();
+
+var groups = productList.GroupBy(p => p.category).Where(k => k.Max(p => p.Price) < 10);
+foreach (var g in groups)
+{
+    Console.WriteLine(g.Key);
+    foreach (var p in g)
+        Console.WriteLine("\t{0} {1}", p.Name, p.Price);
+}
+
+// in this sample the category 'Category.Dairy' shouldn't be printed due to the 'Butter' product has a price tag over 10
+
+
+-------------
+
+// same query using actions 
+var group = productList.GroupBy(p => p.category).Where(k => k.Max(p => p.Price) < 10);
+group.ToList().ForEach((g) => {
+    Console.WriteLine(g.Key);
+    g.ToList().ForEach((p) => {
+        Console.WriteLine("\t{0}", p.Name);
+    });
+});

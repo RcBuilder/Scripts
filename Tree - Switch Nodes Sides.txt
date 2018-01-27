@@ -1,0 +1,76 @@
+public class Node {
+    public int Value { get; set; }
+    public Node left { set; get; }
+    public Node right { set; get; }
+
+    public void Print() {                
+        if (this.left != null) this.left.Print();
+        Console.Write("|{0}| ->", this.Value);
+        if (this.right != null) this.right.Print();
+    }
+
+    public void Switch()
+    {
+        var temp = this.left;
+        this.left = this.right;
+        this.right = temp;
+
+        if (this.left != null) this.left.Switch();
+        if (this.right != null) this.right.Switch();
+    }
+}
+
+
+var tree = new Node {
+    Value = 0,
+    left = new Node {
+        Value = 2,
+        left = new Node {
+            Value = 4,
+            left = new Node {
+                Value = 8
+            },
+            right = new Node {
+                Value = 10
+            }
+        },
+        right = new Node {
+            Value = 6
+        }
+    },
+    right = new Node {
+        Value = 1,
+        left = new Node {
+            Value = 3
+        },
+        right = new Node {
+            Value = 5
+        }
+    }
+};
+
+/*
+    | 8 | ->| 4 | ->| 10 | ->| 2 | ->| 6 | ->| 0 | ->| 3 | ->| 1 | ->| 5 | ->
+
+                                            | 0 |
+                             --------------       --------------
+                       | 2 |                                     | 1 |
+               -------       -------                     -------       -------
+         | 4 |                       | 6 |         | 3 |                       | 5 |
+    | 8 |     | 10 |
+*/
+tree.Print(); 
+
+tree.Switch();
+
+/*
+    | 5 | ->| 1 | ->| 3 | ->| 0 | ->| 6 | ->| 2 | ->| 10 | ->| 4 | ->| 8 | ->            
+
+                                       | 0 |
+			            --------------       --------------
+                  | 1 |                                     | 2 |
+          -------       -------                     -------       -------
+    | 5 |                       | 3 |         | 6 |                       | 4 |        
+                                                                    | 10 |     | 8 |           
+*/
+tree.Print();

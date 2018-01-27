@@ -1,0 +1,74 @@
+deferred execution vs immediate execution
+=========================================
+
+deferred operators
+------------------
+- deferred operators are executed on the iteration process - usually the 'foreach' clause
+- lazy access - executed only when asked for
+- each iteration process will make a new execution
+- deferred execution returns the latest data!
+- Where, Take, Select, Skip ....
+
+immediate operators
+-------------------
+- immediate operators are executed at the declaration time
+- eager access - executed immediatly 
+- single execution
+- Count, Average, Max, ToList ....
+
+data source
+-----------
+var products = new [] { 
+    new { Id = 101, Name = "Product A", CategoryId = 1, ManufacturerId = 1 },
+    new { Id = 102, Name = "Product B", CategoryId = 1, ManufacturerId = 1 },
+    new { Id = 103, Name = "Product C", CategoryId = 2, ManufacturerId = 1 },
+    new { Id = 104, Name = "Product D", CategoryId = 2, ManufacturerId = 1 },
+    new { Id = 105, Name = "Product E", CategoryId = 3, ManufacturerId = 2 },
+    new { Id = 106, Name = "Product F", CategoryId = 2, ManufacturerId = 2 },
+    new { Id = 107, Name = "Product G", CategoryId = 3, ManufacturerId = 2 },
+    new { Id = 108, Name = "Product H", CategoryId = 2, ManufacturerId = 3 },
+    new { Id = 109, Name = "Product I", CategoryId = 1, ManufacturerId = 3 }
+}.ToList();
+
+using
+-----
+var result = products.Where(p => p.CategoryId == 3);
+
+products.Add(new { 
+	Id = 200, 
+	Name = "NEW Product", 
+	CategoryId = 3, 
+	ManufacturerId = 1 
+});
+
+foreach (var product in result)
+    Console.WriteLine(product.Name);
+
+output:
+Product E
+Product G
+NEW Product // notice that this product has added AFTER the linq query!!
+
+reason:
+'Where' is a deferred operator
+
+---
+
+now if we use a ToList() clause, it will be converted into immediate operator
+
+var result = products.Where(p => p.CategoryId == 3).ToList();
+
+products.Add(new { 
+	Id = 200, 
+	Name = "NEW Product", 
+	CategoryId = 3, 
+	ManufacturerId = 1 
+});
+
+foreach (var product in result)
+    Console.WriteLine(product.Name);
+
+output:
+// notice that 'NEW Product' is not exists in the result!
+Product E
+Product G
