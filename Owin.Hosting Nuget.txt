@@ -1,0 +1,14 @@
+## Owin.Hosting Nuget ##
+
+
+// important!! use this package to combine webAPI and OWIN
+Install-Package Microsoft.Owin.Hosting
+Install-Package Microsoft.AspNet.WebApi.OwinSelfHost
+      
+// for owin without webAPI support        
+Install-Package Microsoft.Owin.Hosting // ms hosting 
+Install-Package Microsoft.Owin.Host.HttpListener // ms self-hosting listener        
+      
+note!
+both 'Owin.Hosting' and 'OwinSelfHost' will install the base Owin package (dependency)
+Install-Package Owin // base 

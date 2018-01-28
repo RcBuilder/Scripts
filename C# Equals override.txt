@@ -11,73 +11,84 @@ override the Equals method (object) in order to change this behaviur
 tip! 
 when override the Equals, it's best practice to also override the GetHashCode method (used for indexing - dictionary etc.)
 
+exceptional! 
+anonymous types Equals method refers as value type comparison! 
+the == operator still refers to the refernece 
+
 --------------------------------------
 
 // NO Equals override - default 
 public class User
-        {
-            public int Id { get; set; }
-            public string Name { get; set; }
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
 
-            public User(int Id, string Name)
-            {
-                this.Id = Id;
-                this.Name = Name;
-            }
-        }
+    public User(int Id, string Name)
+    {
+        this.Id = Id;
+        this.Name = Name;
+    }
+}
 
 ----
 
 // value types
 var num1 = 10;
-            var num2 = 10;
+var num2 = 10;
 
-            Console.WriteLine("Equals {0}, Reference {1}", num1.Equals(num2), num1 == num2); // True, True
+Console.WriteLine("Equals {0}, Reference {1}", num1.Equals(num2), num1 == num2); // True, True
 
 // two different users (reference type object) with identical data
-            var u1 = new User(2, "Roby");
-            var u2 = new User(2, "Roby");
+var u1 = new User(2, "Roby");
+var u2 = new User(2, "Roby");
 
-            Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u2), u1 == u2); // False, False
+Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u2), u1 == u2); // False, False
 
 // same reference users 
-            var u3 = u1;
+var u3 = u1;
 
-            Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u3), u1 == u3); //  True, True
+Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u3), u1 == u3); //  True, True
 
+----
+
+// (exceptional) anonymous types
+var anon1 = new { Id = 1, Name = "ItemA" };
+var anon2 = new { Id = 1, Name = "ItemA" };
+
+Console.WriteLine("Equals {0}, Reference {1}", anon1.Equals(anon2), anon1 == anon2); //  True, False
 
 =========================================================================
 
 // override the Equals method
 public class User {
-            public int Id { get; set; }
-            public string Name { get; set; }
+    public int Id { get; set; }
+    public string Name { get; set; }
 
-            public User(int Id, string Name) {
-                this.Id = Id;
-                this.Name = Name;
-            }
+    public User(int Id, string Name) {
+        this.Id = Id;
+        this.Name = Name;
+    }
 
-            public override bool Equals(object obj)
-            {
-                var other = obj as User;
-                if (other == null)
-                    return base.Equals(obj);
-                return other.Id == this.Id;
-            }
-        }
+    public override bool Equals(object obj)
+    {
+        var other = obj as User;
+        if (other == null)
+            return base.Equals(obj);
+        return other.Id == this.Id;
+    }
+}
 
 
 ----
 
 
 var u1 = new User(2, "Roby");
-            var u2 = new User(2, "Roby");
-            var u3 = new User(3, "Avi");
-            var u4 = new User(3, "Ron");
-            var u5 = u1;
+var u2 = new User(2, "Roby");
+var u3 = new User(3, "Avi");
+var u4 = new User(3, "Ron");
+var u5 = u1;
 
-            Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u2), u1 == u2); // True, False
-            Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u3), u1 == u3); // False, False
-            Console.WriteLine("Equals {0}, Reference {1}", u3.Equals(u4), u3 == u4); // True, False
-            Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u5), u1 == u5); // True, True
+Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u2), u1 == u2); // True, False
+Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u3), u1 == u3); // False, False
+Console.WriteLine("Equals {0}, Reference {1}", u3.Equals(u4), u3 == u4); // True, False
+Console.WriteLine("Equals {0}, Reference {1}", u1.Equals(u5), u1 == u5); // True, True

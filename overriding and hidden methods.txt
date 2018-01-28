@@ -1,0 +1,127 @@
+public class Base {
+    public virtual string Show() {
+        return "base";
+    }
+}
+
+// override method 
+// ## override keyword ##
+public class A : Base {
+    public override string Show() {
+        return "A";
+    }
+}
+
+public class B : A {
+    public override string Show() {
+        return "B";
+    }
+}
+
+// hide method 
+// ## new keyword ##
+public class C : Base {
+    public new string Show() {
+        return "C";
+    }
+}
+
+public class D : C {
+    public new string Show() {
+        return "D";
+    }
+}
+
+// hide and override method - mix mode 
+// note! can also use 'new virtual' (see 'override and virtual methods - oop.txt')
+public class E : Base {
+    public override string Show() {
+        return "E";
+    }
+}
+
+public class F : E {
+    public new string Show() {
+        return "F";
+    }
+}
+
+=======================================================
+string res = string.Empty;
+
+// USING OVERRIDEN METHODS ('override' keyword) //
+// -------------------------------------------- //
+A a = new A();
+B b = new B();
+A ab = new B();
+
+res = a.Show(); // A
+res = b.Show(); // B
+res = ab.Show(); // B
+res = ((Base)ab).Show(); // B
+
+/*  explanation 
+    -----------
+    when override a method using the 'override' keyword,
+    the method that execute will be the very last overriden till the created instance type 
+            
+    in this exp: 
+    when using the ab.Show() the system will search the A -> B objects range 
+    and present the last overriden method in this range
+    B override A so it will be execute
+            
+    when using the ((Base)ab).Show() the system will search the Base -> B objects range 
+    and present the last overriden method in this range
+    A override Base and B override A so it will be execute
+*/
+
+
+// USING HIDDEN METHODS ('new' keyword) //
+// ------------------------------------ //
+C c = new C();
+D d = new D();
+C cd = new D();
+
+res = c.Show(); // C
+res = d.Show(); // D
+res = cd.Show(); // C
+res = ((Base)cd).Show(); // Base
+
+/*  explanation 
+    -----------
+    when hide a method using the 'new' keyword, 
+    the method that execute will be the very last overriden that is not hidden
+          
+    in this exp: 
+    when using the cd.Show() the system will search the C -> D objects range 
+    and present the last overriden method that is not hidden in this range
+    D is hidden so the 'C' method will be execute
+            
+    when using the ((Base)cd).Show() the system will search the Base -> D objects range 
+    and present the last overriden method that is not hidden in this range
+    both C and D are hidden so the 'Base' method will be execute
+*/
+
+
+// USING MIXED METHODS (override and new) //
+// -------------------------------------- //
+E e = new E();
+F f = new F();
+E ef = new F();
+
+res = e.Show(); // E
+res = f.Show(); // F
+res = ef.Show(); // E
+res = ((Base)ef).Show(); // E
+
+/*  explanation 
+    -----------
+    in this exp: 
+    when using the ef.Show() the system will search the E -> F objects range 
+    and present the last overriden method that is not hidden in this range
+    F is hidden so the 'E' method will be execute
+            
+    when using the ((Base)ef).Show() the system will search the Base -> F objects range 
+    and present the last overriden method that is not hidden in this range
+    E override Base and F is hidden so the 'E' method will be execute
+*/

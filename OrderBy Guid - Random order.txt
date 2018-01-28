@@ -1,0 +1,22 @@
+
+OrderBy(x => Guid.NewGuid())
+
+--------
+
+var products = new[] { 
+    new { Id = 101, Name = "Product A", CategoryId = 1, ManufacturerId = 1 },
+    new { Id = 102, Name = "Product B", CategoryId = 1, ManufacturerId = 1 },
+    new { Id = 103, Name = "Product C", CategoryId = 2, ManufacturerId = 1 },
+    new { Id = 104, Name = "Product D", CategoryId = 2, ManufacturerId = 1 },
+    new { Id = 105, Name = "Product E", CategoryId = 3, ManufacturerId = 2 },
+    new { Id = 106, Name = "Product F", CategoryId = 2, ManufacturerId = 2 },
+    new { Id = 107, Name = "Product G", CategoryId = 3, ManufacturerId = 2 },
+    new { Id = 108, Name = "Product H", CategoryId = 2, ManufacturerId = 3 },
+    new { Id = 109, Name = "Product I", CategoryId = 1, ManufacturerId = 3 }
+}.ToList();
+
+Enumerable.Range(1, 10).ToList().ForEach((num) => {
+    foreach (var product in products.OrderBy(x => Guid.NewGuid()))
+        Console.WriteLine(product.Id);
+    Console.WriteLine("-----");
+});

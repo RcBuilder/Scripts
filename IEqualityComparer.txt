@@ -1,0 +1,137 @@
+IEqualityComparer
+=================
+- allows us to create a custom compare logic for objects by defining both Equals and GetHashCode methods.
+- the default comparer try to compare the object references regardless the property values!  
+- can also use generic -> IEqualityComparer<T> 
+
+entities:
+public class Item {
+    public int ID { get; set; }
+    public string Name { get; set; }
+}
+
+data sources:
+// anonymous type list
+var categories = new[] { 
+    new { Id = 1, Name = "Category A" },
+    new { Id = 2, Name = "Category B" },
+    new { Id = 3, Name = "Category C" },
+    new { Id = 4, Name = "Category D" },
+    new { Id = 4, Name = "Category D" }
+}.ToList();
+
+// entity list
+var items = new List<Item> { 
+    new Item{ ID = 100, Name = "Item A" },
+    new Item{ ID = 101, Name = "Item B" },
+    new Item{ ID = 102, Name = "Item C" },
+    new Item{ ID = 102, Name = "Item C" }
+};
+
+USING
+-----
+
+var countries = new List<string>{ "ISRAEL", "USA", "ITALY", "italy", "INDIA" };
+
+var resultA = countries.Distinct();
+foreach (var item in resultA)
+    Console.WriteLine(item);
+
+- output:
+ISRAEL
+USA
+ITALY
+italy
+INDIA
+
+note!
+both ITALY and italy return - case sensetive
+
+----
+
+// StringComparer.OrdinalIgnoreCase implements the IEqualityComparer interface
+
+var resultB = countries.Distinct(StringComparer.OrdinalIgnoreCase);
+foreach (var item in resultB)
+    Console.WriteLine(item);
+
+- output:
+ISRAEL
+USA
+ITALY
+INDIA
+
+note!
+ITALY only returns once
+
+----
+
+// reference types
+var resultC = items.Distinct();
+foreach (var item in resultC)
+    Console.WriteLine(item.Name);
+
+- output:
+Item A
+Item B
+Item C
+Item C
+
+- remarks:
+  item #102 (Item C) returns twice! - not the same object!            
+  reference types compared only by their refernce so the comparer returns true only for the same object 
+  objects with identical property values will return false
+
+----
+
+// anonymous types
+var resultD = categories.Distinct();
+foreach (var item in resultD)
+    Console.WriteLine(item.Name);
+
+- output:
+Category A
+Category B
+Category C
+Category D
+          
+- note! 
+  category #4 (Category D) returns only once!
+  anonymous types are exceptionals and the comparer checks all their values for equality 
+  so, basically - anonymous types with the same values will act as equals!!               
+
+----
+
+* using Custom IEqualityComparer
+  in order to create a custom comparer, all we have to do is to implement the IEqualityComparer intertface 
+  and supply our own compare logic!  
+
+  note!
+  alternatively, we can override the Equals and GetHashCode methods in the Item class 
+  but notice that this will apply the Equality overriden logic for ALL the item compares 
+
+  tip! 
+  we can also generate an anonymous type which will override automatically the Equality logic and will be compare the values!
+
+* using
+
+  // the Item comparer
+  class ItemComparer : IEqualityComparer<Item> {
+    public bool Equals(Item x, Item y) {
+        return x.ID == y.ID;
+    }
+
+    public int GetHashCode(Item obj) {
+        return obj.ID.GetHashCode() ^ obj.Name.GetHashCode();
+    }
+ }
+
+  // aim: distinct by item Id
+  var resultE = items.Distinct(new ItemComparer());
+  foreach (var item in resultE)
+    Console.WriteLine(item.Name);
+
+  - output:
+  Item A
+  Item B
+  Item C

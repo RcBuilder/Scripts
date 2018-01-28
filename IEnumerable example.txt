@@ -1,0 +1,41 @@
+public class Users : IEnumerable {
+    private List<User> users = null;
+    private List<string> names = null;
+
+    public Users() {
+        this.users = new List<User>();
+        this.names = new List<string>();
+    }
+
+    public void Add(User user) {
+        this.users.Add(user);
+		this.names.Add(string.Concat("my name is ", user.Name));
+    }
+
+    public IEnumerator GetEnumerator() {
+        foreach (User user in this.users)
+            yield return user;
+    }  
+
+    public IEnumerable GetNames()
+    {
+        foreach (string name in this.names)
+            yield return name;
+    }
+}
+
+--------------------------------------------------------------------
+
+var collection = new Users();
+collection.Add(new User("Avi", 50, 1));
+collection.Add(new User("Roby", 38, 23));
+collection.Add(new User("Ron", 37, 7));
+collection.Add(new User("Bonnie", 43, 112));
+
+foreach (User u in collection)
+    Response.Write(u.ToString());
+
+foreach (string name in collection.GetNames())
+    Response.Write(name);
+
+

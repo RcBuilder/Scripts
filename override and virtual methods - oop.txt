@@ -1,0 +1,101 @@
+/* 
+    --- RULES ---
+    virtual = can be overridden
+    override = replace the virtual method
+    new = stop override rule -  new method
+    new virtual = stop override rule and get the ability to be overriden
+         
+          
+    if no override - allways refer to the reference type 
+    if has override - refer to the last method override till the object level
+    if has new - refer to the last override method that are not new(hidden) till the object level - cancel all overrides till the current point
+
+    also see 'override vs new.txt'
+*/
+
+======================================================================================================
+
+public class A {
+    public virtual void X() {
+        HttpContext.Current.Response.Write("A"); 
+    }
+}
+
+public class B : A {
+    public override void X() {
+        HttpContext.Current.Response.Write("B"); 
+    }
+}
+
+public class C : B{
+    public override void X(){
+        HttpContext.Current.Response.Write("C");
+    }
+}
+
+A a1 = new B();
+a1.X(); // B
+
+A a2 = new C();
+a2.X(); // C
+
+B b1 = new C();
+b1.X(); // C
+
+----------------------------------------------------
+
+public class A {
+    public virtual void X() {
+        HttpContext.Current.Response.Write("A"); 
+    }
+}
+
+public class B : A {
+    public override void X() {
+        HttpContext.Current.Response.Write("B"); 
+    }
+}
+
+public class C : B {
+    public new void X() {
+        HttpContext.Current.Response.Write("C");
+    }
+}
+
+A a1 = new B();
+a1.X(); // B
+
+A a2 = new C();
+a2.X(); // B
+
+B b1 = new C();
+b1.X(); // B
+
+----------------------------------------------------
+
+public class A {
+    public virtual void X() {
+        HttpContext.Current.Response.Write("A"); 
+    }
+}
+
+public class B : A {
+    public new virtual void X() {
+        HttpContext.Current.Response.Write("B"); 
+    }
+}
+
+public class C : B {
+    public override void X() {
+        HttpContext.Current.Response.Write("C");
+    }
+}
+
+A a1 = new B();
+a1.X(); // A
+
+A a2 = new C();
+a2.X(); // A
+
+B b1 = new C();
+b1.X(); // C

@@ -1,0 +1,82 @@
+Install OWIN Hosting Package (FOR WEB API)
+------------------------------------------
+-- NuGet --
+	
+// important!! use this package to combine webAPI and OWIN
+Install-Package Microsoft.Owin.Hosting
+Install-Package Microsoft.AspNet.WebApi.OwinSelfHost
+
+Define The Server
+-----------------
+-- Source Code --
+
+static string server = "http://localhost:1166";
+
+static void Main(string[] args) {
+    WebApp.Start<Startup>(server);
+    Console.WriteLine("Server is Running on port 1166 .... ");
+    Console.ReadKey(); 
+}
+
+Define the Startup Class
+------------------------
+-- Source Code --
+
+public class Startup {
+    public void Configuration(IAppBuilder app) {        
+        var config = new HttpConfiguration();
+
+        // attribute routing
+        config.MapHttpAttributeRoutes();
+
+	// add web api middleware
+        app.UseWebApi(config);           
+    }
+}
+
+---
+
+alternative: 
+in the example above the routes will to be defined by attributes 
+each action will be responsible for its own route
+
+e.g: 
+[HttpGet]
+[Route("RecieveMessage/{queueKey}/{messageKey}")]
+public Message RecieveMessage(string queueKey, string messageKey){ ... }
+
+we can replace this behaviour by mapping the HTTP actions globaly using the config as follow:
+
+e.g:
+config.Routes.MapHttpRoute(
+    name: "DefaultApi",
+    routeTemplate: "api/{controller}/{id}",
+    defaults: new { 
+        controller = "Default",
+        action = "Index",
+        id = RouteParameter.Optional
+    }
+);
+
+Defined the API Controller
+--------------------------
+-- Source Code --
+
+public class DefaultController : ApiController 
+{
+    [HttpGet]
+    [Route("")]
+    public string Index() { ... }
+
+    [HttpPost]
+    [Route("Foo/{p1}")]
+    public string Foo(string p1, [FromBody]SomeModel model) { ... }
+
+    [HttpGet]
+    [Route("Foo2/{p1}/{p2}")]
+    public IEnumerable<SomeModel> Foo2(string p1, string p2) { ... }
+
+    [HttpDelete]
+    [Route("Foo3/{p1}")]
+    public bool Foo3(string p1){ ... } 
+}

@@ -1,0 +1,9 @@
+exceptional! 
+anonymous types Equals method refers as value type comparison! 
+the == operator still refers to the refernece 
+
+var anon1 = new { Id = 1, Name = "ItemA" };
+            var anon2 = new { Id = 1, Name = "ItemA" };
+
+            Console.WriteLine(anon1 == anon2); // False 
+            Console.WriteLine(anon1.Equals(anon2)); // True 
