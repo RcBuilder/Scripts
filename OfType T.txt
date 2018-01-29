@@ -1,25 +1,68 @@
 OfType<T>
 =========
 
-extension method for IEnumerable. return a collection by specified type (int, string etc.)
+extension method for IEnumerable. cast and returns all the items that can be casted as T, ignore other types.
 usually used with collections of objects (ArrayList etc.)
 works on any class implements the IEnumerable. 
 
-also see 'Cast T.txt'
 
-using
------
+using (ArrayList)
+-----------------
+
 var list = new ArrayList();
 list.Add(10);
-list.Add(20);
+list.Add(20);            
 list.Add(30.5);
 list.Add("ABCD");
 list.Add("HELLO");
 
 var onlyInts = list.OfType<int>();
 foreach (var num in onlyInts)
-    Console.WriteLine(num); // 10, 20
+     Console.WriteLine(num);
+
+result:
+10
+20
 
 var onlyStrings = list.OfType<string>();
 foreach (var str in onlyStrings)
-    Console.WriteLine(str); // ABCD, HELLO
+     Console.WriteLine(str);
+
+result:
+ABCD
+HELLO
+
+
+using (Custom)
+--------------
+
+class MyList : IEnumerable {
+     private object[] items = new object[]{
+           100, 200, 300, "A", "B", "C", .1, .2
+     };
+
+     public IEnumerator GetEnumerator()
+     {
+          for (var i = 0; i < items.Length; i++)
+               yield return items[i];
+     }
+}
+
+var list = new MyList();
+var onlyInts = list.OfType<int>();
+foreach (var num in onlyInts)
+     Console.WriteLine(num);
+
+result:
+100
+200
+300
+
+var onlyStrings = list.OfType<string>();
+foreach (var str in onlyStrings)
+     Console.WriteLine(str);
+
+result:
+A
+B
+C

@@ -1,0 +1,58 @@
+Generic Interface <T>
+---------------------
+
+public interface IErrorState<T> {
+    string Error { get; }
+    T Result { get; }
+}
+
+public class ProcessAResponse { }
+public class ProcessBResponse { }
+
+public interface IProcessA : IErrorState<ProcessAResponse> {
+    void Execute();
+}
+
+public interface IProcessB : IErrorState<ProcessBResponse> {            
+    bool Validate();
+}
+
+public class ProcessA : IProcessA
+{
+    public string Error { private set; get; }        
+    public ProcessAResponse Result { private set; get; }
+          
+    public void Execute() {
+        // code here ...  
+
+        this.Result = new ProcessAResponse();                
+    }
+}
+
+public class ProcessB : IProcessB
+{
+    public string Error { private set; get; }
+    public ProcessBResponse Result { private set; get; }
+
+    public bool Validate() {
+        // code here ... 
+
+        this.Result = new ProcessBResponse();
+        return true;
+    }
+}
+
+-----------------
+
+// using 
+
+var pA = new ProcessA();
+var pB = new ProcessB();
+
+pA.Execute();
+var paResponse = pA.Result;
+var paError = pA.Error;
+
+pB.Validate();
+var pbResponse = pB.Result;
+var pbError = pB.Error;

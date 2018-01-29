@@ -1,0 +1,5 @@
+/* Opacity */
+-moz-opacity:75; /* Prior Firefox 0.9 */
+-ms-filter: 'alpha(opacity=75)'; /* IE 8 */
+filter:alpha(opacity=75); /* IE 4-7 */
+opacity:0.75; /* Firefox, Safari(WebKit), Opera */

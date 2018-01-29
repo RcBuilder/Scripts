@@ -1,0 +1,25 @@
+OfType<T>
+=========
+
+extension method for IEnumerable. return a collection by specified type (int, string etc.)
+usually used with collections of objects (ArrayList etc.)
+works on any class implements the IEnumerable. 
+
+also see 'Cast T.txt'
+
+using
+-----
+var list = new ArrayList();
+list.Add(10);
+list.Add(20);
+list.Add(30.5);
+list.Add("ABCD");
+list.Add("HELLO");
+
+var onlyInts = list.OfType<int>();
+foreach (var num in onlyInts)
+    Console.WriteLine(num); // 10, 20
+
+var onlyStrings = list.OfType<string>();
+foreach (var str in onlyStrings)
+    Console.WriteLine(str); // ABCD, HELLO

@@ -1,0 +1,890 @@
+custom Objects
+--------------
+
+// Literal (a single instance)
+var person = {
+    firstName: 'Roby',
+    lastName: 'Cohen',
+    sayYourName: function () {
+        return this.firstName + ' ' + this.lastName;
+    }
+};
+
+console.log(person.sayYourName());  // Roby Cohen
+
+----
+
+// Factory (multiple instances)
+function PersonFactory(firstName, lastName) {
+    return {
+        firstName: firstName,
+        lastName: lastName,
+        sayYourName: function () {
+            return this.firstName + ' ' + this.lastName;
+        } 
+    };
+}
+
+var person = PersonFactory('Roby', 'Cohen');
+var person2 = PersonFactory('Avi', 'Cohen');
+console.log(person.sayYourName());  // Roby Cohen
+console.log(person2.sayYourName());  // Avi Cohen
+
+----
+
+// Object
+function Person(firstName, lastName) {
+    // 'this' variable refers to the container object ('Person' in this case)
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.sayYourName = function () {
+        return this.firstName + ' ' + this.lastName; 
+    }
+}
+
+var person = new Person('Roby', 'Cohen');
+var person2 = new Person('Avi', 'Cohen');
+console.log(person.sayYourName());  // Roby Cohen
+console.log(person2.sayYourName());  // Avi Cohen
+
+----
+
+// prototype (best practice)
+function Person(firstName, lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+}
+
+// this 'sayYourName' method will be created only once for all Person instances 
+// instead of per each instance - less CPU usage (no need to create it per instance)
+// and less Memory consumption (no need to store it per instance)
+// it's recommended to define any functions on the prototype !
+Person.prototype.sayYourName = function () {
+    return this.firstName + ' ' + this.lastName;
+}
+
+var person = new Person('Roby', 'Cohen');
+var person2 = new Person('Avi', 'Cohen');
+console.log(person.sayYourName());  // Roby Cohen
+console.log(person2.sayYourName());  // Avi Cohen
+
+---- 
+
+// any property type
+we can define data members, public properties, private and public methods, arrays, matrixes, custom objects ... 
+
+var MyObject = {
+    prop1: 'some string value',
+    prop2: 40,
+    prop3: 300.23,
+    prop4: [10, 2, 13, 21, 52, 16, 27, 28, 109, 4],
+    prop5: { x: 40, y: 50, z: 70 },
+    prop6: new Array(),
+
+    fun1: function () {
+        console.log(this.prop1);
+    },
+    fun2: function (index) {
+        console.log(this.prop4[index]);
+    },
+    fun3: function () {
+        console.log(this.prop5.z);
+    },
+    fun4: function (item) {
+        this.prop6.push(item);
+        console.log(this.prop6.length);
+    }
+};
+
+console.log(MyObject.prop1); // some string value
+console.log(MyObject.prop2); // 40 
+MyObject.fun1(); // some string value
+MyObject.fun2(6); // 27 
+MyObject.fun3(); // 70
+MyObject.fun4('some value'); // 1
+MyObject.fun4('another value'); // 2
+ 
+
+constructor
+-----------
+
+constructor in javascript located within the function itself without specific declaration 
+it will be executed whenever the 'new' keyword will be used for creating an instance of the object
+
+e.g:
+function Person() {
+	// do something here ...
+}
+
+- or -
+
+function Person() {
+	function Init(){ 
+		// do something here ...
+	}
+	Init();
+}
+
+var person = new Person(); // this will execute the constructor
+
+tip!
+we can use self-invoke anonymous method instead 
+e.g:
+function Person() {
+	(function() { 
+		// do something here ...
+	})();
+}
+    
+arrays
+------
+
+* structure: 
+  - var arr = [];
+  - var arr = new Array();
+
+  -e.g-
+  var arr = [1,2,3,4,5,6,7,8];
+
+* data types:
+  arrays can hold any type of objects, not necessarily the same for all organs
+  they can be consisted of mixed types (string, int, function, custom objects etc.)
+  
+  -e.g-
+  var arr = [
+	'hello world',
+	23,
+	400.31,
+	function (name) { console.log('hello again ' + name); },
+	function () { console.log('hello there'); },
+	{ x: 30, y: 50, z: 70 }
+  ];
+
+  console.log(arr[0]); // hello world
+  console.log(arr[1]); // 23
+  console.log(arr[2]); // 400.31
+
+  var fun = arr[3];
+  fun('Roby'); // this will log 'hello again Roby' to the console
+
+  arr[4](); // this will log 'hello there' to the console
+  console.log(arr[5].z); // 70 
+
+* access to values:
+  - use push, pop and shift methods
+  - use push method to add values to an array
+  - use pop method to get + remove out values from the array (LIFO)
+  - use shift method to get + remove out values from the array (FIFO)
+  - use index to get value from an array (without remove it)
+
+  -e.g-
+  var arr = new Array();
+  arr.push(1);
+  arr.push(2);
+  arr.push(3);
+
+  console.log(arr.length); // 3
+
+  console.log(arr[1]); // 2
+
+  console.log(arr.pop()); // 3
+  console.log(arr.pop()); // 2
+  console.log(arr.pop()); // 1
+
+  console.log(arr.length); // 0
+
+* add value to specific index: 
+  we can add some value to a specific location within an array, 
+  notice that if we'll add to an index higher than exists, javascript will add all the rest organs with undefined values
+
+  -e.g-
+  var arr = new Array();
+  arr[4] = 40; // index 4 (0 based)
+
+  console.log(arr[2]); // undefined - the same for organs 0,1,2,3
+  console.log(arr[4]); // 40
+  console.log(arr.length); // 5 - the array length is 5!
+
+* named index:
+  notice! there's no such thing!! 
+  this technique will refer the Array as an object with properties and all the Array built-in methos will not work properly!
+  see example below (arr.length returns 0)
+
+  tip: use object instead - e.g: var dictionary = {};
+  see also 'object properties access using []'
+
+  -e.g-
+  var arr = new Array();
+  arr['Roby'] = { Id: 1, Name: 'Roby Cohen', Age: 35 };
+  arr['Avi'] = { Id: 10, Name: 'Avi Cohen', Age: 33 };
+  arr['Shirly'] = { Id: 100, Name: 'Shirly Cohen', Age: 36 };
+
+  console.log(arr.length);  // 0 !!! 
+
+  console.log(arr['Roby']); // [object Object]
+  console.log(arr[1]); // undefined
+  console.log(arr['Shirly'].Id); // 100 
+
+  - best practice
+  as we can see above, we can define an array using named index for easier access later on but javascript 
+  will refer the array as an object with properties(Roby, Avi etc.), therefore it's recommended to use a custom object instead.
+
+  var users = new Object(); // can use {} instead
+  users['Roby'] = { Id: 1, Name: 'Roby Cohen', Age: 35 };
+  users['Avi'] = { Id: 10, Name: 'Avi Cohen', Age: 33 };
+  users['Shirly'] = { Id: 100, Name: 'Shirly Cohen', Age: 36 };
+
+  console.log(users['Roby']); // [object Object]
+  console.log(users['Shirly'].Id); // 100 
+  console.log(users.Roby); // [object Object]
+  console.log(users.Shirly.Id); // 100 
+
+object properties access using []
+---------------------------------
+we can access any object property using the [] syntax 
+
+var dictionary = {};
+dictionary['A'] = 'AAA';
+dictionary['B'] = 'BBB';
+dictionary['C'] = 'CCC';
+
+console.log(dictionary['B']); // BBB
+console.log(dictionary.B); // BBB
+
+note! 
+in the example above, we created an object with 3 properties A,B and C
+
+
+prototype
+---------
+
+* use prototype to save CPU usage and Memory consumption by defining the object functions directly on it
+
+  - e.g -
+  function Person(firstName, lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+  }
+  
+  // this 'sayYourName' method will create only once for all Person instances 
+  // instead of per each instance - less CPU usage (no need to create it per instance)
+  // and less Memory consumption (no need to store it per instance)
+  // it's recommended to define any functions on the prototype !
+  Person.prototype.sayYourName = function () {
+    return this.firstName + ' ' + this.lastName;
+  }
+
+* use prototype for inheritance 
+
+  structure:  
+  B.prototype = A; // B inherit A
+
+  call base constructor:
+  function funB(prop1, prop2) {
+       ...
+	   funA.call(this); // :base()
+  }
+
+  - e.g -
+  function funA() {
+        this.prop1 = '';
+  }
+
+  function funB(prop1, prop2) {
+        this.prop1 = prop1;  // funA
+        this.prop2 = prop2;
+  }
+
+  funB.prototype = new funA();
+  funB.prototype.sayHello = function () { return 'Hello ' + this.prop1 + ', ' + this.prop2 };
+  funB.prototype.toString = function () { return 'values: ' + this.prop1 + ', ' + this.prop2 }; // override 
+
+  var b = new funB('value1', 'value2');
+  console.log(b.prop1 + ', ' + b.prop2);
+  console.log(b.sayHello()); // Hello value1, value2
+  console.log(b.toString()); // values: value1, value2
+
+
+inheritance
+-----------
+
+* using prototype - best practice
+  (see 'prototype' above)
+
+* using reference to the base class 
+
+  e.g:
+  function Person(firstName, lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.sayYourName = function () {
+            console.log(this.firstName + ' ' + this.lastName);
+        }
+    }
+
+    function Employee(firstName, lastName, salary) {
+
+        var parent = new Person(firstName, lastName); // inheritance by reference
+           
+        var salary = salary; // data member
+
+        this.sayYourSalary = function() {
+            console.log(salary);
+        }
+
+        this.sayYourName = function() {
+            parent.sayYourName();
+            console.log('i make ' + salary + ' usd a month' );
+        }
+    }
+
+    var employee = new Employee('Roby', 'Cohen', 10000);
+    employee.sayYourName(); // Roby Cohen + i make 10000 usd a month 
+    employee.sayYourSalary(); // 10000
+
+
+override
+--------
+
+function Person(firstName, lastName) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+}
+
+Person.prototype.sayYourName = function () {
+    console.log(this.firstName + ' ' + this.lastName);
+}
+
+// override 'toString'
+Person.prototype.toString = function () { 
+	return 'My Name is ' + this.firstName + ' ' + this.lastName 
+}; 
+
+var person = new Person('Roby', 'Cohen');
+// override sayYourName method (change the reference)
+// only for the current instance 
+// note: no use of the keyword 'prototype'
+person.sayYourName = function (person) { 
+    console.log('hello there, my name is ' + this.firstName + ' ' + this.lastName);
+};
+person.sayYourName(); // hello there, my name is Roby Cohen
+
+var person2 = new Person('Avi', 'Cohen');
+person2.sayYourName();  // Avi Cohen
+console.log(person2.toString()); // My Name is Avi Cohen 
+
+
+overloads 
+---------
+
+there's no real overloads, we can or cannot pass parameters to the function, no exception will be thrown 
+and any javascript parameter is an optional. 
+use the || to set defaults whenever no param supplied (null or undefined).
+we can use private defaults object for a better convenience.
+
+- e.g -
+function myObject(param1, param2, param3, param4) {
+    var defaults = { 
+		prop1: 'default1', prop2: 'default2', prop3: 'default3', prop4: 'default4' 
+	}
+
+    this.prop1 = param1 || defaults.prop1;
+    this.prop2 = param2 || defaults.prop2;
+    this.prop3 = param3 || defaults.prop3;
+    this.prop4 = param4 || defaults.prop4;
+}
+myObject.prototype.Print = function () {
+    console.log(this.prop1 + ', ' + this.prop2 + ', ' + this.prop3 + ', ' + this.prop4);
+}
+
+var obj1 = new myObject();
+obj1.Print(); // default1, default2, default3, default4
+
+var obj2 = new myObject('param1', 'param2', 'param3', 'param4');
+obj2.Print(); // param1, param2, param3, param4
+
+var obj3 = new myObject('param1', 'param2');
+obj3.Print(); // param1, param2, default3, default4 
+
+var obj4 = new myObject(undefined, null, 'param3', 'param4');
+obj4.Print(); // default1, default2, param3, param4 
+
+
+arguments
+---------
+
+* The arguments object is an Array-like object, it's a local variable available within all functions.
+  the arguments object is only similar to an array but not a real one and it doesn't include any of the array functions except of length()
+  we can pass any parameters we'd like and it automatically pass them as an arguments object (no declaration required).
+  this technique is similar to the params object of C# !
+
+* slice the arguments to an array: 
+
+  var args = Array.prototype.slice.call(arguments);
+  console.log(args);
+
+* concat the arguments to a string: 
+
+  var args = Array.prototype.join.call(arguments);
+  console.log(args);
+
+* using: 
+ 
+  function User(name, id) {
+        this.name = name;
+        this.id = id;
+  }
+
+  function fun() {
+    console.log('LENGTH : ' + arguments.length);
+    for (var i = 0; i < arguments.length; i++) {
+        console.log(arguments[i]);
+
+        if (arguments[i] instanceof User)
+            console.log('User :' + arguments[i].id + '. ' + arguments[i].name);
+    }
+
+  }
+
+  /*
+    LENGTH : 3 
+    red 
+    orange 
+    blue 
+  */
+  fun('red', 'orange', 'blue');
+
+  /*
+    LENGTH : 2 
+    200 
+    500 
+  */
+  fun(200, 500);
+
+  /*
+    LENGTH : 1 
+    [object Object] 
+  */
+  fun({ name: 'Roby', Age: 35 });
+
+  /*
+    LENGTH : 4 
+    hello world 
+    120 
+    90.63 
+    true 
+  */
+  fun('hello world', 120, 90.63, true);
+
+  /*
+    LENGTH : 1 
+    [object Object] 
+    User :398. Avi 
+  */
+  fun(new User('Avi', 398));
+
+* arguments and parameters: 
+  there's no problem to use both, arguments and parameters together, 
+  the arguments always contains the full parameters list and the parameters will get their values corresponding to the sending values.
+  therefore, as we can see in the example below, the function 'fun2' expects only 2 parameters but we are supplying 3 of them  
+  so the first 2 will pass to the 'color1' and 'color2' but the arguments object will contain all 3 parameters.
+
+  - e.g -
+
+  function fun2(color1, color2) {
+    console.log('color1 : ' + color1);
+    console.log('color2 : ' + color2);
+
+    console.log('LENGTH : ' + arguments.length);
+    for (var i = 0; i < arguments.length; i++)
+        console.log(arguments[i]);
+  }
+
+  /*
+    color1 : red 
+    color2 : orange 
+    LENGTH : 3 
+    red 
+    orange 
+    blue 
+  */
+  fun2('red', 'orange', 'blue');
+
+javascript closure
+------------------
+the ability to create a private 'scope' for a function or an object!
+a closure is a persistent scope which holds on to local variables even after the code execution has moved out of that block
+tip:  in javaScript, all functions have access to the scope "above" them.
+
+* example:
+
+  // note! 
+  // var plus = function(){ return ++counter; }
+  var plus = (
+	function(){
+        var counter = 0;
+        return function(){ 
+			return ++counter; 
+		}
+  })(); // self invoke 
+
+  plus();
+  plus();
+  var result = plus();
+  alert(result); // 3
+
+* example:
+
+  function MyService(){
+        var name = 'test';
+        return {
+            sayName: function(){
+                alert(name);
+            }
+        };
+    }; 
+
+    var service = new MyService();
+    service.sayName(); // alert 'test' even though the name variable is not defined within the object
+
+self-invoking functions
+-----------------------
+* declare & execute a function at the same time
+
+* example:
+  
+  we created an anonymous function and invoked it within the declaration, the function creates a 
+  counter variable and return a reference to another function that increase this counter.
+  the return function can access to the counter variable (as any function behaves - any function can access all of its above variables) 
+  the variable 'plus1' gets this reference. 
+
+  var plus1 = (
+	function () {
+		var counter = 0;
+		return function () { 
+			return counter += 1; 
+		}
+	})(); // INVOKE
+
+  plus1();
+  plus1();
+  var count = plus1();
+
+  console.log(count); // 3
+
+* another examples:
+
+  (function fun() {
+    console.log('INVOKED')
+  })(); // INVOKE 
+
+  (function calc(param1, param2) {
+    console.log(param1.toString() + ' + ' + param2.toString() + ' = ' + (param1 + param2).toString())
+  })(45, 39);  // 45 + 39 = 84 
+
+  notice! we can also use anonymous function 
+  (function () {
+    console.log('INVOKED')
+  })(); // INVOKE
+
+
+that
+----
+
+use local variable within a custom object to save reference to the current object 
+sometimes the 'this' variable not refer to the object contains the current function (callback calls, setTimeout etc.)
+the best way to handle this is by save an extra reference to the actual object (it's quite common to call it 'that')
+declare it in the constractor!
+
+syntax:
+var that = this;
+
+function Person(firstName, lastName) {
+    var that = this;
+
+    this.firstName = firstName;
+    this.lastName = lastName;
+
+    this.fun1 = function () {
+        setTimeout(function () {			
+            console.log('fun1: ' + this.firstName + ' ' + this.lastName); // this refer to window!!
+        }, 100);
+    }
+
+    this.fun2 = function () {
+        setTimeout(function () {
+            console.log('fun2: ' + that.firstName + ' ' + that.lastName); 
+        }, 500);
+    }
+}
+
+var person = new Person('Roby', 'Cohen');
+person.fun1(); // fun1: undefined undefined
+person.fun2(); // fun2: Roby Cohen
+
+
+private/public
+--------------
+
+* data members: 
+  private access
+  defined using var within the object, can't be accessed from outside the object 
+
+  e.g: 
+  function Person(firstName, lastName) {
+     var firstName = firstName; // data member
+	 var lastName = lastName; // data member
+	 ...
+	 ...
+  }
+
+* properties:
+  public access
+  defined using this, can be accessed from outside 
+
+  e.g:
+  function Person(firstName, lastName) {
+     this.firstName = firstName; // public property
+	 this.lastName = lastName; // public property
+	 ...
+	 ...
+  }
+
+  notice! 
+  we can define properties using ['property'] syntax as well (see also 'object properties access using []')
+
+  e.g:
+  var users = new Object();
+  users['Roby'] = { Id: 1, Name: 'Roby Cohen', Age: 35 }; // this will be equals to users.Roby = ...
+  users['Avi'] = { Id: 10, Name: 'Avi Cohen', Age: 33 };
+  users['Shirly'] = { Id: 100, Name: 'Shirly Cohen', Age: 36 };
+
+  console.log(users['Shirly'].Id); // 100 
+  console.log(users.Shirly.Id); // 100 
+
+* private methods:
+  private access
+  defined using the formal way, can't be accessed from outside the object 
+
+  e.g:
+  function Person(firstName, lastName) {
+     var firstName = firstName;
+	 var lastName = lastName;
+	 
+	 function SayHello(){
+		console.log('HELLO WORLD');
+	 }
+  }
+
+* public methods:  
+  public access
+  defined using this, can be accessed from outside 
+
+  e.g (option 1):
+
+  function Person(firstName, lastName) {
+     var firstName = firstName;
+	 var lastName = lastName;
+	 
+	 this.SayHello = function() {
+        console.log('HELLO, My Name is ' + firstName + ' ' + lastName);
+     }
+  }
+
+  e.g (option 2):
+
+  function Person(firstName, lastName) {
+     var firstName = firstName;
+	 var lastName = lastName;
+	 
+	 function SayHello(){
+		console.log('HELLO, My Name is ' + firstName + ' ' + lastName);
+	 }
+
+	 this.SayHello = SayHello; // expose as public method
+  }
+
+  e.g (option 3): // closure
+
+  function Person(firstName, lastName) {
+	var firstName = firstName;
+	var lastName = lastName;
+
+	return{
+			SayHello: function () {
+				alert('HELLO, My Name is ' + firstName + ' ' + lastName);
+			}
+		}
+	}
+
+	var p = new Person('Roby', 'Cohen');
+	p.SayHello();
+
+
+apply
+-----
+
+allows to call any function on any object, 
+parameters as array, 
+the caller object will serve as the context and we can reach it using the 'this' variable.
+
+syntax:
+[method].apply([caller], [param1, param2 ...]);
+
+e.g:
+function Person(name) {
+    this.name = name;
+}
+
+function doSomething(param1, param2) {
+    // this refer to the caller object
+    console.log(this.name + ' -> ' + param1 + ', ' + param2);
+}
+
+var person1 = new Person('Roby Cohen');
+var person2 = new Person('Avi Cohen');
+
+doSomething.apply(person1, ['hello', 'world']); // Roby Cohen -> hello, world 
+doSomething.apply(person2, [1000, 2000]); // Avi Cohen -> 1000, 2000 
+
+notice! the caller can be set as any object we'd like
+		var user = { id: 25, Name: 'Roby Cohen', Age: 35 };
+        fun.apply(user);  // call to 'fun' function with 'user' context - 'this' variable will refer to the 'user' object
+
+
+call
+----
+
+allows to call any function on any object, 
+parameters as comma-separated list.
+the caller object will serve as the context and we can reach it using the 'this' variable.
+
+syntax:
+[method].call([caller], [param1], [param2] ...);
+
+e.g:
+function Person(name) {
+    this.name = name;
+}
+
+function doSomething(param1, param2) {
+    // this refer to the caller object
+    console.log(this.name + ' -> ' + param1 + ', ' + param2);
+}
+
+var person1 = new Person('Roby Cohen');
+var person2 = new Person('Avi Cohen');
+
+doSomething.call(person1, 'hello', 'world'); // Roby Cohen -> hello, world 
+doSomething.call(person2, 1000, 2000); // Avi Cohen -> 1000, 2000 
+
+notice! the caller can be set as any object we'd like
+		var user = { id: 25, Name: 'Roby Cohen', Age: 35 };
+        fun.call(user);  // call to 'fun' function with 'user' context - 'this' variable will refer to the 'user' object
+
+
+callback fucntion
+-----------------
+
+function foreach(arr, callback) {
+    for (var i = 0; i < arr.length; i++)
+        callback.call(this, arr[i]);
+}
+
+var arr = ['Roby', 'Avi', 'Yaron', 'Shirly'];
+foreach(arr, function (item) { console.log(item); });
+
+---
+
+function fun1(callback) {
+    setTimeout(callback, 2000);
+}
+
+console.log('hey there ... ');
+fun1(function () { console.log('hello from callback'); });
+console.log('hello again ... ');
+
+
+/*
+    hey there ...  
+    hello again ...
+    hello from callback 
+*/
+
+---
+
+function fun2(callback) {
+    var user = { id: 25, Name: 'Roby Cohen', Age: 35 };
+    callback.call(user); // user object is the current context
+}
+
+fun2(function () {
+    console.log(this.Name); // Roby Cohen 
+}); 
+
+instanceof
+----------
+
+* structure:
+  [instance] instanceof [type]
+
+  e.g: person instanceof Person
+
+* using:
+
+  function Person(Name) {
+    this.Name = Name;
+  }
+
+  function Employer(Name) {
+    this.Name = Name;
+  }
+
+  var person = new Person('Roby Cohen');
+  var employer = new Employer('Roby Cohen');
+
+  console.log(person instanceof Person); // true 
+  console.log(employer instanceof Person); // false 
+  console.log(employer instanceof Employer); // true
+
+  if (person instanceof Person)
+    console.log('PERSON : ' + person.Name); // PERSON : Roby Cohen
+
+  notice! any class inherit from object therefore both person and employer are also instance of Object
+  console.log(person instanceof Object); // true
+  console.log(employer instanceof Object); // true
+
+  var p1 = 'some string';
+  console.log(p1 instanceof Object); // false	
+
+
+fixing the lack of 'new' keyword when creating an instance of an object
+-----------------------------------------------------------------------
+
+when creating an instance of the object and forget to use the 'new' keyword 
+the 'this' variable will refer to the 'window' object. 
+we can use this behavior to initialize a fresh instance of the current object and return it. 
+this way we'll be able to fix the issue and it would work the same as 
+if we used the 'new' keyword.
+
+e.g:
+function Person() {
+	if(this === window) // someone forget to use the 'new' keyword
+		return new Person();
+
+    this.firstName = 'Roby';
+    this.lastName = 'Cohen';
+    this.sayYourName = function () {
+        return this.firstName + ' ' + this.lastName; 
+    }
+} 
+
+var person = Person(); // issue fixed by the Person constructor
+var person2 = new Person(); // ok
+
+
+
+ 
+javascript HOISTED
+------------------
+see 'javascript HOISTED.txt'
