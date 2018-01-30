@@ -1,0 +1,19 @@
+var groups = links.GroupBy(x => x.viewGroupName);            
+rptGroups.DataSource = groups;
+rptGroups.DataBind();
+
+---
+
+<asp:Repeater ID="rptGroups" runat="server">
+    <ItemTemplate>
+        <h1><%# DataBinder.Eval(Container.DataItem, "Key") %></h1>
+
+        <asp:Repeater runat="server" DataSource='<%# ((IEnumerable<LearningToolCustomWidgetLink>)Container.DataItem) %>'>
+            <ItemTemplate>
+                <div>
+                    .....
+                </div>
+            </ItemTemplate>
+        </asp:Repeater>
+    </ItemTemplate>
+</asp:Repeater>     

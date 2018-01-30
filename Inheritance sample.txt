@@ -1,0 +1,84 @@
+
+public abstract class LTIType : IRequestType {
+    public virtual LTIContext Parse(HttpContext httpContext) {            
+        var context = new LTIContext();
+
+		// code ...
+
+        return context;
+    }
+
+    public virtual bool Validate(LTIContext ltiContext){
+
+        // code ...
+
+		return true;
+    }
+         
+    public virtual SSORedirectionInfo Create(SSOContext ssoContext) {
+        var redirectionInfo = new SSORedirectionInfo();
+
+        // code ...
+
+        return redirectionInfo;
+    }        
+}
+
+-----------------
+
+public abstract class LTIBaseType : LTIType {
+    public override LTIContext Parse(HttpContext httpContext) {            
+        var context = base.Parse(httpContext);
+
+        // code ...
+
+        return context;
+    }
+
+    public override bool Validate(LTIContext ltiContext) {
+        // check the common required fields (MessageType, Version, OAuth etc.)
+        var result = base.Validate(ltiContext);
+        if(!result) return false;
+
+		// code ...
+
+        return true;
+    }
+
+    public override SSORedirectionInfo Create(SSOContext ssoContext) {
+        var redirectionInfo = base.Create(ssoContext);
+
+        // code ...
+
+        return redirectionInfo;          
+    }
+}
+
+-----------------
+
+public class LTI1x1Type : LTIBaseType {
+    public override LTIContext Parse(HttpContext httpContext) {
+        var context = base.Parse(httpContext);
+
+        // code ...
+
+        return context;
+    }
+
+    public override bool Validate(LTIContext ltiContext) {
+        var result = base.Validate(ltiContext);
+        if (!result) return false;
+
+        // code ...
+
+        return true;
+    }
+
+    public override SSORedirectionInfo Create(SSOContext ssoContext) {
+        var redirectionInfo = base.Create(ssoContext);
+
+        // code ...
+
+        return redirectionInfo;
+    }
+}

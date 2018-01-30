@@ -1,0 +1,6 @@
+var di = new Dictionary<string, string>();
+di["a"] = "a";
+di["a"] = "aa";
+di["b"] = "b";
+
+// di -> 2 items: aa, b

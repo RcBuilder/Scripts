@@ -1,0 +1,38 @@
+GroupJoin strongType result 
+a strongType generic object which will be returned in GroupJoin usage
+
+GroupResult GenericT
+--------------------
+public class GroupResult<TKey, TValue> {
+        public TKey Key { get; set; }
+        public IEnumerable<TValue> Values = null;
+
+        public GroupResult(TKey Key, IEnumerable<TValue> Values)
+        {
+            this.Key = Key;
+            this.Values = Values;
+        }
+    } 
+
+USING EXAMPLE
+-------------
+IEnumerable<GroupResult<int, OAuthProviderPermission>> groups = null;
+try {
+    groups = providers.GroupJoin(
+            providersPermissions,
+            provider => provider.Id,
+            permission => permission.ProviderId,
+            (provider, providerPermissions) => new GroupResult<int, OAuthProviderPermission>(provider.Id, providerPermissions)
+    );
+}
+catch { }
+
+if (groups != null){
+    foreach (var item in groups){
+        var provider = providers.SingleOrDefault(x => x.Id == item.Key);
+        if (provider == null) continue;
+
+        foreach (var permission in item.Values)
+            provider.OAuthPermissions.Add(permissionsBLL.Get(permission.PermissionId));
+    }
+}

@@ -1,0 +1,88 @@
+
+public class ErrorState {
+    public bool HasErrors {
+        get { return this.Errors != null && this.Errors.Count > 0; }
+    }
+
+    public List<ErrorItem> Errors { set; get; }
+
+    public ErrorState() {
+        this.Errors = new List<ErrorItem>();
+    }
+}
+
+public class ErrorItem {
+    public eErrorType ErrorType { get; set; }
+    public string ErrorMessage { get; set; }
+}
+
+------------
+
+public interface IErrorState<T> {
+    ErrorState ErrorState { get; }
+    T Result { get; }
+}
+
+------------
+
+internal class ProcessOAuth : IErrorState<bool> {
+    public bool Result { get; private set; }
+    public ErrorState ErrorState { get; protected set; }
+
+    public ProcessOAuth() {
+        this.ErrorState = new ErrorState();
+    }
+
+    public void Run(HttpContext httpContext) {
+		...
+		...
+    }
+}
+
+internal class ProcessRequest : IErrorState<SSOContext> {
+	public SSOContext Result { get; private set; }
+    public ErrorState ErrorState { get; protected set; }
+
+    public ProcessRequest() {
+        this.ErrorState = new ErrorState();
+    }
+
+    public void Run(IRequestType typeIn, ISSOSource sourceIn, HttpContext httpContext) {
+		...
+		...
+    }
+}
+
+internal class ProcessRouter : IErrorState<SSORouterResponse> {
+    public SSORouterResponse Result { get; private set; }
+    public ErrorState ErrorState { get; protected set; }
+
+    public ProcessRouter() {
+        this.ErrorState = new ErrorState();
+    }
+
+    public void Run(SSOContext ssoContext) {
+		...
+		...
+    }
+}
+
+------------
+
+USING:
+
+var processOAuth = new ProcessOAuth();
+processOAuth.Run(httpContext);
+if (processOAuth.ErrorState.HasErrors)
+    ...
+
+var processRequest = new ProcessRequest();
+processRequest.Run(typeIn, sourceIn, httpContext);
+if (processRequest.ErrorState.HasErrors)
+    ...
+
+var ssoContext = processRequest.Result;            
+
+var processRouter = new ProcessRouter();
+processRouter.Run(ssoContext);
+...

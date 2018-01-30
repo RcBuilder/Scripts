@@ -1,0 +1,17 @@
+interface IA { 
+	void FunA(); 
+}
+
+interface IB : IA { 
+	void FunB(); 
+}
+
+class C : IB {
+    public void FunB() {
+        throw new NotImplementedException();
+    }
+
+    public void FunA() {
+        throw new NotImplementedException();
+    }
+}

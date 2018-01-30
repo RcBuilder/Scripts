@@ -1,0 +1,8 @@
+// dynamic object from json
+
+dynamic objData = JsonConvert.DeserializeObject(
+	"{ customer_Id:1234, context_id: 1111, tool_id:2345, lms: 'DLE' }"
+);
+
+Console.WriteLine(objData.customer_Id); // 1234
+ 

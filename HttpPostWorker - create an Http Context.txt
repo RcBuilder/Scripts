@@ -1,0 +1,52 @@
+
+var postData = new Dictionary<string, string>();
+postData.Add("key1", "value1");
+postData.Add("key2", "value2");
+....
+
+var httpWorker = new HttpPostWorker() {
+      PostData = postData
+};
+
+var httpContext = new HttpContext(httpWorker);
+
+-------------------------
+
+public class HttpPostWorker : SimpleWorkerRequest /*HttpWorkerRequest*/ {
+    public string QueryString { get; set; }
+    public Dictionary<string, string> PostData { get; set; }
+    public string Method = "POST";
+    public string ContentType = "application/x-www-form-urlencoded";
+
+    public HttpPostWorker() : base("", "", "", null, new StringWriter()) {
+        this.PostData = new Dictionary<string, string>();
+    }
+
+    public override string GetQueryString() {
+        return this.QueryString;
+    }
+
+    public override string GetHttpVerbName() {
+        return Method;
+    }
+
+    public override string GetKnownRequestHeader(int index) {
+        switch (index) {
+            case HttpWorkerRequest.HeaderContentLength:
+                return this.PostData.Count.ToString();
+            case HttpWorkerRequest.HeaderContentType:
+                return ContentType;
+            default:
+                return base.GetKnownRequestHeader(index);
+        }
+    }
+
+    public override byte[] GetPreloadedEntityBody() {
+        var strPostData = string.Join("&", this.PostData.Select(x => string.Concat(x.Key, "=", x.Value)));
+        return Encoding.UTF8.GetBytes(strPostData);
+    }
+
+    public override string GetFilePathTranslated() {
+        return "HttpPostWorker";
+    }        
+}

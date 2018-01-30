@@ -1,0 +1,4 @@
+dynamic res = JsonConvert.DeserializeObject("{\"p1\":\"AAA\",\"p2\":\"BBB\",\"p3\":\"CCC\" }");
+Console.WriteLine(res.p1.Value);
+Console.WriteLine(res.p2.Value);
+Console.WriteLine(res.p3.Value);

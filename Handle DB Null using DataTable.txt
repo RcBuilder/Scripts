@@ -1,0 +1,9 @@
+Handle DB Null using DataTable
+==============================
+row["FieldName"] == DBNull.Value // return true/false
+
+example:
+--------
+var dt = ...
+foreach (DataRow row in dt.Rows)
+    result.Add(DueDateTime = (row["DUE_DATE"] == DBNull.Value) ? default(DateTime) : Convert.ToDateTime(row["DUE_DATE"]));

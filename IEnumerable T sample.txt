@@ -1,0 +1,27 @@
+
+public class ContentItems : IEnumerable<ContentItemElement> { 
+    public string Context { get; set; }
+    public List<ContentItemElement> Items { get; set; }
+
+    public ContentItems(){
+        this.Items = new List<ContentItemElement>();
+    }
+
+    public IEnumerator<ContentItemElement> GetEnumerator() {
+        return this.Items.GetEnumerator();
+    }
+
+    IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+        return this.GetEnumerator();
+    }
+}
+
+- OR -
+
+// custom logic implementation 
+public IEnumerator<ContentItemElement> GetEnumerator() {
+    foreach (var item in this.Items) {
+		// code ...
+        yield return ...;
+	}
+}

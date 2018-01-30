@@ -1,0 +1,11 @@
+ var allToUpper = new ClassB[] { 
+    new ClassB{ Name = "aaa" },
+    new ClassB{ Name = "BbB" },
+    new ClassB{ Name = "cCc" },
+    new ClassB{ Name = "DDd" }
+};
+
+allToUpper.ForEach(x => x.Name = x.Name.ToUpper());
+
+foreach (var x in allToUpper)
+    Console.WriteLine(x.Name);
