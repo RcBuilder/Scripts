@@ -1,0 +1,59 @@
+
+static Task<string> Fun1() {
+  	return Task.Factory.StartNew(() => {
+				Console.WriteLine("ENTER Fun1");
+				Thread.Sleep(2000);
+				Console.WriteLine("EXIT Fun1");
+
+				return "ABCD";
+	});
+}
+
+static async void Fun1Async() {
+    Console.WriteLine("ENTER Fun1Async");
+    await Fun1();
+    Console.WriteLine("EXIT Fun1Async");
+}
+
+static void Main(string[] args){
+    Console.WriteLine("ENTER Main");
+    Fun1Async();
+    Console.WriteLine("EXIT Main");
+}
+
+output
+------
+ENTER Main
+ENTER Fun1Async
+ENTER Fun1
+EXIT Main
+.....
+.....
+EXIT Fun1
+EXIT Fun1Async
+
+--------------------------------------------------------------
+
+static async Task<int> GetRandomNumberAsync() {
+    await Task.Delay(2000);
+    return new Random(1000).Next();
+}
+
+static async Task<int> GetNumberAsync()
+{
+    var result = await GetRandomNumberAsync() + await GetRandomNumberAsync();
+    return result;
+}
+
+static void Main(string[] args){
+	var task = GetNumberAsync();
+	Console.WriteLine("continue working ...");
+	Console.WriteLine(task.Result); // wait for async result
+	Console.WriteLine("END");
+}
+
+output
+------
+continue working ...
+3213232
+END

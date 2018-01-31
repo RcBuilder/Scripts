@@ -1,0 +1,40 @@
+
+declare @tbl table(Id int)
+insert into @tbl
+	select 1 union all select 1 union all select 1 union all select 1 union all 
+	select 2 union all select 2 union all select 2 union all select 3 union all
+	select 4 union all select 4 union all select 5 union all select 5 union all
+	select 5 union all select 5 union all select 5 union all select 6 
+
+declare @tblDuplicatesIds table(Id int,counter int)
+insert into @tblDuplicatesIds
+	select Id ,count(*)
+	from @tbl
+	group by Id
+	having count(*)  > 1
+
+select * from @tbl
+
+declare @currentId int
+DECLARE crsr CURSOR FOR
+	select Id from @tblDuplicatesIds	 
+OPEN crsr
+
+FETCH	NEXT FROM crsr
+INTO	@currentId
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+	set rowcount 1
+	while((select count(Id) from @tbl where Id = @currentId) > 1)	
+		delete from @tbl where Id = @currentId
+	set rowcount 0	
+	
+	FETCH	NEXT FROM crsr
+	INTO	@currentId
+END
+
+CLOSE crsr
+DEALLOCATE crsr	
+
+select * from @tbl

@@ -1,0 +1,15 @@
+
+public static Dictionary<int, BLL.Product> SpecialProducts = null;
+....
+....
+
+===================================================================
+using System.Collections.Generic;
+using System.Linq;
+
+
+public List<BLL.Product> products = null;
+this.products = DAL.SpecialProducts.Values.ToList<BLL.Product>();
+
+//MUST ADD Linq in order to get the conversion method ToList<T> 
+

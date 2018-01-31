@@ -1,0 +1,56 @@
+
+int[] numbers = { 1, 2, 3, 4, 5, 6, 7 };
+
+var res = numbers.Select((n, i) => new { number = n, index = i }) // create a new wrapper for the original index and row 
+				 .Where(x => x.number % 2 == 0) // filter out non relevant rows
+				 .Select((x) => x.index) // return the original index foreach match
+				 .ToList();
+
+foreach (var i in res)
+    Console.WriteLine("index: {0}", i);
+
+
+output:
+index: 1
+index: 3
+index: 5
+
+
+note!
+each new IEnumerable creates a NEW index based on the rowCount it has 
+so, after using WHERE clause, we lose the previous(original) index and get a new created one for the rowCount left after the filter 
+in the above example, if we change 
+.Select((x) => x.index)
+into 
+.Select((x, i) => i)
+we'll get the following output
+index: 0
+index: 1
+index: 2
+
+---------------------------
+
+// taken from ATDConference project
+
+public static int FindRowNumber(SheetsService service, int RowId) {
+    var rowNumbers = FindRowNumbers(service, RowId);            
+    if (rowNumbers == null)
+        return -1;
+    return rowNumbers.FirstOrDefault();
+}
+
+public static IEnumerable<int> FindRowNumbers(SheetsService service, int RowId) {
+    var apiGetRequest = service.Spreadsheets.Values.Get(AppConfig.SpreadSheetId, "Sheet1!A1:B"); // all data in column A
+            var apiGetResponse = apiGetRequest.Execute();
+
+            var apiGetResponseRows = apiGetResponse.Values;            
+            if (apiGetResponseRows == null)
+                return null;
+
+            return apiGetResponseRows
+                .Select((r, i) => new { row = r, index = i }) // create a new wrapper for the original index and row 
+                .Skip(1) // skip header 
+                .Where(x => Convert.ToInt32(x.row[0]) == RowId) // filter out non relevant rows
+                .Select((x) => x.index + 1) // return the rowNumber foreach match
+                .ToList(); 
+}

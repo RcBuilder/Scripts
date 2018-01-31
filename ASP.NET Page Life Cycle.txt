@@ -1,0 +1,106 @@
+ASP.NET Page Life Cycle
+=======================
+
+PreInit
+Init
+InitComplete
+[ LoadViewState ]
+[ LoadPostData ]
+PreLoad
+Load
+[ Control events ]
+LoadComplete
+PreRender
+PreRenderComplete 
+[ SaveViewState ]
+SaveStateComplete
+Render 
+Unload 
+
+=======================
+
+PreInit:
+--------
+1. Check the 'IsPostBack' property
+2. Create or re-create dynamic controls
+3. Set a master page dynamically
+4. Set the 'Theme' property dynamically
+
+note! 
+If the request is a postback, the values of the controls have not yet been restored from view state. 
+If you set a control property at this stage, its value might be overwritten in the next event.
+
+Init:
+-----
+Raised after all controls have been initialized and any skin settings have been applied. 
+Use this event to read or initialize control properties.
+
+
+InitComplete:
+-------------
+Raised by the Page object. Use this event for processing tasks that require all initialization be complete.
+
+
+PreLoad:
+--------
+Use this event if you need to perform processing on your page or control before the Load event.
+in this stage the view state and postback data are already loaded.
+
+
+Load:
+-----
+The Page calls the OnLoad event method on the Page, then recursively does the same for each child control, 
+which does the same for each of its child controls until the page and all controls are loaded.
+Use the OnLoad event method to set properties in controls and establish database connections.
+
+Control events:
+---------------
+Use these events to handle specific control events, such as a Button control's Click event or a TextBox control's TextChanged event.
+
+
+LoadComplete:
+-------------
+Use this event for tasks that requires all other controls on the page to be loaded.
+
+
+PreRender:
+----------
+The PreRender event occurs for each control on the page. 
+Use the event to make final changes to the contents of the page or its controls.
+
+
+PreRenderComplete:
+------------------
+occurs after the page and all the controls PreRender event were completed
+
+
+SaveViewState:
+--------------
+save the ViewState for the page and for all the controls. 
+
+
+SaveStateComplete:
+------------------
+Before this event occurs, ViewState has been saved for the page and for all the controls. 
+Any changes to the page or controls at this point will be ignored.
+Use this event to perform tasks that requires view state to be saved, but that do not make any changes to controls.
+
+
+Render:
+-------
+This is not an event; instead, at this stage of processing, the Page object calls this method on each control. 
+All ASP.NET Web server controls have a Render method that writes out the control's markup that is sent to the browser.
+If you create a custom control, you typically override this method to output the control's markup.
+
+
+Unload:
+-------
+This event occurs for each control and then for the page. 
+In controls, use this event to do final cleanup for specific controls, such as closing control-specific database connections.
+For the page itself, use this event to do final cleanup work, such as closing open files and database connections, 
+or finishing up logging or other request-specific tasks.
+
+note:	
+During the unload stage, the page and its controls are being rendered, 
+so you cannot make further changes to the response stream. 
+If you'll attempt to call a method such as the Response.Write method, the page will throw an exception.

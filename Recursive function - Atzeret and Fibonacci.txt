@@ -1,16 +1,22 @@
 static int Atzeret(int num) {
-            if (num == 0) return 1;
-            return Atzeret(num-1) * num;
-        }
+    if (num == 0) return 1;
+    return Atzeret(num-1) * num;
+}
 
-        static int Fibonacci(int step, int prev = 1, int curr = 1)
-        {
-            if (step == 0) return curr;            
-            return Fibonacci(step-1, curr, prev + curr);
-        }
+static int Fibonacci(int step, int prev = 1, int curr = 1)
+{
+    if (step == 0) return curr;            
+    return Fibonacci(step-1, curr, prev + curr);
+}
 
-        static void Main(string[] args)
-        {
-            Console.WriteLine(Atzeret(8));
-            Console.WriteLine(Fibonacci(8));
-	}
+static int SumOfDigits(int num) {
+    if (num == 0) return 0;
+    return num % 10 + SumOfDigits(num / 10);
+}
+
+static void Main(string[] args)
+{
+    Console.WriteLine(Atzeret(8));
+    Console.WriteLine(Fibonacci(8));
+	Console.WriteLine(SumOfDigits(349801)); // 3+4+9+8+0+1 = 25
+}

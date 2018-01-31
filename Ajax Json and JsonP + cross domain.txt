@@ -1,0 +1,179 @@
+
+* use 'Access-Control-Allow-Origin' header in order to allow access to all or specific domains
+  
+  - to allow all domains
+    context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            
+  - to allow only specific domains 
+    context.Response.AddHeader("Access-Control-Allow-Origin", "http://domain1.com");
+    context.Response.AddHeader("Access-Control-Allow-Origin", "http://domain2.com");
+    context.Response.AddHeader("Access-Control-Allow-Origin", "http://domain3.com");
+
+----
+
+* use 'Access-Control-Allow-Methods' header to define the methods to allow access to
+  - context.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
+
+----
+
+* use 'application/json' Content Type to return json or jsonp
+  - context.Response.ContentType = "application/json";
+
+----
+
+* internet explorers older version (less then 9) don't support the 'Access-Control-Allow-Origin' extra header 
+  and they ignore it. the alternative for cross domain is to use the 'XDomainRequest' object to perform the connection 
+  instead of the common jquery ajax and json calls 
+
+  notice! 
+  jsonp works the same in the older explorers as the new so we don't need to use the 'XDomainRequest' object for that method type
+
+  // for IE versions less then 9
+  var xdr = new XDomainRequest();
+  xdr.onload = function () {
+    alert(xdr.responseText);
+  };
+  xdr.open("POST", url);
+  xdr.send();
+
+=================================================================
+
+CLIENT:
+-------
+
+function doJSON() {
+    var url = 'JsonExp.ashx';
+
+    // for IE versions less then 9
+    /*
+        var xdr = new XDomainRequest();
+        xdr.onload = function () {
+            alert(xdr.responseText);
+        };
+        xdr.open("POST", url);
+        xdr.send();
+    */
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        dataType: "json",
+        success: function (json) {
+            $.each(json.users, function (i, user) {
+                alert(user.Name);
+            });
+        },
+        error: function (e) { alert('ERROR!'); }
+    });
+}
+
+function doJSONP() {
+    var url = 'JsonpExp.ashx';
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        dataType: "jsonp",
+
+        // default:'callback'
+        // method to execute via the server (no need to define it in the client!!)
+        jsonp: "callback1",
+        success: function (json) {
+            $.each(json.users, function (i, user) {
+                alert(user.Name);
+            });
+        },
+        error: function (e) { alert('ERROR!'); }
+    });
+}
+
+function doAJAX() {
+    var url = 'ajaxExp.ashx';
+
+    // for IE versions less then 9
+    /*
+        var xdr = new XDomainRequest();
+        xdr.onload = function () {
+            alert(xdr.responseText);
+        };
+        xdr.open("POST", url);
+        xdr.send();
+    */
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        success: function (response) {
+            alert(response);
+        },
+        error: function (e) { alert('ERROR!'); }
+    });
+}
+
+SERVER:
+-------
+
+// ajaxExp
+public void ProcessRequest (HttpContext context) {
+    /*
+        to allow all domains
+        context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            
+        to allow only specific domains 
+        context.Response.AddHeader("Access-Control-Allow-Origin", "http://domain1.com");
+        context.Response.AddHeader("Access-Control-Allow-Origin", "http://domain2.com");
+        context.Response.AddHeader("Access-Control-Allow-Origin", "http://domain3.com");
+    */
+
+    context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+    context.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
+
+    context.Response.Write("HELLO FROM SERVER");
+    context.Response.End();
+}
+
+// JsonExp
+public void ProcessRequest (HttpContext context) {
+    /*
+        to allow all domains
+        context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+            
+        to allow only specific domains 
+        context.Response.AddHeader("Access-Control-Allow-Origin", "http://domain1.com");
+        context.Response.AddHeader("Access-Control-Allow-Origin", "http://domain2.com");
+        context.Response.AddHeader("Access-Control-Allow-Origin", "http://domain3.com");
+    */
+        
+    context.Response.ContentType = "application/json";
+    context.Response.AddHeader("Access-Control-Allow-Origin", "*");
+    context.Response.AddHeader("Access-Control-Allow-Methods", "GET, POST");
+
+    string json = "{"+
+                        "\"users\": ["+  
+                        "{ \"Name\":\"Roby\", \"Age\":\"35\", \"Country\":\"Italy\"},"+
+                        "{ \"Name\":\"Avi\", \"Age\":\"33\", \"Country\":\"USA\" },"+
+                        "{ \"Name\":\"Shirly\", \"Age\":\"36\", \"Country\":\"France\" }"+
+                        "]"+
+                    "}";    
+        
+        
+    context.Response.Write(json);
+    context.Response.End();
+}
+
+// JsonpExp
+public void ProcessRequest (HttpContext context) {
+    context.Response.ContentType = "application/json";
+        
+    string json = "{"+
+                        "\"users\": ["+  
+                        "{ \"Name\":\"Roby\", \"Age\":\"35\", \"Country\":\"Italy\"},"+
+                        "{ \"Name\":\"Avi\", \"Age\":\"33\", \"Country\":\"USA\" },"+
+                        "{ \"Name\":\"Shirly\", \"Age\":\"36\", \"Country\":\"France\" }"+
+                        "]"+
+                    "}";
+
+    var callback = context.Request.Params["callback1"];
+    context.Response.Write(string.Concat(callback, "(" ,json, ");"));
+    context.Response.End();
+}

@@ -1,0 +1,32 @@
+note!
+predicate = delegate = a function pointer
+
+var lst = new List<string> { "A", "B", "C", "D", "E", "F" };
+
+var result1 = lst.Find(delegate(string item) { 
+	return item == "D"; 
+}); // delegate syntax
+
+var result2 = lst.Find(item => item == "D"); // lambda syntax
+
+--------
+
+class Test {            
+     public event EventHandler Click;
+
+     public void Run() {
+        if (Click == null) return;
+           Click(null, null);
+     }
+}
+
+var test = new Test();
+test.Click += delegate(object sender, EventArgs e) { 
+	Console.WriteLine("Click1"); 
+}; // delegate syntax
+
+test.Click += (sender, e) => { 
+	Console.WriteLine("Click2"); 
+}; // lambda syntax
+
+test.Run();

@@ -1,0 +1,17 @@
+#define TEST
+
+.....
+.....
+using System;
+.....
+.....
+
+
+string e =string.Empty;
+#if TEST
+      e = "RcBuilder@walla.com";
+#else
+      e = dt.Rows[i]["Email"].ToString();
+#endif
+
+// only the code matches to the condition will compile !!!

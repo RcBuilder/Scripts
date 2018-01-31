@@ -1,0 +1,72 @@
+#### ASP.NET RESOURCES ####
+
+embedded resources 
+------------------
+* web application!
+
+* add resource - image etc. 
+* F4 to open file properties window 
+* set Build Action property to 'Embedded Resource' value  
+* use Reflection to load your resources file as stream
+
+using System.Reflection;
+using System.IO;
+using System.Drawing;
+using System.Drawing.Imaging;
+
+var myAssembly = Assembly.GetExecutingAssembly();
+var myStream = myAssembly.GetManifestResourceStream("ProjectName.ResourcesFolder.RRR.txt");
+using(var sr = new StreamReader(myStream)){
+	var content = sr.ReadToEnd(); // text content of RRR.txt
+}
+
+var myAssembly = Assembly.GetExecutingAssembly();
+var myStream = myAssembly.GetManifestResourceStream("ProjectName.ResourcesFolder.Penguins.jpg");
+var bitmap = new Bitmap(myStream);
+bitmap.Save(Response.OutputStream, ImageFormat.Jpeg);
+Response.ContentType = "image/jpeg";
+ 
+========================================================
+
+global resources:
+-----------------
+* web site!
+
+* right click on the project -> add ASP.Net folder 'App_GlobalResources' 
+* use GetGlobalResourceObject method
+
+ltr1.Text = GetGlobalResourceObject("SiteStrings", "SayMyName").ToString();
+
+* use render block
+
+<asp:Literal ID="ltr1" runat="server" Text="<%$ Resources:SiteStrings, SayMyName %>" />
+
+local resources:
+----------------
+* web site!
+
+* right click on the project -> add ASP.Net folder 'App_LocalResources' 
+* add resx file per page per culture
+  [PageName].aspx.[Culture].resx
+  exp: in order to add german resx file to the page 'MyPage.aspx' we add the file 'MyPage.aspx.de.resx'
+       in order to add isreal resx file to the page 'MyPage.aspx' we add the file 'MyPage.aspx.he.resx'		
+       in order to add france resx file to the page 'MyPage.aspx' we add the file 'MyPage.aspx.fr.resx'
+
+       in order to add default resx file to the page 'MyPage.aspx' we add the file 'MyPage.aspx.resx'
+
+* set the current culture 
+
+protected override void InitializeCulture()
+{
+   Page.UICulture = "he";
+   base.InitializeCulture();
+}  
+
+* use GetLocalResourceObject method
+
+ltr2.Text = GetLocalResourceObject("SayYourCulture").ToString();
+
+* use render block
+
+<asp:Literal ID="ltr2" runat="server" Text="<%$ Resources:SayYourCulture %>" />
+

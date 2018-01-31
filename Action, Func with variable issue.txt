@@ -1,0 +1,22 @@
+
+var list = new List<Func<int>>();
+for (var i = 0; i < 10; i++)
+  list.Add(() => i);
+
+foreach (var fun in list)
+  Console.WriteLine(fun()); // 10, 10, 10, 10 ...
+
+-----
+
+var j = 1;
+Action a1 = () => { 
+	Console.WriteLine(j); 
+};
+
+j = 3;
+Action a2 = () => { 
+	Console.WriteLine(j); 
+};
+
+a1(); // 3
+a2(); // 3

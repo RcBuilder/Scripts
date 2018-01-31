@@ -1,0 +1,27 @@
+<%foreach (string k in this.data.Keys){ %>
+    <div>
+        <b><%=k %></b>
+        <%foreach (string s in this.data[k].ToArray()){ %>
+            <%=s %>
+        <%} %>
+    </div>
+<%} %>     
+
+
+=================================================
+
+public Dictionary<string,List<string>> data = null;
+
+protected void Page_Load(object sender, EventArgs e) {
+    data = new Dictionary<string, List<string>>();
+
+    data.Add("First Name", new List<string>() {
+		"Roby","Avi","Shirly" 
+	});
+    data.Add("Last Name", new List<string>() { 
+		"Cohen","Cohen","Massa"
+	});
+    data.Add("Age", new List<string>() {
+		"30","28","31" 
+	});
+}
