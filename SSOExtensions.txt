@@ -1,0 +1,49 @@
+public static class SSOExtensions
+    {
+
+	public static bool ContainsKey(this NameValueCollection me, string key)
+        {
+            if (me == null || me.Count == 0)
+                return false;
+            return me.AllKeys.Contains(key);
+        }
+
+        public static void AddIfNotEmpty(this NameValueCollection me, string name, string value) {
+            if (string.IsNullOrEmpty(value)) return;
+            me.Add(name, value);
+        }
+
+        public static void AddOrDefault(this NameValueCollection me, string name, string value, string defaultValue) {
+            if (string.IsNullOrEmpty(value))
+                me.Add(name, defaultValue);
+            else 
+                me.Add(name, value);
+        }
+
+        public static string Join(this NameValueCollection me, string seperator)
+        {
+            if (me == null || me.Count == 0) 
+                return string.Empty;
+
+            var values = me.Keys.Cast<string>().Select(x => string.Concat(x, "=", me[x]));
+            return string.Join(seperator, values);
+        }
+        
+        public static string Join(this Dictionary<string, object> me, string seperator)
+        {
+            if (me == null || me.Count == 0)
+                return string.Empty;
+
+            var values = me.Select(x => string.Concat(x.Key, "=", x.Value));
+            return string.Join(seperator, values);
+        }
+
+        public static string JoinExclude(this Dictionary<string, object> me, string seperator, string ExcludeKey)
+        {
+            if (me == null || me.Count == 0)
+                return string.Empty;
+
+            var values = me.Where(x => x.Key != ExcludeKey).Select(x => string.Concat(x.Key, "=", x.Value));
+            return string.Join(seperator, values);
+        }
+}

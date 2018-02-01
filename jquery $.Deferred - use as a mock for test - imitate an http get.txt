@@ -1,0 +1,12 @@
+var deferred = $.Deferred();
+var lmsCourseList = [
+	{ "Children": [], "Id": "9490", "Title": "Week 2", "Assignments": [] },
+	{ "Children": [], "Id": "9510", "Title": "Week 3", "Assignments": [] },
+	{ "Children": [], "Id": "9510", "Title": "Week 4", "Assignments": [] },
+	{ "Children": [], "Id": "9510", "Title": "Week 5", "Assignments": [] },
+	{ "Children": [], "Id": "9510", "Title": "Week 6", "Assignments": [] },
+	{ "Children": [], "Id": "9510", "Title": "Week 7", "Assignments": [] },
+	{ "Children": [], "Id": "9510", "Title": "Week 8", "Assignments": [] }
+];
+deferred.resolve({ data: lmsCourseList});	
+return deferred.promise();

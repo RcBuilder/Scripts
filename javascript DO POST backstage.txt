@@ -1,0 +1,10 @@
+
+steps:
+- create dynamically a FORM tag using javascript.
+- add each of the postData as an input hidden field within this FORM
+- append it to the BODY 
+- SUBMIT it 
+- remove it from the BODY 
+
+example:
+see 'angualr submit form - launcher.txt'
