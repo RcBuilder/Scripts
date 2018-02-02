@@ -1,0 +1,56 @@
+
+public enum eManufacturer { 
+	HONDA, MAZDA, TOYOTA, BMW, MERCEDES, KIA 
+}
+
+public abstract class Car {
+    public eManufacturer manufacturer { get; private set; }
+    public int engine { get; private set; }
+    public string licensePlate { get; private set; }
+    public int NumOfKM { get; private set; }
+
+	......
+	......
+}
+
+public class JAZZ : Car  {
+    public JAZZ(string licensePlate) : base(licensePlate, 1300, eManufacturer.HONDA){ } 
+}
+public class FORTE : Car {
+    public FORTE(string licensePlate) : base(licensePlate, 1600, eManufacturer.KIA){ }
+}
+
+....
+....
+
+public class AVIS {
+    private List<Car> cars_in_stock;
+
+	// indexer
+	// get manufacturer by licensePlate
+    public string this[string licensePlate]{
+        get { 
+			return cars_in_stock.Where(c=>c.licensePlate == licensePlate).First().manufacturer.ToString(); 
+		}
+    } 
+
+	......
+	......
+}
+
+-----
+
+var cars = new List<Car>() { 
+    new JAZZ("11-111-11"), 
+	new JAZZ("22-222-22"), 
+	new COROLA("33-333-33", 4), 
+	new CAMERY("44-444-44"), 
+	new FORTE("55-555-55"), 
+	new FORTE("66-666-66"), 
+	new CAMERY("77-777-77")   
+};
+
+avis.LoadCars(cars);
+
+// indexer
+Console.WriteLine(avis["66-666-66"]); // KIA

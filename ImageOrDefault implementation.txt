@@ -1,0 +1,26 @@
+public partial class Student
+{
+    public Student() {}
+    
+    public int Id { get; set; }
+    public string Email { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+       
+    public string Image { get; set; }
+    
+    public virtual Category Category { get; set; }
+    public virtual Institute Institute { get; set; }
+}
+
+public partial class Student {
+    public string ImageOrDefault {
+        get { 
+			return this.Image == string.Empty ? "profile.png" : this.Image; 
+		} 
+    }
+
+    public override string ToString(){
+        return string.Concat(this.FirstName, " ", this.LastName); 
+    }
+}

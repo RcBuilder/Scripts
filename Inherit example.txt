@@ -1,0 +1,34 @@
+
+public interface iFly {
+    void Fly();
+}
+
+public abstract class animal {
+    public string Name { set; get; }
+
+    public animal(string Name) {
+        this.Name = Name;
+    }
+}
+
+
+public class dog : animal {
+    public string ColarText { set; get; }
+
+    public dog(string Name, string ColarText) : base(Name) {
+        this.ColarText = ColarText;
+    }
+}
+
+public class bird : animal, iFly {
+    public string WingsColor { set; get; }
+
+    public bird(string Name, string WingsColor): base(Name) {
+        this.WingsColor = WingsColor;
+    }
+
+    public void Fly() { }
+}
+
+
+

@@ -1,0 +1,57 @@
+
+about:
+------
+implement Timer using recursive method.
+this class exists in the current thread, therefore, it keeps the application alive. 
+
+example:
+--------
+static void Main(string[] args) {
+    var timer = new ProcessTimer();
+    timer.Start();
+}
+
+in the above example, if we will use regular System.Timers.Timer then the application 
+will end immediately because it runs in another thread/context and we'll need to pause 
+the main thread somehow. 
+
+notice: 
+if we are using background process we can't use the Console object capabilities
+so we'll not be able to pause the main thread using Console.ReadKey etc. 
+
+================================================
+using System.Threading;
+
+class ProcessTimer
+{
+    private int IntervalInMinutes  { set; get; }
+    private bool state { set; get; }
+
+    public ProcessTimer() {
+        IntervalInMinutes = 30;
+    }
+
+    public void Start() {
+        state = true;
+        timer1_Elapsed();
+    }
+
+        
+    public void Stop() {
+        state = false;
+    }
+
+    private void timer1_Elapsed() {
+        while (state) {
+            try {
+                // code ...
+            }
+            catch { }
+
+            Thread.Sleep(1000 * 60 * IntervalInMinutes);
+            timer1_Elapsed();
+        }
+    }
+}
+
+

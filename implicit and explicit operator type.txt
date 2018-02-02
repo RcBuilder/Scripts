@@ -1,0 +1,37 @@
+
+public abstract class Car {
+    public eManufacturer manufacturer { get; private set; }
+    public int engine { get; private set; }
+    public string licensePlate { get; private set; }
+    public int NumOfKM { get; private set; }
+
+    public void AddDistance(int DistanceInKM) {
+        this.NumOfKM += Math.Abs(DistanceInKM);
+    }
+
+    public Car(string licensePlate, int engine, eManufacturer manufacturer) {
+        this.licensePlate = licensePlate;
+        this.engine = engine;
+        this.manufacturer = manufacturer;
+    }
+
+    // implicit casting from Car to string -> string s = MyCar 
+    public static implicit operator string(Car car) {
+        return string.Concat(car.manufacturer, " ", car.licensePlate);
+    }
+
+    // explicit casting from Car to int -> int i = (int)MyCar 
+    public static explicit operator int(Car car) {
+        return car.NumOfKM;
+    }
+}
+
+-------------------------------------------------
+
+string car_name = car4; // implicit casting (operator)
+Console.WriteLine(car_name);
+
+int car_distance = (int)car4; // explicit casting (operator)
+Console.WriteLine(string.Concat(car_distance, " KM"));
+
+:punch:

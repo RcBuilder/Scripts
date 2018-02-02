@@ -1,0 +1,6 @@
+Download original photo 
+<a href="/Download.aspx?path=<%=OrginalPath %>" target="ifrmDownload">here</a>
+
+---
+
+<iframe width="500" height="200" id="ifrmDownload" name="ifrmDownload"></iframe>

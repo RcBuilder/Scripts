@@ -1,0 +1,52 @@
+public enum eManufacturer { HONDA, MAZDA, TOYOTA, BMW, MERCEDES, KIA }
+
+public abstract class Car {
+
+    public eManufacturer manufacturer { get; private set; }
+    public int engine { get; private set; }
+    public string licensePlate { get; private set; }
+    public int NumOfKM { get; private set; }
+    public bool isRented { get; set; }
+
+    public void AddDistance(int DistanceInKM)
+    {
+        this.NumOfKM += Math.Abs(DistanceInKM);
+    }
+
+    public Car(string licensePlate, int engine, eManufacturer manufacturer)
+    {
+        this.licensePlate = licensePlate;
+        this.engine = engine;
+        this.manufacturer = manufacturer;
+    }
+}
+
+public class JAZZ : Car  {
+    public JAZZ(string licensePlate) : base(licensePlate, 1300, eManufacturer.HONDA){ } 
+}
+
+public class COROLA : Car {
+    public byte NumOfDoors { get; private set; }
+
+    public COROLA(string licensePlate, byte NumOfDoors) : base(licensePlate, 1600, eManufacturer.TOYOTA) {
+        this.NumOfDoors = NumOfDoors;
+    }
+}
+
+public class FORTE : Car {
+    public FORTE(string licensePlate) : base(licensePlate, 1600, eManufacturer.KIA){ }
+}
+
+public class CAMERY : Car
+{
+    public bool SeatsHeated { get; private set; }
+    public bool Memory { get; private set; }
+    public bool Sunroof { get; private set; }
+
+    public CAMERY(string licensePlate) : this(licensePlate, true, false, true) { }
+    public CAMERY(string licensePlate, bool SeatsHeated, bool Memory, bool Sunroof) : base(licensePlate, 2400, eManufacturer.TOYOTA) {
+        this.SeatsHeated = SeatsHeated;
+        this.Memory = Memory;
+        this.Sunroof = Sunroof;
+    }
+}
