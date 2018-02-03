@@ -33,5 +33,3 @@ Console.WriteLine(car_name);
 
 int car_distance = (int)car4; // explicit casting (operator)
 Console.WriteLine(string.Concat(car_distance, " KM"));
-
-:punch:

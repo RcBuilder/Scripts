@@ -1,0 +1,40 @@
+
+public class User : IComparable {
+    public string Name { set; get; }
+    public int Age { set; get; }
+    public int Id { set; get; }
+
+    public User(string Name, int Age, int Id) {
+        this.Id = Id;
+        this.Name = Name;
+        this.Age = Age;
+    }
+
+    public int CompareTo(object other) {
+        if (this.Age > ((User)other).Age)
+            return -1;
+        if (this.Age < ((User)other).Age)
+            return 1;
+        else return 0;
+    }
+
+    public override string ToString() {
+        return this.Name; 
+    }
+}
+
+--------------------------------------------------------------------
+
+
+User[] users =  {
+        new User("Avi",50,1),
+        new User("Roby",38,23),
+        new User("Ron",37,7),
+        new User("Bonnie",43,112)
+};
+
+Array.Sort(users);
+
+foreach (User u in users)
+     Response.Write(u.ToString() + "<br />");
+Response.End();

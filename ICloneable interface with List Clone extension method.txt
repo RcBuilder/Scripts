@@ -1,0 +1,49 @@
+
+public class Product : ICloneable { 
+    public int Id { set; get; }
+    public string Name { set; get; }
+    public string Description { set; get; }
+    public decimal Price { set; get; }
+    public decimal SalePrice { set; get; }
+    public bool HasImage { set; get; }
+    public byte CategoryId { set; get; }
+    public byte ManufacturerId { set; get; }
+    public byte PurposeId { set; get; }
+    public bool IsTop { set; get; }
+    public DateTime CreatedDate { set; get; }
+                
+    public Product() {        
+        this.Name = string.Empty;
+        this.Description = string.Empty;                            
+        this.CreatedDate = new DateTime(1900, 1, 1);
+    }
+		        
+    public object Clone() {
+        return this.MemberwiseClone();
+    }        
+}
+
+
+public class Products {
+    private static Dictionary<int, Product> _products = ....
+
+    public static IEnumerable<Product> Get() {
+        return _products.Values.ToList().Clone();
+    }
+}
+
+===========================================================
+
+public static class Extensions {
+    public static IList<T> Clone<T>(this IList<T> me) where T : ICloneable {
+        return me.Select(item => (T)item.Clone()).ToList();
+    }
+}
+
+===========================================================
+
+I've created an extension method for any kind of List ( Generic T ) that Clones that list. 
+the extension method will apeared only on list of objects that implements the ICloneable interface, 
+I've used the where T clause to force it.
+
+conclusion, in order to clone list using my extension you MUST implement the ICloneable interface

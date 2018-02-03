@@ -1,0 +1,23 @@
+IIS7 classic vs integrated pipeline modes
+=========================================
+
+classic
+-------
+
+* Classic mode is where IIS only works with ISAPI extensions and ISAPI filters directly.
+* This is how IIS 6 and below behaved.
+* ASP.NET is simply an ISAPI extension (aspnet_isapi.dll) and an ISAPI filter (aspnet_filter.dll). 
+* When using classic mode the server uses two piplines to handle requests, one for native code and the other for managed code.
+* In this mode the application doesn't take full advantage of everything IIS 7.X has to offer
+* the separation of the IIS and ASP.NET request-processing models results in duplication of some processing steps.
+* can use HTTP Handlers and HTTP Modules only for resources that are serviced by ASP.NET (.aspx, .ashx etc.) and any file types that you have mapped to ASP.NET
+
+integrated
+----------
+
+* When an application pool is in Classic mode, IIS 7.0 handles requests as in IIS 6.0.
+* Integrated mode handles all requests through a unified pipeline for IIS and is tightly integrated with ASP.NET through that same pipeline.
+* ASP.NET sees every relevant request and manipulates things along the way rather than acting as an external plugin.
+* With integrated mode ASP.NET runs much more efficiently in IIS and will yield greater performance for your site. 
+* This model eliminates steps that were previously duplicated in IIS and ASP.NET (authentication etc.)
+* can use HTTP Handlers and HTTP Modules for any resources that are served by IIS!

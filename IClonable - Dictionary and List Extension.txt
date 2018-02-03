@@ -1,0 +1,37 @@
+
+public static class Extensions {
+    public static IList<T> Clone<T>(this IList<T> me) where T : ICloneable {
+        return me.Select(item => (T)item.Clone()).ToList();
+    }
+
+    public static IList<TValue> Clone<TKey, TValue>(this IDictionary<TKey, TValue> me) where TValue : ICloneable {
+        return me.Values.Select(item => (TValue)item.Clone()).ToList();
+    }
+}
+
+--------------------
+
+public class Link : ICloneable {
+    public int Id { set; get; }
+    public string Title { set; get; }    
+
+    public Link(int Id, string Title) {
+        this.Id = Id;
+        this.Title = Title;
+    }
+
+    public object Clone() {
+        return this.MemberwiseClone();
+    }
+}
+
+--------------------
+
+var linkA = new Link(1, "linkA");
+var linkB = new Link(2, "linkB");
+
+var footer = new Dictionary<int, Link>();
+footer.Add(linkA.Id, linkA);
+footer.Add(linkB.Id, linkB);
+
+var copy = footer.Clone();

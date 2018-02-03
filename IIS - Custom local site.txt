@@ -1,0 +1,19 @@
+
+Custom local site - IIS:
+------------------------
+
+* open hosts file (C:\Windows\System32\drivers\etc)
+* add new rule : 127.0.0.1 [someName]
+
+  example: 
+  127.0.0.1 ynet 
+
+  the above rule means that once using the path http://ynet you'll reach the localhost. 
+  each call to the localhost is processed via the IIS pipe  
+
+* open IIS 
+* Sites -> add web site 
+* set siteName, app pool and the physical path to the files 
+* bind http type on port 80 and set the host name to be 'ynet' 
+  // http://ynet now points to the created site
+   

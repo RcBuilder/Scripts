@@ -1,0 +1,7 @@
+
+IIS and Linked Folders 
+----------------------
+when we change structure on folder linked to the IIS 
+(such as webSite) the IIS restart the application
+
+a creation of a new folder DOES NOT cause an IIS restart but a deletion of a folder DOES! 

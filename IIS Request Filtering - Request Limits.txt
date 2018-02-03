@@ -1,0 +1,16 @@
+
+[IIS Request Filtering]
+
+Request Limits
+--------------
+maxAllowedContentLength: 
+- type = uint 
+- maximum length of content in a request, in bytes.
+
+maxQueryString: 
+- type = uint  
+- maximum length of the query string, in bytes.
+
+maxUrl
+- type = uint 
+- maximum length of the URL, in bytes.

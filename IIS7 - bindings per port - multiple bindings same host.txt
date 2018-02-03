@@ -1,0 +1,22 @@
+
+* open IIS7 -> Sites -> Add Site
+* set site name, app pool and physical path  
+* set the host name and the associated port 
+  we can add multiple bindings for the same host in a different port
+
+----
+
+example : 
+we take the host 'www.myDomian.com' and create 3 different sites
+each to different folder on the disk 
+we bind each site to a different port 
+
+site1 - host 'www.myDomian.com' on port 80
+site2 - host 'www.myDomian.com' on port 5555
+site3 - host 'www.myDomian.com' on port 7777
+
+use 'www.myDomian.com' to reach site1
+use 'www.myDomian.com:5555' to reach site2
+use 'www.myDomian.com:7777' to reach site3
+
+          

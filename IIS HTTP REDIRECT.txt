@@ -1,0 +1,101 @@
+IIS HTTP REDIRECT
+=================
+allows you to make an http redirection 
+
+types
+-----
+301 – Permanent
+302 – Standard
+307 – Temporary
+
+turn on IIS feature
+-------------------
+you have to turn the 'HTTP Redirection' feature on (off by default)
+
+steps
+- Control Panel -> Programs and Features -> Turn Windows Features on or off
+- IIS -> WWW Services -> Common Http Features   
+- turn on the 'HTTP Redirection' feature
+
+
+Using
+-----
+once the feature installed, open IIS and use it as follow
+
+- choose site -> HTTP Redirect (IIS Tab)
+- properties:
+
+  * Redirect ... destination 
+    fill the new site you want to redirect to
+    e.g: http://rcb.co.il -> http://new.rcb.co.il
+
+  * Redirect Behavior 
+    can redirect to the new location with the requested relative path 
+    e.g: http://rcb.co.il/about.aspx -> http://new.rcb.co.il/about.aspx
+
+    can redirect only root directory (without subfolders)        
+
+  * status code       
+    choose the type of the redirection (see types)
+
+- apply
+
+
+properties
+----------
+also see 'https://www.iis.net/configreference/system.webserver/httpredirect'
+
+childOnly
+destination // the destination domain/page
+enabled // enabled the redirection 
+exactDestination // false to preserve the querystring (relative)
+httpResponseStatus // Found = 302, Permanent = 301, Temporary = 307, PermRedirect = 308
+
+web.config
+----------
+// each request will redirected to the new destination without params preservation
+<system.webServer>
+    <httpRedirect enabled="true" destination="http://new.rcb.co.il" exactDestination="false" httpResponseStatus="Temporary" />
+</system.webServer>
+
+// by specific location (note! support multiples)
+<location path="pageA">
+    <system.webServer>
+      <httpRedirect enabled="true" destination="http://new.rcb.co.il/newPageA" exactDestination="true" httpResponseStatus="Temporary" />
+    </system.webServer>
+  </location>
+
+// using wildcards
+<configuration>
+   <system.webServer>
+      <httpRedirect enabled="true" exactDestination="true" httpResponseStatus="Temporary" />
+         <add wildcard="*.php" destination="/default.htm" />
+      </httpRedirect>
+   </system.webServer>
+</configuration>
+
+** Tip
+you can use a new temporary web config file to redirect a full website
+<?xml version="1.0" encoding="utf-8"?>
+
+<configuration>
+  <system.webServer>
+    <httpRedirect enabled="true" destination="http://maccabiherzliyaweb.rcb.co.il/" exactDestination="true" httpResponseStatus="Temporary" />
+  </system.webServer>
+</configuration>
+
+Notes
+-----
+- you can also use 'IIS URL Rewrite Module' to reach the same goal without the client intervention (rewrite instead of redirect)
+- you can create redirection rules to a different servers/domains
+- you can create redirection rules within the same site 
+
+rewrite vs redirect
+-------------------
+- REWRITE process the request without the client intervention whereas REDIRECT response back to the client to make a new request to the new location
+- REWRITE can create other rule types whereas REDIRECT limited for http 301, 302 and 307 statuses
+- REWRITE can modify also the response itself whereas REDIRECT doesn't change anything but the location
+
+
+
+

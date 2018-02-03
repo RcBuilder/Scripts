@@ -1,0 +1,27 @@
+function CheckForm(){
+    var isOK = true;
+
+    var oName = ($('input:text[@id$="txtName"]').get(0));
+    var oAge = ($('input:text[@id$="txtAge"]').get(0));
+    var oPhone = ($('input:text[@id$="txtPhone"]').get(0));
+    var oEmail = ($('input:text[@id$="txtEmail"]').get(0));
+    
+    isOK = isEmpty.call(oName)?false:isOK;
+    isOK = isEmpty.call(oAge)?false:isOK;
+    isOK = isEmpty.call(oPhone)?false:isOK;
+    isOK = isEmpty.call(oEmail)?false:isOK;
+    
+    
+    return isOK;
+}
+
+function isEmpty() {
+    if(this.value == "") {
+        this.style.backgroundColor = 'orange';
+        return true;
+    }
+    else {
+        this.style.backgroundColor = '';
+        return false;   
+    }
+}

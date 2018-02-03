@@ -1,0 +1,29 @@
+
+public abstract class Car : IComparable<Car> {
+    public eManufacturer manufacturer { get; private set; }
+    public int engine { get; private set; }
+    public string licensePlate { get; private set; }
+    public int NumOfKM { get; private set; }
+
+    public void AddDistance(int DistanceInKM) {
+        this.NumOfKM += Math.Abs(DistanceInKM);
+    }
+
+    public Car(string licensePlate, int engine, eManufacturer manufacturer) {
+        this.licensePlate = licensePlate;
+        this.engine = engine;
+        this.manufacturer = manufacturer;
+    }
+
+    public int CompareTo(Car other) {
+        return this.NumOfKM.CompareTo(other.NumOfKM);
+    }
+}
+
+-------------------
+
+// the using of IComparable 
+var arr = this.cars_in_stock.ToArray();
+Array.Sort(arr);
+foreach (var a in arr)
+    Console.WriteLine(string.Concat(a.licensePlate, " - ", a.NumOfKM, " KM"));

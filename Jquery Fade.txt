@@ -1,0 +1,14 @@
+$(function() {
+	var div = $("div.Fade");
+    div.hover(function() { 
+		Fade(this, 1.0, 300); 
+	}).mouseout(function() { 
+		Fade(this, 0.2, 300); 
+	}).each(function() { 
+		Fade(this, 0.2, 300); 
+	});
+           
+    function Fade(obj, opacity, milisecond) {
+        $(obj).animate({ opacity: opacity }, { queue: false, duration: milisecond });
+    }
+});
