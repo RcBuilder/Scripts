@@ -1,0 +1,59 @@
+﻿<!DOCTYPE html>
+
+<html ng-app="my-app">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div ng-controller="homeController">
+        <h3>Header</h3>
+        <ul>
+            <li>
+                <input type="button" value="Default" ng-click="doSomething(defaultId);" />
+            </li>
+            <li ng-repeat="item in items">
+                <ng-My-Directive item="item" click="doSomething(defaultId);" />
+            </li>
+        </ul>
+    </div>
+
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.9/angular.min.js"></script> 
+    <script>
+        var module = angular.module('my-app', []);
+
+        module.controller('homeController', function ($scope) {
+            $scope.items = [
+                { id: 1, name: 'A' },
+                { id: 2, name: 'B' },
+                { id: 3, name: 'C' },
+                { id: 4, name: 'D' },
+                { id: 5, name: 'E' },
+                { id: 6, name: 'F' }
+            ];
+
+            $scope.defaultId = -1;
+
+            $scope.doSomething = function (id) {
+                alert(id);
+            }
+        });
+
+        module.directive('ngMyDirective', function () {
+            return {
+                restrict: 'E',
+                template: 
+                '<div>' +
+                    '<div><b>#{{ item.id }}</b></div>' +
+                    '<div>{{ item.name }}</div>' +
+                    '<div><input type="button" value="clickMe" ng-click="fun({ defaultId:item.id })" /></div>' +
+                '</div>',
+                replace: true,
+                scope: {
+                    item: '=item', fun: '&click'
+                }
+            };
+        });
+    </script> 
+</body>
+</html>

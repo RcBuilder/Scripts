@@ -1,0 +1,70 @@
+
+string is Reference type BUT its immutable 
+immutable = can't be changed! each change causes a new copy and memory allocation
+so any attempt to change it's value - creates a NEW allocation! 
+
+when passing a string as a parameter to a function - a copy of the reference is created 
+this copy points to the same object in memory. 
+
+use the 'ref' keyword to pass the reference itself and NOT a copy of it.
+
+-------------------------------------------
+
+void SetString(string value) {
+    value = "String2";
+}
+
+var str = "String1";
+SetString(str);
+Console.WriteLine(str); // String1
+
+---
+
+* how it looks on memory? 
+
+[STACK]				[HEAP] 
+
+						100
+value		->		 ---------
+str			->		| String1 |
+					 ---------
+
+once the 'str' is passed to the function 'SetString' 
+a copy of the reference exist in the STACK is created 
+both pointers 'str' and 'value' are point to the very same object in the HEAP. 
+
+because the string is immutable and can't be changed, the line which populate the "String2" value 
+causes an allocation of a NEW string in memory. so now the pointer 'value' refer to that new object whereas the 'str' pointer still refer to the old object.
+
+[STACK]				[HEAP] 
+
+						103
+value		->		 ---------
+					| String2 |
+					 ---------
+
+
+						100
+str			->		 ---------
+					| String1 |
+					 ---------
+
+reminder: setting a reference to null does not change the object itself.
+so if we change the code into the following: 
+value = null;
+we'll actually set the copy pointer as null and NOT the source one (see below)
+also see 'Set Reference as NULL.txt'
+
+[STACK]				[HEAP] 
+			
+value		NULL
+
+
+						100
+str			->		 ---------
+					| String1 |
+					 ---------
+
+
+
+

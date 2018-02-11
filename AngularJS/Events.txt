@@ -1,0 +1,32 @@
+events
+------
+* $watch
+  - event that's being fired on any change at the specified model
+  - apply from the $scope 
+
+  - structure:
+    $scope.$watch([model-name], function(newVal, oldVal)); 
+
+  - example:
+    // this event will replace any 'e' letter to 'E'
+	<input type="text" ng-model="message_model" />
+
+    $scope.$watch('message_model', function(){ 
+		$scope.message = $scope.message.replace('e', 'E');
+	});
+
+   - example:
+   // this event will show a message when the input value is too long
+   <input type="text" ng-model="someModel" placeholder="enter text" style="width:100px;" />
+   <span ng-show="isTooLong" ng-class="'redTitle'">Too long!!!</span>
+
+   $scope.isTooLong = false;
+   $scope.$watch('someModel', function (newVal, oldVal) {
+       $scope.isTooLong = newVal.length > 10;
+   });
+
+* ng-click
+  see 'built-in directives'	in 'Directives.txt'  
+
+* ng-change
+  see 'built-in directives'	in 'Directives.txt'  

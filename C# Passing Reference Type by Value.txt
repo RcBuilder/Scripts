@@ -1,0 +1,65 @@
+
+when passing a Reference type parameter by value (without the keyword 'ref') - a COPY of the reference is created 
+so we have 2 pointers (in the STACK) which point to the same location in the HEAP. 
+
+what means that we can change the object content within the function and the change will be reflected outside of it 
+but a NEW allocation to one of the pointers will NOT affect the other pointer!
+
+also see 'Set Reference as NULL.txt'
+
+note! 
+use the keyword 'ref' in order to pass the same reference and not a copy. 
+
+------------------
+
+static void Change(int[] pArr) {    
+    pArr[0] = 100;
+    pArr = new int[] { 1, 2, 3 };
+}
+
+var arr = new int[] { 10, 20, 30 };
+Change(arr);
+// arr = 100, 20, 30 
+
+---
+
+explanation:
+the pointer 'arr' points to the array [10, 20, 30] in memory 
+once we've passed the reference to the function by value, a new pointer has created - 'pArr' which points to the same location in memory 
+the code line 'pArr[0] = 100' has changed the actual object in memory to [100, 20, 30]
+the new allocation of [1, 2, 3] created another object in the HEAP and set it's address to the 'pArr' pointer 
+so 'pArr' points to [1, 2, 3] whereas 'arr' points to [100, 20, 30]
+
+// Change(int[] pArr)
+arr  -> 
+pArr -> [10, 20, 30]
+
+// pArr[0] = 100
+arr  -> 
+pArr -> [100, 20, 30]
+
+// pArr = new int[] { 1, 2, 3 };
+arr  -> [100, 20, 30]
+pArr -> [1, 2, 3]
+
+------------------
+
+static void Change(int[] pArr) {
+    pArr = null;    
+}
+
+var arr = new int[] { 10, 20, 30 };
+Change(arr);
+// arr = 10, 20, 30 
+
+---
+
+explanation:
+
+// Change(int[] pArr)
+arr  -> 
+pArr -> [10, 20, 30]
+
+// pArr = null
+arr  -> [10, 20, 30]
+pArr -> null

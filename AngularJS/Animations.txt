@@ -1,0 +1,12 @@
+animations
+----------
+
+// TODO ...
+
+* steps to perform animations:
+  1.add 'angular-animate.min.js' file to your page
+    <script type="text/javascript" src="angular-animate.min.js"></script>
+  2.add 'ngAnimate' as a dependency to your application(module)
+	var my_module = angular.module('my_application', ['ngAnimate']);
+  3.add your desired effect to the ng-view directive, the effectes are simply a css classes 
+    TODO ..... 

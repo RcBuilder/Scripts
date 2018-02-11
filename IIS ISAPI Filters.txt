@@ -1,0 +1,47 @@
+IIS ISAPI Filters 
+=================
+
+* ISAPI :
+  - Internet Server API 
+  - an API that allows us to extend the funcionality of the IIS core
+
+* ISAPI filters:
+  - ISAPI filters are custom code that uses the Internet Server API (ISAPI) to add logic or manipulate the requests and responses
+  - ISAPI filters used to extend/modify the funcionallity in the early step of the page cycle. 
+  - ISAPI filters are .dll files written in C or C++ .  
+  - ISAPI filters can be registered per site or globaly.
+  - Every incoming request and outgoing response passes through the filters
+
+* Common uses for ISAPI filters :
+  - modify requests url (rewriter etc.)
+  - modify requests data
+  - filter out unwanted file types 
+  - handle redirections (https etc.)
+  - control username and passwords used with basic/anonymous authentication
+  - modify responses going back to the client 
+  - add requests logger or traffic analysis 
+  - perform custom authentication
+  - encryption 
+  - compression
+
+* Recommendation :
+  - Microsoft recommends to use modules instead of ISAPI filters
+    moreover, ISAPIs written in C or C++ instead of C#
+
+* modules types :
+  - there are two modules types that should replace the ISAPIs filter:
+    'HTTP Modules' and 'HTTP Handlers'
+    the difference between them is that the 'HTTP Handler' executes for a specific requests (by filter) 
+    whereas the 'HTTP Module' executes for any request
+
+    e.g: 
+	if we want to add some logic to the request pipe line only for .aspx files we should use an 'HTTP Handler' with *.aspx filter. 
+
+* Installation on server 
+  - if we don't see the ISAPI filters icon within the IIS, we probably have to install it 
+    server manager - Roles and Features - (under IIS) check the ISAPI Filters option
+
+* add isapi filter : 
+  - open IIS -> choose the website -> click on ISAPI Filters icon -> Add 
+  - set the filter name and its location (.dll)
+  - restart website

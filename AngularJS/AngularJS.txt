@@ -1,0 +1,286 @@
+What is AngularJS? 
+------------------
+see 'General.txt'
+
+references
+----------
+see 'General.txt'
+
+Latest and CDN
+--------------
+see 'LatestAndCDN.txt'
+
+SPA
+---
+see 'General.txt'
+
+Working with JQuery
+-------------------
+see 'General.txt'
+
+trick to set the $ sign to use jquery
+-------------------------------------
+see 'JQuery.txt'
+
+classes declaration techniques
+------------------------------
+see 'General.txt'
+
+define angularJS project
+------------------------
+see 'Project.txt'
+
+project structure
+-----------------
+see 'Project.txt'
+
+built-in directives
+-------------------
+see 'Directives.txt'
+
+custom directives
+-----------------
+see 'Directives.txt'
+
+events
+------
+see 'Events.txt'
+
+bind data
+---------
+see 'DataBind.txt'
+
+built-in filters
+----------------
+see 'Filters.txt'
+
+custom filters
+--------------
+see 'Filters.txt'
+
+repeater
+--------
+see 'DataBind.txt'
+
+controllers
+-----------
+see 'Controllers.txt'
+
+$scope
+------
+see 'Controllers.txt'
+
+modules
+-------
+see 'Modules.txt'
+
+factory
+-------
+see 'DataProviders.txt'
+
+service
+-------
+see 'DataProviders.txt'
+
+constant
+--------
+see 'DataProviders.txt'
+
+decorators
+----------
+see 'DataProviders.txt'
+
+routing
+-------
+see 'Routing.txt'
+
+animations
+----------
+see 'Animations.txt'
+
+module dependency
+-----------------
+see 'dependencies.txt'
+
+dependency Injection
+--------------------
+see 'dependencies.txt'
+
+built-in dependencies
+---------------------
+see 'dependencies.txt'
+
+$http
+-----
+see 'dependencies.txt'
+
+$location
+---------
+see 'dependencies.txt'
+
+use jqLite library
+------------------
+see 'JQuery.txt'
+
+how to combine jQuery with angular?
+-----------------------------------
+see 'JQuery.txt'
+
+jqLite available methods
+------------------------
+see 'JQuery.txt'
+
+--------------------------------------------------------------
+
+// TODO
+animations 
+using jquery addons (jquery-ui etc.)
+injection
+events (ng-click ...)
+ng-include
+$observe
+directive local scope
+directive link function attributes
+best structure
+built-in dependencies ($scope, $http etc.)
+routing events: $routeChangeStart and $routeChangeSuccess
+$route, $routeScope, $routeParams
+angular reference (https://docs.angularjs.org/api/)
+SEO
+ng-templates (outer file)
+templateUrl with .partial extension files (or other custom extension)
+$apply - triggers (or forces) the digesting cycle (note! used in signalR - on events)
+
+--
+
+* drop down sample
+	
+	// in the view 
+	<select ng-model="ddltest">
+		<option value="1">A</option>
+		<option value="2">B</option>
+		<option value="3">C</option>
+	</select>
+	<input type="button" ng-click="fun()" value="click" />
+
+	// in the controller 
+	$scope.fun = function () {
+		alert($scope.ddltest);
+	};
+
+* $digest(); 
+	$scope.$digest(); // manually trigger the angular digesting cycle process
+
+--
+
+* scope access within ng-template
+
+	note! 
+	angular generates a child scope for each ng-template 
+
+	<div ng-controller="homeController">
+		<div ng-include="'newAssignment.partial'"></div>
+	</div>
+
+	<script type="text/ng-template" id="newAssignment.partial">
+		<div class="assignment">		
+			<p>
+				<input type="text" ng-model="newAssignment.title" placeholder="title" />
+			</p>
+			<p>
+				<input type="text" ng-model="newAssignment.body" placeholder="body" />
+			</p>
+			<p>
+				<input type="button" ng-click="Add()" value="add" />
+			</p>
+		</div>
+	</script>
+
+	// app.js
+	var module = angular.module('my-app', []);
+
+	module.controller('homeController', function ($scope) {
+		$scope.assignments = []; 
+
+		// note! angular generates a child scope for each ng-template 
+		// 'this' refers to the ng-template child scope which trigger the function 
+		// the ng-click which calls the Add method defined on the child scope (ng-template)
+		$scope.Add = function () {
+			$scope.assignments.push({ 
+				title: this.newAssignment.title, 
+				body: this.newAssignment.body 
+			});
+		}
+	});
+
+-- 
+
+* using ng-model within ng-template
+
+	note! 
+	angular generates a child scope for each ng-template 
+	we can set models directly on the parent scope (which refers to the controller) by using the $parent keyword
+
+	<div ng-controller="homeController">
+		<div ng-include="'newAssignment.partial'"></div>
+		<div>
+			<input type="button" ng-click="Add()" value="add" />
+		</div>
+	</div>
+
+	<script type="text/ng-template" id="newAssignment.partial">
+		<div class="new-assignment">
+			<p>
+				<input type="text" ng-model="$parent.newAssignment.title" placeholder="title" />
+			</p>
+			<p>
+				<input type="text" ng-model="$parent.newAssignment.body" placeholder="body" />
+			</p> 
+		</div>
+	</script>
+
+	// app.js
+	var module = angular.module('my-app', []);
+
+	module.controller('homeController', function ($scope) {
+		$scope.assignments = [];
+
+		// the ng-click which calls the Add method defined on the parent scope (controller)
+		// the models set directly on the parent (controller) from within the child scope (ng-template)
+		$scope.Add = function () {
+			$scope.assignments.push({ 
+				title: this.newAssignment.title, 
+				body: this.newAssignment.body 
+			});
+		}
+	});
+
+--
+
+* angular toJson - serializer factory
+
+	var module = angular.module('my-app', []);
+
+	module.controller('homeController', function ($scope, serializer) {
+		$scope.assignments = [];
+
+		$scope.Add = function () {
+			$scope.assignments.push({ 
+				title: this.newAssignment.title, 
+				body: this.newAssignment.body 
+			});
+		}
+
+		$scope.Generate = function () {
+			alert(serializer.serialize($scope.assignments)); 
+		}
+	});
+
+	module.factory('serializer', function () {
+		return {
+			serialize: function (obj) {
+				//return JSON.stringify(obj);
+				return angular.toJson(obj);
+			}
+		} 
+	});

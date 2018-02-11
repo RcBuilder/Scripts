@@ -1,0 +1,43 @@
+
+note that string is reference type BUT its immutable 
+so any attempt to change it's value - creates a NEW allocation! 
+
+see 'C# string as parameter.txt'  
+
+----
+
+void SetString(string value) {
+    value = "String2";
+}
+
+void SetInt(int value) {
+    value = 300;
+}
+
+var str = "String1";
+var intgr = 100;
+
+SetString(str);
+SetInt(intgr);
+
+Console.WriteLine(str); // String1
+Console.WriteLine(intgr); // 100
+
+----
+
+void SetString(ref string value) {
+    value = "String2";
+}
+
+void SetInt(ref int value) {
+    value = 300;
+}
+
+var str = "String1";
+var intgr = 100;
+
+SetString(ref str);
+SetInt(ref intgr);
+
+Console.WriteLine(str); // String2
+Console.WriteLine(intgr); // 300

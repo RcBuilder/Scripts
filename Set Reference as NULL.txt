@@ -1,0 +1,37 @@
+
+setting a reference to null DOES NOT change the object itself. it onlt set the pointer to points to nowhere.
+the object still exists and will be wiped-off by the GC if no-one points to it. 
+
+[visualization]
+see 'Set Reference as NULL.png'
+
+see 'C# Passing Reference Type by Value.txt'
+
+-----
+
+example: 
+
+object a = 1;
+object b = a;
+a = null;
+Console.WriteLine(b);  // 1
+
+explanation:
+the object 1 (located in the HEAP) has two pointers (in the STACK) - 'a' and 'b'
+we set 'a' to be null and points to nowhere but b still points to 1
+
+-----
+
+example: 
+
+void SetString(string pStr) {
+    pStr =  null;
+}
+
+var str = "String1";
+SetString(str);
+Console.WriteLine(str); // String1
+
+explanation:
+same here, two pointers 'str' and 'pStr' which points to the same "String1" object 
+we've erased 'pStr' but 'str' still active.

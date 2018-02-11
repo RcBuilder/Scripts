@@ -1,0 +1,73 @@
+What is AngularJS? 
+------------------
+angularJS is a javascript MVC framework developed by Google corp.
+a modular structure with a two-way data binding so any update on the model will reflected in the view 
+
+official site
+-------------
+https://angularjs.org/
+
+api reference
+-------------
+https://docs.angularjs.org/api
+
+download
+--------
+you can download the angular.js at the official site 
+its recommended to download the latest minified stable version
+
+remark: you can also use the CDN version
+
+SPA
+---
+Single Page Application 
+angularJS supports SPA - multiple views in a single page 
+
+Working with JQuery
+-------------------
+the angularJS include jqLite - mini jQuery version
+but it can work alongside with the known jQuery framework
+see 'JQuery.txt'
+
+latest
+------
+<script src="http://code.angularjs.org/snapshot/angular.js" type="text/javascript"></script>
+
+classes declaration techniques
+------------------------------
+any angular application has controllers, directives, filters, services, factories and more.
+those are all functions you declare and attach to the app module (ng-app).
+there's some options regarding to the declaration of the objects assemble an angular application.
+
+notice! 
+it's the best practice to declare the application objects on the module and not in the globally!
+
+[option1]
+// modules dependency (best practice!) 
+var app = angular.module('my_application', ['my_module']);
+var m = angular.module('my_module', []);
+m.controller('home_controller', function ($scope) { .. } 
+
+[option2]
+// direct instantiating
+var app = angular.module('my_application', []);
+app.controller('home_controller', function ($scope) { .. } 
+
+[option3]
+// pre-defined functions
+var app = angular.module('my_application', []);
+var home_controller = function($scope) { .. } 
+app.controller('home_controller', home_controller);
+
+[option4]
+// multiple objects as list
+var app = angular.module('my_application', []);
+var directives = {};
+directives.ngMyDirective1 = function(){ .. };
+directives.ngMyDirective2 = function(){ .. };
+directives.ngMyDirective3 = function(){ .. };
+app.directive(directives);
+
+[option5]
+// global object that not attached to any module (least best practice!)
+function home_controller($scope) { .. } 

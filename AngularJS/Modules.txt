@@ -1,0 +1,85 @@
+modules
+-------
+* you can refer to module as a container or a namespace
+  it's recommended to bind a module to your page and turn it to some sort of an application
+  you can add config to each module and then add a routes mechanism to it.  
+
+* bind a page to specific module
+  - to bind a page to a specific module use the ng-app directive in the html tag and set its value to the desired module
+  - note that you don't have to set it in the html tag, you can set it elsewhere but keep in mind that the ng-app definition point will be your application scope! 
+  - structure: 
+    <html ng-app="my_module">
+
+* create a module
+  - to create a new module use the angular.module built-in function
+
+  - structure: 
+    var my_module = angular.module([module name], [dependencies]);
+	[module name] string - the module name
+	[dependencies] string[] - array of other existing modules to import that will be recognized within the current created module 
+
+  - example:
+    var my_module = angular.module('my_first_module', []);
+	var my_module = angular.module('my_first_module', [ 'my_helper_module' ]); // with a dependency
+
+* add items to a module	
+  - items : controllers, factories, directives etc.
+  - this technique is the more modular way therfore it better than the non-module approach
+  - there are some ways to add items to a module: 
+    1. using the module.[itemType] built-in functions with an anonymous function
+	- structure:
+	    module.[itemType]([Name],[funtion]);
+
+	- example:
+	    my_module.controller('my_controller', function ($scope) {
+				$scope.friends = [
+					{ name: 'RON', age: 39 },
+					{ name: 'LITAL', age: 26 },
+					{ name: 'EREZ', age: 35 },
+					{ name: 'MAAYAN', age: 34 },
+					{ name: 'RICKI', age: 28 }
+				];
+			} 
+		);
+
+	2. using the module.[itemType] built-in function with reference to an existing item
+	- structure:
+	    module.[itemType]([Name],[item]);
+
+	- example: 
+		function my_controller($scope) {
+			$scope.friends = [
+				{ name: 'RON', age: 39 },
+				{ name: 'LITAL', age: 26 },
+				{ name: 'EREZ', age: 35 },
+				{ name: 'MAAYAN', age: 34 },
+				{ name: 'RICKI', age: 28 }
+			];
+		} 
+	     
+	    my_module.controller('my_controller', my_controller);
+
+	3. using the module.[itemType] built-in function with list of items
+	- structure:
+	    module.itemType([items]);
+
+	- example: 
+		var controllers = {};
+		controllers.my_controller = function ($scope) {
+			$scope.friends = [
+				{ name: 'RON', age: 39 },
+				{ name: 'LITAL', age: 26 },
+				{ name: 'EREZ', age: 35 },
+				{ name: 'MAAYAN', age: 34 },
+				{ name: 'RICKI', age: 28 }
+			];
+		} 
+	     
+	    my_module.controller(controllers); 
+
+* templates
+  templates are html pieces that will be loaded into our main html page.
+  use the templateUrl within the routes definition to define which template should be loaded
+
+* routes
+  see 'Routing.txt'

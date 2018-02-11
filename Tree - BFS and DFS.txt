@@ -1,0 +1,87 @@
+
+BFS:
+- breadth first search 
+- reminder: breadth = width
+- search layer after layer (vertical)
+- BFS uses queue 
+
+static void Tree_BFS(TreeNode rootNode) {
+    var queue = new Queue<TreeNode>();
+    queue.Enqueue(rootNode);
+
+    while (queue.Count > 0) {
+        var node = queue.Dequeue();
+        Console.Write("{0} ", node.Value);
+        if (node.Left != null)
+            queue.Enqueue(node.Left);
+        if (node.Right != null)
+            queue.Enqueue(node.Right);
+    }
+}
+
+---
+
+DFS:
+- depth first search
+- search deeper and deeper (horizontal)
+- DFS uses recursive function 
+
+static void Tree_DFS(TreeNode node)
+{
+    if (node == null)
+        return;
+
+    Console.Write("{0} ", node.Value);
+    Tree_DFS(node.Left);
+    Tree_DFS(node.Right);
+}
+
+
+----------------------------------------
+
+
+/*
+            [1]
+        [2]     [3]
+    [4]   [5]     [6]
+                     [7]
+*/
+
+var tree = new TreeNode {
+    Value = "1",
+    Left = new TreeNode {
+        Value = "2",
+        Left = new TreeNode {
+            Value = "4"
+        },
+        Right = new TreeNode {
+            Value = "5"
+        },
+    },
+    Right = new TreeNode {
+        Value = "3",
+        Right = new TreeNode {
+            Value = "6",
+            Right = new TreeNode {
+                Value = "7"
+            }
+        }
+    },
+};
+
+/* 
+    1
+    2, 3
+    4, 5, 6
+    7
+*/             
+Tree_BFS(tree); // output: 1, 2, 3, 4, 5, 6, 7
+
+---
+
+/*
+    1, 2, 4
+    5,
+    3, 6, 7 
+*/
+Tree_DFS(tree); // output: 1, 2, 4, 5, 3, 6, 7

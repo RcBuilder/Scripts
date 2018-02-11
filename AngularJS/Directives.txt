@@ -1,0 +1,605 @@
+
+built-in directives
+===================
+
+notice! 'ng-' or 'data-ng-' prefix indicate of angular directive
+(see directives list at the api reference)
+
+types:
+- Element (E)
+  <ng-my-directive></ng-my-directive>
+
+- Attribute (A)
+  <span ng-my-directive></span>
+
+- CSS class (C)
+  <span class="ng-my-directive: expression;"></span>
+
+- Comment (M)
+  <!-- directive: ng-my-directive expression -->
+
+* ng-app
+  ignite the angular engine.
+  wherever this directive will be defined - it would be the application scope.
+  its recommended to add this directive within the html tag (full page scope).
+  usually used to bind module to the page to set it as application (see modules)
+  <html ng-app>
+
+* ng-model 
+  defines input as model 
+  <input type="text" ng-model="my_model" /> // define the input as model called 'my_model'
+
+* ng-include
+  includes a partial html content or template.
+
+* ng-template 
+  an html template that you can plant all over the site, similar to server user controls.
+  to create a template you need to define a script with 'text/ng-template' attribute.
+  use the ng-include directive in order to use a defined template
+
+  example:
+  <script type="text/ng-template" id="someTemplate.partial">
+        <span ng-class="'greenTitle'">HELLO FROM TEMPLATE</span>
+    </script>
+    <script type="text/ng-template" id="otherTemplate.partial">
+        <span ng-class="['purpleTitle', 'bold']" ng-repeat="name in ['name1', 'name2', 'name3']">{{ name }},</span>
+    </script>
+
+	<div ng-include="'someTemplate.partial'"></div>
+    <div ng-include="'otherTemplate.partial'"></div>
+
+* ng-class
+  allows us to add css classes dynamically (or statically).
+  when using the static mode you have to refer the css class name as string so extra '[some css class]' requires.
+  you can set multiple css classes using the following syntax : ['class1', 'class2', 'class3'].
+  another way to add classes is by determine by boolean value whether or not to set each class : { class1: true, class2: true }
+  you can also use a variables within the scope.
+  
+  example:
+  // css classes
+  .blueTitle { color:blue; font-size:18px; }
+  .redTitle { color:red; font-size:16px; }
+  .greenTitle { color:green; font-size:13px; }
+  .purpleTitle { color:purple; font-size:20px; }
+  .aqueTitle { color:Aqua; font-size:18px; }
+
+  // static
+  <span ng-class="'greenTitle'">HELLO ANGULAR</span>  
+
+  // dynamic
+  $scope.someCssClass = 'redTitle';
+  <span ng-class="someCssClass">HELLO ANGULAR</span>
+
+  // multiple classes - mix of scope variable and static classes
+  <span ng-class="[someCssClass, 'Bold', 'greenTitle']">HELLO ANGULAR</span>
+  <span ng-class="{Bold: true, greenTitle: true}">HELLO ANGULAR</span>
+
+  // show/hide css class by a model property value (product.state is boolean)
+  <span ng-class="{ checked: product.state }">{{ product.name }}</span>
+
+* ng-init
+  defines a collection of data, can be a simple type such as string or complex type such as object.
+  the scope for the data is within the element it was declared on and its children
+  <div ng-init="names=['ROBY', 'AVI', 'SHIRLY', 'RONEN', 'GALIT']"></div>
+  <div ng-init="users=[{name:'ROBY', age:35}, {name:'AVI', age:33}, {name:'SHIRLY', age:36}, {name:'RONEN', age:41}, {name:'GALIT', age:28}]"></div>
+
+* ng-repeat
+  - defines a repeater, works with ng-init, inline or scope values, repeats the element its defined in (span, div etc.).
+    note that when using ng-init or controller - the ng-repeat must be within the same scope.
+    you can define a custom boundaries to the item-template (see 'ng-repeat-start and ng-repeat-end' below). 
+	you can iterate through object attributes (see 'repeat on object attributes' below).
+    important! when using an array of primitive values an exception will be thrown if some of the values is identical (see 'track by $index' below).
+
+
+    examples:
+	// 'names' is an array defined within the scope or using ng-init
+	<li ng-repeat="name in names">{{ name }}</li>
+
+	// inline definition
+	<li ng-repeat="name in ['name1', 'name2', 'name3']">{{ name }}</li>
+
+  - ng-repeat-start and ng-repeat-end
+	defines a repeater (ng-repeat) but define its specific boundaries (not necessarily the element itself)
+
+	example:
+	<span ng-repeat-start="number in arr_numbers">{{ number }}</span>
+	<span ng-repeat-end> # </span>
+
+  - repeat on object attributes
+    you can iterate through object attributes
+	
+	example:
+	// controller
+	$scope.user = { 
+		name: 'Roby Cohen', 
+		age: 35, 
+		gender: 'male' 
+	}
+
+	// view
+	<span ng-repeat="attr in user">{{ attr }}&nbsp;&nbsp;</span>
+
+  - $index
+	return the current row index
+	<span ng-repeat="name in names">{{ $index }}. {{ name }}</span>
+
+  - $start, $middle and $last
+	boolean values represents if the current row is the first, the middle (all the non first or last) or the last
+
+	example:
+	<div ng-repeat="number in arr_numbers">
+        {{ number }} 
+        <span ng-show="$first">[first]</span>
+        <span ng-show="$middle">[middle]</span>
+        <span ng-show="$last">[last]</span>
+        &nbsp;&nbsp;
+    </div>
+
+  - $odd and $even	
+	boolean values represents if the current row index is even or odd
+
+	example:
+	<div ng-repeat="number in arr_numbers">
+        {{ number }} 
+        <span ng-show="$even">[even]</span>
+        <span ng-show="$odd">[odd]</span>
+        &nbsp;&nbsp;
+    </div>
+
+  - track by $index
+	when using an array of primitive values (int, string etc.) the angular try to use the values as key, therefore, whenever there's duplicate value
+	an exception will be thrown due a duplicate key with the same value, the key should be unique.
+	to fix this issue you'll have to override the key iteration with an index approach.
+	notice! only on primitive types!
+  
+    example:
+	// exception due to a duplicate value 67
+	<span ng-repeat="number in [123, 12, 2, 78, 144, 41, 67, 67]">{{ number }}</span>
+   
+	// using index instead of key
+	<span ng-repeat="number in [123, 12, 2, 78, 144, 41, 67, 67] track by $index">{{ number }}&nbsp;&nbsp;</span>
+  
+* ng-view
+  place-holder for injected views, when using routes the views are loaded dynamically and should be planted in some area within the documment 
+  this directive represents a place holder for those views 
+  <div ng-view=""></div> or <ng-view></ng-view>
+  
+* ng-click   
+  defines a client click event 
+  executes a function within the controller
+
+  - example:
+    <input type="button" ng-click="changeValue();" value="clickMe" /> {{ someValue }}
+	
+    var names = ['Roby', 'Avi', 'Shirly', 'Ron', 'Erez', 'Galit'];
+    $scope.someValue = 'Anonymous';
+
+    $scope.changeValue = function () {
+        var rnd_index = Math.floor(Math.random() * names.length);
+        $scope.someValue = names[rnd_index];
+    }
+
+  - example:
+    // can pass the current row index 
+    <input type="button" ng-click="removeProduct($index)" value="X" />
+
+	$scope.removeProduct = function (index) {
+        var product = $scope.products[index];
+        ...       
+    }
+   
+  note! 
+  can also pass the current product or a specific product property (product.id etc.)
+
+* ng-change   
+  defines a client change event 
+  executes a function within the controller
+
+  - example:    
+	<select ng-model="ddlValues" ng-change="valueChanged();">
+		<option value="1">A</option>
+		<option value="2">B</option>
+		<option value="3">C</option>
+	</select>
+	
+    $scope.valueChanged = function () {
+        var selected = $scope.ddlValues;
+		...
+		...
+    }
+
+* ng-checked
+  set true/false to determine if the current element is checked or not.
+  the boolean value can be a variable or a function within the scope.
+  common with checkbox inputs. 
+
+  - example:
+	<input type="checkbox" value="{{ product.id }}" ng-click="changeProductState(this, $index)" ng-checked="{{ product.state }}" />
+
+* ng-show and ng-hide
+  show/hide the elemet they are defined in refer to a boolean value.
+  the boolean value can be a variable or a function within the scope.
+
+  - example:
+    <input type="button" ng-click="getRandomNumber();" value="clickMe" /> {{ randomNumber }}
+    <span ng-show="isEven">EVEN</span>
+    <span ng-hide="isEven">ODD</span>
+
+	$scope.randomNumber = 0;
+	$scope.isEven = true;
+	$scope.getRandomNumber = function () {
+		$scope.randomNumber = Math.floor(Math.random() * 100);
+		$scope.isEven = $scope.randomNumber % 2 == 0;
+	}
+
+* ngC-cloak
+  hides the unbind data till the angular mechanism binds it. prevents the display of the raw form. 
+  
+  we have to add a following css class:
+  [ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak{
+	display:none !important;
+  }
+
+  <span ng-cloak>{{ someData }}</span>
+
+* ng-transclude
+  serves as a placeholder within a custom directive with transclude property set to true.
+  the transclude=true tells to the angular engine to save the original content within the created custom directive 
+  and wherever the ng-transclude appears in the supplied template - the original content will be planted. 
+
+  - example:
+    <ng-with-transclude>
+        <span style="color:purple;">ORIGINAL CONTENT</span>
+    </ng-with-transclude>
+
+	app.directive('ngWithTransclude', function () {
+            return {
+                restrict: 'E',
+                transclude: true,
+                template: '<div>' +
+                            '<div ng-transclude></div>' + 
+                            'this is the directive template content' +
+                            '<div ng-transclude></div>' + 
+                          '</div>'
+            }
+        });
+
+
+---------------------------------------------------
+
+custom directives
+=================
+
+same rules as the built-in directives (see 'built-in directives')
+you can add your custom directive which can be any of the 4 directive types (see 'types' under built-in directives)
+note: don't forget to add your custom directive to the application 
+
+* steps to implement custom directive:
+  you can add custom directives as any of the 4 directive types 
+    1.create custom function (see structure below)
+    2.in the app.js - add your created function to the application(see 'bind directives to the application')
+	3.use your directive in a view (see examples below)
+
+* structures:
+  - for the properties list see 'structure properties' below
+  - you can add $http as parameter if needed 
+    function ngSomeDirective($http) { ...}
+
+  // basic 
+  function ngSomeDirective() {
+	return {
+		restrict: [type],
+		template: [html],
+		replace: boolean
+	};
+  }
+
+  // with arguments
+  function ngSomeDirective() {
+	return {
+		restrict: [type],
+		template: [html],
+		replace: boolean,
+		scope: { [object] }  // see 'use parameteres' below
+	};
+  }
+
+* use parameteres:
+  - attributes:
+    you can add attributes to the directive and use them as your directive template arguments scope.
+
+  - scope:
+    use the directive 'scope' property to define the attributes as the directive scope parameters
+    { product: "=product", title: "@title" } - two parameters - product and title
+
+  - bind parameters:
+    to use those parameters within the template use the {{ parameter }} syntax
+    template: '<div><b>{{ title }}</b></div><div>id : {{ product.id }}</div>'
+
+  - signs meaning: 
+    there are 3 characters you can use while passing attributes to a directive
+    1. '@' - use this sign to pass a string value (byValue), can use costs string or binding value  e.g: a1="{{ someValue }}"
+	2. '=' - use this sign to pass any type of object, complex and simple alike (string included), this parameter will refer as two way binding (byReference)
+	3. '&' - use this sign to pass an external function and invole it (byReference)
+
+	note! the default scope arguments names are the attributes names 
+		  so this phrase:  scope:{title: '@'} equals to scope:{title: '@title'}
+		  if you want to change the local scope attributes names, you'll have to declare it explicitly, e.g: scope:{my_title: '@title'}
+
+* structure properties:
+  - restrict - the directive type (E, A, C or M) 
+    note: supports multiple types (e.g: EA)
+
+  - template - the directive html content, you can bind data from the scope {{ ... }} using controller variables or models 
+
+  - templateUrl - a url to an html view (template) or ng-template
+
+  - replace - boolean, determines if need to remove the custom tag
+
+  - transclude - boolean, indicates if need to copy original HTML content or not
+	use the built-in ng-transclude as the placeholder for the original content.
+	see 'ng-transclude' for more info and usage example.
+
+  - link - function(scope, element, attributes), on-render event. 
+	this on-render function gets the directive element and attributes and the directive scope,
+	'scope' param is the directive scope, 
+	'element' param is the current element, 
+	'attributes' param is the directive attached attributes (can reach them by attributes.[attribute name] -> e.g: attributes.a1)
+
+  - compile - function(element, attributes), on pre-init. 
+	return a link function - use it only if necessary (its slows the compile process)
+
+  - require - string, specify dependency (such as another directive)
+    1. ^ prefix to look for dependency item on parent elements
+	2. ? prefix to disable the exception if the dependency item was not found
+
+  - controller - embed a controller in the directive
+	note: you can bind pre-defined controler or inline new one
+
+  - scope - change directive scope, set its scope as local isolated scope.
+	usually used for passing attributes from the view.
+	the default scope is the parent which the directive is located in.
+
+* bind directives to the application(module)
+  - usually applied in the app.js
+  - important: your directive name must be at camelCase (see 'directive naming')
+  - structure: (option 1)
+    var directives = {};
+    directives.[name] = [directive]
+    directives.[name] = [directive]
+    ...
+    my_module.directive(directives);	
+	
+  - structure: (option 2)
+    module.directive([name], [function]);	 
+
+  - example: 
+    // those directives are used in the using examples below
+    var directives = {};
+    directives.ngCopyright = ngCopyright;
+	directives.ngWelcome = ngWelcome;
+    my_module.directive(directives);
+
+* directive naming
+  the directive name MUST be camelCase (each word starts with an uppercase letter), 
+  the angularJS engine cuts the full name into pieces in a way that each uppercase letter is a piece,
+  that allows you to use many variations of the tag declaration.
+   
+  notice! 
+  you can't use the original name so you MUST use one of the following variations: part-part, part:part, part_part
+
+  e.g: if you defined your custom directive name to be ngWelcome, within the view you could use <ng-Welcome>, <ng_Welcome>, <ng:Welcome> and so on ...
+  but you can't use <ngWelcome>!! the same goes for more than 2 parts (ngHelloWorld will become ng-Hello-World etc.)
+
+* IE8 compatibility:
+  // need to create element foreach E types directives
+  <!--[if lte IE 8]>    
+	 <script>        
+		document.createElement('ng-my-directive');        
+		...
+		...  
+	 </script>
+  <![endif]-->
+
+---
+
+* example:
+  // basic
+  function ngCopyright() {
+	return {
+		restrict: 'EM', // element or comment
+		template: '<div>&copy; copyright to <a href="http://www.rcb.co.il">RcBuilder</a></div>',
+		replace: true
+	};
+  }
+
+  // in the view
+  <ng-Copyright></ng-Copyright>
+  <!-- directive: ng-Copyright -->
+
+* example:
+  // using controller scope data
+  function ngWelcome() {
+    return {
+        restrict: 'EM', // element or comment
+        template: '<span>WELCOME {{ login_name }}</span>',
+        replace: true
+    };
+  }
+
+  // in the controller
+  $scope.login_name = "ROBY";
+
+  // in the view
+  <ng-Welcome></ng-Welcome>
+
+* example:
+  // using parameters 
+  function ngProductInfo() {
+    return {
+        restrict: 'E', // element
+        template:  '<div style="border:solid 1px #888;background-color:#ddd;width:300px;padding:6px;">' +  
+                       '<div><b>{{ title }}</b></div>' +
+                       '<div>id : {{ product.id }}</div>' +
+                       '<div>name : {{ product.name }}</div>' +
+                       '<div>price : {{ product.price }}</div>' + 
+                   '</div>',
+        replace: true,
+        scope: { product: "=product", title: "@title" }
+    };
+  }
+
+  // in the view
+  <div ng-repeat="product in products | limitTo: 3" style="padding-bottom:6px;">
+    <ng-Product-Info product="product" title="'NEW PRODUCT!!'"></ng-Product-Info>
+  </div>
+
+* example: 
+  // using link to bind event to the element
+  function ngClickMe() {
+    return {
+        restrict: 'E', // element
+        template: '<div style="cursor:pointer;">CLICK ME</div>',
+        replace: true,
+        link: function (scope, element, attributes) {
+            element.bind('click', function () {
+                element.html('YOU CLICKED ME!');
+            });
+        }
+    };
+  } 
+
+  // in the view 
+  <ng-Click-Me></ng-Click-Me>
+
+* example:
+  // using local scope array
+  function ngColorsList() {
+    return {
+        restrict: 'A', // attribute
+        template: '<span ng-repeat="color in colors" style="color:{{color}}">{{color}}&nbsp;&nbsp;</span>',
+        link: function (scope, element, attributes) {
+            scope.colors = ['red', 'green', 'blue', 'purple', 'violet', 'pink', 'brown', 'aqua'];
+        }
+    };
+  }
+
+  // in the view 
+  <div ng-Colors-List></div>
+
+* example:
+  // using its own controller binding
+  function ngSomeProduct() {
+    return {
+        restrict: 'EA', // element or attribute
+        template: '<div style="border:solid 1px #888;background-color:#ddd;width:300px;padding:6px;">' +
+                       '<div>id : {{ id }}</div>' +
+                       '<div>name : {{ name }}</div>' +
+                       '<div>price : {{ price }}</div>' +
+                   '</div>',
+        replace: true,
+        scope: {},
+        controller: function ($scope, products_factory) {  // you can use pre-defined controller instead of the inline new one (e.g: controller: someController)
+            $scope.id = 1234;
+            $scope.name = 'some product';
+            $scope.price = 100;
+        }
+    };
+  }
+  
+  // in the view 
+  <ng-Some-Product></ng-Some-Product>
+
+* example:
+  // using a function reference
+  function ngEvents() {
+    return {
+        restrict: 'E',
+        template: '<button ng-click="myclick1()">CLICK ME 1</button><button ng-click="myclick2()">CLICK ME 2</button>',
+        scope: { myclick1: '&', myclick2: '&' }
+    };
+  }
+
+  // in the controller 
+  $scope.foo1 = function () { alert(1); }
+  $scope.foo2 = function () { alert(2); }
+  
+  // in the view   
+  <ng-Events myclick1="foo1();" myclick2="foo2();"></ng-Events>
+
+* example:
+  // using parameters 
+  // notice! by val meaning one way binding (no reference) - any change within the directive will not appear at the parent 
+  app.directive('mydirective', function () { 
+    return {
+        restrict: 'E',
+        template: '<span>byval = {{ byval }}, byref = {{ byref }}</span>',
+        scope: { byval: '@', byref: '=' }
+    }
+  });
+
+  // in the view   
+  <mydirective byval="{{ someName }}" byref="someName"></mydirective>
+
+
+* example: 
+  // using link function and ng-template  
+  app.directive('somedirective', function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        templateUrl: 'somedirectiveTemplate.partial',
+        scope: { },
+        link: function (scope, element, attributes) {
+            scope.local_var = 'some local variable';
+            element.html(scope.local_var + '|' + attributes.a1 + '|' + attributes.a2);
+        }
+    }
+  });
+
+  // ng-template
+  <script type="text/ng-template" id="somedirectiveTemplate.partial">
+    <div>HELLO ANGULAR<div>
+  </script>
+
+  // in the view   
+  <somedirective a1="some attribute" a2="another attribute"></somedirective>
+
+* example:
+  // passing functions pointers to directive
+  // when needed to override an outer param with directive local value - you must transfer an object where the original param is the key and your new param is the value 
+  // e.g: { oldParam: localParam } 
+  // see example below
+  app.directive('ngFunctions', function () {
+     return {
+        restrict: 'E',
+        template: '<button ng-click="myclick1()">CLICK ME 1</button>' +
+                    '<button ng-click="myclick2()">CLICK ME 2</button>' +
+                    '<button ng-click="myclick3()">CLICK ME 3</button>' +
+                    '<button ng-click="myclick4()">CLICK ME 4</button>' +
+                    '<button ng-click="myclick4({yourName:\'override it!\'})">CLICK ME 5</button>' +
+                    '<button ng-click="myclick4({yourName:new_yourName})">CLICK ME 6</button>',
+        controller: function ($scope) {
+            $scope.new_yourName = 'override your name';
+        },
+        scope: {
+            myclick1: '&', // simple
+            myclick2: '&', // simple
+            myclick3: '&myclickwithparam',  // passing constant param
+            myclick4: '&myclickwithparam2' // passing binding param and override param (using constant value or local scope variable)    
+        }
+     };
+  }); 
+
+  // in the controller 
+  $scope.foo1 = function () { alert(1); }
+  $scope.foo2 = function () { alert(2); }
+  $scope.foo3 = function (msg) { alert(msg); }
+
+  // in the view   
+  <ng-functions 
+		myclick1="foo1();" 
+		myclick2="foo2();" 
+		myclickwithparam="foo3('some param');" 
+		myclickwithparam2="foo3(yourName);">
+  </ng-functions>

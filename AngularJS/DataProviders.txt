@@ -1,0 +1,323 @@
+factory
+=======
+  - the factory definition performed via the module.factory built-in function 
+  - when working with factory, you create your custom object and return it
+  - serves as a data supplier in order to seperate the data from the logic layer (the controller)
+    the controller will get the data from the factory
+  - inject your service to the controller whenever you need to use it.
+
+  - structure:
+    // create a factory 
+    module.factory([Name], function(){ 
+		var variable1;
+		var variable2;
+
+	    var factory = {};
+		factory.fun1 = function(){ };
+		factory.fun2 = function(){ };
+		return factory;
+	});
+
+  - structure:
+    // create a factory 
+    module.factory([Name], function(){ 
+		var variable1, variable2;
+
+		return {
+			fun1: function(){ }, 
+			fun2: function(){ }
+		};
+	});
+
+	// inject the factory to the controller 
+	module.controller([Name], function ($scope, [factory]) { ... };
+
+  - example:
+    my_module.factory('my_factory', function(){ 
+		var friends = [
+				{ name: 'RON', age: 39 },
+				{ name: 'LITAL', age: 26 },
+				{ name: 'EREZ', age: 35 },
+				{ name: 'MAAYAN', age: 34 },
+				{ name: 'RICKI', age: 28 }
+			];
+
+	    var factory = {};
+		
+		factory.getFriends = function(){ 
+			return friends; 
+		};	
+		factory.addFriend = function(p_name, p_age){ 
+			friends.push({ name: p_name, age: p_age }); 
+		};	
+		
+		return factory;
+	});
+
+
+	my_module.controller('my_controller', function ($scope, my_factory) {
+		function init(){
+			$scope.friends = my_factory.getFriends();
+		}
+		init();
+	}
+
+  - example:
+    // using callbacks sent from the controller
+	function products_factory() {
+		var products = { "products": [
+			{ "id": 1, "name": "Samsung 4 Phone", "price": 930.00, "colors": [ "red", "white" ] },
+			{ "id": 2, "name": "Samsung 3 Phone", "price": 690.00, "colors": [ "green", "white", "black" ] },
+			{ "id": 3, "name": "Charger", "price": 40.50, "colors": [ "black", "blue" ] },
+			{ "id": 4, "name": "Case", "price": 1.99, "colors": [ "black", "purple", "pink" ] },
+			{ "id": 5, "name": "Charger 2 modes", "price": 70.99, "colors": [ "black" ] },
+			{ "id": 6, "name": "Samsung 1 Phone", "price": 265.80, "colors": [ "green", "white", "blue", "brown" ] }
+		]};
+    
+		var factory = {};
+
+		factory.get_products = function (onSuccess, onError) {
+			try{ onSuccess(products); }
+			catch(e) { }
+		};
+
+		return factory;
+	}
+
+	function products_controller($scope, products_factory) {
+		products_factory.get_products(
+			function (data) { $scope.products = data.products; },
+			function () { alert('ERROR'); }
+		);
+	}
+
+
+  - example:
+    my_module.factory('my_factory', function(){ 
+		var friends = [
+				{ name: 'RON', age: 39 },
+				{ name: 'LITAL', age: 26 },
+				{ name: 'EREZ', age: 35 },
+				{ name: 'MAAYAN', age: 34 },
+				{ name: 'RICKI', age: 28 }
+			];
+
+		return {
+			getFriends: function(){ 
+				return friends; 
+			}, 	
+			addFriend: function(p_name, p_age){ 
+				friends.push({ name: p_name, age: p_age }); 
+			}	
+		};
+	});
+
+
+	my_module.controller('my_controller', function ($scope, my_factory) {
+		function init(){
+			$scope.friends = my_factory.getFriends();
+		}
+		init();
+	}
+
+	- example:
+	// using webAPI - all CRUD actions 
+	module.factory('productsFactory', function ($http) {
+		var server = 'api/';
+    
+		var foreach = function (arr, callback) {
+			for (var i = 0; i < arr.length; i++)
+				callback.call(arr[i]);
+		};
+
+		var loadProducts = function (response) {
+			var products = [];
+			foreach(response, function () {
+				products.push({ 
+					id: this.Id, 
+					name: this.Name, 
+					state: this.State 
+				});
+			});
+
+			return products;
+		}
+
+		return {
+			// $http.get
+			getProducts: function (onSuccess, onFailure) {
+				$http.get(server)
+				.success(function (response) {
+					var products = loadProducts(response);
+					onSuccess(products);
+				})
+			},
+			// $http.put
+			addProduct: function (product, onSuccess, onFailure) {
+				$http.put(server, product)
+				.success(function (response) {
+					var products = loadProducts(response);
+					onSuccess(products);
+				})
+			},
+			// $http.delete
+			deleteProduct: function (product, onSuccess, onFailure) {
+				$http.delete(server.concat('?Id=', product.id))
+				.success(function (response) {
+					var products = loadProducts(response);
+					onSuccess(products);
+				}).error(function (response, code) {
+					alert(code);
+				});
+			},  
+			// $http.post
+			updateProduct: function (product, onSuccess, onFailure) {
+				$http.post(server, product)
+				.success(function (response) {
+					var products = loadProducts(response);
+					onSuccess(products);
+				}).error(function (response, code) {
+					alert(response.ExceptionMessage);
+				});
+			}
+		};
+	});
+
+-------------------------------------------------------------------
+
+service
+=======
+  - similar to factory except of the fact that we're working on the object itself instead of creating new object and return it
+
+  - the service definition is performed via the module.service built-in function 
+  - serves as a data supplier in order to seperate the data from the logic layer (the controller)
+    the controller will get the data from the service
+  - inject your service to the controller whenever you need to use it.
+
+  - structure:
+    // create a service 
+    module.service([Name], function(){ 
+	    ...
+	});
+
+	// inject the service to the controller 
+	module.controller([Name], function ($scope, [service]) { ... };
+
+  - example:
+    my_module.service('my_service', function(){ 
+		var friends = [
+				{ name: 'RON', age: 39 },
+				{ name: 'LITAL', age: 26 },
+				{ name: 'EREZ', age: 35 },
+				{ name: 'MAAYAN', age: 34 },
+				{ name: 'RICKI', age: 28 }
+			];
+
+		this.getFriends = function(){ 
+			return friends; 
+		};	
+		this.addFriend = function(p_name, p_age){ 
+			friends.push({ name: p_name, age: p_age }); 
+		};	
+	});
+
+
+	my_module.controller('my_controller', function ($scope, my_service) {
+		function init(){
+			$scope.friends = my_factory.getFriends();
+		}
+		init();
+	}
+
+-------------------------------------------------------------------
+
+$http
+=====
+see 'dependencies.txt'
+
+-------------------------------------------------------------------
+
+constant
+========
+  - a service for constant values.
+  - the constant definition is performed via the module.constant built-in function  
+  - when working with constant, you create your custom object with all the static values you desire.
+  - serves as a data supplier in order to seperate the data from the logic layer (the controller)
+    the controller will get the data from the constant
+  - inject your service to the controller whenever you need to use it.
+
+  - structure:
+  // create a constant 
+  module.constant([Name], { });
+
+  // inject the constant to the controller 
+  module.controller([Name], function ($scope, [constant]) { ... };
+
+  - example:
+  my_module.constant('my_consts', { 
+	value1: 'some consts data', 
+	value2: 'another static content' 
+  });
+
+
+  my_module.controller('my_controller', function ($scope, my_consts) {
+	 console.log(my_consts.value1);	
+	 console.log(my_consts.value2);
+  }
+
+-------------------------------------------------------------------
+
+decorators
+==========
+  - decorators allow you to extend a services (factory, service etc.) without changing the origin.
+  - use the config to define your decorator.
+  - when defining a decorator to some service, a delegate to the service will be passed to it.
+
+  - structure:
+  module.config(function ($provide) {
+     $provide.decorator([serviceName], function ($delegate) {
+         ...
+		 ...
+
+         return $delegate;
+      });
+  });
+
+  - example:
+  // the factory 
+  my_module.factory('my_factory', function(){ 
+		var value = 'hello from factory';
+
+		var factory = {};
+		factory.get = function () { 
+			return value; 
+		};
+		factory.set = function (new_value) { 
+			value = new_value 
+		};
+
+		return factory;
+  });
+
+  // the decorator - extend the factory 'my_factory' 
+  my_module.config(function ($provide) {
+     $provide.decorator('my_factory', function ($delegate) {
+         $delegate.reverse = function () {
+			// reverse the value and set it as the new factory value
+            $delegate.set($delegate.get().split('').reverse().join('')); 
+         };
+         return $delegate;
+      });
+  });
+
+  // using
+  // the controller
+  m.controller('my_controller', function ($scope, my_factory) {
+	 $scope.originValue = my_factory.get();
+	 my_factory.reverse(); // execute the 'reverse' function defined within our factory extension (the decorator)
+	 $scope.reverseValue = my_factory.get();
+  });
+
+  // in the view
+  {{ originValue }}
+  {{ reverseValue }}
