@@ -1,0 +1,109 @@
+controllers
+-----------
+* a controller is basically a client function which handles the logic, which the view is based on.
+  the scope is injected automatically by the angularJS engine from the view to each controller as an argument called $scope, this $scope defines the recognition area of the controller.
+  the scope is being determined by the caller tag so if a div is the tag that bind the controller - the div and it's content will act as the controller scope,
+  any models within the scope can be accessed in the controller.
+
+  remember! 
+  the $scope will apply only to where you add the controller and the data will be available within this area.
+
+  the controller doesn't "know" its caller view and behaves as a non-dependent layer,
+  each controller can be used by multiple views.
+
+  note: 
+  use ng-controller attribute to bind a controller whereas the value is the controller name you wish to bind.
+
+* structure:
+  function my_controller($scope){ ... }
+
+* advanced usage:
+  see Modules.txt
+
+* $location
+  see 'dependencies.txt'
+
+* $scope
+  - represents the model-view-controller scope, the 'glue' between them. 
+
+  - public/private 
+    any members or functions set to the $scope will be public within the current view scope,
+    all the non-scope will function as private
+
+  - any model defined within the scope will be recognized by the controller,
+    use the $scope to reach them
+
+  - $scope.$on 
+    add event listener
+	e.g: 
+	$scope.$on('myEvent', function(event, param){ ... });
+
+  - $scope.$emit 
+    bubble the event up the controllers chain - send this event to myself and any controller above me
+    e.g:
+	$scope.$emit('myEvent', 'some value');
+
+  - $scope.$broadcast
+    bubble the event down the controllers chain - send this event to myself and any controller below me
+	e.g:
+	$scope.$broadcast('myEvent', 'some value');
+
+* $rootScope
+  represents the root scope of the entire application  
+
+* examples:
+  // use controller to create a data source named 'friends' and render some ul based on that data
+  <div ng-controller="my_controller">
+    <ul>
+        <li ng-repeat="friend in friends">{{ friend.name }}</li>
+    </ul>
+
+	<input type="text" ng-model="new_friend.name" /><br />
+	<input type="text" ng-model="new_friend.age" /><br />
+	<button ng-click="addFriend()">add Friend</button>
+  </div>
+
+  <script>
+  function my_controller($scope) {
+    $scope.friends = [
+        { name: 'RON', age: 39 },
+        { name: 'LITAL', age: 26 },
+        { name: 'EREZ', age: 35 },
+        { name: 'MAAYAN', age: 34 },
+        { name: 'RICKI', age: 28 }
+    ];
+
+	$scope.addFriend = function(){ 
+		$scope.friends.push({ name: $scope.new_friend.name, age: $scope.new_friend.age });
+	};
+  } 
+  </script>
+
+inheritance
+-----------
+any controller defined within the scope of other controller automatically inherits the parent controller!
+the parent scope will be recognized within the child controller but not vice versa.
+to override some parent data just declare a new ones using the very same name.
+
+issue! 
+there's an issue regarding a model in an inherited controller, 
+while declaring 2 models with the same name, one in the parent and one in the child, 
+any change via the parent will bind them both (reference), but in the first change in the child controller
+the connection will break (only for this model) and any controller will be able to change only its own specific model. 
+
+example:
+<div ng-controller="home_controller">
+	{{ yourName }}, {{ whoAmI }}
+
+    <div ng-controller="sub_controller">
+        {{ yourName }}, {{ whoAmI }}, {{ value1 }}
+    </div>
+</div>
+
+// home_controller
+$scope.yourName = 'Roby Cohen';
+$scope.whoAmI = 'hello from home_controller';
+
+// sub_controller
+$scope.whoAmI = 'hello from sub_controller'; // override
+$scope.value1 = 'some value';

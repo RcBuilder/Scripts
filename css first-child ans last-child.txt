@@ -1,0 +1,38 @@
+first-child/ last-child
+-----------------------
+
+also see 'css nth-child method.txt'
+
+structure
+---------
+
+:first-child = first child 
+:last-child = last child 
+
+using
+-----
+p:first-child // any p element that is a first child 
+p:last-child  // any p element that is a last child 
+ul > li:first-child a // all a elements under the first li item
+div#MyDiv1 > span:last-child  // the last span under 'MyDiv1' div 
+
+example
+-------
+
+#MyDiv1 > span:first-child {          
+    color:red;
+}
+
+#MyDiv1 > span:last-child {          
+    color:blue;
+}
+
+---
+
+<div id="MyDiv1">
+    <span>1</span> 
+    <span>2</span> 
+    <span>3</span> 
+    <span>4</span> 
+    <span>5</span> 
+</div>

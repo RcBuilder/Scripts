@@ -1,0 +1,76 @@
+bind data
+---------
+use double brackets {{ ... }} to bind data 
+you can bind data from model or repeater
+you can bind a function {{ fun() }}.
+you can make calculation within it {{ 1 + 1 }}
+you can bind variables that have been allocated within the current scope (using controller)
+
+example:
+// any text entered by the user will automatically bind alongside of the input
+<input type="text" ng-model="my_text" placeholder="enter some text"  />{{ my_text }}
+
+example:
+<div>{{ message }}</div>
+
+// variable defined in the controller
+$scope.message = "HELLO WORLD";
+
+example:
+// using function 
+<div>{{ sayHello() }}</div>
+
+$scope.sayHello = function() { return 'HELLO WORLD'; }
+
+@ sign in MVC.NET
+-----------------
+replace @@ sign with @ in order to use the angular binding when working with local scope within a directive
+
+app.directive('ngCard', function () {
+    return {
+        restrict: 'E', // tag
+        template: '<div class="Card">{{ number }}</div>',
+        replace: true,
+        scope: { number: "@@number" }
+    };
+});
+
+repeater
+--------
+the repeater generates some code based on the provided data source, in this case the 'names' array,
+it executes foreach clause on the data source where each iteration returns the next item in the data source.
+you can apply many filters to it (orderBy, filter etc.)
+in order to bind data from the current item use the double brackets syntax {{}}.
+$index holds the current index (zero based)
+
+for more info see 'ng-repeat' at 'Directives.txt'.
+
+example:
+// inline
+<div>
+	<ul>
+		<li ng-repeat="name in ['AAAA', 'BBBB', 'CCCC', 'DDDD', 'EEEE']">{{ name }}</li>
+	</ul>
+</div>
+
+example:
+// use repeater to render list items based on dg-init data source
+// recommendation: replace the data source definition (ng-init) to be in a controller
+<div ng-init="names=['ROBY', 'AVI', 'SHIRLY', 'RONEN', 'GALIT']">
+	<ul>
+		<li ng-repeat="name in names">{{ $index + 1 }} {{ name }}</li>
+	</ul>
+</div>
+
+example:
+// nested loop - two repeaters
+<div ng-controller="products_controller">
+<ul>
+	<li ng-repeat="product in products">
+		{{product.id}} - {{ product.name | uppercase }}
+		<ul>
+			<li ng-repeat="color in product.colors">{{ color }}</li>
+		</ul>
+	</li>
+</ul>
+</div>

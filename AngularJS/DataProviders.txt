@@ -224,7 +224,7 @@ service
 
 	my_module.controller('my_controller', function ($scope, my_service) {
 		function init(){
-			$scope.friends = my_factory.getFriends();
+			$scope.friends = my_service.getFriends();
 		}
 		init();
 	}

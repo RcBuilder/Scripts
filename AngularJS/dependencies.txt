@@ -1,0 +1,224 @@
+module dependency
+-----------------
+
+* STEPS
+
+  1. create a module and add elements to it (directives, filters etc.)
+
+  2. add the js file where your module is defined to the application 
+     e.g: 
+     <script type="text/javascript" src="app/dependencies/some_module.js"></script>
+
+  3. add your module as a dependency to the current active module 
+     var my_module = angular.module('my_application', ['ngRoute', 'ngAnimate', 'some_module']);
+
+  4. that's it! use elements from your module in the current application  
+
+* Example
+
+  -- some_module.js --
+
+  function someFilter() {
+    return function (value) {
+        return '[' + value.toString() + ']';
+    };
+  };
+
+  function ngSomeDirective() {
+    return {
+        restrict: 'EM',
+        template: '<div>HELLO WORLD</div>',
+        replace: true
+    };
+  }
+
+  var some_module = angular.module('some_module', []);
+  some_module.filter('someFilter', someFilter);
+  some_module.directive('ngSomeDirective', ngSomeDirective);
+
+
+  -- app.js --
+
+  var my_module = angular.module('my_application', ['ngRoute', 'ngAnimate', 'some_module']);
+
+  -- index.htm -- 
+
+  ....
+  ....
+  ....
+
+  <h4>using dependencies</h4>
+  <div>
+    <ng-Some-Directive></ng-Some-Directive>
+  </div>
+  <div>
+    <ul>
+        <li ng-repeat="name in ['ROBY', 'AVI', 'SHIRLY', 'RONEN', 'GALIT']">{{ name | someFilter }}</li>
+    </ul>
+  </div>
+
+  ....
+  ....
+
+  <script type="text/javascript" src="app/app.js"></script>
+  <script type="text/javascript" src="app/dependencies/some_module.js"></script>
+
+
+built-in dependencies
+---------------------
+
+* $location
+
+  - represents the location, use this object to redirect or parse uri
+
+  - example:
+    // get the current url
+    var current = $location.path(); 
+
+	// redirect to /test 
+    $location.path('/test'); 
+
+  - example:
+    
+	<h4>redirect</h4>
+    <input type="button" ng-click="redirectToView('test1')" value="test1" />
+    <input type="button" ng-click="redirectToView('test2')" value="test2" />
+    <input type="button" ng-click="redirectToView('test3')" value="test3" />
+
+	app.controller('home_controller', function ($scope, $location) {
+		$scope.redirectToView = function (view) {
+			$location.path('/' + view);
+		}
+	}
+
+* $http
+
+  - use $http to perform a server calls - you need to add it as argument to the factory/service function
+  - types:
+    1.get(url);	
+	2.post(url, data);
+	3.put(url, data);
+	4.delete(url);
+	5.head(url);
+	6.jsonp(url);
+	7.patch(url, data);
+
+  - structure:
+	$http.get([url])
+        .success(function (data, status, headers, config) { })
+        .error(function (data, status, headers, config) { });
+    
+  - example:
+    $http.get('http://myserver.com/api/getjson.ashx')
+        .success(function (data, status, headers, config) { })
+        .error(function (data, status, headers, config) { });
+
+  - example:
+    // add data to the request - 'accept' header
+    $http.get('http://myserver.com/api/Service/Get', { 
+		headers: { accept: 'text/json'} 
+	});
+       
+  - usage as a factory:
+    listed below are two options to return data - the 1st by returning the full $http response, 
+	and the 2nd by callbacks for the success or error modes sent from the caller (usually the controller)
+
+	function products_factory($http) {
+		var factory = {};
+
+		// get_products version 1 - return the $http response
+		factory.get_products_1 = function () {
+			return $http.get('http://myserver.com/api/getjson.ashx');
+		};
+
+		// get_products version 2 - gets two callbacks (onSuccess, onError) and execute them
+		factory.get_products_2 = function (onSuccess, onError) {
+			$http.get('http://myserver.com/api/getjson.ashx')
+			.success(onSuccess)
+			.error(onError);
+		};
+		return factory;
+	}
+
+	function products_controller($scope, products_factory) {
+		/*
+		var response = products_factory.get_products_1();
+		response.success(function (data, status, headers, config) { $scope.products = data.users; });
+		response.error(function () { alert('ERROR'); });
+		*/
+
+		products_factory.get_products_2(
+			function (data) { $scope.products = data.users; },
+			function () { alert('ERROR'); }
+		);
+	}
+
+
+dependency Injection
+--------------------
+
+when using controllers you usually use a dependency Injection.
+this means you inject some functions (factories, services etc.) and other objects ($scope, etc.).
+you can inject some angular objects (see 'built-in dependencies' above)
+
+the actual injected object is not passed by the usual way but using angular mechanism to detect the actual object by its name!
+
+e.g: 
+app.controller('HomeController', function($scope, myFactory) { ... });
+app.factory('myFactory', function() { ... });
+
+notice that you can change the order of the passed parameters and its not affect the app
+
+--
+
+usually, this behavior is fine and works perfectly so you don't have to change anything, 
+but there's a big problem when using this common way when you minify the .js files!
+the minify process consists of two major steps: remove white spaces to achive 'one line' code 
+and shorter object names (variables, functions etc.) to reduce the file weight.
+
+e.g:
+// original
+function(param1, param2) {  
+	return param1 + ' ' + param2; 
+} 
+
+// minified
+function(a, b) { return a + ' ' + b; } 
+
+as you can see in the above example - the code will still be working the same way as before
+but when you inject some dependencies and the angular engine seek for the actual object by its name - the name matters!!
+therefore, if the minify will change the injections names - the app will be break!
+
+e.g: 
+// original
+app.controller('HomeController', function($scope, myFactory) { ... });
+app.factory('myFactory', function() { ... });
+
+// minified
+app.controller('HomeController', function($scope, a) { ... });
+app.factory('myFactory', function() { ... });
+
+angular engine will search for an object named 'a' and will not find any match 
+because the object name is 'myFactory'.
+
+--
+
+to fix this issue you MUST wrap the controller class with [] as followed: 
+
+structure:
+module.controller('HomeController', ['name', 'name', function(param, param) { ... }]);
+
+e.g: 
+app.controller('HomeController', ['$scope', 'myFactory', function($scope, myFactory) { ... }]);
+
+this way you define the actual objects names as an array of strings and the function parameters become a pure parameters, 
+the angular engine then can match the injections by the names supplied before the controller function code.
+
+when using this technique - you can set the function parameters to be any names you'd like
+
+e.g:
+app.controller('HomeController', ['$scope', 'myFactory', function(a, b) { ... }]);
+app.factory('myFactory', function() { ... });
+
+note! 
+use the below technique whenever you know you're going to minify the file!!

@@ -1,0 +1,63 @@
+
+also see 'Clone - ShallowCopy vs DeepCopy.txt'
+
+---
+
+// List Clone extension method - copy ALL items (deep)
+public static class Extensions {
+    public static IList<T> Clone<T>(this IList<T> me) where T : ICopy<T> {
+        return me.Select(item => item.DeepCopy()).ToList();
+    }
+}
+
+---
+
+public interface ICopy<T> {
+    T ShallowCopy();
+    T DeepCopy();
+}
+
+
+public class Link : ICopy<Link> {
+    public int Id { set; get; }
+    public string Title { set; get; }
+    public Link Next { set; get; }
+
+    public Link(int Id, string Title) {
+        this.Id = Id;
+        this.Title = Title;
+    }
+
+    public Link ShallowCopy(){
+        return (Link)this.MemberwiseClone();
+    }
+
+    public Link DeepCopy(){
+        var copy = (Link)this.MemberwiseClone();
+        copy.Title = String.Copy(copy.Title);
+        if(copy.Next != null)
+            copy.Next = copy.Next.DeepCopy();
+        return copy;
+    }
+}
+
+---
+
+var linkA = new Link(1, "linkA");
+var linkB = new Link(2, "linkB");
+linkA.Next = linkB;
+
+var footer = new List<Link>();
+footer.Add(linkA);
+footer.Add(linkB);
+
+var copy = footer.Clone();
+           
+Console.WriteLine(footer[0] == copy[0]); // false
+Console.WriteLine(footer[0].Title == copy[0].Title); // true 
+Console.WriteLine(footer[0].Next == copy[0].Next); // false 
+Console.WriteLine(footer[0].Next.Title == copy[0].Next.Title); // true
+
+linkB.Title = "linkB-New";            
+Console.WriteLine(footer[0].Next.Title); // linkB-New
+Console.WriteLine(copy[0].Next.Title); // linkB

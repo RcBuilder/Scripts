@@ -1,0 +1,76 @@
+
+
+MemberwiseClone method is a shallow copy! 
+it copies the value-types and the references. 
+copy a reference means that both the source and the copy point to the very same object in memory! 
+and any change of it - will be reflected in both.
+
+a deep copy creates a new instance for each refrence-type object and copy all of its content instead of just copy the 
+reference itself (which points to the same location in memory)
+
+---------------------------------------
+
+public interface ICopy<T> {
+    T ShallowCopy();
+    T DeepCopy();
+}
+
+
+public class Link : ICopy<Link> {
+    public int Id { set; get; }
+    public string Title { set; get; }
+    public Link Next { set; get; }
+
+    public Link(int Id, string Title) {
+        this.Id = Id;
+        this.Title = Title;
+    }
+
+    public Link ShallowCopy(){
+        return (Link)this.MemberwiseClone();
+    }
+
+    public Link DeepCopy(){
+        var copy = (Link)this.MemberwiseClone();
+        copy.Title = String.Copy(copy.Title);
+        if(copy.Next != null)
+            copy.Next = copy.Next.DeepCopy();
+        return copy;
+    }
+}
+
+---
+
+// deep copy 
+var linkA = new Link(1, "linkA");
+var linkB = new Link(2, "linkB");
+linkA.Next = linkB;
+
+var linkACopy = linkA.DeepCopy();
+Console.WriteLine(linkA == linkACopy); // false
+Console.WriteLine(linkA.Id == linkACopy.Id); // true
+Console.WriteLine(linkA.Title == linkACopy.Title); // true 
+Console.WriteLine(linkA.Next == linkACopy.Next); // false (different pointers)
+Console.WriteLine(linkA.Next.Title == linkACopy.Next.Title); // true
+
+linkB.Title = "linkB-New";
+Console.WriteLine(linkA.Next == linkACopy.Next); // false
+Console.WriteLine(linkA.Next.Title == linkACopy.Next.Title); // false (linkA.Next.Title is "linkB-New" whereas linkACopy.Next.Title is "linkB")
+
+---
+
+// shallow copy
+var linkA = new Link(1, "linkA");
+var linkB = new Link(2, "linkB");
+linkA.Next = linkB;
+
+var linkACopy = linkA.ShallowCopy();
+Console.WriteLine(linkA == linkACopy); // false
+Console.WriteLine(linkA.Id == linkACopy.Id); // true
+Console.WriteLine(linkA.Title == linkACopy.Title); // true 
+Console.WriteLine(linkA.Next == linkACopy.Next); // true (same pointer)
+Console.WriteLine(linkA.Next.Title == linkACopy.Next.Title); // true
+
+linkB.Title = "linkB-New";
+Console.WriteLine(linkA.Next == linkACopy.Next); // true (same pointer) 
+Console.WriteLine(linkA.Next.Title == linkACopy.Next.Title); // true (both are "linkB-New")

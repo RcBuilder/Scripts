@@ -1,0 +1,12 @@
+a parameter is the variable which is part of the method’s signature (method declaration). 
+an argument is an expression used when calling the method.
+
+---
+
+// p1 and p2 are parameters, i and 2.0 are arguments
+void Foo(int p1, float p2) { }
+
+void main() {
+    int i = 1;
+    Foo(i, 2.0);
+}

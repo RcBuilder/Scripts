@@ -1,0 +1,120 @@
+routing
+-------
+- the routes definition is performed via the module.config built-in function.
+- the route provider is being injected automatically by the angularJS engine as an argument called $routeProvider,
+  use this argument to extract the requested view and match the matching route.
+- the route defines for each url which controller to use and which template to load.
+  notice! to prevent duplicates you can remove from the html any bind to the controller due to the route binding.
+- you MUST place a place holder in the main page for the loaded templates (see ng-view).
+- this feature require 'angular-route.min.js' file.
+- you MUST add the 'ngRoute' dependency to your application in it's declaration.
+- angular uses the # prefix as default in the urls in order to trigger the routing mechanism (and prevent an 404 error pages)
+  you can change the hash sign or remove it. 
+- its not recommended to declare the view controllers via the routing, set only the template url to load, and set the controllers within the template itself
+
+* steps to perform routing:
+  1.add 'angular-route.min.js' file to your page
+    <script type="text/javascript" src="angular-route.min.js"></script>
+  2.add 'ngRoute' as a dependency to your application(module)
+	var my_module = angular.module('my_application', ['ngRoute']);
+  3.locate a place-holder for the routing views within the page (use ng-view directive)
+	<div ng-view=""></div> or <ng-view></ng-view>
+  4.define your routing 
+	(see the structure below)
+  5.in app.js - bind your defined routing from the previous chapter to the application
+	my_module.config(routing);
+
+* structure:
+  // option 1 - direct
+  module.config(function ($routeProvider) { 
+	$routeProvider
+		.when([url], { ... })
+		.when([url], { ... })
+		.otherwise( { ... })
+  });
+
+  // option 2 - using defined function
+  function routing($routeProvider) {
+	$routeProvider
+		.when([url], { ... })
+		.when([url], { ... })
+		.otherwise( { ... })
+  };
+  module.config(routing);
+
+* properties:
+  - controller = the controller for the current view.
+  - templateUrl = the template to load, can use partial html files or ng-templates.
+  - template = an text/html content that will serve as the current view template.
+
+* use url parameters:
+  you can add parameters by using the ':' sign within the routing case
+  e.g: 
+  when('/users/:param1', { 
+	controller: 'users_controller', 
+	templateUrl: 'view1.html' 
+  })
+
+  this will match any of the following urls
+  #users/roby, #users/avi, #users/shirly etc.
+  param1 represents a different value each time (roby, avi and shirly in the current example)
+
+  to get the url parameters value, you need to inject $routeParams to your handeling controller 
+  and then use the param defined name in the route to reach it 
+  e.g: 
+  function users_controller($scope, users_factory, $routeParams) {
+	alert($routeParams.param1);
+  }
+
+  you can use multiple url parameteres!
+  e.g: 
+  when('/test/:p1/:p2/:p3', { 
+	templateUrl: 'view_test.partial' 
+  })
+  using: #test/roby/avi/ron
+  result: $routeParams = { p1: 'roby', p2: 'avi', p3: 'ron' }
+
+  angular will also collect the parameteres from the query string in addition to the routing defined parameters 
+  e.g: 
+  when('/test/:p1/:p2/:p3', { 
+	templateUrl: 'view_test.partial' 
+  })
+  using: #test/roby/avi/ron?p4=maayan
+  result: $routeParams = { p1: 'roby', p2: 'avi', p3: 'ron', p4: 'maayan' }
+
+* example:
+  // for root url - the 'my_controller' will be used as the logic layer and the 'view1.html' will serve as the presentation.
+  // for '#page2' url - the 'my_controller' will be used as the logic layer and the 'view2.html' will serve as the presentation.
+  // notice! you must locate <div ng-view=""></div> within the main page. 
+  my_module.config(function ($routeProvider) { 
+	$routeProvider
+		.when('/', { controller: 'my_controller', templateUrl: 'view1.html' })
+		.when('/page2', { controller: 'my_controller', templateUrl: 'view2.html' })
+		.otherwise( { redirectTo: '/' })
+  });
+
+* example:
+  app.config(function ($routeProvider) {
+      $routeProvider
+      .when('/test1', { templateUrl: 'view1.partial' }) // ng-template
+      .when('/test2', { templateUrl: 'view2.partial' }) // ng-template
+      .when('/test3', { template: '<h1>view3</h1>' }) // template
+      .when('/test4', { templateUrl: 'app/views/view4.htm' }) // html partial file
+      .when('/test5', { templateUrl: 'app/views/view5.htm' }) // html partial file
+      .when('/test6', { redirectTo: '/test3' }) // redirect to another view
+      .otherwise({ template: 'NO MATCH!!' })
+  });
+
+  // within the index page
+  <script type="text/ng-template" id="view1.partial">
+      view1.partial
+  </script>
+  <script type="text/ng-template" id="view2.partial">
+      view2.partial
+  </script>
+
+  // app/views/view4.htm
+  <h1>view4.partial<h1>
+
+  // app/views/view5.htm
+  <h1>view5.partial<h1>
