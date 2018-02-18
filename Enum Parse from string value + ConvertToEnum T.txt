@@ -1,0 +1,37 @@
+public enum eDaysOfWeek : byte { 
+	NULL, Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday 
+}
+
+var res = (eDaysOfWeek)Enum.Parse(typeof(eDaysOfWeek), "Monday", true);
+Console.WriteLine(res); // eDaysOfWeek.Monday
+
+res = (eDaysOfWeek)Enum.Parse(typeof(eDaysOfWeek), "MONDAY", true);
+Console.WriteLine(res); // eDaysOfWeek.Monday
+
+res = (eDaysOfWeek)Enum.Parse(typeof(eDaysOfWeek), "MONDAY"); // exception!! no "MONDAY"
+
+res = (eDaysOfWeek)Enum.Parse(typeof(eDaysOfWeek), "SOME_VALUE"); // exception!! no "SOME_VALUE"
+  
+-------------------------------------------------
+
+
+Generic Helper:
+
+public class Helper{
+    public static T ConvertToEnum<T>(string value) where T : struct { // constraint
+        try {
+            if (!typeof(T).IsEnum)
+                throw new ArgumentException("T is not an ENUM!");
+            return (T)Enum.Parse(typeof(T), value, true);
+        }
+        catch {
+            return default(T); // item 0
+        }
+    }
+}
+
+res = Helper.ConvertToEnum<eDaysOfWeek>("MONDAY");
+Console.WriteLine(res); // eDaysOfWeek.Monday
+
+res = Helper.ConvertToEnum<eDaysOfWeek>("SOME_VALUE");
+Console.WriteLine(res); // eDaysOfWeek.NULL 

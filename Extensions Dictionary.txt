@@ -1,0 +1,27 @@
+public static string Join(this Dictionary<string, object> me, string seperator)
+        {
+            if (me == null || me.Count == 0)
+                return string.Empty;
+
+            var values = me.Select(x => string.Concat(x.Key, "=", x.Value));
+            return string.Join(seperator, values);
+        }
+
+        public static string JoinExclude(this Dictionary<string, object> me, string seperator, string ExcludeKey)
+        {
+            if (me == null || me.Count == 0)
+                return string.Empty;
+
+            var values = me.Where(x => x.Key != ExcludeKey).Select(x => string.Concat(x.Key, "=", x.Value));
+            return string.Join(seperator, values);
+        }
+
+        public static string Build(this Dictionary<string, JToken> me)
+        {
+            var result = string.Empty;
+            if (me.Count > 1) 
+                result = JsonConvert.SerializeObject(me);
+            else if (me.Count == 1) // no data to combine
+                result = me.First().Value.ToString();
+            return result;
+        }

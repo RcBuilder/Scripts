@@ -1,0 +1,15 @@
+angualr ng-options - select options 
+-----------------------------------
+
+structure:
+- ng-options="[variable] as [provider] for [variable] in [DataSource]" 
+- ng-options="[variable] as [provider] for [variable] in [DataSource] track by [provider]"
+
+e.g: 
+<select ng-options="opt as opt for opt in ['aaa','bbb','ccc']" ng-model="ddlTest" />  
+
+<select ng-options="opt as opt.text for opt in [
+	{ id: 4, text: '444' }, 
+	{ id: 2, text: '222' }, 
+	{ id: 1, text: '111' }
+] track by opt.id" ng-model="ddlTest2" />  

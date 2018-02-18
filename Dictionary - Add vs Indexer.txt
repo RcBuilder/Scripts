@@ -1,0 +1,9 @@
+Dictionary - Add vs Indexer
+---------------------------
+
+// add keypair to the collection, throw an exception if the key already exists!  
+Dictionary.Add(key, value) 
+
+// if exists - update the item value
+// if not exists - add keypair to the collection
+Dictionary[key] = value

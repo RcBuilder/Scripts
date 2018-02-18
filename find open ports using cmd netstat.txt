@@ -1,0 +1,8 @@
+find open ports using cmd netstat
+
+structure:
+netstat -aon | find ":[port]" 
+
+example:
+netstat -aon | find ":80" 
+netstat -aon | find ":443"

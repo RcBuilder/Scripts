@@ -1,0 +1,53 @@
+Http Context Items
+==================
+
+you can use HttpContext Items to transfer items between methods, modules and pages in the same http request
+note that Server.Transfer uses the same context so we can use Context Items to transfer data between pages 
+as opposed to Response.Redirect which creates a NEW context (via an extra request from the client) so the Context Items lost 
+
+-----------------------------------------------------
+
+e.g: 
+[with Server.Transfer]
+
+// Source.aspx
+protected void Page_Load(object sender, EventArgs e) {
+     HttpContext.Current.Items["ContextItem"] = new Entities.ContextItem { Num = 1, ValueA = "A", ValueB = "B" };
+     Server.Transfer("Destination.aspx");
+}
+
+// Destination.aspx
+var transferedItem = HttpContext.Current.Items["ContextItem"] as Entities.ContextItem;
+
+// Entities
+public class ContextItem{
+    public int Num { get; set; }
+    public string ValueA { get; set; }
+    public string ValueB { get; set; }
+}
+
+-----------------------------------------------------
+
+e.g: 
+[with UC and Method]
+
+// Default.aspx
+protected void Page_Load(object sender, EventArgs e){
+     HttpContext.Current.Items["value"] = "Bla bla bla";
+}
+
+protected override void OnPreRender(EventArgs e){
+     ltrData.Text = HttpContext.Current.Items["value"].ToString();
+     base.OnPreRender(e);
+}
+
+<asp:Literal ID="ltrData" runat="server" />
+<uc1:ControlA runat="server" id="ControlA" />
+
+// ControlA.ascx
+protected override void OnPreRender(EventArgs e){
+     ltrUCData.Text = HttpContext.Current.Items["value"].ToString();
+     base.OnPreRender(e);
+}
+
+<asp:Literal ID="ltrUCData" runat="server" />

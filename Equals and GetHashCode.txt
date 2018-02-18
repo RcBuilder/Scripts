@@ -1,0 +1,56 @@
+Equals and GetHashCode
+----------------------
+
+public class Foo
+    {
+        public int FooId { get; set; }
+        public string FooName { get; set; }
+
+        public override bool Equals(object obj) {
+            var other = obj as Foo;
+            return this.FooId == other.FooId;
+        }
+
+        public override int GetHashCode() {
+            // tip: must be a more complicated hash than just the fooid
+            return FooId.GetHashCode();
+        }
+    }
+
+-----
+
+// notice: fooA and fooB are different references
+// both Equals and GetHashCode default behaviour refer to the reference for equality 
+
+// dictionary, set etc. uses buckets for storing items grouped by their hashcode and later call the Equals to compare them 
+// once the GetHashCode return a different value - the Equals will never be called - so its better to override GetHashCode to meet the logic // of the overriden Equals
+
+var fooA = new Foo { FooId = 100, FooName = "Foo A" };
+var fooB = new Foo { FooId = 100, FooName = "Foo B" };
+
+// true -> will be false without the Equals override (due to a different refernce)
+Console.WriteLine(fooA.Equals(fooB)); 
+
+var hashset = new HashSet<Foo>();
+hashset.Add(fooA);
+hashset.Add(fooA); 
+hashset.Add(fooB);
+
+// 1 -> will be 2 without the GetHashCode override (due to a different hash code of fooA and fooB)
+// note: same with dictionary etc.
+Console.WriteLine(hashset.Count); 
+
+-----------------------------------------
+
+var fooA = new Foo { FooId = 100, FooName = "Foo A" };
+var fooB = new Foo { FooId = 101, FooName = "Foo B" };
+
+var list = new List<Foo>();
+list.Add(fooA);
+list.Add(fooB);
+
+var fooC = new Foo { FooId = 101, FooName = "Foo B" };
+list.Remove(fooC); 
+              
+// note! without Equals override the remove will not work (fooB and fooC are different refeneces)                
+Console.WriteLine(list.Count); // 1

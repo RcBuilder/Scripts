@@ -1,0 +1,16 @@
+
+function fun1() {
+    var deferred = $.Deferred();
+    setTimeout(function () {
+        console.log('before resolved');
+        deferred.resolve({ data: 'someParam' });
+    }, 5000);
+            
+    return deferred.promise();
+}
+
+console.log('before calling fun1');
+fun1().done(function (result) {
+    console.log(result.data);
+});
+console.log('after calling fun1');

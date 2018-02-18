@@ -1,0 +1,10 @@
+var str = "Blue blue blue";
+
+// only the first instance
+alert(str.replace('blue', 'red')); // Blue red blue
+
+// all instances (regex)
+alert(str.replace(/blue/g, 'red')); // Blue red red
+
+// all instances with ignoreCase (regex)
+alert(str.replace(/blue/ig, 'red')); // red red red
