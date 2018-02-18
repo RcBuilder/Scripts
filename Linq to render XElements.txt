@@ -1,0 +1,155 @@
+using Linq to render XElement
+-----------------------------
+
+[WebMethod]
+public string TEST()
+{
+    XDocument xDoc = new XDocument(new XDeclaration("1.0", "utf-8", "true"));
+    xDoc.Add(new XElement("response"));
+
+    var options = new List<DataObjects.Option>() { 
+        new DataObjects.Option("opt1", "val1"), 
+        new DataObjects.Option("opt2", "val2"), 
+        new DataObjects.Option("opt3", "val3")
+    };
+    
+    int pages = 10, index = 1;
+    var users = new List<DataObjects.User>() { 
+        new DataObjects.User(1), 
+        new DataObjects.User(2), 
+        new DataObjects.User(3)
+    };
+
+    XElement root = xDoc.Root;
+    root.Add(
+        new XElement("search",
+            from option in options
+				select new XElement("option", 
+					new XElement("text", option.text), 
+					new XElement("value", option.value)
+				)
+        ),
+        new XElement("users",
+            new XElement("pages", pages),
+            new XElement("index", index),
+            from user in users
+				select user.ToXElement()
+        )
+    );
+
+    return xDoc.ToString();
+}
+
+=================================
+
+DataObjects:
+
+public class Option {
+    public string text { set; get; }
+    public string value { set; get; }
+
+    public Option(string text, string value)
+    {
+        this.text = text;
+        this.value = value;
+    }
+}
+
+public class User {
+    public int Id { set; get; }
+    public string Name { set; get; }
+    public byte Age { set; get; }
+    public Enums.Gender Sex { set; get; }
+    public string Image { set; get; }
+    public bool isRegistered { set; get; }
+    public bool isOnline { set; get; }
+    public string Description { set; get; }
+
+    public User() : this(-1) { }
+    public User(int Id) : this(Id, string.Empty, 0, Enums.Gender.All, string.Empty, false, false, string.Empty) { }
+    public User(int Id, string Name, byte Age, Enums.Gender Sex, string Image, bool isRegistered, bool isOnline, string Description)
+    {
+        this.Id = Id;
+        this.Name = Name;
+        this.Age = Age;
+        this.Sex = Sex;
+        this.Image = Image;
+        this.isRegistered = isRegistered;
+        this.isOnline = isOnline;
+        this.Description = Description;
+    }
+}
+
+=================================
+
+Extensions:
+
+public static class extUser {
+    public static XElement ToXElement(this DataObjects.User me) {
+        return new XElement("card",
+            new XElement("id", me.Id),
+            new XElement("name", me.Name),
+            new XElement("age", me.Age),
+            new XElement("sex", me.Sex),
+            new XElement("image", me.Image),
+            new XElement("registered", me.isRegistered ? 1 : 0),
+            new XElement("online", me.isOnline ? 1 : 0),
+            new XElement("description", new XCData(me.Description))
+        );
+    }
+}
+
+=================================
+
+RESULT:
+
+<response>
+  <search>
+	<option>
+	  <text>opt1</text>
+	  <value>val1</value>
+	</option>
+	<option>
+	  <text>opt2</text>
+	  <value>val2</value>
+	</option>
+	<option>
+	  <text>opt3</text>
+	  <value>val3</value>
+	</option>
+  </search>
+  <users>
+    <pages>10</pages>
+    <index>1</index>
+    <card>
+      <id>1</id>
+      <name></name>
+      <age>0</age>
+      <sex>All</sex>
+      <image></image>
+      <registered>0</registered>
+      <online>0</online>
+      <description><![CDATA[]]></description>
+    </card>
+    <card>
+      <id>2</id>
+      <name></name>
+      <age>0</age>
+      <sex>All</sex>
+      <image></image>
+      <registered>0</registered>
+      <online>0</online>
+      <description><![CDATA[]]></description>
+    </card>
+    <card>
+      <id>3</id>
+      <name></name>
+      <age>0</age>
+      <sex>All</sex>
+      <image></image>
+      <registered>0</registered>
+      <online>0</online>
+      <description><![CDATA[]]></description>
+    </card>
+  </users>
+</response>

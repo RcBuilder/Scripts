@@ -1,0 +1,37 @@
+
+what is an Immutable object?
+----------------------------
+an object that once created, it cannot be changed or modified by any way - external or internal! 
+
+note! 
+String object is Immutable
+
+
+Create an Immutable Object
+--------------------------
+steps:
+1. remove the setters of the object properties (only get;)
+2. mark the properties as READONLY. 
+3. provide parameters via constructor (for the properties)
+4. set the properties values in the constructor from the provided parameters
+
+reminder!
+the READONLY allows us to set the value ONLY directly or from the constructor
+the value can't be set from elsewhere!  
+
+Sample
+------
+
+class MyImmutableObject {
+    private readonly string _Value;
+    public string Value {
+        get { return _Value; }
+    }
+        
+    public MyImmutableObject(string pValue) {
+        this._Value = pValue;            
+    }
+}
+
+note: any attempt to modify the Value of the property will get an error
+e.g: this._Value = "aa"; // error: A readonly field cannot be assigned to

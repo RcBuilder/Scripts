@@ -1,0 +1,8 @@
+var titles = ['A', 'B', 'C', 'D', 'E', 'F'];
+
+  titles.sort(function(a, b){
+      return Math.random() < 0.5 ? -1 : 1;
+    });
+
+
+  Logger.log(titles); // [B, A, F, E, D, C]

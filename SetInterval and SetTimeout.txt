@@ -1,0 +1,38 @@
+
+<script language="javascript">
+    var interval_id;
+    var counter = 0;
+
+    function START() {
+        interval_id = setInterval(function () { 
+			Elapsed() 
+		}, 3000);
+    }
+
+    function STOP() {
+        clearInterval(interval_id);
+        counter = 0;
+    }
+
+    function Elapsed() {
+        console.log(++counter);
+    }
+
+    function fun1(p1, p2, p3) {
+        console.log('p1 = ' + p1 + ', p2 = ' + p2 + ', p3 = ' + p3);
+
+        setTimeout(function () { 
+			fun1(p1, p2, p3); // call itself each 3 sec - loop
+		}, 3000);
+    } 
+</script>
+
+---------------------------
+
+<div>
+    <a onclick="START()">START</a>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <a onclick="STOP()">STOP</a>
+    &nbsp;&nbsp;|&nbsp;&nbsp;
+    <a onclick="fun1('Roby','Cohen','33')">DEMO</a>
+</div>

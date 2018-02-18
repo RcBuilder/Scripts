@@ -1,0 +1,25 @@
+
+// delay x milliseconds(1000 = 1 second) - single time
+setTimeout(code , milliseconds); 
+
+// Example:
+// delay 2 sec, then alert 'example' one single time    
+setTimeout(function(){
+	alert("Example");
+}, 2000);  
+
+---
+
+// delay x milliseconds(1000 = 1 second) - Multi times(Timer)
+setInterval(code , milliseconds); 
+clearInterval(int); // clear selected interval
+
+// Example: 
+// run timer - each 2 sec alert 'example'
+var t1 = setInterval(function(){
+	alert("Example");
+}, 2000); 
+
+clearInterval(t1); // stop timer
+
+

@@ -1,0 +1,1183 @@
+﻿<html>
+<head>
+    <title>Bootstrap</title>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+    <style type="text/css">
+        div[class*="col-"] {
+            padding:10px;
+            background-color:#f1f1f1;
+            border:#d8d8d8 solid 1px;
+        }
+
+        .container {
+            padding-bottom:40px;
+        }
+
+        .static-tooltips .tooltip, .static-popovers .popover {
+            position: relative;
+            display: inline-block;
+            margin: 10px 10px 10px 0;
+            opacity: 1;
+        }
+    </style> 
+
+
+
+    <!--
+        Inputs!            
+    -->
+</head>
+<body>
+    <div class="container">
+        <h3>Containers</h3>
+        <ul>
+            <li>container class // fixed width container</li>
+            <li>container-fluid class // full width container</li>
+        </ul>
+
+        <h3>Grids</h3>
+        <ul>
+            <li>12 columns</li>
+            <li>col-[max size]-[columns number] // col-xs-4 etc.</li>
+        </ul>                            
+        <ul>
+            <li>xs // phones</li>
+            <li>sm // tablets</li>
+            <li>md // desktops</li>
+            <li>lg // larger desktops</li>
+        </ul>
+        <div class="row">
+            <div class="col-sm-3">.col-sm-3</div>
+            <div class="col-sm-6">.col-sm-6</div>
+            <div class="col-sm-3">.col-sm-3</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">.col-sm-2</div>
+            <div class="col-sm-2">.col-sm-2</div>
+            <div class="col-sm-2">.col-sm-2</div>
+            <div class="col-sm-2">.col-sm-2</div>
+            <div class="col-sm-2">.col-sm-2</div>
+            <div class="col-sm-2">.col-sm-2</div>
+        </div>
+
+        <h3>H headers</h3>
+        <h1>I am H1 <small>small tag</small></h1>
+        <h2>I am H2 <small>small tag</small></h2>
+        <h3>I am H3 <small>small tag</small></h3>
+        <h4>I am H4 <small>small tag</small></h4>
+        <h5>I am H5 <small>small tag</small></h5>
+        <h6>I am H6 <small>small tag</small></h6>
+
+        <h3>mark tag</h3>
+        <p>bla bla bla <mark>mark</mark> bla bla ...</p>
+
+        <h3>blockquote tag</h3>
+        <ul>
+            <li>quote block</li>
+            <li>footer tag // add a footer to the blockquote</li>
+            <li>blockquote-reverse class // set quote to the right side</li>
+        </ul>
+        <div>
+            <p>bla bla bla bla bla ...</p>
+            <blockquote>
+                I am a blockquote
+                <footer>footer</footer>
+            </blockquote>             
+        </div>
+
+        <h3>dl tag</h3>
+        <ul>
+            <li>childrens tags: dt and dd</li>
+        </ul>
+        <dl>
+            <dt>I am a dt tag</dt>
+            <dd>I am a dd tag</dd>
+        </dl>  
+
+        <h3>code tag</h3>
+        <p>bla bla bla <code>code</code> bla bla <code>code</code> bla bla ...</p>
+
+        <h3>kbd tag</h3>
+        <p>bla bla bla <kbd>kbd</kbd> bla bla <kbd>kbd</kbd> bla bla ...</p>
+
+        <h3>text class</h3>
+        <ul>
+            <li class="text-muted">.text-muted</li>
+            <li class="text-primary">.text-primary</li>
+            <li class="text-success">.text-success</li>
+            <li class="text-info">.text-info</li>
+            <li class="text-warning">.text-warning</li>
+            <li class="text-danger">.text-danger</li>
+        </ul>
+
+        <h3>bg class</h3>
+        <ul>
+            <li class="bg-primary">.bg-primary</li>
+            <li class="bg-success">.bg-success</li>
+            <li class="bg-info">.bg-info</li>
+            <li class="bg-warning">.bg-warning</li>
+            <li class="bg-danger">.bg-danger</li>
+        </ul>
+
+        <h3>text-left class</h3>
+        <p class="text-left">bla bla bla bla bla ...</p>
+
+        <h3>text-right class</h3>
+        <p class="text-right">bla bla bla bla bla ...</p>
+
+        <h3>text-center class</h3>
+        <p class="text-center">bla bla bla bla bla ...</p>
+
+        <h3>text-nowrap class</h3>
+        <ul>
+            <li>text will not scale itself on resize and will always stay in a single line</li>
+        </ul>
+        <p class="text-nowrap">bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla ...</p>
+
+        <h3>text-lowercase class</h3>
+        <p class="text-lowercase">BLA BLA BLA BLA BLA ...</p>
+
+        <h3>text-uppercase class</h3>
+        <p class="text-uppercase">bla bla bla bla bla ...</p>
+
+        <h3>text-capitalize class</h3>
+        <p class="text-capitalize">bla bla bla bla bla ...</p>
+
+        <h3>list-unstyled class</h3>
+        <ul>
+            <li>apply on ul or ol tags</li>
+            <li>removes the default list style</li>
+        </ul>
+        <ul class="list-unstyled">
+            <li>ItemA</li>
+            <li>ItemB</li>
+            <li>ItemC</li>
+            <li>ItemD</li>
+        </ul>
+
+        <h3>list-inline class</h3>
+        <ul>
+            <li>apply on ul or ol tags</li>
+            <li>place the list items on a single line</li>
+        </ul>
+        <ul class="list-inline">
+            <li>ItemA</li>
+            <li>ItemB</li>
+            <li>ItemC</li>
+            <li>ItemD</li>
+        </ul>
+
+        <h3>pre-scrollable class</h3>
+        <ul>
+            <li>apply on pre tag</li>
+            <li>makes a pre element scrollable</li>
+            <li>max height of 350px</li>           
+        </ul>
+        <pre class="pre-scrollable">
+            bla bla bla bla ...
+            bla bla bla bla ...
+            bla bla bla bla ...
+        </pre>
+
+        <h3>Tables</h3>
+        <ul>
+            <li>apply on table tag</li>  
+            <li>must add a .table base class</li>  
+            <li>can apply multiple table styles together // class="table table-striped table-bordered" etc.</li>  
+            <li>
+                supports tr background classes: // tr class="success" etc.
+                <ul>
+                    <li>active</li>
+                    <li>success</li>
+                    <li>info</li>
+                    <li>warning</li>
+                    <li>danger</li>
+                </ul> 
+            </li>   
+            <li>
+                responsive tables - adds an horizontally scroll on devices under 768px<br />
+                using:wrap the table in div with class="table-responsive"
+            </li> 
+        </ul>
+        <h5>class="table"</h5>
+        <table class="table">
+            <tr>
+                <th>#</th>
+                <th>First</th>
+                <th>Last</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Roby</td>
+                <td>Cohen</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Avi</td>
+                <td>Cohen</td>
+            </tr>
+        </table>
+        <h5>class="table table-striped"</h5>
+        <table class="table table-striped">
+            <tr>
+                <th>#</th>
+                <th>First</th>
+                <th>Last</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Roby</td>
+                <td>Cohen</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Avi</td>
+                <td>Cohen</td>
+            </tr>
+        </table>
+        <h5>class="table table-bordered"</h5>
+        <table class="table table-bordered">
+            <tr>
+                <th>#</th>
+                <th>First</th>
+                <th>Last</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Roby</td>
+                <td>Cohen</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Avi</td>
+                <td>Cohen</td>
+            </tr>
+        </table>
+        <h5>class="table table-hover"</h5>
+        <table class="table table-hover">
+            <tr>
+                <th>#</th>
+                <th>First</th>
+                <th>Last</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Roby</td>
+                <td>Cohen</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Avi</td>
+                <td>Cohen</td>
+            </tr>
+        </table>
+        <h5>class="table table-condensed" // smaller cell padding</h5>
+        <table class="table table-condensed">
+            <tr>
+                <th>#</th>
+                <th>First</th>
+                <th>Last</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>Roby</td>
+                <td>Cohen</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>Avi</td>
+                <td>Cohen</td>
+            </tr>
+        </table>
+        <h5>tr backgrounds (success, info and danger)</h5>
+        <table class="table">
+            <tr class="success">
+                <th>#</th>
+                <th>First</th>
+                <th>Last</th>
+            </tr>
+            <tr class="info">
+                <td>1</td>
+                <td>Roby</td>
+                <td>Cohen</td>
+            </tr>
+            <tr class="danger">
+                <td>2</td>
+                <td>Avi</td>
+                <td>Cohen</td>
+            </tr>
+        </table> 
+        <h5>div class="table-responsive" -> table class="table"</h5>
+        <div class="table-responsive">     
+            <table class="table">
+                <tr>
+                    <th>#</th>
+                    <th>First</th>
+                    <th>Last</th>
+                    <th>Email</th>
+                    <th>City</th>
+                    <th>Country</th>                
+                </tr>
+                <tr>
+                    <td>1</td>
+                    <td>Roby</td>
+                    <td>Cohen</td>
+                    <td>demo@demo.com</td>
+                    <td>Tel-aviv</td>
+                    <td>Israel</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>Avi</td>
+                    <td>Cohen</td>
+                    <td>demo@demo.com</td>
+                    <td>Tel-aviv</td>
+                    <td>Israel</td>
+                </tr>
+            </table>
+        </div> 
+        
+        <h3>Images</h3>      .
+        <ul>
+            <li>img-rounded class</li>
+            <li>img-circle class</li>
+            <li>img-thumbnail class</li>
+        </ul>
+        <div class="row">
+            <div class="col-sm-4">
+                <h5>class="img-rounded"</h5>
+                <img src="http://www.w3schools.com/bootstrap/cinqueterre.jpg" class="img-rounded" alt="Cinque Terre" width="304" height="236" />
+            </div>
+            <div class="col-sm-4">
+                <h5>class="img-circle"</h5>
+                <img src="http://www.w3schools.com/bootstrap/cinqueterre.jpg" class="img-circle" alt="Cinque Terre" width="304" height="236" />
+            </div>
+            <div class="col-sm-4">
+                <h5>class="img-thumbnail"</h5>
+                <img src="http://www.w3schools.com/bootstrap/cinqueterre.jpg" class="img-thumbnail" alt="Cinque Terre" width="304" height="236" />        
+            </div>
+        </div>
+        <div>
+            <h5>class="img-responsive"</h5>
+            <img class="img-responsive" src="http://www.w3schools.com/bootstrap/img_chania.jpg"" alt="Chania">
+        </div>
+
+        <h3>Embeds</h3>
+        <ul>
+            <li>embed-responsive-item class</li>
+            <li>apply on iframe, embed, video and object</li>
+            <li>ratio:
+                <ul>
+                    <li>16:9: embed-responsive-16by9</li>
+                    <li>4:3: embed-responsive-4by3</li>
+                </ul> 
+            </li>        
+        </ul>
+        <h5>div class="embed-responsive embed-responsive-[ratio]" -> iframe class="embed-responsive-item"</h5>
+        <div class="embed-responsive embed-responsive-16by9">
+            <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/MBqqlUPb55I"></iframe>
+        </div>
+
+        <h3>Jumbotron</h3>
+        <h5>class="jumbotron"</h5>
+        <div class="jumbotron">
+            <h1>Bla Bla Bla</h1>
+            <p>bla bla bla bla bla bla bla bla bla bla ...</p>
+        </div>
+
+        <h3>Wells</h3>
+        <ul>
+            <li>Normal: "well"</li>
+            <li>Small: "well well-sm"</li>
+            <li>Large: "well well-lg"</li>
+        </ul>
+        <div class="well">
+            Bla Bla Bla Bla Bla ...
+        </div>
+
+        <h3>Alerts</h3>
+        <ul>
+            <li>must add an .alert base class</li>            
+            <li>types: 
+                <ul>
+                    <li>alert-success</li>
+                    <li>alert-info</li>
+                    <li>alert-warning</li>
+                    <li>alert-danger</li>
+                </ul>
+             </li>
+            <li>supports 'strong' tag within the alert</li>
+            <li>close alert - add class="close" and data-dismiss="alert" to a link or a button element</li>
+        </ul>
+        <h5>class="alert alert-warning"</h5>
+        <div class="alert alert-warning">
+            <strong>warning</strong> Bla Bla Bla Bla Bla ...
+        </div>
+        <h5>class="alert alert-success"</h5>
+        <div class="alert alert-success">
+            <strong>success</strong> Bla Bla Bla Bla Bla ...
+        </div>
+        <h5>class="alert alert-info" + close alert</h5>
+        <div class="alert alert-info">
+            <a href="#" class="close" data-dismiss="alert">x</a>
+            <strong>success</strong> Bla Bla Bla Bla Bla ...
+        </div>
+
+        <h3>Buttons</h3>
+        <ul>
+            <li>must add an .btn base class</li>
+            <li>types: // class="btn btn-info" etc.
+                <ul>
+                    <li>btn-default</li>
+                    <li>btn-primary</li>
+                    <li>btn-success</li>
+                    <li>btn-info</li>
+                    <li>btn-warning</li>
+                    <li>btn-danger</li>
+                    <li>btn-link</li>
+                </ul>
+            </li>
+            <li>apply on a, button or input element</li>
+            <li>sizes: // class="btn btn-info btn-md" etc.
+                <ul>
+                    <li>btn-lg</li>
+                    <li>btn-md</li>
+                    <li>btn-sm</li>
+                    <li>btn-xs</li>
+                </ul>
+            </li>
+            <li>Block Button - add btn-block class // class="btn btn-primary btn-block" etc. </li>
+            <li>active - add active class // class="btn btn-primary active" etc.</li>
+            <li>disabled - add disabled class // class="btn btn-primary disabled" etc.</li>
+        </ul>
+        <h5>Button types</h5>
+        <div>
+            <button type="button" class="btn btn-default">Default</button>
+            <button type="button" class="btn btn-primary">Primary</button>
+            <button type="button" class="btn btn-success">Success</button>
+            <button type="button" class="btn btn-info">Info</button>
+            <button type="button" class="btn btn-warning">Warning</button>
+            <button type="button" class="btn btn-danger">Danger</button>
+            <button type="button" class="btn btn-link">Link</button>
+        </div>
+        <h5>Button sizes</h5>
+        <div>
+            <button type="button" class="btn btn-success btn-lg">Large</button>
+            <button type="button" class="btn btn-success btn-md">Medium</button>
+            <button type="button" class="btn btn-success btn-sm">Small</button>
+            <button type="button" class="btn btn-success btn-xs">XSmall</button>
+        </div>
+        <h5>Block button - class="btn btn-success btn-block"</h5>
+        <button type="button" class="btn btn-success btn-block">btn-block</button>
+        <h5>active</h5>
+        <div>
+            <button type="button" class="btn btn-default active">Default</button>
+            <button type="button" class="btn btn-primary active">Primary</button>
+            <button type="button" class="btn btn-success active">Success</button>
+            <button type="button" class="btn btn-info active">Info</button>
+            <button type="button" class="btn btn-warning active">Warning</button>
+            <button type="button" class="btn btn-danger active">Danger</button>
+            <button type="button" class="btn btn-link active">Link</button>
+        </div>
+        <h5>disabled</h5>
+        <div>
+            <button type="button" class="btn btn-default disabled">Default</button>
+            <button type="button" class="btn btn-primary disabled">Primary</button>
+            <button type="button" class="btn btn-success disabled">Success</button>
+            <button type="button" class="btn btn-info disabled">Info</button>
+            <button type="button" class="btn btn-warning disabled">Warning</button>
+            <button type="button" class="btn btn-danger disabled">Danger</button>
+            <button type="button" class="btn btn-link disabled">Link</button>
+        </div>
+        <h3>Modals</h3>
+        <ul>
+            <li>Requires: bootstrap.js</li>
+            <li>using js: $('#myModal').modal([options]);</li>
+            <li>
+                options: // data-[option] (e.g: data-backdrop="static")
+                <ul>
+                    <li>toggle - modal (data-toggle="modal")</li>
+                    <li>target - string - model id (e.g: data-target="#myModal")</li>
+                    <li>backdrop
+                        <ul>
+                            <li>true - with back overlay</li>
+                            <li>false - without back overlay</li>
+                            <li>static - with back overlay, back click doesn't close the modal</li>
+                        </ul>
+                    </li>
+                    <li>keyboard - true/false - close on ESC</li>
+                    <li>show - true/false - show on init</li>
+                </ul>
+            </li>
+            <li>Methods: 
+                <ul>
+                    <li>modal('toggle')</li>
+                    <li>modal('show')</li>
+                    <li>modal('hide')</li>
+                </ul>
+            </li>
+            <li>Events: // $('#myModal').on('[event]', [function]);
+                <ul>
+                    <li>show.bs.modal // on show called</li>
+                    <li>shown.bs.modal // on show completed</li>
+                    <li>hide.bs.modal // on hide called</li>
+                    <li>hidden.bs.modal // on hide completed</li>
+                </ul>
+            </li>
+            <li>Modal size: modal-lg, modal-sm</li>
+        </ul>
+        <div>
+            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal" data-backdrop="static">
+              show modal
+            </button>
+        </div>
+        <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+          <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">bla bla bla</h4>
+              </div>
+              <div class="modal-body">
+                    bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-primary">OK</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h3>Radio Group</h3>
+        <ul>                        
+            <li>wrapper div with the 'btn-group' class</li>            
+            <li>use 'active' class to set the active radio item</li>
+            <li>data-toggle="buttons"</li>            
+        </ul>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary active">
+            <input type="radio" name="options" id="option1" autocomplete="off" checked> R1
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="options" id="option2" autocomplete="off"> R2
+          </label>
+          <label class="btn btn-primary">
+            <input type="radio" name="options" id="option3" autocomplete="off"> R3
+          </label>
+        </div>
+        <h3>Checkbox Group</h3>
+        <ul>                        
+            <li>wrapper div with the 'btn-group' class</li>            
+            <li>use 'active' class to set the active radio item</li>
+            <li>data-toggle="buttons"</li>            
+        </ul>
+        <div class="btn-group" data-toggle="buttons">
+          <label class="btn btn-primary active">
+            <input type="checkbox" checked> R1
+          </label>
+          <label class="btn btn-primary">
+            <input type="checkbox"> R2
+          </label>
+          <label class="btn btn-primary">
+            <input type="checkbox"> R3
+          </label>
+        </div>
+        <h3>Dropdowns</h3>
+        <ul>
+            <li>Requires: bootstrap.js</li>
+            <li>using js: $('.dropdown-toggle').dropdown();</li>
+            <li>wrapper div with the 'dropdown' class</li>
+            <li>button with the 'dropdown' data-toggle attribute</li>
+            <li>ul with 'dropdown-menu' class</li>
+            <li>data-toggle="dropdown"</li>            
+            <li>Methods: 
+                <ul>
+                    <li>dropdown('toggle')</li>
+                </ul>
+            </li>
+            <li>Events: // $('#myDropdown').on('[event]', [function]);
+                <ul>
+                    <li>show.bs.dropdown // on show called</li>
+                    <li>shown.bs.dropdown // on show completed</li>
+                    <li>hide.bs.dropdown // on hide called</li>
+                    <li>hidden.bs.dropdown // on hide completed</li>
+                </ul>
+            </li>
+        </ul>
+        <div class="dropdown">
+            <button type="button" class="btn btn-primary" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                show dropdown
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>itemA</li>
+                <li>itemB</li>
+                <li>itemC</li>
+            </ul>
+        </div>
+        <h3>Tabs</h3>
+        <ul>
+            <li>Requires: bootstrap.js</li>
+            <li>need to define 2 parts: nav and panes</li>
+            <li>data-toggle="tab"</li>
+            <li>roles: 
+                <ul>
+                    <li>nav wrapper: role="tablist"</li>
+                    <li>nav item: role="presentation"</li>
+                    <li>pane: role="tabpanel"</li>
+                </ul>
+            </li>            
+            <li>use 'active' class to set the tab/pane as active</li>
+            <li>use 'fade' class to set each pane with fadding effect, in addition, add 'in' class for the active pane</li>
+            <li>Methods: 
+                <ul>
+                    <li>tab('show')</li>
+                </ul>
+            </li>
+            <li>Events: // $('a[data-toggle="tab"]').on('[event]', [function]);
+                <ul>
+                    <li>show.bs.tab // on show called</li>
+                    <li>shown.bs.tab // on show completed</li>
+                    <li>hide.bs.tab // on hide called</li>
+                    <li>hidden.bs.tab // on hide completed</li>
+                </ul>
+            </li>
+        </ul>
+        <div>
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" id="myTabs" role="tablist">
+                <li role="presentation" class="">
+                    <a href="#home" id="home-tab" role="tab" data-toggle="tab" aria-controls="home" aria-expanded="false">Home</a>
+                </li>
+                <li role="presentation" class="active">
+                    <a href="#profile" role="tab" id="profile-tab" data-toggle="tab" aria-controls="profile" aria-expanded="true">Profile</a>
+                </li> 
+                <li role="presentation" class="">
+                    <a href="#other" role="tab" id="other-tab" data-toggle="tab" aria-controls="profile" aria-expanded="true">Other</a>
+                </li>            
+            </ul>
+
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane fade" id="home">
+                    [home]<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla
+                </div>
+                <div role="tabpanel" class="tab-pane fade in active" id="profile">
+                    [profile]<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla
+                </div>
+                <div role="tabpanel" class="tab-pane fade" id="other">
+                    [other]<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla                    
+                </div>
+            </div>
+        </div>
+        <h3>Tooltips</h3>
+        <ul>
+            <li>Requires: bootstrap.js</li>
+            <li>using js: $('[data-toggle="tooltip"]').tooltip([options]);</li>
+            <li>pop mode:
+                <ul>
+                    <li>MUST be initialized via script</li>
+                    <li>use 'title' attribute as your tooltip content</li>
+                </ul>
+            </li>            
+            <li>static mode:
+                <ul>                    
+                    <li>use 'tooltip' class on the wrapper element</li>
+                    <li>use 'tooltip' role on the wrapper element</li>
+                    <li>use 'tooltip-arrow' class for the arrow icon</li>
+                    <li>use 'tooltip-inner' class for the content element</li>
+                    <li>
+                        add the following rules for each static tooltip:
+                        <ul>
+                            <li>position: relative</li>
+                            <li>display: inline-block</li>
+                            <li>opacity: 1</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li> 
+            <li>
+                options: // data-[option] (e.g: data-placement="left")
+                <ul>
+                    <li>toggle - tooltip (data-toggle="tooltip")</li>
+                    <li>placement - left, top, bottom, right or auto (e.g: data-placement="top")</li>  
+                    <li>animation - true/false - use fade transition</li>          
+                    <li>container - string - apply tooltip to specific element</li>
+                    <li>delay - number - delay tooltip in ms</li>
+                    <li>delay - object - delay: {'show': 500, 'hide': 100}</li>
+                    <li>html - true/false - supports html content</li>
+                    <li>template - string - template for the tooltip, 
+                        the tooltip content will be injected into the elemnt within the template that uses the 'tooltip-inner' class<br />
+                        use 'tooltip-arrow' class for the tooltip arrow<br />
+                        e.g: &lt;div class="tooltip" role="tooltip">&lt;div class="tooltip-arrow">&lt;/div>&lt;div class="tooltip-inner">&lt;/div>&lt;/div>
+                    </li>
+                    <li>title - string - default tooltip content (if 'title' isn't present)</li>
+                    <li>trigger - 
+                        click, hover, focus or manual - the event which trigger the tooltip <br />
+                        can use multiple separated by space (e.g: data-trigger="click hover")
+                    </li>                    
+                </ul>
+            </li>   
+            <li>Methods: 
+                <ul>
+                    <li>tooltip('show')</li>
+                    <li>tooltip('hide')</li>
+                    <li>tooltip('toggle')</li>
+                    <li>tooltip('destroy')</li>
+                </ul>
+            </li>         
+            <li>Events: // $('#myTooltip').on('[event]', [function]);
+                <ul>
+                    <li>show.bs.tooltip // on show called</li>
+                    <li>shown.bs.tooltip // on show completed</li>
+                    <li>hide.bs.tooltip // on hide called</li>
+                    <li>hidden.bs.tooltip // on hide completed</li>
+                </ul>
+            </li>
+        </ul>
+        <div class="static-tooltips">
+            <div class="tooltip left" role="tooltip"> 
+                <div class="tooltip-arrow"></div> 
+                <div class="tooltip-inner"> Tooltip on the left </div> 
+            </div>
+            <div class="tooltip top" role="tooltip"> 
+                <div class="tooltip-arrow"></div> 
+                <div class="tooltip-inner"> Tooltip on the top </div> 
+            </div>
+            <div class="tooltip bottom" role="tooltip"> 
+                <div class="tooltip-arrow"></div> 
+                <div class="tooltip-inner"> Tooltip on the bottom </div> 
+            </div>
+            <div class="tooltip right" role="tooltip"> 
+                <div class="tooltip-arrow"></div> 
+                <div class="tooltip-inner"> Tooltip on the right </div> 
+            </div>
+        </div>
+        <div>
+            <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="left" title="Tooltip on left">left</button>
+            <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="top" title="Tooltip on top">top</button>
+            <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="bottom" title="Tooltip on bottom">bottom</button>
+            <button type="button" class="btn btn-default" data-toggle="tooltip" data-placement="right" title="Tooltip on right">right</button>                      
+        </div>
+        <h3>Pop-Overs</h3>
+        <ul>
+            <li>Requires: bootstrap.js</li>
+            <li>using js: $('[data-toggle="popover"]').popover([options]);</li>
+            <li>pop mode:
+                <ul>
+                    <li>MUST be initialized via script</li>                    
+                </ul>
+            </li>            
+            <li>static mode:
+                <ul>                    
+                    <li>use 'popover' class on the wrapper element</li>
+                    <li>use 'tooltip' role on the wrapper element</li>
+                    <li>use 'arrow' class for the arrow icon</li>
+                    <li>use 'popover-content' class for the content element</li>
+                    <li>use 'popover-title' class for the title element</li>
+                    <li>
+                        add the following rules for each static tooltip:
+                        <ul>
+                            <li>position: relative</li>
+                            <li>display: inline-block</li>
+                            <li>opacity: 1</li>
+                        </ul>
+                    </li>
+                </ul>
+            </li> 
+            <li>
+                options: // data-[option] (e.g: data-placement="left")
+                <ul>
+                    <li>toggle - popover (data-toggle="popover")</li>
+                    <li>placement - left, top, bottom, right or auto (e.g: data-placement="top")</li>  
+                    <li>animation - true/false - use fade transition</li>          
+                    <li>container - string - apply popover to specific element</li>
+                    <li>delay - number - delay popover in ms</li>
+                    <li>delay - object - delay: {'show': 500, 'hide': 100}</li>
+                    <li>html - true/false - supports html content</li>
+                    <li>template - string - template for the popover, 
+                        the popover title will be injected into the element within the template that uses the 'popover-title' class<br />
+                        the popover content will be injected into the element within the template that uses the 'popover-content' class<br />
+                        use 'arrow' class for the popover arrow<br />
+                        e.g:<br /> 
+                        <code>
+                            &lt;div class="popover" role="tooltip"><br />
+                            &nbsp;&nbsp; &lt;div class="arrow">&lt;/div><br />
+                            &nbsp;&nbsp; &lt;h3 class="popover-title">&lt;/h3><br />
+                            &nbsp;&nbsp; &lt;div class="popover-content">&lt;/div><br />
+                            &lt;/div>
+                        </code>
+                    </li>
+                    <li>title - string - default popover content (if 'title' isn't present)</li>
+                    <li>content - string - popover content</li>
+                    <li>trigger - 
+                        click, hover, focus or manual - the event which trigger the popover <br />
+                        can use multiple separated by space (e.g: data-trigger="click hover")
+                    </li> 
+                </ul>
+            </li>
+            <li>Methods: 
+                <ul>
+                    <li>popover('show')</li>
+                    <li>popover('hide')</li>
+                    <li>popover('toggle')</li>
+                    <li>popover('destroy')</li>
+                </ul>
+            </li>         
+            <li>Events: // $('#myPopover').on('[event]', [function]);
+                <ul>
+                    <li>show.bs.popover // on show called</li>
+                    <li>shown.bs.popover // on show completed</li>
+                    <li>hide.bs.popover // on hide called</li>
+                    <li>hidden.bs.popover // on hide completed</li>
+                </ul>
+            </li>
+        </ul>
+        <div class="static-popovers">
+            <div class="popover left" role="tooltip"> 
+                <div class="arrow"></div> 
+                <div class="popover-title"> some title </div>
+                <div class="popover-content"> popover on the left </div> 
+            </div>
+            <div class="popover top" role="tooltip"> 
+                <div class="arrow"></div> 
+                <div class="popover-content"> popover on the top </div> 
+            </div>
+            <div class="popover bottom" role="tooltip"> 
+                <div class="arrow"></div> 
+                <div class="popover-content"> popover on the bottom </div> 
+            </div>
+            <div class="popover right" role="tooltip"> 
+                <div class="arrow"></div> 
+                <div class="popover-content"> popover on the right </div> 
+            </div>
+        </div>
+        <div>
+            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="left" data-content="popover on left">left</button>
+            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="top" data-content="popover on top">top</button>
+            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="popover on bottom">bottom</button>
+            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="right" data-content="popover on right">right</button>        
+        </div>
+        <div>
+            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="left" data-content="popover on left" title="title" >left</button>
+            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="top" data-content="popover on top" title="title" >top</button>
+            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="bottom" data-content="popover on bottom" title="title" >bottom</button>
+            <button type="button" class="btn btn-default" data-toggle="popover" data-placement="right" data-content="popover on right" title="title" >right</button>                      
+        </div>
+        <h3>Collapse</h3>
+        <ul>
+            <li>Requires: bootstrap.js</li>
+            <li>Button
+                <ul>
+                    <li>data-toggle="collapse"</li>
+                    <li>data-target="#[id]"</li>
+                </ul>
+            </li>
+            <li>Content
+                <ul>
+                    <li>class="collapse"</li>
+                    <li>id required</li>
+                </ul>
+            </li>            
+            <li>Classes
+                <ul>
+                    <li>.collapse - hides content</li>
+                    <li>.collapse.in - shows content</li>
+                    <li>.collapsing - applied during transitions</li>                   
+                </ul>
+            </li>
+        </ul>
+        <div>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#collapseContent">
+                collapse
+            </button>
+
+            <div class="collapse" id="collapseContent">              
+              <div class="well">
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla
+              </div>
+            </div>
+        </div>
+        <h3>Accordion</h3>
+        <ul>
+            <li>Requires: bootstrap.js</li>
+            <li>using js: $('.collapse').collapse();</li>
+            <li>set aria-expanded on the button to be true for open collapsible contents</li>
+            <li>Panel Group
+                <ul>
+                    <li>class="panel-group"</li>
+                    <li>id="[id]" </li>
+                    <li>role="tablist"</li>
+                    <li>aria-multiselectable="true"</li>
+                </ul>
+            </li>
+            <li>Panel Wrapper
+                <ul>
+                    <li>class="panel"</li>                    
+                </ul>
+            </li>
+            <li>Panel Header
+                <ul>
+                    <li>class="panel-heading"</li>
+                    <li>role="tab"</li>
+                </ul>
+            </li>
+            <li>Panel Title
+                <ul>
+                    <li>class="panel-title"</li>                   
+                </ul>
+            </li>
+            <li>Panel Content
+                <ul>
+                    <li>id="[id]"</li>
+                    <li>class="panel-collapse collapse" // add 'in' class for open mode</li>
+                    <li>role="tabpanel"</li>
+                </ul>
+            </li>
+            <li>Button
+                <ul>
+                    <li>data-toggle="collapse"</li>
+                    <li>data-parent="#[panel group id]"</li>
+                    <li>href="#[panel content id]"</li>
+                    <li>aria-expanded="[true/false]" // true for the opening content</li>
+                    <li>aria-controls="[panel content id]"</li>
+                </ul>
+            </li>                        
+            <li>Classes
+                <ul>
+                    <li>.collapse - hides content</li>
+                    <li>.collapse.in - shows content</li>
+                    <li>.collapsing - applied during transitions</li>                   
+                </ul>
+            </li>
+            <li>
+                options: // data-[option] (e.g: data-toggle="collapse")
+                <ul>
+                    <li>toggle - collapse (data-toggle="collapse")</li>
+                    <li>parent - the parent wrapper selector which uses the 'panel-group' class (e.g: data-parent="#accordion")</li>  
+                </ul>
+            </li>
+            <li>Methods: 
+                <ul>
+                    <li>collapse('show')</li>
+                    <li>collapse('hide')</li>
+                    <li>collapse('toggle')</li>                    
+                </ul>
+            </li>         
+            <li>Events: // $('#myCollapsible').on('[event]', [function]);
+                <ul>
+                    <li>show.bs.collapse // on show called</li>
+                    <li>shown.bs.collapse // on show completed</li>
+                    <li>hide.bs.collapse // on hide called</li>
+                    <li>hidden.bs.collapse // on hide completed</li>
+                </ul>
+            </li>
+        </ul>
+        <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="HeaderA">
+              <h4 class="panel-title">
+                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#ItemA" aria-expanded="true" aria-controls="ItemA">
+                  Item #A
+                </a>
+              </h4>
+            </div>
+            <div id="ItemA" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="HeaderA">
+              <div class="panel-body">
+                    [Content A]<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="HeaderB">
+              <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#ItemB" aria-expanded="false" aria-controls="ItemB">
+                  Item #B
+                </a>
+              </h4>
+            </div>
+            <div id="ItemB" class="panel-collapse collapse" role="tabpanel" aria-labelledby="HeaderB">
+              <div class="panel-body">
+                    [Content B]<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />                    
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla
+              </div>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading" role="tab" id="HeaderC">
+              <h4 class="panel-title">
+                <a class="collapsed" role="button" data-toggle="collapse" data-parent="#accordion" href="#ItemC" aria-expanded="false" aria-controls="ItemC">
+                  Item #C
+                </a>
+              </h4>
+            </div>
+            <div id="ItemC" class="panel-collapse collapse" role="tabpanel" aria-labelledby="HeaderC">
+              <div class="panel-body">
+                    [Content C]<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />                    
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                    bla bla bla bla bla bla bla bla bla bla bla bla bla bla bla
+              </div>
+            </div>
+          </div>
+        </div>
+        <h3>Carousel</h3>
+        <ul>
+            <li>Requires: bootstrap.js</li>
+            <li>using js: $('.carousel').carousel();</li>            
+
+            <li>Carousel Wrapper
+                <ul>                    
+                    <li>id="[id]" </li>
+                    <li>class="carousel slide"</li>
+                    <li>data-ride="carousel"</li>
+                </ul>
+            </li>
+            <li>Indicators Wrapper
+                <ul>
+                    <li>class="carousel-indicators"</li>                
+                </ul>
+            </li>
+            <li>Indicator (Item)
+                <ul>
+                    <li>data-target="#[carousel wrapper id]"</li>                   
+                    <li>data-slide-to="0" // set indicator index</li>
+                    <li>class="active" // set active indicator</li>
+                </ul>
+            </li>
+            <li>Slides Wrapper
+                <ul>
+                    <li>class="carousel-inner"</li>
+                    <li>role="listbox"</li>
+                </ul>
+            </li>
+            <li>Slide (Item)
+                <ul>
+                    <li>class="item"</li>                   
+                    <li>use 'active' class to set item as the active slide</li>
+                    <li>use 'carousel-caption' class to add content to the slide</li>
+                </ul>
+            </li>
+            <li>Controls Wrapper
+                <ul>
+                    <li>class="carousel-control"</li>
+                    <li>use 'left' or 'right' classes to determine the control direction</li>
+                    <li>href="#[carousel wrapper id]"</li>
+                    <li>role="button"</li>
+                    <li>data-slide="[prev or next]"</li>    
+                    <li>use 'glyphicon' + 'glyphicon-chevron-[left or right]' to set the arrow icon control</li>                
+                </ul>
+            </li>
+            <li>
+                options: // data-[option] (e.g: data-interval="2000")
+                <ul>
+                    <li>interval - number - delay time in ms</li>
+                    <li>pause - 'hover' - pause on hover</li>  
+                    <li>wrap - true/false - set true for infinity loop</li>
+                    <li>keyboard - true/false - set true to react to keyboard events</li>
+                </ul>
+            </li>
+            <li>Methods: 
+                <ul>
+                    <li>carousel('cycle')</li>
+                    <li>carousel('pause')</li>
+                    <li>carousel(number)</li>     
+                    <li>carousel('prev')</li>                
+                    <li>carousel('next')</li>                
+                </ul>
+            </li>         
+            <li>Events: // $('#myCarousel').on('[event]', [function]);
+                <ul>
+                    <li>slide.bs.carousel // on slide changed</li>
+                    <li>slid.bs.carousel // on slide transition completed</li>
+                </ul>
+            </li>
+        </ul>
+        <div id="my-carousel" class="carousel slide" data-ride="carousel" data-interval="2500" data-pause="hover" data-wrap="true">
+
+          <!-- Indicators -->
+          <ol class="carousel-indicators">
+            <li data-target="#my-carousel" data-slide-to="0" class="active"></li>
+            <li data-target="#my-carousel" data-slide-to="1"></li>
+            <li data-target="#my-carousel" data-slide-to="2"></li>
+          </ol>
+
+          <!-- Slides -->
+          <div class="carousel-inner" role="listbox">
+            <div class="item active">
+              <img src="http://lorempixel.com/output/nature-q-c-1176-480-5.jpg">
+              <div class="carousel-caption">
+                <h3>slide A</h3>
+                <p>bla bla bla bla bla bla bla bla bla</p>
+              </div>
+            </div>
+            <div class="item">
+              <img src="http://lorempixel.com/output/nature-q-c-1176-480-10.jpg">
+              <div class="carousel-caption">
+                <h3>slide B</h3>
+                <p>bla bla bla bla bla bla bla bla bla</p>
+              </div>
+            </div>
+            <div class="item">
+              <img src="http://lorempixel.com/output/nature-q-c-1176-480-2.jpg">
+              <div class="carousel-caption">
+                <h3>slide C</h3>
+                <p>bla bla bla bla bla bla bla bla bla</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <a class="left carousel-control" href="#my-carousel" role="button" data-slide="prev">
+            <span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+          </a>
+          <a class="right carousel-control" href="#my-carousel" role="button" data-slide="next">
+            <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+          </a>
+        </div>
+    </div>    
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>   
+    <script>
+        $('[data-toggle="tooltip"]').tooltip(); // init tooltips                
+        $('[data-toggle="popover"]').popover(); // init popovers  
+    </script>  
+
+</body>
+</html>
+

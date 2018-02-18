@@ -1,0 +1,161 @@
+Singleton Design Patterns
+=========================
+one instance of an object with a global reference point.
+basically, the object is a regular class with static single instance. 
+
+---
+
+// eager initialization
+
+public sealed class Singleton {
+	private static Singleton _instance = new Singleton();
+	private Singleton() { } // private constructor
+
+	public static Singleton Instance { 
+		get { return _instance; }
+	}
+}
+
+---
+
+// lazy initialization
+
+public sealed class Singleton {
+	private static Singleton _instance = null;
+	private Singleton() { }
+
+	public static Singleton Instance { 
+		get { 
+			if (_instance == null)
+				_instance = new Singleton();
+			return _instance; 
+		}
+	}
+} 
+
+---
+
+// Thread-safe initialization 
+
+public sealed class Singleton {
+	private static Singleton _instance = null;
+	private Singleton() { }
+	private static object lockThis = new object();
+
+	public static Singleton Instance { 
+		get { 
+			lock (lockThis){
+				if (_instance == null)
+					_instance = new Singleton();
+			}
+
+			return _instance; 
+		}
+	}
+} 
+
+---
+
+// Thread-safe with double-checked locking initialization
+
+// the same as the above with another null instance check before performing the lock.
+// the reason for that is that the lock is an expensive action and it should occur only once 
+// so the best practice is to save the following requests from execute a lock by checking if the instance is null or not
+
+public class Singleton {
+	private static Singleton _instance = null;
+	private Singleton() { }
+	private static object lockThis = new object();
+
+	public static Singleton Instance { 
+		get { 
+			if (_instance == null){  // first check for better performance by saving unnecessary locking items
+				lock (lockThis){
+					if (_instance == null)
+						_instance = new Singleton();
+				}
+			}
+
+			return _instance; 			
+		}
+	}
+} 
+
+----------------------------------------------------
+
+// example 
+
+public sealed class MyClass {
+
+	// singleTon - static reference
+    private static MyClass _instance = null;
+    public static MyClass Instance {
+        get {
+            if (_instance == null)
+                _instance = new MyClass();
+            return _instance;
+        }
+    }
+
+    private MyClass() { }
+
+    private int Id { set; get; }
+    private string Name { set; get; }
+
+    public void SetData(int Id, string Name) {
+        this.Id = Id;
+        this.Name = Name;
+    }
+
+    public void Print() {
+        Console.WriteLine(string.Concat(this.Id, '.', this.Name));
+    }
+} 
+
+var ref1 = MyClass.Instance;
+ref1.SetData(34, "Roby");
+
+ref1.Print(); // 34.Roby
+
+var ref2 = MyClass.Instance;
+ref2.SetData(28, "Yossi");
+
+ref1.Print(); // 28.Yossi
+ref2.Print(); // 28.Yossi
+
+
+--- 
+
+// multi-threads 
+var tasks  = new List<Task>();
+int index = 0;
+
+foreach(var item in new List<string> {"ROBY", "AVI", "RON", "RONEN", "TZAHI", "ISAAC"}) {
+    tasks.Add(Task.Factory.StartNew((object obj) => {
+        var temp_index = ++index;
+        var current_item = obj.ToString();
+        if (temp_index == 3) Thread.Sleep(5000);
+
+        var temp = MyClass.Instance;
+        temp.SetData(temp_index, current_item);
+        temp.Print();
+    }, item)); // pass the item as parameter
+}
+
+Task.WaitAll(tasks.ToArray());
+
+Console.WriteLine("---");
+MyClass.Instance.Print();
+Console.WriteLine("END");
+
+
+result:
+1.ROBY
+2.AVI
+6.ISAAC
+5.TZAHI
+4.RONEN
+3.RON   // this will appear after 5 seconds 
+---
+3.RON // notice! due to a singleTon object - the last instance update will be the slowest executed thread (index 3 - due to a delay)
+END

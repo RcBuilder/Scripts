@@ -1,0 +1,189 @@
+built-in filters
+----------------
+use the '|' pipe to apply filter on data binding or repeater clause
+(see filters list in the api reference)
+
+* types
+  - static filter - works on data binding single value (not on collection)
+  - collection filter - works on repeater items collection
+  - collection filter + parameters
+  - controller filter - only for the current scope
+
+* using structure:
+  | [filter]:[value]
+
+* built-in filters manifest
+  - filter (contains)
+    e.g: filter: 'someValue' or filter: someModel
+
+  - orderBy (orderBy: 'field')
+	e.g: orderBy:'age'
+
+	note! 
+	to set the sort direction use :boolean when true = desc and false = asc (e.g - orderBy:'name':true)
+	another way to do so is by adding -/+ in front of the orderBy value (e.g - orderBy:-id)
+
+  - uppercase/lowercase    
+
+  - limitTo (limitTo:[number]) 
+    e.g: limitTo: 3 // take the top 3 elements  
+
+* filter by model
+  you can use input model or scope variable to filter the collection.
+  you can specify a specific field to filter - the angular engine will perform the check only on the specified field, 
+  when no field has specified, the reference will be the entire entity. 
+
+  e.g: 
+  // this filter refers to any field within the user (all user properties will be checked for match)
+  <input type="text" ng-model="myFilterModel" />
+  <span ng-repeat="user in users | filter:myFilterModel">{{ user.name }} {{ user.lname }}, &nbsp;</span>
+
+  // this filter refers only to lname field within the user (the other user properties will not be checked)
+  <input type="text" ng-model="myFilterModel.lname" />
+  <span ng-repeat="user in users | filter:myFilterModel">{{ user.name }} {{ user.lname }}, &nbsp;</span>
+
+* custom orderBy value
+  see 'custom filters'
+
+* examples
+  // foreach user in users, contains the typed text from the name_filter model, ordered by user age
+  // lowercase the user name
+  // recommendation: replace the data source (ng-init) by a controller
+  <div ng-init="users=[{name:'ROBY', age:35}, {name:'AVI', age:33}, {name:'SHIRLY', age:36}, {name:'RONEN', age:41}, {name:'GALIT', age:28}]">
+    <input type="text" ng-model="name_filter" placeholder="contains" />
+    <ul>
+        <li ng-repeat="user in users | filter: name_filter | orderBy: 'age'">{{ user.name | lowercase }} ({{ user.age }})</li>
+    </ul>
+  </div>
+ 
+custom filters
+--------------
+same rules as the built-in filters (see 'built-in filters')
+notice! don't forget to add your custom filter to the application. 
+
+* steps to implement custom filter:
+  you can add custom filter for single item or for collection with or without params
+    1.create custom function (see structures below)
+    2.in the app.js - add your created function to the application(see 'bind filters to the application')
+	3.use your filter in a view (see examples below)
+
+* static type structure:
+  function my_filter() {
+	return function (item) {
+		return ... ;
+	};
+  };
+
+* collection type structure:
+  function my_filter() {
+	return function (items, [param1, param2 ....] ) {
+        var filtered = [];
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            ....
+        }
+        return filtered;
+	};
+  };
+
+* bind filters to the application(module)
+  - usually applied in the app.js
+  - structure: (option 1)
+    var filters = {};
+    filters.[name] = [filter]
+    filters.[name] = [filter]
+    ...
+    module.filter(filters);
+
+  - structure: (option 2)
+    module.filter([name], [function]);
+
+  - example: 
+    // those filters are used in the using examples below
+    var filters = {};
+    filters.toId = toId_filter;
+    filters.StartsWith = productStartsWith_filter;
+    filters.NameLengthRange = productNameLengthRange_filter;
+    my_module.filter(filters);
+  
+* parameters:
+  - use the ':' char to add parameters. 
+	each ':' adds another parameter which sends to the filter.
+    the parameters order based on their declaration order. 
+
+  - declaration:
+    my_filter:param1:param2 ..
+
+  - using:
+    // filter products using the custom filter 'NameLengthRange' with two parameters : 2 and 5
+    product in products | NameLengthRange:2:5 
+  - notice! the same rules as the built-in filters, meaning you can use model, static value, scope variable etc.
+
+* toId_filter:
+  // static filter to apply format to an id (prefix #)
+  // using: {{ product.id | toId }}
+  function toId_filter() {
+	return function (value) {
+		return '# ' + value.toString();
+	};
+  };
+
+* productStartsWith_filter:
+  // collection filter to apply filter on products that starts with the specified chars
+  // using: product in products | StartsWith:'abc'
+  function productStartsWith_filter() {
+	  return function (products, param) {
+		  if (param == undefined || param == '') return products;
+
+		  var filtered = [];
+		  for (var i = 0; i < products.length; i++) {
+			var product = products[i];
+			if (product.name.toLowerCase().indexOf(param) == 0)
+				filtered.push(product);
+		  }
+		  return filtered;
+	  };
+  };
+
+* productNameLengthRange_filter:
+  // collection filter to apply filter on products that theirs names length range between 2 and 10
+  // using: product in products | NameLengthRange:2:10	
+  function productNameLengthRange_filter() {
+    return function (products, param1, param2) {
+        // undefined = first execution, empty = no selected value
+        if (param1 == undefined || param2 == undefined) return products; 
+
+        var filtered = [];
+        for (var i = 0; i < products.length; i++) {
+            var product = products[i];
+            if (product.name.length >= param1 && product.name.length <= param2)
+                filtered.push(product);
+        }
+        return filtered;
+    };
+  };
+
+* custom orderBy value
+  - the orderBy filter can get value, model, scope variable or scope function, therefore 
+    you can create your own function and add it to the scope, then use it as your sorting provider.
+	orderBy: [function]
+
+  - steps to implement custom orderBy:
+    1.create custom function 
+	  (optional) define an argument to represents the current iterator item.
+
+    2.in the controller
+	  add your created function to the scope (use the $scope argument)
+
+  - example: 
+    // in the controller
+    $scope.orderByProductNameLength = function(product) {
+		return product.name.length;
+	};
+
+	$scope.orderByRandom = function() {
+		return Math.random();
+	};
+
+	// in the view
+	<li ng-repeat="product in products | orderBy: orderByRandom">{{ product.name }}</li>

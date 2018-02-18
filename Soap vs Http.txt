@@ -1,0 +1,46 @@
+
+What is SOAP ?
+--------------
+
+* SOAP = Simple Object Access Protocol.
+* SOAP is a communication protocol.
+* the soap protocol usually uses the HTTP protocol but can use other protocols such as TCP.
+* SOAP is a way to transfer data between applications that not necessarily from same types (C# can talk with java etc.)
+* SOAP transfers the data as XML structure.
+* SOAP is a format for sending messages.
+* SOAP specifies exactly how the data should be transfered between the applications (schema based).  
+* SOAP uses Syntax Rules (see below)
+* SOAP was developed by Microsoft.
+* a great advantage of SOAP is that it uses the HTTP protocol which usually firewall opens so it is accessible. 
+* SOAP exposes WSDL, WSDL defines contract between the client and the service, it is a static contract.
+* SOAP describes functions and types of data. 
+
+SOAP Syntax Rules
+-----------------
+
+* a SOAP message MUST be encoded using XML.
+* a SOAP message MUST use the SOAP Envelope namespace.
+* a SOAP message MUST use the SOAP Encoding namespace.
+* a SOAP message MUST NOT contain a DTD reference.
+* a SOAP message MUST NOT contain XML Processing Instructions.
+
+REST vs WCF
+-----------
+
+* REST based on the HTTP protocol, WCF based on SOAP (that is also based on the HTTP).
+* both are communication technologies.
+* the REST contract between the client and the server is dynamic and can changed per request, the WSDL is static. 
+* REST is very lightweight in contrast to the complexity that SOAP creates.
+* it's easier to work with REST than WCF. 
+* REST embraces the HTTP protocol perfectly so we can use all of its CRUD methods (PUT, POST, GET, DELETE), WCF usually works with POST.
+* unitests are much easier with REST, we only need an explorer. we can use fiddler to test it directly.
+* REST is dynamic with no schema, WCF generates a proxy with a specific schema.
+* we can pass/receive json, xml, binary or plain text via REST, WCF returns a structured objects and using an XML to transfer the data.
+* REST always uses HTTP protocol, WCF can use other protocols such as TCP.
+* any schema change in WCF forces a service update in order to update the local proxy.
+* REST is more flexible, WCF must follow some rules.
+* REST api can be reached from any source supports HTTP, therefore, we can access REST api via ajax calls from javascript, 
+  due to the JSON return type capability, REST blended naturally in the javascript.     
+* when using REST, the client defines the return type to receive (XML, JSON etc.), therefore, we can use the same api for different types.  
+ 
+   

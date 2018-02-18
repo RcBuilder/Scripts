@@ -1,0 +1,11 @@
+
+How To restore a local backup?
+------------------------------
+
+1. find the backup to restore (.crypt12 ext)
+2. go to the app folder (usually: sdcard/WhatsApp/Databases)
+3. paste the backup file 
+4. rename the backup file to 'msgstore.db.crypt12'
+5. UnInstall whatsapp 
+6. Install Whatsapp
+7. Tap Restore when asked

@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+    body {
+        direction:rtl;
+    }
+
+    div.wrapper {
+        width: 600px;
+        height:40px;        
+    }
+
+    div.text {
+        display:inline-block;
+        position:fixed;
+        padding: 10px 12px 0 0;
+    }
+
+    div.block {        
+        background-color: #808080;
+        border-radius: 6px;        
+        height:100%;        
+        width: 100%;
+    }
+
+    div.block-click {
+        width: 0%;     
+        transition: width 2s ease-out;
+    }   
+</style>
+</head>
+<body>
+   <div class="wrapper">
+       <div class="text">הפרק בטעינה....</div>
+       <div class="block"></div>
+   </div>
+
+    <br />
+    <input id="btnSlide" type="button" value="slide" />
+    <input id="btnReset" type="button" value="reset" />
+
+    <script src="http://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+    <script>
+        $('#btnSlide').bind('click', function () {
+            $('div.block').addClass('block-click');
+        });
+
+        $('#btnReset').bind('click', function () {
+            $('div.block').removeClass('block-click');
+        });
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,64 @@
+SelectMany
+----------
+
+syntax:
+SelectMany([collection], [result])
+
+
+using:
+var students = new[]{ 
+        new { Id=10, Name = "Roby", Courses = new List<string>{ "C#", "ASP.NET", "LESS" } },
+        new { Id=20, Name = "Avi", Courses = new List<string>{ "ASP.NET", "HTML", "SQL" } },
+        new { Id=30, Name = "Ronen", Courses = new List<string>{ "SAAS", "CSS", "LESS" } },
+        new { Id=40, Name = "Rafi", Courses = new List<string>{ "MVC", "C#", "MySQL" } },
+        new { Id=50, Name = "Galit", Courses = new List<string>{ "MySQL", "NODE JS", "SERVICES" } }
+}.ToList();
+
+
+// flatten all courses from all students in to a single list
+IEnumerable<string> allCourses = students.SelectMany(x => x.Courses).Distinct();
+foreach (var course in allCourses)
+    Console.WriteLine(course);
+
+result: 
+C#
+ASP.NET
+LESS
+HTML
+SQL
+SAAS
+CSS
+MVC
+MySQL
+NODE JS
+SERVICES
+
+
+---
+
+
+// create a custom result based on a flatten collection
+var result = students.SelectMany(x => x.Courses, (_student, _course) => new { 
+	student = _student, 
+	course = _course 
+});
+
+foreach (var item in result)
+    Console.WriteLine(item.course + " - " + item.student.Name);
+
+result: 
+C# - Roby
+ASP.NET - Roby
+LESS - Roby
+ASP.NET - Avi
+HTML - Avi
+SQL - Avi
+SAAS - Ronen
+CSS - Ronen
+LESS - Ronen
+MVC - Rafi
+C# - Rafi
+MySQL - Rafi
+MySQL - Galit
+NODE JS - Galit
+SERVICES - Galit

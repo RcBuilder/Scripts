@@ -1,0 +1,33 @@
+using System.Linq;
+
+rptNews.DataSource = xDAL.newsList.OrderBy(item => item.order);
+rptNews.DataBind();
+
+===============================================================
+
+public static List<xBLL.News> newsList = null;
+newsList = new List<xBLL.News>();
+...
+...
+
+===============================================================
+
+public class News {
+    public News() {
+        this.title = string.Empty;
+        this.description = string.Empty;
+        this.id = -1;
+        this.order = 0;
+    }
+
+    public int id { set; get; }
+    public string title { set; get; }
+
+    private string _description;
+    public string description {
+        set { _description = value.Replace("\n", "<br />"); } 
+        get{return _description;}
+    }
+
+    public int order { set; get; }
+}

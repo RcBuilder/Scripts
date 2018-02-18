@@ -1,0 +1,59 @@
+﻿
+//Original non-thread-safe singleton pattern
+public sealed class Singleton
+{
+    private static Singleton _instance = null;
+
+    public static Singleton Instance {
+        get {
+            if (_instance == null)
+                _instance = new Singleton();  // lazy loading 
+
+            return _instance;
+        }
+    }
+
+    private Singleton() { } // private constructor (prevents the 'New' keyword)
+}
+
+---
+
+//Thread-safe singleton
+public sealed class ThreadSafeSingleton // sealed to prevents inheriting from it by other classes
+{
+    private static volatile ThreadSafeSingleton _instance;
+    private static object syncRoot = new Object();
+
+    private ThreadSafeSingleton() { }
+
+    public static ThreadSafeSingleton Instance {
+        get {
+			// double check to save unnecessary lock action
+            if (_instance == null)  { 
+                lock (syncRoot) { // expensive action
+                    if (_instance == null)
+                        _instance = new ThreadSafeSingleton();
+                }
+            }
+
+            return _instance;
+        }
+    }
+}
+
+---
+
+//Singleton per Session Pattern
+public sealed class SessionSingleton {
+    private const string KEY = "SessionSingleton";
+
+    public static SessionSingleton Instance {
+        get {
+            if (HttpContext.Current.Session[KEY] == null)
+                HttpContext.Current.Session[KEY] = new SessionSingleton();
+            return HttpContext.Current.Session[KEY] as SessionSingleton;
+        }
+    }
+
+    private SessionSingleton() { }
+}

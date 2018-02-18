@@ -1,0 +1,65 @@
+
+// LEFT JOIN - STRUCTURE
+var res = from [item1] in [list1]
+        join [item2] in [list2] on [item1].[field] equals [item2].[field]
+        into [list3] 
+        from [item3] in [list3].DefaultIfEmpty()
+        select [item3] == null ? [return1] : [return2];
+
+rearks: 
+* list3 - holds all list1 plus matches item in list2, null if no match found 
+* return1 - found only in list1
+* return2 - found in both list1 and list2
+            
+------------------------------------------------------------
+
+// LEFT JOIN - SIMPLE
+var names1 = new List<string>() { "ROBY", "AVI", "SHARON", "STEVE" };
+var names2 = new List<string>() { "ROBY", "SHARON" };
+
+var res = from n1 in names1
+            join n2 in names2 on n1 equals n2
+            into names3 
+            from n3 in names3.DefaultIfEmpty()
+            select n3 == null ? "* " + n1 : n1;
+
+foreach (var i in res)
+    Console.WriteLine(i);
+
+/*
+    "ROBY"
+    "* AVI"
+    "SHARON"
+    "* STEVE"
+*/
+
+------------------------------------------------------------
+
+// LEFT JOIN - ADVANCED
+var users1 = new[] { 
+        new { Id=1, Name = "ROBY" },
+        new { Id=2, Name = "AVI" },
+        new { Id=3, Name = "SHARON" },
+        new { Id=4, Name = "STEVE" }
+};
+
+var users2 = new[] { 
+        new { Id=1, Name = "ROBY UPDATED" },
+        new { Id=3, Name = "SHARON UPDATED" },
+};
+
+var res = from u1 in users1
+            join u2 in users2 on u1.Id equals u2.Id
+            into users3
+            from u3 in users3.DefaultIfEmpty()
+            select u3 == null ? u1 : u3;
+
+foreach (var i in res)
+    Console.WriteLine(i);
+
+/*
+    Id=1, Name = "ROBY UPDATED"
+    Id=2, Name = "AVI"
+    Id=3, Name = "SHARON UPDATED"
+    Id=4, Name = "STEVE"
+*/

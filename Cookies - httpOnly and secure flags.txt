@@ -1,0 +1,12 @@
+
+Secure Flag:
+a cookie with a secure flag will only be sent over an HTTPS connection.
+
+reminder:
+when HTTP protocol is used, the traffic is sent in plaintext. 
+the HTTPS is a secure version of HTTP – it uses SSL/TLS to protect the data and the traffic is encoded.
+
+---
+
+HttpOnly Flag:
+when an HttpOnly flag is used, JavaScript will not be able to read the cookie.

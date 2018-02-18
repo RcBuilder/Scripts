@@ -1,0 +1,20 @@
+JIT compiler optimizations
+--------------------------
+JIT = just-in-time
+
+code snippet:
+x = 0;
+x = 1;
+
+compiler:
+x = 1;
+
+---
+
+code snippet:
+x = 1;
+y = x;
+
+compiler:
+x = 1;
+y = 1;

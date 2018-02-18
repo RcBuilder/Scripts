@@ -1,0 +1,87 @@
+using System.Xml.Linq;
+using System.Collections.Generic;
+
+public static Dictionary<string, BLL.Product> Products = null;
+Products = new Dictionary<string, BLL.Product>();
+
+...
+...
+
+using (dr){
+   if (dr.HasRows) {
+
+		BLL.Product p = null;
+		while (dr.Read())  {
+			p = new BLL.Product();
+			p.Id = dr["Id"].ToString();
+
+			...
+			...
+
+			Products.Add(p.Id, p);
+		}
+	}
+}
+
+------------------------------------------------
+
+// get all products + Convert Dictionary to List
+// MUST ADD LINQ in order to get the conversion ToList method
+var result = Products.Values.ToList<BLL.Product>();
+
+// lambda exp.
+// search by 'CategoryId' - all products with property 'CategoryId' equals 6
+var result = Products.Values.Where(x => x.CategoryId == 6);
+return result.ToList<BLL.Product>();
+
+
+// lambda exp.
+// search by 'Id' - all products with property 'Id' less then 100
+var result = Products.Values.Where(x => x.Id < 100);
+return result.ToList<BLL.Product>();
+
+
+// lambda exp.
+// 2 parameters(current object,index)
+// search by index - all products from index 2 (including) till index 8
+return Products.Values.Where((x, i) => i >= 2 && i < 8).ToList<BLL.Product>();
+
+
+// lambda exp.
+// filter on filter - products from index 2 till index 8 from list of products with property 'ParentId' equals 3 	
+var filter1 = Products.Values.Where(x => x.ParentId == 3);
+var filter2 = filter1.ToList<BLL.Product>().Where((x, i) => i > 2 && i < 8);
+return filter2.ToList<BLL.Product>();
+
+
+// example: search engine by Manufacturer and paging
+public static List<BLL.Product> SearchByManufacturer(int Manufacturer, int pageNum, int pageSize) {
+    int FromIndex = ((pageNum - 1) * pageSize);
+    int ToIndex = FromIndex + pageSize;
+
+    if (Manufacturer == 0) // all
+        return Products.Values.Where((x, i) => i >= FromIndex && i < ToIndex).ToList<BLL.Product>();
+
+    var filter1 = Products.Values.Where(x => x.Manufacturer == Manufacturer);
+    var filter2 = filter1.ToList<BLL.Product>().Where((x, i) => i >= FromIndex && i < ToIndex);
+    return filter2.ToList<BLL.Product>();
+}
+
+
+// get top 11 Products
+return Products.Values.Take(11).ToList<BLL.Product>();
+
+
+// get top x Products
+int x = 100;
+return Products.Values.Take(x).ToList<BLL.Product>();
+
+
+// skip 10 Products and take the 11th - 12th products
+return Products.Values.Skip(10).Take(2).ToList<BLL.Product>();
+
+
+// count products
+return Products.Values.ToList<BLL.Product>().Count;
+- OR -
+return Products.Values.Count<BLL.Product>(); 

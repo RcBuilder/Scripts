@@ -1,0 +1,33 @@
+
+<asp:Repeater ID="rptItems" runat="server">
+   <ItemTemplate>
+	<%# DataBinder.Eval(Container.DataItem, "ProductId") %>
+	<br />
+    <asp:LinkButton ID="lnkRemoveItem" 
+		CommandArgument='<%# DataBinder.Eval(Container.DataItem, "ProductId") %>' 
+		runat="server" 
+		onclick="lnkRemoveItem_Click">
+		Remove Item
+	</asp:LinkButton>
+   </ItemTemplate>
+</asp:Repeater> 
+
+------------------------------
+
+public BLL.ShoppingCart usrCart = null;
+
+// return list of PurchasedItem object -> List<PurchasedItem> 
+rptItems.DataSource = this.usrCart.GetPurchasedItems();
+rptItems.DataBind();
+
+------------------------------
+
+protected void lnkRemoveItem_Click(object sender, EventArgs e) {
+    Response.Write(((LinkButton)sender).CommandArgument);
+}
+
+------------------------------
+
+Remark:
+when using Repeater you can Bind values into server web-controls
+the same way as regular bind - just replace the "" to '' !

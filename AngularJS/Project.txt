@@ -1,0 +1,138 @@
+define angularJS project (steps)
+--------------------------------
+
+1. (page) add reference to the base necessary js files: 
+   angular.min.js
+   angular-route.min.js
+
+2. define a factory/service that will serve as the data provider (DAL Layer)
+
+3. define a controller for the logic (BLL Layer)
+   notice! this file rely on the factory so you need to inject the factory in it's constructor
+
+4. define your custom directives and filters
+
+5. create your views (partial htmls files or ng-templates)
+
+6. define the application routing and create your desired rules based on the views and controllers you've created
+
+7. (page) define the page as an application(module) using the ng-app built-in directive
+
+8. define an app.js file to init your application(module)
+   create an application(module) object and bind to it controllers, factories, directives and filters, in addition, add the routing mechnism to it
+   notice! if necessary - add dependencies ('ngRoute', 'ngAnimate' etc.)
+
+9. (page) add reference to all the above js files (controllers, factories, directives, filters, app, routing ...)
+
+10.(page) add a placeholder to loaded active view
+
+
+recommended project files structure
+-----------------------------------
+* you can add a module dependencies to "import" all of it's logic (see 'dependencies.txt')
+
+* in the 1st option you create a js file per entity per type (users_controller, users_directives, product_controller, product_directives etc.)
+* in the 2nd option you create a js file per type (directives, controllers, factories etc.)
+* in the 3rd option you create a js file module and each module will represent an entity (user_module, product_module etc.), 
+  within each module you define all the required objects for this module (users_directives, users_controllers, users_factories etc.)
+  finally, you add it to your application as dependency
+* the 4rd option combines both approches 2 and 3
+
+-- OPTION 1 --
+
+ root
+	- index.html
+	- scripts
+		-- angular.min.js
+		-- angular-animate.min.js
+		-- angular-route.min.js
+	- app
+		-- app.js
+		-- config.js
+		-- controllers
+			--- controller1.js
+			--- controller2.js		
+		-- directives
+			--- directive1.js
+			--- directive2.js
+		-- data
+			--- consts.js
+			--- factory1.js
+			--- factory2.js			
+		-- filters
+			--- filter1.js
+			--- filter2.js			
+		-- views 
+			--- view1.html
+			--- view2.html
+			
+-- OPTION 2 --
+
+ root
+	- index.html
+	- scripts
+		-- angular.min.js
+		-- angular-animate.min.js
+		-- angular-route.min.js
+	- app
+		-- app.js
+		-- config.js
+		-- controllers.js
+		-- directives.js
+		-- factories.js
+		-- consts.js
+		-- filters.js
+		-- decorators.js
+		-- views 
+			--- view1.htm
+			--- view2.htm
+
+-- OPTION 3 --
+
+ root	
+	- index.html
+	- scripts
+		-- angular.min.js
+		-- angular-animate.min.js
+		-- angular-route.min.js
+	- app
+		-- app.js
+		-- config.js
+		-- modules
+			--- module1.js
+			--- module2.js
+		-- views 
+			--- view1.htm
+			--- view2.htm
+
+-- OPTION 4 --
+
+ root
+	- index.html
+	- scripts
+		-- angular.min.js
+		-- angular-animate.min.js
+		-- angular-route.min.js
+	- app
+		-- app.js
+		-- config.js
+		-- modules
+			--- module1
+				---- controllers.js
+				---- directives.js
+				---- factories.js
+				---- consts.js
+				---- filters.js
+				---- decorators.js
+
+			--- module2
+				---- controllers.js
+				---- directives.js
+				---- factories.js
+				---- consts.js
+				---- filters.js
+				---- decorators.js
+
+		-- views 
+			- view1.htm
+			- view2.htm

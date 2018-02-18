@@ -2,7 +2,7 @@ javascript map
 --------------
 
 structure:
-[array].map([method]);
+[array].map([function]);
 
 note: can provide a pre-defined/system fuction 
 e.g: 

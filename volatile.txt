@@ -1,0 +1,57 @@
+C# volatile keyword
+-------------------
+disable the compiler optimization and caching for that property.
+also useful when using multiple threads which can change the value.  
+
+tells the compiler that the value of a variable must never be cached as its value may change outside of the scope of the program itself. 
+The compiler will then avoid any optimisations that may result in problems if the variable changes "outside of its control".
+
+// from msdn
+The volatile keyword indicates that a field can be modified in the program by something such as 
+the operating system, the hardware, or a concurrently executing thread.
+
+---
+
+the following code snippet:
+// i = 5;
+Console.WriteLine(i);
+
+can be changed by the compiler to the following:
+Console.WriteLine(5);
+
+however, if there's another thread which can change i it would be an incorrect behaviour! 
+so if the other thread changes the value of i to 7 - the cached version will still print 5.
+
+note: see 'JIT compiler optimizations.txt'
+
+---
+
+each thread has it own local cache.
+when a value of a non-volatile item is updated - the change is made in the cache of the executing thread and not in the main memory.
+when a value of a volatile item is updated - the change is made in the executing thread cached version and, in additon, flushed to the main memory! 
+and when a value of a volatile item is read - the thread refreshes its cache and get the updated value from the memory.
+
+---
+
+// using sample
+public sealed class MySingleton {
+	private static volatile MySingleton _instance;
+    private static object syncRoot = new Object();
+
+    private MySingleton() { }
+
+    public static MySingleton Instance {
+        get {			
+            if (_instance == null)  { 
+                lock (syncRoot) {
+                    if (_instance == null)
+                        _instance = new ThreadSafeSingleton();
+                }
+            }
+
+            return _instance;
+        }
+    }
+}
+
+

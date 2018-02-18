@@ -1,0 +1,75 @@
+BLL
+===
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml.Linq;
+
+public class Image {
+        public string src { set; get; }
+        public string title { set; get; }
+
+        public Image() { }
+        public Image(string src,string title) {
+            this.src = src;
+            this.title = title;
+        }
+}
+
+private static List<Image> _Images = null;
+
+
+public static void LoadImages() {
+        XDocument xDoc = XDocument.Load(string.Concat(AppDomain.CurrentDomain.BaseDirectory, "XML\\", "Gallery.xml"));
+        XElement root = xDoc.Element("Gallery");
+        IEnumerable<XElement> elements = root.Elements();
+
+        if (_Images == null)
+            _Images = new List<Image>();
+        else
+            _Images.Clear();
+
+        foreach (XElement elem in elements)
+            _Images.Add(new Image(elem.Attribute("src").Value, elem.Attribute("title").Value));
+}
+
+
+public static List<Image> GetImages(byte pageNum) {
+        byte pageSize = 12;
+
+        /// return _Images.Where((image, index) => (index >= ((pageNum-1) * pageSize))).Take(pageSize).ToList();		
+        return _Images.Skip(((pageNum - 1) * pageSize)).Take(pageSize).ToList();
+}
+
+-----------------------------------
+
+XML
+===
+
+<?xml version="1.0" encoding="utf-8" ?>
+<Gallery>
+  <Image title="1" src="1.jpg" />
+  <Image title="2" src="2.jpg" />
+  <Image title="3" src="3.jpg" />
+  <Image title="4" src="4.jpg" />
+  <Image title="5" src="5.jpg" />
+  <Image title="6" src="6.jpg" />
+  <Image title="7" src="7.jpg" />
+  <Image title="8" src="8.jpg" />
+  <Image title="9" src="9.jpg" />
+  <Image title="10" src="10.jpg" />
+  <Image title="11" src="11.jpg" />
+  <Image title="12" src="12.jpg" />
+  <Image title="13" src="13.jpg" />
+  <Image title="14" src="14.jpg" />
+  <Image title="15" src="15.jpg" />
+</Gallery>
+
+-----------------------------------
+
+Global.asax
+===========
+
+void Application_Start(object sender, EventArgs e) {
+        LoadImages();
+}

@@ -1,0 +1,25 @@
+SingleTon vs Static class
+=========================
+
+Static class
+------------ 
+[keywork] 
+can contains ONLY static members. 
+can NOT use interfaces. 
+can NOT use inheritance. 
+exception in the static constructor can cause issues.
+can NOT have a constructors (except of a static parameterless one).
+
+
+SingleTon pattern
+-----------------
+[design pattern]
+allow access to a single Instance.
+SingleTon is a single instance of a regular class which means it supports ALL the OOP concepts.  
+a SingleTon instance can be injected to other methods/classes (can be passed as a reference) 
+can use interfaces.
+can use inheritance. 
+supports lazy or eager loading and can be loaded by a custom logic.
+supports polymorphism and all the OOP principles.
+easier to convert as thread-save instance.
+
