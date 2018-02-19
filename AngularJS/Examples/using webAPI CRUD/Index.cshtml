@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section scripts{    
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.9/angular.min.js"></script>
+    <script type="text/javascript" src="~/Scripts/app/app.js"></script>
+}
+
+<h1>To Buy List</h1>
+
+<div ng-app="my-app">
+    
+    <div ng-controller="homeController">
+
+       <input type="text" ng-model="productNameFilter" />
+        
+        <ul>
+            <li ng-repeat="product in products|filter: productNameFilter">
+                <div ng-include="'product.partial'"></div>
+            </li>
+        </ul>
+        
+        <input type="text" ng-model="newProduct" />
+        <input type="button" ng-click="addProduct()" value="Add" />
+
+    </div>
+
+    <script type="text/ng-template" id="product.partial">
+        <div class="productWrapper">
+            <div class="product">
+                <input type="checkbox" value="{{ product.id }}" ng-click="changeProductState(this, $index)" ng-checked="{{ product.state }}" />
+                <span ng-class="{ checked: product.state }">{{ product.name }}</span>
+                <input type="button" ng-click="removeProduct($index)" value="X" />
+            </div>
+        </div>
+    </script>
+
+</div>

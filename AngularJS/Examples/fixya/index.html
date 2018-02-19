@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+
+<html ng-app="my-app" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <link rel="stylesheet" type="text/css"href="site.css" />
+    <!--<link rel="stylesheet" type="text/css" href="http://demo.jankuri.com/ngAutocomplete/src/css/ngAutocomplete.css" />-->
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+</head>
+<body>
+    <div ng-controller="homeController">
+
+        <div class="ui-widget">
+          <input id="searchPhrase" ng-model="searchPhrase" ng-change="LoadAutocomplete()">
+        </div>
+        <input type="button" ng-click="Search()" value="search" />        
+       
+        <ul>
+            <li ng-repeat="track in tracks">
+                <ng-track track="track" click="AddToList($index);"></ng-track>
+                <!--<div ng-include="'track.partial'"></div>-->
+            </li>
+        </ul>
+
+        <h4>myList</h4>
+        <ul>
+            <li ng-repeat="track in myList track by $index">
+                <ng-track track="track" click="AddToList($index);"></ng-track>
+                <!--<div ng-include="'track.partial'"></div>-->
+            </li>
+        </ul>
+    </div>
+
+    <script type="text/ng-template" id="track.partial">       
+        <div class="trackWrapper">
+            <div class="track">                
+                <img src="{{ track.image }}" alt="{{ track.name }}" />
+                <div>                            
+                    <h5><a href="{{ track.url }}">{{ track.name }}</a></h5>
+                    <p>
+                        {{ track.artist }}                        
+                    </p>                    
+                </div>
+                <div>
+                    <input type="button" ng-click="click()" value="add to list" />
+                </div>
+            </div>                           
+        </div>
+    </script>
+       
+    <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.9/angular.min.js"></script>
+    <!--<script src="http://demo.jankuri.com/ngAutocomplete/src/js/ngAutocomplete.js"></script>-->
+    <script type="text/javascript" src="app/app.js?ver=3"></script>    
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+
+<html ng-app>
+
+<head>
+    <title>AngularJS</title>
+</head>
+<body>
+    <div>
+        <input type="text" ng-model="my_text" placeholder="enter some text" />{{ my_text }}
+    </div>
+    <div>
+        <ul>
+            <li ng-repeat="name in ['AAAA', 'BBBB', 'CCCC', 'DDDD', 'EEEE']">{{ name }}</li>
+        </ul>
+    </div>
+    <div ng-init="names=['ROBY', 'AVI', 'SHIRLY', 'RONEN', 'GALIT']">
+        <ul>
+            <li ng-repeat="name in names">{{ name }}</li>
+        </ul>
+    </div>
+    <div ng-init="users=[{name:'ROBY', age:35}, {name:'AVI', age:33}, {name:'SHIRLY', age:36}, {name:'RONEN', age:41}, {name:'GALIT', age:28}]">
+        <input type="text" ng-model="name_filter" placeholder="contains" />
+        <ul>
+            <li ng-repeat="user in users | filter: name_filter | orderBy: 'age'">{{ user.name | lowercase }} ({{ user.age }})</li>
+        </ul>
+    </div>
+    <div ng-controller="my_controller">
+        <ul>
+            <li ng-repeat="friend in friends">{{ $index + 1 }} {{ friend.name }}</li>
+        </ul>
+
+        <input type="text" ng-model="new_friend.name" /><br />
+	    <input type="text" ng-model="new_friend.age" /><br />
+	    <button ng-click="addFriend()">add Friend</button>
+    </div>
+
+    <script type="text/javascript" src="angular.min.js"></script>
+</body>
+</html>
+
+<script>
+    function my_controller($scope, $http) {
+        $scope.friends = [
+            { name: 'RON', age: 39 },
+            { name: 'LITAL', age: 26 },
+            { name: 'EREZ', age: 35 },
+            { name: 'MAAYAN', age: 34 },
+            { name: 'RICKI', age: 28 }
+        ];
+
+        $scope.addFriend = function () {
+            $scope.friends.push({
+                name: $scope.new_friend.name,
+                age: $scope.new_friend.age
+            });
+        };
+    } 
+</script>

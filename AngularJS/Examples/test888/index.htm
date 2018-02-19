@@ -1,0 +1,185 @@
+<!doctype html>
+
+<html>
+
+<head>
+    <title>Test 888</title>
+    <style type="text/css">
+        select { width: 120px;}
+        div.filters > div{
+          padding:4px 0;
+          border-right:solid 1px #ddd;  
+        }
+
+        div.header{
+          height:40px;
+          line-height:40px; 
+          text-align:center;
+          border-bottom:solid 2px #000;
+        }
+
+        span.required {
+            font-size:12px;
+            color:red;
+        }
+    </style>
+</head>
+<body>
+    <div ng-app="myApp">
+      <div ng-controller="homeController">        
+        <div class="row header">
+            Phone Finder
+        </div>
+        <div class="row">
+        <div class="col-md-2 filters">
+          <div>
+            <select ng-model="selectedCountry">
+                <option value="" selected>select</option>
+                <option ng-repeat="country in countries">{{country}}</option>  
+            </select>
+            <span ng-show="!hasSelectedCountry" class="required">
+                required
+            </span>                
+          </div>
+          <div>
+            <select ng-model="selectedCity">
+                <option value="" selected>select</option>
+                <option ng-repeat="city in cities">{{city}}</option>  
+            </select>
+            <span ng-show="!hasSelectedCity" class="required">
+                required
+            </span>     
+          </div>
+          <div>
+            <input type="button" ng-click="Search()" value="Search" />
+          </div>
+        </div>
+        <div class="col-md-10">
+          <table class="table table-bordered table-striped">
+            <tr ng-repeat="user in users">
+                <td>{{user.id}}</td>
+                <td>{{user.name}}</td>
+                <td>{{user.phone}}</td>
+            </tr>
+          </table>  
+        </div>
+        </div>
+      </div>  
+    </div>  
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.8/angular.min.js"></script>
+</body>
+</html>
+
+<script>
+    var app = angular.module('myApp', []);
+
+    app.controller('homeController', function ($scope, usersFactory) {
+        $scope.hasSelectedCountry = $scope.hasSelectedCity = true;
+
+        $scope.countries = usersFactory.getCountries();
+
+        $scope.Search = function () {
+            $scope.hasSelectedCountry = $scope.selectedCountry && $scope.selectedCountry != '';
+            $scope.hasSelectedCity = $scope.selectedCity && $scope.selectedCity != '';
+
+            if (!$scope.hasSelectedCity || !$scope.hasSelectedCountry)
+                return;
+
+            $scope.users = usersFactory.getUsersByLocation($scope.selectedCountry, $scope.selectedCity);
+        };
+
+        $scope.$watch('selectedCountry', function () {
+            if ($scope.selectedCountry == '') { // clear
+                $scope.selectedCity = '';
+                $scope.users = [];
+                $scope.cities = [];
+                return;
+            }
+
+            $scope.cities = usersFactory.getCities($scope.selectedCountry);
+        });
+
+        $scope.$watch('selectedCity', function () {
+            if ($scope.selectedCity == '')  // clear
+                $scope.users = [];
+        });
+    });
+
+    app.factory('usersFactory', function () {
+        var users = [
+          {
+              'id': 1,
+              'name': 'roby Cohen',
+              'phone': '054-5555555',
+              'city': 'kfar saba',
+              'country': 'israel'
+          },
+          {
+              'id': 2,
+              'name': 'avi Cohen',
+              'phone': '054-3333333',
+              'city': 'netanya',
+              'country': 'israel'
+          },
+          {
+              'id': 3,
+              'name': 'sharon angel',
+              'phone': '054-2222222',
+              'city': 'netanya',
+              'country': 'israel'
+          },
+          {
+              'id': 4,
+              'name': 'rafi muskatel',
+              'phone': '054-7777777',
+              'city': 'netanya',
+              'country': 'israel'
+          }
+        ];
+
+        var countries = [
+          {
+              'name': 'israel',
+              'cities': ['kfar saba', 'netanya', 'ashdod']
+          },
+          {
+              'name': 'usa',
+              'cities': ['oragon', 'los angeles', 'new york']
+          }
+        ];
+
+        return {
+            getUsersByLocation: function (country, city) {
+                var result = [];
+                HELPER.foreach(users, function () {
+                    if (this.country == country && this.city == city)
+                        result.push(this);
+                });
+                return result;
+            },
+            getCountries: function () {
+                var result = [];
+                HELPER.foreach(countries, function () {
+                    result.push(this.name);
+                });
+                return result;
+            },
+            getCities: function (country) {
+                var result = [];
+                HELPER.foreach(countries, function () {
+                    if (this.name != country) return;
+                    result = this.cities;
+                });
+
+                return result;
+            }
+        }
+    });
+
+    var HELPER = {
+        foreach: function (arr, callback) {
+            for (var i = 0; i < arr.length; i++)
+                callback.call(arr[i])
+        }
+    };
+</script>

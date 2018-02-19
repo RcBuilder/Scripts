@@ -1,0 +1,193 @@
+<!doctype html>
+
+<html lang="he" ng-app="my_application">
+    <head>
+        <title></title>
+        <link href="styles/site.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>  
+        <div ng-controller="home_controller">
+            <h4>using ng-click</h4>
+            <div><input type="button" ng-click="changeSomeName();" value="clickMe" /> {{ someName }}</div>
+
+            <h4>using ng-show / ng-hide</h4>
+            <div>
+                <input type="button" ng-click="getRandomNumber();" value="clickMe" /> {{ randomNumber }}
+                <span ng-show="isEven">EVEN</span>
+                <span ng-hide="isEven">ODD</span>
+            </div>
+
+            <h4>using ng-repeat</h4>
+            <div>
+                <span ng-repeat="name in ['name1', 'name2', 'name3']">{{ name }} &nbsp;&nbsp;</span>
+                <br /><br />
+                <span ng-repeat="number in arr_numbers">{{ number }} &nbsp;&nbsp;</span>
+                <br /><br />
+                <span ng-repeat-start="number in arr_numbers">{{ number }}</span><span ng-repeat-end> # </span>
+            </div>
+
+            <h4>ng-repeat with track by $index</h4>
+            <div>
+                without (exception due to a duplicate value 67)
+                <span ng-repeat="number in [123, 12, 2, 78, 144, 41, 67, 67]">{{ number }}</span>
+                <br /><br />
+                using index instead of key<br />
+                <span ng-repeat="number in [123, 12, 2, 78, 144, 41, 67, 67] track by $index">{{ number }}&nbsp;&nbsp;</span>
+            </div>
+
+            <h4>ng-repeat - $first, $middle and $last | $odd and $even</h4>
+            <div>
+                <div ng-repeat="number in arr_numbers">
+                    {{ number }} 
+                    <span ng-show="$first">[first]</span>
+                    <span ng-show="$middle">[middle]</span>
+                    <span ng-show="$last">[last]</span>
+                    <span ng-show="$even">[even]</span>
+                    <span ng-show="$odd">[odd]</span>
+                    &nbsp;&nbsp;
+                </div>
+            </div>
+
+            <h4>ng-repeat on object attributes</h4>
+            <div><span ng-repeat="attr in user">{{ attr }}&nbsp;&nbsp;</span></div>
+        
+            <h4>using ng-class</h4>
+            <div>
+                <span ng-class="'greenTitle'">HELLO ANGULAR</span>
+                <br /><br />
+                <span ng-class="someCssClass">HELLO ANGULAR</span>
+                <input type="button" ng-click="changeCssClass();" value="clickMe" />
+                <br /><br />
+                <span ng-class="['bold', 'redTitle']">HELLO ANGULAR</span>
+                <br /><br />
+                <span ng-class="{bold: false, redTitle: true}">HELLO ANGULAR</span>
+            </div>
+
+            <h4>using ng-template</h4>
+            <div>
+                <div ng-include="'someTemplate.partial'"></div>
+                <div ng-include="'otherTemplate.partial'"></div>
+            </div>
+
+            <h4>data bind</h4>
+            <div>variable: {{ yourName }}</div>
+            <div>function: {{ sayHello() }}</div>
+            <div>model: <input type="text" ng-model="myTextModel" placeholder="enter text" style="width:70px;" />&nbsp;{{ myTextModel }}</div>
+
+            <h4>controller inheritance</h4>
+            <div ng-controller="sub_controller">
+                {{ yourName }}, {{ whoAmI }}, {{ value1 }}
+            </div>
+
+            <h4>using factory</h4>
+            <div>
+                <span ng-repeat="user in users">{{ user.name }} &nbsp;&nbsp;</span>
+            </div>
+
+            <h4>using watch</h4>
+            <div>
+                <input type="text" ng-model="someModel" placeholder="enter text" style="width:100px;" />
+                <span ng-show="isTooLong" ng-class="'redTitle'">Too long!!!</span>
+            </div>
+
+            <h4>using filter</h4>
+            <div>
+                by any field:<br />
+                <input type="text" ng-model="myFilterModel" placeholder="enter text" style="width:100px;" />
+                <span ng-repeat="user in users | filter:myFilterModel">{{ user.name }} {{ user.lname }}, &nbsp;</span>
+                <br /><br />
+                by last name:<br />
+                <input type="text" ng-model="myFilterModel2.lname" placeholder="enter text" style="width:100px;" />
+                <span ng-repeat="user in users | filter:myFilterModel2">{{ user.name }} {{ user.lname }}, &nbsp;</span>
+                <br /><br />
+                top 3 order by name desc: <br />
+                <span ng-repeat="user in users | orderBy:'name':true | limitTo: 3">{{ user.name }}, &nbsp;</span>
+            </div>
+
+            <h4>using consts</h4>
+            <div>{{ constValue }}</div>
+            
+            <h4>using directives</h4>
+
+            <h5>link function</h5>
+            <somedirective a1="some attribute" a2="another attribute"></somedirective>
+
+            <h5>attributes</h5>
+            <input type="button" value="change Name"  ng-click="changeSomeName();" />
+            <mydirective byval="{{ someName }}" byref="someName"></mydirective>
+
+            <h5>functions</h5>
+            <ng-functions myclick1="foo1();" myclick2="foo2();" myclickwithparam="foo3('some param');" myclickwithparam2="foo3(yourName);"></ng-functions>
+
+            <h5>transclude</h5>
+            <ng-with-transclude>
+                <span style="color:purple;">ORIGINAL CONTENT</span>
+            </ng-with-transclude>
+
+            <h5>using jqLite</h5>
+            <ng-H1></ng-H1>
+
+            <h4>redirect</h4>
+            <input type="button" ng-click="redirectToView('test1')" value="test1" />
+            <input type="button" ng-click="redirectToView('test2')" value="test2" />
+            <input type="button" ng-click="redirectToView('test3')" value="test3" />
+            <input type="button" ng-click="redirectToView('test4')" value="test4" />
+            <input type="button" ng-click="redirectToView('test5')" value="test5" />
+            <input type="button" ng-click="redirectToView('test6')" value="test6" />
+            <input type="button" ng-click="redirectToView('test7')" value="test7" />
+        </div>
+        <div ng-controller="my_controller">
+            <h4>using decorator</h4>
+            <div>{{ originValue }}</div>
+            <div>{{ reverseValue }}</div>
+        </div>
+
+
+        <h4>broadcast and emit</h4>
+        <div ng-controller="level1_controller">
+            <input type="button" ng-click="broadcast()" value="broadcast" />
+            <input type="button" ng-click="emit()" value="emit" />
+
+            <div ng-controller="level2_controller">
+                <input type="button" ng-click="broadcast()" value="broadcast" />
+                <input type="button" ng-click="emit()" value="emit" />
+
+                <div ng-controller="level3_controller">
+                    <input type="button" ng-click="broadcast()" value="broadcast" />
+                    <input type="button" ng-click="emit()" value="emit" />
+                </div>
+            </div>
+        </div>
+
+        <h4>routing</h4>
+        <ng-view></ng-view>
+
+        <!-- ng-templates -->
+        <script type="text/ng-template" id="someTemplate.partial">
+            <span ng-class="'greenTitle'">HELLO FROM TEMPLATE</span>
+        </script>
+        <script type="text/ng-template" id="otherTemplate.partial">
+            <span ng-class="['purpleTitle', 'bold']" ng-repeat="name in ['name1', 'name2', 'name3']">{{ name }},</span>
+        </script>
+        <script type="text/ng-template" id="somedirectiveTemplate.partial">
+            <div>HELLO ANGULAR<div>
+        </script>
+
+        <script type="text/ng-template" id="view1.partial">
+            view1.partial
+        </script>
+        <script type="text/ng-template" id="view2.partial">
+            view2.partial
+        </script> 
+    </body>
+
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+
+    <script src="scripts/angular.min.js" type="text/javascript"></script>
+    <script src="scripts/angular-animate.min.js" type="text/javascript"></script>
+    <script src="scripts/angular-route.min.js" type="text/javascript"></script>
+
+    <script src="app/modules/my_module.js" type="text/javascript"></script>
+    <script src="app/app.js" type="text/javascript"></script>    
+    <script src="app/config.js" type="text/javascript"></script>
+</html>

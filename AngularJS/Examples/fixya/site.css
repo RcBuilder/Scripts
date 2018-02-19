@@ -1,0 +1,18 @@
+ul {
+    list-style:none;
+    padding:0px;
+    margin:0px;
+}
+
+div.trackWrapper {
+   padding:8px 0; 
+}
+
+div.trackWrapper > div.track {
+    border:solid 1px #ddd;
+    padding:12px;
+}
+
+div.trackWrapper > div.track div, div.trackWrapper > div.track img {
+    display:inline-block;
+}

@@ -1,0 +1,55 @@
+<h4>watch event - change any e char to E</h4>
+<div>
+    <input type="text" ng-model="message_model" placeholder="type some text" />
+</div>
+
+<h4>define input as model and use data bind to copy it's content</h4>
+<div>
+    <input type="text" ng-model="some_text_model" placeholder="type some text" />
+    &nbsp;&nbsp;<span style="color:Red;">{{ some_text_model }}</span>
+</div>
+
+<h4>using repeater to render users list + index based on controller supplier</h4>
+<div>
+    <ul>
+        <li ng-repeat="user in users">{{ $index + 1 }}) {{ user.name }}</li>
+    </ul>  
+</div>
+
+<h4>using filters (contains based on model value, orderBy and lowercase)</h4>
+<div>
+    <input type="text" ng-model="user_contains_model" placeholder="type contains value" />
+    <ul>
+        <li ng-repeat="user in users | filter: user_contains_model | orderBy: 'age'">{{ user.name | lowercase }} {{ user.age }}</li>
+    </ul>  
+</div>
+
+<h4>add user</h4>
+<div>
+    <span>notice! the two way data binding mechanism will update all the views based on the users data</span><br />
+    <input type="text" ng-model="new_user_name" placeholder="type user name" /><br />
+    <input type="text" ng-model="new_user_age" placeholder="type user age" /><br />
+    <button ng-click="add_user()">add</button>
+</div>
+
+<h4>inline repeaters</h4>
+<div>
+    <ul>
+        <li ng-repeat="name in ['ROBY', 'AVI', 'SHIRLY', 'RONEN', 'GALIT']">{{ name }}</li>
+    </ul> 
+</div>
+<div ng-init="names=[{name:'ROBY', age:35}, {name:'AVI', age:33}, {name:'SHIRLY', age:36}, {name:'RONEN', age:41}, {name:'GALIT', age:28}]">
+    <ul>
+        <li ng-repeat="name in names">{{ name.age }}</li>
+    </ul> 
+</div>
+
+<h4>using dependencies</h4>
+<div>
+    <ng-Some-Directive></ng-Some-Directive>
+</div>
+<div>
+    <ul>
+        <li ng-repeat="name in ['ROBY', 'AVI', 'SHIRLY', 'RONEN', 'GALIT']">{{ name | someFilter }}</li>
+    </ul>
+</div>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<html ng-app="testAvi">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body ng-controller="homeConroller">
+    <h1>{{ Title }}</h1>
+
+    <input type="text" ng-model="myFilter" />   
+    <ul>
+        <li ng-show="check(name, 2)" ng-repeat="name in names | startWith: myFilter: '#'">{{ name }}</li>
+    </ul>
+
+    <div ng-include="'ppp.partial'"></div>
+
+    <some-Directive>a</some-Directive>
+
+
+    <ul>
+        <li ng-repeat="product in products">            
+            {{ product.id | myId }}       
+            {{ product.name | uppercase }}  
+        </li>
+    </ul>
+
+
+    <ul>
+        <li ng-repeat="product in products">            
+            <other-Directive product="product" title="'My Product'">b</other-Directive>
+        </li>
+    </ul>
+
+
+    <h4>{{ songName }}</h4>
+
+    <script type="text/ng-template" id="ppp.partial">
+        <h2>ppp</h2>
+        <p>
+            bla bla bla ...
+        </p>
+    </script>
+
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.9/angular.min.js"></script>
+    <script type="text/javascript" src="app.js"></script>
+</body>
+</html>

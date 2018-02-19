@@ -1,0 +1,42 @@
+<!doctype html>
+
+<html ng-app="my_application">
+
+<head>
+    <title>AngularJS</title>
+    <style>
+        body{ font: normal normal 400 12px/1.2em arial; background-color:#FFFFFE;}
+    </style>
+</head>
+<body>
+    <ul>
+        <li>
+            <a href="#users">Users</a>
+            <ul>
+                <li><a href="#users/Roby">Users1</a></li>
+                <li><a href="#users/Shirly">Users2</a></li>
+            </ul>
+        </li>
+        <li><a href="#products">Products</a></li>
+    </ul>
+
+    <!-- active view placeholder-->
+    <div ng-view class="slide-animation"></div>
+
+    <script type="text/javascript" src="scripts/angular.min.js"></script>
+    <script type="text/javascript" src="scripts/angular-route.min.js"></script>
+    <script type="text/javascript" src="scripts/angular-animate.min.js"></script>
+    
+    <script type="text/javascript" src="app/factories/products.js"></script>
+    <script type="text/javascript" src="app/factories/users.js"></script>
+    <script type="text/javascript" src="app/controllers/products.js"></script>
+    <script type="text/javascript" src="app/controllers/users.js"></script>
+    <script type="text/javascript" src="app/directives/global.js"></script>
+    <script type="text/javascript" src="app/directives/products.js"></script>
+    <script type="text/javascript" src="app/filters/global.js"></script>      
+    <script type="text/javascript" src="app/filters/products.js"></script>      
+    <script type="text/javascript" src="app/app.js"></script>
+
+    <script type="text/javascript" src="app/dependencies/some_module.js"></script>
+</body>
+</html>

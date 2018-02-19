@@ -1,0 +1,110 @@
+<h4>using filters (currency, uppercase and limit rows)</h4>
+<div>
+    <ul>
+        <li ng-repeat="product in products | limitTo: 4">{{product.id}} - {{ product.name | uppercase }}, price: {{ product.price | currency }}</li>
+    </ul>  
+</div>
+
+<h4>top 3 most expensive products</h4>
+<div>
+    <ul>
+        <li ng-repeat="product in products | orderBy: 'price':true |  limitTo: 3">{{product.id}} - {{ product.name | uppercase }}, price: {{ product.price | currency }}</li>
+    </ul>  
+</div>
+
+<h4>custom order - by product name length</h4>
+<div>
+    <ul>
+        <li ng-repeat="product in products | orderBy: orderByProductNameLength">{{product.id}} - {{ product.name | uppercase }}</li>
+    </ul>  
+</div>
+
+<h4>custom order - random</h4>
+<div>
+    <ul>
+        <li ng-repeat="product in products | orderBy: orderByRandom">{{product.id}} - {{ product.name | uppercase }}</li>
+    </ul>  
+</div>
+
+<h4>order by model (dropdown)</h4>
+<div>
+    <select ng-model="orderBy_model">
+    <option value="id">id asc</option>
+    <option value="-id">id desc</option>
+    <option value="name">name asc</option>
+    <option value="-name">name desc</option>
+    <option value="price">price asc</option>
+    <option value="-price">price desc</option>
+    </select>  
+    <ul>
+        <li ng-repeat="product in products | orderBy: orderBy_model">{{product.id}} - {{ product.name | uppercase }}, price: {{ product.price | currency }}</li>
+    </ul>  
+</div>
+
+<h4>using nested loop</h4>
+<div>
+    <ul>
+        <li ng-repeat="product in products">
+        {{ product.name | uppercase }}
+        <ul>
+            <li ng-repeat="color in product.colors">{{ color }}</li>
+        </ul>
+        </li>
+    </ul>  
+</div>
+
+<h4>custom filters (isSamsung, toId format)</h4>
+<div>
+    <ul>
+        <li ng-repeat="product in products | isSamsung">{{ product.id | toId }} - {{ product.name }}</li>
+    </ul>  
+</div>
+
+<h4>custom filters (StartsWith - with parameter)</h4>
+<div>
+    <input type="text" ng-model="product_startsWith_model" placeholder="type starts with value" maxlength="4" />  
+    <ul>
+        <li ng-repeat="product in products | StartsWith:product_startsWith_model">{{ product.id | toId }} - {{ product.name }}</li>
+    </ul>  
+</div>
+
+<h4>custom filters (NameLengthRange - multi parameters)</h4>
+<div>
+    <input type="text" ng-model="product_min_length_model" placeholder="min" maxlength="2" style="width:30px;" />  
+    <input type="text" ng-model="product_max_length_model" placeholder="max" maxlength="2" style="width:30px;" />  
+    <ul>
+        <li ng-repeat="product in products | NameLengthRange:product_min_length_model:product_max_length_model">{{ product.id | toId }} - {{ product.name }}</li>
+    </ul>  
+</div>
+
+<h4>custom directive (ng-Copyright) - as tag</h4>
+<ng-Copyright></ng-Copyright>
+
+<h4>custom directive (ng-Copyright) - as comment</h4>
+<!-- directive: ng-Copyright -->
+
+<h4>custom directive with parameters (ProductInfo)</h4>
+<ng-Product-Info product="products[0]" title="'NEW PRODUCT!!'"></ng-Product-Info>
+
+<h4>custom directive with parameters (ProductInfo) - as Attribute</h4>
+<span ng-Product-Info product="products[0]" title="'NEW PRODUCT!!'"></span>
+
+<h4>custom directive with parameters (ProductInfo) - repeater</h4>
+<div ng-repeat="product in products | limitTo: 3" style="padding-bottom:6px;">
+    <ng-Product-Info product="product"></ng-Product-Info>
+</div>
+
+<h4>custom directive using link to bind event (ngClickMe)</h4>
+<ng-Click-Me></ng-Click-Me>
+
+<h4>custom directive with inner repeater based on local scope array (ngColorsList)</h4>
+<div ng-Colors-List></div>
+
+<h4>custom directive as css class (ngClickMe)</h4>
+<div class="ng-My-Div-Css">HELLO WORLD</div>
+
+<h4>custom directive with own controller binding (ngSomeProduct)</h4>
+<ng-Some-Product></ng-Some-Product>
+
+<h4>custom directive with functions reference (ngEvents)</h4>
+<ng-Events myclick1="foo1();" myclick2="foo2();"></ng-Events>

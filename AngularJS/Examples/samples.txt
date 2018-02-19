@@ -1,0 +1,47 @@
+
+<div ng-app="service-app">
+    <div ng-controller="homeController">
+        <ul>
+            <li ng-repeat="user in users">{{ user.Name }}</li>
+        </ul>
+    </div>
+</div>
+
+@section scripts{ 
+<script type="text/javascript" src="https://code.angularjs.org/1.4.8/angular.min.js"></script>
+<script>
+    var app = angular.module('service-app', []);
+    app.controller('homeController', function ($scope, usersService) {
+        usersService.getUsers().success(function (result) {
+            $scope.users = result;
+        });
+    });
+    app.factory('usersService', function ($http) {
+        return {
+            getUsers: function () {            
+                return $http.get('http://localhost:35345/api/Service/Get', {  
+					headers: { 
+						accept: 'text/json'
+					} 
+				});
+            }
+        }
+    });
+</script>
+}
+
+public class ServiceController : ApiController
+{
+    [HttpGet]
+    public IEnumerable<Models.User> Get() {
+        var users = new List<Models.User> { 
+            new Models.User{ Id = 1, Name = "Roby", Age = 37 },
+            new Models.User{ Id = 4, Name = "Avi", Age = 35 },
+            new Models.User{ Id = 6, Name = "Shirly", Age = 38 }              
+        };
+
+        return users;
+    }
+}
+
+----------------------------------------

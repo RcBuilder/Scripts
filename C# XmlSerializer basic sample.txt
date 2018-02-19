@@ -1,0 +1,57 @@
+
+Products.xml
+------------
+<?xml version="1.0" encoding="utf-8"?>
+<Products xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <Product Id="1">
+    <Name>ItemA</Name>
+    <State>true</State>
+  </Product>
+  <Product Id="2">
+    <Name>ItemB</Name>
+    <State>false</State>
+  </Product>
+  <Product Id="3">
+    <Name>ItemC</Name>
+    <State>false</State>
+  </Product>
+  <Product Id="4">
+    <Name>ItemD</Name>
+    <State>false</State>
+  </Product>
+  <Product Id="5">
+    <Name>ItemE</Name>
+    <State>false</State>
+  </Product>
+  <Product Id="6">
+    <Name>ItemG</Name>
+    <State>false</State>
+  </Product>
+  <Product Id="8">
+    <Name>ItemH</Name>
+    <State>false</State>
+  </Product>
+  <Product Id="314">
+    <Name>ItemF</Name>
+    <State>true</State>
+  </Product>
+</Products>
+
+----------------------------
+
+private readonly static string ProductsTable = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "App_Data\\", "Products.xml");
+private List<Models.Product> _Products = null;
+
+private void LoadProducts() {
+	using (var stream = new StreamReader(ProductsTable)) {
+		var serialize = new XmlSerializer(typeof(List<Product>), new XmlRootAttribute("Products"));
+		this._Products = (List<Product>)serialize.Deserialize(stream);
+	}              
+}
+
+private void SaveProducts() {
+	using (var stream = new StreamWriter(ProductsTable)) {
+		var serialize = new XmlSerializer(typeof(List<Product>), new XmlRootAttribute("Products"));
+		serialize.Serialize(stream, this._Products);
+	}    
+}
