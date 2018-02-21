@@ -1,0 +1,110 @@
+Create a Custom Converter for a specific Property
+-------------------------------------------------
+we can also use a custom converter on a class level
+see 'Newtonsoft Custom Converter - JsonConverter - class.txt'
+
+sample implementation
+---------------------
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+public enum eIAType { A, B }
+
+public interface IA {
+    int pIA { set; get; }
+    eIAType Type { get; }
+}
+
+public class A : IA {
+    public int pIA { set; get; }
+    public string pA { set; get; }
+    public eIAType Type { get; } 
+
+    public A(){
+        this.Type = eIAType.A;
+    }
+}
+
+public class B : IA {
+    public int pIA { set; get; }
+    public string pB { set; get; }
+    public eIAType Type { get; }
+
+    public B() {
+        this.Type = eIAType.B;
+    }
+}
+    
+public class C {
+	// using a custor converter for the IA interface
+    [JsonConverter(typeof(IAConverter))]  
+    public IA item { set; get; }
+    public string Name { set; get; }
+}
+
+---
+
+public class IAConverter : JsonConverter
+{
+    public override bool CanConvert(Type objectType) {
+        return true;
+    }
+
+    public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+    {
+        // return serializer.Deserialize<B>(reader);
+
+        // once loaded, use the obj instead of the reader which is now empty
+        var obj = JObject.Load(reader); 
+        var eType = obj["Type"].ToObject(typeof(eIAType));
+            
+        switch (eType) {
+            case eIAType.A:
+                return obj.ToObject(typeof(A));                    
+            case eIAType.B:
+                return obj.ToObject(typeof(B));
+            default:
+                return null;
+        }
+    }
+
+    public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+    {
+        serializer.Serialize(writer, value); // default implementation
+    }
+}
+
+using
+-----
+
+var c = new C {
+    Name = "CCC",
+    item = new B {
+        pIA = 10,
+        pB = "BBB"
+    }
+};
+
+var jsonC = JsonConvert.SerializeObject(c);
+var objC = JsonConvert.DeserializeObject<C>(jsonC);
+Console.WriteLine(objC.Name);
+
+---
+
+[Known Exception]
+interfaces and abstract classes can't be instantiated by the default converter 
+because it doesn't know which instance type to generate based on the non-schema json value
+
+without the using of our custom IAConverter we'll get a 'class cannot be instantiated' exception 
+in any attempt to desirialize the object. 
+the engine doesn't know the actual type to populate in the IA interface. 
+
+/*
+    Newtonsoft.Json.JsonSerializationException
+    HResult=0x80131500
+    Message=Could not create an instance of type TestConsole.IA. Type is an interface or abstract class and cannot be instantiated. Path 'item.pIA', line 1, position 15.
+    Source=Newtonsoft.Json
+    StackTrace:
+    at Newtonsoft.Json.Serialization.JsonSerializerInternalReader.CreateNewObject(JsonReader reader, JsonObjectContract objectContract, JsonProperty containerMember, JsonProperty containerProperty, String id, Boolean& createdFromNonDefaultCreator)                
+*/
