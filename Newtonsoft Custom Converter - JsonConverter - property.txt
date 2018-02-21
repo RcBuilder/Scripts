@@ -108,3 +108,7 @@ the engine doesn't know the actual type to populate in the IA interface.
     StackTrace:
     at Newtonsoft.Json.Serialization.JsonSerializerInternalReader.CreateNewObject(JsonReader reader, JsonObjectContract objectContract, JsonProperty containerMember, JsonProperty containerProperty, String id, Boolean& createdFromNonDefaultCreator)                
 */
+
+another (and better) solution to this exception is by adding the objects type as metadata in runtime 
+to the json content 
+see 'Newtonsoft Settings - JsonConverter - Metadata - Objects Type.txt'

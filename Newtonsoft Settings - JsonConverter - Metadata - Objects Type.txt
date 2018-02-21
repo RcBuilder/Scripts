@@ -1,0 +1,105 @@
+Newtonsoft Settings
+===================
+
+Metadata - Objects Type
+-----------------------
+use the built-in 'TypeNameHandling' settings property to add the objects type 
+as metadata to the final json content.
+for each object, a new json property ($type) which represents the type of object will be added in runtime and become part of the json content.
+
+Settings
+--------
+var settings = new JsonSerializerSettings {
+    TypeNameHandling = TypeNameHandling.All
+};
+
+JsonConvert.SerializeObject([object], settings);
+JsonConvert.DeserializeObject<T>([object], settings);
+
+Sample json
+-----------
+ { 
+    "$type":"TestConsole.C, TestConsole",
+    "item":{
+        "$type":"TestConsole.B, TestConsole",
+        "pIA":10,
+        "pB":"BBB"
+    },
+    "Name":"CCC"
+}
+
+note that a new $type property has been added for each object! 
+
+
+sample implementation
+---------------------
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+public interface IA {
+    int pIA { set; get; }        
+}
+
+public class A : IA {
+    public int pIA { set; get; }
+    public string pA { set; get; }        
+}
+
+public class B : IA {
+    public int pIA { set; get; }
+    public string pB { set; get; }        
+}
+    
+public class C {       
+    public IA item { set; get; }
+    public string Name { set; get; }
+}
+
+using
+-----
+
+var settings = new JsonSerializerSettings {
+    TypeNameHandling = TypeNameHandling.All
+};
+
+var c = new C {
+    Name = "CCC",
+    item = new B {
+        pIA = 10,
+        pB = "BBB"
+    }
+};
+
+/* 
+    { 
+        "$type":"TestConsole.C, TestConsole",
+        "item":{
+            "$type":"TestConsole.B, TestConsole",
+            "pIA":10,
+            "pB":"BBB"
+        },
+        "Name":"CCC"
+    }
+*/
+var jsonC = JsonConvert.SerializeObject(c, settings);
+var objC = JsonConvert.DeserializeObject<C>(jsonC, settings);
+Console.WriteLine(objC.Name);
+
+---
+
+[Known Exception]
+interfaces and abstract classes can't be instantiated by the default converter 
+because it doesn't know which instance type to generate based on the non-schema json value
+
+we can solve this issue by adding the objects type as metadata in runtime to the json content 
+using the 'TypeNameHandling' settings proprty
+
+/*
+    Newtonsoft.Json.JsonSerializationException
+    HResult=0x80131500
+    Message=Could not create an instance of type TestConsole.IA. Type is an interface or abstract class and cannot be instantiated. Path 'item.pIA', line 1, position 15.
+    Source=Newtonsoft.Json
+    StackTrace:
+    at Newtonsoft.Json.Serialization.JsonSerializerInternalReader.CreateNewObject(JsonReader reader, JsonObjectContract objectContract, JsonProperty containerMember, JsonProperty containerProperty, String id, Boolean& createdFromNonDefaultCreator)                
+*/
