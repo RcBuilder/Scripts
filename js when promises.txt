@@ -1,3 +1,7 @@
+also see 'javascript promises.txt'
+
+---------------------------------
+
 var services = {
     deleteFavorite: function (id) {
         $.ajax({
@@ -11,18 +15,31 @@ var services = {
     }
 }
 
-----
+---
 
 function deleteFavorites() {
-    var itemsToDelete = $('#deleteFavorites').find('[role="main"] > [data-role="controlgroup"]:first [type="checkbox"]:checked');
-    
-    var promises = [];
-    itemsToDelete.each(function () {
-        promises.push(services.deleteFavorite($(this).attr('id')));
-    });
+    var deleted1 = services.deleteFavorite(1);    
+    var deleted2 = services.deleteFavorite(2);
 
     // wait ALL
-    $.when(promises).done(function () {
+    $.when(deleted1, deleted2).done(function() {
         changePage('favorites');
     });
 }
+
+---------------------------------
+
+var d1 = $.Deferred();
+var d2 = $.Deferred();
+var d3 = $.Deferred();
+ 
+// wait ALL
+$.when(d1, d2, d3).done(function (v1, v2, v3) {
+    console.log(v1); // undefined
+    console.log(v2); // abc
+    console.log(v3); // [ 1, 2, 3, 4, 5 ]
+});
+ 
+d1.resolve();
+d2.resolve('abc');
+d3.resolve(1, 2, 3, 4, 5);

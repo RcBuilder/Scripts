@@ -1,0 +1,74 @@
+FileReader
+----------
+use the FileReader object to read selected files (from input file dialog)
+
+
+get files to read
+-----------------
+// get all dialog selected file 
+var files = $('#[input-file-id]').get(0).files;
+
+// get specific file by index
+var file = files[0];
+
+// get the file type
+file.type
+
+read file Syntax
+----------------
+var reader = new FileReader();
+reader.onload = function () { 
+	// reader.result
+}
+
+reader.readAsDataURL(file);
+OR 
+reader.readAsText(file);
+OR 
+reader.readAsBinaryString(file);
+
+---
+
+note! 
+we can bind the input file onchange event 
+and read the file content right after it has selected by the user.
+see 'js - get input file content on change.txt'
+
+-------------------------
+
+<input type="file" id="file1" />
+<br />
+<input type="button" value="read as data" data-type="data" />
+<input type="button" value="read as text" data-type="text" />
+<input type="button" value="read as binary" data-type="binary" />
+
+<script>
+	// bind click event for all buttons with 'data-type' property   
+    $('input:button[data-type]').bind('click', function () {
+
+		// get selected files from the fileUpload dialog 
+        var files = $('#file1').get(0).files;
+        var file = files[0];
+
+        console.log(file.type); // print the file type 
+
+
+        var reader = new FileReader();
+
+		// onload event registration - occurs once the reader has loaded the file 
+        reader.onload = function () {
+            console.log(reader.result);
+        }
+
+		// read! this reads the file as data, it raises the onload event 
+        var readType = $(this).attr('data-type');
+        switch (readType) {
+            case 'data': reader.readAsDataURL(file);
+                break;
+            case 'text': reader.readAsText(file);
+                break;
+            case 'binary': reader.readAsBinaryString(file);
+                break;                
+        }
+    });
+</script>

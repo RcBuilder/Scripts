@@ -1,0 +1,36 @@
+FileReader
+----------
+use the FileReader object to read selected files (from input file dialog)
+
+onChange event
+--------------
+bind an handler to the input file onchange event
+will be triggered once the user open the dialog and select a file 
+ 
+also see 'js FileReader - read input files.txt'
+
+---
+
+<input type="file" id="file1" />
+
+<script>
+   $('#file1').bind('change', function (e) {
+        // target = input file
+        var target = e.target || window.event.srcElement;
+        var files = target.files;
+        var file = files[0];
+
+        // read file 
+        if (FileReader && file) {
+            var reader = new FileReader();
+
+            // onload event registration - occurs once the reader has loaded the file 
+            reader.onload = function () {                    
+                console.log(reader.result);                    
+            }
+
+            // read! this reads the file as data, it raises the onload event 
+            reader.readAsDataURL(file);
+        }
+    });
+</script>

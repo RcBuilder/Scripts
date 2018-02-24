@@ -1,0 +1,956 @@
+
+Create a New Project
+--------------------
+-- OPTION 1 --
+* New Project -> asp.net MVC 4 project -> Web API
+* choose Razor engine -> ok
+
+notice! 
+for mvc 3 version we need to add the 'RestfulRouting' package using NuGet
+and set manually the API structute (perfored automatically in MVC version 4)
+
+-- OPTION 2 --
+* New Project -> ASP.NET Web Application -> Empty
+* choose the 'Web API' option below -> ok
+
+What is REST?
+-------------
+* REST = REpresentational State Transfer
+* REST uses the HTTP verbs (GET, PUT, POST, DELETE) as its actions and the uri as the resource name.
+* REST is an alternative to RPC (Remote Procedure Calls) and Web Services.
+* REST api does not require the client to know anything about the structure of the API.
+* REST api also known as Restful Service. 
+
+Routing (api url)
+-----------------
+by default the api routing is as follow:
+'api/{controller}'
+
+whereas {controller} represents the controller name without the 'Controller' suffix
+
+e.g: 
+for UsersController, the url will be 'api/Users'
+
+tip:
+we can find the routing files under 'App_Start' folder, files 'WebApiConfig.cs' and 'RouteConfig.cs' 
+
+WebApiConfig.cs  - use this for the api routing (ApiController)
+RouteConfig.cs – use this for the site routing (Controller)
+
+Accessibility
+-------------
+* the REST uses the HTTP protocol in order to communicate between the clients and the server. 
+  we can use all the HTTP CRUD methods (GET, POST, PUT, DELETE)
+* in addition, we can use varied of content-Types (html, json, xml etc.) 
+* the return content-Type is defined by the client so the return format will match the client request, 
+  meaning that the same method will return xml or json etc depending on the client request. 
+* in order to define the return type use the 'accept' header in your request.
+* in order to define the request content use the 'content-Type' header in your request.
+
+server 
+------
+* to create a web-api we need to define a class that inherits from the ApiController. 
+
+* auto actions names:
+  one way to define a service with is by using the actions names as the HTTP protocol methods, 
+  the api mechanism realizes which method to execute by the HTTP methods(PUT, GET, POST, DELETE).
+  e.g: 
+  for HTTP POST request, the api will perform the server POST method. 
+  in addition, we can define an extended methods name by using the HTTP method as theirs prefix (GetUsersByAge, GetUsersByName etc.)
+
+  sample:
+  public class ClientsController : ApiController {    
+    public Product Get(int productId) {}
+    public Result Post([FromBody]Product product) {}
+	public Result Put([FromBody]Product product) {}
+	public Result Delete(int productId) {}     
+  }
+
+  reference:
+  see 'api definition for auto methods names'
+
+* custom actions names:
+  we can define a service with by using custom actions names.
+  in order to do so, we have to decorate each action with the Http Type attribute.
+  [HttpGet], [HttpPost], [HttpPut], [HttpDelete]  
+
+  sample:
+  public class ClientsController : ApiController {    
+	[HttpGet]
+    public Product Fun1(int productId) {}
+
+	[HttpPost]
+    public Result Fun2([FromBody]Product product) {}
+
+	[HttpPut]
+	public Result Fun3([FromBody]Product product) {}
+
+	[HttpDelete]
+	public Result Fun4(int productId) {}     
+  }
+
+  reference:
+  api definition for custom actions names
+
+* we can define methods uses single or multi parameters.
+
+* when using parameters, the parameters names MUST match the defined arguments names 
+  e.g: 
+  to call the api method GET(string p1, string p2) -> 
+  we use the following url : api/users?p1=value1&p2=value2       
+
+* we can throw HttpResponseException exception with any of the Http status codes in order to indicate of our response 
+  e.g: 
+  // if no data found, we can return an 404 (not found) response 
+  throw new HttpResponseException(HttpStatusCode.NotFound);
+
+  reference:
+  see 'HttpStatusCodes'
+
+* we can also create our custom response, set its status code and add content and headers to it.
+  use the Request.CreateResponse<T> or Request.CreateResponse to generate a response (object of type HttpResponseMessage).
+   
+  e.g: 
+  return Request.CreateResponse<Models.User>(HttpStatusCode.Created, user); // user created (201) 
+
+  e.g: 
+  var response = this.Request.CreateResponse();
+  response.StatusCode = HttpStatusCode.OK;
+  response.Headers.Add("someKey", "someValue");
+  return response;
+
+  tip: 
+  for POST requests, it's very common to set an http header with the location of the 
+  created item and/or add an header key represents the created id.
+
+* to return raw string use the StringContent object 
+
+  e.g: 
+  return new HttpResponseMessage(HttpStatusCode.OK) { 
+	Content = new StringContent("HELLO FROM API") 
+  };
+
+* all the entities should be created in the 'Models' folder.
+
+* all the API controllers should be created on the 'Controllers' folder.
+
+* it's recommended to add a repository layer to handle the data mappings (ORM). 
+
+content-Types
+-------------
+text/json
+text/xml
+text/html
+
+HttpStatusCodes
+---------------
+Continue = 100
+SwitchingProtocols = 101
+
+OK = 200
+Created = 201
+Accepted = 202
+NonAuthoritativeInformation = 203
+NoContent = 204
+ResetContent = 205
+PartialContent = 206
+
+MultipleChoices = 300
+Ambiguous = 300
+MovedPermanently = 301
+Moved = 301
+Found = 302
+Redirect = 302
+SeeOther = 303
+RedirectMethod = 303
+NotModified = 304
+UseProxy = 305
+Unused = 306
+RedirectKeepVerb = 307
+TemporaryRedirect = 307
+
+BadRequest = 400
+Unauthorized = 401
+PaymentRequired = 402
+Forbidden = 403
+NotFound = 404
+MethodNotAllowed = 405
+NotAcceptable = 406
+ProxyAuthenticationRequired = 407
+RequestTimeout = 408
+Conflict = 409
+Gone = 410
+LengthRequired = 411
+PreconditionFailed = 412
+RequestEntityTooLarge = 413
+RequestUriTooLong = 414
+UnsupportedMediaType = 415
+RequestedRangeNotSatisfiable = 416
+ExpectationFailed = 417
+radeRequired = 426
+
+InternalServerError = 500
+NotImplemented = 501
+BadGateway = 502
+ServiceUnavailable = 503
+GatewayTimeout = 504
+HttpVersionNotSupported = 505
+
+
+api definition for auto methods names 
+-------------------------------------
+// define the entites to work with
+public class User {
+    public int Id { set; get; }
+    public string FirstName { set; get; }
+    public string LastName { set; get; }
+    public byte Age { set; get; }
+}
+
+-
+
+// define the repository which will provide the data
+public class UserRepository {
+	private static List<Models.User> users = new List<Models.User>(){ 
+        new Models.User(){ Id = 1, FirstName = "Roby", LastName = "Cohen", Age = 35 },
+        new Models.User(){ Id = 2, FirstName = "Avi", LastName = "Cohen", Age = 33 },
+        new Models.User(){ Id = 3, FirstName = "Shirly", LastName = "Massa", Age = 36 },
+        new Models.User(){ Id = 4, FirstName = "Ron", LastName = "AAA", Age = 25 },
+        new Models.User(){ Id = 5, FirstName = "Sonia", LastName = "BBB", Age = 54 }
+    };
+
+    public IEnumerable<Models.User> GetUsers() { 
+        return users; 
+    }
+
+    public Models.User GetUser(int Id) { 
+        return users.FirstOrDefault(u => u.Id == Id); 
+    }
+
+    public void AddUser(Models.User user) { 
+        users.Add(user); 
+    }
+
+    public void DeleteUser(int Id) { 
+        users.Remove(GetUser(Id)); 
+    }
+
+    public void UpdateUser(Models.User user)
+    {
+        var current_user = GetUser(user.Id);
+        if (current_user == null)
+        {
+            users.Add(user); // add
+            return;
+        }
+
+        // update
+        current_user.FirstName = user.FirstName;
+        current_user.LastName = user.LastName;
+        current_user.Age = user.Age;
+    }
+
+    public IEnumerable<Models.User> SearchByNameContains(string Name) { 
+        return users.Where(u => u.FirstName.Contains(Name) || u.LastName.Contains(Name)); 
+    }
+
+    public IEnumerable<Models.User> SearchByName(string FName, string LName){ 
+        return users.Where(u => u.FirstName == FName && u.LastName == LName); 
+    }
+}
+
+-
+
+public class UsersController : ApiController
+{
+    // GET api/users
+	// note: starts with 'Get' - the engine will refer to this as a GET action
+    public IEnumerable<Models.User> Get()
+    {
+        var repository = new Models.UserRepository();
+        return repository.GetUsers();
+    }
+
+    // GET api/users/1 or api/users?id=1
+    public Models.User Get(int id)
+    {
+        var repository = new Models.UserRepository();
+        var result = repository.GetUser(id);
+        if (result == null)
+            throw new HttpResponseException(HttpStatusCode.NotFound);
+        return result;
+    }
+
+    // GET api/users?value=Ro
+    public IEnumerable<Models.User> GetContains(string value)
+    {
+        var repository = new Models.UserRepository();
+        var result = repository.SearchByNameContains(value);
+        if (result == null || result.Count() == 0)
+            throw new HttpResponseException(HttpStatusCode.NotFound);
+        return result;
+    }
+
+    // GET api/users?fname=Roby&lname=Cohen
+    public IEnumerable<Models.User> GetByName(string FName, string LName)
+    {
+        var repository = new Models.UserRepository();
+        var result = repository.SearchByName(FName, LName);
+        if (result == null || result.Count() == 0)
+            throw new HttpResponseException(HttpStatusCode.NotFound); 
+        return result;
+    }
+
+    // GET api/users?p1=2&p2=10&p3=3
+    public int GetCalculate(int p1, int p2, int p3)
+    {
+        return p1 + p2 + p3;
+    }
+
+    // POST api/users
+    public HttpResponseMessage Post([FromBody]Models.User user) 
+    {
+        var repository = new Models.UserRepository();
+        repository.AddUser(user);
+        var response = Request.CreateResponse<Models.User>(HttpStatusCode.Created, user);
+
+        response.Headers.Location = new Uri("http://localhost:14159/api/users/" + user.Id); 
+        response.Headers.Add("Created_Id", user.Id.ToString());
+        return response;
+    }
+
+    // PUT api/users
+    public IEnumerable<Models.User> Put([FromBody]Models.User user)
+    {
+        var repository = new Models.UserRepository();
+        repository.UpdateUser(user);
+        return repository.GetUsers();
+    }
+
+	// PUT api/users?p1=HELLO
+    public string PutViaUrl([FromUri]string p1)
+    {
+        return "###" + p1 + "###"; 
+    }
+
+    // DELETE api/users/5
+    public IEnumerable<Models.User> Delete(int id)
+    {
+        var repository = new Models.UserRepository();
+        repository.DeleteUser(id);
+        return repository.GetUsers();
+    }
+}
+
+using the api (client)
+----------------------
+* request
+  - method: GET
+  - url: http://mydomain.com/api/users
+  - accept: text/json
+
+  response
+  - list of all the users in json format
+
+* request
+  - method: GET
+  - url: http://mydomain.com/api/users
+  - accept: text/xml
+
+  response
+  - list of all the users in xml format
+
+* request 
+  - method: GET
+  - url: http://mydomain.com/api/users/1
+  - accept: text/json
+
+  response
+  - single user (with id equal 1) in json format, 404 if not exists
+
+* request
+  - method: GET
+  - url: http://mydomain.com/api/users?value=Ro
+  - accept: text/json
+
+  response
+  - list of all the users contains 'Ro' within theirs first or last name in json format, 404 if not exists
+
+* request
+  - method: GET
+  - url: http://mydomain.com/api/users?fname=Roby&lname=Cohen
+  - accept: text/json
+
+  response
+  - list of all the users named 'Roby Cohen' in json format, 404 if not exists
+
+* request
+  - method: GET 
+  - url: http://mydomain.com/api/users?p1=2&p2=10&p3=3
+  - accept: text/json
+
+  response
+  - the result of Addition p1 + p2 + p3 
+
+* request 
+  - method: POST
+  - url: http://mydomain.com/api/users
+  - accept: text/xml
+  - content-Type: text/json
+  - body: {"Id":20,"FirstName":"Tal","LastName":"Messa","Age":29} 
+
+  explanation
+  - send json content and accept the return values in xml format
+
+  response
+  - 201 created status with the created user (user 20) in xml format
+
+* request 
+  - method: DELETE
+  - url: http://mydomain.com/api/users/20
+  - accept: text/xml
+
+  response
+  - list of all the users less the deleted user from the current request (user 20) in xml format
+
+* request 
+  - method: PUT
+  - url: http://mydomain.com/api/users
+  - accept: text/json
+  - content-Type: text/json
+  - body: {"Id":30,"FirstName":"Yossi","LastName":"Bar-Yosef","Age":30} 
+
+  explanation
+  - send and receive json content
+
+  response
+  - list of all the users plus the updated user from the current request (user 30) in json format
+
+* request 
+  - method: PUT
+  - url: http://mydomain.com/api/users?p1=HELLO
+
+  response
+  - ### HELLO ###
+
+Tips
+----
+* while using REST we can work with any known methods of the HTTP protocol.
+
+* we also can work with various content types for the roundtrips between the client-server.
+
+* use fiddler to construct any type of request (POST, GET etc.) and to set data (headers, values etc.) 
+
+* the Web API performs an auto deserialization based on the requested content-Type header defined in the request by the client. 
+  the Web API performs an auto serialization based on the accept header defined in the request by the client. 
+
+* [FromBody] attribute forces the Web API to read a parameter from the requested FORM body.	
+  we can use only a single [FromBody] parameter!
+
+* [FromUri] attribute forces the Web API to read a parameter from the URI.
+	
+* we can set the content-Type and the accept header to be different types 
+
+  e.g: 
+  // this sends a json content and receives an xml 
+  method: POST
+  accept: text/json
+  content-Type: text/xml
+  body: {"Id":30,"FirstName":"Yossi","LastName":"Bar-Yosef","Age":30}     
+  	   	
+* when opening a new web-api project, it generates a basic controller with all the CRUD actions
+  CRUD = Create, Read, Update and Delete
+
+* CRUD Methods
+  - Create = PUT
+  - Read = GET
+  - Update = POST
+  - Delete = DELETE
+
+* we can define from which provider (body or url) to take/serilize the object 
+  using the [FromBody] or [FromUri] before the parameter.
+
+  e.g: 
+  public string Put([FromBody]string p1) { ... } // send content via the body
+  public string Put([FromUri]string p1) { ... } // send content via url 'p1' parameter
+
+
+api definition for custom actions names
+---------------------------------------
+// use the Http Type attribute to define each action type (HttpGet, HttpPut etc.)
+public class DeliveriesController : ApiController
+{
+    [HttpGet]
+    [Route("services/deliveries")]
+    public SearchDeliveriesResponse Search(SearchDeliveriesRequest request) {
+        var response = new SearchDeliveriesResponse();
+        response.SearchResults = BLL.Deliveries.Search(request as DeliverySearchParameters);            
+        return response;            
+    }
+
+    [HttpGet]
+    [Route("services/deliveries/{deliveryId:int}")]
+    public Delivery Get(int deliveryId) {
+        return BLL.Deliveries.Get(deliveryId);
+    }
+
+    [HttpPut]
+    [Route("services/deliveries/{deliveryId:int}/status")]
+    public UpdateDeliveryStatusResponse UpdateStatus(int deliveryId, [FromBody]UpdateDeliveryStatusRequest request) {
+        var result = BLL.Deliveries.UpdateStatus(deliveryId, request.StatusId);
+        if(!result)
+            return new UpdateDeliveryStatusResponse {
+                Result = eServiceResponse.FAILURE,
+                ResultMessage = "UPDATE STATUS FAILED"
+            };
+            
+        return new UpdateDeliveryStatusResponse {
+            Result = eServiceResponse.SUCCESS, 
+            DeliveryId = deliveryId
+        };
+    }
+  
+    [HttpPost]
+    [Route("services/deliveries/{deliveryId:int}")]
+    public SaveResponse Save(string deliveryId, [FromBody]Delivery delivery) {
+        var result = BLL.Deliveries.Save(delivery);
+        if (result <= 0)
+            return new SaveResponse {
+                Result = eServiceResponse.FAILURE,
+                ResultMessage = "SAVE DELIVERY FAILED"
+            };
+
+        return new SaveResponse {
+            Result = eServiceResponse.SUCCESS
+        };
+    }
+
+    [HttpPost]
+    [Route("services/deliveries/reassign")]
+    public ReAssignDeliveryResponse ReAssign([FromBody]ReAssignDeliveryRequest request) {
+        var result = BLL.Deliveries.ReAssign(request.DeliveryId, request.EmployeeId);
+        if (!result)
+            return new ReAssignDeliveryResponse {
+                Result = eServiceResponse.FAILURE,
+                ResultMessage = "RE-ASSIGN DELIVERY FAILED"
+            };
+
+        return new ReAssignDeliveryResponse {
+            Result = eServiceResponse.SUCCESS
+        };
+    }
+}
+
+fiddler
+-------
+* we can use fiddler to construct requests of any type and see the responses from the web-api.
+
+* Create Request
+  - open fiddler 
+  - go to the Request Builder tag
+  - choose the method type from the drop down and set the requested url
+  - set headers and set the request body if needed
+  - click the execute button located near the url input to perforn the request
+
+* Read Response 
+  - in the left pane you will see the summery of the responses 
+  - double click on each will open a detailed window in the right pane 
+  - in this window you can see the respose headers, cookies, statistics, the respose content and more ..
+
+* filter 
+  - use the filters tab to define which requests to capture 
+
+client Approach
+---------------
+// GET Users list
+$.ajax({
+    type: 'GET',
+    url: '/api/users',
+    dataType: 'json',
+    success: function (data) {
+        var divUsers = $('#divUsers');
+        divUsers.html(''); // clear
+
+        $.each(data, function (i, user) {
+            $('<div>' + user.FirstName + '(' + user.Id + ')' + '</div>').appendTo(divUsers);
+        });
+    },
+    error: function (xhr) {
+        alert('STATUS = ' + xhr.status);
+    }
+});
+
+// ADD User
+var user_id = Math.ceil(Math.random() * 100);
+var user_first_name = $('#first_name').val();
+var user_last_name = $('#last_name').val();
+var user_age = $('#age').val();
+
+$.ajax({
+    type: 'POST',
+    url: '/api/users',
+    dataType: 'json',
+    data: { 
+		Id: user_id, 
+		FirstName: user_first_name, 
+		LastName: user_last_name, 
+		Age: user_age 
+	},
+    success: function (data, textStatus, xhr) {
+        alert(xhr.status); // 201 (Created)
+        $('<div>' + data.FirstName + '(' + data.Id + ')' + '</div>').appendTo('#divUsers');
+    },
+    error: function (xhr) {
+        alert('STATUS = ' + xhr.status);
+    }
+});
+
+
+Log filters:
+implemetation: see MVC/LogFilters folder
+
+Enable CORS
+-----------
+* CORS = Cross Origin Resource Sharing
+
+* Nuget:
+  Install-Package Microsoft.AspNet.WebApi.Cors
+
+* The Cause:
+  - No 'Access-Control-Allow-Origin' header is present on the requested resource
+    when trying to access it via javascript. 
+  - 'same origin policy' issue (also see 'same origin policy.txt')
+
+* Proccess:
+  when a request is been launched from the client, the explorer adds an 'Origin' header automatically (e.g: Origin: http://myClientA.com)
+  if the server allows the request, it sets the Access-Control-Allow-Origin header (e.g: Access-Control-Allow-Origin: http://myClientA.com)
+  if the response does not include the Access-Control-Allow-Origin header, the AJAX request fails!
+
+  e.g:
+  // Request
+  GET http://myServices.com/api/Test HTTP/1.1
+  Origin: http://myClientA.com   
+
+  // Response
+  HTTP/1.1 200 OK
+  Access-Control-Allow-Origin: http://myClientA.com
+
+*  Enable CORS (steps):
+   1. install the package.
+   2. App_Start -> WebApiConfig.cs -> Register
+
+	// adding config.EnableCors() 
+    public static class WebApiConfig {
+        public static void Register(HttpConfiguration config) {            
+            config.EnableCors();
+
+            config.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "api/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
+        }
+    }
+
+   3. use the EnableCors Attribute to define the allowed domains 
+   
+	[EnableCors(origins: "http://myClientA.com, http://myClientB.com", headers: "*", methods: "*")]
+	public class TestController : ApiController { ... }
+
+	note! 
+	we can use it to decorate a specific action or the whole controller. 
+	in addition, we can set it as global (see 'Enable CORS Globally')
+
+* Enable CORS Globally:
+  
+  public static class WebApiConfig {
+    public static void Register(HttpConfiguration config) {
+        var cors = new EnableCorsAttribute("http://myClientA.com", "*", "*");
+        config.EnableCors(cors);        
+    }
+}
+
+* [EnableCors] Options:
+  - origins 
+    specifies which origins are allowed to access the resource.
+	comma seperated values. 
+	can use wildCard '*' for all domains
+
+  - headers 
+    specifies which Author request headers are allowed.
+	comma seperated values. 
+	can use wildCard '*' for all method types
+
+  - methods
+    specifies which HTTP methods are allowed to access the resource (GET, POST etc.)
+	comma seperated values. 
+	can use wildCard '*' for all method types
+
+  - exposed Headers:
+    see 'Exposed Headers'
+
+* Exposed Headers:
+  - we can expose headers set within our service.
+
+  - e.g:
+    [EnableCors(origins: "*", headers: "*", methods: "*", exposedHeaders: "X-Custom-Header")]
+	public class TestController : ApiController {
+		public HttpResponseMessage Get() {
+			var response = new HttpResponseMessage() {
+				Content = new StringContent("GET: Test message")
+			};
+
+			response.Headers.Add("X-Custom-Header", "hello");
+			return response;
+		}
+	}
+
+* Custom CORS Policy:
+  - we can create our own CORS policy by creating a new attribute that implements ICorsPolicyProvider interface
+
+  - e.g:
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = false)]
+	public class MyCorsPolicyAttribute : Attribute, ICorsPolicyProvider {
+		private CorsPolicy _policy;
+
+		public MyCorsPolicyAttribute() {
+			// Create a CORS policy.
+			_policy = new CorsPolicy {
+				AllowAnyMethod = true,
+				AllowAnyHeader = true
+			};
+
+			// Add allowed origins.
+			_policy.Origins.Add("http://myClientA.com");
+			_policy.Origins.Add("http://myClientB.com");
+		}
+
+		public Task<CorsPolicy> GetCorsPolicyAsync(HttpRequestMessage request) {
+			return Task.FromResult(_policy);
+		}
+	}
+
+	// using
+	[MyCorsPolicy]
+	public class TestController : ApiController { ... }
+
+* via web config:
+  <system.webServer>
+    <httpProtocol>
+    <customHeaders>
+        <add name="Access-Control-Allow-Origin" value="*" />
+        <add name="Access-Control-Allow-Headers" value="Content-Type" />
+        <add name="Access-Control-Allow-Methods" value="GET, POST, PUT, DELETE, OPTIONS" />
+    </customHeaders>
+    </httpProtocol>
+  </system.webServer>
+	
+
+XML 
+---
+see 'WebApi xml serialization.txt'
+
+Route Attribute
+---------------
+* [Route]
+
+* enable:
+  on the WebApiConfig.Register class:
+  config.MapHttpAttributeRoutes();
+
+  e.g:
+  public static void Register(HttpConfiguration config) {
+
+    // Web API routes attributes
+	config.MapHttpAttributeRoutes(); 
+	...
+	...
+  }
+
+* structure:  
+  Route("[route]")
+
+  e.g:
+  [Route("api/users")]
+  [Route("api/users/{id}")]
+  [Route("api/users/{id:int}")]
+  [Route("api/users/{id}/tasks")]
+  [Route("api/users/{id}/tasks/{taskId}")]
+
+* example:
+	public static class WebApiConfig {
+		public static void Register(HttpConfiguration config) {
+			// Cross-Origin Requests
+			config.EnableCors();
+
+			// Web API routes attributes
+			config.MapHttpAttributeRoutes(); 
+           
+			// Web API routes 
+			config.Routes.MapHttpRoute(
+				name: "DefaultApi",
+				routeTemplate: "api/{controller}/{id}",
+				defaults: new { id = RouteParameter.Optional }
+			);
+		}
+	}
+
+	[EnableCors(
+		origins: "http://new.atdconf.com,http://localhost:2072", 
+		headers: "*", 
+		methods: "*"
+	)]
+	[LogTraffic]
+	[ErrorTraffic]
+	public class SpreadSheetController : ApiController
+	{
+		[HttpPost]
+		[Route("api/SpreadSheet/author/add")]
+		/*
+			POST http://localhost:4338/api/SpreadSheet/author/add 
+          
+			request:            
+			{ 
+				...
+				...            
+			}
+		*/
+		public int AddAuthorData([FromBody]AuthorDataRequest request){ ... }
+
+
+		[HttpPost]
+		[Route("api/SpreadSheet/participant/update")]
+		/*
+			POST http://localhost:4338/api/SpreadSheet/participant/update 
+          
+			request:
+			{ 
+				...
+				...
+			}
+		*/
+		public int UpdateParticipantData([FromBody]ParticipantDataRequest request) { ... }
+
+
+		[HttpGet]
+		[Route("api/SpreadSheet/{rowId}/tickets")]
+		/*
+			GET http://localhost:4338/api/SpreadSheet/34567/tickets 
+            
+			response:
+			{
+				...
+			}
+		*/
+		public TicketsDataResponse GetTicketsData(int rowId){ ... }
+	}
+
+
+
+Routing
+-------  
+// global.asax
+protected void Application_Start(){
+	RouteConfig.RegisterRoutes(RouteTable.Routes);
+	WebApiConfig.Register(RouteTable.Routes, GlobalConfiguration.Configuration);
+
+	GlobalConfiguration.Configuration.Formatters.XmlFormatter.UseXmlSerializer = true; 
+}
+  
+// App_Start/RouteConfig.cs
+using System.Web.Mvc;
+using System.Web.Routing;
+  
+public class RouteConfig {
+    public static void RegisterRoutes(RouteCollection routes) {
+        routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+  
+        routes.MapRoute(
+            name: "Default",
+            url: "{controller}/{action}/{id}",
+            defaults: new { action = "Index", id = UrlParameter.Optional }
+        );
+    }
+}
+  
+// App_Start/WebApiConfig.cs
+using System.Web.Mvc;
+using System.Web.Http;
+using System.Web.Routing;
+  
+public static class WebApiConfig {
+    public static void Register(RouteCollection routes, HttpConfiguration config) {
+        // Web API configuration and services
+  
+        // Web API routes
+        config.MapHttpAttributeRoutes();
+  
+        routes.MapRoute(
+            name: "Default-Api",
+            url: "api/{controller}/{action}/{id}",
+            defaults: new { action = "Index" }
+        );
+    }
+}
+
+
+[FromUri]
+---------
+bind parameter from the query string 
+
+* note! 
+  no need to set as part of the routing! 
+  the REST engine binds the values automatically by their names.
+
+  e.g:  
+  // PUT api/serviceFun1/p1?p2=BB&p3=CC
+
+  [HttpPut]
+  [Route("api/serviceFun1/p1")]
+  public bool ServiceFun1(string p1, [FromUri]string p2, [FromUri]string p3){
+	...
+  }
+
+* example
+  [AllowAnonymous]
+  [HttpPut]
+  [Route("api/properties/{propertyId}/uploadHTML5Ad")]
+  public UploadHTML5AdResponse UploadHTML5Ad(string propertyId, [FromUri]string zipFileLocalPath){
+	// only zip files allowed
+    var fileType = Path.GetExtension(zipFileLocalPath);            
+    if (fileType.ToLower() != ".zip")
+    {
+        return new UploadHTML5AdResponse
+        {
+            Result = eServiceResponse.FAILURE_UPLOAD_FILE,
+            ResultMessage = "Path.GetExtension"
+        };
+    }
+
+    // load file as bytes 
+    var data = File.ReadAllBytes(zipFileLocalPath);
+    if (data == null || data.Length == 0)
+    {
+        return new UploadHTML5AdResponse
+        {
+            Result = eServiceResponse.FAILURE_UPLOAD_FILE,
+            ResultMessage = "File.ReadAllBytes"
+        };
+    }
+
+	// Code ...
+
+    return new UploadHTML5AdResponse
+    {
+        Result = eServiceResponse.SUCCESS,
+        ResultMessage = "SUCCESS"
+    };
+  }
+
+----------------------------------------------------
+
+TODO:
+async http handler
+authentication
+
+

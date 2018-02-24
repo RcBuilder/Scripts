@@ -1,0 +1,54 @@
+ 
+ in Javascript, the 'this' keyword points to the context of the currently executing function.
+ a literal is a global object and its been created on the global window object. 
+
+ a function within the literal is not global but part of the literal object and therefore, 
+ the 'this' reference refers to the literal object. 
+
+ any attempt to use 'this' directly in the literal (and not as part of a function) will refer to the window object! 
+ which is the global object that contains the literal.
+
+ ---
+
+ window
+	- ltr // this refers to the window
+		- fun1 // this refers to the literal
+		- fun2
+		- fun3
+
+ ---
+ 
+ var ltr = {
+    p1: 1,
+    p2: this, // refers to the window object 
+    fun1: function () {
+        // refers to the literal object
+        return this; 
+    },
+    fun2: function () {
+        // refers to the literal object (same scope as fun1)
+        return this.fun1(); 
+    },
+	fun3: function () {        
+        return function(){
+			return this;
+		}
+    },
+	fun4: function () {        
+		var that = this;
+        return function(){
+			return that;
+		}
+    },
+}
+
+console.log(ltr.p1); // 1
+console.log(ltr.p2); // window { ... }
+console.log(ltr.fun1()); // {p1: 1, p2: Window, fun1: ƒ, fun2: ƒ}
+console.log(ltr.fun2()); // {p1: 1, p2: Window, fun1: ƒ, fun2: ƒ}
+
+console.log(ltr.fun3()()); // window { ... } 
+// note that we need to use ()() to execute the returned function
+
+console.log(ltr.fun4()()); // {p1: 1, p2: Window, fun1: ƒ, fun2: ƒ}
+        

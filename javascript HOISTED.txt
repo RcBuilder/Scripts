@@ -1,13 +1,20 @@
 javascript HOISTED
 ------------------
-- hoisted is the action that's taken backstage by the javascript engine. 
-  it re-arranges the functions and the assignment function variables.
+- hoisted is the action that has been taken backstage by the javascript engine. 
+  it re-arranges the functions and the variables.
   function declarations will be moved to the top of the block whereas function expression variables
   also be moved to the top of the block as undefined and the assignment itself will be performed in its original line.
+  see 'hoisted functions'
+
+  a variable declaration will be hoisted to the top of the block as well.
+  note that ONLY the declarations change location and NOT the initializations!
+  see 'hoisted variables declaration'
 
 - see also 'function declaration vs function expression'
 
-- using
+--------------
+
+// hoisted functions
 
 function fun1() { // 20
     return fun2();
@@ -50,3 +57,31 @@ function fun1() { // Uncaught TypeError: res is not a function
     res = function fun2() { return 20; }
     */
 }
+
+---
+
+// hoisted variables declaration
+
+x = 5; 
+console.log(x); // 5
+var x; 
+
+/*
+	var x; 
+	x = 5; 
+	console.log(x); // 5
+*/
+
+---
+
+var x = 5;
+console.log(x); // 5
+var y = 7;
+
+/*
+	var x;
+	var y;
+	x = 5;
+	console.log(x); // 5
+	y = 7;
+*/

@@ -51,3 +51,8 @@ function expression
   (function () {
      ...   
   })();
+
+---
+
+reference:
+also see 'js lambda syntax.txt'

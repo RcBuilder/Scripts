@@ -1,0 +1,69 @@
+WebApi upload file
+------------------
+
+upload files using REST service:
+
+[option 1]
+add an input file 
+
+[option 2]
+send the data representation of the file (multi-part form type)
+
+tip: 
+we can create a small service with provides an input and present the uploaded data binary value (using pure javascript)
+
+note: 
+POSTMAN have such an option 
+
+[AllowAnonymous]
+[HttpPut]
+[Route("api/properties/{propertyId}/uploadHTML5Ad")]
+public UploadHTML5AdResponse UploadHTML5Ad(string propertyId, [FromUri]string zipFileBinaryData) {
+            
+    // Code here ...
+
+    return new UploadHTML5AdResponse {
+        Result = eServiceResponse.SUCCESS,
+        ResultMessage = "SUCCESS"
+    };
+}
+
+---
+
+[local] 
+just provide the local file address 
+and a service can access this file (on the user machine) in the current scope 
+
+using:
+PUT api/properties/PB01581100/uploadHTML5Ad?zipFileLocalPath=C:\Users\RcBuilder\Downloads\pb_160x600_v1.zip
+
+[AllowAnonymous]
+[HttpPut]
+[Route("api/properties/{propertyId}/uploadHTML5Ad")]
+public UploadHTML5AdResponse UploadHTML5Ad(string propertyId, [FromUri]string zipFileLocalPath) {
+    // only zip files allowed
+    var fileType = Path.GetExtension(zipFileLocalPath);            
+    if (fileType.ToLower() != ".zip") {
+        return new UploadHTML5AdResponse
+        {
+            Result = eServiceResponse.FAILURE_UPLOAD_FILE,
+            ResultMessage = "Path.GetExtension"
+        };
+    }
+
+    // load file as bytes 
+    var data = File.ReadAllBytes(zipFileLocalPath);
+    if (data == null || data.Length == 0) {
+        return new UploadHTML5AdResponse {
+            Result = eServiceResponse.FAILURE_UPLOAD_FILE,
+            ResultMessage = "File.ReadAllBytes"
+        };
+    }
+
+    // Code here ...
+
+    return new UploadHTML5AdResponse {
+        Result = eServiceResponse.SUCCESS,
+        ResultMessage = "SUCCESS"
+    };
+}

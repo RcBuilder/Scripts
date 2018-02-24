@@ -1,5 +1,8 @@
 javascript map
 --------------
+map calls a provided callback function once for each element in an array, in order.
+then it constructs a new array from the results.
+
 
 structure:
 [array].map([function]);
@@ -12,22 +15,29 @@ e.g:
 function fun1(item){ ... }
 items.map(fun1);
 
------------------------
+-----
 
 var numbers = [1, 4, 9, 144, 16];
 
-// return a new array
+// using a built-in function
 var roots = numbers.map(Math.sqrt); 
 Logger.log(roots); // [1.0, 2.0, 3.0, 12.0, 4.0]
 
 -
 
+// using custom callback function
 var multiple2 = numbers.map(function(item){
     return item * 2;
 }); 
 Logger.log(multiple2); // [2.0, 8.0, 18.0, 288.0, 32.0]
 
------------------------
+- 
+
+// usign arrow function
+var even_odd = numbers.map(n => n % 2 == 0 ? 'even' : 'odd');
+console.log(even_odd); // ['odd', 'even', 'odd', 'even', 'even']
+
+-----
   
 var items = [
     { id: 1, name: 'A' },
@@ -71,7 +81,7 @@ items.map(function(item){
 // after
 Logger.log(items); // [{name=A-after-mapping, id=1.0}, {name=B-after-mapping, id=2.0}, {name=C-after-mapping, id=3.0}]
 
------------------------
+-----
 
 // e.g:
 var metaData = [

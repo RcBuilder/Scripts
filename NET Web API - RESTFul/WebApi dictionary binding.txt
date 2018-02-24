@@ -1,0 +1,30 @@
+
+[HttpPut]
+[Route("api/properties/{propertyId}/demo")]
+public MyResponse DoSomething(string propertyId, [FromBody]MyRequest request) {
+    ....
+}
+
+---
+
+public class MyRequest {    
+    [JsonProperty(PropertyName = "resources")]
+    public Dictionary<string, string> Resources { set; get; }
+
+    public MyRequest() {
+        this.Resources = new Dictionary<string, string>();
+    }
+}
+
+---
+
+using:
+PUT api/properties/5678/demo
+{
+	"resources":{
+		"1":"a",
+		"2":"b",
+		"3":"c"
+	}
+}
+

@@ -1,0 +1,112 @@
+deferred and promise
+--------------------
+$.Deferred() creates a new deferred object. 
+deferred.promise() returns a promise object. 
+deferred.resolve(data) executes the processing.
+$.when(promises) waits for ALL the promises list to complete.
+
+-------
+
+// p1, p2 and p3 create deferred object and return a promise
+function p1() {
+    var deferred = $.Deferred();
+    setTimeout(() => {
+        console.log('p1 resolved');
+        deferred.resolve(10);                
+    }, 2000);
+    return deferred.promise();
+}
+        
+function p2(a) {
+    var deferred = $.Deferred();
+	setTimeout(() => {
+        console.log('p2 resolved');
+		deferred.resolve(a * 2);               
+    }, 400);       
+    return deferred.promise();
+}
+
+function p3(a) {
+    var deferred = $.Deferred();
+    console.log('p3 resolved');
+    deferred.resolve(a * 3);            
+    return deferred.promise();
+}
+
+---
+
+// single promise 
+
+p1().done(function () {
+    console.log('p1 done');
+});
+/*
+    p1 resolved // after 2 sec
+    p1 done
+*/
+
+---
+        
+// single promise with wait ALL
+
+$.when(p1()).done(function () {
+    console.log('ALL resolved');
+});
+/*
+    p1 resolved // after 2 sec
+    ALL resolved
+*/
+
+---
+
+// multi promises with wait ALL
+
+$.when(p1(), p2(1), p3(1)).done(function () {
+    console.log('ALL resolved');
+});
+/*
+	p3 resolved
+    p2 resolved // after 400 milliseconds
+    p1 resolved // after 2 sec
+    ALL resolved
+*/
+
+---
+
+// multi promises with wait ALL and sum value 
+
+var sum = 0;        
+$.when(p1(), p2(10), p3(10)).done(function (res_p1, res_p2, res_p3) {
+    sum += parseInt(res_p1);
+    sum += parseInt(res_p2);
+    sum += parseInt(res_p3);
+    console.log('sum: ' + sum); // 60
+});
+
+---
+
+// array of promises with wait ALL and sum value 
+// uses array.map in order to INVOKE each promise
+
+var promises = [p1, p1, p1];
+$.when.apply($, promises.map(x => x())).done((v1, v2, v3) => {
+
+    // p1 return 10 x 3 executions
+    let sum = parseInt(v1) + parseInt(v2) + parseInt(v3);
+    console.log('sum: ' + sum); // 30
+});
+
+---
+
+// array of promises with wait ALL
+
+var promises = [p1, p2, p3];        
+$.when.apply($, promises.map(x => x())).done(function () {
+    console.log('ALL resolved');
+});
+/*
+    p3 resolved
+    p2 resolved // after 400 milliseconds
+    p1 resolved // after 2 sec
+    ALL resolved
+*/

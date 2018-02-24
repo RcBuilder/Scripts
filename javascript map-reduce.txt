@@ -1,0 +1,8 @@
+
+map-reduce process 
+------------------
+
+// TODO
+
+see 'javascript map.txt'
+see 'javascript reduce.txt'

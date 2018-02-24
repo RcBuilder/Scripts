@@ -1,0 +1,86 @@
+javascript filter
+-----------------
+filter calls a provided callback function once for each element in an array, in order.
+then it constructs a new array from the results.
+the callback function must return a boolean value (true or false).
+
+structure:
+[array].filter([function with boolean response]);
+
+
+--------
+
+var numbers = [11, 4, 9, 144, 16];
+
+// using custom callback function
+var bigNumbers = numbers.filter(function(item){
+    return item >= 10;
+}); 
+
+console.log(bigNumbers); // [11, 144, 16]
+
+---
+
+var words = ['hello', 'puppy', 'ant', 'previous', 'homeland'];
+
+function filterLongWords(item){
+	return item.length > 5;
+}
+
+// using pre-defined function
+var longWords = words.filter(filterLongWords); 
+console.log(longWords); // ['previous', 'homeland']
+
+---
+
+var numbers = [11, 4, 9, 144, 16];
+
+// usign arrow function
+var evenNumbers = numbers.filter(n => n % 2 == 0);
+console.log(evenNumbers); // [4, 144, 16]
+
+---
+
+var items = [
+    { id: 1, name: 'A', country: 'Israel' },
+    { id: 2, name: 'B', country: 'Turkey' },
+    { id: 3, name: 'C', country: 'Israel' },
+	{ id: 4, name: 'D', country: 'USA' },
+	{ id: 5, name: 'E', country: 'USA' }
+];
+    
+// filter array of items
+var fromIsrael = items.filter(function(item){
+    return item.country.toLowerCase() == 'israel';
+}); 
+    
+console.log(fromIsrael); 
+
+/*
+	{ id: 1, name: 'A', country: 'Israel' },    
+    { id: 3, name: 'C', country: 'Israel' }	
+*/
+
+-
+
+// same as the above sample using an arrow function
+var fromIsrael = items.filter(x => x.country.toLowerCase() == 'israel');
+console.log(fromIsrael);
+
+---
+
+var numbers = [12, 4, 9, 33, 6, 2, 22];
+
+function divideIn3(item){
+	return item % 3 == 0;
+}
+
+// returns only the numbers divide in 3
+var result = numbers.filter(divideIn3);
+console.log(result); // [12, 9, 33, 6]
+
+-
+
+// same as the above sample using an arrow function
+var result = numbers.filter(x => x % 3 == 0);
+console.log(result); // [12, 9, 33, 6]

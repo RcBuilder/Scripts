@@ -1,0 +1,20 @@
+const keyword:
+once a variable is assigned it cannot be assigned again and any attempt to do so will throw an error!
+
+exception:
+Uncaught TypeError: Assignment to constant variable
+
+syntax:
+const [variable] = [value]; 
+
+sample:
+const p = 10;
+p = 11; // exception
+
+const a = { x:1, y:2 };
+a.x = 3; // ok 
+a = { x:3, y:4 }; // exception    
+
+note:
+we can still change the inner object properties but an attempt to re-assign a new object on a const variable 
+will ends-up in an exception (see the above sample)

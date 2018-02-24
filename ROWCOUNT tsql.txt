@@ -1,0 +1,48 @@
+
+Rowcount is used to limit the returning rows quantity
+in order to reset the rowcount, set its value to 0 (Rowcount = 0 returns all rows)
+
+syntax:
+set Rowcount 20 
+select * from products 
+set Rowcount 0 
+
+----
+
+// sample
+alter PROCEDURE spHF_GetAllMatching_Select 
+	@PageNum tinyint,
+	@SiteJobID bigint
+AS
+BEGIN
+	SET NOCOUNT ON;		
+		declare @RowsCount int
+		set @RowsCount = 20 * @PageNum
+		
+		set Rowcount @RowsCount
+		select  1 as Tag,
+			NULL as Parent,
+
+			Usrs.UserID as [Cv!1!UserID],
+			Usrs.firstName as [Cv!1!firstName],
+			Usrs.lastName as [Cv!1!lastName],
+			UR.DateUpdated as [Cv!1!DateUpdated],
+			UR.ResumeDisplayStatus as [Cv!1!ResumeDisplayStatus],
+			Match.MatchPercent as [Cv!1!MatchPercent]
+		from	Users Usrs,
+				UsersResume UR,
+				JobsMatchingsResumes Match
+		where	Usrs.UserID = UR.UserID
+				and Usrs.UserID = Match.SiteUserID
+				and Usrs.isDeleted = 0
+				and Match.MatchingStatus = 1
+				and (
+						UR.ResumeDisplayStatus in (1,2)
+						or
+						Match.ResumeDisplayStatus = 1
+					)
+				and Match.SiteJobID = @SiteJobID
+
+		FOR XML EXPLICIT 
+END
+GO

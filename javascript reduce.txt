@@ -1,0 +1,154 @@
+javascript reduce
+-----------------
+reduce calls a provided callback function once for each element in an array, in order (from left to right).
+it applies the function against an accumulator and each element in the array.
+accumulator represents the sum of all the items till that point. 
+returns a SINGLE value - the accumulator.
+
+structure:
+[array].reduce([function], [initialValue]);
+
+function:
+- accumulator
+- item
+
+---
+
+how it works? 
+var numbers = [1, 2, 3, 4];
+var result = numbers.reduce((a, c) => a + c); 
+console.log(result); // 10
+
+// table view
+iteration  |  accumulator  |  currentValue  |  calculation	|	return value
+1nd call		  1				  2				  1+2				3
+2rd call		  3				  3				  3+3				6
+3th call		  6				  4				  6+4				10
+
+-> sum = 10
+
+---
+
+initialValue:
+if an initial value is provided, the accumulator will be equal to that initialValue, 
+else the accumulator will be the 1st item in the array and the 'item' will be 2nd.
+
+// with initialValue - 1st iteration
+var numbers = [1, 2, 3, 4];
+numbers.reduce((a, c) => a + c, 5); 
+-> a = 5, c = 1
+
+// NO initialValue - 1st iteration
+var numbers = [1, 2, 3, 4];
+numbers.reduce((a, c) => a + c); 
+-> a = 1, c = 2
+
+note: 
+for array of items with NO initial value - we'll get the first array item which might be ANY type 
+which can cause an issue when trying to return a single value like integer etc.
+
+var items = [
+	{ id:1, clicks: 10}, 
+	{ id:2, clicks: 20},
+	{ id:3, clicks: 30},  
+];
+items.reduce((a, c) => a + c.clicks); // WRONG! c is an object!  
+-> a = { id:1, clicks: 10}, c = { id:2, clicks: 20}
+see 'reduce on array of ads' sample
+
+// table view
+iteration  |  accumulator  |  currentValue  |  calculation	|	return value
+1st call		  5				  1				  5+1				6
+2st call		  6				  2				  6+2				8
+3nd call		  8				  3				  8+3				11
+4th call		  11			  4				  11+4				15
+
+-> sum = 15
+
+notice!
+the initialValue can be ANY value and type we want as our first item! 
+can be an empty object {}, an integer 0, string '' and so on...
+see 'using object as an initial value' sample
+
+---
+
+best practice:
+see 'javascript map-reduce' 
+
+--------
+
+var numbers = [1, 2, 3, 4];
+
+// using custom callback function
+var sum = numbers.reduce(function(accumulator, item){
+    return accumulator + item;
+}); 
+
+// 1 + 2 + 3 + 4
+console.log(sum); // 10
+
+---
+
+var numbers = [1, 2, 3, 4];
+
+function sumNumbers(accumulator, item){
+    return accumulator + item;
+}
+
+// using pre-defined function
+var sum = numbers.reduce(sumNumbers); 
+console.log(sum); // 10
+
+---
+
+var numbers = [1, 2, 3, 4];
+
+// usign arrow function
+var sum = numbers.reduce((a, c) => a + c);
+console.log(sum); // 10
+
+---
+
+var ads = [
+    { id: 1, name: 'ad1', clicks: 300 },
+    { id: 2, name: 'ad2', clicks: 230 },
+    { id: 3, name: 'ad3', clicks: 100 },
+	{ id: 4, name: 'ad4', clicks: 70  },
+	{ id: 5, name: 'ad5', clicks: 10  }
+];
+    
+// reduce on array of ads 
+var totalClicks = ads.reduce((accumulator, ad) => accumulator + ad.clicks, 0);    
+console.log(totalClicks); // 710
+
+note 
+we've used an initial value.
+if no initial value provides - the default start accumulator is the first item in the array 
+which, in our case, is an object and NOT an integer!
+
+--- 
+
+var numbers = [11, 25, 3, 6, 12, 22, 31, 28, 7, 9];
+
+// using built-in Math function 
+var sum = numbers.reduce((a, c) => Math.max(a, c));
+console.log(sum); // 31
+
+---
+
+var names = ['Alice', 'Bob', 'Tiff', 'Bruce', 'Alice'];
+
+// using object as an initial value
+var countedNames = names.reduce(function (allNames, name) { 
+  if (name in allNames)
+    allNames[name]++;
+  else 
+    allNames[name] = 1;
+  return allNames;
+}, {});
+
+-> countedNames = {Alice: 2, Bob: 1, Tiff: 1, Bruce: 1}
+
+
+
+

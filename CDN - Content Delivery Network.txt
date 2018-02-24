@@ -1,0 +1,37 @@
+
+CDN = Content Delivery Network
+------------------------------
+a global network which hosts static files such as scripts, css and more.. 
+servers that deployed all over the globe and give us access to files.
+
+cons:
+
+* caching
+  if we refer to the CDN 'jquery.js' file (e.g), there's a good chance that other sites do that as well 
+  so when user arrives to our site it may already has downloaded this file from other site he visited in 
+  so it will not be downloaded again and the browser will use the user local copy.
+  less files to download!
+ 
+* speed
+  due to multiple servers deployed all over - our file will be downloaded 
+  from the nearest geo-location to the user station. 
+  if a user located in india requests the file, he will get it from a server located in india 
+  instead of from our server that can be located far away.
+
+* network traffic
+  reduces the network traffic to our web server.
+  the files download from the CDN servers instead of reaching our servers.
+   
+* parallelism
+  each browser can make x concurrent requests in parallel per domain. 
+  by adding more servers (more hosts), we increase the parallelism downloads capabillity.
+
+pros: 
+
+* dependency
+  if a CDN server is down - the files will not be downloaded and our site will not work properly.
+
+  tip! 
+  we can overcome this issue by creating a fallback of the loaded script into a local copy
+  
+  window.JQuery || document.write('<script src="scripts/jquery.js">\x3C/script>');
