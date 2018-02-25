@@ -21,9 +21,9 @@ console.log(result); // 10
 
 // table view
 iteration  |  accumulator  |  currentValue  |  calculation	|	return value
-1nd call		  1				  2				  1+2				3
-2rd call		  3				  3				  3+3				6
-3th call		  6				  4				  6+4				10
+1nd call	  1		   2		   1+2			      3
+2rd call	  3		   3		   3+3			      6
+3th call	  6		   4		   6+4			      10
 
 -> sum = 10
 
@@ -58,10 +58,10 @@ see 'reduce on array of ads' sample
 
 // table view
 iteration  |  accumulator  |  currentValue  |  calculation	|	return value
-1st call		  5				  1				  5+1				6
-2st call		  6				  2				  6+2				8
-3nd call		  8				  3				  8+3				11
-4th call		  11			  4				  11+4				15
+1st call	   5		    1		   5+1			      6
+2st call	   6		    2		   6+2			      8
+3nd call	   8		    3		   8+3			      11
+4th call	   11		    4		   11+4			      15
 
 -> sum = 15
 
