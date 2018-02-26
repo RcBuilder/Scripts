@@ -1,0 +1,9 @@
+var headers = {
+        headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+        }
+    };
+
+
+$http.get(url, headers);

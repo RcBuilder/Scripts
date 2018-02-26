@@ -1,0 +1,92 @@
+﻿<!DOCTYPE html>
+
+<html ng-app="my-app">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div ng-controller="controllerA">
+        <h3>A</h3>
+        <ul>
+            <li ng-repeat="product in products">
+                <div ng-include="'product.partial'"></div>
+            </li>
+        </ul>
+    </div>
+
+    <div ng-controller="controllerB">
+        <h3>B</h3>
+        <ul>
+            <li ng-repeat="product in products">
+                <div ng-include="'product.partial'"></div>
+            </li>
+        </ul>
+    </div>
+
+    <script type="text/ng-template" id="product.partial">
+        <p>
+            {{ product.name }}   
+            <input type="button" ng-click="Transfer(product)" value="Transfer" />         
+        </p>
+    </script>
+
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.9/angular.min.js"></script> 
+    <script>
+        var module = angular.module('my-app', []);
+
+        module.controller('controllerA', function ($scope, $rootScope, productsFactory) {
+            $scope.products = [];
+
+            productsFactory.getProducts(function (response) {
+                $scope.products = response;
+            });
+
+            $scope.Transfer = function (product) {
+                $rootScope.$broadcast('transferStarted', product);
+            }
+
+            $scope.$on('transferCompleted', function (event, product) {
+                //alert('transferCompleted');
+
+                var index = $scope.products.indexOf(product);                
+                $scope.products.splice(index, 1);                
+            });
+        });
+
+        module.controller('controllerB', function ($scope, $rootScope, productsFactory) {
+            $scope.products = [];
+
+            $scope.$on('transferStarted', function (event, product) {
+                //alert('transferStarted');
+
+                $scope.products.push(product);
+                $rootScope.$broadcast('transferCompleted', product);
+            });
+        });
+
+        module.factory('productsFactory', function ($http) {
+            var products = [
+                { name: 'product A', unitPrice: 300, stock: 1200 },
+                { name: 'product B', unitPrice: 100, stock: 510 },
+                { name: 'product C', unitPrice: 50, stock: 703 },
+                { name: 'product D', unitPrice: 220, stock: 60 },
+                { name: 'product E', unitPrice: 130, stock: 52 },
+                { name: 'product F', unitPrice: 79, stock: 220 },
+                { name: 'product G', unitPrice: 33, stock: 8000 }
+            ];
+
+            var foreach = function (arr, callback) {
+                for (var i = 0; i < arr.length; i++)
+                    callback.call(arr[i]);
+            };
+
+            return {
+                getProducts: function (onSuccess) {
+                    onSuccess(products);
+                }
+            };
+        });
+    </script> 
+</body>
+</html>

@@ -1,0 +1,10 @@
+var request = {
+ method: 'POST',
+ url: 'http://example.com',
+ headers: {
+   'Content-Type': 'application/javascript'
+ },
+ data: { test: 'test' }
+}
+
+$http(req).then(function(){...}, function(){...});

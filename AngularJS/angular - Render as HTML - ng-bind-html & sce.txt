@@ -1,0 +1,11 @@
+Render as HTML:
+1.inject $sce to the controller
+2.use ng-bind-html directive 
+
+-----
+
+function homeController($scope, $sce) {
+    $scope.myHTML = $sce.trustAsHtml('<h1>Hello world</h1>');
+}
+
+<div ng-bind-html="myHTML"></div>

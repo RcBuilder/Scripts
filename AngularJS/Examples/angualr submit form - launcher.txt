@@ -1,0 +1,95 @@
+***********************************************************
+we create dynamically a FORM tag using javascript, 
+add each of the postData as an input hidden field within this FORM,
+append it to the BODY and than SUBMIT it.  
+see launcher.launch
+***********************************************************
+
+<script src="//code.jquery.com/jquery-1.10.2.js"></script>
+    
+<script src="Scripts/hmac-sha1.js"></script>    
+<script src="Scripts/enc-base64-min.js"></script>
+<script src="Scripts/url.min.js"></script>
+<script src="Scripts/oauth-signature.js"></script>
+
+<script type="text/javascript" src="https://code.angularjs.org/1.4.9/angular.min.js"></script>
+
+----
+
+// https://github.com/bettiolo/oauth-signature-js
+module.factory('oauth', function () {
+    return {
+        // postData { key: value, key: value ... }
+        generate: function (url, postData, consumerSecret) {
+            // add oauth params as post data
+            postData['oauth_version'] = '1.0';
+            postData['oauth_consumer_key'] = 'simnet';
+            postData['oauth_signature_method'] = 'HMAC-SHA1';
+            postData['oauth_token'] = '1234';
+            postData['oauth_timestamp'] = Math.floor((new Date).getTime() / 1e3);
+            postData['oauth_nonce'] = Math.floor(Math.random() * 1e9).toString();
+
+            var signature = oauthSignature.generate('POST', url, postData, consumerSecret, null, { encodeSignature: false });
+
+            console.log(new oauthSignature.SignatureBaseString('POST', url, postData).generate());
+            console.log(signature);
+
+            return signature;
+        }
+    }
+});
+
+module.factory('serializer', function () {
+    return {
+        serialize: function (obj, pretty) {
+            pretty = pretty || false; // true for a pretty json view instead of a single line
+            return angular.toJson(obj, pretty);
+        },
+        encodedJson: function (obj) {            
+            return encodeURIComponent(JSON.stringify(obj));
+        }
+    }
+});
+
+module.factory('launcher', function () {
+    return {
+        // postData { key: value, key: value ... }
+        launch: function (launchURL, postData) {
+            var form = angular.element('<form method="POST", action="{0}" target="_blank">'.replace('{0}', launchURL));
+
+            for (var p in postData) {                
+                var input = angular.element('<input type="hidden" name="{0}" value="{1}" />'.replace('{0}', p).replace('{1}', postData[p]));
+                form.append(input);
+            }
+
+            angular.element('body').append(form);
+            form.submit();
+            angular.element('body').remove(form);
+        }
+    }
+});
+
+----
+
+module.controller('homeController', function ($scope, serializer, launcher, oauth) {
+    $scope.Launch = function () {
+        var postData = {};
+
+        postData['p1'] = 'value1';
+        postData['p2'] = 'value2';
+        postData['p3'] = '';
+
+		var objectData = { a:1, b:2, c:3 };
+        postData['p4'] = serializer.encodedJson(objectData);
+
+        var host = 'http://mydomain.com';
+        var launchURL = host.concat('myHandler.ashx');
+
+        // generate an oauth signature
+        var signature = oauth.generate(launchURL, postData, 'FEA488CB1A4844F7B6899DA8770126E3');
+        postData['oauth_signature'] = signature;        
+
+        launcher.launch(launchURL, postData);
+    }
+}
+

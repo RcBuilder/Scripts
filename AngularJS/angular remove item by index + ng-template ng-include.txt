@@ -1,0 +1,58 @@
+var module = angular.module('my-app', []);
+
+module.filter('identity', function () {
+    return function (value) {
+        return '#'.concat(value);
+    };
+});
+
+module.filter('date', function () {
+    return function (value) {
+        var year = value.getFullYear().toString();
+        var month = (value.getMonth() + 1).toString();
+        var day = value.getDate().toString();
+
+        if (month.length == 1) month = '0' + month; // return yyyyMMdd
+        if (day.length == 1) day = '0' + day;
+
+        return year + '-' + month + '-' + day;
+    };
+});
+
+module.controller('homeController', function ($scope) {
+
+    // { id, title, startDate, dueDate }
+    $scope.assignments = [];
+
+    $scope.Remove = function (index) {
+        $scope.assignments.splice(index, 1);
+    }
+}
+
+-----
+
+<ul>
+    <li ng-repeat="assignment in assignments">
+        <div ng-include="'assignment.partial'"></div>
+    </li>
+</ul>
+
+<script type="text/ng-template" id="assignment.partial">
+    <div class="assignment-wrapper">
+        <div ng-class="'assignment'">                
+            <div>
+                {{ assignment.id | identity }}
+            </div>
+            <div>
+                {{ assignment.title }}
+            </div>
+            <div>
+                start date: {{ assignment.startDate | date }}
+            </div>
+            <div>
+                due date: {{ assignment.dueDate | date }}
+            </div>            
+			<input type="button" ng-click="Remove($index)" value="x" class="btn btn-xs btn-default btn-close" />         
+        </div>
+    </div>
+</script>
