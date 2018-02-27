@@ -1,0 +1,1252 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>CSS3 Filters, Transforms, Gradient, Transitions and Animations</title>
+    <style type="text/css">
+        body{ font:normal normal bold 13px/1.2em arial; }
+        
+        .padding { padding:6px }
+        
+        h3{ color: Brown;}
+        h4{ color: Purple;}
+        
+        .note{
+            color:Red;
+            font-size:12px;    
+        }
+        
+        .cube
+        {
+            width:150px;
+            height:150px;       
+            line-height:140px;  
+            text-align:center;            
+            background-color:Blue;  
+            color:#fff;  
+            font-size:25px;
+        }
+        
+        ul {
+            list-style:none; 
+            padding:0px;
+        }
+        ul:after 
+        {
+            content: " ";
+	        display: block;
+	        clear: both;
+        }       
+        ul li {
+            float:left; 
+            width:320px;  
+            height:320px;          
+        }
+        
+        /* == Filters ======================================== */
+        
+        .filter-blur
+        {
+            filter: blur(5px);
+            -webkit-filter: blur(5px);
+            -moz-filter: blur(5px);
+            -ms-filter: blur(5px);
+            -o-filter: blur(5px);
+        }
+        
+        .filter-brightness
+        {
+            filter: brightness(0.3);
+            -webkit-filter: brightness(0.3);
+            -moz-filter: brightness(0.3);
+            -ms-filter: brightness(0.3);
+            -o-filter: brightness(0.3);
+        }
+        
+        .filter-contrast
+        {
+            filter: contrast(3);
+            -webkit-filter: contrast(3);
+            -moz-filter: contrast(3);
+            -ms-filter: contrast(3);
+            -o-filter: contrast(3);
+        }
+        
+        .filter-grayscale
+        {
+            filter: grayscale(1);
+            -webkit-filter: grayscale(1);
+            -moz-filter: grayscale(1);
+            -ms-filter: grayscale(1);
+            -o-filter: grayscale(1);
+        }
+        
+        .filter-invert
+        {
+            filter: invert(1);
+            -webkit-filter: invert(1);
+            -moz-filter: invert(1);
+            -ms-filter: invert(1);
+            -o-filter: invert(1);
+        }
+        
+        .filter-saturate
+        {
+            filter: saturate(10);
+            -webkit-filter: saturate(10);
+            -moz-filter: saturate(10);
+            -ms-filter: saturate(10);
+            -o-filter: saturate(10);
+        }
+        
+        .filter-sepia
+        {
+            filter: sepia(1);
+            -webkit-filter: sepia(1);
+            -moz-filter: sepia(1);
+            -ms-filter: sepia(1);
+            -o-filter: sepia(1);
+        }
+        
+        .filter-opacity
+        {
+            filter: opacity(0.5);
+            -webkit-filter: opacity(0.5);
+            -moz-filter: opacity(0.5);
+            -ms-filter: opacity(0.5);
+            -o-filter: opacity(0.5);
+        }
+        
+        .filter-hue
+        {
+            filter: hue-rotate(90deg);
+            -webkit-filter: hue-rotate(90deg);
+            -moz-filter: hue-rotate(90deg);
+            -ms-filter: hue-rotate(90deg);
+            -o-filter: hue-rotate(90deg);
+        }
+        
+        .filter-drop-shadow
+        {
+            filter: drop-shadow(20px 10px 10px #000);
+            -webkit-filter: drop-shadow(20px 10px 10px #000);
+            -moz-filter: drop-shadow(20px 10px 10px #000);
+            -ms-filter: drop-shadow(20px 10px 10px #000);
+            -o-filter: drop-shadow(20px 10px 10px #000);
+        }
+        
+        .filter-multiple
+        {
+            filter: opacity(0.7) blur(5px) invert(1);
+            -webkit-filter: opacity(0.7) blur(5px) invert(1);
+            -moz-filter: opacity(0.7) blur(5px) invert(1);
+            -ms-filter: opacity(0.7) blur(5px) invert(1);
+            -o-filter: opacity(0.7) blur(5px) invert(1);    
+        }
+        
+        /* == Transforms ===================================== */
+        
+        .transform-perspective
+        {
+             transform: perspective(500px) rotateX(45deg);
+            -webkit-transform: perspective(500px) rotateX(45deg);
+            -moz-transform: perspective(500px) rotateX(45deg);
+            -ms-transform: perspective(500px) rotateX(45deg);
+            -o-transform: perspective(500px) rotateX(45deg);
+        }
+        
+        .transform-rotate
+        {
+            transform: rotate(5.5deg);
+            -webkit-transform: rotate(5.5deg);
+            -moz-transform: rotate(5.5deg);
+            -ms-transform: rotate(5.5deg);
+            -o-transform: rotate(5.5deg);
+        }
+        
+        .transform-rotateX
+        {
+            transform: perspective(500px) rotateX(45deg);
+            -webkit-transform: perspective(500px) rotateX(45deg);
+            -moz-transform: perspective(500px) rotateX(45deg);
+            -ms-transform: perspective(500px) rotateX(45deg);
+            -o-transform: perspective(500px) rotateX(45deg);
+        }
+        
+        .transform-rotateY
+        {
+            transform: perspective(500px) rotateY(45deg);
+            -webkit-transform: perspective(500px) rotateY(45deg);
+            -moz-transform: perspective(500px) rotateY(45deg);
+            -ms-transform: perspective(500px) rotateY(45deg);
+            -o-transform: perspective(500px) rotateY(45deg);
+        }
+        
+        .transform-rotateZ
+        {
+            transform: rotateZ(-5.5deg);
+            -webkit-transform: rotateZ(-5.5deg);
+            -moz-transform: rotateZ(-5.5deg);
+            -ms-transform: rotateZ(-5.5deg);
+            -o-transform: rotateZ(-5.5deg);
+        }
+        
+        .transform-rotate3d
+        {
+            transform: rotate3d(0, 1, 0, -180deg);
+            -webkit-transform: rotate3d(0, 1, 0, -180deg);
+            -moz-transform: rotate3d(0, 1, 0, -180deg);
+            -ms-transform: rotate3d(0, 1, 0, -180deg);
+            -o-transform: rotate3d(0, 1, 0, -180deg);
+        }
+        
+        .transform-rotate3d-B
+        {
+            transform: rotate3d(1, 0, 0, -180deg);
+            -webkit-transform: rotate3d(1, 0, 0, -180deg);
+            -moz-transform: rotate3d(1, 0, 0, -180deg);
+            -ms-transform: rotate3d(1, 0, 0, -180deg);
+            -o-transform: rotate3d(1, 0, 0, -180deg);
+        }
+        
+        .transform-scale
+        {
+            transform: scale(1.2, 1);
+            -webkit-transform: scale(1.2, 1);
+            -moz-transform: scale(1.2, 1);
+            -ms-transform: scale(1.2, 1);
+            -o-transform: scale(1.2, 1);
+        }
+        
+        .transform-skewX
+        {
+            transform: skewX(-10deg);
+            -webkit-transform: skewX(10deg);
+            -moz-transform: skewX(-10deg);
+            -ms-transform: skewX(-10deg);
+            -o-transform: skewX(-10deg);
+        }
+        
+        .transform-skewY
+        {
+            transform: skewY(-10deg);
+            -webkit-transform: skewY(-10deg);
+            -moz-transform: skewY(-10deg);
+            -ms-transform: skewY(-10deg);
+            -o-transform: skewY(-10deg);
+        }
+        
+        .transform-translate
+        {
+            transform: translate(40px, 0);
+            -webkit-transform: translate(40px, 0);
+            -moz-transform: translate(40px, 0);
+            -ms-transform: translate(40px, 0);
+            -o-transform: translate(40px, 0);
+        }
+        
+        .transform-translateZ
+        {
+            transform: perspective(500px) translateZ(-100px);
+            -webkit-transform: perspective(500px) translateZ(-100px);
+            -moz-transform: perspective(500px) translateZ(-100px);
+            -ms-transform: perspective(500px) translateZ(-100px);
+            -o-transform: perspective(500px) translateZ(-100px);
+        }
+        
+        .transform-translateZ-B
+        {
+            transform: perspective(500px) translateZ(50px);
+            -webkit-transform: perspective(500px) translateZ(50px);
+            -moz-transform: perspective(500px) translateZ(50px);
+            -ms-transform: perspective(500px) translateZ(50px);
+            -o-transform: perspective(500px) translateZ(50px);
+        }
+        
+        .transform-matrix
+        {
+            transform: matrix(1, 0, 0, 1, 0, 0);
+            -webkit-transform: matrix(1, 0, 0, 1, 0, 0);
+            -moz-transform: matrix(1, 0, 0, 1, 0, 0);
+            -ms-transform: matrix(1, 0, 0, 1, 0, 0);
+            -o-transform: matrix(1, 0, 0, 1, 0, 0);
+        }
+        
+        /* == Gradient ======================================= */
+        
+        .gradient-top 
+        {                        
+            background: red; 
+            background: -webkit-linear-gradient(red, yellow); 
+            background: -o-linear-gradient(red, yellow); 
+            background: -moz-linear-gradient(red, yellow); 
+            background: linear-gradient(red, yellow); 
+        }
+        
+        .gradient-left
+        {                        
+            background: red; 
+            background: -webkit-linear-gradient(left, red, yellow); 
+            background: -o-linear-gradient(left, red, yellow); 
+            background: -moz-linear-gradient(left, red, yellow); 
+            background: linear-gradient(to left, red, yellow); 
+        }
+        
+        .gradient-topLeft 
+        {                        
+            background: red; 
+            background: -webkit-linear-gradient(left top, red, yellow); 
+            background: -o-linear-gradient(left top, red, yellow); 
+            background: -moz-linear-gradient(left top, red, yellow); 
+            background: linear-gradient(to left top, red, yellow); 
+        }
+        
+        .gradient-angel
+        {                        
+            background: red; 
+            background: -webkit-linear-gradient(-90deg, red, yellow); 
+            background: -o-linear-gradient(-90deg, red, yellow); 
+            background: -moz-linear-gradient(-90deg, red, yellow); 
+            background: linear-gradient(-90deg, red, yellow); 
+        }
+        
+        .gradient-multiColors
+        {                        
+            background: red; 
+            background: -webkit-linear-gradient(red, yellow, blue, aqua); 
+            background: -o-linear-gradient(red, yellow, blue, aqua); 
+            background: -moz-linear-gradient(red, yellow, blue, aqua); 
+            background: linear-gradient(red, yellow, blue, aqua); 
+        }
+        
+        .radial-gradient-default
+        {                        
+            background: red; 
+            background: -webkit-radial-gradient(red, yellow); 
+            background: -o-radial-gradient(red, yellow); 
+            background: -moz-radial-gradient(red, yellow); 
+            background: radial-gradient(red, yellow); 
+        }
+        
+        .radial-gradient-custom
+        {                        
+            background: red; 
+            background: -webkit-radial-gradient(red 10%, yellow 30%, green 60%); 
+            background: -o-radial-gradient(red 10%, yellow 30%, green 60%); 
+            background: -moz-radial-gradient(red 10%, yellow 30%, green 60%); 
+            background: radial-gradient(red 10%, yellow 30%, green 60%); 
+        }
+        
+        /* == Others ========================================= */
+        
+        .calc
+        {
+            width:calc(50% + 10px);
+        }
+        
+        /* == Transitions ==================================== */
+        
+        .transition-A
+        {
+            width:200px;
+            transition: width 1s linear;
+            -webkit-transition: width 1s linear;
+            -moz-transition: width 1s linear;
+            -ms-transition: width 1s linear;
+            -o-transition: width 1s linear;
+        }
+        .transition-A:hover
+        {
+            width:300px;
+        }
+        
+        .transition-B
+        {
+            transition: background-color 1s ease;
+            -webkit-transition: background-color 1s ease;
+            -moz-transition: background-color 1s ease;
+            -ms-transition: background-color 1s ease;
+            -o-transition: background-color 1s ease;
+        }
+        .transition-B:hover
+        {
+            background-color:green;
+        }
+        
+        .transition-C
+        {
+            transition: transform 1s ease-in;
+            -webkit-transition: -webkit-transform 1s ease-in;
+            -moz-transition: -moz-transform 1s ease-in;
+            -ms-transition: -ms-transform 1s ease-in;
+            -o-transition: -o-transform 1s ease-in;                       
+        }
+        .transition-C:hover
+        {
+            transform: rotate(180deg);
+            -webkit-transform: rotate(180deg);
+            -moz-transform: rotate(180deg);
+            -ms-transform: rotate(180deg);
+            -o-transform: rotate(180deg);
+        }
+        
+        .transition-D
+        {
+            transition: transform 0.3s ease-in-out;
+            -webkit-transition: -webkit-transform 0.3s ease-in-out;
+            -moz-transition: -moz-transform 0.3s ease-in-out;
+            -ms-transition: -ms-transform 0.3s ease-in-out;
+            -o-transition: -o-transform 0.3s ease-in-out;                       
+        }
+        .transition-D:hover
+        {
+            transform: translate(40px, 0);
+            -webkit-transform: translate(40px, 0);
+            -moz-transform: translate(40px, 0);
+            -ms-transform: translate(40px, 0);
+            -o-transform: translate(40px, 0);
+        }
+        
+        .transition-multiple
+        {
+            width:150px;            
+            transition: width ease-out 1s, transform 1s ease-in, filter 1s;
+            -webkit-transition: width ease-out 1.5s, -webkit-transform 1s ease-in, -webkit-filter 1s;
+            -moz-transition: width ease-out 1.5s, -moz-transform 1s ease-in, -moz-filter 1s;
+            -ms-transition: width ease-out 1.5s, -ms-transform 1s ease-in, -ms-filter 1s;
+            -o-transition: width ease-out 1.5s, -o-transform 1s ease-in, -o-filter 1s;                       
+        }
+        .transition-multiple:hover
+        {
+            width:260px;
+            
+            transform: rotate(360deg);
+            -webkit-transform: rotate(360deg);
+            -moz-transform: rotate(360deg);
+            -ms-transform: rotate(360deg);
+            -o-transform: rotate(360deg);
+            
+            filter: grayscale(1);
+            -webkit-filter: grayscale(1);
+            -moz-filter: grayscale(1);
+            -ms-filter: grayscale(1);
+            -o-filter: grayscale(1);
+        }
+        
+        /* == Animations ===================================== */
+        
+        @keyframes toYellow {
+            to {
+                background-color: yellow;
+                color:Blue;
+            }
+        }
+        .animation-toYellow:hover
+        {
+            animation: toYellow 3s;
+        }
+        
+        @keyframes multiColors    
+        {        
+            25% {
+                background-color: yellow; 
+                color:Blue;
+            }
+            50% {
+                background-color: black; 
+                color:White;
+            }
+            75% {
+                background-color: red; 
+            }
+            0%, 100% {
+                background-color: purple; 
+            }
+        }
+        .animation-multiColors
+        {
+            animation: multiColors 6s infinite;
+        }
+        
+        @keyframes delay 
+        {
+            from {
+                width:259px;                
+            }
+            to {
+                width:20%;                
+            }
+        }
+        .animation-delay
+        {
+            animation: delay 5s 2s infinite;
+        }
+        
+        @keyframes rotate {
+            50% {
+                transform: rotate(180deg);
+                -webkit-transform: rotate(180deg);
+                -moz-transform: rotate(180deg);
+                -ms-transform: rotate(180deg);
+                -o-transform: rotate(180deg);             
+            }
+            100% {
+                transform: rotate(360deg);
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                -o-transform: rotate(360deg);                     
+            }
+        }
+        .animation-rotate
+        {
+            animation: rotate 4s infinite;         
+        }
+        
+        @keyframes invert {
+            50% {
+                filter: invert(1);
+                -webkit-filter: invert(1);
+                -moz-filter: invert(1);
+                -ms-filter: invert(1);
+                -o-filter: invert(1);
+            }
+            100% {
+                filter: invert(0);
+                -webkit-filter: invert(0);
+                -moz-filter: invert(0);
+                -ms-filter: invert(0);
+                -o-filter: invert(0);                   
+            }
+        }
+        .animation-invert
+        {
+            animation: invert 5s infinite;
+        }
+        
+        @keyframes rotate-alternate {
+            to {
+                transform: rotate(360deg);
+                -webkit-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -ms-transform: rotate(360deg);
+                -o-transform: rotate(360deg);                     
+            }
+        }
+        .animation-rotate-alternate
+        {
+            animation: rotate-alternate 4s infinite alternate;      
+        }
+        
+        @keyframes grow 
+        {
+            from {
+               width:40px;                  
+            }
+            to {
+               width:259px;                
+            }
+        }
+        .animation-grow
+        {
+            animation: grow 6s ease-out;
+        }
+        
+        @keyframes slide-in 
+        {
+            from {
+                margin-left: 400px;          
+            }
+            to {
+                margin-left: 0%;        
+            }
+        }
+        .animation-slide-in
+        {
+            animation: slide-in 2s ease-out;
+        }
+
+        @keyframes slide-in-paused
+        {
+            from {
+                margin-top: 400px;          
+            }
+            to {
+                margin-top: 0%;        
+            }
+        }
+        .animation-slide-in-paused
+        {
+            animation: slide-in-paused 2s ease-out infinite alternate;        
+            animation-play-state: running;
+        }    
+        .animation-slide-in-paused:hover
+        {
+            animation-play-state: paused;
+        }   
+        
+        .animation-multiple
+        {
+            animation: 
+                grow 3s ease-out infinite alternate,
+                rotate-alternate 3s, 
+                invert 6s infinite;        
+        }  
+        
+        /* == Effects ======================================== */
+
+        .effect-A:hover {
+            transition: filter 0.8s;
+            -webkit-transition: -webkit-filter 0.8s;
+            -moz-transition: -moz-filter 0.8s;
+            -ms-transition: -ms-filter 0.8s;
+            -o-transition: -o-filter 0.8s;      
+        }
+        .effect-A:hover {
+            filter: grayscale(1);
+            -webkit-filter: grayscale(1);
+            -moz-filter: grayscale(1);
+            -ms-filter: grayscale(1);
+            -o-filter: grayscale(1);
+        }  
+        
+        .effect-B {
+            width:260px;
+            margin:0;
+            transition: width 1s, margin 1s;
+            -webkit-transition: width 1s, margin 1s;
+            -moz-transition: width 1s, margin 1s;
+            -ms-transition: width 1s, margin 1s;
+            -o-transition: width 1s, margin 1s;      
+        }
+        .effect-B:hover {
+            width:300px;
+            margin:-30px 0 0 -30px;
+        }  
+        
+        .effect-C
+        {
+            width:30%;
+            margin:0;
+            
+            transition: width 3s, transform 3s, margin 3s;
+        }
+        .effect-C:hover 
+        {
+            width:300%;
+            margin:-100%;
+            transform: rotate(360deg);
+            -webkit-transform: rotate(360deg);
+            -moz-transform: rotate(360deg);
+            -ms-transform: rotate(360deg);
+            -o-transform: rotate(360deg);                
+            
+            transition: width 3s, transform 3s, margin 3s;
+        }
+        
+        @keyframes dancing
+        {
+            from {
+                margin-left: 0%; 
+                                
+                filter: hue-rotate(0deg);
+                -webkit-filter: hue-rotate(0deg);
+                -moz-filter: hue-rotate(0deg);
+                -ms-filter: hue-rotate(0deg);
+                -o-filter: hue-rotate(0deg);
+            }
+            to {
+                margin-left: 10px;     
+                
+                filter: hue-rotate(90deg);
+                -webkit-filter: hue-rotate(90deg);
+                -moz-filter: hue-rotate(90deg);
+                -ms-filter: hue-rotate(90deg);
+                -o-filter: hue-rotate(90deg);
+            }
+        }
+        .effect-D
+        {
+            animation: dancing .2s ease infinite alternate;        
+            animation-play-state: paused;
+        }
+        .effect-D:hover 
+        {
+            animation-play-state: running;
+        }
+    </style>
+</head>
+<body>
+    <h2>Filters</h2>
+
+    <h4>filter: [filter]</h4>
+    <div>
+        [filter] // css3 function (blur, brightness, contrast, grayscale, invert, saturate, sepia, opacity, hue, drop-shadow)<br />
+        <span class="note">note! use space for multiple animations</span>
+    </div>
+
+    <h4>example:</h4>
+    <div>
+        <pre>
+            .filter-sepia
+            {
+                filter: sepia(1);
+                -webkit-filter: sepia(1);
+                -moz-filter: sepia(1);
+                -ms-filter: sepia(1);
+                -o-filter: sepia(1);
+            }
+
+            ---
+
+            .filter-multiple
+            {
+                filter: opacity(0.7) blur(5px) invert(1);
+                -webkit-filter: opacity(0.7) blur(5px) invert(1);
+                -moz-filter: opacity(0.7) blur(5px) invert(1);
+                -ms-filter: opacity(0.7) blur(5px) invert(1);
+                -o-filter: opacity(0.7) blur(5px) invert(1);    
+            }
+        </pre>
+    </div>
+
+    <ul>        
+        <li>
+            <div>filter: blur(5px)</div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-blur" /></div>
+        </li>
+
+        <li>
+            <div>filter: brightness(0.3) <span class="note">30%</span></div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-brightness" /></div>
+        </li>
+
+        <li>
+            <div>filter: contrast(3) <span class="note">300%</span></div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-contrast" /></div>
+        </li>
+
+        <li>
+            <div>filter: grayscale(1) <span class="note">100%</span></div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-grayscale" /></div>
+        </li>
+
+        <li>
+            <div>filter: invert(1) <span class="note">100%</span></div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-invert" /></div>
+        </li>
+
+        <li>
+            <div>filter: saturate(10) <span class="note">1000%</span></div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-saturate" /></div>
+        </li>
+
+        <li>
+            <div>filter: sepia(1) <span class="note">100%</span></div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-sepia" /></div>
+        </li>
+
+        <li>
+            <div>filter: opacity(0.5) <span class="note">50%</span></div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-opacity" /></div>
+        </li>
+
+        <li>
+            <div>filter: hue(90deg) <span class="note">90 degrees</span></div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-hue" /></div>
+        </li>
+
+        <li>
+            <div>filter: drop-shadow(20px 10px 10px #000) 
+                 <br /><span class="note">horizontal,vertical,blur,color </span>
+                 <br /><span class="note">h-shadow 20px,v-shadow 10px,10px blur,black</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-drop-shadow" /></div>
+        </li>
+
+        <li>
+            <div>filter: opacity(0.7) blur(5px) invert(1); 
+                 <br /><span class="note">multiple filters</span>
+                 <br /><span class="note">opacity,blur and invert filters</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="filter-multiple" /></div>
+        </li>
+    </ul>
+
+    <h2>Transforms</h2>
+
+    <h4>transform: [transform]</h4>
+    <div>
+        [transform] // css3 function (perspective, rotate, rotate3d, scale, skew, translate, matrix)
+        <span class="note">note! use space for multiple animations</span>
+    </div>
+
+    <h4>example:</h4>
+    <div>
+        <pre>
+            .transform-rotateZ
+            {
+                transform: rotateZ(-5.5deg);
+                -webkit-transform: rotateZ(-5.5deg);
+                -moz-transform: rotateZ(-5.5deg);
+                -ms-transform: rotateZ(-5.5deg);
+                -o-transform: rotateZ(-5.5deg);
+            }
+
+            ---
+
+            .transform-perspective
+            {
+                 transform: perspective(500px) rotateX(45deg);
+                -webkit-transform: perspective(500px) rotateX(45deg);
+                -moz-transform: perspective(500px) rotateX(45deg);
+                -ms-transform: perspective(500px) rotateX(45deg);
+                -o-transform: perspective(500px) rotateX(45deg);
+            }
+        </pre>
+    </div>
+
+    <ul>
+        <li>
+            <div>transform: perspective(500px) rotateX(45deg);
+                <br /><span class="note">defines the elemet depth</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-perspective" /></div>
+        </li>
+
+        <li>
+            <div>transform: rotate(5.5deg) <span class="note">5.5 degrees</span></div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-rotate" /></div>
+        </li>
+
+        <li>
+            <div>transform: rotateX(45deg) perspective(500px);
+                <br /><span class="note">x axis 45 degrees - depth 500px</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-rotateX" /></div>
+        </li>
+
+        <li>
+            <div>transform: rotateY(45deg) perspective(500px);
+                <br /><span class="note">y axis 45 degrees - depth 500px</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-rotateY" /></div>
+        </li>
+
+        <li>
+            <div>transform: rotateZ(-5.5deg);
+                <br /><span class="note">z axis -5.5 degrees</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-rotateZ" /></div>
+        </li>
+
+        <li>
+            <div>transform: rotate3d(0, 1, 0, -180deg) 
+                <br /><span class="note">x,y,z,degrees</span>
+                <br /><span class="note">rotate y axis in -180 degrees (flip horizontal)</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-rotate3d" /></div>
+        </li>
+
+        <li>
+            <div>transform: rotate3d(1, 0, 0, -180deg) 
+                <br /><span class="note">x,y,z,degrees</span>
+                <br /><span class="note">rotate x axis -180 degrees (flip vertical)</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-rotate3d-B" /></div>
+        </li>
+
+        <li>
+            <div>transform: scale(1.2, 1);
+                <br /><span class="note">x scale,y scale - 1.2:1</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-scale" /></div>
+        </li>
+
+        <li>
+            <div>transform: skewX(10deg);
+                <br /><span class="note">skew = a slant</span>
+                <br /><span class="note">slant x axis 10 degrees</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-skewX" /></div>
+        </li>
+
+        <li>
+            <div>transform: skewY(-10deg);
+                <br /><span class="note">skew = a slant</span>
+                <br /><span class="note">slant y axis -10 degrees</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-skewY" /></div>
+        </li>
+
+        <li>
+            <div>transform: translate(40px, 0);
+                <br /><span class="note">translate(x,y) - set element position</span>
+                <br /><span class="note">move x axis in 40px</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-translate" /></div>
+        </li>
+
+        <li>
+            <div>transform: translateZ(-100px) perspective(500px);
+                <br /><span class="note">translateZ - set element z position (depth)</span>
+                <br /><span class="note">move z axis in -100px - shrink effect</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-translateZ" /></div>
+        </li>
+
+        <li>
+            <div>transform: translateZ(50px) perspective(500px);
+                <br /><span class="note">translateZ - set element z position (depth)</span>
+                <br /><span class="note">move z axis in 50px - grow effect</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-translateZ-B" /></div>
+        </li>
+
+        <li>
+            <div>transform: matrix(1, 0, 0, 1, 0, 0);
+                <br /><span class="note">matrix(a,b,c,d,e,f)</span>
+                <br /><span class="note">
+                        combines all the CSS transformation functions:<br />
+                        scale(a, d), skew(b, c), translate(e, f)
+                      </span>                
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transform-matrix" /></div>
+        </li>
+    </ul>
+ 
+    <h2>Gradient</h2>
+    <h4>linear-gradient([direction], [color], [color] ...)</h4>
+    <div>
+        [direction] // the gradient direction (top, left, top left, degrees etc.) default: top
+        [color] // color name
+    </div>
+
+    <h4>radial-gradient([shape], [color], [color] ...)</h4>
+    <div>
+        [shape] // the gradient shape (circle, ellipse) default: ellipse
+        [color] // color name
+    </div>
+   
+    <h4>example:</h4>
+    <div>
+        <pre>
+            .gradient-left
+            {                        
+                background: red; 
+                background: -webkit-linear-gradient(left, red, yellow); 
+                background: -o-linear-gradient(left, red, yellow); 
+                background: -moz-linear-gradient(left, red, yellow); 
+                background: linear-gradient(to left, red, yellow); 
+            }
+        
+            ---
+
+            .gradient-multiColors
+            {                        
+                background: red; 
+                background: -webkit-linear-gradient(red, yellow, blue, aqua); 
+                background: -o-linear-gradient(red, yellow, blue, aqua); 
+                background: -moz-linear-gradient(red, yellow, blue, aqua); 
+                background: linear-gradient(red, yellow, blue, aqua); 
+            }
+        </pre>
+    </div>
+
+    <ul>
+        <li>
+            <div>
+                linear gradient:
+                <br /><span class="note">Top</span>
+            </div>
+            <div class="padding"><div class="cube gradient-top">CUBE</div></div>
+        </li>
+
+        <li>
+            <div>
+                linear gradient:
+                <br /><span class="note">Left</span>
+            </div>
+            <div class="padding"><div class="cube gradient-left">CUBE</div></div>
+        </li>
+
+        <li>
+            <div>
+                linear gradient:
+                <br /><span class="note">Top Left</span>
+            </div>
+            <div class="padding"><div class="cube gradient-topLeft">CUBE</div></div>
+        </li>
+
+        <li>
+            <div>
+                linear gradient:
+                <br /><span class="note">Angel -90 degrees</span>
+            </div>
+            <div class="padding"><div class="cube gradient-angel">CUBE</div></div>
+        </li>
+
+        <li>
+            <div>
+                linear gradient:
+                <br /><span class="note">Multi Colors</span>
+            </div>
+            <div class="padding"><div class="cube gradient-multiColors">CUBE</div></div>
+        </li>
+
+        <li>
+            <div>
+                radial gradient:
+                <br /><span class="note">basic</span>
+            </div>
+            <div class="padding"><div class="cube radial-gradient-default">CUBE</div></div>
+        </li>
+
+        <li>
+            <div>
+                radial gradient:
+                <br /><span class="note">custom</span>
+            </div>
+            <div class="padding"><div class="cube radial-gradient-custom">CUBE</div></div>
+        </li>
+    </ul>
+
+    <h2>Others</h2>
+    <ul>
+        <li>
+            <div>
+                width:calc(10% + 10px)
+                <br /><span class="note">50% of the container width + 10px</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="calc" /></div>
+        </li>
+    </ul>
+
+    <h2>Transitions</h2>
+    <h4>transition: [property] [duration] [timing-function] [delay];</h4>
+    <div>
+        [property] // the css property that the transition is for (width etc.) default:all<br />
+        [duration] // time to complete the transition (5s etc.) default:0s<br />
+        [timing-function] // speed curve aka transition type (linear, ease, ease-in, ease-out, ease-in-out) default:ease<br />
+        [delay] // delay before start (1s etc.) default:0s<br />
+    </div>
+
+    <h4>example:</h4>
+    <div>
+        <pre>
+            .transition-A
+            {
+                width:200px;
+
+                transition: width 1s linear;
+                -webkit-transition: width 1s linear;
+                -moz-transition: width 1s linear;
+                -ms-transition: width 1s linear;
+                -o-transition: width 1s linear;
+            }
+            .transition-A:hover
+            {
+                width:300px;
+            }
+        
+            ---
+
+            .transition-C
+            {
+                transition: transform 1s ease-in;
+                -webkit-transition: -webkit-transform 1s ease-in;
+                -moz-transition: -moz-transform 1s ease-in;
+                -ms-transition: -ms-transform 1s ease-in;
+                -o-transition: -o-transform 1s ease-in;                       
+            }
+            .transition-C:hover
+            {
+                transform: rotate(180deg);
+                -webkit-transform: rotate(180deg);
+                -moz-transform: rotate(180deg);
+                -ms-transform: rotate(180deg);
+                -o-transform: rotate(180deg);
+            }
+        </pre>
+    </div>
+
+    <ul>
+        <li>
+            <div>transition: width 1s linear;
+                <br /><span class="note">1 second linear on width</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transition-A" /></div>
+        </li>
+
+        <li>
+            <div>transition: background-color 1s ease;
+                <br /><span class="note">1 second ease on background-color</span>
+            </div>
+            <div class="padding"><div class="cube transition-B">CUBE</div></div>
+        </li>
+
+        <li>
+            <div>transition: transform 1s ease-in;
+                <br /><span class="note">transition on css3 transform</span>
+                <br /><span class="note">1 second ease-in on transform</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transition-C" /></div>
+        </li>
+
+        <li>
+            <div>transition: transform 0.3s  ease-in-out;
+                <br /><span class="note">transition on css3 transform</span>
+                <br /><span class="note">0.3 second ease-in on transform</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transition-D" /></div>
+        </li>
+
+        <li>
+            <div>transition:<br />width ease-out 1s, transform 1s ease-in, filter 1s;
+                <br /><span class="note">multiple properties</span>
+                <br /><span class="note">width, transform and filter css properties</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="transition-multiple" /></div>
+        </li>
+    </ul>
+
+    <h2>Animations</h2>
+    <h3>
+        structure:<br />
+        1. define @keyframes block<br />
+        2. use animation rule to execute the @keyframes from the previous chapter
+    </h3>
+
+    <h4>@keyframes [Name] { [from,to | precentage] }</h4>
+    <div>
+        [from,to] // from start style block - to completed style block<br />
+        [precentage] // devide the frames to specific style blocks 
+    </div>
+
+    <h4>animation: [name] [duration] [timing-function] [delay] [count] [direction];</h4>
+    <div>
+        animation-name:  [@keyframes Name];<br />
+        animation-duration: [duration]; // animation duration. default: 0s<br />
+        animation-delay: [delay]; // delay before start the animation. default: 0s<br />
+        animation-iteration-count: [number | infinite]; // number of times to run or infinite for infinite times. default: 1<br />
+        animation-direction: [alternate | reverse]; // animation mode - reverse or in alternate (once forward, then backward and so on...)<br />
+        animation-timing-function: speed curve aka transition type (linear, ease, ease-in, ease-out, ease-in-out) default:ease<br />
+        animation-play-state: [paused | running];<br />
+        <span class="note">note! use comma for multiple animations</span>
+    </div>
+
+    <h4>events</h4>
+    <div>
+        animationstart // on start<br />
+        animationend // on completed<br />
+        animationiteration // on new iteration started (animation-iteration-count)
+    </div>
+
+    <h4>example:</h4>
+    <div>
+        <pre>
+            @keyframes sample1 {
+                from{ ... }
+                to { ... }
+            }
+
+            .animation1
+            {
+                animation-name: sample1 2s infinite;
+            }
+
+            ---
+
+            @keyframes sample2 {
+                0% { ... }
+                25% { ... }
+                50% { ... }
+                75% { ... }
+                100% { ... }
+            } 
+
+            .animation2
+            {
+                animation-name: sample2 4s infinite;
+            }
+        </pre>
+    </div>
+    <ul>
+        <li>
+            <div>to yellow (on hover)</div>
+            <div class="padding"><div class="cube animation-toYellow">CUBE</div></div>
+        </li>
+
+        <li>
+            <div>multi colors</div>
+            <div class="padding"><div class="cube animation-multiColors">CUBE</div></div>
+        </li>
+
+        <li>
+            <div>with <span class="note">2 seconds</span> delay</div>
+            <div class="padding"><img src="Parrot.jpg" class="animation-delay" /></div>
+        </li>
+
+        <li>
+            <div>with rotate transform - 2 stops using precentage</div>
+            <div class="padding"><img src="Parrot.jpg" class="animation-rotate" /></div>
+        </li>
+
+         <li>
+            <div>with invert filter - 2 stops using precentage</div>
+            <div class="padding"><img src="Parrot.jpg" class="animation-invert" /></div>
+        </li>
+
+        <li>
+            <div>with rotate transform - alternate directions</div>
+            <div class="padding"><img src="Parrot.jpg" class="animation-rotate-alternate" /></div>
+        </li>
+
+        <li>
+            <div>ease-out - grow effect</div>
+            <div class="padding"><img src="Parrot.jpg" class="animation-grow" /></div>
+        </li>
+
+        <li>
+            <div>slide-in effect</div>
+            <div class="padding"><img src="Parrot.jpg" class="animation-slide-in" /></div>
+        </li>
+
+        <li>
+            <div>slide-in effect - paused on hover</div>
+            <div class="padding"><img src="Parrot.jpg" class="animation-slide-in-paused" /></div>
+        </li>
+
+        <li>
+            <div>multiple animations:            
+                <br /><span class="note">grow,  rotate-alternate and invert @keyframes</span>
+                <br /><span class="note">rotate once, infinate grow and invert</span>
+            </div>
+            <div class="padding"><img src="Parrot.jpg" class="animation-multiple" /></div>
+        </li>
+    </ul>
+
+    <h2>Effects</h2>
+    <ul>
+        <li>
+            <div>grayscale on hover</div>
+            <div class="padding"><img src="Parrot.jpg" class="effect-A" /></div>
+        </li>
+
+        <li>
+            <div>grow on hover</div>
+            <div class="padding"><img src="Parrot.jpg" class="effect-B" /></div>
+        </li>
+
+        <li>
+            <div>rotate and grow on hover</div>
+            <div class="padding"><img src="Parrot.jpg" class="effect-C" /></div>
+        </li>
+
+        <li>
+            <div>dance animation on hover</div>
+            <div class="padding"><img src="Parrot.jpg" class="effect-D" /></div>
+        </li>
+    </ul>
+    
+</body>
+</html>

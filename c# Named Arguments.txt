@@ -1,0 +1,50 @@
+C# Named Arguments
+==================
+Named arguments enable us to pass an argument to a method by the parameter name 
+rather than by it's position in the parameter list. 
+when using this technique, we can specify the values in ANY order we'd like! 
+
+syntax:
+Function(ParameterName: Value, ParameterName: Value ..... );
+
+reminder:
+parameters = define in the method signature 
+arguments = the values the the caller sends to populate the parameters
+
+void Foo(param1, param2 ...); // Foo signature
+Foo(arg1, arg2 ...); // using Foo 
+
+----
+
+public void Foo(int Num1, int Num2) {
+    Console.WriteLine("Num1: {0}, Num2: {1}", Num1, Num2);
+}
+
+// using
+Foo(1, 2); // Num1: 1, Num2: 2
+Foo(Num2: 4, Num1: 3); // Num1: 3, Num2: 4
+Foo(Num1: 4, Num2: 3); // Num1: 4, Num2: 3
+
+---
+
+public void PrintProduct(int Id, string ProductName, int UnitsInStock, double Price) {
+    Console.WriteLine("#{0}", Id);
+	Console.WriteLine("{0}", ProductName);
+	Console.WriteLine("{0} In Stock", UnitsInStock);
+	Console.WriteLine("{0} USD", Price);
+}
+
+PrintProduct(1, "SomeProduct", 30, 99.9);
+PrintProduct(Id: 1, ProductName: "SomeProduct", UnitsInStock: 30, Price: 99.9);
+PrintProduct(ProductName: "SomeProduct", Price: 99.9, Id: 1, UnitsInStock: 30);
+PrintProduct(Price: 99.9, Id: 1, UnitsInStock: 30, ProductName: "SomeProduct");
+
+// output: 
+// note: same for ALL of the above!
+/* 
+	#1
+	SomeProduct
+	30 In Stock
+	99.9 USD
+*/
+

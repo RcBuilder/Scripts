@@ -1,0 +1,86 @@
+string[] patterns = { "xx0x", "110x", "100x", "010x", "x01x", "1010", "0011", "0111", "1111", "xxxx", "0001", "1010", "0110" };
+            
+foreach (var pattern in patterns)
+{
+    // save each x ph and it's position
+    // e.g: xx0x -> phCount: 3 -> positions: [0, 1, 3]
+    var phCount = pattern.Count(x => x == 'x');
+    var positions = new int[phCount];
+
+    var index = 0;
+    var position = 0;
+    foreach (char c in pattern) {
+        if (c == 'x')
+            positions[index++] = position;
+        position++;
+    }
+
+    // ---
+
+    // find all the possible values for the x ph
+    // e.g: xxx -> |2|2|2| -> 3^2 -> count: 8                 
+    int count = (int)Math.Pow(2, phCount);
+    for (var valueDec = 0; valueDec < count; valueDec++)
+    {
+        // for each possible value (decimal!), convert it to binary based representation
+        // and add 0 in front of it to match the x count length
+        // e.g: decimal: 2, length: 3 -> _11 -> binary: 011
+        // e.g: decimal: 2, length: 5 -> ___11 -> binary: 00011
+        string valueBin = Convert.ToString(valueDec, 2).PadLeft(phCount, '0');
+
+        // replace each x ph using it's position
+        char[] tmpOutput = pattern.ToCharArray();
+        var charIndex = 0;
+        for (charIndex = 0; charIndex < phCount; charIndex++)
+            tmpOutput[positions[charIndex]] = valueBin[charIndex];
+        var output = new string(tmpOutput);
+
+        // - Here we are
+        Console.WriteLine("{0} ({1}/{2}) => {3}", pattern, valueDec + 1, count, output);
+    }
+}
+
+------
+
+output:
+xx0x (1/8) => 0000
+xx0x (2/8) => 0001
+xx0x (3/8) => 0100
+xx0x (4/8) => 0101
+xx0x (5/8) => 1000
+xx0x (6/8) => 1001
+xx0x (7/8) => 1100
+xx0x (8/8) => 1101
+110x (1/2) => 1100
+110x (2/2) => 1101
+100x (1/2) => 1000
+100x (2/2) => 1001
+010x (1/2) => 0100
+010x (2/2) => 0101
+x01x (1/4) => 0010
+x01x (2/4) => 0011
+x01x (3/4) => 1010
+x01x (4/4) => 1011
+1010 (1/1) => 1010
+0011 (1/1) => 0011
+0111 (1/1) => 0111
+1111 (1/1) => 1111
+xxxx (1/16) => 0000
+xxxx (2/16) => 0001
+xxxx (3/16) => 0010
+xxxx (4/16) => 0011
+xxxx (5/16) => 0100
+xxxx (6/16) => 0101
+xxxx (7/16) => 0110
+xxxx (8/16) => 0111
+xxxx (9/16) => 1000
+xxxx (10/16) => 1001
+xxxx (11/16) => 1010
+xxxx (12/16) => 1011
+xxxx (13/16) => 1100
+xxxx (14/16) => 1101
+xxxx (15/16) => 1110
+xxxx (16/16) => 1111
+0001 (1/1) => 0001
+1010 (1/1) => 1010
+0110 (1/1) => 0110 

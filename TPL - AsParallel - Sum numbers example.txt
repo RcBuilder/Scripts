@@ -1,0 +1,19 @@
+var lst = new List<int> { 3, 5, 2, 6, 9, 12 };
+var sum = 0;
+            
+lst.AsParallel().ForAll((num) => {
+    Thread.Sleep(rnd.Next(1500));
+    sum += num;
+    Console.WriteLine("collecting {0}....", num);
+});
+
+Console.WriteLine("SUM {0}", sum);
+/*
+    collecting 2....
+	collecting 3....
+	collecting 12....
+	collecting 9....
+	collecting 5....
+	collecting 6....
+    SUM 37 
+*/

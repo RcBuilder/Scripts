@@ -1,0 +1,29 @@
+javascript forEach
+-----------------
+forEach calls a provided callback function once for each element in an array, in order.
+
+structure:
+[array].forEach([function]);
+
+---
+
+var arr = [1, 2, 3, 4, 5, 6, 7];
+
+// basic
+arr.forEach(function (x) {
+    console.log(x);
+});
+
+---
+
+// using arrow function
+arr.forEach(x => { 
+	console.log(x); 
+});
+
+---
+
+// on direct array - no allocation
+['A', 'B', 'C'].forEach(x => { 
+	console.log(x); 
+});

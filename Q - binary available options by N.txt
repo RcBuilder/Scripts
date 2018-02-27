@@ -1,0 +1,22 @@
+var n = 3;
+var count = (int)Math.Pow(2, n);
+for (var i = 0; i < count; i++) {
+    var str = Convert.ToString(i, 2).PadLeft(n, '0');
+    Console.WriteLine(str);
+}
+
+--------
+
+e.g:
+n = 3
+|2|2|2| = 2^3 = 8
+              
+output:
+000
+001
+010
+011
+100
+101
+110
+111
