@@ -1,0 +1,73 @@
+OwinMiddleware example
+======================
+Owin Middlewares are middlewares that clinch to the pipe line of an Owin host requests
+
+note: 
+similar to http modules in web forms or action filters in MVC 
+
+nuget
+----- 
+Install-Package Owin // base 
+Install-Package Microsoft.Owin.Host.HttpListener // ms self-hosting listener
+Install-Package Microsoft.Owin.Hosting; // ms hosting 
+
+namespaces
+----------
+using System.Threading.Tasks;
+using Microsoft.Owin;
+using Microsoft.Owin.Hosting;
+using Owin;
+
+custom middlewares
+------------------
+public class Middleware1 : OwinMiddleware {
+    public Middleware1(OwinMiddleware next) : base(next) { }
+
+    public override async Task Invoke(IOwinContext context) {
+        context.Response.Write("<div>Middleware1</div>"); // write to the response 
+        Console.WriteLine("Middleware1"); // write to the server console 
+        await Next.Invoke(context);
+    }
+}
+
+public class Middleware2 : OwinMiddleware {
+    public Middleware2(OwinMiddleware next) : base(next) { }
+
+    public override async Task Invoke(IOwinContext context) {
+        context.Response.Write("<div>Middleware2</div>");
+        Console.WriteLine("Middleware2");
+        await Next.Invoke(context);
+    }
+}
+
+public class Middleware3 : OwinMiddleware {
+    public Middleware3(OwinMiddleware next) : base(next) { }
+
+    public override async Task Invoke(IOwinContext context) {
+        context.Response.Write("<div>Middleware3</div>");
+        Console.WriteLine("Middleware3");
+        await Next.Invoke(context);
+    }
+}
+
+Startup
+-------
+public class Startup {
+    public void Configuration(IAppBuilder app) {
+        app.Use(typeof(Middleware1));
+        app.Use(typeof(Middleware2));
+        app.Use(typeof(Middleware3));
+    }
+}
+
+static void Main(string[] args) {
+    WebApp.Start<Startup>("http://localhost:1166");
+    Console.WriteLine("Server is Running on port 1166 .... ");
+    Console.ReadKey();       
+}
+
+request
+-------
+each request to the address 'http://localhost:1166' will reach the owin self-hosted server 
+therefore, Middleware1, Middleware2 and Middleware3 will be executed 
+ 

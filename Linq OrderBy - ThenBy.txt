@@ -1,0 +1,57 @@
+*** OrderBy - ThenBy ***
+************************
+
+syntax:
+OrderBy
+OrderByDescending
+
+ThenBy
+ThenByDescending
+
+-------
+
+var products = new [] { 
+                new { Id = 101, Name = "Product A", CategoryId = 2 },
+                new { Id = 102, Name = "Product B", CategoryId = 1 },
+                new { Id = 103, Name = "Product C", CategoryId = 1 },
+                new { Id = 104, Name = "Product D", CategoryId = 2 },
+                new { Id = 105, Name = "Product E", CategoryId = 3 },
+                new { Id = 106, Name = "Product F", CategoryId = 2 },
+                new { Id = 107, Name = "Product G", CategoryId = 3 },
+                new { Id = 108, Name = "Product H", CategoryId = 2 },
+                new { Id = 109, Name = "Product I", CategoryId = 1 }
+            }.ToList();
+
+
+using OrderBy and ThenBy
+------------------------ 
+var ordered = products.OrderBy(p => p.CategoryId).ThenByDescending(p => p.Name);
+
+using Query syntax
+------------------
+var ordered = from p in products
+              orderby p.CategoryId ascending, p.Name descending
+              select p;
+
+result
+------
+
+- print:
+foreach (var product in ordered)
+     Console.WriteLine("{0} - {1}", product.CategoryId, product.Name);
+
+
+- output:
+
+1 - Product I
+1 - Product C
+1 - Product B
+
+2 - Product H
+2 - Product F
+2 - Product D
+2 - Product A
+
+3 - Product G
+3 - Product E
+

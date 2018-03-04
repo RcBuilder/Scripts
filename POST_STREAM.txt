@@ -1,0 +1,74 @@
+SEND STREAM VIA POST
+--------------------
+
+// code snippet
+private string POST_STREAM(string page, Stream streamToSend, string fileName) {
+    try {
+        var WebReq = (HttpWebRequest)WebRequest.Create(page);
+        WebReq.Method = "POST";
+        WebReq.ContentType = "multipart/form-data";
+        WebReq.ContentLength = streamToSend.Length;
+
+		// add the file name to the header in order to use it on the other side
+        WebReq.Headers.Add("fileName", fileName);
+
+        byte[] buffer = new byte[1024];
+        int bytes;
+
+	    // write the stream to the request stream
+        using (Stream requestStream = WebReq.GetRequestStream()) {
+            while ((bytes = streamToSend.Read(buffer, 0, buffer.Length)) > 0)
+                requestStream.Write(buffer, 0, bytes);
+        }
+
+        var WebResp = (HttpWebResponse)WebReq.GetResponse();
+        var response = WebResp.GetResponseStream();
+        using(var content = new StreamReader(response))
+			return content.ReadToEnd();
+    }
+    catch {
+        throw;
+    }
+    finally {
+        streamToSend.Close();
+        streamToSend.Dispose();
+    }  
+}
+
+// using
+string res = POST_STREAM(
+	"http://localhost:30776/Uploader/UploadFile.aspx", 
+	FileUpload1.PostedFile.InputStream, 
+	Path.GetFileName(FileUpload1.PostedFile.FileName)
+);
+
+----------------------------------------------
+
+RECEIVE STREAM VIA POST
+-----------------------
+
+Stream inputStream = (Stream)Request.InputStream; // get stream;
+
+try {
+    var file = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "\\", "UPLOADS\\", Request.Headers["fileName"].ToString());
+
+    using (var fs = new FileStream(file, FileMode.Create, FileAccess.Write)) {
+        byte[] buffer = new byte[1024];
+        int bytes;
+
+		// write the input stream to the output stream(in this case - file) 
+        while ((bytes = inputStream.Read(buffer, 0, buffer.Length)) > 0)
+            fs.Write(buffer, 0, bytes);
+    }
+
+    Response.Write("OK");
+}
+catch(Exception ex) {
+    Response.Write(ex.Message);      
+}
+finally {
+    inputStream.Close();
+    inputStream.Dispose();
+}
+
+Response.End();

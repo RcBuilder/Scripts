@@ -1,0 +1,18 @@
+XOR 
+0 for equal bits
+1 for different bits
+
+sample:
+1011 = 11
+0101 = 5
+----
+1110 = 14
+
+using:
+int num1 = 11, // 1011
+    num2 = 5; // 0101
+
+num1 = num1 ^ num2;  // num1 = 14 (1110)
+num2 = num1 ^ num2;  // num2 = 11 (1011)
+num1 = num1 ^ num2;  // num1 = 5 (0101)
+Console.WriteLine("n1:{0} n2:{1}", num1, num2); // n1:5 n2:11

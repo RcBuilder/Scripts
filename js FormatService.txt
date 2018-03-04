@@ -1,0 +1,98 @@
+service:
+
+var FormatService = function(){
+  return {
+    toNumber: function(value){
+      try{
+        if(isNaN(value)) throw new Error();     
+        return parseInt(value).toFixed(0);     
+      }
+      catch(e){ return value; }
+    },
+    toDecimal: function(value){
+      try{
+        if(isNaN(value)) throw new Error();
+        return parseFloat(value).toFixed(2);     
+      }
+      catch(e){ return value; }
+    },
+    toCurrency: function(value){
+      try{
+        if(isNaN(value)) throw new Error();
+        return parseFloat(value).toFixed(2).concat('$');     
+      }
+      catch(e){ return value; }
+    },
+    toPercentage: function(value){
+      try{        
+        if(isNaN(value)) throw new Error();
+        return parseFloat(value).toFixed(0).concat('%');     
+      }
+      catch(e){ return value; }
+    },
+    toDateName: function(date){
+      try{
+        // toDateString() -> Mon Feb 29 2016
+        var arrDateParts = date.toDateString().split(' '); 
+        return arrDateParts[1] + ' ' + arrDateParts[2];  // Feb 29 (MMM dd)
+      }
+      catch(e){ return date; }
+    },
+    toMonthName: function(date){
+      try{
+        // toDateString() -> Mon Feb 29 2016
+        var arrDateParts = date.toDateString().split(' '); 
+        return arrDateParts[1] + ', ' + arrDateParts[3];  // Feb, 2016 (MMM, yyyy)
+      }
+      catch(e) { return date; }
+    },
+    toDateYMD: function (date, delimiter){
+      try{
+        delimiter = delimiter || '';
+        
+        var year = date.getFullYear().toString();
+        var month = (date.getMonth()+1).toString();
+        var day = date.getDate().toString();
+        
+        if(month.length == 1) month = '0' + month; 
+        if(day.length == 1) day = '0' + day;
+        
+        return year + delimiter + month + delimiter + day; // default: 20160229 (yyyyMMdd)
+      }
+      catch(e) { return date; }
+    }, 
+  }
+}
+
+
+-----------------
+
+using:
+
+var service = FormatService();
+Logger.log(service.toNumber('28.0000'));
+Logger.log(service.toNumber('28.99'));
+Logger.log(service.toNumber('ABC'));
+  
+Logger.log(service.toDecimal('28.0000'));
+Logger.log(service.toDecimal('28'));
+Logger.log(service.toDecimal('ABC'));
+  
+Logger.log(service.toCurrency('28.0000'));
+Logger.log(service.toCurrency('28'));
+Logger.log(service.toCurrency('ABC'));
+  
+Logger.log(service.toPercentage('28.0000'));
+Logger.log(service.toPercentage('28'));
+Logger.log(service.toPercentage('ABC'));
+  
+Logger.log(service.toDateName(new Date()));
+Logger.log(service.toDateName('ABC'));
+  
+Logger.log(service.toMonthName(new Date()));
+Logger.log(service.toMonthName('ABC'));
+  
+Logger.log(service.toDateYMD(new Date()));
+Logger.log(service.toDateYMD(new Date(), '-'));
+Logger.log(service.toDateYMD(new Date(), '/'));
+Logger.log(service.toDateYMD('ABC'));

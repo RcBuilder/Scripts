@@ -1,0 +1,63 @@
+MultiThreads Deadlocks
+======================
+
+can be occurred when using MultiThreads with 2 resources and 2 threads. 
+occurs when threadA lock ResourceA and try to reach ResourceB and at the same time 
+threadB lock ResourceB and try to reach ResourceA - they both will never give up so they will be stuck!!
+
+the simplest way to solve that is by replacing the lock statement with Monitor (TryEnter and Exit)
+which has a timeout option. 
+a reminder, lock compiles into Monitor.
+
+if(Monitor.TryEnter(this, 500)) { 
+	... 
+}
+catch (Exceprion ex) { }
+finally{ 
+	Monitor.Exit();
+}
+
+---------------
+
+// example:
+public class Account {
+    public int Id { get; set; }
+    public float Balance { get; set; }            
+}
+
+public class Bank {
+    public void TransferMoney(Account from, Account to, float amount) {
+        lock (from) {
+            Console.WriteLine("account {0} accuire a lock (1st)", from.Id);
+            Thread.Sleep(1000);   
+
+            lock(to) {
+                Console.WriteLine("account {0} accuire a lock (2nd)", to.Id);
+
+                from.Balance -= amount; 
+                to.Balance += amount;
+
+                Console.WriteLine("{0}$ transfered from account {1} to account {2}", amount, from.Id, to.Id);
+            }
+        }
+    }
+}
+
+
+
+var accountA = new Account { Id = 1, Balance = 2500 };
+var accountB = new Account { Id = 2, Balance = 3000 };
+
+var bank = new Bank();
+
+var tasks = new Task[]{
+    Task.Factory.StartNew(() => bank.TransferMoney(accountA, accountB, 1000)),
+    Task.Factory.StartNew(() => bank.TransferMoney(accountB, accountA, 500))
+};
+
+Task.WaitAll(tasks); 
+
+
+// result -> Deadlock!!
+account 1 accuire a lock (1st)
+account 2 accuire a lock (1st)

@@ -1,0 +1,49 @@
+<script src="jquery.js"></script>
+<script src="jquery-ui.js"></script>
+
+<script type="text/javascript">
+    function InitSORTABLE() {
+        $('ul#sortable').sortable({
+            stop: SetSort
+        });
+    }
+
+    function SetSort(event, ui) {
+        var sort = '';
+        $('ul#sortable li').each(function () { 
+			sort += $(this).attr('id') + ','; 
+		});
+
+        if (sort.length > 0) 
+			sort = sort.slice(0, -1);
+
+        $('#hdnSort').val(sort);
+    }
+</script>
+----------------------------------
+
+<ul id="sortable">
+    <li><div>Item1</div></li>                                                            
+    <li><div>Item2</div></li>
+    <li><div>Item3</div></li>
+</ul>
+<input type="hidden" id="hdnSort" name="hdnSort" value="" />
+
+----------------------------------
+
+ul#sortable {    
+	list-style-type:none;    
+}
+
+ul#sortable li {    
+	padding:4px 0;   
+	cursor:pointer;      
+}
+
+ul#sortable li div {    
+	border:solid 1px #d3d3d3;    
+	height:35px;   
+	line-height:35px;   
+	padding:0 8px;    
+	background-color:#fff;
+}

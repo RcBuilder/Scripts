@@ -1,3 +1,12 @@
 var select = $(this);
 var selectedIndex = parseInt(select.prop('selectedIndex')); // selected index
 select.val() // selected text
+
+---
+
+// selected item text
+$(ddlGardens).find("option:selected").text(); 
+$('ddlGardens > option:selected").text();
+
+// selected value
+$(ddlGardens).val();

@@ -1,0 +1,336 @@
+﻿*** Threading - QueueUserWorkItem and ManualResetEvent ***
+**********************************************************
+best practice -> USE TPL instead!
+
+
+- QueueUserWorkItem:  
+  ThreadPool.QueueUserWorkItem(Action<object>) // no state 
+  ThreadPool.QueueUserWorkItem(Action<object>, object state) // with state 
+
+  use the state object to pass data to the thread which can't be changed outside of it.
+
+  tip:
+  always use the state to pass parameters and NEVER do that directly from the caller thread!  
+  see 'why to use the state object'
+
+
+- ManualResetEvent
+  ManualResetEvent(bool)
+  Set() // set the event as completed 
+
+- WaitHandle.WaitAll(ManualResetEvent[])
+  waiting for all the events to be completed. 
+  to set an event as completed, we need to use the 'Set' function of the ManualResetEvent object
+
+  limitation: 
+  see '64 WaitHandles limitation'
+
+----------------------------------------------------------------------
+
+-- using Delegates --
+
+var reset_events = new List<ManualResetEvent>();    
+var reset_evt1 = new ManualResetEvent(false);
+var reset_evt2 = new ManualResetEvent(false);
+var reset_evt3 = new ManualResetEvent(false);
+var reset_evt4 = new ManualResetEvent(false);
+
+reset_events.Add(reset_evt1);
+reset_events.Add(reset_evt2);
+reset_events.Add(reset_evt3);
+reset_events.Add(reset_evt4);
+
+ThreadPool.QueueUserWorkItem(delegate(object state) {
+    Console.WriteLine("THREAD 1");
+
+    reset_evt1.Set();
+});
+
+ThreadPool.QueueUserWorkItem(delegate(object state) {
+    Thread.Sleep(2000); 
+    Console.WriteLine("THREAD 2");
+
+    reset_evt2.Set();
+});
+
+ThreadPool.QueueUserWorkItem(delegate(object state) {
+    Console.WriteLine("THREAD 3");
+
+    reset_evt3.Set();
+});
+
+ThreadPool.QueueUserWorkItem(delegate(object state) {
+    Console.WriteLine("THREAD 4");
+
+    reset_evt4.Set();
+});
+
+WaitHandle.WaitAll(reset_events.ToArray());
+
+Console.WriteLine("DONE");
+Console.ReadKey();
+
+----------------------------------------------------------------------
+
+-- using Anonymous Functions --
+
+var reset_events = new List<ManualResetEvent>();            
+var reset_evt1 = new ManualResetEvent(false);
+var reset_evt2 = new ManualResetEvent(false);
+var reset_evt3 = new ManualResetEvent(false);
+var reset_evt4 = new ManualResetEvent(false);
+
+reset_events.Add(reset_evt1);
+reset_events.Add(reset_evt2);
+reset_events.Add(reset_evt3);
+reset_events.Add(reset_evt4);
+
+ThreadPool.QueueUserWorkItem((state) => { 
+    Console.WriteLine("THREAD 1");
+
+    reset_evt1.Set(); 
+});
+
+ThreadPool.QueueUserWorkItem((state) => {
+    Thread.Sleep(2000); 
+    Console.WriteLine("THREAD 2");
+
+    reset_evt2.Set();
+});
+
+ThreadPool.QueueUserWorkItem((state) => {
+    Console.WriteLine("THREAD 3");
+
+    reset_evt3.Set(); 
+});
+
+ThreadPool.QueueUserWorkItem((state) => {
+    Console.WriteLine("THREAD 4");
+
+    reset_evt4.Set();
+});
+
+WaitHandle.WaitAll(reset_events.ToArray());
+
+Console.WriteLine("DONE");
+Console.ReadKey();
+
+----------------------------------------------------------------------
+
+-- using Actions --
+
+var reset_events = new List<ManualResetEvent>();
+var reset_evt1 = new ManualResetEvent(false);
+var reset_evt2 = new ManualResetEvent(false);
+var reset_evt3 = new ManualResetEvent(false);
+var reset_evt4 = new ManualResetEvent(false);
+
+reset_events.Add(reset_evt1);
+reset_events.Add(reset_evt2);
+reset_events.Add(reset_evt3);
+reset_events.Add(reset_evt4);
+
+Action<object> action = (state) =>
+{
+    var threadState = (ThreadState)state;
+    Console.WriteLine("THREAD #{0}, INDEX: {1}", Thread.CurrentThread.ManagedThreadId, threadState.index);
+    threadState.reset_evt.Set();
+};
+
+ThreadPool.QueueUserWorkItem(new WaitCallback(action), new ThreadState(reset_evt1, 1));
+ThreadPool.QueueUserWorkItem(new WaitCallback(action), new ThreadState(reset_evt2, 2));
+ThreadPool.QueueUserWorkItem(new WaitCallback(action), new ThreadState(reset_evt3, 3));
+ThreadPool.QueueUserWorkItem(new WaitCallback(action), new ThreadState(reset_evt4, 4));
+            
+WaitHandle.WaitAll(reset_events.ToArray());
+
+Console.WriteLine("DONE");
+Console.ReadKey();
+
+/*
+    THREAD #9, INDEX: 1
+    THREAD #13, INDEX: 2
+    THREAD #13, INDEX: 4
+    THREAD #9, INDEX: 3
+    DONE 
+*/
+
+----------------------------------------------------------------------
+
+-- why to use the state object --
+
+when usign a variable from the caller thread directly within the actions on other theads, we might encounter 
+with issues on unexpected data due to the compiler work which replaces the variable with a value and loses the 
+state of it. 
+
+the solution is to pass the variable as the thread state. that way a copy of that value will be created and pass 
+to that thread. 
+
+in the issue presented below, the compiler set the value of number to be 102 (the last change) 
+and passed that value to both THREAD 1 and THREAD 2
+
+mostly common in 'for' loop which uses the 'i' iterator directly!
+
+note: reference type, by its nature, will act the same with or without the state 
+because only a reference is passing to the threads and NOT a deep copy of the referred object.
+see 'referece type state'
+
+
+- issue:
+
+var reset_events = new List<ManualResetEvent>();            
+var reset_evt1 = new ManualResetEvent(false);
+var reset_evt2 = new ManualResetEvent(false);
+
+reset_events.Add(reset_evt1);
+reset_events.Add(reset_evt2);
+
+var number = 100;
+ThreadPool.QueueUserWorkItem((state) => { 
+    Console.WriteLine("THREAD 1: {0}", number);
+
+    reset_evt1.Set(); 
+});
+
+number = 101;
+ThreadPool.QueueUserWorkItem((state) => {
+    Thread.Sleep(2000); 
+    Console.WriteLine("THREAD 2: {0}", number);
+
+    reset_evt2.Set();
+});
+
+number = 102;
+
+WaitHandle.WaitAll(reset_events.ToArray());
+
+Console.WriteLine("DONE: {0}", number);
+Console.ReadKey();
+
+/*
+    THREAD 1: 102
+    THREAD 2: 102
+    DONE: 102
+*/
+
+
+-- fix:
+
+var number = 100;
+ThreadPool.QueueUserWorkItem((state) => { 
+    Console.WriteLine("THREAD 1: {0}", (int)state);
+
+    reset_evt1.Set(); 
+}, number);
+
+number = 101;
+ThreadPool.QueueUserWorkItem((state) => {
+    Thread.Sleep(2000); 
+    Console.WriteLine("THREAD 2: {0}", (int)state);
+
+    reset_evt2.Set();
+}, number);
+
+number = 102;
+
+WaitHandle.WaitAll(reset_events.ToArray());
+
+Console.WriteLine("DONE: {0}", number);
+Console.ReadKey();
+
+/*
+    THREAD 1: 100
+    THREAD 2: 101
+    DONE: 102
+*/
+
+
+-- referece type state:
+
+var product = new Product { Name = "P2" };
+ThreadPool.QueueUserWorkItem((state) => { 
+    Console.WriteLine("THREAD 1: {0}", ((Product)state).Name);
+
+    reset_evt1.Set(); 
+}, product);
+
+product.Name = "P3";
+ThreadPool.QueueUserWorkItem((state) => {
+    Thread.Sleep(2000); 
+    Console.WriteLine("THREAD 2: {0}", ((Product)state).Name);
+
+    reset_evt2.Set();
+}, product);
+
+product.Name = "P4";
+
+WaitHandle.WaitAll(reset_events.ToArray());
+
+Console.WriteLine("DONE: {0}", product.Name);
+Console.ReadKey();
+
+/*
+    THREAD 1: P4
+    THREAD 2: P4
+    DONE: P4
+*/
+
+----------------------------------------------------------------------
+
+-- 64 WaitHandles limitation --
+
+theres a 64 WaitHandles limitation! 
+once reach that limit - a "The number of WaitHandles must be less than or equal to 64" exception is thrown. 
+
+the solution is to use a SINGLE ManualResetEvent and track the counter ourselves using a counter variable. 
+set the counter to be the number of threads to execute, and decrease 1 for each executed event using the Interlocked.Decrement method 
+which has an inner lock and serves as a thread-safe counter, once the counter reaches 0 - use the 'Set' function of the ManualResetEvent. 
+use the ManualResetEvent WaitOne function to wait for that single 'Set' call which is only been called once when the counter was 0!
+
+- issue:
+
+var reset_events = new List<ManualResetEvent>();
+for (var i = 0; i < 100; i++) {
+    var reset_evt = new ManualResetEvent(false);
+    reset_events.Add(reset_evt);
+
+    ThreadPool.QueueUserWorkItem((state) => {        
+        // code ...
+
+        ((ManualResetEvent)state).Set();
+    }, reset_evt);
+}
+
+// [Exception] The number of WaitHandles must be less than or equal to 64!!
+WaitHandle.WaitAll(reset_events.ToArray()); 
+
+- fix:
+
+var threadsCounter = 100;
+var reset_evt = new ManualResetEvent(false);   
+
+for (var i = 0; i < threadsCounter; i++) {                             
+    ThreadPool.QueueUserWorkItem((state) => {
+        // code ...
+
+        Interlocked.Decrement(ref threadsCounter);
+        if(threadsCounter == 0)
+            reset_evt.Set();
+    });
+}
+
+reset_evt.WaitOne();
+
+----------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------

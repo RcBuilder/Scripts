@@ -1,0 +1,20 @@
+Convert a Numeric value to ANY base
+-----------------------------------
+we can use the Convert.ToString method to convert a numeric 
+value into any base of it's representation. 
+
+syntax:
+Convert.ToString([number], [base]);
+
+bases:
+2 = binary
+8 = octal
+10 = decimal
+16 = hexadecimal
+
+e.g: 
+int num1 = 11;            
+Console.WriteLine(Convert.ToString(num1, 2)); // 1011
+Console.WriteLine(Convert.ToString(num1, 8)); // 13
+Console.WriteLine(Convert.ToString(num1, 16)); // B
+

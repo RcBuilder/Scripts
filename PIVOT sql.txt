@@ -1,0 +1,178 @@
+PIVOT
+=====
+- a cross Tab format representation.
+- convert unique columns into row.
+
+- syntax:
+  select [non pivot columns], // optional
+		 [pivot columns]
+  from	 [source]
+  PIVOT(
+	[aggregation query] FOR [column] in ([pivot columns])	
+  ) as [pivot table name]
+  [order by] // optional
+
+exampleA:
+---------
+declare @tblSales table(Seller nvarchar(30), City nvarchar(30), SalesAmount float)
+insert into @tblSales
+	select 'Roby', 'Kfar Saba', 400 union
+	select 'Roby', 'Kfar Saba', 100 union
+	select 'Roby', 'Netanya', 30 union
+	select 'Avi', 'Netanya', 120 union
+	select 'Avi', 'Netanya', 40 union
+	select 'Avi', 'Kfar Saba', 700 union
+	select 'Ron', 'Kfar Saba', 40 union
+	select 'Roby', 'Tel Aviv', 10 union
+	select 'Avi', 'Haifa', 210 union
+	select 'Ron', 'Netanya', 330 union
+	select 'Ron', 'Netanya', 10 union
+	select 'Roby', 'Haifa', 60 union
+	select 'Bonnie', 'Kfar Saba', 80 union
+	select 'Avi', 'Tel Aviv', 90
+
+// using group by
+select	Seller, City, SUM(SalesAmount) as 'SalesAmount'
+from	@tblSales
+group by Seller, City
+order by Seller, City
+
+/*
+	output:
+	Avi		Haifa		210
+	Avi		Kfar Saba	700
+	Avi		Netanya		160
+	Avi		Tel Aviv	90
+	Bonnie	Kfar Saba	80
+	Roby	Haifa		60
+	Roby	Kfar Saba	500
+	Roby	Netanya		30
+	Roby	Tel Aviv	10
+	Ron		Kfar Saba	40
+	Ron		Netanya		340
+*/
+
+// using pivot
+select	Seller, 
+		isnull([Kfar Saba], 0) as 'Kfar Saba', 
+		isnull(Netanya, 0) as 'Netanya', 
+		isnull([Tel Aviv], 0) as 'Tel Aviv', 
+		isnull(Haifa, 0) as 'Haifa'
+from	@tblSales
+PIVOT(
+	SUM(SalesAmount) FOR City in([Kfar Saba], Netanya, [Tel Aviv], Haifa)
+) as PivotTable
+order by Seller
+
+/*
+	output:	
+	Avi		700		160		90		210
+	Bonnie	80		0		0		0
+	Roby	500		30		10		60
+	Ron		40		340		0		0
+*/
+
+exampleB:
+---------
+declare @tblUsers table(Id int identity(1000,1), Name nvarchar(30), City nvarchar(30))
+insert into @tblUsers(Name, City)
+	select 'Roby', 'Kfar Saba' union
+	select 'Avi', 'Netanya' union
+	select 'Haim', 'Netanya' union
+	select 'Galit', 'Kfar Saba' union
+	select 'Maayan', 'Kfar Saba' union
+	select 'Ron', 'Tel Aviv' union
+	select 'Shirly', 'Haifa' union
+	select 'Steve', 'Netanya' union
+	select 'Shalom', 'Haifa' union
+	select 'Sara', 'Kfar Saba' union
+	select 'Shaul', 'Tel Aviv'
+
+;WITH cteUsers(Name, City) as (
+	select Name, City from @tblUsers
+)
+select	[Kfar Saba], Netanya, [Tel Aviv], Haifa
+from	cteUsers
+PIVOT(
+	COUNT(Name) FOR City in([Kfar Saba], Netanya, [Tel Aviv], Haifa)
+) as PivotTable
+
+/*
+	output:		
+	4	3	2	2
+*/
+
+KNOWN ISSUE
+-----------
+aggregation is NOT working correctly!!
+	 
+query:
+select	[Kfar Saba], Netanya, [Tel Aviv], Haifa
+from	@tblUsers
+PIVOT(
+	COUNT(Name) FOR City in([Kfar Saba], Netanya, [Tel Aviv], Haifa)
+) as PivotTable
+
+---
+
+output:
+0	1	0	0
+1	0	0	0
+0	1	0	0
+1	0	0	0
+1	0	0	0
+0	0	1	0
+1	0	0	0
+0	0	0	1
+0	0	1	0
+0	0	0	1
+0	1	0	0
+
+// FIND the cause:
+select ALL rows to find the column that causes this behaviour
+
+query:
+select	* 
+from	@tblUsers
+PIVOT(
+	COUNT(Name) FOR City in([Kfar Saba], Netanya, [Tel Aviv], Haifa)
+) as PivotTable
+	
+output:	
+1000	0	1	0	0
+1001	1	0	0	0
+1002	0	1	0	0
+1003	1	0	0	0
+1004	1	0	0	0
+1005	0	0	1	0
+1006	1	0	0	0
+1007	0	0	0	1
+1008	0	0	1	0
+1009	0	0	0	1
+1010	0	1	0	0
+	
+as we can see now, the Id column is causing this behaviour 
+
+---
+
+// SOLUTION:
+select ONLY the columns required for the aggregation process!
+
+note! 
+if we remove the Id column - the result will be fine
+
+query:
+;WITH cteUsers(Name, City) as (
+	select Name, City from @tblUsers
+)
+select	[Kfar Saba], Netanya, [Tel Aviv], Haifa
+from	cteUsers
+PIVOT(
+	COUNT(Name) FOR City in([Kfar Saba], Netanya, [Tel Aviv], Haifa)
+) as PivotTable
+
+tip:
+we can also use sub-query instead of CTE
+
+output:	
+4	3	2	2

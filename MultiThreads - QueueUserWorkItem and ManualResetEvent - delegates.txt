@@ -1,0 +1,122 @@
+﻿*** Threading - QueueUserWorkItem and ManualResetEvent - delegates ***
+**********************************************************************
+
+reference:
+MultiThreads - QueueUserWorkItem and ManualResetEvent.txt
+
+
+-- base example --
+------------------
+
+using System;
+using System.Collections.Generic;
+using System.Threading;
+
+static void Example1() {
+    // create event reset per QueueUserWorkItem in the ThreadPool
+    var reset_events = new List<ManualResetEvent>();    
+    var reset_evt1 = new ManualResetEvent(false);
+    var reset_evt2 = new ManualResetEvent(false);
+    var reset_evt3 = new ManualResetEvent(false);
+    var reset_evt4 = new ManualResetEvent(false);
+
+    reset_events.Add(reset_evt1);
+    reset_events.Add(reset_evt2);
+    reset_events.Add(reset_evt3);
+    reset_events.Add(reset_evt4);
+
+    ThreadPool.QueueUserWorkItem(delegate(object state) {
+        Console.WriteLine("THREAD 1");
+
+        // always call Set() method in the end of the thread
+        reset_evt1.Set(); // release from waiting 
+    });
+
+    ThreadPool.QueueUserWorkItem(delegate(object state) {
+        Thread.Sleep(2000); // delay 2 second
+        Console.WriteLine("THREAD 2");
+
+        reset_evt2.Set(); // release from waiting 
+    });
+
+    ThreadPool.QueueUserWorkItem(delegate(object state) {
+        Console.WriteLine("THREAD 3");
+
+        reset_evt3.Set(); // release from waiting 
+    });
+
+    ThreadPool.QueueUserWorkItem(delegate(object state) {
+        Console.WriteLine("THREAD 4");
+        reset_evt4.Set(); // release from waiting 
+
+    });
+
+    // this line wait till each one of the events reset list releases itself by using the set() method!
+    // only when all items call the Set() method this 'breakpoint' will be disabled
+    WaitHandle.WaitAll(reset_events.ToArray());
+
+    Console.WriteLine("DONE");
+    Console.ReadKey();
+}
+
+
+-- using extended state object -- 
+---------------------------------
+
+static void Example2() {
+    var reset_events = new List<ManualResetEvent>();
+    int NumOfThreads = 10;
+
+    for (int i = 1; i <= NumOfThreads; i++) {
+        var reset_evt = new ManualResetEvent(false);
+        reset_events.Add(reset_evt);
+
+        ThreadPool.QueueUserWorkItem(delegate(object state) {
+            Thread.Sleep(new Random().Next(0,2000));
+            Console.WriteLine(string.Concat("THREAD NUMBER ", ((StateInfo)state).index));
+            
+            ((StateInfo)state).reset_evt.Set();// release from waiting 
+        }, new StateInfo(i,reset_evt)); // using defind class in order to extend the state object
+    }
+
+    WaitHandle.WaitAll(reset_events.ToArray());
+
+    Console.WriteLine("DONE");
+    Console.ReadKey();
+}
+
+public class StateInfo{
+    public int index { set; get; }
+    public ManualResetEvent reset_evt { set; get; }
+
+    public StateInfo(int index,ManualResetEvent reset_evt) {
+        this.index = index;
+        this.reset_evt = reset_evt;
+    }
+}
+  
+
+-- using Array of reset events --
+---------------------------------
+       
+static void Example3() {
+    ManualResetEvent[] arr_reset_events = null
+    int NumOfThreads = 10;
+
+    arr_reset_events = new ManualResetEvent[NumOfThreads];
+    for (int i = 0; i < NumOfThreads; i++) {
+        arr_reset_events[i] =  new ManualResetEvent(false);
+
+        ThreadPool.QueueUserWorkItem(delegate(object state) {
+            Thread.Sleep(new Random().Next(0, 2500));
+            Console.WriteLine(string.Concat("THREAD NUMBER ", (int)state+1));
+            
+            arr_reset_events[(int)state].Set();// release from waiting using index
+        }, i); 
+    }
+
+    WaitHandle.WaitAll(arr_reset_events);
+
+    Console.WriteLine("DONE");
+    Console.ReadKey();
+}

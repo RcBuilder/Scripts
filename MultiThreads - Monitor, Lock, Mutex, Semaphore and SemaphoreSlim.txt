@@ -1,0 +1,110 @@
+
+Monitor
+-------
+* for internal Threads only (generated within the current application).
+* single thread allowed.
+
+* structure:
+  static readonly object _object = new object();
+  Monitor.Enter(_object);
+   ...
+   ...
+  Monitor.Exit(_object);
+
+Lock
+----
+* the same as Monitor.
+* the compiler interprets it into Monitor.
+
+* structure:
+  static readonly object _object = new object();
+  lock (_object){
+   ...
+   ...
+  }
+
+Mutex 
+-----
+* supports external Threads(threads which coming from outside of an application)
+  note! multiple instances of the application will create an external threads 
+
+* single thread allowed.
+* UniqueName requires to identify the proccess (can be the app namespace etc.)
+
+* structure:
+  static Mutex mtx = new Mutex([isOwner], [UniqueName]);
+  var result = mtx.WaitOne([timeOut]);
+  if(result){
+    ...
+	...
+	mtx.ReleaseMutex();
+  }
+    
+  - or -
+
+  using(var mtx = new Mutex([isOwner], [UniqueName])){
+	if(mtx.WaitOne([timeOut])){
+		...
+		...
+	}
+  } 
+
+* example:
+  // wait up to 5 sec if other thread is active
+  static Mutex mtx = new Mutex(true, "testApp");
+  var result = mtx.WaitOne(5000);
+  if(result){
+    ...
+	...
+	mtx.ReleaseMutex();
+  }
+
+
+Semaphore
+---------
+* supports external Threads.
+* one or more threads allowed.
+
+* structure: 
+  static Semaphore smr = new Semaphore([initialCount], [maxThreadsAllowed], [UniqueName]);
+  var result = smr.WaitOne([timeOut]);
+  if(result){
+    ...
+	...
+	smr.Release();
+  }
+
+* example:  
+  // wait up to 5 sec if more than 2 threads are active
+  static Semaphore smr = new Semaphore(2, 2, "testApp");
+  var result = smr.WaitOne(5000);
+  if(result){
+    ...
+	...
+	smr.Release();
+  }
+
+
+SemaphoreSlim
+-------------
+* for internal Threads only.
+* one or more threads allowed.
+
+* structure:
+  static SemaphoreSlim smr = new SemaphoreSlim([initialCount], [maxThreadsAllowed]);
+  if(result){
+    ...
+	...
+	smr.Release();
+  }
+
+* example:
+  // wait up to 5 sec if more than 2 threads are active
+  static SemaphoreSlim smr = new SemaphoreSlim(2, 2);
+  var result =  smr.WaitOne(5000);
+  if(result){
+    ...
+	...
+	smr.Release();
+  }
+  

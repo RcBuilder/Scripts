@@ -1,0 +1,11 @@
+declare @orderby varchar(15)
+set @orderby = 'endDateDesc'
+
+select	.....
+from	.....					
+where   .....
+order by 
+	case when @orderby = 'endDateDesc' then endDate end desc,
+	case when @orderby = 'budgetDesc' then Budget end desc,
+	case when @orderby = 'endDateAsc' then endDate end asc,
+	case when @orderby = 'budgetAsc' then Budget end asc  	

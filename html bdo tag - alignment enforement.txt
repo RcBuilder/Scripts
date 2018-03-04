@@ -1,0 +1,4 @@
+bdo - Bi-Directional Override.
+this tag is used to override the current text direction.
+
+<bdo dir="ltr">1-700-700-700</bdo>

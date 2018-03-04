@@ -1,0 +1,28 @@
+*** Swap numbers techniques ***
+*******************************
+
+num1 = 11;
+num2 = 5;
+
+Temporary variable
+------------------
+
+var temp = num1; // temp = 11
+num1 = num2; // num1 = 5
+num2 = temp; // num2 = 11
+
+
+Arithmetic
+----------   
+num1 = num1 + num2; // num1 = 16
+num2 = num1 - num2; // 16 - 5 = 11 -> num2 = 11
+num1 = num1 - num2; // 16 - 11 = 5 -> num1 = 5
+
+-
+num1 = num1 * num2; // num1 = 55
+num2 = num1 / num2; // 55 / 5 = 11 -> num2 = 11
+num1 = num1 / num2; // 55 / 11 = 5 -> num1 = 5
+
+Bitwise 
+-------
+see 'XOR to Swap numbers.txt'

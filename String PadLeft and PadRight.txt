@@ -1,0 +1,24 @@
+String PadLeft and PadRight
+---------------------------
+we can use PadLeft to add prefix empty or custom characters to a string. 
+we can use PadRight to add empty or custom characters suffix to a string. 
+both methods have 2 overloads: 
+- one parameter - only the TOTAL string length to reach, a spaces will be added to fill the gap.
+- two parameters - TOTAL string length and the character to fill the gap.
+
+syntax:
+PadLeft([number]);
+PadLeft([number], [char]);
+
+PadRight([number]);
+PadRight([number], [char]);
+
+
+
+Console.WriteLine("1234".PadLeft(8)); // "    1234"
+Console.WriteLine("123456".PadLeft(8)); // "  123456"
+
+Console.WriteLine("1234".PadRight(8)); // "1234    "
+
+Console.WriteLine("1234".PadRight(8, 'x')); // "1234xxxx"
+Console.WriteLine("123456".PadLeft(8, 'x')); // "xx123456"

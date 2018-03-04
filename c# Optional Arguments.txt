@@ -1,0 +1,80 @@
+C# Optional Arguments
+==================
+Optional arguments enable us to set default value to an argument.
+all the NON-optional parameters are refered as required.
+can be used in method, constructor, indexer or delegate.
+Optional parameters must appear after all required parameters! 
+
+syntax:
+Function(Parameter1, Parameter2 = value ..... );
+
+reminder:
+parameters = defined in the method signature 
+arguments = the values the the caller sends to populate the parameters
+
+void Foo(param1, param2 ... param2 = defaultValue, param4 = defaultValue); // Foo signature
+Foo(arg1, arg2 ...); // using Foo 
+
+error:
+// compilation error > "Optional parameters must appear after all required parameters"
+public void FunC(char p1, char p2 = 'B', char p3) { }
+
+note:
+we can use Named Arguments in order to SKIP some defaults and set only part of the optional arguments
+EVEN if we want to override a default in the middle of the optional params list and use the defaults for the others which come before.
+
+// use the default value of the 2nd arg and set a value to the 3rd!
+sc2.FunD(11, p3: 8.8F); // 11 Hello 8.8
+
+----
+
+class SomeClass {
+    public int value { set; get; } 
+
+    // constructor - value is optional!
+    public SomeClass(int value = 100) {
+        this.value = value;
+    }
+
+    // all parameters required!
+    public void FunA(int p1, int p2)
+    {
+        Console.WriteLine("{0} {1}", p1, p2);
+    }
+
+    // p1 is optional!
+    public void FunB(int p1 = 10) {
+        Console.WriteLine(p1);
+    }
+
+    // p1 is required, p2 and p3 are optional!
+    public void FunC(char p1, char p2 = 'B', char p3 = 'C') {
+        Console.WriteLine("{0} {1} {2}", p1, p2, p3);
+    }
+
+    // Multi Types - p1 is required, p2 and p3 are optional!
+    public void FunD(int p1, string p2 = "Hello", float p3 = 3.5F) {
+        Console.WriteLine("{0} {1} {2}", p1, p2, p3);
+    }
+}
+
+// using 
+var sc1 = new SomeClass();
+Console.WriteLine(sc1.value); // 100
+
+var sc2 = new SomeClass(99);
+Console.WriteLine(sc2.value); // 99
+
+sc2.FunB(); // 10
+sc2.FunB(3); // 3
+
+sc2.FunC('X', 'Y', 'Z'); // X Y Z
+sc2.FunC('X', 'Y'); // X Y C
+sc2.FunC('X'); // X B C
+
+sc2.FunD(11, "Woow", 9.9F); // 11 Woow 9.9
+sc2.FunD(11, "Woow"); // 11 Woow 3.5
+sc2.FunD(11); // 11 Hello 3.5
+
+sc2.FunD(11, p2: "Great", p3: 8.8F); // 11 Great 8.8
+sc2.FunD(11, p3: 8.8F); // 11 Hello 8.8

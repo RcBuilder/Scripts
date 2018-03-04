@@ -1,0 +1,59 @@
+
+-- HitechCategories.xml --
+
+<root>
+	<Option Value="1">תוכנה</Option>
+	<Option Value="2">אבטחת מידע</Option>
+	<Option Value="3">ניהול פרוייקטים</Option>
+	<Option Value="4">ראש צוות פיתוח</Option>
+	......
+</root>		
+
+--------------------------------------------
+
+-- Code --
+
+using System.IO;
+using System.Xml;
+using System.Text;
+
+var Str = new StringBuilder();
+
+using (var xmlDR = new XmlTextReader(Server.MapPath("~") + @"XML\HitechCategories.xml")) {
+	while(xmlDR.Read())
+	{
+		switch(xmlDR.NodeType)
+		{	
+			case XmlNodeType.Element:
+				if(xmlDR.Name=="Option")
+				  Str.Append("<option value="+xmlDR.GetAttribute("Value")+">");
+				break;
+
+			case XmlNodeType.Text:Str.Append(xmlDR.Value);
+				break;
+
+			case XmlNodeType.EndElement:
+				if(xmlDR.Name=="Option")
+				  Str.Append("</option>");
+				break;
+		}
+	}
+}
+
+--------------------------------------------
+
+- we can get the value in client side 
+  var res= '<%=GetCombo()%>';
+  document.getElementById("CmbName").innerHTML = res;
+
+- we can also Add to the Str variable
+  and then, put it as innerHTML of an html element (Td, Div etc.)
+	Str.Append("<select id=cmbName width=200px>");
+	.....
+	.....
+	Str.Append("</select>"); 
+
+	- 
+
+	var res= '<%=GetCombo()%>';
+ 	document.getElementById("TdName").innerHTML = res;

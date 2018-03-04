@@ -1,0 +1,32 @@
+copy html content
+-----------------
+
+var div = $(document.createElement('div'));
+div.html($('#signature-generator-preview').html());
+div.find('[id]').each(function () {
+    $(this).removeAttr('id'); // clear ids to prevent duplications!
+});
+
+// skip display none elements!!
+div.find('*:visible').remove();
+var signatureHTML = '<div>' + div.html() + '</div>';
+
+var containerResult = $('#signature-generator-result');
+containerResult.html(signatureHTML);
+
+var containerResultHTML = $('#signature-generator-result-html');
+containerResultHTML.find('textarea:first').val(signatureHTML);
+
+
+--------
+
+
+<h4>preview</h4>                
+<div id="signature-generator-preview">
+	...
+</div>
+
+<div id="signature-generator-result"></div>
+<div id="signature-generator-result-html">
+        <textarea></textarea>
+</div>       

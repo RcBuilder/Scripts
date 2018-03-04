@@ -1,0 +1,14 @@
+number 2  Binary format
+-----------------------
+
+reference:
+see 'Numeric Convert.ToString - all bases - bin-oct-hex.txt'
+
+steps:
+1. Convert.ToString([num], 2)
+2. PadLeft([count], '0')
+
+sample:
+var num = 11;
+var strBinary = Convert.ToString(num, 2).PadLeft(8, '0');
+Console.WriteLine(strBinary); // 00001011

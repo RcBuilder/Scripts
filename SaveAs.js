@@ -1,0 +1,100 @@
+﻿function SaveFile(file) {
+    var handlerPath = 'SaveAs.ashx';
+    var ifrmName = 'ifrm_save_file';
+	
+    var ifrm = document.getElementById(ifrmName);
+    if (ifrm == null) {
+	    //if not exists - create iframe 0x0
+        ifrm = document.createElement('iframe');
+        ifrm.height = '0px';
+        ifrm.width = '0px';
+        ifrm.id = ifrmName;
+
+		var body = document.getElementsByTagName("body")[0];
+		body.appendChild(ifrm);
+	}
+
+    var url = handlerPath + '?file=' + file;
+    ifrm.src = url;
+}
+
+/*
+SaveAs.ashx:
+------------
+public void ProcessRequest (HttpContext context) {
+    try
+    {
+        if (context.Request.QueryString["file"] == null) return;
+
+        string file = context.Request.QueryString["file"];
+        string fileName = (file.IndexOf('/') == -1) ? file : file.Substring(file.LastIndexOf('/') + 1);
+
+        context.Response.Buffer = true;
+        context.Response.ContentType = GetType(file);
+        context.Response.AppendHeader("content-disposition", "attachment;filename=" + fileName);
+        context.Response.WriteFile(context.Server.MapPath(file));
+    }
+    catch { }
+    finally { context.Response.End(); }
+}
+
+//get the Content type to response by file extention 
+private string GetType(string file)
+{
+    string Ext = file.Substring(file.LastIndexOf('.'));
+
+    string Res = String.Empty;
+
+    switch (Ext.ToLower())
+    {
+        case ".xml": Res = "text/xml";
+        break;
+        case ".doc": Res = "application/msword";
+        break;
+        case ".xls": Res = "application/x-excel";
+        break;
+        case ".jpg": Res = "image/jpeg";
+        break;
+        case ".jpeg": Res = "image/jpeg";
+        break;
+        case ".gif": Res = "image/gif";
+        break;
+        case ".tiff": Res = "image/tiff";
+        break;
+        case ".rtf": Res = "application/rtf";
+        break;
+        case ".ppt": Res = "application/ms-powerpoint";
+        break;
+        case ".pps": Res = "application/ms-powerpoint";
+        break;
+        case ".pdf": Res = "application/pdf";
+        break;
+        case ".zip": Res = "application/x-zip-compressed";
+        break;
+        case ".txt": Res = "text/plain";
+        break;
+        case ".htm": Res = "text/HTML";
+        break;
+        case ".html": Res = "text/HTML";
+        break;
+        case ".avi": Res = "video/avi";
+        break;
+        case ".asf": Res = "video/x-ms-asf";
+        break;
+        case ".wav": Res = "audio/wav";
+        break;
+        case ".mp3": Res = "audio/mpeg3";
+        break;
+        case ".mpg": Res = "video/mpeg";
+        break;
+        case ".mpeg": Res = "video/mpeg";
+        break;
+        case ".asp": Res = "text/asp";
+        break;
+        default: Res = "application/octet-stream";
+        break;
+    }
+
+    return Res;
+}
+*/

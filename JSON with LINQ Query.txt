@@ -1,0 +1,82 @@
+
+<script type="text/javascript">
+    function GetWorkers() {
+        $.getJSON("JSON/GetWorkers.ashx", function(Workers) {
+            var res = '';
+
+			//loop on rows - {....} -> foreach Worker in Workers
+            $.each(Workers, function(indexA, Worker) {
+				/*
+					Worker:					
+					Id, Name
+					Sons -> Id, Name
+				*/
+
+                res += 'worker ' + Worker.Name + '\n';
+
+				//loop on rows - {....} -> foreach Son in Worker
+                $.each(Worker.Sons, function(indexB, Son) { 
+					res += '*** ' + Son.Name + '\n';
+                });
+
+                res += '\n';
+            });
+
+            alert(res);
+        });
+    }
+</script>
+
+-------------------
+
+using System;
+using System.Linq;
+using System.Web;
+using System.Web.Script.Serialization;
+using System.Text;
+using System.Collections.Generic;
+
+public class GetWorkers : IHttpHandler {
+    
+    public void ProcessRequest (HttpContext context) {
+        var db = new WorkersDataContext();
+        var Workers = from w in db.Workers
+                      where w.FatherId == 0
+                      select new {
+                          Id = w.WorkerId,
+                          Name = w.Name,
+                          Sons =
+                              from ws in db.Workers
+                              where ws.FatherId == w.WorkerId
+                              select new { Id = ws.WorkerId, Name = ws.Name }
+                      };
+        
+        var seriliser = new JavaScriptSerializer();
+        var strRes = new StringBuilder();
+        seriliser.Serialize(Workers, strRes);
+        context.Response.Write(strRes);
+        context.Response.End();
+    }
+ 
+    public bool IsReusable {
+        get {
+            return false;
+        }
+    }
+
+}
+
+-------------------
+
+[
+	{"Id":1,"Name":"aaaaa","Sons":[]},
+	{"Id":2,"Name":"bbbbb","Sons":[
+		{"Id":4,"Name":"ddddd"},
+		{"Id":5,"Name":"eeeee"},
+		{"Id":6,"Name":"ffffff"}
+	]},
+	{"Id":3,"Name":"ccccc","Sons":[
+		{"Id":7,"Name":"ggggg"}
+	]}
+]
+

@@ -8,7 +8,7 @@ syntax:
 Function(ParameterName: Value, ParameterName: Value ..... );
 
 reminder:
-parameters = define in the method signature 
+parameters = defined in the method signature 
 arguments = the values the the caller sends to populate the parameters
 
 void Foo(param1, param2 ...); // Foo signature

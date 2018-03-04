@@ -1,0 +1,68 @@
+Multiple actions in a single form
+---------------------------------
+  
+// ## option 1: 
+@using (@Html.BeginForm("", "", FormMethod.Post, new { @class = "wpcf7" }))
+{
+	@Html.Partial("Partial/EditData", Model);
+	<input type="submit" value="Save" formmethod="post" formaction="Generate" />
+	<input type="submit" value="Save" formmethod="post" formaction="GenerateBulk" />
+}
+
+---
+
+// ## option 2: 
+@using (@Html.BeginForm("MyAction", "Home", FormMethod.Post))
+{    
+	<input type="submit" value="ActionA" name="ActionA" />
+	<input type="submit" value="ActionB" name="ActionB" />
+}
+
+[HttpPost]
+public ActionResult MyAction(string ActionA,string ActionB){
+	if(!string.IsNullOrEmpty(ActionA))
+		// ActionA was pressed
+
+	if (!string.IsNullOrEmpty(ActionB))
+		// ActionB was pressed 
+}
+
+---
+
+// ## option 3: 
+@using (@Html.BeginForm("MyAction", "Home", FormMethod.Post))
+{    
+	<input type="submit" value="SaveData" name="ActionA" />
+	<input type="submit" value="SaveData" name="ActionB" />
+}
+
+[HttpPost]
+public ActionResult MyAction(string SaveData){
+	switch(SaveData) {
+		case "ActionA":
+			// ActionA was pressed
+			break;
+		case "ActionB":
+			// ActionB was pressed
+			break;
+	}
+}
+
+---
+
+// ## option 4: 
+@using (Html.BeginForm())
+{    
+	<input type="submit" value="ActionA" id="ActionA" />
+	<input type="submit" value="ActionB" id="ActionB" />
+}
+
+$(document).ready(function () {
+	$("#ActionA").click(function () {
+		$("form").attr("action", "/Home/MyActionA");
+	});
+
+	$("#ActionB").click(function () {
+		$("form").attr("action", "/Home/MyActionB");
+	});
+});

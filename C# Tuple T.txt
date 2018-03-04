@@ -1,0 +1,61 @@
+C# Tuple
+--------
+A data structure that has a specific number and sequence of elements.
+each tuple can contains up to 8 fields in it. a tuple can have 1 to 8 items.
+the items can be of ANY type (generic T) and of different types!
+once a tuple has created - it's fields can NOT be changed!
+
+commonly used:
+- to represent a single set of data (database record etc.)
+- to return multiple values from a method without using out parameters.
+- to pass multiple values to a method through a single parameter.
+
+-
+
+Object:
+Tuple { Item1....Item8 }
+
+Create:
+Tuple.Create(T1.....T8);
+
+Using:
+Tuple t = Tuple.Create(T1.....T8)
+
+--- 
+
+note:
+// COMPILATION ERROR - Read only
+var tuple = Tuple.Create<int>(5);
+tuple.Item1 = 6; 
+
+---
+
+samples:
+
+// 1-tuple (single) 
+var tuple1 = Tuple.Create<int>(5); 
+var tuple2 = Tuple.Create<string>("A"); 
+
+Console.WriteLine("{0}", tuple1.Item1);
+Console.WriteLine("{0}", tuple2.Item1);
+
+// 2-tuple (pair)
+var tuple3 = Tuple.Create<int, int>(5, 9); 
+var tuple4 = Tuple.Create<string, string>("A", "B");
+var tuple5 = Tuple.Create<int, string>(1, "A");
+
+Console.WriteLine("{0} {1}", tuple3.Item1, tuple3.Item2);
+Console.WriteLine("{0} {1}", tuple4.Item1, tuple4.Item2);
+Console.WriteLine("{0} {1}", tuple5.Item1, tuple5.Item2);
+
+// 3-tuple (triple)
+var tuple6 = Tuple.Create<int, int, int>(1, 2, 3); 
+Console.WriteLine("{0} {1} {2}", tuple6.Item1, tuple6.Item2, tuple6.Item3);
+
+...
+...
+...
+
+// 6-tuple (sextuple)
+var tuple7 = Tuple.Create<int, int, string, string, float, float>(10, 20, "AA", "BB", 9.9F, 8.8F); 
+Console.WriteLine("{0} {1} {2} {3} {4} {5}", tuple7.Item1, tuple7.Item2, tuple7.Item3, tuple7.Item4, tuple7.Item5, tuple7.Item6);
