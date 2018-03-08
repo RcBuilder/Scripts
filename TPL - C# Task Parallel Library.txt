@@ -1,0 +1,616 @@
+### TPL ###  
+
+TPL = Task Parallel Library
+
+---
+         
+advantages:
+- heavy actions do not stuck the UI due to the using of another thread and maybe even a different core
+  we can see a good example for this phenomenon when working with winForms and perform a heavy task - the UI is not responsive! 
+         
+- an abstraction that built on top of the Threads (using ThreadPool backstage) 
+  and manages the threadPool for better performance.   
+         
+-------------------
+            
+- Task.Factory.StartNew:       
+  
+  // create new task and start it
+  // note! don't support Action<T>
+  var task = Task.Factory.StartNew([Action]);       	   
+	     
+- new Task:
+
+  // create new task without starting it 
+  // use start() method to execute the task
+  var task = new Task([Action]) 
+  task.start();
+     
+- Wait:	      
+
+  // wait for the task to complete
+  task.Wait();
+          
+- ContinueWith:		    
+
+  // once the prevoius task is done, continue to another task
+  // use prevTask.Result in order to get the return value of the previous task
+  task.ContinueWith([Action(prevTask)]); 
+                   
+- TaskScheduler.FromCurrentSynchronizationContext:
+
+  // choose the thread context which will execute this task
+  // in this example we refer to the main thread
+  TaskScheduler.FromCurrentSynchronizationContext(); 
+
+- Task<T>:         
+
+  // task that returns T value
+  Task<T>
+           
+- Result:
+		    
+  // holds the return value of the task
+  // note: it waits for the task to complete!
+  task.Result
+         
+- async-await:
+
+  // async is a method decorator, it only informs the compiler that this method may include a wait clause within it. 
+  // await is the clause uses to wait for a task to complete.
+  async ... await 
+
+  // in addition, we can use some independend code while waiting to the task to complete, just need to set the code between the task and the await.
+  var task = MyMethodAsync();
+  code here ... 
+  var result = await task;
+  code here ...
+
+- Action:
+
+  // create an Action
+  Action action1 = () => { ... }         
+
+  // create an action with parameters
+  Action<T> action1 = (T) => { ... }
+
+- Func:
+
+  // create a Func
+  Func<T, TResult> func = (T) => { return TResult; };
+         
+- ThreadId:
+
+  // get the current thread id
+  Thread.CurrentThread.ManagedThreadId
+    
+- Enumerable Range:
+	        
+  // create a range.
+  // we can use it to generate a range of tasks
+  Enumerable.Range([start], [count]).Select([Func]);
+  Enumerable.Range([start], [count]).ToList().ForEach([Action]); // foreach
+  Enumerable.Range([start], [count]).AsParallel().ForAll([Action]); // parallel
+  Enumerable.Range([start], [count]).AsParallel().WithDegreeOfParallelism([int]).ForAll([Action]); // parallel + set max tasks to perform in parallel
+ 
+- Enumerable ForEach:
+
+  // list ForEach
+  List.ForEach([Action<T>]); 
+
+  e.g:
+  var list = new List<string> { "A", "B", "C", "D", "E", "F" };
+  list.ForEach(x => { Console.WriteLine(x); });
+
+- Enumerable ForAll:
+
+  // list ForAll
+  List.AsParallel().ForAll([Action<T>]); 
+
+  e.g:
+  var list = new List<string> { "A", "B", "C", "D", "E", "F" };
+  list.AsParallel().ForAll(x => { Console.WriteLine(x); });  
+
+- Parallel:      
+
+  // create a bulk of Action
+  Parallel.For([from], [to], [Action]);        
+  Parallel.ForEach([source], [Action<T>]); 
+          
+- BlockingCollection:
+
+  BlockingCollection uses ConcurrentQueue backstage which serve as a Thread safe Queue, but with an addon of the max queue size allowed. 
+  when this max queue is reached, the queue will go to sleep. 
+  this behaviour handle a memory leaks where the producers continue to produce 
+  and flood the queue while there are no cunsumers to cunsume from it.
+     
+- Async suffix:
+
+  // recommendation: we should add the 'Async' suffix to all of our async methods 
+  private async void ExecuteAsync(){ ... }       
+
+-------------------
+         
+- Task.Factory.StartNew:
+         
+  example:
+  var task = Task.Factory.StartNew(() => {
+      Thread.Sleep(2000);
+      Console.WriteLine("TASK COMPLETED"); 
+  });
+           
+  Console.WriteLine("END");
+              
+  output:
+  END
+  TASK COMPLETED
+            
+  result:
+  the main thread will NOT wait the task to complete it's work and therefore, it will start working and print the 'END'
+  when the task will finish it's background proccess, it will print 'TASK COMPLETED'.
+         
+          
+- Task Wait:
+          
+  example:
+  var task = Task.Factory.StartNew(() => {
+      Thread.Sleep(2000);
+      Console.WriteLine("TASK COMPLETED"); 
+  });
+  task.Wait();
+  Console.WriteLine("END");
+               
+  output:            
+  TASK COMPLETED
+  END
+           
+  result:
+  the task.Wait() causes the main thread to wait the task to complete it's work. 
+         
+          
+- new Task:
+         
+  example:
+  var task = new Task(() => {
+      Thread.Sleep(2000);
+      Console.WriteLine("TASK COMPLETED"); 
+  });
+  
+  Thread.Sleep(500);
+  Console.WriteLine("BEFORE STARTING THE TASK");
+  task.Start();
+  Console.WriteLine("AFTER STARTING THE TASK");
+  
+  task.Wait();
+  Console.WriteLine("END");
+  
+  output:      
+  BEFORE STARTING THE TASK  
+  AFTER STARTING THE TASK
+  TASK COMPLETED
+  END
+           
+  result:
+  the task.Start() will trigger the task to proccess
+         
+
+- ContinueWith:
+         
+  example:
+  var task = Task.Factory.StartNew(() => {
+      Thread.Sleep(2000);
+      Console.WriteLine("TASK 1 COMPLETED"); 
+      return 1;
+  }).ContinueWith((prevTask) => {
+      Thread.Sleep(2000);
+      Console.WriteLine("TASK 2 COMPLETED WITH RESULT {0}", prevTask.Result); 
+  });
+                         
+  task.Wait();            
+              
+  output: 
+  TASK 1 COMPLETED
+  TASK 2 COMPLETED WITH RESULT 1
+              
+  result:
+  the first task returns an int result which can be accessed in the continuing task.   
+         
+            
+- Task Result:
+         
+  example:
+  var task = new Task<string>(() =>
+  {
+      Thread.Sleep(2000);
+      Console.WriteLine("TASK COMPLETED");
+      return "ABCD";
+  });
+  
+  task.Start();
+  Console.WriteLine(task.Result);
+  Console.WriteLine("END");
+           
+  output: 
+  TASK COMPLETED
+  ABCD
+  END
+              
+  result:
+  task.Result holds the return value of the task. 
+  note: when calling to task Result property, it waits for the task to complete its work so we do NOT require the task.wait clause.
+         
+-------------------
+         
+- async and await:
+         
+steps:
+1. create a method that returns a task.
+2. create an async method that executes the above method using an await syntax.
+   note: Must be decorated as async in its signature.
+3. call the async method.
+         
+--
+
+example:
+static Task<string> CreateTask() {
+    var task = Task.Factory.StartNew(() => {                
+        Thread.Sleep(1000);
+        Console.WriteLine("CreateTask");
+        return "ABCD";
+    });
+
+    return task;
+}
+
+static async Task ExecuteAsync() {
+    var task = CreateTask();
+
+	// code here ...
+	// note: if no code requires to run while waiting to the async task to complete, we can use: 
+	// var result = await CreateTask;
+
+	var result = await task;
+    Console.WriteLine(result);
+}
+
+static void Main(string[] args)
+{
+    ExecuteAsync();
+    Console.WriteLine("continue working ... ");
+    Console.ReadKey();
+}
+         
+output: 
+continue working ... 
+CreateTask
+ABCD
+            
+result: 
+when using async and await we have to create a method that returns a Task, the await claue will wait to the task to finish 
+and only then, continue the code that comes after it. 
+
+--
+
+important note:
+
+the main thread continue to work and it doesn't pause by the ExecuteAsync method! 
+the reason is that await is replaced by the compiler to Task and ContinueWith whereas the await content becomes the task part 
+and the content after the await becomes the ContinueWith.
+
+e.g:
+the original code below translated into the translation code beneath by the compiler: 
+
+// original code
+
+public Task<string> Fun1() {
+    return Task.Factory.StartNew(() => {
+        Console.WriteLine("ENTER Fun1");
+        Thread.Sleep(2000);
+        Console.WriteLine("EXIT Fun1");
+
+        return "ABCD";
+    });
+}
+
+public async void Fun1Async() {            
+    Console.WriteLine("ENTER Fun1Async");
+    await Fun1();
+    Console.WriteLine("EXIT Fun1Async");
+}
+        
+
+public void Main()
+{
+    Fun1Async();
+	Console.WriteLine("continue working ... ");
+    Console.ReadKey();
+}
+
+
+// translated code
+
+static void Main(string[] args)
+{
+	Console.WriteLine("ENTER Fun1Async");
+    Task.Factory.StartNew(() => {
+        Console.WriteLine("ENTER Fun1");
+        Thread.Sleep(2000);
+        Console.WriteLine("EXIT Fun1");
+
+        return "ABCD";
+    }).ContinueWith((prevTask) => {
+        Console.WriteLine("EXIT Fun1Async");
+    });
+
+    Console.WriteLine("continue working ... ");
+    Console.ReadKey();
+}
+         
+-------------------
+        
+- tasks array: 
+         
+  example:
+  Action action = () => { ... };
+  
+  var tasks = new[]{
+      Task.Factory.StartNew(action),
+      Task.Factory.StartNew(action),
+      Task.Factory.StartNew(action)
+  };
+  
+  Task.WaitAll(tasks); 
+            
+  result:
+  those tasks will be executed in parallel 
+         
+		    
+- Action<Action>:
+         
+  example:
+  Action<Action> calculateActionTime = (action) => {
+      var timer = new Stopwatch();
+      timer.Start();
+      action();   
+      timer.Stop();
+      Console.WriteLine(timer.Elapsed.TotalSeconds);                
+  };
+  
+  Action myAction = () => {
+      Thread.Sleep(2000);
+  };
+  
+  calculateActionTime(myAction);
+           
+  result:
+  create an Action which receives an action, executes it and calculate it's proccessing time.
+         
+   
+- Action<T>:
+         
+  example:
+  Action<int> actionInt = (param) => {  }; // param is int
+  Action<string> actionString = (param) => { }; // param is string
+  Action<float> actionFloat = (param) => { }; // param is float
+  Action<Action> actionAction = (param) => { };  // param is Action
+         
+         
+- Enumerable.Range:
+         
+  example:
+  Action myAction = () => {
+      Thread.Sleep(2000);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+  };
+  
+  var tasks = Enumerable.Range(1, 10).Select(x => Task.Factory.StartNew(myAction)).ToArray();
+  Task.WaitAll(tasks);  
+           
+  result:
+  create a range of 10 tasks. 
+            
+  tip: 
+  use Enumerable.Range AsParallel() instead of creating the tasks manually. 
+         
+          
+- Enumerable.Range ForEach vs ForAll:
+         
+  example:
+  Action myAction = () => {
+      Thread.Sleep(2000);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+  };
+  
+  // 1st
+  Enumerable.Range(1, 10).ToList().ForEach(x => { myAction(); });  // 20 seconds
+           
+  // 2nd
+  Enumerable.Range(1, 10).AsParallel().ForAll(x => {myAction(); }); // 6 seconds
+  
+  result:
+  the 1st loop exexutes 10 instances of myAction one by one in a single thread > whole proccess will take 20 sec.
+  the 2nd loop performs 10 instances of myAction in parallel > whole proccess will take 6 sec!!
+ 
+         
+- Parallel.For:
+            
+  example:
+  Action myAction = () => {
+      Thread.Sleep(2000);
+      Console.WriteLine(Thread.CurrentThread.ManagedThreadId);
+  };
+  
+  Parallel.For(0, 10, _ => { myAction(); });
+  Console.WriteLine("END");
+           
+  note! 
+  Parallel.For clause waits for all tasks 
+  therefore, the 'END' will be written after all tasks finish their work.
+                  
+            
+- Parallel.ForEach:
+            
+  example:
+  var lstNumbers = new List<int> { 1, 4, 5, 7, 8, 11, 89, 15, 9, 130, 54 };
+  
+  Action<int> myAction = (number) => {
+      Thread.Sleep(1000);
+      Console.WriteLine(number);
+  };
+  
+  Parallel.ForEach(lstNumbers, myAction);
+  Console.WriteLine("END");
+                          
+  note! 
+  Parallel.ForEach clause waits for all tasks 
+  therefore, the 'END' will be written after all tasks finish their work.
+         
+-------------------
+            
+- producers/consumers example:
+         
+// put queue to sleep when reaching 100 items (using BlockingCollection)
+// handle memory overflow when the consumers don't consume as fast as the producer produces
+
+var queue = new BlockingCollection<int>(100);
+
+Action<int> produceAction = (index) => {
+    Enumerable.Range(1, 30).ToList().ForEach((item) => {
+        Console.WriteLine("producer {0} produce item {1}", index, item);
+        queue.Add(item);
+        Thread.Sleep(150);
+    });
+};
+
+Action<int> consumeAction = (index) =>{
+    foreach (var item in queue.GetConsumingEnumerable()) {
+        Console.WriteLine("consumer {0} consume item {1}", index, item);
+        Thread.Sleep(150);
+    }
+};
+
+
+var producers = Enumerable.Range(1, 3).Select(x => Task.Factory.StartNew(() => { produceAction(x); })).ToArray();
+var consumers = Enumerable.Range(1, 2).Select(x => Task.Factory.StartNew(() => { consumeAction(x); })).ToArray();
+
+Task.WaitAll(producers);
+Task.WaitAll(consumers);            
+
+Console.WriteLine("END");  
+            
+-------------------
+
+- async and await example:
+
+
+static Task<int> CreateTask() {
+    return Task.Factory.StartNew(() => {
+        Thread.Sleep(2000);
+        Console.WriteLine("IN TASK ....");
+        return Thread.CurrentThread.ManagedThreadId;
+    });
+}
+
+static async Task ExecuteAsync() {
+    var task = CreateTask();
+
+    Enumerable.Range(1, 10).ToList().ForEach((i) => {
+        Console.WriteLine("IN ASYNC METHOD ... {0}", i);
+        Thread.Sleep(500);
+    });            
+
+    var result = await task;
+    Console.WriteLine("result: {0}", result);
+}
+
+static void Main(string[] args)
+{
+    var task = ExecuteAsync();
+    task.Wait();
+
+    Console.WriteLine("END");
+    Console.ReadKey();       
+}
+
+console: 
+IN ASYNC METHOD ... 1
+IN ASYNC METHOD ... 2
+IN ASYNC METHOD ... 3
+IN ASYNC METHOD ... 4
+IN TASK ....
+IN ASYNC METHOD ... 5
+IN ASYNC METHOD ... 6
+IN ASYNC METHOD ... 7
+IN ASYNC METHOD ... 8
+IN ASYNC METHOD ... 9
+IN ASYNC METHOD ... 10
+result: 6
+END
+
+-------------------
+
+- examples:
+
+Task taskA = Task.Factory.StartNew(() => { 
+    Console.WriteLine("Starting Task A");
+    Thread.Sleep(2000);
+    Console.WriteLine("Ending Task A"); 
+});
+
+Task taskB = Task.Factory.StartNew(() =>
+{
+    Console.WriteLine("Starting Task B");
+    Thread.Sleep(5000);
+    Console.WriteLine("Ending Task B");
+});
+
+Task<int> taskC = Task.Factory.StartNew(() =>
+{
+    Console.WriteLine("Starting Task C");
+    Thread.Sleep(1400);
+    Console.WriteLine("Ending Task C");
+
+    return 123; // return value - Task<int>
+});
+
+Task taskD = taskC.ContinueWith((prevTask) =>
+{
+    Console.WriteLine("Starting Task D");
+    Console.WriteLine(prevTask.Result); // get the return value of the previous task
+    Thread.Sleep(500);
+    Console.WriteLine("Ending Task D");
+});
+
+// note: no need to wait for taskC due to the ContinueWith clause, taskD will start only when taskC has finished! 
+Task.WaitAll(taskA, taskB, taskD); 
+Console.WriteLine("END");
+
+output:
+Starting Task A
+Starting Task B
+Starting Task C
+Ending Task C
+Starting Task D
+123
+Ending Task D
+Ending Task A
+Ending Task B
+END
+
+--
+
+var rnd = new Random();
+
+Action<string> action = (item) => {
+    Thread.Sleep(rnd.Next(4000));
+    Console.WriteLine(item);
+};
+
+var lst = new List<string> { "A", "B", "C", "D", "E", "F" };            
+lst.AsParallel().ForAll(action);
+
+/* manually            
+	var tasks = new List<Task>();
+	lst.ForEach(item => tasks.Add(Task.Factory.StartNew(() => { action(item); })));
+	Task.WaitAll(tasks.ToArray());
+*/

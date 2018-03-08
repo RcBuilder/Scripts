@@ -1,0 +1,36 @@
+## Models ##
+
+General
+-------
+
+* models are simply entities we've created (User, Book etc.)
+
+* usually located within 'Models' folder under the project Root.
+
+* use data annotations to define the Entity properties validations (Reuired etc.)
+
+* the 'ModelState.IsValid' represents whether the model is valid or not (based on the model data annotations)
+
+  e.g:
+  
+  // server 
+  [HttpPost]
+  public ActionResult Books(Book book) {
+	  if(ModelState.IsValid)		  
+		return RedirectToAction("Books");
+	  else 
+		return View();
+  }
+  
+  // client 
+  @Html.ValidationSummary()
+  ...
+  ...
+
+
+Add New Model
+-------------
+
+* right click on the folder -> Add -> class
+* set name
+* define your entity (set properties)

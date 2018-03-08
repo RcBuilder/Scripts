@@ -1,0 +1,58 @@
+Routing
+=======
+
+also see 'MVC Routing - AreaRegistration Routes.txt'
+
+Registration
+------------
+global.asax > Application_Start
+
+protected void Application_Start(){
+	GlobalConfiguration.Configure(WebApiConfig.Register);            
+	RouteConfig.RegisterRoutes(RouteTable.Routes);
+}
+
+Routes Definition
+-----------------
+
+// RouteConfig
+public class RouteConfig {
+    public static void RegisterRoutes(RouteCollection routes) {
+        routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+		routes.MapRoute(
+			name: "Pages",
+			url: "Page/{name}",
+			defaults: new { controller = "Page", action = "Index" }
+		);
+
+		routes.MapRoute(
+			name: "EntityDetails",
+			url: "{controller}/{id}",
+			defaults: new { action = "Index" },
+			constraints: new { id = @"\d+", controller = "Student|Lecturer|Course" } // [Student, Lecturer, Course]
+		);
+
+		routes.MapRoute(
+			name: "Default",
+			url: "{controller}/{action}/{id}",
+			defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+		); 
+    }
+}
+
+--
+
+// WebApiConfig
+public static class WebApiConfig {
+    public static void Register(HttpConfiguration config) {
+        config.Routes.MapHttpRoute(
+            name: "Services",
+            routeTemplate: "api/{controller}/{action}/{Id}",
+            defaults: new { action = "Index" }
+        );
+    }
+}
+
+note:
+in the above example, we are registering both routes for REST and MVC actions!

@@ -1,0 +1,64 @@
+Custom Authorization:
+---------------------
+
+- SAMPLE 1 -
+
+public class MyAuthorizeAttribute : AuthorizeAttribute {
+    public override void OnAuthorization(AuthorizationContext filterContext) {
+        var context = System.Web.HttpContext.Current;
+
+        var lecturerId = BLL.Sessions.GetLecturer(context);
+        var studentId = BLL.Sessions.GetStudent(context);
+
+        if (lecturerId != -1) {
+            var identity = new GenericIdentity(lecturerId.ToString(), "Lecturer");
+            context.User = new GenericPrincipal(identity, new string[] { "role1", "role2", "Lecturers" });
+        }
+        else if (studentId != -1) {
+            var identity = new GenericIdentity(studentId.ToString(), "Student");
+            context.User = new GenericPrincipal(identity, new string[] { "role1", "role2", "Students" });
+        }
+
+        base.OnAuthorization(filterContext);
+    }
+}
+
+
+[MyAuthorize(Roles = "Lecturers")]
+public class CourseController : Controller {
+     [AllowAnonymous]
+     public ActionResult Index(int Id){ ... }
+
+     public ActionResult Add(){ ... }
+
+     [HttpPost]
+     public ActionResult Add(Entities.Course course) { ... }  
+}
+
+note! 
+for those who are not authorize, the system will throw an HTTP Error 401.0 
+-> Unauthorized exception
+
+
+-------------------
+
+- SAMPLE 2 -
+
+// e.g: with response redirect
+public override void OnAuthorization(AuthorizationContext filterContext) {
+    var context = System.Web.HttpContext.Current;
+    var auth = HttpContext.Current.Session["Authentication"];
+			            
+    if (auth == null)
+    {
+        context.Response.Clear();
+        context.Response.Redirect("~/Admin/Login");
+    }
+
+	var roles = new List<string>();
+    var identity = new GenericIdentity(auth.ToString(), "Admin");
+    roles.Add("Admin");
+    context.User = new GenericPrincipal(identity, roles.ToArray());
+
+    base.OnAuthorization(filterContext);
+}

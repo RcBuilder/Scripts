@@ -1,0 +1,6 @@
+New Project
+-----------
+
+* New Project -> (tab)Web -> ASP.Net MVC 4 Web Application
+* choose template (see 'MVC Project Templates') - e.g: Internet 
+* choose the view engine (see 'View Engines') - e.g: Razor

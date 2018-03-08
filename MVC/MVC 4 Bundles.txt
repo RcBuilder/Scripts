@@ -1,0 +1,86 @@
+MVC 4 Bundles
+-------------
+
+* in mvc 4, there's a built-in bundling mechanism.
+  to use it you just need to reference the resource to a folder (instead of the file) and provide the file type (css, js etc.). 
+  single folder reference instead of multiple references to individual files.
+
+  notice! 
+  the bundles also minify the content and remove whitespaces in order to reduce the payload weight 
+
+* e.g: 
+ <link href="Styles/file1.css" rel="stylesheet" />
+ <link href="Styles/file2.css" rel="stylesheet" />
+ <link href="Styles/file3.css" rel="stylesheet" />
+ <link href="Styles/file4.css" rel="stylesheet" />
+
+ // using bundles 
+ <link href="~/Styles/css" rel="stylesheet" />
+
+ in the example above, you've reduced the number of requests by 3, instead of 4 requests to .css files you asked for only 1. 
+ you saved 3 requests by a single bundle and, in addition, you reduced the file weight due to the minification process !
+ you can use multiple bundles.
+ you can create your custom bundles as well.
+
+* tip: 
+  use fiddler or F12 to monitor the requests
+
+* bundles cache:
+  you can replace the static bundle call to the following 
+  @System.Web.Optimization.BundleTable.ResolveBundleUrl([relative path])
+
+  this will add an extra hash key to represent the bundle, this hash key will be updated whenever you change some of the bundle files,
+  in other words - this technique allows the .Net to manage automatic bundles cache.
+
+  e.g:
+  // static call
+  <link href="Styles/css" rel="stylesheet" />
+
+  // dynamic
+  <link href="@System.Web.Optimization.BundleTable.ResolveBundleUrl("~/Styles/css")" rel="stylesheet" />
+
+* custom bundles:
+  you can add your own bundles, in order to do so you'll have to find the 'RegisterBundles' method in BundleConfig.cs file and add your bundles there. 
+  
+  location:
+  usually located within the 'App_Start' folder, you can track it from the Application_Start method within the global.asax
+
+  notice! 
+  if you want to add bundles outside of the 'BundleConfig.RegisterBundles' class 
+  use the 'BundleTable.Bundles.Add' instead of the 'bundles.Add' argument (which is a reference to the BundleTable)
+
+  bundle types:
+  - use 'ScriptBundle' to bundle js files
+
+  - use 'StyleBundle' to bundle css files
+
+  - use 'DynamicFolderBundle' to bundle all files within a folder
+
+	structure: 
+	DynamicFolderBundle([name], [fiter], [transforms]) 
+
+	client: 
+	to get the bandle, refer to the folder path + bundle name.
+	for example: if the folder located in 'Content/themes/MyJS' and the bundle name is 'BasicJS' you'll use the following line
+	<script src="~/Content/themes/MyJS/BasicJS" type="text/javascript"></script>
+
+    note: 
+	you can add filter to the folder (*.less, *.coffee etc.)
+  
+  using sample:
+  bundles.Add(new ScriptBundle("~/MyJS").Include("~/MyJS/1.js", "~/MyJS/2.js"));
+  bundles.Add(new StyleBundle("~/MyCss").Include("~/MyCss/1.css", "~/MyCss/2.css"));
+  bundles.Add(new DynamicFolderBundle("BasicJS", "basic*.js", new JsMinify()));
+  
+* DynamicFolderBundle vs IncludeDirectory:
+  the differences between those two are as follow
+  the DynamicFolderBundle refers to the relative path the client requested and only uses the bundle name for the filtering 
+  whereas the IncludeDirectory will be requested from the client only by the bundle name (the folder path already defined in the bundle declaration)
+
+  // IncludeDirectory
+  // client: <script src="~/MyScripts" type="text/javascript"></script>
+  bundles.Add(new ScriptBundle("~/MyScripts").IncludeDirectory("~/Content/themes/MyJS", "*.js"));
+
+  // DynamicFolderBundle
+  // client: <script src="~/Content/themes/MyJS/MyScripts" type="text/javascript"></script>
+  bundles.Add(new DynamicFolderBundle("MyScripts", "*.js", new JsMinify()));

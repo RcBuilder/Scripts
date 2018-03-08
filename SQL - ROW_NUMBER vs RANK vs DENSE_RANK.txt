@@ -14,8 +14,8 @@ id	|	name
 
 ROW_NUMBER
 ----------
-number each row by the specified order 
-value per row
+number each row by the specified order. 
+value per row.
 
 select	*, ROW_NUMBER() over(order by name), 
 from tblData
@@ -31,9 +31,9 @@ id		name
 
 RANK
 ----
-rank each row by the specified order 
-rank is similar to the row_number except that it set the same value for identical order column values
-value per unique
+rank each row by the specified order.
+rank is similar to the row_number except that it sets the same value for identical order column values.
+value per unique.
 
 
 select	*, RANK() over(order by name), 
@@ -51,8 +51,8 @@ id		name
 
 DENSE_RANK
 ----------
-similar to rank except that it set following numbers
-value per unique - following numbers
+similar to rank except that it sets following numbers.
+value per unique - following numbers.
 
 select	*, DENSE_RANK() over(order by name)
 from tblData
@@ -83,7 +83,7 @@ each function will order the table by the specified column which can be a divers
 in addition, the table can use order by clause
 
 
-id		name	     	number		rank		d-rank
+id	  name	  number   rank	  d-rank
 8	|	A	|	5	|	5	|	4
 2	|	B	|	2	|	2	|	2
 2	|	B	|	3	|	2	|	2

@@ -1,0 +1,17 @@
+MVC Require Session
+-------------------
+in order to use session in mvc we have to
+set the session state behaviour as required in the global.asax file. 
+function: Application_PostAuthorizeRequest
+
+---
+
+// global asax 
+protected void Application_PostAuthorizeRequest() {
+    HttpContext.Current.SetSessionStateBehavior(SessionStateBehavior.Required);
+}
+  
+// controller 
+var context = System.Web.HttpContext.Current;
+context.Session["user"];
+

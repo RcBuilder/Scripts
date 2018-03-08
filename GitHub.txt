@@ -890,3 +890,12 @@ adding gitHub users to a repository.
 3. click on 'add collaborator' // this will give the required permissions to that user to collaborate
 4. send the gitHub repository url to the collaborator in order for him to clone the repository locally 
 
+---
+
+Emoji Markups List:
+https://gist.github.com/rxaviers/7360908
+
+e.g:
+:blush:
+:hourglass:
+:white_check_mark:

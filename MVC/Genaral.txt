@@ -1,0 +1,11 @@
+Genaral
+-------
+
+* MVC = Model View Controller
+
+* MVC 4 uses bundles by default
+
+* when using MVC it's not recommended to use web controls (asp:button etc.) due to the mvc mechanism. 
+  use html controls instead!
+  there's no .cs attached to the view but a controller.
+  the view should not have any logic within it and it should be as pure as it can be.

@@ -1,0 +1,67 @@
+*** POST Redirect ***
+*********************
+to execute POST method with Redirect from a postback event we need to create a form to post and add a javascript code to submit it 
+these code should added to the current Page object using LiteralControl 
+
+syntax:
+
+var formId = "frm1";
+var sb = new StringBuilder();
+sb.AppendFormat(@"<form id=""{0}"" action=""{1}"" method=""post"">
+                        <input type=""hidden"" name=""param1"" value=""{2}"" />
+                        <input type=""hidden"" name=""param2"" value=""{3}"" />
+                  </form>", frm1, 'http://www.new_domain.com', 'my_value1', 'my_value2');
+
+sb.AppendFormat(@"<script language=""javascript"">
+                    document.getElementById('{0}').submit();
+                </script>", 
+				formId
+);
+
+this.Controls.Add(new LiteralControl(sb.ToString()));
+
+-------------
+
+example:
+
+<asp:ImageButton ID="imgPayPal" runat="server" ImageUrl="~/Images/paypal_button.jpg" OnClick="Pay" />
+
+public void Pay(object sender, EventArgs e) {
+    var paypal_data = Config.Keys.paypalSection;
+
+    var formId = "frmPayPal";
+    float amount = 0;
+
+    if (rPACK30.Checked) // pack of 30 for 1000$
+        amount = 1000;
+    else {
+        var checked_count = 0;
+        foreach (ListItem c in chklstScripts.Items)
+			if (c.Selected) 
+				checked_count++;
+        amount = 100 * checked_count; // x scripts selected - each cost 100$
+    }
+
+    var sb = new StringBuilder();
+    sb.AppendFormat(@"<form id=""{8}"" action=""{0}"" method=""post"">
+                        <input type=""hidden"" name=""business"" value=""{1}"" />
+                        <input type=""hidden"" name=""cmd"" value=""_xclick"" />
+                        <input type=""hidden"" name=""item_name"" value=""{2}"" />
+                        <input type=""hidden"" name=""amount"" value=""{3}"" />
+                        <input type=""hidden"" name=""currency_code"" value=""USD"" />
+                        <input type=""hidden"" name=""item_number_1"" value=""{4}"" />
+                        <input type=""hidden"" name=""item_number_2"" value=""{5}"" />
+                        <input type=""hidden"" name=""return"" value=""{6}"" />
+                        <input type=""hidden"" name=""cancel_return"" value=""{7}"" />
+                    </form>", 
+					paypal_data.URL.value, paypal_data.Business.value, paypal_data.ItemName.value, amount, Request.UserHostAddress, txtYourEmail.Text.Trim(), Config.Keys.SiteURL, Config.Keys.SiteURL, formId
+	);
+
+    sb.AppendFormat(@"<script language=""javascript"">
+                        document.getElementById('{0}').submit();
+                    </script>", 
+					formId
+	);
+
+    this.Controls.Add(new LiteralControl(sb.ToString()));
+}

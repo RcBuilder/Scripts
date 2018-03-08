@@ -1,0 +1,40 @@
+View Engines 
+------------
+
+* Razor 
+  - uses the @ syntax
+
+* APSX 
+  - uses the <% %> syntax
+
+
+Razor view Engine
+-----------------
+
+nuGet: 
+Install-Package RazorEngine
+note! if not installed
+
+* @{ ... }
+  - creates a server code block
+
+* @Html.ActionLink([text], [action name]) 
+  - creates a link to an action
+
+* @Html.BeginForm()  
+  - creates form 
+  - e.g: @using(@Html.BeginForm()) { ... }
+
+* @Html.TextBoxFor(query)
+  - creates a textBox for a model property
+  - e.g: @Html.TextBoxFor(m=>m.Title)
+
+* @Html.ValidationSummary()
+  - show validation summary based on the model data annotations
+
+* <text>
+  - pure text within a razor clause
+  - e.g: 
+    @if (Model.Id == 33) {
+		<text>My Favorite book!!!</text>
+	}

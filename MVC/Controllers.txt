@@ -1,0 +1,82 @@
+## Controllers ##
+
+General
+-------
+
+* controllers are simply a .Net classes.
+
+* usually located in the 'Controllers' folder under the project Root. 
+
+* by Default, the name of each controller should be consisted of any name + the 'Controller' suffix (HomeController, AboutController etc.).
+
+* each controller can have a multiple actions, each action can return a view or string.
+
+* to reach a page you have to use the controller name (without the 'Controller' extension) and the action name 
+  e.g: http://mydomain.com/Home/Index will perform the action 'Index' of the Controller named 'Home' (HomeController.cs)
+
+  notice! 
+  you can change this behaviour by changing the Routing rules (RouteConfig.cs)
+
+* default controller: Home
+  default action: Index
+  default routing: {controller}/{action}/{id}
+
+* when using parameters in the action, the argument name Must equal the parameter name.
+
+  e.g: 
+  public string WelcomeString(string FirstName, string LastName){ ... }
+  will be accessed by {controller}/WelcomeString?FirstName=Roby&LastName=Cohen
+
+* Routing Rules (RouteConfig.cs)
+  using those rules allow you to change the default rules or/and add your own rules for any purpose (parameters, url's etc.)
+
+* by Default, when returning a view, the name of the view should be equals to the action name
+  e.g: if the action named 'action1', the view path should be 'Views/{controller}/action1.cshtml'
+
+* you can return a specific view by name
+  e.g: return View([viewName]);
+
+* you can use attributes to define the action method type (Get, Post etc.), 
+  you can use the same action name as well.
+
+  e.g:
+  [HttpGet]
+  public ActionResult Index() {
+    return View();
+  }
+
+  [HttpPost]
+  public ActionResult Index(Book book) {
+    ... 
+    return RedirectToAction("Index");
+  }
+
+* you can use the 'RedirectToAction' method to redirect to another action.
+
+  syntax: 
+  RedirectToAction([actionName]);
+
+  e.g: 
+  public ActionResult Index() {
+    ... 
+    return RedirectToAction("NewIndex");
+  }
+
+
+Add New Controller
+------------------
+
+* right click on the 'Controllers' folder 
+* Add -> Controller 
+* choose Controller template (see 'Controller Templates') - e.g: Empty Controller
+
+   
+Controller Templates
+--------------------
+
+* Empty
+* with default Actions 
+* with default Actions, views and EF
+* API
+* API with EF
+* API with default Actions and EF

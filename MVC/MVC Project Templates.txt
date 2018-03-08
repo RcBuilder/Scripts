@@ -1,0 +1,11 @@
+MVC Project Templates
+---------------------
+
+* Empty
+* Basic
+* Internet
+* Intranet
+* Mobile
+
+* Web API
+  - use this template to build a Restful Service based on the HTTP protocol 

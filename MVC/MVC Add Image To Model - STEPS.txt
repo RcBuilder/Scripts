@@ -1,0 +1,198 @@
+## MVC Add Image To Model ##
+
+Steps
+----- 
+1. add varchar(50) column to the SQL table 
+
+   e.g:
+   DisplayImage varchar(50) default '' 
+
+   note:
+   don't forget to add it to the GET and SAVE stored procedures!
+
+2. add string property to the model 
+
+   e.g: 
+   public string DisplayImage { get; set; }
+
+   note:
+   don't forget to add it to the GET and SAVE Repository and DataBase classes!
+
+3. add it to the edit/add view [ADMIN]
+
+   notes:
+   - add ValidationMessage PH if needed  
+   - cite the image size
+   - add file input for the new uploaded file
+   - add hidden input for the current image name
+   - use the ViewBag to determine the mode (edit or add), show the current image name on edit mode
+
+   e.g:
+   <div class="title">
+		Display Image: <small>jpg files sized 265x200</small> @Html.ValidationMessage("DisplayImage")
+   </div>
+   <div>
+		<input type="file" name="fileDisplayImage" />
+
+		@if (ViewBag.isEditMode) {
+			@Model.DisplayImage
+		}
+
+		@Html.HiddenFor(m => m.DisplayImage)
+   </div>
+
+4. handle the uploaded file in the controller 
+
+   note: 
+   POST method [HttpPost]
+   
+   e.g:
+   var file = Request.Files["fileDisplayImage"];
+
+   if (file.ContentLength > 0) {
+       var isValidImage = BLL.Matches.CheckDisplayImage(file);
+       if (!isValidImage)
+            ModelState.AddModelError("Icon", "Incorrect Image");
+       else
+            match.DisplayImage = BLL.Matches.SaveDisplayImage(file);
+    }
+
+    if (!ModelState.IsValid) 
+		return View(match);
+
+5. implement the BLL Check and Save calls 
+
+   e.g:
+   public static readonly string DISPLAY_IMAGE_FOLDER = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "images\\matches\\");
+
+   public static bool CheckDisplayImage(HttpPostedFileBase file) {
+        return Common.Files.CheckUploadedFile(file, ".jpg|.png");
+   }
+
+   public static string SaveDisplayImage(HttpPostedFileBase file){
+        return Common.Files.SaveUploadedImageWithResize(file, DISPLAY_IMAGE_FOLDER, 265, 200, false, true);
+   }    
+
+6. files handler (Common)
+   
+   note:
+   copy-paste the below handler
+   
+   code:
+   public class Files {       
+		public static string SaveUploadedFile(HttpPostedFileBase file, string folder) {
+            return SaveUploadedFile(file, folder, false);
+        }
+
+        public static string SaveUploadedFile(HttpPostedFileBase file, string folder, bool useGuidName) {
+            if (file == null || file.ContentLength == 0) return string.Empty;
+
+            string FileName = GenerateFileName(file, useGuidName);
+
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            var filePath = string.Concat(folder, "\\", FileName);
+            file.SaveAs(filePath);
+
+            return FileName;
+        }
+        
+        public static string SaveUploadedImageWithResize(HttpPostedFileBase file, string folder, int width, int height, bool autoScale) {
+            return SaveUploadedImageWithResize(file, folder, width, height, autoScale, false);
+        }
+
+        public static string SaveUploadedImageWithResize(HttpPostedFileBase file, string folder, int width, int height, bool autoScale, bool useGuidName) {
+            if (file == null || file.ContentLength == 0) return string.Empty;
+
+            string FileName = GenerateFileName(file, useGuidName);
+
+            try {
+                if (!Directory.Exists(folder))
+                    Directory.CreateDirectory(folder);
+
+                var filePath = string.Concat(folder, "\\", FileName);
+
+                var bitmap = ResizeImage(file.InputStream, width, height, autoScale);
+                if (bitmap == null)
+                    throw new NullReferenceException("bitmap is NULL!");
+
+                using (bitmap) {
+                    bitmap.Save(filePath, ImageFormat.Jpeg);
+				}
+
+                return FileName;
+            }
+            catch (Exception ex) {
+                ex.Data.Add("folder", folder);
+                ex.Data.Add("FileName", FileName);
+                ex.Data.Add("useGuidName", useGuidName);
+                ex.Data.Add("autoScale", autoScale);
+                ex.Data.Add("width", width);
+                ex.Data.Add("height", height);
+                Logs.WriteErrorLog("GDI", "Common.Files.SaveUploadedImageWithResize", ex);
+                return string.Empty;
+            }
+        }        
+        
+        public static bool CheckUploadedFile(HttpPostedFileBase file, string allowedExtensions) {
+            if (file == null || file.ContentLength == 0) return false;
+
+            var extension = Path.GetExtension(file.FileName);
+            return allowedExtensions.ToLower().Split('|').ToList().Contains(extension.ToLower());
+        }
+
+        private static string GenerateFileName(HttpPostedFileBase file, bool useGuidName) {
+            string FileName = string.Empty;
+            if (useGuidName) {
+                var extension = Path.GetExtension(file.FileName);
+                FileName = string.Concat(Guid.NewGuid().ToString().Replace("-", string.Empty), extension);
+            }
+            else
+                FileName = Path.GetFileName(file.FileName);
+
+            return FileName;
+        }
+        
+        private static Bitmap ResizeImage(Stream stream, int width, int height, bool autoScale) {
+            try {
+                using (var image = Image.FromStream(stream)) {
+                    var isHorizontalImage = image.Width >= image.Height;
+
+                    float w = width, h = height;
+
+					// calculate size by the image direction, auto scale
+                    if (autoScale)   {
+                        if (isHorizontalImage) // horizontal image
+                            h = image.Height * ((float)(w / image.Width));
+                        else // vertical image
+                            w = image.Width * ((float)(h / image.Height));
+                    }
+
+                    var bitmap = new Bitmap(((int)w), ((int)h), PixelFormat.Format24bppRgb);
+
+                    bitmap.SetResolution(80, 60);
+
+                    using (var gfx = Graphics.FromImage(bitmap)) {
+                        gfx.SmoothingMode = SmoothingMode.AntiAlias;
+                        gfx.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        gfx.DrawImage(image, 0, 0, w, h);
+                    }
+
+                    return bitmap;
+                }
+            }
+            catch (Exception ex) {                
+                Logs.WriteErrorLog("GDI", "Common.Files.ResizeImage", ex);
+                return null;
+            }
+        }        
+    }  
+
+7. show it in the view [SITE]
+   
+   e.g:
+   @if (!string.IsNullOrEmpty(Model.DisplayImage)) { 
+        <img src="/images/matches/@Model.DisplayImage" />
+   }

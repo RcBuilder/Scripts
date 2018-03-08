@@ -1,0 +1,168 @@
+## Views ##
+
+General
+-------
+
+* views are an html files (when using Razor engine the files extension is .cshtml)
+
+* usually located within 'Views' folder under the project Root. 
+
+* by Default, you'll have to add a subfolder with the name of the controller under the 'views' folder
+  e.g: if the controller name is 'HomeController', the hierarchy should looks like 'Views/Home/'
+
+* by Default, the name of each view should be equals to the action name
+  e.g: if the 'HomeController' has action named 'action1' that return a view, the view path should be 'Views/Home/action1.cshtml'
+
+* you can return a specific view by name from the action 
+  return View([viewName]);
+
+
+Add New View
+------------
+
+* (if needed) add the views subfolder for all the current controller views
+
+  notice! 
+  should named the same as the controller name 
+
+* right click on the folder -> Add -> View 
+
+  tip: 
+  if you do this on an ActionResult of an action, the view name will automatically be defined as the action name
+
+* choose the view name (usually match the action name return it)
+
+* choose the view engine
+  e.g: Razor
+
+* (optional) choose a model to attach with this view
+
+* choose the master page or layout (if any) 
+
+
+Pass Data
+---------
+
+* there are some ways to pass data to the view 
+  - using viewbag
+  - using viewdata
+  - using tempdata
+  - using model
+  - using session
+
+* using viewbag
+  - dynamic object (can take any properties)
+  - type: dynamic
+  - passing data from controller to view
+  - an object with ANY data
+
+  - e.g:
+
+    // server   
+	public ActionResult ViewBagData() {
+		ViewBag.MyName = "Roby Cohen";
+		ViewBag.MyAge = 35;
+		return View();
+	}
+
+	// client 
+	<div>
+		My Name is @ViewBag.MyName, i'm @ViewBag.MyAge years old
+	</div>
+
+* using viewdata
+  - data dictionary of string-object pair
+  - type: <string, object>
+  - passing data from controller to view
+
+  - e.g:
+
+    // server   
+	public ActionResult ViewDataMode() {
+        ViewData["MyName"] = "Roby Cohen";
+        ViewData["MyAge"] = 35;
+        return View();
+    }
+
+	// client 
+	<div>
+		My Name is @ViewData["MyName"], i'm @ViewData["MyAge"] years old
+	</div>
+
+* using tempdata
+  - data dictionary of string-object pair
+  - type: <string, object>
+  - passing data from controller to controller (actions)
+  - used to transfer data between Actions. 
+    when using 'RedirectToAction' method both the 'ViewBag' and 'ViewData' will be null 
+    the only way you can transfer data is by 'TempData' 
+
+  - e.g:
+
+    // server   
+	public ActionResult RedirectWithData() {
+        ViewData["MyName"] = "Roby";
+        ViewBag.MyName = "Roby";
+        TempData["MyName"] = "Roby";
+
+        return RedirectToAction("RedirectWithData2");
+    }
+
+    public ActionResult RedirectWithData2() {
+        var vd = ViewData["MyName"].ToString(); // NULL
+        var vb = ViewBag.MyName; // NULL
+        var td = TempData["MyName"].ToString(); // Roby
+
+        return View();
+    }
+
+* using model
+  - any object of our custom entities (model)
+
+  - passing data from controller to view
+
+  - when adding a view, check the strongly-typed option and choose the model you want to attach to the view
+
+  - send your data object to the view using the 'View' method in the controller
+
+  - when taking this approach, a reference to the model will be added at the top of the page,
+    you can change it manually (List of models etc.)
+
+  - the keyword 'Model' represents the attached model
+
+  - e.g: 
+
+    // server   
+    public ActionResult ModelView() {
+        return View(new Book{ 
+			Id = 1, 
+			Title = "My New Book", 
+			Author = "RcBuilder" 
+		});
+    }
+
+	// client 
+	@model MyFirstMVC.Models.Book
+	<div>@Model.Title</div>
+
+  - to post an updated model use the 'Html' helper functions ('Html.TextBoxFor' etc.) in collaboration with the submit button
+    
+	// create an edit field and attach it the the Title property of the model
+	// the updated model will pass using post method to the controller, 
+	// the controller will add it to the lstBooks collection and redirect to another action 
+	@using(@Html.BeginForm()) {
+        @Html.TextBoxFor(m => m.Title)     
+        <input type="submit" value="POST" />
+    }
+
+	[HttpPost]
+    public ActionResult Book(Book book) {
+        lstBooks.Add(book);
+        return RedirectToAction("Books");
+    }
+
+* using session
+  - data dictionary of string-object pair
+  - type: <string, object>
+  - passing data all over the site (until the user session expires)
+  - e.g: Session["MyName"] = "Roby Cohen";
