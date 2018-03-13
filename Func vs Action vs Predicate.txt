@@ -1,0 +1,44 @@
+*** func-vs-action-vs-predicate ***
+***********************************
+all are delegates (function pointers) 
+
+Action
+------
+delegate with NO return value, with or without parameters.
+
+syntax:
+Action<TIn> a = (TIn) => { ... }
+
+e.g:
+Action<int> a = (x) => { ... }
+Action a = () => { ... }
+Action<string> a = (s) => { ... }
+
+note:
+commonly used in foreach loop (List<T>.ForEach etc.)
+execution 
+
+Func 
+----
+delegate with return value, with or without parameters.
+
+syntax:
+Func<TIn, TOut> f = (TIn) => { return TOut; }
+
+e.g:
+Func<int, string> f = (x) => { return "demo"; }
+Func<bool> f = () => { return false; };
+Func<string, int> f = (s) => { return s.Length; }
+
+note:
+commonly used in LINQ functions (Select, Where, Join etc.)
+selection, filtering ...
+
+Predicate
+---------
+delegate with return BOOLEAN value and a single T parameter.
+a special case of Func<T, bool>!
+
+Predicate<int> p = (x) => { return false; }
+Predicate<string> p = (s) => { return true; }
+

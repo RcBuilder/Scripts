@@ -1,0 +1,9 @@
+var dt = DateTime.Parse("06/03/2016", CultureInfo.GetCultureInfo("he-IL"));
+var dt2 = DateTime.Parse("06/03/2016", CultureInfo.GetCultureInfo("en-US"));
+Console.WriteLine(dt.ToString("ddd MMM yyyy"));  // Sun Mar 2016
+Console.WriteLine(dt2.ToString("ddd MMM yyyy")); // Fri Jun 2016
+
+---
+
+var dt3 = Convert.ToDateTime("06/03/2016", CultureInfo.GetCultureInfo("en-US"));
+Console.WriteLine(dt3.ToString("ddd MMM yyyy")); // Fri Jun 2016

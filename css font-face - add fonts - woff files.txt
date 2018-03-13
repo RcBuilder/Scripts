@@ -1,0 +1,36 @@
+font-face
+---------
+
+structure:
+@font-face {
+    [font-properties]
+}
+
+font-properties:
+- font-family - font name (Required)
+- src - the woff file (Required)
+
+- font-stretch
+- font-style
+- font-weight
+
+---
+
+@font-face {
+    font-family: NovaBold;
+    src: url('Fonts/ProximaNovaBold.woff');
+}
+
+body {
+    font-family:NovaBold;
+}
+
+------------------
+
+note!
+you have to add a mimeType on the server IIS as follow:
+extension: .WOFF
+mimeType: APPLICATION/X-WOFF (deprecated)
+		  application/x-font-woff
+          application/font-woff
+	  
