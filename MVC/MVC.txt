@@ -1,0 +1,2492 @@
+Genaral
+-------
+see 'Genaral.txt'
+
+New Project
+-----------
+see 'New Project.txt'
+
+MVC Project Templates
+---------------------
+see 'MVC Project Templates.txt'
+
+View Engines 
+------------
+see 'View Engines.txt'
+
+MVC 4 Bundles
+-------------
+see 'MVC 4 Bundles.txt'
+
+Razor view Engine
+-----------------
+see 'View Engines.txt'
+
+Controllers
+-----------
+see 'Controllers.txt'
+
+Add New Controller
+------------------
+see 'Controllers.txt'
+   
+Controller Templates
+--------------------
+see 'Controllers.txt'
+
+Views
+-----
+see 'Views.txt'
+
+Add New View
+------------
+see 'Views.txt'
+
+Passing Data To A View
+----------------------
+see 'Views.txt'
+
+Models
+-------
+see 'Models.txt'
+
+Add New Model
+-------------
+see 'Models.txt'
+
+BUGS
+----
+see 'BUGS.txt'
+
+Custom Authorization
+--------------------
+see 'Authorization.txt'
+
+Custom Authorize Attribute
+--------------------------
+see 'Authorization.txt'
+
+
+
+--------------------------------------------------------------
+// TODO Document 
+
+
+
+* Partial View
+  add -> view -> create as a partial view
+  @Html.Partial("~/Views/Controls/Footer.cshtml"); // option1 - full path 
+  @Html.Partial("Controls/Footer"); // option 2 - by name
+
+* @Html.Raw(Model.Content) // read as html 
+
+* RouteConfig file - add routes
+
+* using ViewBag to transfer data between the view and the layout
+
+* with properties: 
+  @Html.TextBoxFor([model], new { prop1="", prop2="" ... })
+  e.g: @Html.TextBoxFor(m => m.Email, new { placeholder = "email", maxLength = 250 })
+
+* drop down list 
+  @Html.DropDownListFor([model], [IEnumerable<SelectListItem>])  
+  e.g: 
+  public class DropDownLists
+    {
+        public static IEnumerable<SelectListItem> GetCities()
+        {
+            var cities = BLL.Cities.Get();
+            return cities.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() });
+        }
+    }
+  @Html.DropDownListFor(m => m.CityId, BLL.DropDownLists.GetCities())
+
+* TextAreaFor
+  @Html.TextAreaFor(m => m.Description, new { placeholder = "about you - Description", maxLength = 500, rows = 10, cols = 40 })
+
+* PasswordFor
+  @Html.PasswordFor(m => m.Password, new { placeholder = "Password", maxLength = 20 })
+
+* text tag 
+  <div>
+	@if(Model.Gender == 1){ 
+		<text>Male</text> 
+	} else { 
+		<text>Female</text> 
+	}
+  </div>
+
+* upload files
+  // client
+  @using (@Html.BeginForm("Register", "Lecturer", FormMethod.Post, new { enctype = "multipart/form-data" }))
+  {
+	<input type="file" name="file1" />
+	<input type="submit" value="SAVE" />
+  } 
+
+  // server
+  var file = Request.Files["file1"];
+
+* MapRoute:
+  - name
+  - url
+  - defaults
+  - constraints
+  - namespaces
+ 
+* Routing with regEx
+	// e.g: http://mydomain.com/Lecturer/39 - executes 'Index' action on 'LecturerController' with id 39
+    routes.MapRoute(
+        name: "Lecturers",
+        url: "Lecturer/{id}",
+        defaults: new { controller = "Lecturer", action = "Index" },
+        constraints: new { id = @"\d+" } 
+    );
+
+    // e.g: http://mydomain.com/Lecturer/Register - executes 'Register' action on 'LecturerController'
+	// e.g: http://mydomain.com/Lecturer/Index/39 - executes 'Index' action on 'LecturerController' with id 39
+    routes.MapRoute(
+        name: "Default",
+        url: "{controller}/{action}/{id}",
+        defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+    );
+	
+	public class LecturerController : Controller{
+		public ActionResult Index(int Id){ } 
+		public ActionResult Register(){ } 
+	}
+	      
+* Routing	
+  // e.g: http://mydomain.com/Page/MyPage1 - executes 'Index' action on 'PageController' with name 'MyPage1'
+  routes.MapRoute(
+        name: "Pages",
+        url: "Page/{Name}",
+        defaults: new { controller = "Page", action = "Index" }
+    );	 
+
+  public class PageController : Controller{
+	public ActionResult Index(string Name){ }
+  }
+
+* Routing with namespace
+  - use namespaces property to define the rule controller namespace
+  - tip: you can also use area (see 'mvc Area')
+
+  - e.g: 
+  // RouteConfig
+  routes.MapRoute(
+        name: "Admin",
+        url: "Admin/{controller}/{action}/{id}",
+        defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
+        namespaces: new[] { "Site.Controllers.Admin" }
+    );
+
+    routes.MapRoute(
+        name: "Default",
+        url: "{controller}/{action}/{id}",
+        defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
+        namespaces: new[] { "Site.Controllers.Site" }
+    );
+
+	// site
+	namespace Site.Controllers.Site
+	{
+		public class HomeController : Controller { ... }
+	}
+
+	// admin
+	namespace Site.Controllers.Admin
+	{
+		public class HomeController : Controller { ... }
+	}
+
+* Routing with regEx (advanced)
+  // instead of creating multiple identical routes - we can use the constraints object and supply a regex rules 
+   /*
+    routes.MapRoute(
+        name: "Lecturers",
+        url: "Lecturer/{id}",
+        defaults: new { controller = "Lecturer", action = "Index" },
+        constraints: new { id = @"\d+" }
+    );
+
+    routes.MapRoute(
+        name: "Students",
+        url: "Student/{id}",
+        defaults: new { controller = "Student", action = "Index" },
+        constraints: new { id = @"\d+" }
+    );
+             
+    routes.MapRoute(
+        name: "Courses",
+        url: "Course/{id}",
+        defaults: new { controller = "Course", action = "Index" },
+        constraints: new { id = @"\d+" }
+    );
+    */
+
+    routes.MapRoute(
+        name: "EntityDetails",
+        url: "{controller}/{id}",
+        defaults: new { action = "Index" },
+        constraints: new { id = @"\d+", controller = "Student|Lecturer|Course" } // match controllers : Student or Lecturer or Course 
+    );
+
+	// e.g: http://mydomain.com/Lecturer/39 - executes 'Index' action on 'LecturerController' with id 39
+	// e.g: http://mydomain.com/Lecturer/Index/39 - the same as the above
+	// e.g: http://mydomain.com/Student/21 - executes 'Index' action on 'StudentController' with id 21
+	// e.g: http://mydomain.com/Course/7 - executes 'Index' action on 'CourseController' with id 7
+
+	note! if there's no match for this routing - the proccess will continue to the other routing rule below,
+	      therefore, always set a Default routing rule
+
+		  e.g: this address 'http://mydomain.com/Lecturer/Register' is not matching our 'EntityDetails' rule  
+			   so it passses on to the next rule/s in the list (if any)
+
+* constraints regex groups
+	url: "{controller}/{id}",
+    defaults: new { action = "Index" },
+    constraints: new { 
+			id = @"\d+", // only numbers
+			controller = "Student|Lecturer|Course" // Student or Lecturer or Course 
+	} 
+* form
+  @using (@Html.BeginForm([action], [controller], [method], [attributes])){ ... }
+
+  e.g:
+  @using (@Html.BeginForm("Register", "Lecturer", FormMethod.Post, new { enctype = "multipart/form-data" })){ ... }
+
+* Display attribute (data annotation)
+  [Display(Name = "User name")] // placeholder
+
+* Authorize and AllowAnonymous attributes
+  
+  // in this example only members of 'SomeGroup' role can access to all Fun1, Fun2 and Fun3 actions
+  // but anyone can access the Index action (anonymous access)  
+  e.g:
+  [Authorize(Roles = "SomeGroup")]
+  public class SomeController : Controller
+  {
+        [AllowAnonymous]
+        public ActionResult Index() { ... }
+
+        public ActionResult Fun1() { ... }
+		public ActionResult Fun2() { ... }
+		public ActionResult Fun3() { ... }
+    }
+
+* which version of MVC am I using?
+  references -> System.Web.Mvc -> properties(F4) -> version 
+
+* validations - error messages (Summary)
+ // in the view 
+ @Html.ValidationSummary(true)
+
+ // in the controller
+ ModelState.AddModelError("error1", "some error occured bla bla bla ...");
+ return View();
+
+* mvc checkbox list 
+  - install-package MvcCheckBoxList
+  - @Html.CheckBoxListFor( ... );
+  // TODO finish 
+
+* bug 
+  mvc checkbox - creates an hidden field for each checkbox, the Request.Form["chk1"] returns 2 inputs for selected or 1 for non selected.
+  reason : by default, only the selected checkboxes are posted to the server but mvc sends all the items with theirs state (true or false)
+
+* using @Html.Partial with model   
+
+  // index.cshtml 
+  @foreach (var course in Model.Courses){
+        <div>@Html.Partial("~/Views/Lecturer/Partial/course.cshtml", course)</div>  
+		<div>@Html.Partial("Partial/course", course)</div>  // same
+  }
+
+  // course.cshtml
+  @model Entities.Course
+  ...
+  ...
+
+
+
+* TextBoxFor with css class attribute
+ @Html.TextBoxFor(m => m.FullName, new { placeholder = "full name", @class="text" });
+ @Html.ValidationMessageFor(m => m.FullName)
+
+* ValidationSummary class 
+  the mvc engine creates a ul to represent the error list, this ul is wrapped by div with 'validation-summary-errors' class.
+
+  // in the view
+  @Html.ValidationSummary(true)
+  
+  // in the controller
+  ModelState.AddModelError("", "some error");
+  
+  // in the css
+  div.validation-summary-errors {
+      text-align:center;
+  }
+  
+  div.validation-summary-errors ul {
+      margin:0px;
+      padding:0px;
+      list-style:none;
+  }
+
+* hosting 403 forbidden issue
+  add the following to web.config under system.webServer section
+  <modules runAllManagedModulesForAllRequests="true"/>
+
+  e.g:
+  <system.webServer>
+	<modules runAllManagedModulesForAllRequests="true"/>
+  </system.webServer>
+
+* route mapping to different namespace 
+  you do not have to add your controllers to the mvc specified location.
+  you can add it to any location you'd like.   
+
+  all you need to define in the route file is the namespace.
+  use the 'namespace' property in the MapRoute method.
+
+  e.g:  
+  routes.MapRoute(
+    name: "Default",
+    url: "{controller}/{action}/{id}",
+    defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
+	namespaces: new[] { "Website.MyControllers" }
+  );
+
+* mvc Area
+  areas allow you to create multiple areas while each one contains a controlers/views/models folders.
+  you can add as much areas as you like.
+  a common use is to create 2 areas, one for the site and the other for admin.
+  
+  each area contains 3 folders :  controlers, views and models.
+  each area contains an area registration file (class inherits from AreaRegistration) in its root.
+
+  each area registration file includes the area name and the area routes (RegisterArea method)
+  when you add the RegisterAllAreas() method, each area then performs its own registration and applies its defined routes. 
+
+  we need to add the following line in the global.asax file :
+  AreaRegistration.RegisterAllAreas();
+
+  implementation:
+  1. right click on the project -> add -> area -> set area name.
+  2. add your mvc files (controllers, views and models).
+  3. add 'AreaRegistration.RegisterAllAreas()' code line to the global.asax file under 'Application_Start'.
+  4. enter each area registration file and create the area routes (use the context.MapRoute method). 
+   
+  e.g:
+  -- Areas/Default folder -- 
+
+  // Controllers/HomeController
+  namespace Website.Areas.Default.Controllers {
+    public class HomeController : Controller {
+        public ActionResult Index() {
+            return View();
+        }
+     }
+  }
+
+  // Views/Home/Index
+  @{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Default/Views/Shared/_Layout.cshtml";
+  }
+
+  <h2>HOME PAGE</h2>
+
+  // Area Registration File (DefaultAreaRegistration.cs)
+  namespace Website.Areas.Default {
+    public class DefaultAreaRegistration : AreaRegistration {
+        public override string AreaName{
+			get { return "Default"; }
+        }
+
+        public override void RegisterArea(AreaRegistrationContext context){
+            context.MapRoute(
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            );
+        }
+     }
+  }
+
+  -- Areas/Admin folder -- 
+
+  // Controllers/HomeController
+  namespace Website.Areas.Admin.Controllers {
+    public class HomeController : Controller {
+        public ActionResult Index() {
+            return View();
+        }
+     }
+  }
+
+  // Views/Home/Index
+  @{
+    ViewBag.Title = "Index";
+    Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+  }
+
+  <h2>ADMIN</h2>
+
+  // Area Registration File (AdminAreaRegistration.cs)
+  namespace Website.Areas.Admin {
+    public class AdminAreaRegistration : AreaRegistration {
+        public override string AreaName{
+			get { return "Admin"; }
+        }
+
+        public override void RegisterArea(AreaRegistrationContext context){
+            context.MapRoute(
+                name: "Admin.Default",
+                url: "Admin/{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            );
+        }
+     }
+  }
+
+  note: 
+  you can control the area's registration order (which means the routes priority)
+  see 'MVC Routing - AreaRegistration Routes.txt'
+
+* validateRequest
+  - to disable the .net validation request security feature for a specific action 
+    use the ValidateInput attribute and set it to be false.
+	[ValidateInput(false)]
+
+  - Exclude inputs
+    [ValidateInput(true, Exclude = "YourFieldName")]
+
+ - escape and unescape
+   if we don't use a model but a pure html, we need to escape the html content and unescape it 
+   on the server using Uri.UnescapeDataString(string)
+
+   e.g:
+   $('hdnMyHTML').val(escape(myDiv.innerHTML)); // client
+   var html = Uri.UnescapeDataString(Request.Form["hdnMyHTML"]); // server
+
+ - note! 
+   we can use [AllowHtml] data annotation on the specific model property instead  
+
+
+ e.g:
+ [HttpPost]
+ [ValidateInput(false)]
+ public ActionResult Edit(Entities.Page page) { ... }
+
+* AllowHtml attribute
+  declare a property which allowed to have an HTML content.
+  usually Combined with the ValidateInput(false) on the action which populates it.
+
+  [HttpPost]
+  [ValidateInput(false)]
+  public ActionResult Edit(Entities.Page page) { ... }
+
+  public class Page {
+    public int Id { get;set; }
+
+    [AllowHtml] 
+    public string Body { get;set; }
+  }
+
+* ActionLink with confirm dialog
+  - use the html attributes to add the client onclick function
+  - ActionLink([text], [action], [parameters], [html attributes]);
+
+  e.g:
+  @Html.ActionLink("Delete", string.Concat("Delete", "/", Model.Id), null, new { onclick = "return confirm('Are you sure ?');" })
+
+
+* Ajax and JsonResult
+  for cases when we want to enforce the return of a json schema. 
+
+  structure: 
+  $.ajax({
+        url: '[route]',
+        data: { [params] },
+        type: 'POST',
+        success: function (response) {},
+        error: function (jxhr, msg, err) { }
+    });
+	
+  [HttpPost]
+  public JsonResult Rate(int Id, byte Rate) {
+        return Json([object]);
+  }
+
+
+  e.g:
+  // client 
+  $.ajax({
+        url: '/Lecturer/Rate',
+        data: { id: id, rate: rate },
+        type: 'POST',
+        success: function (response) {
+            alert(response.Message);
+        },
+        error: function (jxhr, msg, err) {
+            alert(msg);
+        }
+    });
+
+  // controller
+  [HttpPost]
+  public JsonResult Rate(int Id, byte Rate) {
+		... 
+		...
+
+        return Json(new Entities.AjaxResponse{ Code = Entities.eAjaxResponseType.Success, Message = "Success" });
+  }
+
+  // entities
+  public enum eAjaxResponseType { NULL, Success, Failure }
+  public class AjaxResponse {
+        public eAjaxResponseType Code { get; set; }
+        public string Message { get; set; }
+  }
+
+* @Url.Action
+  @Url.Action([action], [controller])
+  <a href="@Url.Action("", "Home")" title=""></a>
+
+* @Url.Content
+  @Url.Content([path])
+  <img src="@Url.Content("~/Styles/Themes/logo.png")" alt="logo" />
+
+* action link with img
+  <a href="@Url.Action("", "Home")" title="">
+        <img src="@Url.Content("~/Styles/Themes/img/logo.png")" alt="logo" />
+    </a>
+
+* bug
+  ModelState.IsValid is false for boolean hidden field
+
+  view:
+  @model Entities.Lecturer
+
+  @Html.HiddenFor(m => m.IsConfirmed)
+
+  controller:
+  public ActionResult Register(){
+    return View();
+  }
+
+  [HttpPost]
+  public ActionResult Register(Entities.Lecturer lecturer) {
+	 ModelState.IsValid // false > 'field is required' for IsConfirmed
+  }
+
+  solution: 
+  set the model to prevent null values 
+
+  public ActionResult Register(){
+    return View(new Entities.Lecturer());
+  }
+
+  tip: 
+  you can view source to see the hidden field value
+
+* How to transfer data between controllers
+  use TempData dictionary
+ 
+  e.g: 
+
+  public class HomeController : Controller {
+        public ActionResult Index() {
+            TempData.Add("Message", "Some Error Message");
+            return RedirectToAction("", "Error");
+        }
+   }
+
+   public class ErrorController : Controller {
+        public ActionResult Index() {
+            var res = TempData["Message"];
+            return View();
+        }
+	}
+
+* Exceptions handler  
+  - an implementation of a friendly Error pages using TempData
+
+  e.g: 
+  public ActionResult Index(int Id) {
+        try {
+            var lecturer = BLL.Lecturers.Get(Id);
+            if (lecturer == null)
+                throw new NullReferenceException(string.Format("lecturer {0} is null", Id)); 
+            return View(lecturer);
+        }            
+        catch (Exception ex) {
+            TempData.Add("Message", ex.Message);
+            return RedirectToAction("", "Error");
+        }
+    }
+
+   // Error Controller
+   public class ErrorController : Controller {
+        public ActionResult Index() {
+            return View();
+        }
+	}
+
+	// Error View
+	<p>
+        @TempData["Message"]
+    </p>
+
+* ModelState:
+  - a dictionary of validations where the field name is the key and the value is a ModelState object. The ModelState has an errors list.
+  - Dictionary<string, ModelState>
+  - IsValid - returns whether the all the model states in the dictionary are valid or not.
+
+* add error to specific validation in the ModelState 
+  - see 'ModelState'
+  - to add an error to a specific field, find it in the ModelState list by key and add your error to the Errors list property. 
+  - ModelState.IsValid returns true only if there're no errors in the list 
+
+  e.g: 
+  if (BLL.Pages.IsNameExists(page.PageName))
+       ModelState["PageName"].Errors.Add("page name exists");
+
+  if (!ModelState.IsValid) return View();
+
+  * using Startup script with sections
+    // _Layout.cshtml
+    <body>   
+    	<script src="~/scripts/basic" type="text/javascript"></script>
+        <script src="~/scripts/site" type="text/javascript"></script>
+    
+        @RenderSection("SCRIPTS_LOADED", false)
+    </body>
+    
+    // index.cshtml
+    @{
+      ViewBag.Title = "";
+      Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+    }
+    
+    @section SCRIPTS_LOADED{
+	   <script type="text/javascript">
+	   	function InitPage() { }
+	   </script>    
+    }
+
+
+* using Startup script with viewbag
+  - see also 'using Startup script with sections'
+
+   // _Layout.cshtml
+   <body>
+   	<script src="~/scripts/basic" type="text/javascript"></script>
+       <script src="~/scripts/site" type="text/javascript"></script>
+   
+       <script type="text/javascript">
+           @ViewBag.StartupScript
+       </script>
+   </body>
+   
+   // index.cshtml
+   @{
+       ViewBag.Title = "";
+       Layout = "~/Areas/Admin/Views/Shared/_Layout.cshtml";
+   
+       ViewBag.StartupScript = "InitPage();"; 
+     }
+
+  <script type="text/javascript">
+    function InitPage() { }
+  </script>
+
+
+* mvc server block 
+  
+  @{ code here ... }
+
+  e.g:
+  @{
+	 ViewBag.Somedata = "Hello world";     
+  }
+
+* dropdownlist with constant values
+  @Html.DropDownListFor(m => m.Title, 
+                        new List<SelectListItem>{
+                            new SelectListItem{ Text = "issue1" }, 
+                            new SelectListItem{ Text = "issue2"}, 
+                            new SelectListItem{ Text = "issue3"}, 
+                            new SelectListItem{ Text = "issue4"},
+                            new SelectListItem{ Text = "Other" }  
+                        }, new { })
+
+* BUG
+  Cannot read configuration file due to insufficient permissions
+
+  issue:
+  server error 500 while trying to reach mvc site from IIS
+
+  fix:
+  change application pool identity value from "ApplicationPoolIdentity" to "Local System".
+
+* BUG
+  The Web server is configured to not list the contents of this directory
+
+  issue:
+  enable directory Browsing in the IIS (can be done from the web.config)
+ 
+  <system.webServer>
+	<directoryBrowse enabled="true" />
+  </system.webServer>
+
+* Server-Side Comments with Razor (remarks)
+  @*
+	// html here ...
+  *@
+
+* TextBoxFor date format 
+  @Html.TextBoxFor(m => m.LessonDate, "{0:dd/MM/yyyy}", new { placeholder = "date", maxLength = 20 })
+
+* Razor Concatenation
+  - wrap the server code with rounded brackets ()
+  - example:
+    <img src="~/Styles/Themes/categories/@(Model.CategoryId).jpg" />
+
+* pass entities with RedirectToAction
+  - use TempData dictionary 
+  - e.g:
+    TempData["NotLoggedInViewData"] = new Entities.NotLoggedInViewData(marathon.Name);
+    return RedirectToAction("NotLoggedIn", "Account");
+
+	// Account controller
+	public ActionResult NotLoggedIn()
+    {
+        var data = TempData["NotLoggedInViewData"] as Entities.NotLoggedInViewData;
+        if (data == null)
+            data = new Entities.NotLoggedInViewData("unknown");
+        TempData.Remove("NotLoggedInViewData");
+        return View(data);
+    }
+
+* ActionLink with parameters
+  - use object rootValues argument
+
+  - e.g:
+  // adding 'MarathonId' parameter 
+  @Html.ActionLink("delete", string.Concat("DeleteLesson", "/", Model.Id), new { MarathonId = Model.MarathonId }, new { onclick = "return confirm('are you sure ?');" }) 
+
+  // controller
+  public ActionResult DeleteLesson(int Id, int MarathonId) {
+    BLL.Marathons.DeleteLesson(Id);
+    return RedirectToAction(string.Concat("Edit/", MarathonId));
+  }
+
+* ViewBag - add model as json and use it in the view
+  - using Newtonsoft.Json; 
+  - e.g:
+    // controller
+    ViewBag.JsonEvents = JsonConvert.SerializeObject(MyModel);
+   
+    // view (js code)
+	var model = @Html.Raw(@ViewBag.JsonEvents)
+
+* ModelState - add custom Error
+  1. add the new error to the model state : 
+     ModelState.AddModelError([key], [value]);
+
+  2. show it in the view using the ValidationMessage : 
+     @Html.ValidationMessage([key])
+
+  e.g:
+  // view
+  @Html.ValidationMessage("EmailExists")
+
+  // controller
+  if (BLL.Students.ExistsByEmail(lecturer.Email)) {
+        ModelState.AddModelError("EmailExists", "email already exists");
+        return View();
+  }
+
+* ActionFilter Attributes
+  * in order to add a custom attribute which perform some logic, you have to use action filters! 
+  * types of FilterAttribute (see 'Filter Attributes')  
+  * inherits from FilterAttribute and implements both IActionFilter and IResultFilter interfaces
+
+    structure: 
+	namespace System.Web.Mvc {
+		public abstract class ActionFilterAttribute : FilterAttribute, IActionFilter, IResultFilter {
+			protected ActionFilterAttribute();			
+			public virtual void OnActionExecuted(ActionExecutedContext filterContext);			
+			public virtual void OnActionExecuting(ActionExecutingContext filterContext);			
+			public virtual void OnResultExecuted(ResultExecutedContext filterContext);
+			public virtual void OnResultExecuting(ResultExecutingContext filterContext);
+		}
+	}
+
+  * steps:
+    1. create a class and inherit from  ActionFilterAttribute attribute 
+    2. override the OnActionExecuted base method
+	3. the ActionExecutedContext argument represents the current context  
+
+ * e.g:
+	
+	// action filter to export the model state
+	public class ExportModelStateAttribute : ActionFilterAttribute {
+		public override void OnActionExecuted(ActionExecutedContext context) {
+			try {
+				context.Controller.TempData["ModelState"] = context.Controller.ViewData.ModelState;
+				base.OnActionExecuted(context);
+			}
+			catch { }
+		}
+	}
+
+	// action filter to import the model state
+	public class ImportModelStateAttribute : ActionFilterAttribute {
+		public override void OnActionExecuted(ActionExecutedContext context) {
+			try {
+				var modelState = context.Controller.TempData["ModelState"] as ModelStateDictionary;
+				if (modelState != null)
+					context.Controller.ViewData.ModelState.Merge(modelState);
+				base.OnActionExecuted(context);
+			}
+			catch { }
+		}
+	}
+
+	----
+
+	[HttpPost]
+    [ExportModelStateAttribute]
+    public ActionResult AAA()
+    {
+		ModelState.AddModelError("myError", "some error from mvc action AAA");
+        return RedirectToAction("BBB");
+    }
+
+    [ImportModelStateAttribute]
+    public ActionResult BBB()
+    {
+        return View();
+    }
+
+	// view of BBB
+	@Html.ValidationMessage("myError")
+
+
+* ActionFilter Attributes exexution order
+  - the filter actions will be executed by the same order they decorate the class  
+
+  - e.g:
+
+    // define two action filters: 'FilterA' and 'FilterB' actions
+	public class FilterAAttribute : ActionFilterAttribute {
+        public override void OnActionExecuted(ActionExecutedContext context) {
+            context.Controller.TempData["myValue"] = "FilterA";
+            base.OnActionExecuted(context);
+        }
+    }
+
+    public class FilterBAttribute : ActionFilterAttribute
+    {
+        public override void OnActionExecuted(ActionExecutedContext context) {
+            context.Controller.TempData["myValue"] = "FilterB";
+            base.OnActionExecuted(context);
+        }
+    }
+
+    // using:
+
+	// in this senario the TempData["myValue"] is 'FilterB'
+    [FilterA]
+    [FilterB]		
+    public ActionResult Index(){ ... }
+
+	// in this senario the TempData["myValue"] is 'FilterA'
+	[FilterB]		
+    [FilterA]    
+    public ActionResult Index(){ ... }
+
+* RenderSection method
+  - the alternative for the old masterPage placeholders 
+
+  - structure:
+	@RenderSection("[sectionName]", required: bool);
+	@section [sectionName] { ... }
+		    
+  - required: bool
+    determine whether the section is required or not 
+
+  - IsSectionDefined("[sectionName]")
+    return boolean whether the section is implemented in the requested page or not  
+	tip: can be used to create a default content 
+
+  - notice! 
+    sections only work between the view page and its immediate layout page, 
+	they will not work outside of this scope (partials etc.)
+
+  - e.g:
+
+   // render a specific section 
+   @RenderSection("MyTitleBlock")
+   
+   // define the section content
+   @section MyTitleBlock {
+		<h1>HELLO AAA</h1>    
+	}
+
+  - e.g: default section content    
+	@if (IsSectionDefined("MyTitleBlock")) { 
+		@RenderSection("MyTitleBlock")
+	}
+	else { 
+		<div>Default content</div>
+	}
+       
+   @section MyTitleBlock {
+		<h1>HELLO AAA</h1>    
+	}
+    
+
+* Routes with namespaces
+  - allow us to define multiple controllers with the very same name that identified only by theirs namespace 
+  - structure: 
+    routes.MapRoute(
+		...
+		...
+		...
+		namespaces: new[] { "Controllers.NS1" }
+	);
+
+	routes.MapRoute(
+		...
+		...
+		...
+		namespaces: new[] { "Controllers.NS2" }
+	);
+
+  e.g:
+	// Routes
+	routes.MapRoute(
+		name: "Admin",
+		url: "Admin/{controller}/{action}/{id}",
+		defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
+		namespaces: new[] { "Controllers.Admin" }
+	);
+
+	routes.MapRoute(
+		name: "Default",
+		url: "{controller}/{action}/{id}",
+		defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional },
+		namespaces: new[] { "Controllers.Site" }
+	);
+
+
+	// Controllers
+	namespace Controllers.Admin {
+		public class HomeController : Controller {
+			public ActionResult Index() {
+				return View("~/Views/Admin/Home/Index.cshtml");
+			}
+		}
+	}
+
+	namespace Controllers.Site {
+		public class HomeController : Controller {
+			public ActionResult Index() {
+				return View("~/Views/Site/Home/Index.cshtml");
+			}
+		}
+	}
+
+* import/export the modelstate using action filters
+	public class ExportModelStateAttribute : ActionFilterAttribute {
+		public override void OnActionExecuted(ActionExecutedContext context) {
+			try {
+				context.Controller.TempData["ModelState"] = context.Controller.ViewData.ModelState;
+				base.OnActionExecuted(context);
+			}
+			catch { }
+		}
+	}
+
+	public class ImportModelStateAttribute : ActionFilterAttribute {
+		public override void OnActionExecuted(ActionExecutedContext context) {
+			try {
+				var modelState = context.Controller.TempData["ModelState"] as ModelStateDictionary;
+				if (modelState != null)
+					context.Controller.ViewData.ModelState.Merge(modelState);
+				base.OnActionExecuted(context);
+			}
+			catch { }
+		}
+	}
+
+	- using: 
+	[ImportModelState]
+    public ActionResult Index() { }
+
+    [ExportModelState]
+    public ActionResult Fun(Entities.MyData data)
+    {
+		...
+		...
+        return RedirectToAction("");
+    }
+
+* RedirectToAction with area
+  return RedirectToAction("ActionName", "ControllerName", new { area = "AreaName" });
+
+* mvc api require session
+  see 'require session.txt'
+  
+* @helper
+  - define a template which can be called from anywhere on the page
+  - structure:
+    @helper MyFun(){ ... } // declare
+	@MyFun() // using
+
+  - e.g:
+	@helper Fun1(string color){
+		<div style="color:@color">Hello From Helper</div>
+	} 
+
+	<div>
+		@Fun1("red")
+		@Fun1("green")
+		@Fun1("blue")
+	</div>
+
+* route values
+  // in the view 
+  @Html.ActionLink("my link", "MyAction", new { Id = 2, ParentId = 5 })
+
+  // in the controller
+  public ActionResult MyAction(int Id, int ParentId) { ... }
+
+* BUG - no Intellisense in razor files (.cshtml)
+
+  - fix
+  need to change the webpages:Version key in the web.config from ver 3.0.0.0 to ver 2.0.0.0
+
+  - example:
+  <add key="webpages:Version" value="2.0.0.0" />
+
+* BUG - MVC Bundling Not Working
+  // TODO
+
+* BUG - 'A potentially dangerous Request.Form value was detected'
+
+  - fix
+  disable the page input validations (see 'validateRequest')
+
+* ActionResult - custom action result
+  public class MyActionResult : ActionResult  { 
+      public override void ExecuteResult(ControllerContext context) { 
+		// code here ...
+	  } 
+  } 
+
+  // using 
+  public class MyController : Controller { 
+      public ActionResult Index() { 
+         return new MyActionResult(); 
+      }
+  } 
+
+* data types
+  - ViewData:
+    (dictionary) 
+	use this type to transfer data from the controller to the view 
+	scope: the current request only
+
+  - ViewBag:
+    (dynamic) 
+	use this object to transfer data from the controller to the view 
+	scope: the current request only
+
+  - TempData:
+    (dictionary) 
+	use this type to transfer data from the controller to another controller 
+	scope: the current request and the redirecting request
+
+* Html.RouteLink
+  create a link based on a specific Routing value mapped with routes.MapRoute	
+
+  e.g:
+  routes.MapRoute(
+        name: "TestUrl",
+        url: "Test",
+        defaults: new { controller = "TestController", action = "TestAction" }
+    );
+
+   @Html.RouteLink("Test", "TestUrl")
+
+* Html.RouteLink (trick)
+  use this helper to generate link to a route instead of action 
+  common used for removing the auto appended 'Index' action when using the Html.ActionLink with empty action 
+
+  e.g:
+  // http://localhost:44517/Shoes/Index/2
+  @Html.ActionLink(Model.Name, "", new { Id = Model.Id }, new { title = Model.Name }) 
+
+  - vs -
+
+  // http://localhost:44517/Shoes/2
+  @Html.RouteLink(Model.Name, "", new { Id = Model.Id }, new { title = Model.Name }) 
+
+  note! 
+  can also set the actionName as null when using the ActionLink option to remove the action name from the link
+
+
+* bug - ActionLink with empty action append 'Index'
+
+  issue: 
+  ActionLink with empty action append 'Index' action to the URL
+
+  e.g:  
+  // http://localhost:44517/Products/Index/3
+  @Html.ActionLink("Product 1", "", new { Id = 3 }, new { title = "Product 1" }) 
+       
+  solution: 
+  use RouteLink instead of ActionLink
+  see 'Html.RouteLink'
+
+* Display Modes
+  - this feature (MVC 4 and above) is used to define a different page for each agent.
+  - the mvc mechanism can render a page per mode, the mode can be a specific agent group (e.g: iPhone or iPad) or more extended agent group (e.g: Mobile)
+  - you can implement your owns IDisplayMode interfaces which includes the DisplayMode Name and IDisplayMode Condition 
+    (which can be any group you'd like based on the agent header)
+
+  - implementation:
+    1. add an IDisplayMode in the Application_Start
+	   DisplayModeProvider.Instance.Modes.Insert([index], [IDisplayMode]);
+
+	   note! 
+	   MVC has a built-in 2 implementations you can use > Desktop and Mobile groups so basically you can add .Mobile.cshtml files!
+
+    2. override the cshtml files (views or partials) with the IDisplayMode Name 
+	   page1.cshtml -> page1.[IDisplayMode Name].cshtml
+	   note! add a new page - DO NOT delete the original one
+
+   - get the app display Modes list 
+     DisplayModeProvider.Instance.Modes
+
+   - e.g:
+     // Application_Start
+
+	 // adding 3 display Modes (for windows modiles, iphones and android devices)
+	 // e.g: if iphone will try to reach the 'Index' view, it will see the 'Index.iPhone' view automatically
+     DisplayModeProvider.Instance.Modes.Insert(0, new DefaultDisplayMode("WP")
+     {
+	    // condition: all agents contains 'Windows Phone OS' 
+        ContextCondition = (context => context.GetOverriddenUserAgent().
+            IndexOf("Windows Phone OS",StringComparison.OrdinalIgnoreCase) >= 0)
+     });
+
+     DisplayModeProvider.Instance.Modes.Insert(1, new DefaultDisplayMode("iPhone")
+     {
+	    // condition: all agents contains 'iPhone' 
+        ContextCondition = (context => context.GetOverriddenUserAgent().
+            IndexOf("iPhone", StringComparison.OrdinalIgnoreCase) >= 0)
+     });
+
+     DisplayModeProvider.Instance.Modes.Insert(2, new DefaultDisplayMode("Android")
+     {
+	    // condition: all agents contains 'Android' 
+        ContextCondition = (context => context.GetOverriddenUserAgent().
+            IndexOf("Android", StringComparison.OrdinalIgnoreCase) >= 0)
+     });
+
+	 // Index.cshtml
+	 <h1>Desktop View</h1>
+
+	 // Index.Mobile.cshtml
+	 <h1>Mobile View</h1>
+
+	 // Index.WP.cshtml
+	 <h1>Windows Phone View</h1>
+
+	 // Index.iPhone.cshtml
+	 <h1>iPhone View</h1>
+
+	 // Index.Android.cshtml
+	 <h1>Android View</h1>
+
+* custom action parameters
+  - in order to pass input back to the server as action parameter all we need to do is to 
+    match the action parameter name to the input name
+
+  - e.g:
+
+  // Test
+  @using (@Html.BeginForm()) { 
+    <input type="text" name="p1" /><br />
+    <input type="text" name="p2" /><br />
+    <input type="submit" value="SEND" />
+  }
+
+  [HttpPost]
+  public ActionResult Test(int p1, string p2) { }
+
+* Validation Attributes
+  - use Data Annotations to decorate the model with the validations attributes to apply
+  - use Html.ValidationMessageFor to display the error messages for property
+  - use Html.ValidationSummary to display a summary of error messages 
+  - see also 'custom validators'
+
+  - types:
+	[Required] // required property validation   
+	[StringLength] // property length validation
+	[Range] // property range validation
+	[CustomValidation] // see 'CustomValidation Attribute'
+	[RegularExpression] // see 'RegularExpression Attribute'
+	[EmailAddress] // email property validation    
+	[Url] // url property validation   
+	[Phone] // phone property validation
+	[Remote] // see 'Remote Validation Attribute (Client)' 
+	[Compare] // comparison property validation   
+	
+
+  - using:
+    [Required(ErrorMessage = "Name Required")]
+    public string Name { set; get; }
+
+	[RegularExpression(@"[0-9\.]+", ErrorMessage = "Invalid Price")]
+    public float PriceList { set; get; }
+
+	[EmailAddress(ErrorMessage = "Invalid Email")]
+    public string Email { get; set; }
+
+	[RegularExpression(@"[0-9\-]+", ErrorMessage = "Invalid Phone")]
+    public string Phone1 { get; set; }
+
+	[Url(ErrorMessage = "Invalid Website")]
+    public string Website { get; set; }
+
+	[StringLength(10, MinimumLength=5, ErrorMessage = "Invalid Length")]
+    public string Name { get; set; }
+
+	[Range(1, 120, ErrorMessage = "Invalid Age")]
+    public byte Age { get; set; }
+
+	[Compare("Email", ErrorMessage = "EmailConfirmation do Not Match Email")]
+    public string EmailConfirmation { get; set; }
+
+* [EnumDataType] // enums validators
+
+  - using:
+    [EnumDataType(typeof(eMatchType), ErrorMessage = "Required")]
+	public eMatchType MatchType { get; set; }
+
+* custom validators
+  - we can extend the exists validation attributes to create our own custom validators 
+  - we can inherit from 'ValidationAttribute' and override the 'IsValid' method (example 1)
+  - we can inherit from any validation attribute type and use the base constructor to pass a custom values (example 2)
+  - also see 'CustomValidation Attribute'
+
+  - example 1
+    [DateRange("01/01/2015", "31/12/2015", ErrorMessage = "Invalid Date Range")]
+    public DateTime Date { get; set; }
+
+    public class DateRange : ValidationAttribute {
+        private DateTime minDate { get; set; }
+        private DateTime maxDate { get; set; }
+
+        public DateRange(string minDate, string maxDate) {
+            this.minDate = Convert.ToDateTime(minDate);
+            this.maxDate = Convert.ToDateTime(maxDate);
+        }
+
+        public override bool IsValid(object value) {
+            var ticks = Convert.ToDateTime(value).Ticks;
+            return ticks > minDate.Ticks && ticks < maxDate.Ticks;
+        }
+      }
+
+	- example 2
+      [MinDate("01/01/2015", ErrorMessage = "Invalid Date Range")]
+      public DateTime Date { get; set; }
+
+      public class MinDate : RangeAttribute {
+        public MinDate(string minDate) : base(typeof(DateTime), minDate, DateTime.Now.ToString("dd/MM/yyyy")) { }
+      }
+
+	- more implementations
+      public class BirthDate : RangeAttribute {
+        public BirthDate() : base(typeof(DateTime), DateTime.Now.AddYears(-120).ToString("dd/MM/yyyy"), DateTime.Now.ToString("dd/MM/yyyy")) { }
+      }
+
+      public class FutureDate : RangeAttribute {
+        public FutureDate() : base(typeof(DateTime), DateTime.Now.ToString("dd/MM/yyyy"), DateTime.Now.AddYears(2).ToString("dd/MM/yyyy")) { }
+      }
+
+      public class EmptyDate : ValidationAttribute {
+          public override bool IsValid(object value) {
+              return value != null && (DateTime)value != DateTime.MinValue;
+          }
+      }
+
+
+* CustomValidation Attribute
+  - allows us to add a custom validation 
+  - context.MemberName returns the current property name
+  - the validation method receives the property value and the context and return a ValidationResult 
+  - also see 'custom validators'
+
+  - structure:
+    [CustomValidation([type], [methodName])]
+
+  - using:
+    [CustomValidation(typeof(DataValidations), "NotZero")]
+    public int CategoryId { set; get; }
+
+    public class DataValidations {
+		public static ValidationResult NotZero(int value, ValidationContext context){
+			if (value == 0)
+				return new ValidationResult(string.Concat(context.MemberName, " ", "Required"));
+			return ValidationResult.Success;
+		}
+	}
+
+* Client Validations   
+  - see also 'Validation Attributes'
+  - allows us to add client side validations based on the same model defined attributes 
+    for better performance and saving of unnecessary posts.
+  - when using this feature, the validations will be executed using ajax "behind the scene" 
+    instead of on the server after posting the page. note that the validation methods that executes are the very same in both scenarios. 
+
+  - note:
+    the validation attributes will be checked also on the server side for cases when javascript is disabled 
+    the [Remote] attributes will not be checked on the server - those are only for client side!
+
+  1. configuration - make sure the 'ClientValidationEnabled' and 'UnobtrusiveJavaScriptEnabled' keys are set to be true 
+     <appSettings>
+		<add key="ClientValidationEnabled" value="true" />
+		<add key="UnobtrusiveJavaScriptEnabled" value="true" />
+	  </appSettings>
+
+  2. add the following scripts to the page: 
+     - jquery.min.js
+	 - jquery.validate.min.js
+	 - jquery.validate.unobtrusive.min.js
+
+
+* Remote Validation Attribute (Client)
+  - allows us to make ajax calls for server validation (Email exists etc.)
+  - are performed by an ajax call to the pre-defined server method
+  - note: Remote attributes are being called only on the client side !! 
+
+  1. create a method which will serve as our validation method 
+     should return true/false in json format
+
+	 e.g: 
+	 public JsonResult CheckUserId(int Id) {
+        var user = users.SingleOrDefault(x => x.Id == Id);
+        return Json(user == null, JsonRequestBehavior.AllowGet); // user is null - not exists - ok! 
+     }
+
+  2. in our model - add the [Remote] attribute
+
+     [Remote([Method], [Controller], [Error Message])]
+
+     e.g:
+	 public class User {
+        [Remote("CheckUserId", "Home", ErrorMessage="Id Exists!!")]
+        public int Id { get; set; }
+        public string Name { get; set; }        
+     }
+
+  3. in the view - add place holder for the validation messages 
+     
+	 e.g:
+	 @Html.TextBoxFor(x => x.Id)
+     @Html.ValidationMessage("Id")
+
+  4. add the following scripts to the page: 
+     - jquery.min.js
+	 - jquery.validate.min.js
+	 - jquery.validate.unobtrusive.min.js
+
+* _ViewStart
+  - the file _ViewStart.cshtml is a shared file which is loaded at the very begining of each view. 
+    we can use it to add client and server shared code for all of our views.
+
+  - the common use of the _ViewStart is to set the layout file, instead of copy and paste the layout line for each view. 
+
+  - note: we can add server code, viewbag properties, html tags and more ... 
+    each view load the _ViewStart.cshtml and afterwards it's content. 
+
+  - override layout - in order to override the layout defined within the _ViewStart.cshtml file, we only need to set a new one within the view itself 
+
+    e.g: 
+	Layout = "~/Views/Shared/_Layout.cshtml"; // in the _ViewStart
+	Layout = "~/Views/Shared/_MyLayout.cshtml"; // in the view
+
+  - recommendation: use the _ViewStart.cshtml to set default values (layout etc.)
+
+  - we can specify the layout dynamically from the action
+
+    structure:    
+	return View([viewName], [LayoutName]);	
+    
+  - using:
+    in the example below, both view 1 and view 2 didn't define a layout container but the _ViewStart has a definition for layout 
+	so it applies to all the views  
+
+	// _ViewStart.cshtml
+    @{
+		Layout = "~/Views/Shared/_Layout.cshtml";
+	}
+
+	// view 1
+	@{
+		ViewBag.Title = "Index";
+	}
+
+	// view 2
+	@{
+		ViewBag.Title = "About";
+	}
+
+* PartialViewResult
+  - return a partial view from an action 
+  - inherit from ActionResult
+
+  - using: 
+    public PartialViewResult Demo(){
+		var myModel = ... 
+		return PartialView("MyPartialView", myModel);
+	}
+
+* @Ajax.ActionLink
+  - creates ajax call to an action (which usually returns a partial view)
+   
+  - structure:
+	@Ajax.ActionLink([text], [action], new AjaxOptions { [AjaxOptions] }) 
+  
+  - AjaxOptions:
+	* HttpMethod // the request method ("GET" etc.)
+	* UpdateTargetId // Id of html container which will get the result
+	* InsertionMode // the insertion type (Replace etc.) - see 'InsertionMode' below
+	* LoadingElementId // Id of html container which will holds the 'Loading..' content till the response arrives from the server (spinner image etc.)
+						  note! needs to be defined as css display none 
+
+  - InsertionMode: 
+    * InsertAfter
+	* InsertBefore
+	* Replace
+
+  - events: 
+    * OnBegin
+	* OnComplete
+	* OnFailure
+	* OnSuccess
+
+  - required scripts: 
+    1. jquery-X.js
+	2. jquery.unobtrusive-ajax.js
+  - Ajax.ActionLink clause generates anchor with extra 'data-ajax' attributes which represents the ajax call behaviour
+      
+    e.g: 
+	<a data-ajax="true" data-ajax-method="GET" data-ajax-mode="replace" data-ajax-update="#divPartial" href="/Home/Demo">clickMe</a> 
+
+  - using:
+    
+	// in the view 
+	<script src="/Scripts/jquery-1.8.2.js"></script>
+	<script src="/Scripts/jquery.unobtrusive-ajax.js"></script>	
+	<div id="divLoading" style="display:none">Loading ....</div>
+	<div id="divPartial"></div>
+
+	@Ajax.ActionLink("clickMe", "Demo", new AjaxOptions { 
+		HttpMethod = "GET", 
+		UpdateTargetId = "divPartial",
+		InsertionMode = InsertionMode.Replace,
+		LoadingElementId = "divLoading"
+	}) 
+
+	// in the controller 
+	public PartialViewResult Demo() {
+        Thread.Sleep(3000);
+        return PartialView("Partial/Partial1");
+    }
+
+	// partial view content 
+	@DateTime.Now.ToLongTimeString() 
+	bla bla bla ....
+
+* @Html.ActionLink with area
+  
+  - e.g: 
+    @Html.ActionLink("Go To HomePage", "Index", "Home", new{ area = "" }, null) 
+	@Html.ActionLink("Go To Admin HomePage", "Index", "Home", new{ area = "Admin" }, null) 
+
+* Filter Attributes
+  - allows us to add our custom code into the processing pipe line
+
+  - used by decorating an action or controller.
+    note that if a controller is being decorated > ALL of it's actions will apply the filter 
+
+  - can be registered as global (see 'Filter Attributes (Global level)')  
+
+  - ActionFilterAttribute inherit from FilterAttribute and implements both IActionFilter and IResultFilter interfaces
+    structure: see 'ActionFilter Attributes' 
+
+  - types:
+    1. Authentication filters 
+	2. Authorization filters
+	3. Action filters
+	4. Result filters
+	5. Exception filters
+
+  - interfaces:
+    1. IAuthenticationFilter 
+	2. IAuthorizationFilter 
+	3. IActionFilter
+	4. IResultFilter 
+	5. IExceptionFilter 
+
+  - IAuthenticationFilter:
+	* implement this interface to create an Authentication filter
+
+  - IAuthorizationFilter:
+	* implement this interface to create an Authorization filter
+
+  - IActionFilter:
+	* implement this interface to create an Action filter
+	* use filterContext.ActionDescriptor to get info about the current action
+	* use filterContext.ActionDescriptor.ControllerDescriptor to get info abount the current controller
+
+  - IResultFilter:
+	* implement this interface to create an Result filter
+	* use filterContext.RouteData["action"] to get the current action name
+	* use filterContext.RouteData["controller"] to the current controller name
+
+  - IExceptionFilter
+	* implement this interface to create an Exception filter
+	* use filterContext.RouteData["action"] to get the current action name
+	* use filterContext.RouteData["controller"] to the current controller name
+	* use filterContext.Exception to get info about the current exception	
+
+  - using (different levels):
+    // controller level
+    see 'Filter Attributes (Controller level)' using example
+
+	// action level
+    see 'Filter Attributes (Action level)' using example
+  
+	// global level
+    see 'Filter Attributes (Global level)' using example
+
+   - example:
+    // in the below example we use global filter + a custom filter
+
+    [MyActionFilterAttribute]
+    public ActionResult Index() {            
+        return View();
+    }
+
+	public class FilterConfig {
+        public static void RegisterGlobalFilters(GlobalFilterCollection filters) {
+			// register 'MyGlobalActionFilter' filter for all actions 
+            filters.Add(new MyGlobalActionFilterAttribute());
+        }
+    }
+
+	// filters
+	public class MyGlobalActionFilterAttribute : FilterAttribute, IActionFilter {
+        public void OnActionExecuted(ActionExecutedContext filterContext) {
+            filterContext.HttpContext.Response.Write("<div>GlobalActionFilter - OnActionExecuted</div>");
+        }
+
+        public void OnActionExecuting(ActionExecutingContext filterContext) {
+            filterContext.HttpContext.Response.Write("<div>GlobalActionFilter - OnActionExecuting</div>");
+        }
+    }
+
+	// note! we can inherit from ActionFilterAttribute instead!!  	
+    public class MyActionFilterAttribute : FilterAttribute, IActionFilter, IResultFilter{
+        public void OnActionExecuted(ActionExecutedContext filterContext) {
+            filterContext.HttpContext.Response.Write("<div>OnActionExecuted</div>");
+        }
+
+        public void OnActionExecuting(ActionExecutingContext filterContext) {
+            filterContext.HttpContext.Response.Write("<div>OnActionExecuting</div>");
+        }
+
+        public void OnResultExecuted(ResultExecutedContext filterContext) {
+            filterContext.HttpContext.Response.Write("<div>OnResultExecuted</div>");
+        }
+
+        public void OnResultExecuting(ResultExecutingContext filterContext) {
+            filterContext.HttpContext.Response.Write("<div>OnResultExecuting</div>");
+        }
+    }
+
+	// result 
+	GlobalActionFilter - OnActionExecuting
+	OnActionExecuting
+	OnActionExecuted
+	GlobalActionFilter - OnActionExecuted
+	OnResultExecuting
+
+* Filter Attributes (Controller level)
+  
+  - e.g:
+    // ALL actions within the 'Home' controller apply the 'MyActionFilter' filter 
+    [MyActionFilter]
+	public class HomeController : Controller {
+        public ActionResult Index() {            
+            return View();
+        }
+
+        public ActionResult About() {
+            return View();
+        }
+	}   
+
+
+* Filter Attributes (Action level)
+
+  - e.g:
+    // ONLY the Index action under 'Home' controller applies the 'MyActionFilter' filter!     
+	public class HomeController : Controller {
+		[MyActionFilter]
+        public ActionResult Index() {            
+            return View();
+        }
+
+        public ActionResult About() {
+            return View();
+        }
+	}  
+
+
+* Filter Attributes (Global level)
+  - we can apply filter on action or controller but we can also apply it globaly for ALL instead of decorate each individual action.
+    in order to declare a global filter we need to register it using the 'RegisterGlobalFilters' method located in the FilterConfig file under App_Start folder.
+
+  - a known built-in global filter is the 'HandleErrorAttribute' filter which implements the 'IExceptionFilter' interface and handle an exception globaly 
+
+  - e.g: 
+    // this global filter implements the IActionFilter, therefore, its being executed for each action 
+	public class MyGlobalActionFilterAttribute : FilterAttribute, IActionFilter {	
+		// on Start
+        public void OnActionExecuting(ActionExecutingContext filterContext) {
+            filterContext.HttpContext.Response.Write("<div>OnActionExecuting</div>");
+        }
+
+		// on Completed 
+        public void OnActionExecuted(ActionExecutedContext filterContext) {
+            filterContext.HttpContext.Response.Write("<div>OnActionExecuted</div>");
+        }
+    }
+
+	public class FilterConfig {
+        public static void RegisterGlobalFilters(GlobalFilterCollection filters) {
+            ...
+            filters.Add(new MyGlobalActionFilterAttribute());
+        }
+    }
+
+* RequireHttps Attribute
+  - forces a non-secure page to redirect to a secure page (https)
+  - can be defined on action or controller level
+  - uses a 302 redirect from http to https protocol
+
+  - e.g:
+   [RequireHttps]
+   public ViewResult SSLPage() {
+       return View();
+   }
+
+* POST IEnumerable values
+  - in order to pass an IEnumerable of values, we need to set the exact same name for multiple inputs,
+    when the MVC engine encounters in multiple inputs, sharing the same name, it groups them together into a list
+
+  - e.g:  
+	@using (@Html.BeginForm()) { 
+		<h3>colors</h3>    
+		<input type="checkbox" name="colors" value="red" /><text>red</text>    
+		<input type="checkbox" name="colors" value="green" /><text>green</text>
+		<input type="checkbox" name="colors" value="blue" /><text>blue</text>
+		<input type="checkbox" name="colors" value="brown" /><text>brown</text>
+
+		<h3>numbers</h3>
+		<input type="checkbox" name="numbers" value="20" /><text>20</text>  
+		<input type="checkbox" name="numbers" value="30" /><text>30</text>  
+		<input type="checkbox" name="numbers" value="40" /><text>40</text>  
+		<input type="checkbox" name="numbers" value="50" /><text>50</text>  
+		<br /><br />
+		<input type="submit" value="POST" />
+	}
+
+	[HttpPost]
+    public ViewResult Index(IEnumerable<int> numbers, IEnumerable<string> colors) {
+        // code ...
+    }
+
+* MVC action parameter Binding mechanism
+  - see also 'ModelBinder' and '[Bind]'
+
+  - mvc uses the input names to define the parameters 
+  - we can use this naming standard to define IEnumerable, POCO Objects and primitive values 
+
+  - primitive parameter: 
+    <input type="text" name="id" />  
+	<input type="text" name="name" /> 
+	
+	public ViewResult Index(int user, string name){ .. }      
+
+  - POCO object parameter:
+	
+	// view
+	<input type="text" name="id" />    
+	<input type="text" name="first" />    
+	<input type="text" name="last" />   
+	
+	// controller 
+	public ViewResult Index(User user){ .. } 
+
+	// model
+	public class User { 
+        public int id { get; set; }
+        public string first { get; set; }
+        public string last { get; set; }  
+    }
+
+  - IEnumerable parameter:
+	
+	// view
+    <input type="checkbox" name="colors" value="red" /><text>red</text>    
+	<input type="checkbox" name="colors" value="green" /><text>green</text>
+	<input type="checkbox" name="colors" value="blue" /><text>blue</text>
+	<input type="checkbox" name="colors" value="brown" /><text>brown</text>
+
+	// controller 
+	public ViewResult Index(IEnumerable<int> numbers, IEnumerable<string> colors){ .. } 
+
+* Editor Templates
+  - EditorTemplates folder
+  - by default, when using this helper it generates an auto editor template for the current view Model
+    the default behaviour uses the model name to create label and input text field for each of the model properties
+
+  - custom editor Templates: 
+    we can override the default template as follow
+	1. Add 'EditorTemplates' folder under the 'Shared' folder 
+	2. Add cshtml and name it the model name (User.cshtml etc.)
+	3. use Html.EditorForModel() to draw the template matches the current Model
+
+  - specify the editor Template to render:
+	we can specify the editor Template which we want to rendered 
+
+	// this clause will render the content of the file 'Shared/EditorTemplates/User1.cshtml'
+    @Html.EditorForModel("User1") 
+
+  - adding data to editor Template
+    we can add additional data to the editor Template by using the 'EditorForModel' method overload and pass a new object
+	this will add those values as a viewBag properties	
+
+	// view 
+	@Html.EditorForModel(new { p1 = "ppp", p2 = 300 })
+
+	//  editor Template (Shared/EditorTemplates/User.cshtml)
+	<div>@Model.Name</div>
+	<div>@ViewBag.p1</div>
+
+  - e.g:
+    // view 
+    @model Models.User
+	@Html.EditorForModel() // this clause will render the content of the file 'Shared/EditorTemplates/User.cshtml'
+
+	// editor Template (Shared/EditorTemplates/User.cshtml)
+    @model Models.User
+	<div># @Model.Id</div>
+	<div>@Model.Name</div>
+
+* Display Templates
+  - DisplayTemplates folder 
+  // TODO
+
+* ActionName Attribute 
+  - we can change the name of the action using this attribute
+  - once an ActionName is defined, the original action name will not be accessable anymore 
+
+  - example: 
+    in this example we've defined the 'Index' action to be 'Index2' so any attempt to reach 'Index' will return a 404 response 
+
+	[ActionName("Index2")]
+    public ActionResult Index() {            
+        return View();
+    }
+	
+	http://localhost/Home/Index2 -> OK
+	http://localhost/Home/Index	-> 404
+
+* NonAction Attribute
+  - allows us to define a private action which can't be accessed via the url nor from views.
+  - any attempt to reach the action from outside the controller will return a 404 response,
+    in addition, any attempt to render the action within a view will also fail
+	e.g: @Html.Action("Hello") // 404
+
+  - in order to allow an action rendering we have to use the ChildActionOnly attribute 
+    (see 'ChildActionOnly Attribute')	
+
+  - it can be reached by any action from within the controller, refered as a method.
+
+ [NonAction] 
+ public string Hello() {
+    return "Hello World!!";
+ }
+ 
+ public string Index() {
+	var helloResult = Hello();
+    return helloResult; // "Hello World!!"
+ }
+
+ http://localhost/Home/Hello -> 404
+ http://localhost/Home/Index -> "Hello World!!" 
+
+* ChildActionOnly Attribute
+  - allows us to render an action within a different action, and at the same time to disallow the direct url approach to that action! 
+
+  - when we decorate an action with 'ChildActionOnly' attribute, we get the ability to render it from other 
+    actions and still refer it as NonAction for direct calls!
+
+  - any direct attempt to reach this action via the url will throw the following exception:
+    "The action 'xxxx' is accessible only by a child request." 
+  
+  - example:
+    [ChildActionOnly]
+    public string Hello() {
+        return "Hello World!!";
+    }
+
+	// other view
+	@Html.Action("Hello") // OK
+
+	http://localhost/Home/Hello -> Exception
+
+* Html.Action
+  - draw an action HTML content
+
+  - structure: 
+    @Html.Action([actionName], [routeData])
+  
+  - e.g:
+    // action with no parameters
+    @Html.Action("MyAction") 
+
+	// action with 'names' parameter of type IEnumerable<string>
+    @Html.Action("MyAction", new { names = new List<string>(){ "Roby", "Avi", "Shirly" } }) 
+
+	// action with 'Id'  parameter of type int
+    @Html.Action("MyAction", new { Id = 21 }) 
+
+* Html.RenderAction   
+  - render an action  
+
+  - structure: 
+    @{ Html.RenderAction([actionName], [routeData]); }
+  
+  - e.g:
+    @{Html.RenderAction("Hello");}
+
+* Html.Action vs Html.RenderAction
+  - the difference between those two is that 'Action' executes the action and plant it's response content as HTML 
+    whereas the 'RenderAction' renders the result directly to the response.
+
+  - RenderAction has a better performance 
+
+* Html.Partial 
+  - draw a partial HTML content
+
+  - structure: 
+    @Html.Partial([partialViewName], [model])
+
+  - e.g:
+    @Html.Partial("Partials/Partial1") 
+
+	// partial with model
+    @Html.Partial("Partials/Partial1", new Models.User { Id = 21, Name = "Roby" }) 
+
+* Html.RenderPartial
+  - render a partial view  
+
+  - structure: 
+    @{ Html.RenderPartial([partialViewName], [model]); }
+
+  - e.g:
+    @{ Html.RenderPartial("Partials/Partial2"); }
+
+* Html.Partial vs Html.RenderPartial
+  - same logic as actions - see 'Html.Action vs Html.RenderAction'
+
+* T4 Templates
+  - the T4 templates are the content that generated by the visual studio when we add a new view or controller
+  - types:
+    1.View Template
+	2.Controller Template 
+
+  - we can add our own custom view templates (adding html content etc.)
+  - we can add our own custom controller templates (define actions etc.)
+  - we can change the existing default view templates (Create, Edit, Details, List etc.)
+  - we can change the existing default controller templates (ApiController, Controller etc.)
+  - set a view template:
+    add view -> Scaffold template -> choose template
+  - set a controller template:
+    add controller -> Template -> choose template
+
+  - files with .tt extension
+  - templates path: 
+    C:\Program Files (x86)\Microsoft Visual Studio 11.0\Common7\IDE\ItemTemplates\CSharp\Web\MVC 4\CodeTemplates
+
+* OutputCache Attribute
+  - allows us to add html content into cache
+  - can be defined on any action including those which return PartialViews or decorated with 'ChildActionOnly' attribute
+  - main properties:
+    * CacheProfile // cache profile name (see 'OutputCache Profiles')
+    * Duration  // cache duration in seconds
+    * VaryByParam // cache page by parameter (see 'OutputCache VaryBy..') 
+	* VaryByHeader // cache page by header (see 'OutputCache VaryBy..') 
+	* VaryByCustom // cache page by a custom logic (see 'OutputCache VaryBy..') 
+	* SqlDependency // SQL dependency (see 'OutputCache SQL dependency')
+	* NoStore // indicates whether to store the cache or not
+
+  - using recommendation: 
+    * any static action  
+	* any actions that is not changing much
+	* any part of action that is not changing much
+     
+  - scanrio:
+    lets assume that we have an action which returns a view with dynamic content that changes frequently,
+	and within this view we have some content which doesn't change much.
+
+	we can extruct this static content snipet from the full view into a partial view, once we did that
+	we could create an action to return this created partial view and we will render this partial view in the 
+	very same spot using Html.Action which returns a PartialViewResult.
+	in addition, we can decorate this action with [OutputCache] attribute and we can also add the [ChildActionOnly]
+	in order to prevent direct access via the URL.
+
+	this technique allows us to cache partial html content and, by doing so, improve significantly the response time.
+
+  - using	
+    // in this example - the 1st timer will be updated each 10s whereas the 2nd each 30s
+
+	[OutputCache(Duration=10)] // cache for 10 seconds
+	public ActionResult Index() {
+		Thread.Sleep(2000);
+		return View();
+	}
+
+	// returns a PartialView
+	[ChildActionOnly] // limited access - not accessable via the URL
+	[OutputCache(Duration = 30)] // cache for 30 seconds
+	public PartialViewResult MyPartialContent() {
+		return PartialView("MyPartialContent");
+	}
+
+	// Index view 
+	<style type="text/css">
+	div.RefreshTime {
+		font: italic normal bold 80px/1.2em tahoma;              
+		color:red; 
+	}
+	</style>
+
+	<div class="RefreshTime">
+		@DateTime.Now.ToString("HH:mm:ss")
+	</div>
+
+	@Html.Action("MyPartialContent")
+
+	---
+
+	// MyPartialContent view
+	<div class="RefreshTime">
+		@DateTime.Now.ToString("HH:mm:ss")
+	</div>
+	
+* OutputCache Profiles
+  - allows us to define profiles in the configuration file which can be used to cache HTML content
+
+  - the using of cache profiles gives us the abillity to manage our cache in a single location 
+    instead of changing it in multiple places in our app.
+	in addition, it allows us to set different values per machine (QA, Prod, Local etc.)
+
+  - set profile: 
+    [OutputCache(CacheProfile = [ProfileName])]
+
+  - structure:
+    <system.web>
+	  <caching>
+		<outputCacheSettings>
+		  <outputCacheProfiles>
+			<add name="[ProfileName]" .... [CacheProperties] />
+			<add name="[ProfileName]" .... [CacheProperties] />
+		  </outputCacheProfiles>
+		</outputCacheSettings>
+	  </caching>
+	</system.web>
+
+  - get Profile via c# code 
+    using System.Web.Configuration;
+
+    var outputCacheSettingsSection = (OutputCacheSettingsSection)WebConfigurationManager.GetSection("system.web/caching/outputCacheSettings");
+    var profile = (OutputCacheProfile)outputCacheSettingsSection.OutputCacheProfiles["MyProfile"];            
+
+
+  - e.g:
+	[OutputCache(CacheProfile = "1MinuteCache")]
+	public ActionResult Index() {
+		return View();
+	}
+
+	[OutputCache(CacheProfile = "1MinuteCache")]
+	public ActionResult Index2() {
+		return View();
+	}
+
+	<system.web>
+	  <caching>
+		<outputCacheSettings>
+		  <outputCacheProfiles>
+			<add name="1MinuteCache" duration="60" varyByParam="*" />
+		  </outputCacheProfiles>
+		</outputCacheSettings>
+	  </caching>
+	</system.web>
+
+* OutputCache VaryBy..  
+  1. VaryByParam
+    - cache page by parameter
+	- multiple versions of the page, one per different parameter value
+	- can be a specific parameter name or * for any 
+	- set parameter name to save a copy to the cache for any different value of the specified parameter
+	- set * to save a copy to the cache for any different value of any parameter
+
+	  e.g: 
+
+	  [OutputCache(Duration=10, VaryByParam="Id")]
+	  public ActionResult Index2(int Id){ }
+
+	  requests:
+	  http://localhost/Home/Index/14
+	  http://localhost/Home/Index/15 
+
+	  result:
+	  two HTML copies will be save to the cache! 
+
+  2. VaryByHeader  
+     - cache page by header
+	 - multiple versions of the page, one per different header value
+	 - can be a specific header name or * for any 
+	 - set header name to save a copy to the cache for any different value of the specified header
+	 - set * to save a copy to the cache for any different value of any header
+
+  3. VaryByCustom 
+	 - cache page by a custom logic () 
+	 - multiple versions of the page, one per different unique value
+	 - in the Global.asax -> MvcApplication class -> override the 'GetVaryByCustomString' method
+	 - GetVaryByCustomString(HttpContext context, string custom);
+	   parameters:
+	   1. context // the current context
+	   2. custom // the VaryByCustom property value ('CustomA' etc.)
+
+     - we can add a different logic for each custom value using switch.. case
+	   the value defines in the VaryByCustom property pass to the GetVaryByCustomString method
+
+	 - using:
+	   
+	   [OutputCache(Duration = 10, VaryByCustom = "CustomA")]
+       public ActionResult Index(int Id)
+	   
+	   // MvcApplication class (Global.asax)
+	   public override string GetVaryByCustomString(HttpContext context, string custom){
+            switch (custom) {
+                case "CustomA": return ...
+                case "CustomB": return ...
+				case "CustomC": return ...
+            }
+            return base.GetVaryByCustomString(context, custom);
+       }
+
+* Primitive Model
+  - we can pass a primitive values to the view in the exact same way as POCO objects 
+  - e.g: 
+	// controller
+    public ActionResult Index2(int Id){
+      return View(Id);
+    }
+
+    // view  
+    @model int
+	...     
+    <div>the Id is @Model<div>
+
+* [Bind]
+  - allows us to make changes to the mvc binding process (exclude, include, Prefix etc.)
+    * Prefix allows us to bind a specific object by its prefix 
+    * Include allows us to bind a specific input/s
+	* Exclude allows us to unbind a specific input/s 
+
+  - use 'Prefix' when sending a complex object via ajax and want to populate only part of it.
+    the prefix will be the name of the property within the complex object which needs to be bound (see example below)
+
+	note! 
+	when we have an object within an object, the mvc renders the html tag names with prefix 
+	<input id="user_Id" name="user.Id" type="text" value="50" /> etc.
+
+  - its being added before the object parameter that needs to be bound 
+    e.g: [Bind]MyObject
+
+  - uses comma seperator to include multiple fields
+  - we can create a custom Bind using the ModelBinder (see ModelBinder)
+
+  - examples:
+
+    // do not bind the user Name and Id
+	// use Exclude
+    [HttpPost]        
+    public ViewResult Index([Bind(Exclude = "Name, Id")]Models.User user){	
+		// both user.Id and user.Name fields will be equals to null 
+		... 
+	}
+
+    ----
+	
+	public new ActionResult Index(){
+        return View(
+			new Models.UserDecorator { 
+				user = new Models.User { Id = 50, Age = 60, Name = "Avi" }, 
+				Num = 44 
+        });
+    }
+
+	// bind only the user which is part of a complex object	
+	// use Prefix
+	[HttpPost]
+    public new ActionResult Index([Bind(Prefix = "user")]Models.User user) {
+		// only the user will be populated
+        ... 
+    }
+
+	// the html result
+	<input id="user_Id" name="user.Id" type="text" value="50" />
+	<input id="user_Age" name="user.Age" type="text" value="60" />
+	<input id="user_Name" name="user.Name" type="text" value="Avi" />
+
+	----
+
+	POST
+	url: 'Index' 
+	data: { 
+		user: { Id: 50, Age: 60, Name: 'Roby' }, 
+		prop1: 'ABCD',
+		prop2: 1234
+	}
+
+	[HttpPost]
+    public new ActionResult Index([Bind(Prefix = "user")]Models.User user) {
+		// only the user will be populated
+        ... 
+    }
+
+* POST Json to Action
+  - use $.ajax with the following settings: 
+    * type: 'POST'
+	* dataType: 'json'
+	* data: [object]  
+
+  - example:
+
+	$('#btnSEND').click(function () {
+        $.ajax({
+            type: "POST",            
+            url: "@Url.Action("UserJson")",
+            data: { Id: 20, Name: "John", Age: 33 },
+            dataType: "json",
+            success: function (response) {
+                alert(response.Id + ' ' + response.Name);
+            },
+            error: function (jqXHR, textStatus) {
+                alert(textStatus);
+            }
+        });
+    });
+
+	[HttpPost]
+    public JsonResult UserJson(Models.User user) {
+        return Json(user);
+    }
+
+* ModelBinder
+  - we use the ModelBinder to create a custom model binding 
+  - implementation: inherit from the DefaultModelBinder
+  - apply: use ModelBinder infront of the Model to bind
+
+  - example:
+
+    [HttpPost]
+    public JsonResult UserJson([ModelBinder(typeof(CustomModelBinder))]Models.User user) {
+        return Json(user);
+    }
+
+	// our custom binder
+	public class CustomModelBinder : DefaultModelBinder {
+        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext) {
+            var request = controllerContext.HttpContext.Request;
+
+            return new Models.User{
+                Id = Convert.ToInt32(request.Form["user[Id]"]),
+                Name = request.Form["user[Name]"],
+                Age = Convert.ToByte(request.Form["user[Age]"])                    
+            };
+        }
+    }
+
+	// send a custom object - we need to bind only the user
+	$.ajax({
+        type: "POST",            
+        url: "@Url.Action("UserJson")",
+        data: {
+            user: { Id: 20, Name: "John", Age: 33 },
+            param1: 30,
+            param2: "ABCD"
+        },
+        dataType: "json",
+        success: function (response) {
+            alert(response.Id + ' ' + response.Name);
+        }
+    });
+
+* Common MVC Helpers
+  - @Html
+  - @Ajax
+  - @Url
+  - Custom (see @helper)
+
+* CSRF
+  - CSRF stands-for Cross Site Request Forgery
+  - AntiForgeryToken - generate a token
+  - ValidateAntiForgeryToken - validate the token
+
+  - e.g:
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public ActionResult Register(Entities.Lecturer lecturer){
+    	...
+    	...
+    }
+
+    @using (@Html.BeginForm()){
+        ...
+    	...
+    	...           
+        <input type="submit" value="register" />
+        @Html.AntiForgeryToken()
+    }
+
+* Forms Authentication in MVC
+  see 'Forms Authentication in MVC.txt'
+
+* render bundles
+
+	bundles.Add(new Bundle("~/scripts/site", new JsMinify())
+		.Include("~/Scripts/site1.js")                
+		.Include("~/Scripts/site2.js")
+	);
+
+	bundles.Add(new Bundle("~/styles/site", new CssMinify()) 
+		.Include("~/Styles/colors.css")
+		.Include("~/Styles/direction.css")
+	);
+
+	--
+
+	<link rel="stylesheet" href="~/styles/site" />
+	@Styles.Render("~/styles/site") // re-loaded on change
+
+	<script src="~/scripts/site" type="text/javascript"></script>
+	@Scripts.Render("~/bundles/site") // re-loaded on change
+
+* conditional attribute in HTML
+  <tr @{if (row.ClubName.Contains("bla bla")) { <text>class="success"</text> } }>
+
+* BUG
+  DateTime binding format issue 
+
+  issue:
+  DateTime properties refered as if they were in EN format (04/17/2016 for 17th of april etc.)
+
+  fix:
+  use the web.config globalization tag to set the correct culture (he-IL for hebrew)
+
+  e.g:
+  <globalization uiCulture="he-IL" culture="he-IL" />
+ 
+* Bug
+  inaccessible code within App_Code folder
+
+  error:
+  when adding manually the App_Code folder to an MVC project, any code within that folder is not accessible
+
+  solution:
+  F4 (properties) > set the class "Build Action" property to "Compile".
+
+  fix:
+  Right click on the .cs file in the App_Code folder and check its properties. Make sure the "Build Action" is set to "Compile"
+
+* RadioButton List
+
+  @Html.RadioButtonFor(m => m.pageType, 1, new { Checked = "checked" }) option1
+  @Html.RadioButtonFor(m => m.pageType, 2) option2
+  @Html.RadioButtonFor(m => m.pageType, 3) option3
+  @Html.RadioButtonFor(m => m.pageType, 4) option4
+  @Html.RadioButtonFor(m => m.pageType, 5) option5
+  @Html.RadioButtonFor(m => m.pageType, 6) option6
+
+  // using Enums
+  @Html.RadioButtonFor(m => m.ItemType, (byte)Entities.eItemType.OnlineCourse, new { Checked = "checked" }) קורס
+  @Html.RadioButtonFor(m => m.ItemType, (byte)Entities.eItemType.OnlineChapter) פרק
+  @Html.RadioButtonFor(m => m.ItemType, (byte)Entities.eItemType.OnlineMovie) סרטון
+
+* Multiple actions within the same form
+  see 'Multiple actions within the same form.txt'
+
+* Remove error from the ModelState
+  ModelState.Remove("Capacity");
+
+* Response Redirect To Action
+  
+  public void Pay() {
+    ...
+	...
+
+	Response.Redirect(Url.Action("MyCourses","Student"), true);
+	return; 
+  }
+
+* inline conditional
+  How to use if statements with Razor and inline code blocks
+
+  structure:
+  @(code)
+
+  e.g:
+  <tr class="@(Model.IsDeleted ? "danger" : "")">
+
+* Add Image To Model
+  see 'MVC Add Image To Model - STEPS.txt'
+
+* ViewBag.IsHomePage
+
+   // render different content for home page (main image etc.)
+   // set ViewBag.IsHomePage = true on your home page 
+
+   @if (ViewBag.IsHomePage != null && ViewBag.IsHomePage) {
+       .....
+   }
+   else {
+       .....
+   }
+
+* ErrorLog and TrafficLog filters
+  - implementation: see 'LogFilters' folder! 
+
+  - ErrorTraffic:
+    public class ErrorTraffic : ExceptionFilterAttribute {
+        public override void OnException(HttpActionExecutedContext actionExecutedContext) {
+            var actionContext = actionExecutedContext.ActionContext;
+
+            var controllerName = actionContext.ControllerContext.ControllerDescriptor.ControllerName;
+            var actionName = actionContext.ActionDescriptor.ActionName;
+
+            var method = actionContext.Request.Method;
+            var path = actionContext.Request.RequestUri.AbsolutePath;
+
+            // get the request post data
+            var postData = new Dictionary<string, string>();
+            if (actionContext.ActionArguments != null) {
+                if (method == HttpMethod.Get || method == HttpMethod.Delete)
+                    postData = actionContext.ActionArguments.ToDictionary(x => x.Key, x => x.Value.ToString());
+                else if (method == HttpMethod.Post || method == HttpMethod.Put)
+                    postData = actionContext.ActionArguments.ToDictionary(x => x.Key, x => JsonConvert.SerializeObject(x.Value));
+            }
+
+            // get the querystring data
+            var queryData = actionContext.Request.GetQueryNameValuePairs();
+            foreach (var p in queryData)
+                postData.Add(p.Key, p.Value);
+
+            // e.g: POST /api/SpreadSheet/31519/tickets
+            actionExecutedContext.Exception.Data.Add("Action", string.Format("{0} {1}", method, path));
+
+            // convert post data to exception data
+            foreach (var p in postData)
+                actionExecutedContext.Exception.Data.Add(p.Key, p.Value);
+
+            Logs.WriteErrorLog("[Service Error Traffic]",
+                string.Format("{0}.{1}", controllerName, actionName),                
+                actionExecutedContext.Exception
+            );          
+        }
+    }
+
+  - LogTraffic:
+	public class LogTraffic : ActionFilterAttribute {
+        public override void OnActionExecuting(HttpActionContext actionContext) {
+            var controllerName = actionContext.ControllerContext.ControllerDescriptor.ControllerName;
+            var actionName = actionContext.ActionDescriptor.ActionName;
+
+            var method = actionContext.Request.Method;
+            var path = actionContext.Request.RequestUri.AbsolutePath;
+
+            // get the request post data
+            var postData = new Dictionary<string, string>();
+            if (actionContext.ActionArguments != null) {
+                if (method == HttpMethod.Get || method == HttpMethod.Delete)
+                    postData = actionContext.ActionArguments.ToDictionary(x => x.Key, x => x.Value.ToString());
+                else if (method == HttpMethod.Post || method == HttpMethod.Put)
+                    postData = actionContext.ActionArguments.ToDictionary(x => x.Key, x => JsonConvert.SerializeObject(x.Value));
+            }
+
+            // get the querystring data
+            var queryData = actionContext.Request.GetQueryNameValuePairs();
+            foreach (var p in queryData)
+                postData.Add(p.Key, p.Value);
+
+            Logs.WriteInfoLog("[Service Traffic]", 
+                string.Format("{0}.{1}", controllerName, actionName),
+                string.Format("{0} {1}", method, path),
+                postData.Select(x => string.Concat(x.Key, "=", x.Value)).ToList()
+            );          
+        }        
+    }
+
+
+--------------------------------------------------------------
+// TODO Research
+
+
+
+mvc mobile application template
+RouteConfig custom rules
+data annotations - validations + ValidationMessageFor + ValidationSummary + updates for version 5.1 (DataType, MaxLength etc.)
+@{} block with if 
+@{} block with pure text 
+Routing rules
+ASPX view engine
+
+Genaral(to finish)
+MVC Project Templates(to finish)
+Razor view Engine(to finish)
+USING(to finish)
+shared folder - add files
+2 models within a view
+DisplayTemplates

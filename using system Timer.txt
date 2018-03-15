@@ -1,0 +1,27 @@
+class ProcessTimer {
+	private System.Timers.Timer timer1;
+	private int IntervalInMinutes  { set; get; }
+
+	public ProcessTimer() {
+        IntervalInMinutes = 30;
+            
+        this.timer1 = new System.Timers.Timer();
+        this.timer1.Interval = 1000 * 60 * this.IntervalInMinutes;
+        this.timer1.Elapsed += new System.Timers.ElapsedEventHandler(this.timer1_Elapsed);
+    }
+
+	public void Start() {
+		this.timer1.Enabled = true;
+    }
+
+        
+    public void Stop() {
+        this.timer1.Enabled = false;
+    }
+
+    private void timer1_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+        // code ...
+    }
+}
+
+

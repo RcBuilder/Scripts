@@ -35,7 +35,7 @@ and when a value of a volatile item is read - the thread refreshes its cache and
 
 // using sample
 public sealed class MySingleton {
-	private static volatile MySingleton _instance;
+    private static volatile MySingleton _instance;
     private static object syncRoot = new Object();
 
     private MySingleton() { }

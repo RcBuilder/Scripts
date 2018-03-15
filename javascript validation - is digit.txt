@@ -1,0 +1,24 @@
+function isDigit(evt) {
+
+    // firefox return (code 0) when using the keyCode property -> need to use charCode
+    var keyCode = (evt.keyCode > 0) ? evt.keyCode : evt.charCode;
+    var shiftIsPressed = evt.shiftKey;
+
+    // between 0 - 9  or left/right arrows or backspace    
+    return (
+			(keyCode >= 48 && keyCode <= 57) 
+			|| 
+			(keyCode >= 96 && keyCode <= 105) 
+			|| 
+			keyCode == 37 
+			|| 
+			keyCode == 39 
+			|| 
+			keyCode == 8			
+	);
+}
+
+-----
+
+// using 
+<asp:TextBox ID="txtOrder" runat="server" MaxLength="3" onkeydown="return isDigit(event);" />

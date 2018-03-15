@@ -1,0 +1,33 @@
+multipart/form-data vs application/x-www-form-urlencoded
+--------------------------------------------------------
+
+html form content types:
+1. application/x-www-form-urlencoded
+2. multipart/form-data
+3. text/plain
+
+default: 
+application/x-www-form-urlencoded
+
+-
+
+use x-www-form-urlencoded for simple text/ASCII data.
+use form-data for binary data. 
+
+-
+
+x-www-form-urlencoded passes the name-value pairs as a long query string and uses url-encode for the special characters.
+multipart/form-data separates each part by a particular string boundary (chosen automatically by the engine, based on the existing data) 
+
+- 
+
+when using fiddler or other similar tools, use the ContentType header to pass the form content type
+
+e.g:
+ContentType: application/x-www-form-urlencoded
+
+-
+
+<form method="post" enctype="application/x-www-form-urlencoded">
+	...
+</form>

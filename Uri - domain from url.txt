@@ -1,0 +1,14 @@
+Uri.Host
+--------
+use Uri to extract the host from url
+
+structure:
+new Uri([url]).Host
+
+samples:
+string d1 = new Uri("https://walla.co.il").Host; // walla.co.il
+string d2 = new Uri("http://www.walla.co.il").Host; // www.walla.co.il
+string d3 = new Uri("http://sub.walla.co.il").Host; // sub.walla.co.il
+string d4 = new Uri("http://walla.co.il/aaa/bbb").Host; // walla.co.il
+string d5 = new Uri("https://www.walla.co.il/www/a.aspx?id=1").Host; // www.walla.co.il
+string d6 = new Uri("http://sub.walla.co.il?d=aa").Host; // sub.walla.co.il

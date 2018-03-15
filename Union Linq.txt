@@ -1,0 +1,63 @@
+Union
+=====
+- union two IEnumerable collections into a single one and remove duplicates
+
+- structure:
+  [IEnumerable].Union([IEnumerable])
+  [IEnumerable].Union([IEnumerable], [IEqualityComparer]) // also see 'IEqualityComparer'
+
+on primitive types
+------------------
+var countries = new List<string>{ "ISRAEL", "USA", "ITALY", "INDIA" };
+var countries2 = new List<string> { "ISRAEL", "USA", "italy", "INDIA" };
+
+var result = countries.Union(countries2); 
+foreach (var item in result)
+    Console.WriteLine(item);
+
+- output:
+// case-sensitive - both ITALY and italy return
+ISRAEL
+USA
+ITALY
+INDIA
+italy
+
+--
+
+// using StringComparer.OrdinalIgnoreCase comparer
+var result = countries.Union(countries2, StringComparer.OrdinalIgnoreCase); 
+foreach (var item in result)
+    Console.WriteLine(item);
+
+- output:
+// ignore-case comparer - only ITALY returns
+ISRAEL
+USA
+ITALY
+INDIA
+
+on complex types
+----------------
+var items = new List<Item> { 
+    new Item{ ID = 100, Name = "Item A" },
+    new Item{ ID = 101, Name = "Item B" },
+    new Item{ ID = 102, Name = "Item C" }            
+};
+
+var items2 = new List<Item> { 
+    new Item{ ID = 100, Name = "Item A" },
+    new Item{ ID = 103, Name = "Item D" },
+    new Item{ ID = 104, Name = "Item E" }            
+};
+
+var unionItems = items.Union(items2, new ItemComparer());
+foreach (var item in unionItems)
+    Console.WriteLine(item.Name);
+
+- output:
+Item A
+Item B
+Item C
+Item D
+Item E

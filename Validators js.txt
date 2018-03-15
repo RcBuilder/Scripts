@@ -1,0 +1,87 @@
+
+var Validators = {
+    isEmpty: function(default_value, color_success, color_failure) {
+        if (this.value == default_value) {
+            this.style.color = color_failure;
+            return true;
+        }
+
+        this.style.color = color_success;
+        return false;
+    },
+
+    isEMail: function(color_success, color_failure) {
+        var pattern = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/;
+        var isGood = pattern.test(this.value);
+
+        if (isGood) {
+            this.style.color = color_success;
+            return true;
+        }
+
+        this.style.color = color_failure;
+        return false;
+    },
+
+    isPhone: function(color_success, color_failure) {
+        var pattern = /^\d{9,15}$/
+        var isGood = pattern.test(this.value);
+
+        if (isGood) {
+            this.style.color = color_success;
+            return true;
+        }
+
+        this.style.color = color_failure;
+        return false;
+    },
+
+    isDigit: function(evt) {
+        var keyCode = (evt.keyCode > 0) ? evt.keyCode : evt.charCode;
+        ///var shiftIsPressed = evt.shiftKey;
+
+        // between 0 - 9  or left/right arrows or backspace
+        return ((keyCode >= 48 && keyCode <= 57) || (keyCode >= 96 && keyCode <= 105) || keyCode == 37 || keyCode == 39 || keyCode == 8 || keyCode == 9);
+    },
+
+    isCaptcha: function(sCaptcha, color_success, color_failure) {
+        if (this.value == sCaptcha) {
+            this.style.color = color_success;
+            return true;
+        }
+
+        this.style.color = color_failure;
+        return false;
+    },
+
+    InputFocus: function(obj, default_value, color) {
+        if (obj.value == default_value) {
+            obj.value = '';
+            obj.style.color = color;
+        }
+    },
+
+    InputBlur: function(obj, default_value, color) {
+        if (obj.value == '') {
+            obj.value = default_value;
+            obj.style.color = color;
+        }
+    }
+}
+
+
+------------------------
+
+
+function CheckContactForm() {
+    var isOK = true;
+
+    var oName = $('input:text[id$="txtName"]').get(0),
+        oEmail = $('input:text[id$="txtEmail"]').get(0);
+
+    isOK = !Validators.isEmpty.call(oName, 'please fill your full name', '', 'red') && isOK;
+    isOK = !Validators.isEmpty.call(oEmail, 'please fill your email address', '', 'red') && isOK;
+    isOK = Validators.isEMail.call(oEmail, '', 'red') && isOK;
+
+    return isOK;
+}

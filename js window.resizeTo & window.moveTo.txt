@@ -1,0 +1,4 @@
+<script type="text/javascript">
+    window.resizeTo(1050, 800); // set current window size to be 1050x800
+    window.moveTo(100, 50); // move the current window to left 100 and top 50 position
+</script>

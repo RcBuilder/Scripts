@@ -1,0 +1,65 @@
+* EF = Entity Framework
+* EDM = Entity Data Model (edmx files)
+* ORM = Object Relational Mapper (Linq2SQL, Hibernate, EntityFramework etc.)
+* PM = Package Manager (Console)
+* POCO = Plain Old CLR Object - pure objects with no dependency on a third party such as database (Entities)   
+* IDE = Integrated Development Environment (Visual Studio etc.)
+* RPC = Remote Procedure Call 
+* SOAP = Simple Object Access Protocol
+* REST = REpresentational state transfer
+* CRUD = Create, Read, Update, Delete
+* ISAPI = Internet Server API
+* CGI = Common Gateway Interface 
+* NPM = Node Package Manager - the default package manager for Node.js
+* Node.js = an open source, cross-platform runtime environment for server-side and networking applications. Node.js applications are written in JavaScript
+* SPA = Single Page Application 
+* DOM = Document Object Model
+* TPL = Task Parallel Library
+* SaaS = Software As A Service
+* SaaP = Software As A Product
+* RDBMS = Relational database management system
+* ISAPI = Internet Server API - an API that allows us to extend the funcionality of the IIS core
+* CDN = Content Delivery Network
+* SOAP = Simple Object Access Protocol 
+* WCF = Windows Communication Foundation - web service based on SOAP protocol
+* WSDL = Web Services Description Language
+* MMC = Microsoft Management Console
+* CSRF - Cross-site request forgery
+* WOFF - Web Open Font Format
+* ASR = Automatic Speech Recognition (converting speech to text)
+* DTD = Document Type Definition
+* XSD = XML Schema Definition
+
+* NDA = Non-disclosure agreement
+* DBA – db administrator
+* CTO - Chief Technology Officer 
+* CEO - Chief Executive Officer
+
+* XML - Extensible Markup Language
+* JSON - Javascript Object Notation
+* POX - Plain Old XML
+* P1 - Priority 1
+
+* .SVC = file that expose a WCF service 
+* .ASMX = ASP.NET Web Service 
+* .ASPX = ASP.NET server-generated Web Page
+* .ASHX = ASP.NET Web Handler
+
+* CMO = Chief marketing officer
+* TPM = Technical Program Manager
+* PM - Product Manager
+
+* ISBN = International Standard Book Number
+* LMS = Learning Management System
+
+* SLA = Service Level Agreement (a contract between a provider and the end user. defines the level of service expected from the provider)
+* SDLC = Systems development life cycle (describe a process for planning, creating, testing, and deploying an information system)
+
+* ETA = Estimated Time of Arrival
+
+* Webinar = Web Seminar
+* MVP = Minimum Vital Product
+
+* CDC = Centers for Disease Control and Prevention
+
+* VPC = Virtual Private Cloud

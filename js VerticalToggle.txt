@@ -1,0 +1,46 @@
+
+// js 
+function VerticalToggle(dir, div_name, top, milisecond) {
+    // dir = up or down
+    // top = the top css rule - position
+    // milisecond = animate speed in milisecond (can use slow/fast constant values)
+       
+	milisecond || 'slow'; //700;
+
+    var div = $('div[@id$="' + div_name + '"]');
+
+    if (dir.toLowerCase() == 'down')
+        div.css('display', 'block').animate({ 
+			'top': top.toString() + 'px', 'opacity': 1 
+		}, 
+		milisecond);
+    else
+        div.animate({ 
+			'top': top, 'opacity': 0 
+		}, 
+		milisecond, 
+		function() {
+			// on complete
+			$(this).css('display', 'none'); 
+		});
+}
+
+-----------------------------------
+
+// using
+VerticalToggle('down', 'divToToggle', 250);
+VerticalToggle('up', 'divToToggle', -150);
+
+-----------------------------------
+
+// css 
+div#divToToggle {
+    position:absolute;
+    border:solid 1px #e6e6e6;
+    background-color:#f1f1f1;
+    top:-150px;
+    display:none;
+    padding:12px;
+}
+
+

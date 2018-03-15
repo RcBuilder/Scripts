@@ -1,0 +1,27 @@
+unmanaged resources
+===================
+- Managed resources basically means "managed memory" by the GC. 
+  hence, unManaged resources are ALL objects that are not managed by the GC.
+
+- Unmanaged resources are those that run outside the .NET runtime (CLR).
+
+- examples:
+  Network Connections
+  Unmanaged memory
+  IO (File, FileStream etc.)
+  GDI+ (bitmap etc.)
+  Win32 API
+  C++ assemblies
+  COM components
+
+- use Dispose or 'using' clause to release those resources from the memory before we lose the reference to them!
+  reminder: 'using' clause is translated by the compiler to try-finally with a call to the Dispose
+
+- an object that implements IDisposable is either an unmanaged resource or wrapping an unmanaged resource.
+
+- note that objects such as 'File' or 'DbConnection' are managed but they wrap an unmanaged resource which does the "dirty work" behind the scene.
+ 
+- If we neglect to Dispose an unmanaged resource, the GC will eventually handle it when the object containing 
+  that resource is collected (this is called Finalization), but because the GC doesn't KNOW about the resource it can't handle it sooner. 
+
+- If we implement a class that handles unmanaged resources, we have to implement Dispose and Finalize.

@@ -1,0 +1,21 @@
+using MOCK HttpContext
+----------------------
+
+-- option 1 --
+var mockContext = new Mock<HttpContextBase>();
+var mockRequest = new Mock<HttpRequestBase>();
+var mockResponse = new Mock<HttpResponseBase>();
+
+mockRequest.Setup(x => x.Form).Returns(form);
+mockContext.Setup(x => x.Response).Returns(mockResponse.Object);
+mockContext.Setup(x => x.Request).Returns(mockRequest.Object);
+
+-- option 2 --
+var httpRequest = new HttpRequest(string.Empty, "http://tempuri.org/", string.Empty);
+var httpResponse = new HttpResponse(new StringWriter());
+var httpContext = new HttpContext(httpRequest, httpResponse);
+
+-- option 3 --
+
+(recommended)
+see 'Create a POST HttpContext using SimpleWorkerRequest'

@@ -1,0 +1,288 @@
+*** S.O.L.I.D Principles ***
+****************************
+SOLID is 5 principles to create a good software architecture!
+all design patterns are based on these principles.
+
+SOLID is an acronym for: 
+[S] is Single Responsibility Principle (SRP)
+[O] stands for Open Closed Principle (OCP)
+[L] Liskov Substitution Principle (LSP)
+[I] Interface Segregation Principle (ISP)
+[D] Dependency Injection Principle (DIP)
+
+
+Single Responsibility Principle
+-------------------------------
+A class should take one responsibility and there should be one reason to change that class.
+
+e.g: 
+public class Employee {
+    public int Id { get; set; }
+    public string Name { get; set; }
+    
+    public void InsertIntoDB(Employee employee) { ... }
+	    
+    public void GenerateReport(Employee employee) { ... }
+}
+
+explanation:
+in this example, the Employee class takes 2 responsibilities, one is the database operation 
+and another one is the report generation. 
+in order to add functionality to the report, we'll have to touch the Employee class. 
+this breaks the Single Responsibility Principle! 
+
+solution:
+add a new class for the report code
+
+public class Employee {
+    public int Id { get; set; }
+    public string Name { get; set; }
+    
+    public void InsertIntoDB(Employee employee) { ... }
+}
+
+public class ReportGeneration {
+     public void GenerateReport(Employee employee) { ... }
+}
+
+
+Open Closed Principle
+---------------------
+A class should be open for extension but closed for modification.
+
+note that a change in the base code might cause a regression tests from the QA! 
+
+e.g:
+public class ReportGeneration {
+	public string ReportType { get; set; }
+
+    public void GenerateReport(Employee employee) { 
+		if (this.ReportType == "HTML")
+			// code for html report ...
+
+        if (this.ReportType == "PDF")        
+			// code for pdf report ...
+
+		...
+		...
+	}
+}
+
+explanation:
+in this example, the ReportGeneration class has too many 'if' clauses. 
+for each NEW report type, we'll have to add more code and modify the class.  
+this breaks the Open Closed Principle! 
+we need to extend the functionality without modifing the class existing base code.
+
+solutions:
+1. use interface for the 'GenerateReport' method and implement a report class for each type.
+2. use a base class with virtual 'GenerateReport' method and override it with each report type dedicated class.
+3. use an abstract class with abstract 'GenerateReport' method and implement a report class for each type.
+
+// solution (2)
+public class ReportGeneration {    
+    public virtual void GenerateReport(Employee employee) { ... }
+}
+
+public class HTMLReportGeneraion : ReportGeneration {
+    public override void GenerateReport(Employee employee) {
+        // code for html report ...
+    }
+}
+    
+public class PDFReportGeneraion : ReportGeneration {
+    public override void GenerateReport(Employee employee) {
+        // code for pdf report ...
+    }
+}
+
+
+Liskov Substitution Principle
+-----------------------------
+A child class should not break parent class’s type definition and behavior.
+
+e.g:
+public abstract class Employee {
+    public abstract float GetSalary();
+    public abstract float GetBonus();
+}
+
+public class InHouseEmployee : Employee {
+    public override float GetSalary() {
+        return 3000;
+    }
+    
+    public override float GetBonus() {
+        return 1000;
+    }
+}
+
+public class OutSourcingEmployee : Employee {
+    public override float GetSalary() {
+        return 4200;
+    }
+    
+	// NO BONUS for outsourcing employees!
+    public override float GetBonus() {
+        throw new NotImplementedException();
+    }
+}
+
+public void main(){
+	var lstEmployees = new List<Employee>();
+	lstEmployees.Add(new InHouseEmployee());
+	lstEmployees.Add(new OutSourcingEmployee());
+
+	foreach (var e in lstEmployees)
+		e.GetBonus(); // exception will be thrown for OutSourcingEmployee employees!
+}
+
+explanation:
+in this example, the e.GetBonus() will throw an 'NotImplemented' exception for OutSourcingEmployee employees! 
+this breaks the Liskov Substitution Principle! 
+
+solution:
+split the GetSalary and GetBonus to use 2 different interfaces and implement according to the employee type.
+
+public interface ISalary {
+    float GetSalary();
+}
+
+public interface IBonus {
+    float GetBonus()
+}
+
+
+Interface Segregation Principle
+-------------------------------
+Any client should not be forced to use an interface which is irrelevant to it.
+
+e.g:
+public interface IPrinterOperations {
+    bool PrintContent(string Content);
+	bool ScanContent(string Content);
+	bool PhotoCopyContent(string Content);
+	bool FaxContent(string Content);
+}
+
+public class HPLaserJet : IPrinterOperations{
+	public bool PrintContent(string Content);
+	public bool ScanContent(string Content);
+	public bool PhotoCopyContent(string Content);
+	public bool FaxContent(string Content); // needs to be removed	
+}
+
+public class CannonMG2470 : IPrinterOperations{
+	public bool PrintContent(string Content);
+	public bool ScanContent(string Content);
+	public bool PhotoCopyContent(string Content);
+	public bool FaxContent(string Content); // needs to be removed	
+}
+
+explanation:
+in this example, we have an 'IPrinterOperations' interface for the printer operations. 
+lets assume, that any printer supports print, scan and copy but not fax, and lets say that 'CannonMG2470' dosn't have a fax.
+because both Cannon and HP share the same interface, we are forcing them both to implement all the operations
+even though the 'CannonMG2470' isn't required to! 
+this breaks the Interface Segregation Principle! 
+
+solution:
+split the Operations into small interfaces and implement according to the requirement.
+
+public interface IPrintOperations {
+	bool PrintContent(string Content);
+	bool ScanContent(string Content);
+	bool PhotoCopyContent(string Content);
+}
+
+public interface IFaxOperations {
+	bool FaxContent(string Content);
+}
+
+
+Dependency Injection Principle
+------------------------------
+Do Not write any tightly coupled code, inject the dependencies instead. 
+
+note that the dependency injection also required for unitests!
+
+e.g:
+public class Email {
+    public void SendEmail() { ... }
+}
+
+public class Notification
+{
+    private Email _email;
+    public Notification() {
+        _email = new Email();
+    }
+
+    public void PromotionalNotification() {
+        _email.SendEmail();
+    }
+}
+
+explanation:
+in this example, the 'Notification' class totally depends on Email class. it only handles a SINGLE type of notification - an email.
+this is called a tightly coupled code. a class which depends on another class so any change to the dependent class might affect that class as well. 
+if we'll want to add other notification type such as SMS, we'll have to touch the 'Notification' class. 
+this breaks the Dependency Injection Principle!
+
+solution:
+inject the dependencies.
+
+injection types:
+1. Constructor Injection
+2. Property Injection
+3. Method Injection
+
+public interface IMessenger {
+    void Send();
+}
+
+public class Email : IMessenger {
+    public void Send() { ... }
+}
+
+public class SMS : IMessenger {
+    public void Send() { ... }
+}
+
+// Constructor Injection (1)
+public class Notification {
+    private IMessenger _iMessenger;
+
+    public Notification(Imessenger MessageService) {
+        this._iMessenger = MessageService;
+    }
+
+    public void DoNotify() {
+        this._iMessenger.Send();
+    }
+}
+
+--
+
+// Property Injection (2)
+public class Notification {
+    private IMessenger _iMessenger;
+
+    public IMessenger MessageService {
+       private get;
+       set { this._iMessenger = value; }
+     }
+
+    public void DoNotify() {
+        this._iMessenger.Send();
+    }
+}
+
+--
+
+// Method Injection (3)
+public class Notification {
+    public void DoNotify(IMessenger MessageService) {
+        MessageService.Send();
+    }
+}

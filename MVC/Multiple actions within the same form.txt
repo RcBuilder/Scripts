@@ -2,8 +2,7 @@ Multiple actions in a single form
 ---------------------------------
   
 // ## option 1: 
-@using (@Html.BeginForm("", "", FormMethod.Post, new { @class = "wpcf7" }))
-{
+@using (@Html.BeginForm("", "", FormMethod.Post, new { @class = "wpcf7" })) {
 	@Html.Partial("Partial/EditData", Model);
 	<input type="submit" value="Save" formmethod="post" formaction="Generate" />
 	<input type="submit" value="Save" formmethod="post" formaction="GenerateBulk" />
@@ -12,14 +11,13 @@ Multiple actions in a single form
 ---
 
 // ## option 2: 
-@using (@Html.BeginForm("MyAction", "Home", FormMethod.Post))
-{    
+@using (@Html.BeginForm("MyAction", "Home", FormMethod.Post)) {    
 	<input type="submit" value="ActionA" name="ActionA" />
 	<input type="submit" value="ActionB" name="ActionB" />
 }
 
 [HttpPost]
-public ActionResult MyAction(string ActionA,string ActionB){
+public ActionResult MyAction(string ActionA, string ActionB){
 	if(!string.IsNullOrEmpty(ActionA))
 		// ActionA was pressed
 

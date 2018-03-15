@@ -1,0 +1,13 @@
+Windows Authentication IIS 7
+============================
+* Control Panel -> Programs -> Turn windows features on or off 
+* IIS -> WWW Services -> Security
+* check the 'Windows Authentication' checkbox
+
+* open IIS 
+* choose the site or the folder you want to add authenticate
+* choose 'authentication' icon (within the IIS tab)
+* disable the 'anonymous authentication' and enable the 'windows authentication' 
+
+Notice:
+in windows server go to server manager -> Roles -> Web Server (IIS) -> add role -> Security 

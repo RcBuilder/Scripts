@@ -1,0 +1,65 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Web;
+using System.Web.Http;
+
+namespace Website.Services {    
+    public class VideoController : ApiController {
+        private static readonly string RESOURCES_FOLDER = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "Resources\\Videos\\");
+    
+        [HttpGet]
+        public HttpResponseMessage Index(int Id) {
+            var response = Request.CreateResponse();
+
+            var onlineMovie = BLL.OnlineCourses.GetMovie(Id);
+            if (onlineMovie == null) return response;
+
+            var video = new VideoStream(string.Concat(RESOURCES_FOLDER, onlineMovie.FileName));
+            response.Content = new PushStreamContent(video.WriteToStream, new MediaTypeHeaderValue("video/mp4"));
+
+            return response;
+        }
+    }
+
+    public class VideoStream {
+        private readonly string _filename;
+        public VideoStream(string filename) {
+            _filename = filename;
+        }
+
+        public async void WriteToStream(Stream outputStream, HttpContent content, TransportContext context) {
+            try {
+                var buffer = new byte[65536];
+
+				// prevent file locks
+                using (var ms = new MemoryStream()) {
+                    using (var fs = File.Open(_filename, FileMode.Open, FileAccess.Read))
+                        fs.CopyTo(ms);
+                    ms.Position = 0; // rewind stream
+                    
+                    var bytesRead = 0;
+                    while ((bytesRead = ms.Read(buffer, 0, buffer.Length)) > 0)
+                        await outputStream.WriteAsync(buffer, 0, bytesRead);
+                }
+            }
+            catch (HttpException ex) {
+                return;
+            }
+            finally {
+                outputStream.Close();
+            }
+        }
+    }
+}
+
+------------------------------
+
+// using 
+<video id="my_video" width="640" height="480" controls="controls" autoplay="autoplay" poster="">
+    <source src="~/api/Video" type="video/mp4" />
+</video> 

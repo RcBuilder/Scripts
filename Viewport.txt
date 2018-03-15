@@ -1,0 +1,30 @@
+Responsive design: 
+------------------
+is when your website design can be adapted to the width and height of the device it is being viewed on.
+its done by using media queries in your CSS file.
+
+Viewport meta tag:
+------------------
+tells the browser how to behave when it renders the webpage.
+it zoom in/out the site to match the Viewport defined width.
+
+Example:
+--------
+// auto width with 100% scale and max scale of 100%
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+
+---
+
+// set a specific width
+<meta name="viewport" content="width=320">
+
+// auto width - match the device it is being viewed on
+<meta name="viewport" content="width=device-width">
+
+---
+
+// the user will not need to zoom in or out
+<meta name="viewport" content="initial-scale=1">
+
+// disable the user from scrolling 
+<meta name="viewport" content="maximum-scale=1">

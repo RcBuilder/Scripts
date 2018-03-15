@@ -1,0 +1,43 @@
+Sticky Sessions
+---------------
+
+load Balancer process:
+when we have a multiple servers for our website and might use a Load Balancer as a router for those servers. 
+the Load Balancer is the "GATE" for the users, and it decides to which wer server to send each user. 
+the purpose of using Load Balancer is a distribution of traffic across multiple servers!
+
+sessions are cookies in both the client and the server, 
+the client holds a reference id to the cookie in the server which contains the session content. 
+therefore, only one server will have the cookie! and if a user reaches a different server than the one created the cookie - it will NOT find the cookie!
+
+-
+
+e.g: 
+we have a Load Balancer and 3 servers: A, B and C. 
+userA tries to reach the website, it reaches the GATE (the load balancer component) which decides to send him to server A, 
+the user then is being transferred to server A and reaches the site.
+due to this is the user first approach to the site, the server (server A) creates a session for that user, 
+it saves a cookie localy and plant another cookie in the user machine. 
+the user then decides to continue surfing the site so he clicks on other page within our website, which causes him to reach the GATE again,
+but now, the Load Balancer decides to send him to serverB!! once the user reaches serverB - there's NO cookie found in that server and the session returns as NULL!
+
+-
+
+solution: 
+Sticky Sessions mode!
+
+In case of Sticky Sessions, all of the user interactions will happen with the same physical server!
+all the requests will be directed to the same physical web server by the Load Balancer.
+
+- 
+
+a drawback:
+when prefering Sticky Sessions instead of Non-Sticky Sessions we get a non equal distribution
+a Non-Sticky Sessions mode will spread the requests a lot better.
+
+e.g: 
+serverA and serverB are serving 50 users each, serverC has NO USER to serve... 
+a user which made his first launch to serverA is reaching the Load balancer which redirects him to 
+serverA due to the sticky Session option!
+
+

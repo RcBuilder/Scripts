@@ -1,0 +1,6 @@
+<video id="my_video" poster="http://domain.com/posters/file.png" controls oncontextmenu="return false;">
+    <source src="http://domain.com/posters/video/file.mp4" type="video/mp4" />
+	<source src="http://domain.com/posters/video/file.ogv" type="video/ogg" />
+	<source src="http://domain.com/posters/video/file.wbem" type="video/webm" />
+    <div>Your browser does not support the video tag.</div>
+</video>

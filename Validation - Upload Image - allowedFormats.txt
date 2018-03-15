@@ -1,0 +1,5 @@
+private bool isValidImage() {
+    var allowedFormats = new List<string>(){ ".jpg", ".jpeg", ".gif", ".bmp", ".png" };
+    string uploadedExt = Path.GetExtension(file1.PostedFile.FileName).ToLower();
+    return allowedFormats.Contains(uploadedExt);
+}

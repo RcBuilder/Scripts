@@ -1,0 +1,38 @@
+function validTimeRange(from, to) {
+    if (from == '' || to == '')
+        return true;
+
+    var from_amfm = from.substring(from.length - 2);
+    var to_amfm = to.substring(to.length - 2);
+
+    var from_time = from.replace(from_amfm, '');
+    var to_time = to.replace(to_amfm, '');
+
+    var from_hour = parseInt(from_time.split(':')[0]);
+    var to_hour = parseInt(to_time.split(':')[0]);
+
+    var from_minutes = parseInt(from_time.split(':')[1]);
+    var to_minutes = parseInt(to_time.split(':')[1]);
+
+    if (from_amfm == 'PM')
+        from_hour += 12;
+
+    if (to_amfm == 'PM')
+        to_hour += 12;
+
+    var date_from = new Date();
+    date_from.setHours(from_hour, from_minutes, 0, 0);    
+
+    var date_to = new Date();
+    date_to.setHours(to_hour, to_minutes, 0, 0);
+
+    var date_diff = (date_to - date_from) / (60 * 1000); // in minutes    
+    return date_diff > 0;
+}
+
+------
+
+// using 
+validTimeRange('3:00 AM', '4:15 AM'); // true (range 75 min)
+validTimeRange('3:00 AM', '2:15 AM'); // false (range -45 min)
+validTimeRange('3:00 AM', '10:00 PM'); // true (range 1140 min)

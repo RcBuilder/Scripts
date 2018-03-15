@@ -1,0 +1,19 @@
+What is SaaS?
+-------------
+Saas stands-for Software As A Service. 
+
+Any software that we sell as a service (based on a monthly fee etc.) instead of selling it as a final package 
+serves as Saas.
+
+an application which needs to be downloaded to installed as package to our machine 
+called Saap (SaaP - Software As A Product).
+
+for example, we can create a CRM product which a user can buy as a final product and installed it as a package 
+and, alternatively, we can create an Online CRM which is hosted in our servers and one can pay to use this service. 
+the payment can be monthly, pay-as-you-go or any other option we define. 
+
+when using SaaS, the user don't have to handle/worry about IT infrastructure, Servers, Updates etc...
+it's all under the service provider responsibility.
+
+the provider provides not a simple product to be installed but a resource to be consumed!
+

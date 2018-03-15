@@ -1,0 +1,18 @@
+windows - change Login screen background
+----------------------------------------
+
+steps:
+
+1) reg edit ->
+   HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Authentication\LogonUI\Background
+
+2) set OEMBackground key to value 1
+
+3) go to C:\Windows\System32\oobe
+
+4) create 'info' folder and 'backgrounds' sub folder
+
+5) add your desire image 
+   type = jpg
+   max size = 256KB
+   name = backgroundDefault
