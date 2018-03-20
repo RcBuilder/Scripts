@@ -1,7 +1,7 @@
 What is AngularJS? 
 ------------------
 angularJS is a javascript MVC framework developed by Google corp.
-a modular structure with a two-way data binding so any update on the model will reflected in the view 
+a modular structure with a two-way data binding so any update on the model will be reflected in the view 
 
 official site
 -------------
