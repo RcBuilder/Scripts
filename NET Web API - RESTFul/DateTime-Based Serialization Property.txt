@@ -1,0 +1,83 @@
+*** DateTime-Based Serialization Property ***
+*********************************************
+also see 'Enum-Based Serialization Property.txt'
+
+-- technique --
+
+[JsonProperty(PropertyName = "createdDate")]
+public string __CreatedDate {
+    get {
+        if (this.CreatedDate.HasValue)                
+            return this.CreatedDate.Value.ToString(Consts.DATE_FORMAT);                
+        return null;
+    }
+    set {
+        if (string.IsNullOrEmpty(value))                
+            this.CreatedDate = null;
+        else
+            this.CreatedDate = DateTime.Parse(value);
+    }
+}
+public DateTime? CreatedDate { get; set; }
+
+-----------------------------------------
+
+-- example --
+
+public enum eDeliveryType : byte { 
+	NULL, 
+	Food, 
+	Package 
+}
+
+---
+
+public class Consts {        
+    public const string DATE_FORMAT = "yyyy-MM-dd HH:mm";
+}
+
+---
+
+public abstract class Delivery
+{
+	[JsonProperty(PropertyName = "id")]
+    public int Id { get; set; }
+
+	[JsonProperty(PropertyName = "amount")]
+    public float Amount { get; set; }
+
+    [JsonProperty(PropertyName = "toAddress")]
+    public string ToAddress { get; set; }
+
+	// enum-based property
+	[JsonProperty(PropertyName = "type")]        
+	public string __Type {
+		set {
+			try {
+				this.Type = (eDeliveryType)Enum.Parse(typeof(eDeliveryType), value, true);
+			}
+			catch {
+				this.Type = default(eDeliveryType);
+			}
+		}
+		get { return this.Type.ToString(); }
+	}
+	public eDeliveryType Type { get; set; }
+
+	// dateTime-based property
+	[JsonProperty(PropertyName = "createdDate")]
+    public string __CreatedDate {
+        get {
+            if (this.CreatedDate.HasValue)                
+                return this.CreatedDate.Value.ToString(Consts.DATE_FORMAT);                
+            return null;
+        }
+        set {
+            if (string.IsNullOrEmpty(value))                
+                this.CreatedDate = null;
+            else
+                this.CreatedDate = DateTime.Parse(value);
+        }
+    }
+    public DateTime? CreatedDate { get; set; }
+}

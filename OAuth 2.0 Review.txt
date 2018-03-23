@@ -1,0 +1,64 @@
+OAuth 2.0 Review
+================
+OAuth 2.0 uses a 3rd party providers (such as google, facebook etc.) to handle the autherization of the 
+end user rather then managing it on its own.
+
+Passwords are NEVER passed from server to server! OAuth 2.0 uses token to reach the resources api server.
+
+OAuth 2.0 uses tokens instead of the user credentials, this technique has the following benefits:  
+- the user don't need to share his credentials with other applications 
+- allow each token to have it's own permissions which can/should be limited to the resources the app needs and not more.
+- a user can easily remove an app grant without the need to change his password because he never shared it with any app.
+- the user real credentials are only exists in one location and NOT across multiple apps, which makes them less vulnerable. 
+- if one has changed his password, he doesn't need to update anyone besides the source.
+
+---
+ 
+Roles:
+User -> Application -> API
+
+1. User
+2. Application 
+3. API
+   - Authorization Server
+   - Resources Server
+
+e.g: 
+UserA -> MakoVideos App -> Facebook
+UserB -> Some App -> Google
+UserC -> MyPayments App -> Bank
+
+--- 
+
+Process:
+1. a User makes a launch to the application
+2. if the user have no valid token yet (either due to this is its first launch or the token expired), it redirects 
+   to the api authorization server with a code-grant authorization request. 
+   if the user already have an access-token -> jump to step 7
+3. a login popup will apear to the user on the authorization server. 
+4. once the user added it's credentials and log-in, the authorization server redirects the user back to the application    
+   with a provided code. (the code represents a grant from the authorization server, we'll use it to get a token)
+5. the application makes a backend call to the authorization server with the received code, and the app clientId and Secret
+   and request a token.
+6. the authorization server return a token. 
+   the token is specific per user + the allowed permissions.
+7. the application uses this token (as an authorization header) to get data from the api resources server.     
+
+---
+
+Pre-Defined Process:
+the application needs to provide a the following properties to the api
+- Name 
+- Website
+- CallbackURL 
+
+the api save those properties and generates a Client Id and Client Secret for the application
+- ClientId
+- ClientSecret
+ 
+note: 
+those application credentials are required for the conversion process from code to an access-token.
+see step 5
+
+---
+

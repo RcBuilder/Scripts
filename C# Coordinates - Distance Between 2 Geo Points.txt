@@ -1,0 +1,58 @@
+Distance Between 2 Geo Points
+=============================
+
+Structure:
+[GeoCoordinate].GetDistanceTo([GeoCoordinate])
+returns unit -> meters 
+
+sample:
+var pointA = new GeoCoordinate(Convert.ToDouble(A.Lat), Convert.ToDouble(A.Lng));
+var pointB = new GeoCoordinate(Convert.ToDouble(B.Lat), Convert.ToDouble(B.Lng));
+var distanceInKM = pointA.GetDistanceTo(pointB) / 1000;
+
+------------
+
+public class Coordinates
+    {
+        [JsonProperty(PropertyName = "lat")]
+        public float Lat { get; set; }
+
+        [JsonProperty(PropertyName = "lng")]
+        public float Lng { get; set; }
+
+        [JsonProperty(PropertyName = "value")]
+        public string Value {
+            get {
+                return string.Format("{0} {1}", this.Lat, this.Lng);
+            }
+        }
+
+        [JsonIgnore]
+        public bool IsEmpty
+        {
+            get
+            {
+                return this.Lat == 0 && this.Lng == 0;
+            }
+        }
+
+        public override string ToString()
+        {
+            return this.Value;
+        }
+    }
+
+public static double GetDistanceInKM(Coordinates A, Coordinates B) {
+            try {
+                var sCoord = new GeoCoordinate(Convert.ToDouble(A.Lat), Convert.ToDouble(A.Lng));
+                var eCoord = new GeoCoordinate(Convert.ToDouble(B.Lat), Convert.ToDouble(B.Lng));
+                var distanceInKM = sCoord.GetDistanceTo(eCoord) / 1000;
+                return distanceInKM;
+            }
+            catch (Exception ex) {
+                ex.Data.Add("A", A);
+                ex.Data.Add("B", B);
+                Logs.WriteErrorLog("Helper", "GetDistanceInKM", ex);
+                return 0.0;
+            }
+        }

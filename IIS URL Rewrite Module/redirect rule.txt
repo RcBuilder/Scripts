@@ -1,0 +1,55 @@
+Redirect Types
+--------------
+* structure:
+  - redirectType="[type]"
+
+* example:
+  ...
+  ...
+  <action type="Redirect" url="http://www.mydomain.com" redirectType="Temporary" />
+
+* [type]
+  - Permanent // 301
+  - Found // 302
+  - SeeOther // 303
+  - Temporary // 307
+
+Add redirect rule
+-----------------
+* Add Blank rule
+* pattern : .*
+* conditions : {URL} matches the pattern 'index.htm' 
+  remark: use ^[pattern]$ for exact match instead of contains
+* action - redirect url : 'http://www.ynet.co.il'
+    	   redirect type : temporary(307)
+
+* any request contains 'index.htm' within its URL will be redirected to ynet.co.il
+* web.config:
+  <rule name="Redirect To Ynet" enabled="true" stopProcessing="true">
+      <match url=".*" />
+        <conditions>
+            <add input="{URL}" pattern="index.htm" />
+        </conditions>
+	<action type="Redirect" url="http://www.ynet.co.il" redirectType="Temporary" />
+  </rule>
+
+
+Add HTTP redirect rule
+----------------------
+* choose your SSL folder (e.g: /SSL/) 
+  -> IIS(tab) -> URL Rewrite
+* Add Blank rule
+* pattern : .*
+* conditions : {HTTPS} matches the pattern '^OFF$' 
+* action - redirect url : 'https://{HTTP_HOST}/{R:1}'
+    	   redirect type : temporary(307)
+
+* any http request to /SSL/ folder will redirect to https
+* web.config:
+  <rule name="Redirect To HTTPS" stopProcessing="true">
+   <match url=".*" />
+   <conditions>
+      <add input="{HTTPS}" pattern="^OFF&amp;" />
+   </conditions>
+   <action type="Redirect" url="https://{HTTP_HOST}/{R:1}" />
+  </rule>

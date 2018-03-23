@@ -1,0 +1,14 @@
+Enforce Lower Case URLs
+-----------------------
+* add rule(right pane) -> Inbound Rules -> Blank rule
+* enter rule Name
+* choose Using 'Regular Expression' and choose 'match pattern'
+* set Regular Expression rule pattern to '.*[A-Z].*'
+* set action to be Permanent Redirect and set the url to {ToLower:{R:0}}
+
+* this rule will lower urls
+* web.config:
+   <rule name="to lower" stopProcessing="true">  
+      <match url=".*[A-Z].*" ignoreCase="false" />  
+      <action type="Redirect" url="{ToLower:{R:0}}" redirectType="Permanent" />  
+   </rule> 

@@ -1,0 +1,20 @@
+Remove suffix '/'
+-----------------
+* add rule(right pane) -> Inbound Rules -> Blank rule
+* enter rule Name
+* choose Using 'Regular Expression' and choose 'match pattern'
+* set Regular Expression rule pattern to '(.*)/$'
+* add condition -> set the input as {REQUEST_FILENAME} and define the matchType to be 'IsFile'
+* add condition -> set the input as {REQUEST_FILENAME} and define the matchType to be 'IsDirectory'
+* set action to be Permanent Redirect and set the url to {R:1}
+
+* this rule will Remove the suffix '/' char for all files and folders
+* web.config:
+  <rule name="Remove Suffix Slash" stopProcessing="true">  
+     <match url="(.*)/$" />  
+     <conditions>  
+        <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />  
+        <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />  
+     </conditions>  
+     <action type="Redirect" redirectType="Permanent" url="{R:1}" />  
+  </rule> 

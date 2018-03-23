@@ -1,0 +1,12 @@
+C# Properties Initialization
+----------------------------
+note:
+supported in C# 6 and above
+
+---
+
+public float Prop1 { set; get; } = 23;
+public byte Prop2 { set; get; } = 3;
+public Tuple<byte, float> Prop3 { set; get; } = new Tuple<byte, float>(8, 20);
+public Product Prop4 { set; get; } = new Product { Id = 1, Name = "Some Product" };
+ 

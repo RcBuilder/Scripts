@@ -29,6 +29,7 @@
 * ASR = Automatic Speech Recognition (converting speech to text)
 * DTD = Document Type Definition
 * XSD = XML Schema Definition
+* DTO = Data Transfer Object
 
 * NDA = Non-disclosure agreement
 * DBA – db administrator

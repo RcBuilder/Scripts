@@ -1,0 +1,20 @@
+// remove .aspx suffix
+<rewrite>
+   <rules>
+        <rule name="Index Page" enabled="true" stopProcessing="true">
+            <match url=".*" />
+            <conditions logicalGrouping="MatchAny">
+                <add input="{URL}" pattern="index.txt" />
+                <add input="{URL}" pattern="^/$" />
+            </conditions>
+            <action type="None" />
+        </rule>
+        <rule name="Remove aspx suffix" enabled="true" stopProcessing="true">
+            <match url=".*" />
+            <conditions logicalGrouping="MatchAll">
+                <add input="{URL}" negate="true" pattern="\.aspx" />
+            </conditions>
+            <action type="Rewrite" url="{R:0}.aspx" />
+        </rule>
+    </rules>
+</rewrite>

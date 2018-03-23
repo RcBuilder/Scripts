@@ -1,0 +1,37 @@
+using within the Conditions section
+
+Match Type:
+-----------
+* Is a File
+* Is Not a File
+* Is a Directory
+* Is Not a Directory
+* Matches the Pattern
+* Doen Not Match the Pattern
+
+Logical grouping:
+-----------------
+* we can choose our conditions to be 'OR' or 'AND' using the Logical grouping ddl
+  Match Any = OR
+  Match ALL = AND	
+
+Match Groups - Place Holders:
+-----------------------------
+* {C:[index]} // {C:1}, {C:2}, {C:3} etc. 
+
+  notice! 
+  in the Conditions fields, this placeholder represents the pattern group within the selected index (index 0 is the full match)
+  e.g: using the input 'P1=AAA&P2=BBB&P3=CCC' with pattern '^P1=([A-Z].)&P2=([A-Z].)&P3=([A-Z].)$' with condition input {QUERY_STRING} return the following result:
+       {C:0}    P1=AAA&P2=BBB&P3=CCC
+       {C:1}    AAA  
+       {C:2}    BBB 
+       {C:3}    CCC
+
+IsFile, IsDirectory
+-------------------
+* check if file
+  <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="true" />  
+
+* check if directory
+  <add input="{REQUEST_FILENAME}" matchType="IsDirectory" negate="true" />  
+  

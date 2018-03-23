@@ -1,0 +1,19 @@
+Add Ignore extensions Rule:
+---------------------------
+* add rule(right pane) -> Inbound Rules -> Blank rule
+* enter rule Name
+* choose Using 'Regular Expression' and choose the rewrite type (match or not match the pattern)
+* set your Regular Expression rule pattern to .* (all)
+* add condition -> set the input as {URL} and pattern to be the extensions to ignore 
+  ^.*\.(ashx|axd|css|gif|png|jpg|jpeg|js|flv|f4v|wav|avi|mpg)
+* set action to be None
+
+* do nothing for file requests with the specified extensions
+* web.config:
+  <rule name="IGNORE FILES" stopProcessing="true">
+    <match url=".*"/>
+    <conditions>
+     <add input="{URL}" pattern="^.*\.(ashx|axd|css|gif|png|jpg|jpeg|js|flv|f4v|wav|avi|mpg)"/>
+    </conditions>
+   <action type="None" />
+  </rule>

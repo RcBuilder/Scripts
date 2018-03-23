@@ -1,0 +1,163 @@
+General:
+--------
+* the rules are created within the web.config file of the site/folder 
+  <system.webServer>
+    <rewrite>
+
+      <rules>
+        <rule />
+        <rule />
+        <rule />                  
+      </rules>
+
+	  <outboundRules>
+		<rule />
+		<rule />
+        <rule />   
+	  </outboundRules>
+
+    </rewrite>
+  </system.webServer>
+
+* recommendation - use stopProcessing="true" for each rule 
+  this stops the process of the other rules defined for the current request. 
+  in other words - a match ends the process! 
+
+* inbound vs outbound rules
+  inbound rules are used for handling Requests whereas outbound rules are used for Responses.
+  Inbound rules are used to modify HTTP request URLs while outbound rules are used to modify HTTP responses.
+
+* saved variables:
+  we can use a lot of saved variables within each rule.
+  all the variables are wrapped with {} sign, 
+  {URL}, {HOST}, {QUERY_STRING} etc.
+
+* rule parameters: 
+  applies to patterns within the rules section.
+  to use a parameter placeholder in the rewrite pattern, we need to set the R: letter followed by the group index. 
+
+  structure: 
+  {R:[regEx group index]}
+
+  group index:
+  {R:1} - 1st group
+  {R:2} - 2nd group
+  {R:3} - 3rd group
+  ...
+
+  given the following rule: ^SomeRule/A-(d+)/B-(d+)/C-(d+)/?$
+  with the following value: http://myDomain.com/SomeRule/A-1234/B-7/C-900/
+  {R:1} is 1234, {R:2} is 7 and {R:3} is 900
+  {R:0} is 'SomeRule/A-1234/B-7/C-900/'
+  
+
+  e.g:
+  in the pattern ^Page5/([^/]+)/?$ the first group is represented by index 1 - Page5.aspx?p1={R:1}
+
+  note:
+  {R:0} represents the FULL match!
+
+* condition parameters: 
+  applies to patterns within the conditions section.
+  same as the 'rule parameters' but using 'C' prefix instead of 'R'
+
+* exact match : 
+  add the ^ prefix and the $ suffix to create an exact match instead of contains 
+
+  e.g: 
+  the condition input {HTTP_HOST} with the pattern 'mydomain.com' means any host contains the phrase 'mydomain.com' but if we use the pattern ^mydomain.com$ instead 
+  it will refer only for the specific phrase 'mydomain.com'
+  
+* we can determine the rules order by move them up/down 
+
+  e.g: 
+  if we have 2 rules, the first is rewrite page1 to page1.htm and the second is to block ip 127.0.0.1 - we want to check first the ip and only if 
+  the ip is valid to make the rewrite rule. therefore, we'll move-up the ip block rule to be prior to the rewrite rule
+
+* we can choose our conditions to be 'OR' or 'AND' using the Logical grouping ddl
+  Match Any = OR
+  Match ALL = AND
+
+* in the conditions section we can choose the following matches types:
+  Is a File
+  Is Not a File
+  Is a Directory
+  Is Not a Directory
+  Matches the Pattern
+  Doen Not Match the Pattern
+
+* we can disable or enable rules from the right pane of the rules list under Inbound rules tab 
+
+* for rule without any action use action of type 'None'
+
+* negate="true" in the conditions section means 'not match the pattern'
+  hence negate="false" means 'match the pattern'
+  translation: negate is negative
+
+* use the utility 'WFetch.msi' to test your rules based on the server variables (request header) such as user-agent and so...
+
+* Back-references: 
+  in rule patterns - {R:N} where {R:0} is the whole match
+  in condition patterns - {C:N} where {C:0} is the whole match
+
+  note: 
+  see example in the 'test a pattern' chapter below
+
+* test a pattern:
+  in the Patterns field.
+  we can test each pattern using the 'test pattern' button to the right of the pattern  
+
+  e.g: 
+  input 'Page6/33/ROBY/RCBuilder' 
+  pattern '^Page6/(\d+)/([^/]+)/([^/]+)/?$' 
+
+  result     
+  {R:0}  	Page6/33/ROBY/RCBuilder
+  {R:1}		33 
+  {R:2} 	ROBY
+  {R:3}		RCBuilder
+
+* {R:[index]}  // {R:1}, {R:2}, {R:3} etc.    
+  this placeholder represents a pattern group within the selected index (index 0 is the full match)
+
+  e.g: 
+  input 'Page5/Roby' 
+  pattern '^Page5/([^/]+)/?$' 
+
+  result     
+  {R:0}    Page5/Roby  
+  {R:1}    Roby  // first group - ([^/]+)
+   
+* {C:[index]} // {C:1}, {C:2}, {C:3} etc. 
+  in the Conditions field.
+  this placeholder represents a pattern group within the selected index (index 0 is the full match)
+
+  e.g: 
+  input 'P1=AAA&P2=BBB&P3=CCC' 
+  pattern '^P1=([A-Z].)&P2=([A-Z].)&P3=([A-Z].)$' 
+  condition input {QUERY_STRING}
+
+  result     
+  {C:0}    P1=AAA&P2=BBB&P3=CCC
+  {C:1}    AAA  
+  {C:1}    BBB 
+  {C:1}    CCC
+
+* match ASP.NET Web Resources(.axd files)
+  <add input="{URL}" negate="true" pattern="\.axd$" /> 
+
+* Rewritten URLs to IIS Logs
+  we can configure to log rewritten url's into the IIS log files (instead of the original url's)
+  to do so, we need to add the <action> 'logRewrittenUrl' property to the rule/s we want to log
+
+  <action type="Rewrite" ... logRewrittenUrl="true" />
+
+  notice! 
+  the IIS logs path can be found using the 'Logging' icon within the IIS, 
+  usually located at 'C:\inetpub\logs\LogFiles' 
+
+* HtmlEncode:
+  this method encodes the html in order to prevent hacking (client side executable code) 
+  recommended to use as an extra caution when modifing the response header or response content via an outbound rule
+
+  <action type="Rewrite" value="{HtmlEncode:{HTTP_REFERER}}" />

@@ -1,0 +1,194 @@
+addon installation
+------------------
+* install 'Rewrite Extensibility.msi'
+
+providers types
+---------------
+* DbProvider
+  - SQL - rewrite/redirect mappings
+
+* FileMapProvider
+  - TEXT FILE - rewrite/redirect mappings
+
+* FileContainsProvider
+  - TEXT FILE - lookup substrings
+
+add DbProvider provider
+-----------------------
+* (right pane) Manage providers -> view providers 
+* add provider -> set provider name and choose 'DbProvider' as it's type
+
+* set database with the following steps:
+  - create a login for the IIS user
+	USE [master]
+	CREATE LOGIN [IIS APPPOOL\DefaultAppPool] FROM WINDOWS WITH DEFAULT_DATABASE=[master]
+
+  - create new database for the rewriter rules -
+	CREATE DATABASE [RewriteDB]
+	GO
+
+  - create new key/value table for the rules - 
+	USE [RewriteDB]
+	GO
+
+	CREATE TABLE [dbo].[RewriteTable]([OriginalUrl] [nvarchar](256) NOT NULL,[NewUrl] [nvarchar](256) NOT NULL) ON [PRIMARY]
+	GO
+
+  - create new stored procedure to return the match rule by input value -
+	CREATE PROCEDURE [dbo].[GetRewrittenUrl] 
+		@input nvarchar(256)
+	AS
+		SELECT rt.NewUrl FROM dbo.RewriteTable rt WHERE rt.OriginalUrl = @input
+	GO
+
+  - set user permissions - 
+	CREATE USER [IIS APPPOOL\DefaultAppPool] FOR LOGIN [IIS APPPOOL\DefaultAppPool] GRANT EXECUTE ON dbo.GetRewrittenUrl TO [IIS APPPOOL\DefaultAppPool];
+	GO
+ 
+  - add values to the 'RewriteTable' table  
+
+* view providers -> add provider settings -> set the connection string 
+  e.g: Data Source=RCBUILDER-PC\RCBUILDERSQL;Initial Catalog=RewriteDB;Integrated Security=True
+
+* view providers -> add provider settings -> set the stored procedure name
+  e.g: GetRewrittenUrl
+
+* view providers -> add provider settings -> set cache interval (minutes)
+  notice! 0 for none
+
+* web.config view:
+  <providers>           
+    <provider name="MyDbProvider" type="DbProvider, Microsoft.Web.Iis.Rewrite.Providers, Version=7.1.761.0, Culture=neutral, PublicKeyToken=0545b0627da60a5f">
+        <settings>
+            <add key="ConnectionString" value=" Data Source=RCBUILDER-PC\RCBUILDERSQL;Initial Catalog=RewriteDB;Integrated Security=True" />
+            <add key="StoredProcedure" value="GetRewrittenUrl" />
+			<add key="CacheMinutesInterval" value="0" />
+        </settings>
+    </provider>
+  </providers>
+
+* using:
+  in order to use our provider we need to add the provider name in front of the input 
+
+  - example
+  // our provider name is 'MyDbProvider'
+
+  <rule name="DbProviderTest" stopProcessing="true">
+    <match url="(.*)" />
+    <conditions>
+        <add input="{MyDbProvider:{R:1}}" pattern="(.+)" />
+    </conditions>
+    <action type="Redirect" url="{C:1}" />
+  </rule>
+
+add FileMapProvider provider
+----------------------------
+* (right pane) Manage providers -> view providers 
+* add provider -> set provider name and choose 'FileMapProvider' as it's type
+
+* set text file with the following steps:
+  - create a .txt file and locate it within the project
+    e.g: redirectmappings.txt
+	
+  - notice: 
+	its better to limit a direct web access to this file in order to prevent users from seeing it's content
+	use IIS Request Filtering to add it as an hidden segment or locate the file within the 'App_Data' folder (already defined as hidden)
+    
+  - add values to the file 
+    structure: 
+	t_page5,page5.htm
+	t_p5,page5.htm
+
+
+* view providers -> add provider settings -> set the file path
+
+  notice! 
+  the keyword {DOCUMENT_ROOT} refers to the root of the current project
+  e.g: {DOCUMENT_ROOT}\App_Data\redirectmappings.txt
+
+* view providers -> add provider settings -> set the ignore case mode
+  e.g: 1
+
+* view providers -> add provider settings -> set the seperator character
+
+  notice! 
+  defualt : TAB 
+  e.g: , 
+
+* web.config view:
+  <providers>           
+    <provider name="MyFileMapProvider" type="FileMapProvider, Microsoft.Web.Iis.Rewrite.Providers, Version=7.1.761.0, Culture=neutral, PublicKeyToken=0545b0627da60a5f">
+        <settings>
+            <add key="FilePath" value="{DOCUMENT_ROOT}\App_Data\redirectmappings.txt" />
+            <add key="IgnoreCase" value="1" />
+            <add key="Separator" value="," />
+        </settings>
+    </provider>
+  </providers>
+
+* using:
+  in order to use our provider we need to add the provider name in front of the input 
+
+  - example
+  // our provider name is 'MyFileMapProvider'
+
+  <rule name="FileMapProviderTest" stopProcessing="true">
+		<match url="(.*)" />
+		<conditions>
+			<add input="{MyFileMapProvider:{R:1}}" pattern="(.+)" />
+		</conditions>
+		<action type="Redirect" url="{C:1}" />
+   </rule>
+
+add FileContainsProvider provider
+---------------------------------
+* (right pane) Manage providers -> view providers 
+* add provider -> set provider name and choose 'FileContainsProvider' as it's type
+
+* set text file with the following steps:
+  - create a .txt file and locate it within the project
+    e.g: disallowed_ips.txt
+	
+  - notice! 
+	its better to limit direct a web access to this file in order to prevent users from seeing it's content
+	use IIS Request Filtering to add it as an hidden segment or locate the file within the 'App_Data' folder (already defined as hidden)
+    
+  - add values to the file 
+    structure: 
+	115.59.10.220
+	167.31.148.171
+	66.52.81.14
+	182.73.254.218
+
+* view providers -> add provider settings -> set the file path
+
+  notice! 
+  the keyword {DOCUMENT_ROOT} refers to the root of the current project
+  e.g: {DOCUMENT_ROOT}\App_Data\disallowed_ips.txt
+
+* view providers -> add provider settings -> set the ignore case mode
+  e.g: 1
+
+* web.config view:
+  <providers>           
+    <provider name="MyFileContainsProvider" type="FileContainsProvider, Microsoft.Web.Iis.Rewrite.Providers, Version=7.1.761.0, Culture=neutral, PublicKeyToken=0545b0627da60a5f">
+        <settings>
+            <add key="FilePath" value="{DOCUMENT_ROOT}\App_Data\disallowed_ips.txt" />
+            <add key="IgnoreCase" value="1" />
+        </settings>
+    </provider>
+  </providers>
+
+* using:
+  in order to use our provider we need to add the provider name in front of the input 
+
+  - example
+  // our provider name is 'MyFileContainsProvider'
+
+  <rule name="FileContainsProviderTest" stopProcessing="true">
+		<match url=".*" />
+		<conditions>
+			<add input="MyFileContainsProvider:{REMOTE_ADDR}" pattern=".+" />
+		</conditions>
+		<action type="AbortRequest" />
+   </rule> 

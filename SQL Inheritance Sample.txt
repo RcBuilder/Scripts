@@ -1,0 +1,186 @@
+SQL INHERITANCE SAMPLE
+======================
+
+-- TABLES --
+
+// Deliveries
+Id, CreatedDate, EmployeeId, ToAddress, Coordinates, DeliveryStatusId, PaymentStatusId, Amount, ServiceCost, ServiceCommission
+
+// Food
+DeliveryId, RestaurantId, CanArriveEarlier
+
+// Packages
+DeliveryId, PickupCoordinates, ProviderId
+------------------------------------------------------------------------------
+
+-- SAVE --
+
+ALTER PROCEDURE sp_Delivery_Save
+	@Id int = 0, -- 0 = new --	
+	@EmployeeId varchar(9), 
+	@ToAddress  nvarchar(500), 
+	@Coordinates geography, 
+	@StatusId tinyint, 
+	@PaymentStatusId tinyint, 	
+	@Amount money, 
+	@ServiceCost money,
+	@ServiceCommission money
+AS
+BEGIN	
+	SET NOCOUNT ON;
+
+	if (@Id <= 0)
+	BEGIN 
+		insert into Deliveries (EmployeeId)	
+		values (@EmployeeId)
+
+		set @Id = @@IDENTITY
+	END 
+	 	 
+	update	Deliveries
+	set		EmployeeId = @EmployeeId, 
+			ToAddress = @ToAddress,			
+			Coordinates = @Coordinates,
+			DeliveryStatusId = @StatusId,
+			PaymentStatusId = @PaymentStatusId,
+			DeliveredOn = @DeliveredOn,
+			TakenOn = @TakenOn,
+			Amount = @Amount,			
+			ServiceCost = @ServiceCost,
+			ServiceCommission = @ServiceCommission			
+	where	Id = @Id
+	 
+	return @Id
+END
+
+--------
+
+ALTER PROCEDURE sp_Delivery_Package_Save
+	@Id int = 0, -- 0 = new --	
+	@EmployeeId varchar(9), 
+	@ToAddress  nvarchar(500), 
+	@Coordinates geography, 
+	@StatusId tinyint, 
+	@PaymentStatusId tinyint, 	
+	@Amount money, 
+	@ServiceCost money,
+	@ServiceCommission money,
+
+	@ProviderId varchar(15),
+	@PickupCoordinates geography
+AS
+BEGIN	
+	SET NOCOUNT ON;
+	
+	-- base --
+	exec @Id = sp_Delivery_Save 
+					@Id,
+					@EmployeeId, 
+					@ToAddress,
+					@Coordinates
+					@StatusId,
+					@PaymentStatusId,
+					@Amount, 
+					@ServiceCost,
+					@ServiceCommission
+
+	if not exists (select 1 from Packages where	DeliveryId = @Id)
+	BEGIN 
+		insert into	Packages (DeliveryId, ProviderId, PickupCoordinates)
+		values (@Id, @ProviderId, @PickupCoordinates)
+	END
+	else 
+	BEGIN 
+		update	Packages
+		set		ProviderId = @ProviderId,
+				PickupCoordinates = @PickupCoordinates 						
+		where	DeliveryId = @Id
+	END 
+	 
+	select @Id as 'Id'
+END
+
+--------
+
+ALTER PROCEDURE sp_Delivery_Food_Save
+	@Id int = 0, -- 0 = new --	
+	@EmployeeId varchar(9), 
+	@ToAddress  nvarchar(500), 
+	@Coordinates geography, 
+	@StatusId tinyint, 
+	@PaymentStatusId tinyint, 	
+	@Amount money, 
+	@ServiceCost money,
+	@ServiceCommission money,
+
+	@RestaurantId varchar(15), 
+	@CanArriveEarlier bit
+AS
+BEGIN	
+	SET NOCOUNT ON;
+	
+	-- base --
+	exec @Id = sp_Delivery_Save 
+					@Id,
+					@EmployeeId, 
+					@ToAddress,
+					@Coordinates
+					@StatusId,
+					@PaymentStatusId,
+					@Amount, 
+					@ServiceCost,
+					@ServiceCommission
+
+	if not exists (select 1 from Food where	DeliveryId = @Id)
+	BEGIN 
+		insert into	Food (DeliveryId, RestaurantId, CanArriveEarlier)
+		values (@Id, @RestaurantId, @CanArriveEarlier)
+	END
+	else 
+	BEGIN 
+		update	Food
+		set		RestaurantId = @RestaurantId, 
+				CanArriveEarlier = @CanArriveEarlier			
+		where	DeliveryId = @Id
+	END 
+	 
+	select @Id as 'Id'
+END
+
+------------------------------------------------------------------------------
+
+-- GET --
+
+ALTER PROCEDURE sp_Delivery_Food_Get
+	@DeliveryId int
+AS
+BEGIN	
+	SET NOCOUNT ON;
+
+	select	* 
+	from	Deliveries D 
+			inner join 
+			Food F 
+			on D.Id = F.DeliveryId
+	where	Id = @DeliveryId
+	and		IsDeleted = 0 
+
+END
+
+--------
+
+ALTER PROCEDURE sp_Delivery_Package_Get
+	@DeliveryId int
+AS
+BEGIN	
+	SET NOCOUNT ON;
+
+	select	* 
+	from	Deliveries D 
+			inner join 
+			Packages P 
+			on D.Id = P.DeliveryId
+	where	Id = @DeliveryId
+	and		IsDeleted = 0 
+
+END

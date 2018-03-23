@@ -2,8 +2,8 @@ Sticky Sessions
 ---------------
 
 load Balancer process:
-when we have a multiple servers for our website and might use a Load Balancer as a router for those servers. 
-the Load Balancer is the "GATE" for the users, and it decides to which wer server to send each user. 
+when we have a multiple servers for our website we may use a Load Balancer as a router for those servers. 
+the Load Balancer is the "GATE" for the users, and it decides to which web server to send each user. 
 the purpose of using Load Balancer is a distribution of traffic across multiple servers!
 
 sessions are cookies in both the client and the server, 
@@ -28,6 +28,9 @@ Sticky Sessions mode!
 
 In case of Sticky Sessions, all of the user interactions will happen with the same physical server!
 all the requests will be directed to the same physical web server by the Load Balancer.
+
+the sticky session ensures that all the subsequent requests will be send to the server who handled the 
+first request corresponding to that request.
 
 - 
 

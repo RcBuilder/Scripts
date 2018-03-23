@@ -1,0 +1,22 @@
+Block Images from outer server
+------------------------------
+*  Image Hotlinking that presented in server A refers to an image exists in server B
+
+* add rule(right pane) -> Inbound Rules -> Blank rule
+* enter rule Name
+* choose Using 'Regular Expression' and choose 'match pattern'
+* set Regular Expression rule pattern to '.*\.(gif|jpg|png)$'
+* add condition -> set the input as {HTTP_REFERER} and set its pattern to not match '^$' (no referer)
+* add condition -> set the input as {HTTP_REFERER} and set its pattern to not match your host name '^http://myDomain\.com/.*$'
+* set action to be Rewrite and set the url to your custom block image (e.g: /blocked.jpg)
+
+* this rule will return a block image for any try to get image from a different domain
+* web.config:
+  <rule name="Block Images" stopProcessing="true">
+      <match url=".*\.(gif|jpg|png)$" />
+      <conditions logicalGrouping="MatchAll" trackAllCaptures="false">
+             <add input="{HTTP_REFERER}" pattern="^$" negate="true" />
+             <add input="{HTTP_REFERER}" pattern="^http://mydomain\.com/.*$" negate="true" />
+      </conditions>
+      <action type="Rewrite" url="/blocked.jpg" appendQueryString="false" />
+  </rule> 

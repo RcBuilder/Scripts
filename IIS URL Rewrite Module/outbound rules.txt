@@ -1,0 +1,281 @@
+outline
+-------
+* outbound rules are used for Responses.
+* we can use outbound rules to change response type, html content and server variables.
+* there are 2 Matching scopes when using outbound rules:
+  - Response = change the response content
+  - server variables = change the response server variables values
+* 'Response' Matching scope can change only attributes values!
+
+structure
+---------
+<rewrite>
+<outboundRules>
+    <rule ..... />
+	<rule ..... />
+	<preConditions>
+        <preCondition ..... /> 
+		<preCondition ..... /> 
+	</preConditions>
+	<customTags>
+        <tags ..... >
+			<tag name="" attribute="" />
+		</tags> 
+	</customTags>
+</outboundRules>
+</rewrite>
+
+Create blank outbound rule
+--------------------------
+* right pane - (actions)add rule -> (Outbound rules)blank rule
+* set rule name
+* set precondition
+  this serves as a basic filter - pattern to determine which responses will be checked by this rule, 
+  none for all responses.
+* we can create a new precondition
+  - new precondition -> set name -> choose the logical grouping (AND/OR) -> add conditions
+  - e.g: {URL} match the pattern 'Page3\.htm' - this precondition means that only Page3.htm will be checked by this rule.
+* choose the Matching scope (Response or server variables)  and set match pattern
+* set condition if needed
+* set action (Rewrite on none)
+
+naming Syntax
+-------------
+* SERVER VARIABLES
+  MUST add the prefix 'RESPONSE_' and change '-' to '_' 
+  e.g: RESPONSE_X_Server_Name for X-Server-Name.
+  All underscore ('_') symbols are be converted to dash symbols ('-') and the 'RESPONSE_' prefix is removed
+
+* HEADERS
+  MUST add the prefix 'HTTP_' and change '-' to '_' 
+  e.g: HTTP_X_ORIGINAL_HOST for X-Original-Host.
+  All underscore ('_') symbols are converted to dash symbols ('-') and the 'HTTP_' prefix is removed
+
+Create Preconditions
+--------------------
+* we can see our created list of our Preconditions in the right pane -> (outbound rules)view Preconditions
+
+* view Preconditions ->  add -> set name
+  notice! see 'naming Syntax'  
+
+* choose 'Regular expressions' mode 
+* set the logical grouping (AND/OR)
+* add conditions based on the response variables list 
+  - set the variable name (input field)  
+  - set the match type
+  - set a pattern
+
+* web.config:
+  <preConditions>
+        <preCondition name="[Name]">
+            <add input="[input]" pattern="[pattern]" />
+        </preCondition>
+    </preConditions>
+
+common PreConditions
+--------------------
+ * is HTML
+   {RESPONSE_CONTENT_TYPE} match the pattern '^text/html'
+
+Create Response outbound rule - Tag match
+-----------------------------------------
+* this type of outbound rule can change the html response content
+* we need to choose tag type and attribute to change
+
+* add blank rule
+* set the  Matching scope to be 'Response'
+* choose the tag type to change (a, img, script etc.)
+  - we can choose 'Custom Tags' and add any tag we'd like
+* set the pattern to apply on the defined attribute of the selected tag
+* set action as 'Rewrite'
+* set the NEW value to replace the pattern match we've defined 
+  
+* change all anchor references to bing.com in page3.htm to point to google.com
+* web.config:
+  <rule name="Change A Tags" preCondition="Page3.htm" stopProcessing="false">
+      <match filterByTags="A" pattern="(.*)bing\.com(.*)" />
+      <action type="Rewrite" value="{R:1}google.com{R:2}" />
+  </rule>
+
+* Replace all spans in page3.htm with class 'Red' to use class 'Green' instead
+* web.config:
+  <rule name="Change SPAN Tag" preCondition="Page3.htm" stopProcessing="false">
+      <match filterByTags="CustomTags" customTags="SPAN" pattern="Red" />
+      <action type="Rewrite" value="Green" />
+  </rule> 
+
+  <customTags>
+      <tags name="SPAN"> 
+          <tag name="span" attribute="class" />
+      </tags>                   
+  </customTags>
+
+Create Response outbound rule - Content match
+---------------------------------------------
+* this type of outbound rule can change the html response content
+* we use custom regular expression to make a match and replace it with new value
+* in order to use it we MUST uncheck all options within the tag lists in the 'Match' pane
+
+* add blank rule
+* set the  Matching scope to be 'Response'
+* uncheck all the tag type in the tags list 'Match the content within' 
+* set pattern to find within the html
+* set action as 'Rewrite'
+* set the NEW value to replace the pattern match we've defined 
+
+  remark:
+  we can refer this rule as "find and replace" within the response HTML
+  the pattern is the value to replace and the value in the action pane is the replacement value
+
+* add custom html content before the end of the <body> tag of any html page in the site
+* web.config:
+  <rule name="CopyRight At The End Of The Body" preCondition="isHTML">
+      <match filterByTags="None" pattern="&lt;/body>" />
+      <action type="Rewrite" value="&lt;div>&amp;copy;copyright to RcBuilder&lt;/div>&lt;/body>" />
+  </rule>
+  <reConditions>
+      <preCondition name="isHTML">
+          <add input="{RESPONSE_CONTENT_TYPE}" pattern="^text/html" />
+      </preCondition>
+  </preConditions>
+
+* add script with alert to the page3.htm <head> tag
+* web.config:
+  <rule name="Add Alert To The Head Tag" preCondition="Page3.htm">
+      <match pattern="&lt;/head>" />
+      <action type="Rewrite" value="&lt;script>alert('Hello from IIS')&lt;/script>&lt;/head>" />
+  </rule> 
+  <peConditions>
+      <preCondition name="Page3.htm">
+          <add input="{URL}" pattern="Page3\.htm" />
+      </preCondition>
+  </preConditions>
+
+Create CustomTags
+-----------------
+* custom tags list: 
+  right pane -> (outbound rules)view custom tags
+* must declare attributes to capture in order to get the ability to change them (ONLY declared attributes can be changed!)
+
+* view custom tags -> Add group -> 
+* set group name
+* set tag name and attribute name (we can add multiple items)
+
+* Replace all spans in page3.htm with class 'Red' to use class 'Green' instead
+* web.config:
+  <rule name="Change SPAN Tag" preCondition="Page3.htm" stopProcessing="false">
+      <match filterByTags="CustomTags" customTags="SPAN" pattern="Red" />
+      <action type="Rewrite" value="Green" />
+  </rule>
+  <preConditions>
+      <preCondition name="Page3.htm">
+          <add input="{URL}" pattern="Page3\.htm" />
+      </preCondition>
+   </preConditions>
+   <customTags>
+	  <tags name="SPAN">
+		  <tag name="span" attribute="class" />
+	  </tags>
+   </customTags>
+
+* add suffix '_IIS' to the id attribute of all divs with id atrribute in page3.htm
+* web.config:
+  <rule name="Change DIV Tag" preCondition="Page3.htm">
+      <match filterByTags="CustomTags" customTags="DIV" pattern=".*" />
+      <action type="Rewrite" value="{R:0}_IIS" />
+  </rule>
+  <preConditions>
+	  <preCondition name="Page3.htm">
+          <add input="{URL}" pattern="Page3\.htm" />
+      </preCondition>
+  </preConditions>
+  <customTags>
+  	  <tags name="DIV">
+  		 <tag name="div" attribute="id" />
+  	  </tags>
+  </customTags>
+
+* set all inputs value in page3.htm to a custom message
+* web.config:
+  <rule name="Change INPUT tags" preCondition="Page3.htm">
+    <match filterByTags="CustomTags" customTags="INPUT" pattern=".*" />
+    <action type="Rewrite" value="THIS IS DYNAMIC VALUE FROM IIS" />
+  </rule>
+  <preConditions>
+    <preCondition name="Page3.htm">
+        <add input="{URL}" pattern="Page3\.htm" />
+    </preCondition>
+  </preConditions>
+  <customTags>
+	<tags name="INPUT">
+        <tag name="input" attribute="value" />
+    </tags>
+  </customTags>
+
+
+Create Server variables outbound rule
+-------------------------------------
+remark: we need to add each variable we want to set/add to the 'Allowed Server Variables List'
+
+* this option used to change/add the headers or server variables sent within the response
+* use 'fiddler', F12 key or 'http professional tool' utility to watch the response headers 
+
+* add blank rule
+* set the  Matching scope to be 'Server variable'
+* set the variable name 
+
+  notice! 
+  see 'naming Syntax'   
+         
+* set pattern to be '.*'
+* set action as 'Rewrite'
+* set the value of the created server variable
+
+  notice! 
+  to override an existing variable value check the 'Replace .. ' checkbox
+
+* Bug : 'HTTP Error 500.52 - URL Rewrite Module Error' 
+  Reason : outbound rules can only be applied on un-compressed responses!!
+  Fix : IIS -> compression -> uncheck both checkboxes 
+
+  notice!
+  the above solution lowers the performance, there's a better solution via the machine registry 
+  (search google for 'rewrite outbound rules compression')
+
+* add a new header key 'X-My-Name' with the value 'ROBY COHEN'
+* web.config:
+  <rule name="X-My-Name">
+	<match serverVariable="RESPONSE_X_My_Name" pattern=".*" />
+	<action type="Rewrite" value="ROBY COHEN" replace="true" />
+  </rule>
+
+* add a new header key 'X-Powered-By' with the value 'ROBY COHEN' only to page3 (preCondition)
+* web.config:
+  <rule name="X-Powered-By" preCondition="Page3.htm">
+	<match serverVariable="RESPONSE_X_Powered_By" pattern=".*" />
+	<action type="Rewrite" value="RcBuilder" replace="true" />
+  </rule>
+  <preConditions>
+    <preCondition name="Page3.htm">
+        <add input="{URL}" pattern="Page3\.htm" />
+    </preCondition>
+  </preConditions>
+
+Improve Performance
+-------------------
+* when NOT using a tag filter, the pattern applies on the whole html response. 
+  therefore, when we need only a single match we can add occurrences attribute to the match config tag and set it to '1'
+  this will stop the pattern searching after the first match
+
+  example:
+  <match pattern="&lt;/head>" occurrences="1" />
+
+  notice! 
+  usually being used when adding some html code to the head or body tag 
+
+* outbound rules cache mechanism 
+  to enable the cache mechanism for the outbound rules just add the rewriteBeforeCache attribute to the config outboundRules tag and set it to 'true'
+
+  example:
+  <outboundRules rewriteBeforeCache="true">
+

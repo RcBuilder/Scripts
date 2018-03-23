@@ -1,0 +1,41 @@
+
+how it works? 
+this serialization/deserialization technique allows us to amend the json field value 
+before populating it to the strong-type object in the binding process. 
+its a extra CUSTOM processing step within the binding process of the property. 
+
+---
+
+structure:
+[JsonProperty(PropertyName = "propName")]        
+public string __PropName {
+    set {
+        try {
+            // set the PropName object based on the string received value 
+        }
+        catch {
+            // set default 
+        }
+    }
+    get { 
+		// convert PropName to string and return it.
+	}
+}
+public MyCustomType PropName { get; set; }
+
+---
+
+we create 2 properties, one for the REAL value and the other for its string representation send/received from the client. 
+we decorate ONLY the string property with the JsonProperty attribute so it'll be the one to bind. 
+we use this string property to add our own custom logic and set the real property.
+
+in the above structure sample, '__PropName' is the string property serves as the pipeline from/to the client 
+and 'PropName', which is of type MyCustomType, is the actual object we'll use in out code. 
+the '__PropName' is the one decorated with the JsonProperty attribute and its binded to the 'propName' json field.
+the set/get accessors are doing all the "heavy-lifting" and they are responsible of the convert process from/to the string representation which get/send to the client
+
+---
+
+Reference:
+- DateTime-Based Serialization Property.txt
+- Enum-Based Serialization Property.txt

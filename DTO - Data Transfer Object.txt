@@ -1,0 +1,96 @@
+*** DTO ***
+***********
+Data Transfer Object.
+
+a simple container for a set of aggregated data that needs to be transferred across a process or network boundary. 
+It should contain no business logic.
+
+---
+
+[case] 
+returns a limited object in cases where there's no need for the whole project!
+autocomplete for example
+
+e.g:
+public class Product {    
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public float Price { get; set; }
+	public int Units { get; set; }
+	public string Manufacturer { get; set; }
+	public string MadeIn { get; set; }
+	public string Description { get; set; }
+}
+
+public class ProductDTO {    
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public float Price { get; set; }	
+
+	public ProductDTO(Product p){
+		this.Id = p.Id;
+		this.Name = p.Name;
+		this.Price = p.Price;
+	}
+}
+
+[HttpGet]
+[Route("services/products")]
+public IEnumerable<Product> GetProducts() {
+	return BLL.Products.Get();
+}
+
+[HttpGet]
+[Route("services/products/autocomplete")]
+public IEnumerable<ProductDTO> GetProductsForAutoComplete() {
+	var products = BLL.Products.Get();
+	return products.Select(p => new ProductDTO(p)).ToList();
+}
+
+---
+
+[case]
+returns a wrapper object for aggregeted content. 
+in order to save multiple calls for different services.
+
+e.g:
+public class Product {    
+    public int Id { get; set; }
+    public string Name { get; set; }    
+}
+
+public class User {    
+    public int Id { get; set; }
+    public string Name { get; set; }    
+}
+
+public class ProductAndUserDTO {    
+    public Product product { get; set; }
+    public User user { get; set; }
+    
+	public ProductDTO(Product p, User u){
+		this.product = p;
+		this.user = u;		
+	}
+}
+
+[HttpGet]
+[Route("services/product/{pId:int}")]
+public Product FunA(int pId) {
+	return BLL.Products.Get(pId);		
+}
+
+[HttpGet]
+[Route("services/users/{uId:int}")]
+public User FunB(int uId) {	
+	return BLL.Users.Get(uId);	
+}
+
+[HttpGet]
+[Route("services/both/{pId:int}/{uId:int}")]
+public ProductAndUserDTO FunC(int pId, int uId) {
+	var product = BLL.Products.Get(pId);
+	var user = BLL.Users.Get(uId);
+	return new ProductAndUserDTO(product, user);
+}
+

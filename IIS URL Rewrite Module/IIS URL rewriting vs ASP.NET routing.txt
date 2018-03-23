@@ -1,0 +1,47 @@
+### IIS URL rewriting vs ASP.NET routing ###
+
+Differences:
+------------
+* request-processing pipeline:
+  rewriter - plugs into the request-processing pipeline at the 'Begin Request' stage, before the request is handled by the Web server.
+  routing - plugs at 'Resolve Cache' (PostResolveRequestCache) and 'Map Handler' (PostMapRequestHandler) stages, executes at 'execute Handler' stage
+
+* process:
+  rewriter - each rewrite rule match the requested url changes it to a new defined url within the same server 
+  routing - (PostResolveRequestCache) each route in the routing table match the requested url obtain a reference to the route defined handler and added to the request context
+		    remark: an handler can be any object implements the 'System.Web.IHttpHandler' interface
+			(PostMapRequestHandler) mark the handlers to execute based on the references from the previous stage 
+			(execute Handler) execute the handlers 
+
+* handlers recognition:
+  rewriter - does not know which handler will process the rewritten URL
+  routing - knows about the handlers, executes the handler that should generate a response for the requested URL
+
+* supported applications:
+  rewriter - can be used with any type of Web application (ASP.NET, PHP, ASP etc.) and static files (css, images etc.)
+  routing - can be used only with .NET Web applications.
+
+* IIS pipeline mode:
+  rewriter - can used both integrated or classic IIS pipeline mode for the application pool
+  routing - works with integrated mode (not recommended to work with classic mode due to adjustments needed to be made)
+
+* rewriting elements:
+  rewriter - can make rewriting based on domain names, HTTP headers, and server variables.
+  routing - can work only with URL paths and HTTP-Method header 
+
+* additional tasks:
+  rewriter - in addition to the rewriting action, it can perform HTTP redirection, custom status codes and abort requests
+  routing - does not perform the additional tasks mentioned above
+
+* extensibility:
+  rewriter - not extensible.
+  routing -  fully extensible and customizable.
+
+Which Option to Use:
+--------------------
+* for non .Net applications - you must use rewriter 
+
+* for new ASP.NET MVC applications - use the routing module 
+
+* for existing .Net applications you should use rewriter
+

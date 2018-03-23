@@ -1,0 +1,81 @@
+Examples (friendly URL):
+------------------------
+* pattern = ^Page5/([^/]+)/?$
+  rewrite URL = Page5.aspx?name={R:1}
+
+  friendly url = http://localhost:1111/Page5/Roby 
+  real url = http://localhost:1111/Page5.aspx?name=Roby
+  
+  <rule name="RewriteUserFriendlyURL1" stopProcessing="true">
+      <match url="^Page5/([^/]+)/?$" />
+      <action type="Rewrite" url="Page5.aspx?name={R:1}" />
+  </rule>
+
+* pattern = ^Page6/(\d+)/([^/]+)/([^/]+)/?$
+  rewrite URL = Page6.aspx?id={R:1}&name={R:2}&company={R:3}
+
+  friendly url = http://localhost:1111/Page6/32/Roby/RcBuilder LTD
+  real url = http://localhost:1111/Page6.aspx?id=32&name=Roby&company=RcBuilder LTD
+
+  <rule name="Page6" stopProcessing="true">
+      <match url="^Page6/([^/]+)/([^/]+)/([^/]+)/?$" />
+      <action type="Rewrite" url="Page6.aspx?id={R:1}&amp;name={R:2}&amp;company={R:3}" />
+  </rule>
+
+* pattern = ^ArticlesOLD/(\w+)\.htm$
+  rewrite URL = /Articles/{R:1}.htm
+
+  friendly url = http://localhost:1111/ArticlesOld/article1.htm
+  real url = http://localhost:1111/Articles/article1.htm
+
+  <rule name="Articles Old Folder">
+    <match url="^ArticlesOLD/(\w+)\.htm$" />
+    <action type="Rewrite" url="/Articles/{R:1}.htm" />
+  </rule>
+
+* pattern = (.*)default.aspx
+  rewrite URL = {R:1}
+
+  friendly url = http://localhost:1111/default.aspx
+  real url = http://localhost:1111
+
+  friendly url = http://localhost:1111/Articles/default.aspx
+  real url = http://localhost:1111/Articles
+
+  <rule name="Default Document" stopProcessing="true"> 
+     <match url="(.*)default.aspx" /> 
+     <action type="Redirect" url="{R:1}" redirectType="Permanent" /> 
+  </rule> 
+
+* pattern = MyFile\.php
+  rewrite URL = MyFile.aspx
+
+  friendly url = http://localhost:1111/MyFile.php
+  real url = http://localhost:1111/MyFile.aspx
+	
+  <rule name="Rename MyFile.php to MyFile.aspx" stopProcessing="true"> 
+     <match url="MyFile\.php" /> 
+     <action type="Redirect" url="MyFile.aspx" redirectType="Permanent" /> 
+  </rule> 
+
+* pattern = ^images/(.*)
+  rewrite URL = NewImages/{R:1}
+
+  friendly url = http://localhost:1111/Images/1.jpg
+  real url = http://localhost:1111/NewImages/1.jpg
+
+  <rule name="Move Images to NewImages" stopProcessing="true"> 
+     <match url="^Images/(.*)" /> 
+     <action type="Redirect" url="NewImages/{R:1}" redirectType="Permanent" /> 
+  </rule>
+
+* pattern = ^.+\.(?:jpg|bmp|gif)$
+  rewrite URL = http://images.mySite.com/{R:0}
+
+  friendly url = http://mySite.com/1.jpg
+  real url = http://images.mySite.com/1.jpg
+
+  <rule name="images server">
+	  <match url="^.+\.(?:jpg|bmp|gif)$" />            
+	  <action type="Rewrite" url="http://images.mySite.com/{R:0}" />        
+  </rule>

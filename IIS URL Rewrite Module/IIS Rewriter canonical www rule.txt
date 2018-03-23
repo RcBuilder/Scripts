@@ -1,0 +1,13 @@
+<system.webServer>
+	<rewrite>
+    <rules>
+  		<rule name="Cannonical" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions>
+            <add input="{HTTP_HOST}" pattern="^www\.rcb\.co\.il$" negate="true" />
+          </conditions>
+          <action type="Redirect" url="http://www.rcb.co.il/{R:1}" />
+        </rule>
+	</rules>
+	</rewrite>
+</system.webServer>

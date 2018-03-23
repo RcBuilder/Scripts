@@ -1,0 +1,130 @@
+
+api Model/DTO with Inheritance:
+a webApi service serialize each object based on it's runtime type, so we can return a list of base class in our services. 
+
+-----------------------------------------------------------------------
+
+tip: 
+add a virtual property which represents the object type and enforce each class to override it with its own type.
+the type can be enumerator, enum, name etc.
+then we could use this type to distinguish between the object types on the client side. 
+
+public abstract class BaseClass {
+    public abstract string type { get; }
+}
+
+public class DerivedClass1 : BaseClass {
+    public override string type { get; } = "class1";
+}
+
+public class DerivedClass2 : BaseClass {
+    public override string type { get; } = "class2";
+}
+
+public class DerivedClass3 : DerivedClass2 {
+    public override string type { get; } = "class3";
+}
+
+---
+
+// response
+[
+	{"type":"class1"},
+	{"type":"class2"},
+	{"type":"class3"}
+]
+
+-----------------------------------------------------------------------
+
+sample:
+
+public abstract class Vehicle {
+    public string Licence { set; get; }
+    public string Manufacturer { set; get; }
+    public int Engine { set; get; }
+}
+
+public class Scooter : Vehicle {
+    public float BoxSizeInLTR { set; get; }
+    public bool HasKickStarter { set; get; }
+}
+
+public class Car : Vehicle {
+    public byte NumOfDoors { set; get; }
+    public byte NumOfAirBags { set; get; }
+}
+
+public class Truck : Car {
+    public float CargoSizeTon { set; get; }
+    public byte NumOfWeels { set; get; }
+    public byte PassengersInCabin { set; get; }
+}
+
+---
+
+[HttpGet]
+[Route("services/test/inheritance")]
+public IEnumerable<Vehicle> TestInheritance() {
+    var list = new List<Vehicle>();
+
+    list.Add(new Scooter {
+        Manufacturer = "Suzuki", 
+        Licence = "11-111-11",
+        Engine = 50,
+        HasKickStarter = true,
+        BoxSizeInLTR = 50
+    });
+
+    list.Add(new Car
+    {
+        Manufacturer = "Audi",
+        Licence = "22-222-22",
+        Engine = 2800,
+        NumOfAirBags = 8,
+        NumOfDoors = 5
+    });
+
+    list.Add(new Truck
+    {
+        Manufacturer = "BMW",
+        Licence = "33-333-33",
+        Engine = 8400,
+        NumOfAirBags = 2,
+        NumOfDoors = 2,
+        CargoSizeTon = 15,
+        NumOfWeels = 8,
+        PassengersInCabin = 3
+    });
+
+    return list;
+}
+
+---
+
+// response
+[
+	{
+		"BoxSizeInLTR":50.0,
+		"HasKickStarter":true,
+		"Licence":"11-111-11",
+		"Manufacturer":"Suzuki",
+		"Engine":50
+	},
+	{
+		"NumOfDoors":5,
+		"NumOfAirBags":8,
+		"Licence":"22-222-22",
+		"Manufacturer":"Audi",
+		"Engine":2800
+	},
+	{
+		"CargoSizeTon":15.0,
+		"NumOfWeels":8,
+		"PassengersInCabin":3,
+		"NumOfDoors":2,
+		"NumOfAirBags":2,
+		"Licence":"33-333-33",
+		"Manufacturer":"BMW",
+		"Engine":8400
+	}
+]

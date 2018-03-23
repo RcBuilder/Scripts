@@ -1,0 +1,10 @@
+installation:
+-------------
+* install 'URL Rewrite Module 2.0 for IIS7 x64.msi'
+* open IIS7 
+* choose your website -> IIS(tab) -> URL Rewrite
+
+  uses: 
+  - globaly (applicationHost.config), 
+  - per site (root web.config) 
+  - per directory within a site (directory web.config) 

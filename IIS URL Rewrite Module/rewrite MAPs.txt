@@ -1,0 +1,70 @@
+Define New Map:
+---------------
+rewrite maps are collection of rules (key value collection)
+
+* in the right pane -> View Rewrite maps (manage providers)
+* add rewrite map -> set map name
+* add mapping entry -> set the original and the new values
+  notice! add as many entries as you need
+
+Create New Rule and Attach it to an existing MAP:
+-----------------------------------------------
+* add rule -> rule with rewrite map 
+* choose the rule action (Rewrite or Redirect) and choose the map to attach to this rule (the map you've created above)
+* enter to Edit mode and set the rule
+
+
+Add Rewrite MAP:
+----------------
+* Define New Map (see above)
+* return to the rewrite rules window 
+* Create New Rule and Attach it an an existing MAP (see above)
+
+* use a map with multiple entries for the same page (page9.htm)
+  e.g: you can use it to create a map of old-to-new contents or map of https pages ...
+* web.config:
+  <rules>
+   <rule name="Map1">
+    <match url=".*" />
+    <conditions>
+       <add input="{RulesMap1:{REQUEST_URI}}" pattern="(.+)" />
+    </conditions>
+    <action type="Rewrite" url="{C:1}" appendQueryString="false" />
+   </rule>
+  </rules>
+  <rewriteMaps>
+   <rewriteMap name="RulesMap1">
+      <add key="/Page9" value="Page9.htm" />
+      <add key="/Page/9" value="Page9.htm" />
+      <add key="/OldFolder/Page9" value="Page9.htm" />
+      <add key="/OldFolder/Page9.htm" value="Page9.htm" />
+   </rewriteMap>
+  </rewriteMaps>
+
+* Notice!
+  when using map with application, the {REQUEST_URI} consists of the app name and the page name
+  e.g: for site 'http://localhost/DayTradeProfit/Page1' - the {REQUEST_URI} will be '/DayTradeProfit/Page1'
+
+Add Data Source MAP:
+--------------------
+* Define New Map (see above)
+* return to the rewrite rules window 
+* Create New Rule and Attach it to an existing MAP (see above)
+
+* use of a data source map that converts category name to it's id and rewrites it to page11.aspx 
+  in addition, it applies only on url contains the word categories/[category name] 
+* e.g: the url 'mydomain.com/categories/SecondCategory' will be rewrited to 'mydomain.com/Page11.aspx?Id=2'
+* web.config:
+  <rules>
+    <rule name="Map2">
+       <match url="Categories/(\w+)" />
+       <action type="Rewrite" url="/Page11.aspx?Id={CategoriesMap:{R:1}}" appendQueryString="false" />
+    </rule>	
+  </rules>
+  <rewriteMaps>
+      <rewriteMap name="CategoriesMap">
+           <add key="FirstCategory" value="1" />
+           <add key="SecondCategory" value="2" />
+           <add key="ThirdCategory" value="3" />
+      </rewriteMap>
+   </rewriteMaps>

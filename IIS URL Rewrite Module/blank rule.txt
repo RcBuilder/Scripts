@@ -1,0 +1,12 @@
+Add Blank rule:
+---------------
+* add rule(right pane) -> Inbound Rules -> Blank rule
+* enter rule Name
+* choose Using 'Regular Expression' and choose the rewrite type (match or not match the pattern)
+* set your Regular Expression rule pattern
+* set your conditions(optional), server variables(optional) and action (required)
+* actions
+  - Rewrite - rewrite all pattern matches
+  - Redirect - redirect all pattern matches
+  - Custom Response - set response status code for all pattern matches
+  - Abort Request - abort all pattern matches

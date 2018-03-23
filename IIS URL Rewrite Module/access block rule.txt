@@ -1,0 +1,78 @@
+Add Access block rule
+---------------------
+* add rule(right pane) -> Request blocking
+* set the entity that the rule will based on (URL, IP, HOST, REFERER etc.)
+* set the pattern and choose regular expression 
+* choose the blocking type (403, 404, Abort Request etc.)
+
+* any request contains 'Page3.htm' within its URL will be aborted
+* web.config:
+  <rule name="Abort" stopProcessing="true">
+    <match url=".*" />
+    <conditions>
+        <add input="{URL}" pattern="Page3.htm" />
+    </conditions>
+    <action type="AbortRequest" />
+  </rule>
+
+Add Access block rule - custom response code
+--------------------------------------------
+* add rule(right pane) -> Inbound Rules -> Blank rule
+* enter rule Name
+* choose Using 'Regular Expression' and choose the rewrite type (match or not match the pattern)
+* set your Regular Expression rule pattern 
+  note! .* = all requests
+* add condition -> set the input as {URL} and the pattern to be your page (Page7.htm etc.)
+* set a custom response action
+* set response status code (can be any code number), set the Reason and set a description to present on the screen 
+
+* any request contains 'Page7.htm' within its URL will response with error 990
+* web.config:
+   <rule name="CustomResponseCode" stopProcessing="true">
+       <match url=".*" />
+       <conditions>
+           <add input="{URL}" pattern="Page7.htm" />
+       </conditions>
+       <action type="CustomResponse" statusCode="990" statusReason="PERMISSION DENIED" statusDescription="NO PERMISSION TO REACH THIS PAGE" />
+   </rule>
+
+add access block rule - ip addresses
+------------------------------------
+* add rule(right pane) -> Inbound Rules -> Blank rule
+* enter rule Name
+* choose Using 'Regular Expression' and choose the rewrite type (match or not match the pattern)
+* set your Regular Expression rule pattern, set the page to block (Page8.htm etc.)
+* add condition -> set the input as {REMOTE_ADDR} and pattern to be the ip to block (127.0.0.1 etc.)
+  notice! you can add more ips to block as more conditions or using rewrite map
+* set action to be custom response 
+* set response status code to 401, set the Reason and set a description to present on the screen 
+
+* any request trying to be made from 127.0.0.1 ip to url contains 'Page8.htm' phrase will response with Unauthorized 401
+* web.config:
+ <rule name="BLOCK IPs" stopProcessing="true">
+   <match url="Page8.htm" />
+   <conditions>
+       <add input="{REMOTE_ADDR}" pattern="127.0.0.1" />
+   </conditions>
+   <action type="CustomResponse" statusCode="401" statusReason="Unauthorized: Access is denied due to block ip" statusDescription="You do not have permission to view this page from ip 127.0.0.1" />
+</rule>
+
+add access block rule - crawler
+-------------------------------
+* add rule(right pane) -> Inbound Rules -> Blank rule
+* enter rule Name
+* choose Using 'Regular Expression' and choose the rewrite type (match or not match the pattern)
+* set your Regular Expression rule pattern, set the page to block (.* for all requests)
+* add condition -> set the input as {HTTP_USER_AGENT} and pattern to be the crawler name to block (googlebot etc.)
+  notice! you can add more crawlers to block as more conditions or using rewrite map
+* set Abort request action
+
+* this rule will abort any request trying to be made from the googlebot crawler
+* web.config:
+  <rule name="BLOCK Crawlers" stopProcessing="true">
+    <match url=".*" />
+    <conditions>
+       <add input="{HTTP_USER_AGENT}" pattern="googleBot" />
+    </conditions>
+    <action type="AbortRequest" />
+  </rule>

@@ -1,0 +1,44 @@
+
+this rule will block ANY attempt to reach images of types 'gif' 'jpg' and 'png'.
+it'll show a blocked image instead. 
+
+use this rule if you want to render images only indirectly via ashx handler etc. 
+and NOT directly using url. 
+
+note! 
+you can add conditions if needed, a common condition would be to allow access from a specific domain 
+using the HTTP_REFERER server variable. 
+see 'block Images from outer server.txt'
+
+-----
+
+// IIS
+
+- URL Rewrite Module
+- Add Rule -> Blank rule
+- Set Rule as follow:
+  Name: BlockDirectAccessToImages
+  Match URL: Matches the Pattern, RegEx, 
+  Pattern: .*\.(gif|jpg|png)$
+  Action: Rewrite
+  Rewrite URL: blocked.jpg
+
+  note: can use a different action such as response status code etc.
+
+-----
+
+// web.config
+<configuration>
+    <system.webServer>
+      <rewrite>
+        <rules>
+                <clear />
+                <rule name="BlockDirectAccessToImages">
+                    <match url=".*\.(gif|jpg|png)$" />
+                    <conditions logicalGrouping="MatchAll" trackAllCaptures="false" />
+                    <action type="Rewrite" url="blocked.jpg" />
+                </rule> 
+        </rules>        
+      </rewrite>                
+    </system.webServer>
+</configuration>

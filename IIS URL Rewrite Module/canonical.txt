@@ -1,0 +1,49 @@
+Add Cannonical rule:
+--------------------
+* add rule(right pane) -> Cannonical domain name
+* set your primary domain (e.g: www.myDomain.co.il)
+
+Add WWW Cannonical rule:
+------------------------
+* add rule(right pane) -> Cannonical domain name
+* set your domain with the www prefix (e.g: www.myDomain.co.il)
+
+* any request without www. will redirect to use the www. prefix
+* web.config:
+  <rule name="Cannonical" stopProcessing="true">
+    <match url="(.*)" />
+    <conditions>
+        <add input="{HTTP_HOST}" pattern="^www\.mydomain\.com$" negate="true" />
+    </conditions>
+    <action type="Redirect" url="http://www.mydomain.com/{R:1}" redirectType="Permanent" />
+  </rule>
+
+Add Advanced Cannonical rule:
+-----------------------------
+* add rule(right pane) -> Inbound Rules -> Blank rule
+* enter rule Name
+* choose Using 'Regular Expression' and choose the rewrite type (match or not match the pattern)
+* set the Regular Expression rule pattern to be '(.*)'
+* Add conditions to redirect to the primary domain 
+  1.{HTTP_HOST} match pattern '^46.80.212.199$'
+  2.{HTTP_HOST} match pattern '^127.0.0.1$'
+  3.{HTTP_HOST} match pattern '^10.0.0.1$'
+  4.{HTTP_HOST} match pattern '^myDomain\.com$'	
+* set conditions logical grouping to 'Match any'
+* set action to be your primary domain and add the requested url (R:1)
+  'http://www.myDomain.com/{R:1}'
+* check the 'Append query string'
+
+* any exact hosts defined in the conditions section will redirect to use the domain provided in the action with 
+  the requested path and query string 
+* web.config:
+  <rule name="Advanced Cannonical" stopProcessing="true">
+    <match url="(.*)" />
+    <conditions logicalGrouping="MatchAny">
+        <add input="{HTTP_HOST}" pattern="^46.80.212.199$" />
+        <add input="{HTTP_HOST}" pattern="^127.0.0.1$" />
+        <add input="{HTTP_HOST}" pattern="^10.0.0.1$" />
+        <add input="{HTTP_HOST}" pattern="^myDomain\.com$" />
+    </conditions>
+    <action type="Redirect" url="http://www.myDomain.com/{R:1}" />
+  </rule>

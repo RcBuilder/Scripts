@@ -1,0 +1,37 @@
+IIS 7 FAILED REQUEST TRACING(FRT) 
+=================================
+* alias : FRT 
+* FRT can be used with the URL rewrite module to trace how rewrite rules were applied to the request URL
+
+installation:
+-------------
+* control panel -> programs -> add features -> IIS -> WWWServices -> diagnostic -> Tracing
+
+using:
+------
+* choose the site you want to trace
+* configure tab (in the right pane) -> failed Request Tracing
+* check the 'Enable' checkbox and set the trace log file 
+
+* double click on the FRT icon -> add
+* choose 'All content' radio -> next 
+  set the status codes range to trace -> next
+  check only 'WWW Server' and uncheck the rest -> check only 'Rewrite' and uncheck the rest -> finish
+
+notice:
+if you can't find 'Rewrite' checkbox its because the FRT installed after the Rewrite module
+to solve this issue go to Add/Remove programs and then run 'IIS URL rewrite module' in repair mode
+
+
+analyze the report:
+-------------------
+open trace log file
+
+* URL_REWRITE_START - start of the URL rewrite events 
+* RULE_EVALUATION_START - start of the rule evaluation logic
+* PATTERN_MATCH - pattern match information 
+* CONDITIONS_EVALUATION_START - start of the conditions evaluation
+* CONDITION_EVALUATION - condition information  
+* CONDITIONS_EVALUATION_END - end of the conditions evaluation (Succeeded - true or false)
+* RULE_EVALUATION_END - start of the rule evaluation logic (Succeeded - true or false)
+* REWRITE_ACTION - the rewrite execution information

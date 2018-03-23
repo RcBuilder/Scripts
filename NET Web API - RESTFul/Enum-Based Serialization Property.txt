@@ -1,0 +1,90 @@
+*** Enum-Based Serialization Property ***
+*****************************************
+also see 'DateTime-Based Serialization Property.txt'
+
+-- technique --
+
+public enum eType : byte { 
+	NULL, 
+	TypeA, 
+	TypeB,
+	TypeC  
+}
+
+---
+
+[JsonProperty(PropertyName = "type")]        
+public string __Type {
+    set {
+        try {
+            this.Type = (eType)Enum.Parse(typeof(eType), value, true);
+        }
+        catch {
+            this.Type = default(eType);
+        }
+    }
+    get { return this.Type.ToString(); }
+}
+public eType Type { get; set; }
+
+-----------------------------------------
+
+-- example --
+
+public enum eDeliveryType : byte { 
+	NULL, 
+	Food, 
+	Package 
+}
+
+---
+
+public class Consts {        
+    public const string DATE_FORMAT = "yyyy-MM-dd HH:mm";
+}
+
+---
+
+public abstract class Delivery
+{
+	[JsonProperty(PropertyName = "id")]
+    public int Id { get; set; }
+
+	[JsonProperty(PropertyName = "amount")]
+    public float Amount { get; set; }
+
+    [JsonProperty(PropertyName = "toAddress")]
+    public string ToAddress { get; set; }
+
+	// enum-based property
+	[JsonProperty(PropertyName = "type")]        
+	public string __Type {
+		set {
+			try {
+				this.Type = (eDeliveryType)Enum.Parse(typeof(eDeliveryType), value, true);
+			}
+			catch {
+				this.Type = default(eDeliveryType);
+			}
+		}
+		get { return this.Type.ToString(); }
+	}
+	public eDeliveryType Type { get; set; }
+
+	// enum-based property
+	[JsonProperty(PropertyName = "createdDate")]
+    public string __CreatedDate {
+        get {
+            if (this.CreatedDate.HasValue)                
+                return this.CreatedDate.Value.ToString(Consts.DATE_FORMAT);                
+            return null;
+        }
+        set {
+            if (string.IsNullOrEmpty(value))                
+                this.CreatedDate = null;
+            else
+                this.CreatedDate = DateTime.Parse(value);
+        }
+    }
+    public DateTime? CreatedDate { get; set; }
+}

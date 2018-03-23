@@ -1,0 +1,6 @@
+Add friendly URL Rule
+---------------------
+* add rule(right pane) -> User-friendly URL
+* enter example url (e.g: http://mydomain/Page1.htm?id=23&Name=Roby)
+  at this point you will receive a ddl with some rewrite options,
+  choose the desired structure (e.g: http://mydomain/Page1/23/Roby)
