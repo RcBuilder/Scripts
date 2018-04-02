@@ -1,0 +1,60 @@
+*** MVC Page LifeCycle ***
+**************************
+
+-- Request Life Cycle --
+
+steps:
+1. a request comes in
+2. it goes through the 'Routing Module' which decides which controller to use.
+3. then, the 'Action Invoker' component finds the correct action to execute. 
+4. next, it triggers the 'Result Execution' stage which generates a response to the HTTP request.
+5. rendering stage:
+   A) for view types
+      the 'View Engine' will be called, it'll render the corresponding view. (also see 'Rendering')
+   B) for NON-view types
+      the action result will execute on its own.
+
+--------------------------------
+
+-- Rendering --
+
+the engine builds a LIFO (stack) from all the UI components (Layout, Views, Partials..)
+it adds each part to the stack and once it completes to collect them all - it starts popping-out and processing the elements.
+hence, the most-inner parts will be processed first and the Layout will be processed last!
+
+e.g: 
+
+// given the following page structure
+Layout 
+ - View
+    - Partial1
+	   - Partial1.1
+	   - Partial1.2
+    - Partial2
+	   - Partial2.1
+	- Partial3
+	- Partial4
+
+// collect the elements using a stack (LIFO)
+push(Layout) 
+push(View) 
+push(Partial1) 
+push(Partial1.1)
+push(Partial1.2)
+...
+...
+
+// view in the stack (also the rendering order)
+- Partial4 
+- Partial3
+- Partial2.1
+- Partial2
+- Partial1.2
+- Partial1.1
+- Partial1
+- View
+- Layout
+
+--------------------------------
+
+
