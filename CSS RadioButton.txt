@@ -1,0 +1,96 @@
+ 
+<label class="container">
+    One
+    <input type="radio" name="radio" checked="checked">
+    <span class="checkmark"></span>
+</label>
+<label class="container">
+    Two
+    <input type="radio" name="radio" checked="checked">
+    <span class="checkmark"></span>
+</label>
+
+
+-------------------------
+
+
+/* 
+    note: 
+    the label wrapper allows us to refer the content as a single unit!
+    thats the reason that a click on ANY part of this unit affects the checkbox.
+*/
+.container {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 22px;            
+}
+ 
+/* hide the real checkbox */ 
+.container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+        
+.checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+	border-radius: 50%;
+}
+
+/*
+	~ sign meaning:
+	any sibling element appears after the specified element in the HTML order
+
+	e.g: 
+
+	.a ~ .b {
+	  background-color: blue;
+	}
+
+	any .b element which is a sibling of .a and appears after an .a element in the HTML order
+
+	<ul>
+	  <li class="b">1st</li>
+	  <li class="a">2nd</li>
+	  <li>3rd</li>
+	  <li class="b">4th</li>
+	  <li class="b">5th</li>
+	</ul>
+	
+	result: 4th and 5th
+*/        
+.container:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+.container input:checked ~ .checkmark {
+    background-color: #2196F3;
+}
+
+.checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* circle sign has generated using a massive border radios */
+.container .checkmark:after {
+    top: 9px;
+    left: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;    
+}

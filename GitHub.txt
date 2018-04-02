@@ -87,8 +87,10 @@ How to start
    e.g 
    > cd C:\Users\RobiC\Desktop\GitHub\LyndaCourse
 3. > git init 
+-
 4. > git add .  // staging index
 5. > git commit -m "first commit"  // repository
+6. > git push -u myGitHubServer master // remote
 
 Git Commands 
 ------------
