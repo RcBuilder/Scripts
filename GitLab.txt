@@ -1,0 +1,77 @@
+About
+-----
+gitLab is a git-based remote repository management.
+its similar to the known GitHub.
+GitLab is an open source project. 
+as opposed to GitHub - GitLab provides free private repositories.
+
+both GitHub and GitLab share the same Git Engine so the activities from the terminal 
+are exactly the same except the remote url!
+
+Reference
+---------
+see GitHub.txt 
+
+Git Commands
+------------
+see GitHub.txt 
+
+Empty Repository
+----------------
+- go to gitlab site > new project 
+- Blank project 
+- set project name and choose Private level
+- create 
+- copy the reposiory path (SSH or HTTPS)
+
+Existing Folder
+---------------
+- see 'Empty Repository'
+- add .gitignore file and list down all the files we don't want to push to the server
+  (Backup folder, Bin, obj etc.)
+
+  e.g:
+  Backup/
+  bin/
+  obj/
+
+- git init 
+- git remote add [remoteName] [serverPath]
+
+  e.g: 
+  > git remote add GitLabServer https://gitlab.com/RcBuilder/ChatProject.git
+
+- git add .
+- git commit -m "Initial commit"
+- git push -u [remoteName] [branchName]
+    
+  e.g: 
+  > git push -u GitLabServer master
+
+Clone Repository
+----------------
+> git clone [serverPath]
+  
+  e.g:
+  git clone https://gitlab.com/RcBuilder/ChatProject.git
+
+> git push -u [remoteName] [branchName]
+
+  e.g:
+  git push -u origin master
+
+
+GitHub 2 GitLab
+---------------
+we can convert a gitHub respository into a GitLab one using a simple few git commands.
+
+git remote rename [remoteName] [old-remoteName]
+git remote add [remoteName] [serverPath]
+git push -u [remoteName] --all
+git push -u [remoteName] --tags
+
+e.g: 
+git remote rename GitHubServer old-GitHubServer
+git remote add GitLabServer https://gitlab.com/RcBuilder/ChatProject.git
+git push -u GitLabServer --all
+git push -u GitLabServer --tags

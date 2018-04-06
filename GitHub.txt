@@ -19,7 +19,8 @@ HEAD pointer
 Conflics
 SSH keys
 Aliases
-Connect To a Server
+Clone Repository
+New Repository
 Get Latest
 Fast-forward merge
 Coparing Branches
@@ -184,6 +185,7 @@ note that we can use ANY of the known cmd command using the Git CMD dialog
 > git config --global [key] "[value]" // user level configuration (see 'Configfuration keys')
 > git config --list // get list of defined configuration
 > git config [key] //get specific configuration by key
+> git config --unset [key] //remove specific configuration by key - project level (note: can choose the level --global, --system)
 > git show [tree-ish] // show commit content
 > git show [commitGuid] // show commit content
 > git show [blobGuid] // show file content (see 'git show blob')
@@ -363,6 +365,7 @@ among a lot of cool staff that we can add to this page we can find links, images
 full list can be found here: https://guides.github.com/features/mastering-markdown/
 
 .gitignore file:
+[trick] file explorer -> .gitignore. (prefix and suffix dot) 
 this file serves as an ignore list.
 add to it all files/folders with no need of tracking (images, dll's etc.)
 a line foreach exclusion.
@@ -393,6 +396,11 @@ allows us to set an ignore list of files we don't want to be tracked by the git 
 *.php  // ignore all php files
 !index.php // don't ignore index.php 
 folderA/ // ignore all files within folderA folder
+
+(e.g)
+Backup/
+bin/
+obj/
 
 Reset
 -----
@@ -569,9 +577,20 @@ using:
 > git dfs 
 > git top
 
-Connect To a Server
--------------------
+Clone Repository
+----------------
+- git clone [serverPath]
+- git push -u [remoteName] [branchName]
+
+e.g:
+> git clone https://github.com/RcBuilder/LyndaCourse.git
+> git push -u myGitHubServer master
+
+New Repository
+--------------
 create a new repository and push it to the server:
+- create a repository on GitHub and copy it's path (SSH or HTTPS)
+
 - git init
 - git commit ...(N)
 - git remote add [remoteName] [serverPath] // create a new remote named [remoteName]

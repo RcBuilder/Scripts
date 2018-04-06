@@ -30,6 +30,7 @@
 * DTD = Document Type Definition
 * XSD = XML Schema Definition
 * DTO = Data Transfer Object
+* CI/CD =  Continuous Integration and Continuous Delivery
 
 * NDA = Non-disclosure agreement
 * DBA – db administrator
