@@ -369,9 +369,20 @@ full list can be found here: https://guides.github.com/features/mastering-markdo
 .gitignore file:
 [trick] file explorer -> .gitignore. (prefix and suffix dot) 
 this file serves as an ignore list.
-add to it all files/folders with no need of tracking (images, dll's etc.)
+add to it all files/folders with no need of tracking (Backup folder, Bin, obj etc.)
 a line foreach exclusion.
 also see 'ignore'
+
+/Backup/
+/Documents/
+/Publish/
+/packages/
+bin/
+obj/
+.vs/
+.svn/
+*.rar
+also see 'base gitignore file.txt'
 
 package.json:
 contains a list of the project dependencies and some project metadata
@@ -592,6 +603,8 @@ New Repository
 --------------
 create a new repository and push it to the server:
 - create a repository on GitHub and copy it's path (SSH or HTTPS)
+- add .gitignore file and list down all the files we don't want to push to the server
+  (Backup folder, Bin, obj etc.)
 
 - git init
 - git commit ...(N)
@@ -610,10 +623,14 @@ e.g:
 push an existing repository to the server:
 - git remote add [remoteName] [serverPath] // create a new remote named [remoteName]
   see 'add a remote server'
+- git add .
+- git commit -m "Init"
 - git push -u [remoteName] [branchName] // push the [branchName] branch to the [remoteName] server
 
 e.g:
 > git remote add myGitHubServer https://github.com/RcBuilder/LyndaCourse.git 
+> git add .
+> git commit -m "Init"
 > git push -u myGitHubServer master
 
 ---

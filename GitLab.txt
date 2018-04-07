@@ -28,12 +28,7 @@ Existing Folder
 ---------------
 - see 'Empty Repository'
 - add .gitignore file and list down all the files we don't want to push to the server
-  (Backup folder, Bin, obj etc.)
-
-  e.g:
-  Backup/
-  bin/
-  obj/
+  (see '.gitignore file')
 
 - git init 
 - git remote add [remoteName] [serverPath]
@@ -42,7 +37,7 @@ Existing Folder
   > git remote add GitLabServer https://gitlab.com/RcBuilder/ChatProject.git
 
 - git add .
-- git commit -m "Initial commit"
+- git commit -m "Init"
 - git push -u [remoteName] [branchName]
     
   e.g: 

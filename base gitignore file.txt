@@ -1,0 +1,11 @@
+/Backup/
+/Documents/
+/Publish/
+/packages/
+/Payments/
+/Design/
+bin/
+obj/
+.vs/
+.svn/
+*.rar
