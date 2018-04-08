@@ -2469,6 +2469,13 @@ see 'Authorization.txt'
         }        
     }
 
+* conditional attribute in HTML
+  
+  syntax:
+  @(condition ? "[content]" : "[content]")
+
+  e.g:
+  <input value="@artist.id" type="checkbox" @(artist.IsSelected ? "checked" : "" ) />
 
 --------------------------------------------------------------
 // TODO Research

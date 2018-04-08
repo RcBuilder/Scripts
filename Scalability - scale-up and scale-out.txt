@@ -1,0 +1,27 @@
+Scale-up
+--------
+aka Vertical Scaling.
+
+one big strong server. 
+refers to adding more processors and RAM, buying a more expensive and robust server.
+
+Scale-out
+---------
+aka Horizontal Scaling.
+
+multiple small servers working together.
+refers to adding more servers with less processors and RAM.
+This is usually cheaper overall and can literally scale infinitely.
+
+Scale-up vs Scale-out
+---------------------
+
+Scale-up pros:
+- less challenging to implement.
+- less licensing costs.
+- less Cooling costs.
+
+Scale-out pros:
+- much cheaper.
+- unlimited scaling!
+- if one server fails, others keep running.

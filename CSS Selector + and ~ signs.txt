@@ -1,0 +1,111 @@
+
+tilda (~) sign
+--------------
+- any sibling after
+
+e.g:
+.a ~ .b {
+  background-color: blue;
+}
+
+<ul>
+  <li class="b">1st</li>
+  <li class="a">2nd</li>
+  <li>3rd</li>
+  <li class="b">4th</li>
+  <li class="b">5th</li>
+</ul>
+
+any .b element which is a sibling of .a and appears after an .a element in the HTML order.
+
+result:
+4th
+5th
+
+----------------------------------------------
+
+
+plus (+) sign
+-------------
+- any following element 
+
+e.g: 
+h1 + p { 
+	background-color: blue;
+}
+
+<h1>
+	<p>1st</p>
+</h1>
+<p>2nd</p>
+<p>3rd</p>
+<h1>title</h1>
+<p>4th</p>
+<h2>sub title</h2>
+<p>5th</p>
+
+any p element next to h1 
+
+result:
+2nd
+4th
+
+----------------------------------------------
+
+gt (>) sign
+-----------
+- any direct child
+
+e.g:
+h1 > p { 
+	background-color: blue;
+}
+
+<h1>
+	<p>1st</p>
+	<p>2nd</p>
+</h1>
+<p>3rd</p>
+<h1>
+	<div>
+		<p>4th</p>
+	</div>
+	<p>5th</p>
+</h1>
+
+any direct p child of h1  
+
+result:
+1st
+2nd
+5th
+
+----------------------------------------------
+
+space ( ) sign
+--------------
+- any child (direct or indirect)
+
+e.g:
+div.a  p { 
+	background-color: blue;
+}
+
+<div class="a">
+	<p>1st</p>
+	<p>2nd</p>
+	<div>
+		<p>3rd</p>
+	</div>
+</div>
+<p>4th</p>
+<div>
+	<p>5th</p>
+</div>
+
+any p elelment under a div element using the a class
+
+result:
+1st
+2nd
+3rd
