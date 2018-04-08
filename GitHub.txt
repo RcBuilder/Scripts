@@ -19,8 +19,7 @@ HEAD pointer
 Conflics
 SSH keys
 Aliases
-Clone Repository
-New Repository
+Connect To A Remote Server
 Get Latest
 Fast-forward merge
 Coparing Branches
@@ -590,8 +589,10 @@ using:
 > git dfs 
 > git top
 
-Clone Repository
-----------------
+Connect To A Remote Server
+--------------------------
+
+clone an existing repository:
 - git clone [serverPath]
 - git push -u [remoteName] [branchName]
 
@@ -599,38 +600,43 @@ e.g:
 > git clone https://github.com/RcBuilder/LyndaCourse.git
 > git push -u myGitHubServer master
 
-New Repository
---------------
-create a new repository and push it to the server:
-- create a repository on GitHub and copy it's path (SSH or HTTPS)
-- add .gitignore file and list down all the files we don't want to push to the server
-  (Backup folder, Bin, obj etc.)
-
-- git init
-- git commit ...(N)
-- git remote add [remoteName] [serverPath] // create a new remote named [remoteName]
-  see 'add a remote server'
-- git push -u [remoteName] [branchName] // push the [branchName] branch to the [remoteName] server
-
-e.g:
-> git commit -am "1st commit"
-> git commit -am "2nd commit"
-> git remote add myGitHubServer https://github.com/RcBuilder/LyndaCourse.git
-> git push -u myGitHubServer master
-
 ---
 
-push an existing repository to the server:
+create a new repository and map an existing local folder to it:
+- create a repository on GitHub and copy it's path (SSH or HTTPS)
+- add .gitignore file and list down all the files we don't want to push to the server
+  (see '.gitignore file')
+
+- git init
 - git remote add [remoteName] [serverPath] // create a new remote named [remoteName]
   see 'add a remote server'
-- git add .
+- git add . 
 - git commit -m "Init"
 - git push -u [remoteName] [branchName] // push the [branchName] branch to the [remoteName] server
 
 e.g:
-> git remote add myGitHubServer https://github.com/RcBuilder/LyndaCourse.git 
-> git add .
+> git init
+> git add . 
 > git commit -m "Init"
+> git remote add myGitHubServer https://github.com/RcBuilder/LyndaCourse.git
+> git push -u myGitHubServer master
+
+tip:
+add those 2 GLOBAL aliases: 
+1.pushLab -> push -u GitLabServer master
+2.pushHub -> push -u GitHubServer master
+and use pushLab or pushHub according the required server
+in each repository we'll have the remote name set as 'GitLabServer' or 'GitHubServer' 
+
+---
+
+push an existing local repository to the server:
+- git remote add [remoteName] [serverPath] // create a new remote named [remoteName]
+  see 'add a remote server'
+- git push -u [remoteName] [branchName] // push the [branchName] branch to the [remoteName] server
+
+e.g:
+> git remote add myGitHubServer https://github.com/RcBuilder/LyndaCourse.git 
 > git push -u myGitHubServer master
 
 ---

@@ -16,45 +16,17 @@ Git Commands
 ------------
 see GitHub.txt 
 
-Empty Repository
-----------------
+Empty Private Repository
+------------------------
 - go to gitlab site > new project 
 - Blank project 
 - set project name and choose Private level
 - create 
 - copy the reposiory path (SSH or HTTPS)
 
-Existing Folder
----------------
-- see 'Empty Repository'
-- add .gitignore file and list down all the files we don't want to push to the server
-  (see '.gitignore file')
-
-- git init 
-- git remote add [remoteName] [serverPath]
-
-  e.g: 
-  > git remote add GitLabServer https://gitlab.com/RcBuilder/ChatProject.git
-
-- git add .
-- git commit -m "Init"
-- git push -u [remoteName] [branchName]
-    
-  e.g: 
-  > git push -u GitLabServer master
-
-Clone Repository
-----------------
-> git clone [serverPath]
-  
-  e.g:
-  git clone https://gitlab.com/RcBuilder/ChatProject.git
-
-> git push -u [remoteName] [branchName]
-
-  e.g:
-  git push -u origin master
-
+Connect To A Remote Server
+--------------------------
+see GitHub.txt 
 
 GitHub 2 GitLab
 ---------------
