@@ -1,0 +1,3 @@
+Edit menu > Outlining > Toggle All Outlining.
+
+* expand/collapse all

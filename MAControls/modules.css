@@ -1,0 +1,275 @@
+
+/* [module] numeric-range-module */
+.numeric-range-module {
+    width: 100%;
+    height: 30px;
+}
+
+.numeric-range-module:after {
+    clear: both;
+}
+
+.numeric-range-module > div > input {
+    padding: 0px;
+    width: 100%;
+    height: inherit;
+    filter: drop-shadow(1px 1px 1px #808080);
+    -webkit-filter: drop-shadow(1px 1px 1px #808080);
+    border: solid 1px darkgray;
+    z-index: 2;
+    text-indent: 25px;
+}
+
+.numeric-range-module > div {
+    width: calc(50% - 5px);
+    height: inherit;
+    position: relative;
+}
+
+.numeric-range-module > div:nth-child(1) {
+    float: left;
+}
+
+.numeric-range-module > div:nth-child(2) {
+    float: right;
+}
+
+.numeric-range-module span.unit {
+    display: block;
+    position: absolute;
+    background-color: darkgray;
+    width: 20px;
+    height: inherit;
+    line-height: 30px;
+    z-index: 3;
+    top: 1px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    text-align: center;
+}
+
+/* [module] autocomplete-module */
+.autocomplete-module {
+    width: 100%;
+    position: relative;
+}
+
+.autocomplete-module > input {
+    padding: 0px;
+    width: 100%;
+    height: 30px;
+    filter: drop-shadow(1px 1px 1px #808080);
+    -webkit-filter: drop-shadow(1px 1px 1px #808080);
+    border: solid 1px darkgray;
+    z-index: 2;
+    text-indent: 5px;
+}
+
+.autocomplete-module > ul {
+    position: absolute;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    border: solid 1px #f0efef;
+    border-top: none;
+    background-color: #fff;
+    z-index: 3;
+    width: 100%;
+}
+
+.autocomplete-module > ul > li {
+    height: 30px;
+    line-height: 30px;
+    padding: 0 10px;
+    cursor: pointer;
+}
+
+.autocomplete-module > ul > li:nth-child(odd) {
+    background-color: #fafafa;
+}
+
+.autocomplete-module > ul > li:nth-child(even) {
+    background-color: #f0efef;
+}
+
+/* [module] checklist-module */
+.checklist-module {
+    width: 100%;
+}
+
+.checklist-module > ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* [module] checklist-autoComplete-module */
+.checklist-autocomplete-module {
+    width: 100%;
+}
+
+.checklist-autocomplete-module > div {
+    padding-bottom: 12px;
+}
+
+.checklist-autocomplete-module > div > input {
+    padding: 0px;
+    width: 100%;
+    height: 30px;
+    filter: drop-shadow(1px 1px 1px #808080);
+    -webkit-filter: drop-shadow(1px 1px 1px #808080);
+    border: solid 1px darkgray;
+    z-index: 2;
+    text-indent: 5px;
+}
+
+.checklist-autocomplete-module > ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    overflow: auto;
+    overflow-x: hidden;
+    height: 200px;
+}
+
+/* [module] radiolist-module */
+.radiolist-module {
+    width: 100%;
+}
+
+.radiolist-module > ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* -------------------------------------------------------------------- */
+
+/* checkbox & radiobutton - shared stuff */
+.checkbox-container, .radio-container {
+    display: block;
+    position: relative;
+    padding-left: 35px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.checkbox-container input, .radio-container input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkbox-container .checkmark, .radio-container .checkmark {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 25px;
+    width: 25px;
+    background-color: #eee;
+    -webkit-transition: background-color;
+    -ms-transition: background-color;
+    transition: background-color 0.5s ease;
+}
+
+.checkbox-container:hover input ~ .checkmark, .radio-container:hover input ~ .checkmark {
+    background-color: #ccc;
+}
+
+.checkbox-container input:checked ~ .checkmark, .radio-container input:checked ~ .checkmark {
+    background-color: #ea155c;
+}
+
+.checkbox-container .checkmark:after, .radio-container .checkmark:after {
+    content: "";
+    position: absolute;
+    display: none;
+}
+
+.checkbox-container input:checked ~ .checkmark:after, .radio-container input:checked ~ .checkmark:after {
+    display: block;
+}
+
+/* checkbox */
+.checkbox-container .checkmark:after {
+    left: 9px;
+    top: 5px;
+    width: 5px;
+    height: 10px;
+    border: solid white;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+
+/* radiobutton */
+.radio-container .checkmark {
+    border-radius: 50%;
+}
+
+.radio-container .checkmark:after {
+    top: 9px;
+    left: 9px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: white;
+}
+
+/* collapsable title */
+.collapsable-title > h4 {
+    position: relative;
+    cursor: pointer;
+    border: none;
+    border-bottom: solid 1px #eee;
+    height: 30px;
+    line-height: 30px;
+}
+
+.collapsable-title > h4::after {
+    content: "";
+    position: absolute;
+    right: 5px;
+    top: 7px;
+    width: 8px;
+    height: 8px;
+    border: solid #000;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.collapsable-title.collapsed > h4::after {
+    top: 12px;
+    -webkit-transform: rotate(-135deg);
+    -ms-transform: rotate(-135deg);
+    transform: rotate(-135deg);
+}
+
+.collapsable-title > div {
+    transition: display 1s ease-in-out;
+}
+
+.collapsable-title.collapsed > div {
+    display: none;
+}
+
+/* scroller */
+.module-scrollbar::-webkit-scrollbar {
+    width: 8px;
+}
+
+.module-scrollbar::-webkit-scrollbar-track {
+    border: solid 1px #eee;
+    border-radius: 8px;
+}
+
+.module-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #ea155c;
+    border-radius: 8px;
+}
