@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <title>controls</title>
+    
+    <style>
+        /*
+            note:
+            the label wrapper allows us to refer the content as a single unit!
+            thats the reason that a click on ANY part of this unit affects the checkbox.
+        */
+        .container {
+            display: block;
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 22px;
+        }
+
+        /* hide the real checkbox */
+        .container input {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .checkmark {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 25px;
+            width: 25px;
+            background-color: #eee;
+        }
+
+        /*
+            ~ sign meaning:
+
+            .a ~ .b {
+            background-color: blue;
+            }
+
+            any .b element which is a sibling of .a and appears after an .a element in the HTML order
+        */
+        .container:hover input ~ .checkmark {
+            background-color: #ccc;
+        }
+
+        .container input:checked ~ .checkmark {
+            background-color: #2196F3;
+        }
+
+        .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+        }
+
+        .container input:checked ~ .checkmark:after {
+            display: block;
+        }
+
+        /* v sign has generated using a partial border and a 45 degrees transform manipulation */
+        .container .checkmark:after {
+            left: 9px;
+            top: 5px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body>
+    <label class="container">
+        One
+        <input type="checkbox" checked="checked">
+        <span class="checkmark"></span>
+    </label>
+    <label class="container">
+        Two
+        <input type="checkbox" checked="checked">
+        <span class="checkmark"></span>
+    </label>
+</body>
+</html>

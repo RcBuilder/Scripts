@@ -1,0 +1,7 @@
+Visual Studio Keys Shortcuts
+----------------------------
+Alt (press) + UP/DOWN keys // switch between lines
+Alt (press) + Shift (press) + ARROWS // mark a group
+
+Ctrl + M + O // collapse all regions
+Ctrl + M + P // open all regions

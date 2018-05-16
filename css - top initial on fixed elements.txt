@@ -1,0 +1,17 @@
+.feedback-row {
+	height: 98px;
+	position: fixed;	
+	right: 0;
+	top: 130px;
+}
+
+@media (max-width: 768px) {
+    .feedback-row {
+        top: initial;
+        bottom: 130px;
+    }
+}
+
+note! 
+use 'initial' value to disable the top property value 
+using the rule  'top: 0px' will not work! it will put the button from offset 0 down.

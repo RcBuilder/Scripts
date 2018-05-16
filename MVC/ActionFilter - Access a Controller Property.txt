@@ -1,0 +1,49 @@
+Access a Controller Property in an ActionFilter
+
+------------------------
+
+structure:
+var controller = filterContext.Controller as SomeController;
+
+
+using:
+public class SomeFilterAttribute : ActionFilterAttribute {
+    public override void OnActionExecuting(ActionExecutingContext filterContext)
+    {
+        var controller = filterContext.Controller as SomeController;
+
+        if (controller == null)
+            throw new InvalidOperationException("It is not SomeController!");
+       
+        var someProperty = controller.SomeProperty;
+		...
+		...
+    }
+}
+
+------------------------
+
+sample:
+public class UserLoaderAttribute : ActionFilterAttribute {
+	public override void OnActionExecuting(HttpActionContext actionContext) {        
+        var controller = actionContext.ControllerContext.Controller as BaseAPIController;  
+
+		var context = HttpContext.Current;
+		var request = context.Request;
+		controller.MAUser = UserBOF.GetUser(request.Form["userName"]);    
+	}
+}
+
+[UserLoader]
+public abstract class BaseAPIController : ApiController {
+    public virtual UserBOF MAUser { get; set; }
+}
+
+public class PagesController : BaseAPIController
+{
+	[HttpGet]
+	[Route("api/page/content/{moduleId}/{methodName}/{objectId}")]
+	public HttpResponseMessage GetPageContentAsHTNL(string moduleId, string methodName, string objectId) {
+		// use MAUser here ...
+	}
+}

@@ -1,0 +1,413 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+
+    <title>controls</title>
+
+    <link rel="stylesheet" href="modules.css" />
+    <style>
+        body { }
+
+        .section {
+            width: 200px;
+            display: inline-block;
+            vertical-align: top;
+            padding-right: 50px;
+        }
+
+        .activity-section {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 200px;
+            overflow: auto;
+            overflow-x: hidden;
+            height: 800px;
+        }
+    </style>
+</head>
+<body>
+    <div class="section">
+        <h3>numeric-range</h3>
+        <div data-module="numeric-range" data-query-name="p4">
+            <div>
+                <span class="unit"></span>
+                <input type="number" min="0" placeholder="from" maxlength="5" />
+            </div>
+            <div>
+                <span class="unit"></span>
+                <input type="number" min="0" placeholder="to" maxlength="5" />
+            </div>
+        </div>
+        <br />
+        <div data-module="numeric-range" data-action="printToActivitySection">
+            <div>
+                <span class="unit">cm</span>
+                <input type="number" min="0" placeholder="min" maxlength="5" />
+            </div>
+            <div>
+                <span class="unit">cm</span>
+                <input type="number" min="0" placeholder="max" maxlength="5" />
+            </div>
+        </div>
+        <br />
+        <div data-module="numeric-range" data-action="printToActivitySection">
+            <div>
+                <span class="unit">in</span>
+                <input type="number" min="0" placeholder="min" maxlength="5" />
+            </div>
+            <div>
+                <span class="unit">in</span>
+                <input type="number" min="0" placeholder="max" maxlength="5" />
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>autocomplete</h3>
+        <div data-module="autocomplete" data-provider="getDataForAutoComplete" data-query-name="p1">
+            <input type="text" placeholder="search" maxlength="20" />
+        </div>
+        <h3>checklist</h3>
+        <div data-module="checklist" data-action="printToActivitySection" data-query-name="p2">
+            <ul>
+                <li>
+                    <label class="checkbox-container" title="very long name which needs to be cut off">
+                        check A very long name which needs to be cut off
+                        <input value="c1" type="checkbox" checked="checked" />
+                        <span class="checkmark"></span>
+                        <span class="rowcount">86</span>
+                    </label>
+                </li>
+                <li>
+                    <label class="checkbox-container">
+                        check B
+                        <input value="c2" type="checkbox" checked="checked" />
+                        <span class="checkmark"></span>
+                        <span class="rowcount">24</span>
+                    </label>
+                </li>
+                <li>
+                    <label class="checkbox-container">
+                        check C
+                        <input value="c3" type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="checkbox-container">
+                        check D
+                        <input value="c4" type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+            </ul>
+        </div>
+        <h3>radioList</h3>
+        <div data-module="radiolist" data-action="printToActivitySection" data-query-name="p3">
+            <ul>
+                <li>
+                    <label class="radio-container">
+                        radio A
+                        <input value="c1" type="radio" name="group1" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="radio-container">
+                        radio B
+                        <input value="c2" type="radio" name="group1" checked="checked" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="radio-container">
+                        radio C
+                        <input value="c3" type="radio" name="group1" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="radio-container">
+                        radio D
+                        <input value="c4" type="radio" name="group1" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>checklist-autocomplete</h3>
+        <div data-module="checklist-autocomplete" data-action="printToActivitySection" data-query-name="p7">
+            <div>
+                <input type="text" placeholder="search" maxlength="20" />
+            </div>
+            <ul>
+                <li>
+                    <label class="checkbox-container">
+                        roby
+                        <input value="c1" type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="checkbox-container">
+                        ronen
+                        <input value="c2" type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="checkbox-container">
+                        shirly
+                        <input value="c3" type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="checkbox-container">
+                        albert
+                        <input value="c4" type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="checkbox-container">
+                        rami
+                        <input value="c5" type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="checkbox-container">
+                        ron
+                        <input value="c6" type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+            </ul>
+        </div>
+        <br />
+        <div data-module="checklist-autocomplete" data-provider="getDataForAutoCompleteIList" data-action="printToActivitySection" data-init-provider="initDataForAutoCompleteIList" data-list-height="140px">
+            <div>
+                <input type="text" placeholder="search" maxlength="20" />                
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>collapsable title</h3>
+        <div class="collapsable-title">
+            <h4>myTitle 1</h4>
+            <div>
+                <div data-module="checklist" data-action="printToActivitySection">
+                    <ul>
+                        <li>
+                            <label class="checkbox-container">
+                                check A
+                                <input value="c1" type="checkbox" />
+                                <span class="checkmark"></span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="checkbox-container">
+                                check B
+                                <input value="c2" type="checkbox" />
+                                <span class="checkmark"></span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+                <br />
+                <div data-module="checklist" data-action="printToActivitySection">
+                    <ul>
+                        <li>
+                            <label class="checkbox-container">
+                                check A
+                                <input value="c1" type="checkbox" checked="checked" />
+                                <span class="checkmark"></span>
+                            </label>
+                        </li>
+                        <li>
+                            <label class="checkbox-container">
+                                check B
+                                <input value="c2" type="checkbox" />
+                                <span class="checkmark"></span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="collapsable-title" data-ignore-collapse>
+            <h4>myTitle 2</h4>
+            <div>
+                <div data-module="checklist" data-init-provider="initDataForIList" data-action="printToActivitySection"></div>
+                <br />
+                <div data-module="radiolist" data-init-provider="initDataForIList"></div>
+            </div>
+        </div>
+
+        <div class="collapsable-title">
+            <h4>myTitle 3</h4>
+            <div>
+                <div data-module="numeric-range" data-query-name="p5">
+                    <div>
+                        <span class="unit"></span>
+                        <input type="number" min="0" placeholder="from" maxlength="5" />
+                    </div>
+                    <div>
+                        <span class="unit"></span>
+                        <input type="number" min="0" placeholder="to" maxlength="5" />
+                    </div>
+                </div>
+                <br />
+                <div data-module="autocomplete" data-provider="getDataForAutoComplete" data-query-name="p6">
+                    <input type="text" placeholder="search" maxlength="20" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h4>checklist-addToList</h4>
+        <div data-module="checklist-addToList" data-provider="getDataForAutoCompleteIList" data-action="printToActivitySection" data-list-height="140px" data-query-name="p8">
+            <div>
+                <input type="text" placeholder="search" maxlength="20" />
+            </div>
+        </div>
+        <h4>freeSearch</h4>
+        <div data-module="freeSearch" data-action="printToActivitySection" data-query-name="p9">            
+            <input type="text" placeholder="search" maxlength="20" />            
+        </div>
+    </div>
+
+    <div class="section">
+        <p>
+            <input type="button" id="btnSetQuery" value="Set Query" />
+        </p>
+    </div>
+
+    <div class="activity-section"></div>
+
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script src="modules.js"></script>
+    <script>
+        // init manager
+        var manager = new modulesManagerService();
+        manager.loadALL();
+        console.log('total: ' + manager.count() + ' modules');
+
+        // --------------------------------
+
+        // page stuff
+        $('input:button#btnSetQuery').bind('click', x => {
+            manager.setQuery();
+        });
+
+        // --------------------------------
+
+        // local functions
+        function alertRange(module) {
+            var range = module.getRange();
+            alert('from ' + range.min + ' to ' + range.max);
+        }
+
+        function printRange(module) {
+            console.log(module.getRange());
+        }
+
+        function alertSelected(module) {
+            var selectedIds = module.getSelectedIds();
+            var counter = module.countSelected();
+            alert('selected: ' + selectedIds + ' (' + counter + ')');
+        }
+
+        function printSelected(module) {
+            var selectedIds = module.getSelectedIds();
+            var counter = module.countSelected();
+            console.log('selected: ' + selectedIds + ' (' + counter + ')');
+        }
+
+        function printToActivitySection(module) {
+            let message = '';
+            if (module instanceof iListModule) {
+                let selectedIds = module.getSelectedIds();
+                let counter = module.countSelected();
+                message = 'selected: ' + selectedIds + ' (' + counter + ')';
+            }
+
+            if (module instanceof iRangeModule) {
+                let range = module.getRange();
+                message = range.min + '-' + range.max;
+            }
+
+            if (module instanceof freeSearchModule)                
+                message = module.getSearchPhrase();            
+
+            $('.activity-section').prepend('<p>' + message + '</p>');
+        }
+
+
+        function getDataForAutoComplete(module) {
+            var data = ['roby', 'ronen', 'shirly', 'albert', 'rami', 'ron', 'roby1', 'roby2', 'roby3'];
+
+            var phrase = module.getSearchPhrase();
+            module.bindItems(data.filter(x => x.includes(phrase)));
+        }
+
+        function getDataForAutoCompleteIList(module) {
+            var data = [
+                { value: 'c1', text: 'roby' },
+                { value: 'c2', text: 'ronen' },
+                { value: 'c3', text: 'yafa' },
+                { value: 'c4', text: 'shirly' },
+                { value: 'c5', text: 'haim' },
+                { value: 'c6', text: 'ron' },
+                { value: 'c7', text: 'albert' },
+                { value: 'c8', text: 'yehoram' },
+                { value: 'c9', text: 'yaniv' },
+                { value: 'c10', text: 'rami' }
+            ];
+
+            var phrase = module.getSearchPhrase();
+            module.bindItems(data.filter(x => x.text.includes(phrase)));
+        }
+
+        function initDataForIList(module) {
+            var data = [
+                { value: 'c10', text: 'item A', checked: true, group: 'groupA' },
+                { value: 'c20', text: 'item B', checked: false, group: 'groupA' },
+                { value: 'c30', text: 'item C', group: 'groupA' },
+                { value: 'c40', text: 'item D', group: 'groupA' }
+            ];
+
+            module.bindItems(data);
+        }
+
+        function initDataForAutoCompleteIList(module) {
+            var data = [
+                { value: 'c1', text: 'roby' },
+                { value: 'c2', text: 'ronen' },
+                { value: 'c3', text: 'yafa' },
+                { value: 'c4', text: 'shirly' },
+                { value: 'c5', text: 'haim' },
+                { value: 'c6', text: 'ron' },
+                { value: 'c7', text: 'albert' },
+                { value: 'c8', text: 'yehoram' },
+                { value: 'c9', text: 'yaniv' },
+                { value: 'c10', text: 'rami' }
+            ];
+
+            module.bindItems(data);
+        }
+
+    </script>
+</body>
+</html>

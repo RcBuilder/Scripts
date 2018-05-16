@@ -1,0 +1,12 @@
+that._elem.on('keydown', 'input[type = "number"]', e => {
+                var keyCode = (e.keyCode > 0) ? e.keyCode : e.charCode;
+
+                // between 0 - 9  or left/right arrows
+                var isAllowed = ((keyCode >= 48 && keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105) || keyCode == 37 || keyCode == 39 || keyCode == 8);
+                /// console.log(keyCode + ': ' + isAllowed);
+
+                if (!isAllowed) {
+                    e.preventDefault();
+                    return false;
+                }
+            });

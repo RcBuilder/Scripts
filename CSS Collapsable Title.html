@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <title>controls</title>
+
+    <style>
+        .collapsable-title > h4 {
+            position: relative;
+            cursor: pointer;
+            border: none;
+            border-bottom: solid 1px #eee;
+            height: 30px;
+            line-height: 30px;
+        }
+
+        /* collapse/open sign has generated using a partial border and a border transform manipulation */
+        /* 45 degrees for down (v) or -135 degrees for up (^) */
+        .collapsable-title > h4::after {
+            content: "";
+            position: absolute;
+            right: 5px;
+            top: 7px;
+            width: 8px;
+            height: 8px;
+            border: solid #000;
+            border-width: 0 3px 3px 0;
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            transform: rotate(45deg);
+        }
+
+        .collapsable-title.collapsed > h4::after {
+            top: 12px;
+            -webkit-transform: rotate(-135deg);
+            -ms-transform: rotate(-135deg);
+            transform: rotate(-135deg);
+        }
+
+        .collapsable-title > div {
+        }
+
+        .collapsable-title.collapsed > div {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="collapsable-title">
+        <h4>collapsable title</h4>
+        <div>
+            <p>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+                It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+            </p>
+        </div>
+    </div>
+
+    <div class="collapsable-title">
+        <h4>collapsable title</h4>
+        <div>
+            <p>
+                Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.
+                It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.
+                It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+            </p>
+        </div>
+    </div>
+
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script>
+        $('.collapsable-title').click(function () {
+            $(this).toggleClass('collapsed');
+        });
+    </script>
+</body>
+</html>

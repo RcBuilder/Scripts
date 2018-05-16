@@ -1,0 +1,44 @@
+About
+-----
+gitLab is a git-based remote repository management.
+its similar to the known GitHub.
+GitLab is an open source project. 
+as opposed to GitHub - GitLab provides free private repositories.
+
+both GitHub and GitLab share the same Git Engine so the activities from the terminal 
+are exactly the same except the remote url!
+
+Reference
+---------
+see GitHub.txt 
+
+Git Commands
+------------
+see GitHub.txt 
+
+Empty Private Repository
+------------------------
+- go to gitlab site > new project 
+- Blank project 
+- set project name and choose Private level
+- create 
+- copy the reposiory path (SSH or HTTPS)
+
+Connect To A Remote Server
+--------------------------
+see GitHub.txt 
+
+GitHub 2 GitLab
+---------------
+we can convert a gitHub respository into a GitLab one using a simple few git commands.
+
+git remote rename [remoteName] [old-remoteName]
+git remote add [remoteName] [serverPath]
+git push -u [remoteName] --all
+git push -u [remoteName] --tags
+
+e.g: 
+git remote rename GitHubServer old-GitHubServer
+git remote add GitLabServer https://gitlab.com/RcBuilder/ChatProject.git
+git push -u GitLabServer --all
+git push -u GitLabServer --tags

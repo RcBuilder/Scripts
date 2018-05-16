@@ -1,0 +1,29 @@
+
+properties:
+::-webkit-scrollbar 
+::-webkit-scrollbar-button  
+::-webkit-scrollbar-thumb  // handle 
+::-webkit-scrollbar-track
+::-webkit-scrollbar-track-piece
+::-webkit-scrollbar-corner
+::-webkit-resizer 
+
+
+-------------------------------------
+
+/* scroller */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    border: solid 1px #eee;
+    border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ea155c;
+    border-radius: 8px;
+}
+
+

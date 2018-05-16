@@ -1,0 +1,34 @@
+[HtmlAgilityPack] 
+SelectNodes from a Node Issue
+
+issue:
+once you try to apply an xpath expression on a node result of a previous query - 
+it seems as it ignores the hierarchy and it does the search for the ENTIRE scope and NOT solely the node scope as expected.
+
+sample:
+var doc = web.Load("someURL");
+var nodes = doc.DocumentNode.SelectNodes("//div[@data-item");
+
+foreach (var node in nodes) {
+  var innerNodes = node.SelectNodes("//a[contains(@Class, 'someClass')]");
+  ...
+}
+
+// getting all a-tags with 'someClass' of the WHOLE page instead of the specific node 
+
+----
+
+work around:
+var doc = web.Load("someURL");
+var nodes = doc.DocumentNode.SelectNodes("//div[@data-item");
+
+var documents = nodes.Select(x => {
+   var temp = new HtmlDocument();
+   temp.LoadHtml(x.OuterHtml);
+   return temp;
+});
+
+foreach (var document in documents) {
+   var innerNodes = document.DocumentNode.SelectNodes("//a[contains(@Class, 'someClass')]");
+   ....
+}

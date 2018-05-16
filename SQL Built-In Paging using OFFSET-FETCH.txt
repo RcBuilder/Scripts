@@ -1,0 +1,26 @@
+SQL Built-In Paging using OFFSET-FETCH
+======================================
+
+syntax
+------
+select	[Field, Field...] 
+from	[Table]
+order by [Field] 
+OFFSET [StartRow] ROWS FETCH NEXT [RowCount] ROWS ONLY 
+
+support:
+SQL Server 2012 and up
+
+sample
+------
+// all results, starting from row 100 
+select	* 
+from	Students
+order by Id
+OFFSET 100 ROWS
+
+// 10 results, starting from row 2 
+select	* 
+from	Students
+order by Id
+OFFSET 2 ROWS FETCH NEXT 10 ROWS ONLY 

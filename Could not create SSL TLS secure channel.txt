@@ -1,0 +1,24 @@
+Bug:
+Could not create SSL/TLS secure channel
+
+Error:
+The request was aborted: Could not create SSL/TLS secure channel.'
+
+
+Cause:
+missing security protocol
+
+Solution:
+ServicePointManager.Expect100Continue = true;
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+
+eaxmple:
+
+var webReq = (HttpWebRequest)WebRequest.Create(url);
+...
+...
+ServicePointManager.Expect100Continue = true;
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+...
+...
+var webResp = (HttpWebResponse)webReq.GetResponse();

@@ -1,0 +1,5 @@
+// url decode
+decodeURIComponent(string) 
+
+// url encode
+encodeURIComponent(string)

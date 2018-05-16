@@ -192,6 +192,7 @@
         
         .transform-rotate3d
         {
+            /* rotate3d(x, y, x, deg) */
             transform: rotate3d(0, 1, 0, -180deg);
             -webkit-transform: rotate3d(0, 1, 0, -180deg);
             -moz-transform: rotate3d(0, 1, 0, -180deg);
@@ -594,7 +595,7 @@
         
         /* == Effects ======================================== */
 
-        .effect-A:hover {
+        .effect-A {
             transition: filter 0.8s;
             -webkit-transition: -webkit-filter 0.8s;
             -moz-transition: -moz-filter 0.8s;
@@ -712,47 +713,47 @@
     <ul>        
         <li>
             <div>filter: blur(5px)</div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-blur" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-blur" /></div>
         </li>
 
         <li>
             <div>filter: brightness(0.3) <span class="note">30%</span></div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-brightness" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-brightness" /></div>
         </li>
 
         <li>
             <div>filter: contrast(3) <span class="note">300%</span></div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-contrast" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-contrast" /></div>
         </li>
 
         <li>
             <div>filter: grayscale(1) <span class="note">100%</span></div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-grayscale" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-grayscale" /></div>
         </li>
 
         <li>
             <div>filter: invert(1) <span class="note">100%</span></div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-invert" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-invert" /></div>
         </li>
 
         <li>
             <div>filter: saturate(10) <span class="note">1000%</span></div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-saturate" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-saturate" /></div>
         </li>
 
         <li>
             <div>filter: sepia(1) <span class="note">100%</span></div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-sepia" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-sepia" /></div>
         </li>
 
         <li>
             <div>filter: opacity(0.5) <span class="note">50%</span></div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-opacity" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-opacity" /></div>
         </li>
 
         <li>
             <div>filter: hue(90deg) <span class="note">90 degrees</span></div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-hue" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-hue" /></div>
         </li>
 
         <li>
@@ -760,7 +761,7 @@
                  <br /><span class="note">horizontal,vertical,blur,color </span>
                  <br /><span class="note">h-shadow 20px,v-shadow 10px,10px blur,black</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-drop-shadow" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-drop-shadow" /></div>
         </li>
 
         <li>
@@ -768,7 +769,7 @@
                  <br /><span class="note">multiple filters</span>
                  <br /><span class="note">opacity,blur and invert filters</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="filter-multiple" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="filter-multiple" /></div>
         </li>
     </ul>
 
@@ -810,33 +811,33 @@
             <div>transform: perspective(500px) rotateX(45deg);
                 <br /><span class="note">defines the elemet depth</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-perspective" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-perspective" /></div>
         </li>
 
         <li>
             <div>transform: rotate(5.5deg) <span class="note">5.5 degrees</span></div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-rotate" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-rotate" /></div>
         </li>
 
         <li>
             <div>transform: rotateX(45deg) perspective(500px);
                 <br /><span class="note">x axis 45 degrees - depth 500px</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-rotateX" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-rotateX" /></div>
         </li>
 
         <li>
             <div>transform: rotateY(45deg) perspective(500px);
                 <br /><span class="note">y axis 45 degrees - depth 500px</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-rotateY" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-rotateY" /></div>
         </li>
 
         <li>
             <div>transform: rotateZ(-5.5deg);
                 <br /><span class="note">z axis -5.5 degrees</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-rotateZ" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-rotateZ" /></div>
         </li>
 
         <li>
@@ -844,7 +845,7 @@
                 <br /><span class="note">x,y,z,degrees</span>
                 <br /><span class="note">rotate y axis in -180 degrees (flip horizontal)</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-rotate3d" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-rotate3d" /></div>
         </li>
 
         <li>
@@ -852,14 +853,14 @@
                 <br /><span class="note">x,y,z,degrees</span>
                 <br /><span class="note">rotate x axis -180 degrees (flip vertical)</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-rotate3d-B" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-rotate3d-B" /></div>
         </li>
 
         <li>
             <div>transform: scale(1.2, 1);
                 <br /><span class="note">x scale,y scale - 1.2:1</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-scale" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-scale" /></div>
         </li>
 
         <li>
@@ -867,7 +868,7 @@
                 <br /><span class="note">skew = a slant</span>
                 <br /><span class="note">slant x axis 10 degrees</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-skewX" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-skewX" /></div>
         </li>
 
         <li>
@@ -875,7 +876,7 @@
                 <br /><span class="note">skew = a slant</span>
                 <br /><span class="note">slant y axis -10 degrees</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-skewY" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-skewY" /></div>
         </li>
 
         <li>
@@ -883,7 +884,7 @@
                 <br /><span class="note">translate(x,y) - set element position</span>
                 <br /><span class="note">move x axis in 40px</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-translate" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-translate" /></div>
         </li>
 
         <li>
@@ -891,7 +892,7 @@
                 <br /><span class="note">translateZ - set element z position (depth)</span>
                 <br /><span class="note">move z axis in -100px - shrink effect</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-translateZ" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-translateZ" /></div>
         </li>
 
         <li>
@@ -899,7 +900,7 @@
                 <br /><span class="note">translateZ - set element z position (depth)</span>
                 <br /><span class="note">move z axis in 50px - grow effect</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-translateZ-B" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-translateZ-B" /></div>
         </li>
 
         <li>
@@ -910,7 +911,7 @@
                         scale(a, d), skew(b, c), translate(e, f)
                       </span>                
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transform-matrix" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transform-matrix" /></div>
         </li>
     </ul>
  
@@ -1017,7 +1018,7 @@
                 width:calc(10% + 10px)
                 <br /><span class="note">50% of the container width + 10px</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="calc" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="calc" /></div>
         </li>
     </ul>
 
@@ -1074,7 +1075,7 @@
             <div>transition: width 1s linear;
                 <br /><span class="note">1 second linear on width</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transition-A" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transition-A" /></div>
         </li>
 
         <li>
@@ -1089,7 +1090,7 @@
                 <br /><span class="note">transition on css3 transform</span>
                 <br /><span class="note">1 second ease-in on transform</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transition-C" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transition-C" /></div>
         </li>
 
         <li>
@@ -1097,7 +1098,7 @@
                 <br /><span class="note">transition on css3 transform</span>
                 <br /><span class="note">0.3 second ease-in on transform</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transition-D" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transition-D" /></div>
         </li>
 
         <li>
@@ -1105,7 +1106,7 @@
                 <br /><span class="note">multiple properties</span>
                 <br /><span class="note">width, transform and filter css properties</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="transition-multiple" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="transition-multiple" /></div>
         </li>
     </ul>
 
@@ -1183,37 +1184,37 @@
 
         <li>
             <div>with <span class="note">2 seconds</span> delay</div>
-            <div class="padding"><img src="Parrot.jpg" class="animation-delay" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="animation-delay" /></div>
         </li>
 
         <li>
             <div>with rotate transform - 2 stops using precentage</div>
-            <div class="padding"><img src="Parrot.jpg" class="animation-rotate" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="animation-rotate" /></div>
         </li>
 
          <li>
             <div>with invert filter - 2 stops using precentage</div>
-            <div class="padding"><img src="Parrot.jpg" class="animation-invert" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="animation-invert" /></div>
         </li>
 
         <li>
             <div>with rotate transform - alternate directions</div>
-            <div class="padding"><img src="Parrot.jpg" class="animation-rotate-alternate" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="animation-rotate-alternate" /></div>
         </li>
 
         <li>
             <div>ease-out - grow effect</div>
-            <div class="padding"><img src="Parrot.jpg" class="animation-grow" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="animation-grow" /></div>
         </li>
 
         <li>
             <div>slide-in effect</div>
-            <div class="padding"><img src="Parrot.jpg" class="animation-slide-in" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="animation-slide-in" /></div>
         </li>
 
         <li>
             <div>slide-in effect - paused on hover</div>
-            <div class="padding"><img src="Parrot.jpg" class="animation-slide-in-paused" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="animation-slide-in-paused" /></div>
         </li>
 
         <li>
@@ -1221,7 +1222,7 @@
                 <br /><span class="note">grow,  rotate-alternate and invert @keyframes</span>
                 <br /><span class="note">rotate once, infinate grow and invert</span>
             </div>
-            <div class="padding"><img src="Parrot.jpg" class="animation-multiple" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="animation-multiple" /></div>
         </li>
     </ul>
 
@@ -1229,22 +1230,22 @@
     <ul>
         <li>
             <div>grayscale on hover</div>
-            <div class="padding"><img src="Parrot.jpg" class="effect-A" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="effect-A" /></div>
         </li>
 
         <li>
             <div>grow on hover</div>
-            <div class="padding"><img src="Parrot.jpg" class="effect-B" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="effect-B" /></div>
         </li>
 
         <li>
             <div>rotate and grow on hover</div>
-            <div class="padding"><img src="Parrot.jpg" class="effect-C" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="effect-C" /></div>
         </li>
 
         <li>
             <div>dance animation on hover</div>
-            <div class="padding"><img src="Parrot.jpg" class="effect-D" /></div>
+            <div class="padding"><img src="../Resources/Parrot.jpg" class="effect-D" /></div>
         </li>
     </ul>
     

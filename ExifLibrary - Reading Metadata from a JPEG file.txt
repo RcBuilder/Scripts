@@ -1,0 +1,3 @@
+Reading Metadata from a JPEG file
+---------------------------------
+use ExifLibrary.dll

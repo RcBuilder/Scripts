@@ -1,0 +1,54 @@
+
+
+<div class="collapsable-title">
+    <h4>collapsable title</h4>
+    <div>
+        // content ... 
+    </div>
+</div>
+
+----------------------------------
+
+$('.collapsable-title').click(function() {
+    $(this).toggleClass('collapsed');
+});
+
+----------------------------------
+
+.collapsable-title > h4 {
+    position: relative;
+    cursor: pointer;
+    border: none;
+    border-bottom: solid 1px #eee;
+    height: 30px;
+    line-height: 30px;
+}
+
+/* collapse/open sign has generated using a partial border and a border transform manipulation */
+/* 45 degrees for down (v) or -135 degrees for up (^) */
+.collapsable-title > h4::after {
+    content: "";
+    position: absolute;
+    right: 5px;
+    top: 7px;
+    width: 8px;
+    height: 8px;
+    border: solid #000;
+    border-width: 0 3px 3px 0;
+    -webkit-transform: rotate(45deg);
+    -ms-transform: rotate(45deg);
+    transform: rotate(45deg);
+}
+
+.collapsable-title.collapsed > h4::after {            
+    top: 12px;
+    -webkit-transform: rotate(-135deg);
+    -ms-transform: rotate(-135deg);
+    transform: rotate(-135deg);
+}
+
+.collapsable-title > div { }
+
+.collapsable-title.collapsed > div {
+    display:none;            
+}

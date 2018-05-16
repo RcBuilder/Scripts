@@ -1,0 +1,50 @@
+find all rows which belongs to one of the columns type1, type2 or type3 that have a total count more than X (X = 2)
+
+result: 
+1
+2
+3
+
+explanation:
+we count each type column seperately (A1 = 2, C1 = 3 etc.) and limit them by a pre-defined value (X)
+than we union then all to a single result table 
+and check which rows using them
+
+--------------------------------
+
+
+create table #temp(rowId int, type1 varchar(10), type2 varchar(10), type3 varchar(10)) 
+insert into #temp
+values
+(1, 'A1', 'B1', 'C1'), 
+(2, 'A1', 'B2', 'C1'),
+(3, 'A2', 'B3', 'C1'), 
+(4, 'A3', 'B3', 'C2'), 
+(5, 'A4', 'B4', 'C3')
+
+---
+
+;WITH cte_result([type], [count]) as(
+	select type1, count(type1)
+	from #temp
+	group by type1
+	having count(type1) > 2
+	UNION 
+	select type2, count(type2)
+	from #temp
+	group by type2
+	having count(type2) > 2
+	UNION 
+	select type3, count(type3)
+	from #temp
+	group by type3
+	having count(type3) > 2
+)
+select distinct rowId from #temp 
+where type1 in (select [type] from cte_result)
+or type2 in (select [type] from cte_result)
+or type3 in (select [type] from cte_result)
+
+---
+
+drop table #temp
