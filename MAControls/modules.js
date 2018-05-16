@@ -85,15 +85,15 @@ function iRangeModule(elem) {
     // protected
     return {
         bindAction: function (eventName, selector, action) {
-            that._elem.on(eventName, selector, x => eval(action)(that));
+            that._elem.on(eventName, selector, function (x) { eval(action)(that) });
         },
         bindBoxesOnlyNumbersAction: function () {
 
-            that._elem.on('keydown', 'input[type = "number"]', e => {
+            that._elem.on('keydown', 'input[type = "number"]', function (e) {
                 var keyCode = (e.keyCode > 0) ? e.keyCode : e.charCode;
 
                 // between 0 - 9  or left/right arrows
-                var isAllowed = ((keyCode >= 48 && keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105) || keyCode == 37 || keyCode == 39 || keyCode == 8);
+                var isAllowed = ((keyCode >= 48 && keyCode <= 57) || (e.keyCode >= 96 && e.keyCode <= 105) || e.keyCode >= 110 || e.keyCode <= 190 || keyCode == 37 || keyCode == 39 || keyCode == 8);
                 /// console.log(keyCode + ': ' + isAllowed);
 
                 if (!isAllowed) {
@@ -192,7 +192,7 @@ function iListModule(elem) {
     // protected
     return {
         bindAction: function (eventName, selector, action, callback, preinit) {
-            that._elem.on(eventName, selector, x => {
+            that._elem.on(eventName, selector, function (x) {
                 if (preinit) preinit.call(null, x);
                 eval(action)(that, x.target);
                 if (callback) callback.call(null, x);
@@ -200,7 +200,7 @@ function iListModule(elem) {
             });
         },
         bindDataProvider: function (eventName, selector, provider) {
-            that._elem.on(eventName, selector, x => {
+            that._elem.on(eventName, selector, function (x) {
                 that._list.show();
                 eval(provider)(that);
                 x.stopPropagation();
@@ -211,7 +211,7 @@ function iListModule(elem) {
         bindDataProviderUsingAutocomplete: function (eventName, selector, provider, theList, emptyValueCallback) {
             theList = theList || that._list;
 
-            that._elem.on(eventName, selector, x => {
+            that._elem.on(eventName, selector, function (x) {
                 var phrase = that.getSearchPhrase().trim();
                 var phraseCount = phrase.length;
 
@@ -367,7 +367,7 @@ function autoCompleteModule(elem) {
         var action = that._elem.attr('data-action');
 
         var provider = that._elem.attr('data-provider');
-        if (provider) protected.bindDataProviderUsingAutocomplete('keyup', that._phraseInput, provider, null, x => {
+        if (provider) protected.bindDataProviderUsingAutocomplete('keyup', that._phraseInput, provider, null, function (x) {
             if (action) eval(action)(that);
         });
 
@@ -385,7 +385,7 @@ function autoCompleteModule(elem) {
     function getItems() {
         // [ string ]
         var items = that._list.find('li');
-        return items.toArray().map(x => $(x).text().trim());
+        return items.toArray().map(function (x) { return $(x).text().trim(); });
     }
 
     function setSelected(data) {
@@ -444,7 +444,7 @@ function checklistModule(elem) {
         that._elem.addClass('checklist-module');
 
         var action = that._elem.attr('data-action');
-        if (action) protected.bindAction('click', '> ul > li input', action, null, x => {
+        if (action) protected.bindAction('click', '> ul > li input', action, null, function (x) {
 
             // TODO [Temporary]
             let selectAllValue = '0A8E7073D5AD19A4';
@@ -467,7 +467,7 @@ function checklistModule(elem) {
     function getItems() {
         // [{ value, text, checked } ... ]
         var items = that._list.find('li');
-        return items.toArray().map(x => {
+        return items.toArray().map(function (x) {
             var input = $(x).find('input:checkbox');
             var label = $(x).find('label');
             return {
@@ -530,7 +530,7 @@ function checklistModule(elem) {
 
     function getSelectedIds() {
         var selected = that._list.find('input[type="checkbox"]:checked');
-        return selected.toArray().map(x => x.value);
+        return selected.toArray().map(function (x) { return x.value; });
     }
 
     function countSelected() {
@@ -568,7 +568,7 @@ function radiolistModule(elem) {
     function getItems() {
         // [{ value, text, checked } ... ]
         var items = that._list.find('li');
-        return items.toArray().map(x => {
+        return items.toArray().map(function (x) {
             var input = $(x).find('input:radio');
             var label = $(x).find('label');
             return {
@@ -630,7 +630,7 @@ function radiolistModule(elem) {
 
     function getSelectedIds() {
         var selected = that._list.find('input[type="radio"]:checked');
-        return selected.toArray().map(x => x.value);
+        return selected.toArray().map(function (x) { return x.value; });
     }
 
     function countSelected() {
@@ -688,7 +688,7 @@ function checklistAutoCompleteModule(elem) {
     function getItems() {
         // [{ value, text, checked } ... ]
         var items = that._list.find('li');
-        return items.toArray().map(x => {
+        return items.toArray().map(function (x) {
             var input = $(x).find('input:checkbox');
             var label = $(x).find('label');
             return {
@@ -756,13 +756,13 @@ function checklistAutoCompleteModule(elem) {
         }
 
         that.showItems();
-        var matches = that._list.find('li > label').toArray().filter(x => !($(x).text().toLowerCase().includes(phrase.toLowerCase())));
-        matches.map(x => { $(x).closest('li').hide(); });
+        var matches = that._list.find('li > label').toArray().filter(function (x) { !($(x).text().toLowerCase().includes(phrase.toLowerCase())); });
+        matches.map(function (x) { $(x).closest('li').hide(); });
     }
 
     function getSelectedIds() {
         var selected = that._list.find('input[type="checkbox"]:checked');
-        return selected.toArray().map(x => x.value);
+        return selected.toArray().map(function (x) { return x.value; });
     }
 
     function countSelected() {
@@ -842,7 +842,7 @@ function checklistAddToListModule(elem) {
     function getItems() {
         // [{ value, text, checked } ... ]
         var items = that._list.find('li');
-        return items.toArray().map(x => {
+        return items.toArray().map(function (x) {
             var input = $(x).find('input:checkbox');
             var label = $(x).find('label');
             return {
@@ -924,14 +924,14 @@ function checklistAddToListModule(elem) {
 
     function getSelectedIds() {
         var selected = that._list.find('input[type="checkbox"]:checked');
-        return selected.toArray().map(x => x.value);
+        return selected.toArray().map(function (x) { return x.value; });
     }
 
     function countSelected() {
         var selected = that._list.find('input[type="checkbox"]:checked');
         return selected.size();
     }
-    
+
     function searchByValue(value) {
         var selector = that._list.find('input[type="checkbox"][value="' + value + '"]');
         return selector.size() == 0 ? null : selector.first();
@@ -948,7 +948,7 @@ jQuery.fn.extend({
     loadMAModules: function () {
         var arr = [];
 
-        $(this).find('[data-module]').each((i, x) => {
+        $(this).find('[data-module]').each(function (i, x) {
             var moduleType = $(x).attr('data-module').toLowerCase();
             switch (moduleType) {
                 case 'numeric-range': arr.push(new numericRangeModule(x));
@@ -980,12 +980,12 @@ jQuery.fn.extend({
     },
     collapseAll: function (arrModules) {
 
-        $(this).each((i, x) => {
+        $(this).each(function (i, x) {
             var elem = $(x).first();
 
             var arr = [];
 
-            elem.find('[data-module]').each((i, x) => {
+            elem.find('[data-module]').each(function (i, x) {
                 var module = $(x).findMAModule(arrModules);
                 if (!module) return;
                 arr.push(module);
@@ -1041,7 +1041,7 @@ var modulesManagerHelper = function () {
         // dictionary 2 query
         // { key, value }
         createQuery: function (dic) {
-            var res = this.dic2arr(dic).reduce((s, x) => {
+            var res = this.dic2arr(dic).reduce(function (s, x) {
                 return s.concat('&', x.key, '=', x.value.join('_'));
             }, '');
 
@@ -1147,10 +1147,9 @@ var modulesManagerService = function () {
             this.registerEvents();
         },
         registerEvents: function () {
-
-            /*
+            return;
             // any click on the page should clear the autocomplete values state
-            $('body').click(x => {
+            $('body').click(function (x) {
                 for (i in that._modules) {
                     let current = that._modules[i];
                     if (current instanceof autoCompleteModule || current instanceof checklistAddToListModule) {
@@ -1159,7 +1158,6 @@ var modulesManagerService = function () {
                     }
                 }
             });
-            */
         }
     };
 }

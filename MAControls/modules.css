@@ -190,7 +190,6 @@
     background-color: #f0efef;
 }
 
-
 /* [module] checklist-autoComplete-module */
 .checklist-autocomplete-module {
     width: 100%;
@@ -286,7 +285,6 @@
     line-height: 22px;
     font-family: Arial;
 }
-
 .checkbox-container:hover input ~ .checkmark, .radio-container:hover input ~ .checkmark {
     background-color: #ccc;
 }
@@ -386,4 +384,3 @@
     background-color: #ea155c;
     border-radius: 8px;
 }
-
