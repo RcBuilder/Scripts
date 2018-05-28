@@ -1,0 +1,63 @@
+var spreadsheetId = 'https://docs.google.com/spreadsheets/d/1NcAAEoIaMbM7Pw0XNr2K-4U5SYPKhfDMp0GjUIfsujo/edit#gid=946751041';
+
+var accountId = '19791803';
+var propertyId = 'UA-19791803-44';
+var visitorsColumn = 'E3';
+var costColumn = 'O3';
+
+function main() {
+  var sheet;
+  if(spreadsheetId.indexOf('http') == 0)
+    sheet = SpreadsheetApp.openByUrl(spreadsheetId).getActiveSheet();
+  else
+    sheet = SpreadsheetApp.openById(spreadsheetId).getActiveSheet();
+  
+  var dates = sheet.getRange('A1').getValue();
+  
+  dates = dates.split(' ').join(''); // remvoe spacers
+  Logger.log('dates: %s', dates);
+  
+  var from = new Date();
+  from.setDate(dates.split('-')[0].split('/')[0]);
+  from.setMonth(parseInt(dates.split('-')[0].split('/')[1]) - 1);
+  
+  var to = new Date();
+  to.setDate(dates.split('-')[1].split('/')[0]);
+  to.setMonth(parseInt(dates.split('-')[1].split('/')[1]) - 1);
+  
+  var stats = AdWordsApp.currentAccount().getStatsFor(dateFormat(from), dateFormat(to));
+  Logger.log('Cost: %s', stats.getCost());
+
+  var profiles = Analytics.Management.Profiles.list(accountId, propertyId).items;
+  var profileId = profiles[0].id;
+  Logger.log('profile: %s', profileId)
+  
+  var visitors = Analytics.Data.Ga.get('ga:' + profileId, dateFormatAnalytics(from), dateFormatAnalytics(to), 'ga:visitors').totalsForAllResults['ga:visitors'];
+  Logger.log('visitors: %s', visitors);
+  
+  // update the sheet 
+  sheet.getRange(costColumn).setValue(stats.getCost());
+  sheet.getRange(visitorsColumn).setValue(visitors);
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth()+1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}
+
+function dateFormatAnalytics(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth()+1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + '-' + month + '-' + day;
+}

@@ -1,0 +1,106 @@
+var EMAIL = 'RcBuilder@walla.com,eyal@kivi.co.il';
+var CLICKS = 20;
+var CREATE = true;
+
+function main() {
+  var htmlService = HTMLBuilderService();
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var report = AdWordsApp.report(
+   'SELECT Url, DisplayName, Clicks, Conversions, CampaignId, AdGroupId ' +
+   'FROM URL_PERFORMANCE_REPORT ' +
+   'WHERE Clicks > ' + CLICKS + ' AND Conversions < 1 ' + 
+   'DURING 20000101,' + dateFormat(new Date()), reportConfig);
+  var rows = report.rows();
+  
+  var TEMPLATE = '<tr>' +
+                    '<td>{0}</td>' +
+                    '<td>{1}</td>' +
+                    '<td>{2}</td>' +
+                    '<td>{3}</td>' +
+                    '<td>{4}</td>' +                    
+                  '</tr>';
+                    
+  htmlService.add('<table cellspacing="3" cellpadding="3" border="1">');
+  htmlService.add('<tr>' +
+                    '<th>Name</th>' +
+                    '<th>Campaign</th>' +
+                    '<th>AdGroup</th>' +
+                    '<th>clicks</th>' +
+                    '<th>conversions</th>' +                    
+                  '</tr>');
+  
+  var matches = 0;  
+  while (rows.hasNext()) {
+    var row = rows.next();
+    
+    var clicks = row['Clicks'];
+    var conversions = row['Conversions'];      
+    
+    var placementUrl = row['Url'];
+    var displayName = row['DisplayName'];        
+    
+    var adGroupId = row["AdGroupId"];
+    var adGroup = AdWordsApp.adGroups().withIds([adGroupId]).get().next();      
+    
+    var campaignId = row["CampaignId"];
+    var campaign = AdWordsApp.campaigns().withIds([campaignId]).get().next();      
+    
+    Logger.log('[%s] clicks: %s conversions: %s', displayName, clicks, conversions);
+    
+    matches++;
+    
+    if(placementUrl == '') {
+      Logger.log('Empty placementUrl');
+      continue;
+    }
+    
+    var row = TEMPLATE
+    .replace('{0}', displayName)
+    .replace('{1}', campaign.getName())
+    .replace('{2}', adGroup.getName())
+    .replace('{3}', clicks)
+    .replace('{4}', conversions)    
+            
+    if(CREATE)
+    {
+      Logger.log('exclude placement %s!', placementUrl);
+      var result = adGroup.display().newPlacementBuilder().withUrl(placementUrl).exclude();       
+    }
+        
+    htmlService.add(row);    
+  }
+  htmlService.add('</table>');
+  if(matches > 0){    
+    MailApp.sendEmail(EMAIL, 'No Conversion Placements', '', { 
+      htmlBody: htmlService.get() 
+    });
+  }
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth() + 1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

@@ -1,0 +1,608 @@
+/* SHEET FIELDS
+Customer	
+Account ID	
+Label	
+Start Date	
+End Date	
+Budget	
+Conversions Target	
+Cost conversion Target	
+Spend Forecast	
+Spend Deviation	
+Conversions Forecast	
+Conversions Deviation	
+Cost Conversion Forecast	
+Cost Conversion  Deviation
+*/
+
+var SHEET_NAME = 'campaigns_forecast';
+var EMAIL = 'rcbuilder@walla.com';
+var EMAIL_ENABLED = true;
+
+var ALERTS_DATA = {
+  deviation_total_cost_min: -10, deviation_total_cost_max: 5,
+  deviation_conversions: -21,
+  deviation_conversion_cost: -15
+};
+
+var data_sheet = null;
+
+function main() { 
+  // 'https://docs.google.com/spreadsheets/d/1SDwJ19jaokiPJQGMJQkqP2PNCNKyy-IV1BDmS_dk5OI/edit?ts=570f76a5#gid=0'
+  var forecast_sheet = SpreadsheetLoader.loadSheetService(SHEET_NAME);    
+  var forecast_service = forecastService(forecast_sheet);
+
+  var manager_account_ids = forecast_service.getAccountsIds();
+
+  // 'ManagerCustomerId IN ["192-164-0837"]'
+  HELPER.foreach(manager_account_ids, function(manager_account_id){
+    //Logger.log('manager account id #%s', manager_account_id);
+    var accounts = MccApp.accounts().withCondition('ManagerCustomerId = "' + manager_account_id + '"').get();  
+    while (accounts.hasNext()) {
+      var account = accounts.next(); 
+      Logger.log('### account: %s ###', account.getName());    
+      
+      MccApp.select(account);
+      HandleAccount(account, forecast_service);
+    }
+  })
+}
+
+function HandleAccount(account, forecast_service){
+  var account_id = account.getCustomerId();
+  var account_info = '#' + account_id + ' ' + account.getName();
+  Logger.log('account info: %s ', account_info); 
+  
+  var accountLabels = forecast_service.getAccountLabels(account_id);
+  
+  HELPER.foreach(accountLabels, function(label){
+    Logger.log('label: %s', label);
+    
+    if(!HELPER.isLabelExists(label))
+    {
+      Logger.log('label "' + label + '" does not exists!');
+      return;
+    }
+        
+    Execute(account, label, forecast_service);
+  });
+}
+
+function Execute(account, labelName, forecast_service){    
+  var account_id = account.getCustomerId();
+  var account_info = '#' + account_id + ' ' + account.getName();
+  
+  var sheet_row_index = forecast_service.getAccountRowIndex(account_id, labelName);
+  if(sheet_row_index == -1) {
+    Logger.log('no row found!');
+    return;
+  }
+  
+  Logger.log('row index: ' + sheet_row_index);
+  
+  // account requirement data (from sheet)  
+  var target_budget = forecast_service.getBudget(sheet_row_index); 
+  var target_conversions = forecast_service.getConversionsTarget(sheet_row_index); 
+  var target_conversion_cost = forecast_service.getConversionCostTarget(sheet_row_index); 
+  
+  var target_start_time = forecast_service.getStartDate(sheet_row_index);
+  var target_end_time = forecast_service.getEndDate(sheet_row_index);
+  var target_total_days = parseInt(target_end_time.getDate() - target_start_time.getDate()); 
+  
+  var target_dateRange = HELPER.dateFormat(target_start_time).concat(',', HELPER.dateFormat(target_end_time)); 
+
+  Logger.log('sheet Data: budget : %s, target: %s, conversion cost: %s, total days: %s, date Range: %s',
+             target_budget, target_conversions, target_conversion_cost, target_total_days, target_dateRange);    
+  
+  var today = new Date(); 
+  if(today < target_start_time || today > target_end_time){
+    Logger.log('not an active campaign!');
+    return;
+  }
+  
+  var days_from_start = Math.round(HELPER.dateDiff(today, target_start_time)); 
+  /// var target_cost_per_day = target_budget / target_total_days
+  /// var target_conversions_per_day = target_conversions / target_total_days 
+  
+  /*
+  var report = AdWordsApp.report(
+    'SELECT CampaignId, CampaignName, ConvertedClicks, Cost ' + 
+    'FROM CAMPAIGN_PERFORMANCE_REPORT ' +  
+    'WHERE Labels CONTAINS_ANY ["' + labelName + '"] ' +
+    'DURING ' + target_dateRange);  
+  */
+  
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition('LabelNames CONTAINS_ANY ["' + labelName + '"]')
+  .get();
+  
+  var total_cost_till_now = 0, 
+      total_conversions_till_now = 0, 
+      total_conversion_cost_till_now = 0;
+  
+  // sum account campaigns stats   
+  while (campaigns.hasNext()) { 
+	var campaign = campaigns.next();
+    var stats = campaign.getStatsFor(HELPER.dateFormat(target_start_time), HELPER.dateFormat(target_end_time));    
+    
+    var campaign_cost = parseInt(stats.getCost()), 
+        campaign_conversions = parseInt(stats.getConvertedClicks());
+    
+    Logger.log('Campaign #%s %s cost: %s, conversions: %s', campaign.getId(), campaign.getName(), campaign_cost, campaign_conversions);       
+      
+    total_cost_till_now += campaign_cost;
+    total_conversions_till_now += campaign_conversions;
+  }
+  
+  total_conversion_cost_till_now = total_conversions_till_now == 0 ? 0 : total_cost_till_now / total_conversions_till_now; 
+  
+  Logger.log('till now: %s / %s days -> cost: %s (%s), conversions: %s (%s), conversion cost: %s (%s)',
+             days_from_start, target_total_days,
+             total_cost_till_now, target_budget, 
+             total_conversions_till_now, target_conversions, 
+             total_conversion_cost_till_now, target_conversion_cost);    
+  
+  // forecast findings
+  var forecast_total_cost = Math.round(((target_total_days / days_from_start) * total_cost_till_now));
+  var forecast_conversions = Math.round((target_total_days / days_from_start) * total_conversions_till_now);
+  var forecast_conversion_cost = Math.round(forecast_conversions == 0 ? 0 : forecast_total_cost / forecast_conversions);
+  
+  /* calculation e.g: 
+  
+     forecast_total_cost = 900
+     target_budget = 1000
+     
+     ((900 / 1000) - 1) * 100 -> (0.9 - 1) * 100 -> -0.1 * 100 = -10%
+     
+     -----
+     
+     forecast_total_cost = 1300
+     target_budget = 1000
+     
+     ((1300 / 1000) - 1) * 100 -> (1.3 - 1) * 100 -> 0.3 * 100 = +30%
+  */
+  var deviation_total_cost = Math.round(((forecast_total_cost / target_budget) - 1 /*100%*/) * 100);
+  var deviation_conversions = Math.round(((forecast_conversions / target_conversions) - 1 /*100%*/) * 100);
+  var deviation_conversion_cost = Math.round(((forecast_conversion_cost / target_conversion_cost) - 1 /*100%*/) * 100);
+  
+  Logger.log('forecast -> cost: %s (%s%s), conversions: %s (%s%s), conversion cost: %s (%s%s)', 
+             forecast_total_cost, deviation_total_cost, '%',
+             forecast_conversions, deviation_conversions, '%',
+             forecast_conversion_cost, deviation_conversion_cost, '%'); 
+  
+  // update sheet
+  forecast_service.setSpendForecast(sheet_row_index, forecast_total_cost);  
+  forecast_service.setSpendDeviation(sheet_row_index, deviation_total_cost / 100);  // bugFix - the sheet precentage typed column automatically add 2 zeros
+  forecast_service.setConversionsForecast(sheet_row_index, forecast_conversions);  
+  forecast_service.setConversionsDeviation(sheet_row_index, deviation_conversions / 100);  // bugFix - the sheet precentage typed column automatically add 2 zeros
+  forecast_service.setConversionCostForecast(sheet_row_index, forecast_conversion_cost);  
+  forecast_service.setConversionCostDeviation(sheet_row_index, deviation_conversion_cost / 100);  // bugFix - the sheet precentage typed column automatically add 2 zeros
+  
+  // alerts
+  if(deviation_total_cost < ALERTS_DATA.deviation_total_cost_min || deviation_total_cost > ALERTS_DATA.deviation_total_cost_max)
+  {
+    Logger.log('alert! deviation total cost (min %s, max %s)', ALERTS_DATA.deviation_total_cost_min, ALERTS_DATA.deviation_total_cost_max);
+    if(EMAIL_ENABLED)
+      MailApp.sendEmail(EMAIL, 'alert! deviation total cost', 'account: ' + account_info);
+  }
+  
+  if(deviation_conversions < ALERTS_DATA.deviation_conversions)
+  {
+    Logger.log('alert! deviation conversions (min %s)', ALERTS_DATA.deviation_conversions);
+    if(EMAIL_ENABLED)
+      MailApp.sendEmail(EMAIL, 'alert! deviation conversions', 'account: ' + account_info);
+  }
+  
+  if(deviation_conversion_cost > ALERTS_DATA.deviation_conversion_cost)
+  {
+    Logger.log('alert! deviation conversion cost (max %s)', ALERTS_DATA.deviation_conversion_cost);
+    if(EMAIL_ENABLED)
+      MailApp.sendEmail(EMAIL, 'alert! deviation conversion cost', 'account: ' + account_info);
+  }
+}
+
+/* FORECAST SERVICE */
+var forecastService = function(sheetService) { 
+  return {
+    getAccountRowIndex: function(accountId, labelName){
+      return parseInt(sheetService.getRowIndexBy2Columns(2, accountId, 3, labelName));
+    },
+    
+    getCustomerName: function(rowIndex){
+      return sheetService.getValue(rowIndex, 1);
+    },
+    getAccountId: function(rowIndex){
+      return sheetService.getValue(rowIndex, 2);
+    },
+    getLabel: function(rowIndex){
+      return sheetService.getValue(rowIndex, 3);
+    },
+    getStartDate: function(rowIndex){
+      var date = new Date(sheetService.getValue(rowIndex, 4));
+      date.setDate(date.getDate() + 1);
+      return date;
+    },
+    getEndDate: function(rowIndex){
+      var date = new Date(sheetService.getValue(rowIndex, 5));
+      date.setDate(date.getDate() + 1);
+      return date;
+    },
+    getBudget: function(rowIndex){
+      return parseFloat(sheetService.getValue(rowIndex, 6)).toFixed(2);
+    },
+    getConversionsTarget: function(rowIndex){
+      return parseInt(sheetService.getValue(rowIndex, 7));
+    },
+    getConversionCostTarget: function(rowIndex){
+      return parseFloat(sheetService.getValue(rowIndex, 8)).toFixed(2);
+    },
+    getAccountsIds: function(){
+      var values = [];
+      
+      var range = sheetService.getColumnValues(2, 2);
+      for(r in range)
+        for(c in range[r])
+          if(values.indexOf(range[r][c]) == -1)
+            values.push(range[r][c])
+      return values;
+    },
+    getAccountLabels: function(accountId){
+      return sheetService.findColumnValuesByFilter(2, accountId, 1);   
+    },   
+    setSpendForecast: function(rowIndex, value){
+      return sheetService.setValue(rowIndex, 9, value);
+    },
+    setSpendDeviation: function(rowIndex, value){
+      return sheetService.setValue(rowIndex, 10, value);
+    },
+    setConversionsForecast: function(rowIndex, value){
+      return sheetService.setValue(rowIndex, 11, value);
+    },
+    setConversionsDeviation: function(rowIndex, value){
+      return sheetService.setValue(rowIndex, 12, value);
+    },
+    setConversionCostForecast: function(rowIndex, value){
+      return sheetService.setValue(rowIndex, 13, value);
+    },
+    setConversionCostDeviation: function(rowIndex, value){
+      return sheetService.setValue(rowIndex, 14, value);
+    }
+  }
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  // e.g: setFormat('A1'); // set cell
+  // e.g: setFormat('A1:A10'); // set range
+  var setFormat = function(strRange, format){
+    var range = _sheet.getRange(strRange);
+    range.setNumberFormat(format);  
+  }
+  
+  var getBorderStyle = function(value){
+    value = value.toLowerCase();
+    switch(value){
+      case 'dotted': return SpreadsheetApp.BorderStyle.DOTTED;
+      case 'dashed': return SpreadsheetApp.BorderStyle.DASHED;
+      default:
+      case 'solid': return SpreadsheetApp.BorderStyle.SOLID;
+    }
+  }
+
+  return {   
+    sheet: _sheet,
+    hasSheet: _sheet != null,
+    sheetName: _sheet ? _sheet.getName() : '',
+    spreadSheet: _sheet.getParent(),
+    getLastRowIndex: function(){ return _sheet.getLastRow(); }, 
+    getLastColumnIndex: function(){ return _sheet.getLastColumn();}, 
+    getValue: function(rowPosition, columnPosition){ 
+       return _sheet.getRange(rowPosition, columnPosition).getValue();
+    }, 
+    getValueByRange: function(strRange){ /* A3, B1 etc.*/       
+       return _sheet.getRange(strRange).getValue();
+    },  
+    getValues: function(){
+       return _sheet.getDataRange().getValues();
+    },
+    getValuesByRange: function(strRange){ /* A3:B3, C1:C5 etc.*/       
+       return _sheet.getRange(strRange).getValues();
+    }, 
+    getRowValues:function(rowPosition){       
+       return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
+    },      
+    getRowIndex: function(columnPosition, key){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnPosition - 1] == key)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getRowIndexBy2Columns: function(columnAPosition, keyA, columnBPosition, keyB){ 
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnAPosition - 1] == keyA && rows[row][columnBPosition - 1] == keyB)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getColumnValues: function(startRowPosition, columnPosition){
+        // getRange(row, column, numRows, numColumns)
+        return _sheet.getRange(startRowPosition, columnPosition, _sheet.getLastRow() - 1, 1).getValues();
+     }, 
+     addRow: function(arrValues){ 
+       //_sheet.appendRow(arrValues);
+       this.addRowAtIndex(arrValues, _sheet.getLastRow() + 1);
+     },
+     addRowAtIndex: function(arrValues, rowPosition){               
+        rowPosition = rowPosition || _sheet.getLastRow() + 1;
+        var range = _sheet.getRange(rowPosition, 1, 1, arrValues.length);
+        range.setValues([arrValues]);
+     },
+     addImageFromURL: function(url, rowPosition, columnPosition, left, top){ 
+       top = top || 0;
+       left = left || 0;
+       
+       _sheet.insertImage(url, rowPosition, columnPosition, left, top);
+     },   
+     addImage: function(blob, rowPosition, columnPosition, left, top){ 
+       top = top || 0;
+       left = left || 0;
+       
+       _sheet.insertImage(blob, rowPosition, columnPosition, left, top);
+     }, 
+     deleteRow: function(rowPosition){
+       _sheet.deleteRow(rowPosition);
+     },  
+     sort: function(columnPosition){
+       _sheet.sort(columnPosition);
+     },
+     hasCharts:  _sheet.getCharts().length > 0,
+     findColumnValuesByFilter: function(columnPosition, filterValue, filterColumnPosition){
+       /* 
+          get column values filtered by other column
+          
+          e.g: findColumnValuesByFilter(2, '100', 1)          
+          all B column values that the value in A column equals to '100'
+       */
+
+       var result = [];       
+       var rows = _sheet.getDataRange().getValues();
+ 
+       for(row in rows)
+         if(rows[row][filterColumnPosition] == filterValue)
+           result.push(rows[row][columnPosition]);
+       return result;  
+     }, 
+     merge: function(strRange){
+       _sheet.getRange(strRange).merge();
+     },  
+     clear: function(charts, format, contents){
+       charts = charts || false;
+       format = format || false;
+       contents = contents || true;
+       
+       if(!charts) return; 
+       
+       // clear all charts
+       _sheet.clear({ formatOnly: format, contentsOnly: contents });        
+       var charts = _sheet.getCharts();
+       for (var i in charts)
+         _sheet.removeChart(charts[i]);
+     },          
+     setValue: function(rowPosition, columnPosition, value){ 
+       _sheet.getRange(rowPosition, columnPosition).setValue(value);
+     },     
+     setRangeValue: function(strRange, value){ 
+       // e.g: setCurrencyFormat('A1'); // set cell
+       _sheet.getRange(strRange).setValue(value);
+     },
+     setColumnWidth: function(columnPosition, width){
+       _sheet.setColumnWidth(columnPosition, width);
+     },  
+     setRowHeight: function(rowPosition, height){
+       _sheet.setRowHeight(rowPosition, height);
+     },  
+     setName: function(newName){
+       _sheet.setName(newName);
+     },         
+     setDataUI: function(strRange, backgroundColor, foreColor, fontSize, hAlign, fontWeight, border /* { color, style } */, vAlign){
+       var range = _sheet.getRange(strRange);
+       if(backgroundColor)
+           range.setBackground(backgroundColor);
+       if(foreColor)
+           range.setFontColor(foreColor);
+       if(fontSize)
+           range.setFontSize(fontSize);
+       if(hAlign)
+         range.setHorizontalAlignment(hAlign);
+       if(vAlign)
+         range.setVerticalAlignment(vAlign)
+	   if(fontWeight)
+         range.setFontWeight(fontWeight);
+       if(border)
+         range.setBorder(true, true, true, true, true, true, border.color, getBorderStyle(border.style))
+     }, 
+     setNumberFormat: function(strRange){
+       setFormat(strRange, '0');       
+     },
+     setDecimalFormat: function(strRange){
+       setFormat(strRange, '0.00');
+     },
+     setCurrencyFormat: function(strRange){
+       setFormat(strRange, '$0.00');
+     },
+     setPercentageFormat: function(strRange){
+       // e.g: setPercentageFormat('A1'); // set cell
+       // e.g: setPercentageFormat('A1:A10'); // set range
+       
+       setFormat(strRange, '0.00%');
+     },
+     setWeekFormat: function(strRange){
+       setFormat(strRange, 'MMM dd');
+     },
+     setMonthFormat: function(strRange){
+       setFormat(strRange, 'MMM');
+     },
+     setCellSumFormula: function(strRange, strCell){
+       // e.g: setCellSumFormula('A1:A10', 'B1'); 
+       // set SUM value of cells A1 to A10 to cell B1
+       
+       var cell = _sheet.getRange(strCell);
+       cell.setFormula('=SUM(' + strRange + ')');
+     },
+     setCellAvgFormula: function(strRange, strCell){
+       // e.g: setCellSumFormula('A1:A10', 'B1'); 
+       // set AVG value of cells A1 to A10 to cell B1
+       
+       var cell = _sheet.getRange(strCell);
+       cell.setFormula('=AVERAGE(' + strRange + ')');
+     }       
+   }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+	if(spreadSheetName == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheet_id){
+    if(spreadSheet_id == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var file = DriveApp.getFileById(spreadSheet_id);
+    if(!file || file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheet_id);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheet_id);
+    return SpreadsheetApp.openById(file.getId());    
+  },  
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  loadSpreadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  }
+}
+
+/* HELPER */  
+var HELPER = {
+  isLabelExists: function (labelName) {
+    return AdWordsApp.labels()
+    .withCondition('Name = "' + labelName + '"')
+    .get()
+    .hasNext();
+  },
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  },
+  dateDiff: function (date1, date2) {
+    var datediff = date1.getTime() - date2.getTime(); 
+    return (datediff / (24*60*60*1000));
+  },
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }
+};
+

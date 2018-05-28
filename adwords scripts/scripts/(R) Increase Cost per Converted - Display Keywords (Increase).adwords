@@ -1,0 +1,47 @@
+var P_CONVERSION_COST = 10;
+
+function main() {
+  var report = AdWordsApp.report(
+    'SELECT Id, AdGroupId ' + 
+    'FROM DISPLAY_KEYWORD_PERFORMANCE_REPORT ' + 
+    'WHERE Conversions > 0 ' + 
+    'DURING LAST_30_DAYS');
+  
+  var ids = [];
+  var rows = report.rows();  
+  while (rows.hasNext()) { 
+	var row = rows.next();
+
+	ids.push([row["AdGroupId"], row["Id"]]);    	
+  } 
+  //Logger.log(ids.length);
+  
+  var keywords = AdWordsApp.keywords().withIds(ids).get();
+    
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+    
+    var stat = keyword.getStatsFor('ALL_TIME');
+    var cost = stat.getCost();
+    var conversions = stat.getConversions();
+    
+    if(cost / conversions >= P_CONVERSION_COST)
+      continue;
+    
+    Logger.log(keyword.getText() + ' cost = ' + cost + '  conversions = ' + conversions);
+    
+    var cpc = keyword.getMaxCpc();
+    if(cpc == null)
+    {
+      cpc = keyword.getAdGroup().getKeywordMaxCpc();    
+      Logger.log('USE AD GROUP DEFAULT MAX CPC ' + cpc);
+    }
+    
+    cpc = cpc.toFixed(2);
+    var new_cpc = cpc * 1.1;
+     
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.setMaxCpc(new_cpc);
+    Logger.log(keyword.getText() + ' - ' + cpc + ' -> ' + new_cpc);
+  } 
+}

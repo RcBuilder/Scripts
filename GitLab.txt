@@ -42,3 +42,12 @@ git remote rename GitHubServer old-GitHubServer
 git remote add GitLabServer https://gitlab.com/RcBuilder/ChatProject.git
 git push -u GitLabServer --all
 git push -u GitLabServer --tags
+
+GitLab Extension for Visual Studio
+----------------------------------
+1. (vs) Tools -> Extensions and Updates
+2. Online -> Search for 'GitLab Extension for Visual Studio'
+3. Download 
+4. restart visual studio  
+
+use the Team Explorer window to communicate with your gitlab server!    

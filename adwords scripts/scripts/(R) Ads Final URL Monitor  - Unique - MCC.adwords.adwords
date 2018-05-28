@@ -1,0 +1,82 @@
+var EMAIL = 'RcBuilder@walla.com';
+var LABEL_NAME = 'AdsRule';
+
+function main() {
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + LABEL_NAME + '"').get();
+    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+    
+    MccApp.select(account);
+    ProcessAccount();
+    
+    Logger.log('--------------------------');
+  }
+  
+  function ProcessAccount(){
+    var accountName = AdWordsApp.currentAccount().getName();
+    
+    var ads = AdWordsApp.ads()
+    .withCondition('CampaignStatus = ENABLED')
+    .withCondition('AdGroupStatus = ENABLED')
+    .withCondition('Status = ENABLED')
+    .withCondition('Type NOT_IN [CALL_ONLY_AD]') // IMAGE_AD, MOBILE_AD, MOBILE_IMAGE_AD, PRODUCT_AD, RICH_MEDIA_AD, TEMPLATE_AD, TEXT_AD, CALL_ONLY_AD
+    //.withLimit(4)
+    .get();
+    
+    var uniqueURLs = [];
+    uniqueURLs.Exists = function(URL){
+      for(var i = 0; i < this.length; i++)
+        if(this[i] == URL)
+          return true;
+      return false;
+    }
+    
+    Logger.log('%s ads found.', ads.totalNumEntities())
+    while(ads.hasNext()){
+      var ad = ads.next();      
+      var adURL = ad.urls().getFinalUrl();
+      var adHeader = ad.getHeadline();
+      var adType = ad.getType();
+      
+      Logger.log('ad: %s (%s) -> %s', adHeader, adType, adURL);
+      
+      if(uniqueURLs.Exists(adURL)) continue;
+      uniqueURLs.push(adURL);
+    }
+    
+    Logger.log('%s unique URLs found.', uniqueURLs.length);
+    
+    for(var i = 0; i < uniqueURLs.length; i++)
+    {
+      var adURL = uniqueURLs[i];
+      
+      var statusCode = -1;
+      try{
+        var response = UrlFetchApp.fetch(adURL, { muteHttpExceptions: true });
+        statusCode = response.getResponseCode();      
+        Logger.log('[status %s] %s', statusCode, adURL);      
+      }
+      catch(e){
+        Logger.log('[exception %s] %s', e.message, adURL);      
+      }
+      
+      // OK
+      if(statusCode == 200) 
+        continue;
+      
+      Logger.log('send email notification to %s', EMAIL); 
+      
+      if(!AdWordsApp.getExecutionInfo().isPreview()){
+        var subject = 'Ad Monitor - Account ' + accountName;
+        var body = '<h3>statusCode: ' + statusCode +'</h3>'+                                        
+          '<p>adURL: ' + adURL + '</p>';
+      
+        MailApp.sendEmail(EMAIL, subject, '', { htmlBody: body });
+      }
+    }    
+  }
+}

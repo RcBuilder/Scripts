@@ -1,0 +1,22 @@
+var EMAIL = 'RcBuilder@walla.com';
+
+function main() {
+  var campaigns = AdWordsApp
+  .campaigns()
+  .withCondition("Clicks > 100")
+  .withCondition("Conversions = 0")
+  .forDateRange("ALL_TIME")
+  .get();
+  
+  var EMAIL_BODY = '';
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();
+
+    var message =  'need to pause "' + campaign.getName() + '"';
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';
+  }
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'Pause No Conversion Campaigns', EMAIL_BODY);
+}

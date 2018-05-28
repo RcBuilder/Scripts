@@ -1,0 +1,58 @@
+var BUDGET_LABEL_PREFIX = 'Budget_';
+var EMAIL = 'RcBuilder@walla.com';
+
+function main() {  
+  ProcessAccount();
+}
+
+function ProcessAccount(){
+  try{
+    var arrBudgetLabels = [];
+    var accoutLabels = AdWordsApp.labels().withCondition('Name STARTS_WITH "' + BUDGET_LABEL_PREFIX + '"').get();
+    while(accoutLabels.hasNext())
+      arrBudgetLabels.push(accoutLabels.next().getName());
+    
+    if(arrBudgetLabels.length == 0)
+    {
+      Logger.log('NO LABELS FOUND');
+      return;
+    }
+    
+    var campaigns = AdWordsApp.campaigns()
+    .withCondition('LabelNames CONTAINS_ANY [' + arrBudgetLabels + ']')
+    .withCondition('Status = ENABLED')
+    .get();
+    
+    while(campaigns.hasNext())
+    {
+      var campaign = campaigns.next();
+      var campaignName = campaign.getName();
+      
+      var stats = campaign.getStatsFor('THIS_MONTH');
+      var cost = stats.getCost();
+      
+      var budget = parseFloat(campaign.labels().withCondition('Name STARTS_WITH "' + BUDGET_LABEL_PREFIX + '"').get().next().getDescription());        
+      Logger.log('campaign "%s" -> budget: %s, cost: %s', campaignName, budget, cost);      
+      
+      if(cost < budget) continue;
+      Logger.log('BUDGET OVERFLOW!');
+      
+      var mailBody = 
+          '<div style="text-align:left;direction:ltr;">' +
+          '<table cellpadding="10" cellmargin="10">' +
+          '<tr><th>account</th><td>' + AdWordsApp.currentAccount().getName() + '</td></tr>' + 
+          '<tr><th>campaign</th><td>' + campaignName + '</td></tr>' + 
+          '<tr><th>budget</th><td>' + budget + '</td></tr>' + 
+          '<tr><th>cost</th><td>' + cost + '</td></tr>'
+          '</table>'
+      ;
+      
+      MailApp.sendEmail(EMAIL, 'BUDGET OVERFLOW!', '', { htmlBody: mailBody });
+      
+      campaign.pause();
+    }
+  }
+  catch(ex){
+    Logger.log(ex.message);
+  }
+}

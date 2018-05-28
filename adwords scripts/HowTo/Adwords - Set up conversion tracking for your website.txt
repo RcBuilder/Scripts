@@ -1,0 +1,22 @@
+[Adwords]
+
+--- Set up conversion tracking for your website ---
+
+1. open your adwords account 
+2. Tools -> Conversions
+3. Choose WebSite option 
+4. fill up the conversion details
+   - Name: the name of the conversion (Item Purchase, LP etc.)
+   - Value: the value foreach conversion (same value, by price or none)
+            note! if you chose 'by price', you'll have to customise your tag
+   - Count: the count value foreach conversion (Every or One)
+   - Conversion windows: how long to track after a client click on the ad
+   - View-through conversion window: how long to track after a client saw the ad on the Display Network
+   - Category: the category which describes best the conversion (Purchase/Sale, Sign-up, Lead etc.)
+   - Include in Conversions: choose YES
+   - Attribution model: choose 'Last Click'
+5. click 'Save and continue'
+6. (optional) Choose whether to track conversions on a page load or a click: 
+   define the conversion trigger, can be either page load or a button/link click event.
+   note! if you chose 'click' option, you'll have to customise your tag 
+7. copy the generated tracking tag and paste it within your site 

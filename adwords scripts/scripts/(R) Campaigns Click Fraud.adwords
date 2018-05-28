@@ -1,0 +1,148 @@
+var EMAILS = 'RcBuilder@walla.com,yosibaryosef@gmail.com';
+var UNIT_MAX_INCREMENT_LEVEL_USD = 1000;
+var INTERVAL_IN_MIN = 1;
+
+var FILE_NAME = 'campaigns_total_cost';
+var sheet = null;
+
+function main() {
+  var campaigns_count = AdWordsApp.campaigns().get().totalNumEntities();
+  var sleep_seconds = 0;
+  if(campaigns_count < 60)
+    sleep_seconds = 60 - campaigns_count;
+  Run(30, sleep_seconds);
+}
+
+function Sleep(seconds){
+  var dt = new Date();
+  while(true){
+    var dt2 = new Date();
+    var diff = Math.floor((dt2 - dt) / 1000);
+    if(diff > seconds) break;
+  }
+}
+
+function Run(times, seconds){
+  if(times == 0) return;
+  WORK();
+  Sleep(seconds);
+  Run(times - 1, seconds);
+}
+
+function WORK(){
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition('Status = ENABLED')
+  .get(); 
+  
+  var data_file = null;
+  var temp = DriveApp.getFilesByName(FILE_NAME);
+  var fileExists = temp.hasNext();
+
+  // no file found
+  if(!fileExists){
+    Logger.log('\nDATA FILE DOES NOT EXISTS, CREATE NEW');
+	
+    var spreadsheet = SpreadsheetApp.create(FILE_NAME);
+    sheet = spreadsheet.getActiveSheet();
+  }
+  else
+  {
+    Logger.log('\nLOAD DATA FILE FROM GOOGLE DRIVE');
+    
+    data_file = temp.next();
+    var spreadsheet = SpreadsheetApp.openById(data_file.getId());
+    sheet = spreadsheet.getActiveSheet(); 
+  }
+
+  var need_to_stop_campaigns = false;
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();
+    
+    var campaignId = campaign.getId();
+    var campaignName = campaign.getName();
+    
+    var stat = campaign.getStatsFor('ALL_TIME');
+    var total_cost = stat.getCost();
+    
+    Logger.log('\n(' + campaignId + ') ' + campaignName + ', total cost : ' + total_cost);  
+    
+    var row_index = GetCampaignRowIndex(campaignId);
+    
+    if(row_index == -1){
+      Logger.log('\nNO DATA FOUND FOR CAMPAIGN ' + '(' + campaignId + ') ' + campaignName);    
+      AddCampaignRow(campaignId, campaignName, total_cost); 
+      continue;
+    }
+    
+    Logger.log('\nrow ' + row_index);
+    
+    var last_total_cost = GetCampaignLastTotalCost(row_index);  
+    Logger.log('\nlast total cost : ' + last_total_cost);
+    
+    UpdateCampaignLastTotalCost(row_index, total_cost);
+    UpdateCampaignLastExecutionTime(row_index, new Date());   
+    
+    var dtLast = GetCampaignLastExecutionTime(row_index);
+    var dtNow = new Date();
+    var diff_in_min = Math.round((dtNow - dtLast) / 1000 / 60);
+    if(diff_in_min == 0) diff_in_min = 1;
+    
+    var units = diff_in_min;
+    if((total_cost - last_total_cost) <= UNIT_MAX_INCREMENT_LEVEL_USD * units)
+      continue;
+    
+    Logger.log('\nTOO HIGH INCREMENT - PAUSE ALL CAMPAIGNS!!');
+    need_to_stop_campaigns = true;
+    break; 
+  }
+  
+  if(!need_to_stop_campaigns) return;
+  
+  // REWIND
+  campaigns = AdWordsApp.campaigns()
+  .withCondition('Status = ENABLED')
+  .get();
+  
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();
+    
+    var campaignName = campaign.getName();
+    
+    Logger.log('\npause ' + campaignName);
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      campaign.pause();   
+  }
+  
+  MailApp.sendEmail(EMAILS, 'fraud script', 'all campaigns were paused');
+}
+
+function GetCampaignRowIndex(id){
+  var rows = sheet.getDataRange().getValues();
+ 
+  for(row in rows)
+    if(rows[row][0] == id)
+      return parseInt(row) + 1;
+  return -1;   
+}
+
+function GetCampaignLastExecutionTime(row_index){
+  return sheet.getRange(row_index, 4).getValue();
+}
+
+function GetCampaignLastTotalCost(row_index){
+  return sheet.getRange(row_index, 3).getValue();
+}
+
+function UpdateCampaignLastExecutionTime(row_index, value){
+  sheet.getRange(row_index, 4).setValue(value);
+}
+
+function UpdateCampaignLastTotalCost(row_index, value){
+  sheet.getRange(row_index, 3).setValue(value);
+}
+
+function AddCampaignRow(id, name, value){
+  var last_row = parseInt(sheet.getLastRow());
+  sheet.appendRow([id, name, value, new Date()]);
+  return last_row;
+}

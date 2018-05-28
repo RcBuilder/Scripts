@@ -1,0 +1,435 @@
+var DATA_SPREADSHEET = 'AdsCreator';
+var LABEL_NAME = 'AdsRule';
+var adGroupDefaultBid = 0.1;
+
+function main() {
+  var spreadSheetService = SpreadsheetLoader.loadSpreadSheetService(DATA_SPREADSHEET, false);
+  if(!spreadSheetService){
+	Logger.log('No sheets found!');
+    return;
+  }
+  
+  // get all sheets within the loaded spreadsheet 
+  var arrSheetServices = spreadSheetService.sheets;
+  Logger.log('%s sheets found.', arrSheetServices.length.toFixed(0));    
+  
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition('LabelNames CONTAINS_ANY ["' + LABEL_NAME + '"]')
+  .get();  
+  
+  while(campaigns.hasNext())
+  {
+    var campaign = campaigns.next();
+    
+    Logger.log('### campaign: %s ###', campaign.getName());    
+    ProcessCampaign(campaign, arrSheetServices);
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessCampaign(campaign, arrSheetServices){
+  for(i in arrSheetServices)
+    ProcessCampaignSheet(campaign, arrSheetServices[i]);
+}
+
+function ProcessCampaignSheet(campaign, sheetService){
+  // create ads creator service
+  var adsCreatorService = AdsCreatorService(sheetService);
+  
+  var adGroup = CreateAdGroup(campaign, adsCreatorService.getAdGroupName());
+  if(!adGroup){
+    Logger.log('some error occured');
+    return;
+  }             
+  Logger.log('AdGroup created successfully');
+  
+  var arrKeywods = adsCreatorService.getKeywods();      
+  CreateKeywords(adGroup, arrKeywods);    
+  
+  // { header, line1, line2, displayURL, destinationURL }
+  var adData = adsCreatorService.getAdData();  
+  var ad = CreateAd(adGroup, adData.header, adData.line1, adData.line2, adData.displayURL, adData.destinationURL);
+  if(!ad){
+    Logger.log('some error occured');
+    return;
+  }
+  Logger.log('Ad created successfully');
+}
+
+// create adgroup    
+function CreateAdGroup(campaign, adGroupName){
+  Logger.log('New AdGroup "%s"', adGroupName); 
+  
+  var adGroupBuilder = campaign.newAdGroupBuilder();
+  var operation = adGroupBuilder.withName(adGroupName.toString()).withCpc(adGroupDefaultBid).build();
+  
+  if(!operation.isSuccessful())
+    return null;
+  return operation.getResult();
+}
+
+// create keywords
+function CreateKeywords(adGroup, arrKeywods){  
+  for(i in arrKeywods){
+    var keyword = arrKeywods[i];
+    Logger.log('New Keyword "%s"', keyword);
+    adGroup.newKeywordBuilder().withText(keyword).build();
+  }
+}
+
+// create ad
+function CreateAd(adGroup, header, line1, line2, displayURL, destinationURL){ 
+  Logger.log('New Ad "%s"', header);
+  
+  var operation = adGroup.newTextAdBuilder()
+    .withHeadline(header) // 25 characters
+    .withDescription1(line1) // 35 characters
+    .withDescription2(line2) // 35 characters
+    .withDisplayUrl(displayURL) // 255 characters
+    .withFinalUrl(destinationURL) // 255 characters
+    .build();
+    
+  if(!operation.isSuccessful())
+    return null;
+  return operation.getResult();
+}
+
+/* ADS CREATOR SERVICE */
+var AdsCreatorService = function(sheetService) { 
+  return {  
+    getAdGroupName: function(){
+      return sheetService.getValueByRange('A2');
+    },
+    getKeywods: function(){            
+      var result = [];  
+       var range = sheetService.getColumnValues(2, 3);
+       for(i in range)
+         for(j in range[i])
+         {
+           var value = range[i][j];
+           if(value == '') continue;
+           result.push(value);      
+         }
+      
+       return result;
+    },
+    getAdData: function(){
+      var range = sheetService.getValuesByRange('B2:B6');      
+      return { header: range[0][0], line1: range[1][0], line2: range[2][0], displayURL: range[3][0], destinationURL: range[4][0] };
+    }
+  }
+}
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+    getActiveSheet: function(){
+      return SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+         for(var i= 0; i < _sheets.length; i++)
+            if(_sheets[i].sheetName == sheetName)
+              return _sheets[i];
+          return '';
+    },
+    addNewSheet: function(sheetName){
+        var new_sheet = SheetService(_spreadSheet.insertSheet(sheetName));
+        _sheets.push(new_sheet)
+        return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+        return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    },
+	getId: function(){
+      return _spreadSheet.getId();
+    }  
+  }; 
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  var setFormat = function(strRange, format){
+    var range = _sheet.getRange(strRange);
+    range.setNumberFormat(format);  
+  }
+  
+  return {      
+     hasSheet: _sheet != null,
+     sheetName: _sheet ? _sheet.getName() : '',
+     getLastRowIndex: function(){ return _sheet.getLastRow();}, 
+     getLastColumnIndex: function(){ return _sheet.getLastColumn();}, 
+     getValue: function(rowPosition, columnPosition){ 
+       return _sheet.getRange(rowPosition, columnPosition).getValue();
+     }, 
+     getValueByRange: function(strRange){ /* A3, B1 etc.*/       
+       return _sheet.getRange(strRange).getValue();
+     },      
+     getValues: function(){
+       return _sheet.getDataRange().getValues();
+     }, 
+     getValuesByRange: function(strRange){ /* A3:B3, C1:C5 etc.*/       
+       return _sheet.getRange(strRange).getValues();
+     }, 
+     getRowValues:function(rowPosition){       
+       return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
+     }, 
+     setValue: function(rowPosition, columnPosition, value){ 
+       _sheet.getRange(rowPosition, columnPosition).setValue(value);
+     },     
+     addRow: function(arrValues){ 
+       //_sheet.appendRow(arrValues);
+       this.addRowAtIndex(arrValues, _sheet.getLastRow() + 1);
+     },
+     addRowAtIndex: function(arrValues, rowPosition){               
+        rowPosition = rowPosition || _sheet.getLastRow() + 1;
+        var range = _sheet.getRange(rowPosition, 1, 1, arrValues.length);
+        range.setValues([arrValues]);
+     },  
+     deleteRow: function(rowPosition){
+       _sheet.deleteRow(rowPosition);
+     },  
+     sort: function(columnPosition){
+       _sheet.sort(columnPosition);
+     },
+     getRowIndex: function(columnPosition, key){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnPosition - 1] == key)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getRowIndexBy2Columns: function(columnAPosition, keyA, columnBPosition, keyB){ 
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnAPosition - 1] == keyA && rows[row][columnBPosition - 1] == keyB)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getColumnValues: function(startRowPosition, columnPosition){
+        // getRange(row, column, numRows, numColumns)
+        return _sheet.getRange(startRowPosition, columnPosition, _sheet.getLastRow() - 1, 1).getValues();
+     }, 
+     findColumnValuesByFilter: function(columnPosition, filterValue, filterColumnPosition){
+       /* 
+          get column values filtered by other column
+          
+          e.g: findColumnValuesByFilter(2, '100', 1)          
+          all B column values that the value in A column equals to '100'
+       */
+
+       var result = [];       
+       var rows = _sheet.getDataRange().getValues();
+ 
+       for(row in rows)
+         if(rows[row][filterColumnPosition - 1] == filterValue)
+           result.push(rows[row][columnPosition]);
+       return result;  
+     }, 
+     clear: function(format, contents){
+       format = format || false;
+       contents = contents || true;
+       
+       _sheet.clear({ formatOnly: format, contentsOnly: contents }); 
+       
+       var charts = _sheet.getCharts();
+       for (var i in charts)
+         _sheet.removeChart(charts[i]);
+     },     
+     addLineChart: function(arrRanges /* range format: 'B15:B24' */, arrColors, arrLabels, arrVAxisTicks, width, height, rowPosition, columnPosition){        
+       var chartBuilder = _sheet.newChart();
+              
+       for (var i in arrRanges)         
+         chartBuilder.addRange(_sheet.getRange(arrRanges[i]));       
+       
+       var series = [];
+       for (var i in arrColors)         
+         series.push({ color: arrColors[i], labelInLegend : arrLabels[i]});
+       
+       chartBuilder
+       .setChartType(Charts.ChartType.LINE)  // chart type - line        
+       .setPosition(rowPosition, columnPosition, 0, 0)  // chart location row X column Y       
+                            
+       .setOption('animation.duration', 500) // animation                 
+       .setOption('width', width)        
+       .setOption('height', height)   
+       //.setOption('colors', ['#4572A7', '#AA4643', '#89A54E'])   
+       //.setOption('title', '')          
+       .setOption('pointShape', 'square')   
+       .setOption('pointSize', 4)                     
+       .setOption('legend', { position: 'bottom', alignment: 'center' })                 
+       .setOption('series', series)
+       
+       if(arrVAxisTicks)
+         chartBuilder.setOption('vAxis.ticks', arrVAxisTicks);
+       
+       _sheet.insertChart(chartBuilder.build());
+     },
+     addImageFromURL: function(url, rowPosition, columnPosition, top, left){ 
+       top = top || 0;
+       left = left || 0;
+       
+       _sheet.insertImage(url, rowPosition, columnPosition, left, top);
+     },   
+     setDataUI: function(strRange, backgroundColor, foreColor, fontSize, align){
+       var range = _sheet.getRange(strRange);
+       if(backgroundColor)
+           range.setBackground(backgroundColor);
+       if(foreColor)
+           range.setFontColor(foreColor);
+       if(fontSize)
+           range.setFontSize(fontSize);
+       if(align)
+         range.setHorizontalAlignment(align);
+     }, 
+     setNumberFormat: function(strRange){
+       setFormat(strRange, '0');       
+     },
+     setDecimalFormat: function(strRange){
+       setFormat(strRange, '0.00');
+     },
+     setCurrencyFormat: function(strRange){
+       // e.g: setCurrencyFormat('A1'); // set cell
+       // e.g: setCurrencyFormat('A1:A10'); // set range
+       
+       setFormat(strRange, '$0.00');
+     },
+     setCellSumFormula: function(strRange, strCell){
+       // e.g: setCellSumFormula('A1:A10', 'B1'); 
+       // set SUM value of cells A1 to A10 to cell B1
+       
+       var cell = _sheet.getRange(strCell);
+       cell.setFormula('=SUM(' + strRange + ')');
+     }
+   }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+	if(spreadSheetName == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheet_id){
+    if(spreadSheet_id == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var file = DriveApp.getFileById(spreadSheet_id);
+    if(!file || file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheet_id);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheet_id);
+    return SpreadsheetApp.openById(file.getId());    
+  },  
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  loadSpreadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  }
+}

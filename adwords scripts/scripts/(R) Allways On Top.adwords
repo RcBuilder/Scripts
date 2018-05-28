@@ -1,0 +1,75 @@
+/*
+How To Label Keywords: 
+go to the keywords panel -> choose keyword/s -> click Label button -> choose the label you'd like from the presented labels list
+*/
+
+var FBBID = 0.10; // first page bid
+var TPBID = 0.10; // top page bid
+
+var MAXBID = { // labels max bid
+  'Label1' : 4, 
+  'Label2' : 4, 
+  'Label3' : 4
+};
+
+function main() {
+  var lables = AdWordsApp.labels().get();
+
+  while (lables.hasNext()) {
+   var label = lables.next();
+   var label_max_bid = GetLabelMaxBid(label.getName());
+
+   if(label_max_bid == 0) continue; 
+    
+   Logger.log('### ' + label.getName() + ' ###');
+   Logger.log('MAX BID : ' + label_max_bid);
+    
+   var keywords = label.keywords().withCondition('Status = ENABLED').get();
+   Logger.log('keywords : %s', keywords.totalNumEntities());
+   while (keywords.hasNext()) {
+   var keyword = keywords.next();
+     
+     var fb = keyword.getFirstPageCpc();
+     var tp = keyword.getTopOfPageCpc();
+          
+     var bidding = keyword.bidding();
+     Logger.log(keyword.getText() + ' -> ' + 'fb: ' + fb + ' tp: ' + tp + ' cpc: ' + bidding.getCpc());          
+     
+     var current_bid = bidding.getCpc();
+     var new_bid = current_bid;
+     
+     // current bid is bigger than the maximum allowed for the current label
+     // bid is higher than allowed! 
+     if(new_bid > label_max_bid)
+       new_bid = label_max_bid;
+     
+     // current bid is bigger than the top page bid plus the increasment value 
+     // too much money is spending with no actual need - decrease the bid volume to the minimum that will still locate you at the top
+     // bid is higher than the top of page!
+     if(new_bid > (tp + TPBID))
+       new_bid = tp + TPBID;
+          
+     // maximum label budget is bigger than the top page bid plus the increasment value - there's enough bugdet - set it to be at the top
+     if(label_max_bid > (tp + TPBID))
+       new_bid = tp + TPBID;
+     else if(label_max_bid > (fb + FBBID)) // maximum label budget is bigger than the first page bid plus the increasment value - there's enough bugdet - set it to be at the first page
+       new_bid = fb + FBBID;
+     else new_bid = label_max_bid;
+       
+     if(new_bid != current_bid)
+     {
+       if(!AdWordsApp.getExecutionInfo().isPreview())
+         bidding.setCpc(new_bid);
+       Logger.log('bid volume ' + current_bid + ' updated to ' + new_bid);
+     }
+   }  
+ }
+}
+
+function GetLabelMaxBid(labelName){
+  try{
+    var result = MAXBID[labelName];
+    return result || 0;
+  }
+  catch(e){ return 0; }
+}

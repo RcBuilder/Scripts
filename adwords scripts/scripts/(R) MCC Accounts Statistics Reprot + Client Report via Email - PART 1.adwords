@@ -1,0 +1,182 @@
+var SHEET_NAME = 'accountsStatistics';
+var LABEL_PREFIX = 'REPORT_';
+
+function main() {
+  // create statistics service (data sheet)
+  var statisticsService = new StatisticsService(new SheetService(SHEET_NAME));
+  
+  // add sheet header row if needed 
+  if(!statisticsService.hasHeader())
+    statisticsService.addHeader();
+  
+  // create reporter service   
+  var reportService = new ReportService(); 
+     
+  var accounts = MccApp.accounts().get();  
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    // current account has no report label - move to the next account
+    var hasReportLabel = HELPER.containsReportLabel.call(account);
+    if(!hasReportLabel) continue;
+    
+    Logger.log('### account: %s ###', account.getName());    
+    ProcessAccount(account, statisticsService, reportService);
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(account, statisticsService, reportService){
+  var account_id = account.getCustomerId();
+  var stats = account.getStatsFor('ALL_TIME');
+ 
+  var dataRow = { 
+    accountId: account_id,
+    Date: new Date(),
+    clicks: stats.getClicks(), 
+    conversions: stats.getConversions(),
+    cost: stats.getCost(),
+    impressions: stats.getImpressions(),
+    convertedClicks: stats.getConvertedClicks(),
+    conversionRate: stats.getClickConversionRate()
+  };
+  
+  Logger.log('clicks %s, conversions %s, cost %s, impressions %s, convertedClicks %s, conversionRate %s', dataRow.clicks, dataRow.conversions, dataRow.cost, dataRow.impressions, dataRow.convertedClicks, dataRow.conversionRate);
+  
+  Logger.log('Adding Sheet Row ...');
+  statisticsService.addRow(dataRow);
+  
+  Logger.log('Generating Client Report ...');
+  var reportHTML = reportService.generate(dataRow);
+  
+  // convert html content into pdf blob
+  var reportPDF = HELPER.HTML2PDF(reportHTML, 'account statistics'.concat(HELPER.dateFormat(dataRow.Date)));
+  
+  var account_email = HELPER.getReportLabel.call(account);
+  Logger.log('sending Report to Client (%s) ...', account_email);
+  MailApp.sendEmail(account_email, 'Account Statistics Report', 'Report Attached!', {attachments: [reportPDF]});
+  Logger.log('DONE!');
+}
+
+var ReportService = function(){
+  return { 
+    generate: function(dataRow){
+      return '<h1 style="color:blue">account statistics</h1>' +
+          '<p>clicks: ' + dataRow.clicks + '</p>' +
+          '<p>conversions:' + dataRow.conversions + '</p>' +
+          '<p>cost: ' + dataRow.cost + '</p>' +
+          '<p>impressions: ' + dataRow.impressions + '</p>' +
+          '<p>convertedClicks: ' + dataRow.convertedClicks + '</p>' +
+          '<p>conversionRate: ' + dataRow.conversionRate + '</p>';        
+    }
+  }
+}
+
+/* Statistics Service SERVICE */
+var StatisticsService = function(sheetService) { 
+  return {
+    hasHeader: function() { 
+      return parseInt(sheetService.getLastRowIndex()) > 0;
+    },
+    addHeader: function(dataRow){   
+      sheetService.addRow(['accountId', 'Date', 'clicks', 'conversions', 'cost', 'impressions', 'convertedClicks', 'conversionRate']);
+    },
+    addRow: function(dataRow){      
+      sheetService.addRow([dataRow.accountId, dataRow.Date, dataRow.clicks, dataRow.conversions, dataRow.cost, dataRow.impressions, dataRow.convertedClicks, dataRow.conversionRate]);
+    }
+  }
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet_name) { 
+  var _sheet = null;
+  var _sheet_name = sheet_name;  
+  
+  var _init = function(){
+    var data_file = null;
+    var temp = DriveApp.getFilesByName(sheet_name);
+    var fileExists = temp.hasNext();
+    
+    var spreadsheet = null;
+    if(!fileExists){
+      // file not exists - create new file 
+      Logger.log('%s NOT EXISTS! Create New Sheet...', sheet_name);
+      spreadsheet = SpreadsheetApp.create(sheet_name);      
+    }
+    else
+    {
+      // file exists - load it
+      Logger.log('LOADING %s ... ', sheet_name);
+      data_file = temp.next();
+      spreadsheet = SpreadsheetApp.openById(data_file.getId());
+    }
+        
+    _sheet = spreadsheet.getActiveSheet();  
+   };
+  
+   _init();
+  
+   return {      
+     sheet_name: _sheet_name,
+     getLastRowIndex: function(){ return _sheet.getLastRow();}, 
+     getValue: function(rowIndex, columnIndex){ 
+       return _sheet.getRange(rowIndex, columnIndex).getValue();
+     }, 
+     setValue: function(rowIndex, columnIndex, value){ 
+       return _sheet.getRange(rowIndex, columnIndex).setValue(value);
+     },     
+     addRow: function(arrValues){ 
+       return _sheet.appendRow(arrValues);
+     },
+     getRowIndex: function(columnIndex, key){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnIndex - 1] == key)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getRowIndexBy2Columns: function(columnAIndex, keyA, columnBIndex, keyB){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnAIndex - 1] == keyA && rows[row][columnBIndex - 1] == keyB)
+           return parseInt(row) + 1;
+       return -1;  
+     }
+   }; 
+}
+
+/* HELPER */  
+var HELPER = {
+  containsReportLabel: function () {
+    return this.labels()
+    .withCondition('Name STARTS_WITH "' + LABEL_PREFIX + '"')
+    .get()
+    .hasNext();
+  }, 
+  getReportLabel: function(){
+    return this.labels()
+    .withCondition('Name STARTS_WITH "' + LABEL_PREFIX + '"')
+    .get().next().getName().replace(LABEL_PREFIX, '');
+  }, 
+  HTML2PDF: function(strHtml, pdfName){
+    var blob = Utilities.newBlob(strHtml, MimeType.HTML);
+    var pdf = blob.getAs(MimeType.PDF);  
+    pdf.setName(pdfName);
+    return pdf
+  },
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  }
+};

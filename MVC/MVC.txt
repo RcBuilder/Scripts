@@ -2477,6 +2477,15 @@ see 'Authorization.txt'
   e.g:
   <input value="@artist.id" type="checkbox" @(artist.IsSelected ? "checked" : "" ) />
 
+
+* render HTML attributes using HtmlString
+
+  // old approach
+  <input type="radio" @(isExistsCustomer ? "checked=\"checked\"" : null) />
+
+  // using HtmlString(string) method
+  <input type="radio" @(isExistsCustomer ? new HtmlString("checked=\"checked\"") : null) />
+
 --------------------------------------------------------------
 // TODO Research
 

@@ -1,0 +1,301 @@
+// -----------------------------------------------------------------------------------------------------------------------------
+// Your spreadsheet URL
+var SPREADSHEET_URL = 'https://docs.google.com/spreadsheets/d/1-dl0i8hO3n_o48HZ7O_IbLNbzSCbNtPUkxwYnw1APn4/edit#gid=0';
+
+meta_sheet_name = 'meta';
+ACCOUNT_RANGE = meta_sheet_name + '!account_id_report';
+LAST_CHECK_RANGE = meta_sheet_name + '!last_check';
+
+// Columns that should be retrieved from the report
+var cols = ['DayOfWeek', 'CampaignName', 'AdGroupName', 'Year', 'Quarter', 'Month', 'Week', 'Cost', 'AveragePosition', 
+            'Impressions', 'Clicks', 'Conversions', 'ValuePerConversion', 'Device', 'CityCriteriaId', 'CountryCriteriaId'
+];
+
+var howManyDays = 2; // How many days to check if last_check field is not set
+
+
+var sheet_name = 'Report';
+
+var FIRST_EMPTY_ROW = 2; // Row number from which the function has to find an empty line
+var FIRST_EMPTY_COL = 1; // Column number from which it has to find an empty line
+
+// -----------------------------------------------------------------------------------------------------------------------------
+
+
+
+var REPORTING_OPTIONS = {
+  // Comment out the following line to default to the latest reporting version.
+  apiVersion: 'V201710'
+};
+
+// main function
+function main() {
+  var tz = AdWordsApp.currentAccount().getTimeZone();
+  Logger.log('Using spreadsheet - %s.', SPREADSHEET_URL);
+  var spreadsheet = validateAndGetSpreadsheet();
+  Logger.log('Setting spreadsheet timezone: ' + tz);
+  spreadsheet.setSpreadsheetTimeZone(tz);
+  spreadsheet.getRangeByName(ACCOUNT_RANGE).setValue(AdWordsApp.currentAccount().getCustomerId());
+  var sheet = spreadsheet.getSheetByName(sheet_name);
+  var last_check = sheet.getRange(sheet.getLastRow(), 2).getValue();
+  last_check = is_date(last_check)?last_check:'';
+  var today = new Date();
+  Logger.log('today is ' + render_date(today, tz));
+  Logger.log('now is: ' + Utilities.formatDate(today, tz, 'HH:mm'));
+  var date;
+  if (last_check.length == 0) {
+    date = add_days(today, -howManyDays);
+    Logger.log('Last check date not defined. Apllying default offest: ' + render_date(date, tz));
+  } else {
+    Logger.log('Last report date is: ' + render_date(last_check, tz));
+    date = add_days(last_check, 1);
+    if (render_date(date, tz) == render_date(today, tz)) {
+      Logger.log('Report is up to date');
+      return;
+    }
+    Logger.log('Start from ' + render_date(date, tz) + "\n");
+  }
+
+  var result = {};
+
+
+  while (render_date(date, tz) < render_date(today, tz)) {
+    Logger.log('Processing '+ render_date(date, tz));
+    var rows = getReportRowForDate('GEO_PERFORMANCE_REPORT', cols, date, tz);
+    
+    var count = 0;
+    while (rows.hasNext()) {
+      var row = rows.next();
+      count++;
+      
+      // change quarter
+      var q = row['Quarter'];
+      row['Quarter'] = getQuarter(q);
+      
+      // change device
+      var device = row['Device'];
+      device = device.split(' ')[0];
+      if (device == 'Computers') device = 'Desktop';
+      else if (device == 'Tablets') device = 'Tablet';
+      row['Device'] = device;
+      
+      // change month
+      var month = row['Month'];
+      month = getMonthName(month);
+      row['Month'] = month;
+      
+      // change week
+      var week = row['Week'];
+      week = getWeek(week);
+      row['Week'] = week;
+
+      
+      var newrow = [];
+      newrow.push(new Date(date));
+      for (var key in cols)
+        if (cols.hasOwnProperty(key)) 
+          newrow.push(row[cols[key]]);        
+      
+      var d = render_date(date, tz); 
+      var c_name = row['CampaignName'];
+      var g_name = row['AdGroupName'];
+      var gender = row['Criteria'];
+      var city = row['CityCriteriaId'];
+      
+      if (result[d] == undefined) {result[d] = {};};
+      if (result[d][c_name] == undefined) {result[d][c_name] = {};};
+      if (result[d][c_name][g_name] == undefined) {result[d][c_name][g_name] = {};};
+      if (result[d][c_name][g_name][device] == undefined) {result[d][c_name][g_name][device] = {};};
+      if (result[d][c_name][g_name][device][city] == undefined) {result[d][c_name][g_name][device][city] = newrow;};      
+    }
+    
+    Logger.log('%s rows found', parseInt(count));
+    
+    spreadsheet.getRangeByName(LAST_CHECK_RANGE).setValue(date);
+    date.setDate(date.getDate() + 1);    
+  }
+  
+  var m = result_to_matrix(result);
+  if (m.length > 0) {
+    var access = new SpreadsheetAccess(SPREADSHEET_URL, sheet_name);
+    var emptyRow = access.findEmptyRow(FIRST_EMPTY_ROW, FIRST_EMPTY_COL);
+    if (emptyRow < 0) {
+      access.addRows(m.length);
+      emptyRow = access.findEmptyRow(FIRST_EMPTY_ROW, FIRST_EMPTY_COL);
+    }
+    access.writeRows(m, emptyRow, 1);
+  }  
+}
+
+
+
+function getReportRowForDate(report_name, cols, date, tz) {
+  var dateString = render_date(date, tz).replace(/-/g,'');
+  return getReportRowForDuring(report_name, cols, dateString + ',' + dateString);
+}
+
+function getReportRowForDuring(report_name, cols, during) {
+  // during = '20100303,20180303';
+  var req = ['SELECT', 'Date, CampaignId, AdGroupId,', cols.join(','), 'FROM', report_name, 'WHERE Impressions > 0', 'DURING', during].join(' ');
+  Logger.log('Retreiving data for period: ' + during);
+  var report = AdWordsApp.report(req, REPORTING_OPTIONS);
+  return report.rows();
+}
+
+function SpreadsheetAccess(spreadsheetUrl, sheetName) {
+  this.spreadsheet = SpreadsheetApp.openByUrl(spreadsheetUrl);
+  this.sheet = this.spreadsheet.getSheetByName(sheetName);
+
+  // what column should we be looking at to check whether the row is empty?
+  this.findEmptyRow = function(minRow, column) {
+    var values = this.sheet.getRange(minRow, column,
+      this.sheet.getMaxRows(), 1).getValues();
+    for (var i = 0; i < values.length; i++)
+      if (!values[i][0])
+        return i + minRow;
+    return -1;
+  };
+  
+  this.addRows = function(howMany) {
+    this.sheet.insertRowsAfter(this.sheet.getMaxRows(), howMany);
+  };
+  
+  this.writeRows = function(rows, startRow, startColumn) {
+    this.sheet.getRange(startRow, startColumn, rows.length, rows[0].length).
+    setValues(rows);
+  };
+}
+
+
+function parseDate(input) {
+  var parts = input.split('-');
+  return new Date(parts[0], parts[1]-1, parts[2]);
+}
+
+
+function getQuarter(s) {
+  var date = parseDate(s);
+  var quarter = Math.floor((date.getMonth() + 3) / 3);
+  return 'Q' + quarter + ' ' + date.getFullYear();
+}
+
+function getMonthName(s) {
+  var monthNames = ["January", "February", "March", "April", "May", "June",
+                    "July", "August", "September", "October", "November", "December"];      
+  var date = parseDate(s);
+  return monthNames[date.getMonth()];
+}
+
+function getMonthShort(date) {
+  var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return monthNames[date.getMonth()];
+}
+
+function getMonday(d) {
+  d = new Date(d);
+  var day = d.getDay(),
+      diff = d.getDate() - day + (day == 0 ? -6:1);
+  d.setDate(diff);
+  return d;
+}
+
+function getWeek(s) {
+  var d = parseDate(s);
+  var monday = getMonday(d);
+  return 'Week of ' + getMonthShort(monday) + ' ' + monday.getDate();
+}
+
+function formatChangeString(newValue, oldValue) {
+  var x = newValue.indexOf('%');
+  if (x != -1) {
+    newValue = newValue.substring(0, x);
+    var y = oldValue.indexOf('%');
+    oldValue = oldValue.substring(0, y);
+  }
+
+  var change = parseFloat(newValue - oldValue).toFixed(2);
+  var changeString = change;
+  if (x != -1) {
+    changeString = change + '%';
+  }
+
+  if (isNaN(change)) return '';
+
+  if (change >= 0) {
+    return "<span style='color: #38761d; font-size: 8pt'> (+" +
+      changeString + ')</span>';
+  } else {
+    return "<span style='color: #cc0000; font-size: 8pt'> (" +
+      changeString + ')</span>';
+  }
+}
+
+
+
+function getLastTime() {
+  var last = new Date(new Date().getTime() - howManyDays * 24 * 3600 * 1000);
+  var ret = new Date(getDateStringInTimeZone('MMM dd, yyyy 12:00:00 Z',
+    last));
+  Logger.log(ret);
+  return ret;
+}
+
+
+function getDateStringInTimeZone(format, date, timeZone) {
+  date = date || new Date();
+  timeZone = timeZone || AdWordsApp.currentAccount().getTimeZone();
+  return Utilities.formatDate(date, timeZone, format);
+}
+
+
+function validateAndGetSpreadsheet() {
+  if ('' == SPREADSHEET_URL) {
+    throw new Error('Please specify a valid Spreadsheet URL. You can find' +
+      ' a link to a template in the associated guide for this script.');
+  }
+  var spreadsheet = SpreadsheetApp.openByUrl(SPREADSHEET_URL);
+
+  return spreadsheet;
+}
+
+result_to_matrix = function(h){
+  var r;
+  r = keys(h).map(
+   function(day){
+     return keys(h[day]).map(
+       function(c_name){
+         return keys(h[day][c_name]).map(
+           function(g_name){
+             return keys(h[day][c_name][g_name]).map(
+             function(device){
+               return keys(h[day][c_name][g_name][device]).map(
+               function(city){
+                 var v;
+                 v =  h[day][c_name][g_name][device][city];
+                 return v.slice(0, v.length - 1);
+               })
+             })
+           })
+       })
+   });
+  return flat(flat(flat(flat(r))));
+}
+
+keys = function(h){return Object.keys(h).sort();}
+
+function flat(v){return v.reduce(function(a, b){return a.concat(b)}, [])};
+
+render_date = function(date, tz){
+  return Utilities.formatDate(date, tz, 'yyyy-MM-dd Z').split(' ')[0];
+}
+
+//::JsDate -> Number -> JsDate
+add_days = function(date, n) {
+    var d1;
+    d1 = new Date(date.getTime());//making copy of object
+    d1.setDate(d1.getDate() + n);
+    return d1;
+}
+
+is_date = function(a) {return {}.toString.call(a) === '[object Date]'};

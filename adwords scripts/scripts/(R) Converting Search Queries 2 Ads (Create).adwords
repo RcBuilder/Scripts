@@ -1,0 +1,78 @@
+// TODAY, YESTERDAY, LAST_7_DAYS, THIS_WEEK_SUN_TODAY, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, THIS_MONTH, LAST_MONTH
+var DATE_RANGE = 'LAST_7_DAYS'; //'20100101, 20160101';
+var CONVERSIONS = 2;
+
+function main() {
+ var report = AdWordsApp.report(
+    'SELECT Query, CampaignId, Clicks, ConvertedClicks, Impressions, Ctr ' + 
+    'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' + 
+    'WHERE ConvertedClicks >= ' + CONVERSIONS + ' ' +
+    'DURING ' + DATE_RANGE);
+  
+  Logger.log('filter: At least %s conversions in %s', CONVERSIONS, DATE_RANGE);
+
+  var rows = report.rows();
+  while(rows.hasNext()) {
+    var row = rows.next();
+   
+    var query = row['Query'];        
+    var conversions = row['ConvertedClicks'];
+    var campaignId = row['CampaignId'];
+    
+    Logger.log('"%s" -> %s conversions',query, conversions);    
+        
+    var campaign = AdWordsApp.campaigns().withIds([campaignId]).get().next();   
+          
+    if(!AdWordsApp.getExecutionInfo().isPreview())  
+    {
+      // TODO ad data.. 
+      var adGroup = CreateAdGroup(campaign, query);
+      Logger.log('adgroup %s created', adGroup.getName());
+      
+      var ad = CreateAd(adGroup, query, 'line1', 'line2', 'http://example.com', 'http://example.com');
+      Logger.log('ad %s created', ad.getId());
+      
+      var arrKeywords = [query, '"' + query + '"', '[' + query + ']'];
+      CreateKeywords(adGroup, arrKeywords);      
+      Logger.log('%s keywords created', arrKeywords.length);
+    }       
+  }
+}
+
+function CreateAdGroup(campaign, adGroupName){
+  var adGroupBuilder = campaign.newAdGroupBuilder();
+  var operation = adGroupBuilder.withName(adGroupName).build();
+  
+  if(!operation.isSuccessful())
+    return null;
+  return operation.getResult();
+}
+
+function CreateAd(adGroup, header, line1, line2, displayURL, destinationURL){ 
+  var operation = adGroup.newTextAdBuilder()
+    .withHeadline(header) // 25 characters
+    .withDescription1(line1) // 35 characters
+    .withDescription2(line2) // 35 characters
+    .withDisplayUrl(displayURL) // 255 characters
+    .withFinalUrl(destinationURL) // 255 characters
+    .build();
+    
+  if(!operation.isSuccessful())
+    return null;
+  return operation.getResult();
+}
+
+function CreateKeywords(adGroup, arrKeywods){  
+  HELPER.foreach(arrKeywods, function(keyword){
+    Logger.log('new keyword %s', keyword);
+    adGroup.newKeywordBuilder().withText(keyword).build();
+  });
+}
+  
+var HELPER = {
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }
+}

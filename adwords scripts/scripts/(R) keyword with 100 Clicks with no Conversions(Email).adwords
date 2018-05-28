@@ -1,0 +1,25 @@
+var EMAIL = 'RcBuilder@walla.com';
+
+function main() {
+  var keywords = AdWordsApp
+  .keywords()
+  .withCondition('Status = ENABLED')
+  .withCondition('AdGroupStatus = ENABLED')
+  .withCondition('CampaignStatus = ENABLED')  
+  .withCondition("Clicks > 100")
+  .withCondition("Conversions = 0")
+  .forDateRange("ALL_TIME")
+  .get();
+  
+  var EMAIL_BODY = '';
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+        
+    var message = 'NO CONVERSION KEYWORD : "' + keyword.getText() + '"';
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';
+  }
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'NO CONVERSION KEYWORDS', EMAIL_BODY);
+}

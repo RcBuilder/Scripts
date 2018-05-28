@@ -1,0 +1,760 @@
+
+var SPREADSHEET_ID = '1NJ4ONSv-nPniLOZg-6pKY-9Swl8WDb6YbsBXZJYSvQ0';
+         
+var Images = {
+  allTime: 'alltime.png',
+  campaignsConversions:'campaignsconversions-month.png',
+  campaignsTraffic:'campaignstraffic-month.png',
+  clicksVsCpc:'clicksvscpc-weekly.png',
+  conversionsVsCpa:'conversionsvsconversionscpa-weekly.png',
+  costVsClick:'costvsclickbyweek.png',
+  Wow:'wowperformance.png',
+  currentYear:'currentyear.png',
+  campaignsResults: 'campaigns-performance.png',
+  weeklyResults: 'weeklyperformance.png',
+  monthlyResults: 'monthly-performance.png',
+  adGroupsResults: 'adgroups-performance.png',
+  deficeSubmits: 'formsubmitsbydefice-currentmonth.png',  
+  deficeTraffic: 'trafficbydevice-currentmonth.png',  
+  leftCorner:'left-corner.png',
+  leftCorner2:'left-corner2.png',
+  rightCorner:'right-corner.png',
+  AGENCY_LOGO: 'logowme_dark@2x.png',
+  footer: 'footer.jpg',
+  header: 'header.jpg',
+  AGENCY_PHONE: 'wme-phone.png',
+  QuestionMark: 'Question-mark-icon.jpg',
+  QuestionMarkTransparent: 'Question-mark-icon.png'
+}    
+
+function main() {
+  Logger.log('CONFIGURATION -> SPREADSHEET ID: %s', SPREADSHEET_ID);
+  
+  var driveService = DriveService();
+  var accountDataSpreadSheet = SpreadsheetLoader.loadSpreadSheetServiceById(SPREADSHEET_ID);       
+
+  /*
+  var file = DriveApp.getFileById(SPREADSHEET_ID);
+  var sheet = SpreadsheetApp.openById(file.getId()).getSheets()[0];    
+
+  sheet.getRange('A3').setValue('HELLO WORLD');  
+  sheet.insertImage('http://www.pitopia.de/pictures/standard/m/mysky/66/mysky_260666.jpg', 3, 3);
+
+  return;
+  */
+  
+  RepairDataSpreadSheet(accountDataSpreadSheet, driveService);
+  accountDataSpreadSheet.clearALL(); 
+}
+
+
+function RepairDataSpreadSheet(accountDataSpreadSheet, driveService){
+
+  // update the manager file with the new generated account report sheet
+  var accountSheetId = accountDataSpreadSheet.getId();   
+  
+  // share link as public - no sign-in required  
+  for(var i=0;i<500000; i++); // delay
+  driveService.setAsPublicById(accountSheetId);
+  
+  // create all required sheets
+  accountDataSpreadSheet.sheets[0].setName('Overview');
+  accountDataSpreadSheet.sheets[1].setName('Weekly');
+  accountDataSpreadSheet.sheets[2].setName('Monthly');
+  accountDataSpreadSheet.sheets[3].setName('Device');
+  ///accountDataSpreadSheet.sheets[4].setName('AdGroups');  
+  
+  SetColumnAndRowsSize(accountDataSpreadSheet.sheets[0], 0);
+  SetColumnAndRowsSize(accountDataSpreadSheet.sheets[1], 1);
+  SetColumnAndRowsSize(accountDataSpreadSheet.sheets[2], 2);  
+  SetColumnAndRowsSize(accountDataSpreadSheet.sheets[3], 3); 
+  ///SetColumnAndRowsSize(accountDataSpreadSheet.sheets[4], 4);
+  
+  // add MWE header and footer
+  AddHeaderAndFooter(accountDataSpreadSheet.sheets[0], driveService, 0);
+  AddHeaderAndFooter(accountDataSpreadSheet.sheets[1], driveService, 1);
+  AddHeaderAndFooter(accountDataSpreadSheet.sheets[2], driveService, 2);
+  AddHeaderAndFooter(accountDataSpreadSheet.sheets[3], driveService, 3);
+  ///AddHeaderAndFooter(accountDataSpreadSheet.sheets[4], driveService, 4);
+  
+  // add titles images 
+  AddSheetTitles(accountDataSpreadSheet.sheets[0], driveService, 0);
+  AddSheetTitles(accountDataSpreadSheet.sheets[1], driveService, 1);
+  AddSheetTitles(accountDataSpreadSheet.sheets[2], driveService, 2);
+  AddSheetTitles(accountDataSpreadSheet.sheets[3], driveService, 3);
+  ///AddSheetTitles(accountDataSpreadSheet.sheets[4], driveService, 4);
+
+  AddQuestionMarks(accountDataSpreadSheet.sheets[0], driveService, 0);
+  AddQuestionMarks(accountDataSpreadSheet.sheets[1], driveService, 1);
+  AddQuestionMarks(accountDataSpreadSheet.sheets[2], driveService, 2);
+  AddQuestionMarks(accountDataSpreadSheet.sheets[3], driveService, 3);
+  ///AddQuestionMarks(accountDataSpreadSheet.sheets[4], driveService, 4);
+  
+  AddSheetCorners(accountDataSpreadSheet.sheets[0], driveService, 0);
+  AddSheetCorners(accountDataSpreadSheet.sheets[1], driveService, 1);
+  AddSheetCorners(accountDataSpreadSheet.sheets[2], driveService, 2);  
+  AddSheetCorners(accountDataSpreadSheet.sheets[3], driveService, 3);  
+  ///AddSheetCorners(accountDataSpreadSheet.sheets[4], driveService, 4);
+}
+
+// ---------------------------------------------------
+
+function AddQuestionMarks(sheetService, driveService, sheetIndex){
+  Logger.log('Add Question Marks to sheet %s', sheetIndex);
+  
+  var icon = driveService.getImage(Images.QuestionMark);
+  var iconTrans = driveService.getImage(Images.QuestionMarkTransparent)
+  
+  switch(sheetIndex){
+    case 0:      
+      sheetService.addImage(iconTrans, 3, 7, -20, 2);  
+      sheetService.addImage(iconTrans, 3, 8, -20, 2);  
+      sheetService.addImage(iconTrans, 3, 9, -20, 2);  
+      sheetService.addImage(iconTrans, 3, 10, -20, 2);  
+      sheetService.addImage(iconTrans, 3, 11, -20, 2);  
+      sheetService.addImage(iconTrans, 3, 12, -20, 2);  
+      sheetService.addImage(iconTrans, 3, 13, -20, 2);  
+      sheetService.addImage(iconTrans, 3, 14, -20, 2);  
+      sheetService.addImage(iconTrans, 3, 15, -20, 2);  
+      break;      
+    case 1:
+    case 2:    
+    case 4:
+      break;      
+  } 
+}
+
+function AddSheetTitles(sheetService, driveService, sheetIndex){
+  Logger.log('Add titles to sheet %s', sheetIndex);
+  
+  var icon;
+  switch(sheetIndex){
+    case 0: 
+      icon = driveService.getImage(Images.Wow);
+      sheetService.addImage(icon, 2, 5);
+
+      icon = driveService.getImage(Images.costVsClick);
+      sheetService.addImage(icon, 2, 17);
+      
+      icon = driveService.getImage(Images.clicksVsCpc);
+      sheetService.addImage(icon, 2, 33);            
+
+      icon = driveService.getImage(Images.campaignsResults);
+      sheetService.addImage(icon, 2, 50);         
+      break;
+    case 1:
+      icon = driveService.getImage(Images.weeklyResults);
+      sheetService.addImage(icon, 2, 5);      
+      break;
+    case 2:
+      icon = driveService.getImage(Images.monthlyResults);
+      sheetService.addImage(icon, 2, 5);    
+      break;
+    case 3:
+      icon = driveService.getImage(Images.deficeSubmits);
+      sheetService.addImage(icon, 2, 5);   
+      
+      icon = driveService.getImage(Images.deficeTraffic);
+      sheetService.addImage(icon, 2, 22);   
+      break;
+    case 4:
+      icon = driveService.getImage(Images.adGroupsResults);
+      sheetService.addImage(icon, 2, 5);      
+      break;
+  } 
+}
+
+function AddSheetCorners(sheetService, driveService, sheetIndex){
+  Logger.log('Add Corners to sheet %s', sheetIndex);
+  
+  var leftCorner = driveService.getImage(Images.leftCorner);
+  var leftCorner2 = driveService.getImage(Images.leftCorner2);
+  var rightCorner = driveService.getImage(Images.rightCorner);
+  
+  switch(sheetIndex){
+    case 0:       
+      sheetService.addImage(leftCorner, 1, 5);    
+      sheetService.addImage(rightCorner, 5, 5); 
+
+      sheetService.addImage(leftCorner, 1, 50);    
+      sheetService.addImage(rightCorner, 11, 50);
+      break;
+    case 1:   
+      sheetService.addImage(leftCorner, 1, 5);    
+      sheetService.addImage(rightCorner, 11, 5); 
+      break;
+    case 2:  
+      sheetService.addImage(leftCorner, 1, 5);    
+      sheetService.addImage(rightCorner, 11, 5); 
+      break;
+    case 4: 
+      sheetService.addImage(leftCorner, 1, 5);    
+      sheetService.addImage(rightCorner, 11, 5); 
+      break;
+  } 
+}
+
+function SetColumnAndRowsSize(sheetService, sheetIndex){
+  Logger.log('set Column & Rows size to sheet %s', sheetIndex);
+  
+  switch(sheetIndex){
+    case 0: 
+      sheetService.setColumnWidth(1, 35);
+      sheetService.setColumnWidth(2, 200);
+      sheetService.setColumnWidth(7, 200);
+      
+      var cols = [3,4,5,6,8,9,10,11];
+      for(var i=0;i<cols.length;i++)
+        sheetService.setColumnWidth(cols[i], 150);      
+      
+      sheetService.setRowHeight(5, 38);
+      sheetService.setRowHeight(6, 30);
+      sheetService.setRowHeight(17, 38);
+      sheetService.setRowHeight(33, 38);
+      sheetService.setRowHeight(50, 38);
+      sheetService.setRowHeight(51, 30);
+      break;
+    case 1:    
+      sheetService.setColumnWidth(1, 35);
+      sheetService.setColumnWidth(2, 200);
+      
+      var cols = [3,4,5,6,7,8,9,10,11];
+      for(var i=0;i<cols.length;i++)
+        sheetService.setColumnWidth(cols[i], 150); 
+      
+      sheetService.setRowHeight(5, 38);
+      sheetService.setRowHeight(6, 30);      
+      break;
+    case 2: 
+      sheetService.setColumnWidth(1, 35);
+      sheetService.setColumnWidth(2, 200);
+      
+      var cols = [3,4,5,6,7,8,9,10,11];
+      for(var i=0;i<cols.length;i++)
+        sheetService.setColumnWidth(cols[i], 150); 
+      
+      sheetService.setRowHeight(5, 38);
+      sheetService.setRowHeight(6, 30);      
+      break;  
+    case 3: 
+      var cols = [3,4,5,6,7,8,9,10,11];
+      for(var i=0;i<cols.length;i++)
+        sheetService.setColumnWidth(cols[i], 150); 
+      
+      sheetService.setColumnWidth(1, 35);
+      sheetService.setColumnWidth(2, 200);  
+      
+      sheetService.setRowHeight(5, 38);     
+      sheetService.setRowHeight(22, 38);
+      break;  
+    case 4: 
+      sheetService.setColumnWidth(1, 35);
+      sheetService.setColumnWidth(2, 200);
+      
+      var cols = [3,4,5,6,7,8,9,10,11];
+      for(var i=0;i<cols.length;i++)
+        sheetService.setColumnWidth(cols[i], 150); 
+      
+      sheetService.setRowHeight(5, 38);
+      sheetService.setRowHeight(6, 30);
+      break;
+  }
+}
+
+function AddHeaderAndFooter(sheetService, driveService, sheetIndex){
+  var header = driveService.getImage(Images.header);  
+  //var footer = driveService.getImage(Images.footer);  
+  var phone = driveService.getImage(Images.AGENCY_PHONE); 
+  
+  sheetService.addImage(header, 1, 1, 0, 0);
+  //sheetService.addImage(footer, 1, 80, 0, 0);
+  sheetService.addImage(phone, 11, 1, 0, 11);
+}
+
+// ---------------------------------------------------
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+  
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+    spreadSheet: _spreadSheet, 
+    getName: function(){
+      return _spreadSheet.getName();
+    },
+    getActiveSheet: function(){
+      return SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+      for(var i= 0; i < _sheets.length; i++)
+        if(_sheets[i].sheetName == sheetName)
+          return _sheets[i];
+      return '';
+    },
+    addNewSheet: function(sheetName){
+      var new_sheet = SheetService(_spreadSheet.insertSheet(sheetName));
+      _sheets.push(new_sheet)
+      return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+      return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    },
+    getId: function(){
+      return _spreadSheet.getId();
+    },
+    setName: function(newName){
+      _spreadSheet.rename(newName);  
+    }, 
+    setActiveSheetByIndex: function(index){
+      _spreadSheet.setActiveSheet(_sheets[index].sheet);
+    },
+    clearALL: function(){
+      for(var i= 0; i < _sheets.length; i++)
+        _sheets[i].clear(true, true, true);
+    }
+  }; 
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  // e.g: setFormat('A1'); // set cell
+  // e.g: setFormat('A1:A10'); // set range
+  var setFormat = function(strRange, format){
+    var range = _sheet.getRange(strRange);
+    range.setNumberFormat(format);  
+  }
+  
+  var getBorderStyle = function(value){
+    value = value.toLowerCase();
+    switch(value){
+      case 'dotted': return SpreadsheetApp.BorderStyle.DOTTED;
+      case 'dashed': return SpreadsheetApp.BorderStyle.DASHED;
+      default:
+      case 'solid': return SpreadsheetApp.BorderStyle.SOLID;
+    }
+  }
+  
+  return {   
+    sheet: _sheet,
+    hasSheet: _sheet != null,
+    sheetName: _sheet ? _sheet.getName() : '',
+    spreadSheet: _sheet.getParent(),
+    getLastRowIndex: function() { 
+      return _sheet.getLastRow();  
+    }, 
+    getLastColumnIndex: function(){ 
+      return _sheet.getLastColumn();
+    }, 
+    getValue: function(rowPosition, columnPosition){ 
+      return _sheet.getRange(rowPosition, columnPosition).getValue();
+    }, 
+    getValueByRange: function(strRange){ /* A3, B1 etc.*/       
+      return _sheet.getRange(strRange).getValue();
+    },  
+    getValues: function(){
+      return _sheet.getDataRange().getValues();
+    },
+    getValuesByRange: function(strRange){ /* A3:B3, C1:C5 etc.*/       
+      return _sheet.getRange(strRange).getValues();
+    }, 
+    getRowValues:function(rowPosition){       
+      return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
+    },      
+    getRowIndex: function(columnPosition, key){
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnPosition - 1] == key)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+    getRowIndexBy2Columns: function(columnAPosition, keyA, columnBPosition, keyB){ 
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnAPosition - 1] == keyA && rows[row][columnBPosition - 1] == keyB)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+      getColumnValues: function(startRowPosition, columnPosition){
+        // getRange(row, column, numRows, numColumns)
+        return _sheet.getRange(startRowPosition, columnPosition, _sheet.getLastRow() - 1, 1).getValues();
+      }, 
+      addRow: function(arrValues){ 
+        //_sheet.appendRow(arrValues);
+        this.addRowAtIndex(arrValues, _sheet.getLastRow() + 1);
+      },
+      addRowAtIndex: function(arrValues, rowPosition){               
+        rowPosition = rowPosition || _sheet.getLastRow() + 1;
+        var range = _sheet.getRange(rowPosition, 1, 1, arrValues.length);
+        range.setValues([arrValues]);
+      },
+      addImageFromURL: function(url, rowPosition, columnPosition, left, top){ 
+        top = top || 0;
+        left = left || 0;
+        
+        _sheet.insertImage(url, rowPosition, columnPosition, left, top);
+      },   
+      addImage: function(blob, rowPosition, columnPosition, left, top){ 
+        top = top || 0;
+        left = left || 0;
+        
+        _sheet.insertImage(blob, rowPosition, columnPosition, left, top);
+      },   
+      deleteRow: function(rowPosition){
+        _sheet.deleteRow(rowPosition);
+      },  
+      sort: function(columnPosition){
+        _sheet.sort(columnPosition);
+      },
+      hasCharts:  _sheet.getCharts().length > 0,
+      findColumnValuesByFilter: function(columnPosition, filterValue, filterColumnPosition){
+        /* 
+        get column values filtered by other column
+        
+        e.g: findColumnValuesByFilter(2, '100', 1)          
+        all B column values that the value in A column equals to '100'
+        */
+        
+        var result = [];       
+        var rows = _sheet.getDataRange().getValues();
+        
+        for(row in rows)
+          if(rows[row][filterColumnPosition - 1] == filterValue)
+            result.push(rows[row][columnPosition]);
+        return result;  
+      },     
+      freezeHeader: function(){
+          _sheet.setFrozenRows(1);
+      },
+      merge: function(strRange){
+        _sheet.getRange(strRange).merge();
+      },  
+      clear: function(charts, format, contents){
+        charts = charts || false;
+        format = format || false;
+        contents = contents || true;
+        
+        if(!charts) return; 
+                
+        _sheet.clear({ formatOnly: format, contentsOnly: contents });    
+        
+        // clear all notes
+        _sheet.clearNotes();        
+        
+        // clear all charts
+        var charts = _sheet.getCharts();
+        for (var i in charts)
+          _sheet.removeChart(charts[i]);
+      },          
+      setValue: function(rowPosition, columnPosition, value){ 
+        _sheet.getRange(rowPosition, columnPosition).setValue(value);
+      },     
+      setRangeValue: function(strRange, value){ 
+        // e.g: setRangeValue('A1'); // set cell
+        _sheet.getRange(strRange).setValue(value);
+      },
+      setColumnWidth: function(columnPosition, width){
+        _sheet.setColumnWidth(columnPosition, width);
+      },  
+      setRowHeight: function(rowPosition, height){
+        _sheet.setRowHeight(rowPosition, height);
+      },  
+      setName: function(newName){
+        _sheet.setName(newName);
+      }, 
+      setNote: function(strRange, note){
+         var range = _sheet.getRange(strRange);
+        range.setNote(note);
+      },         
+      setDataUI: function(strRange, backgroundColor, foreColor, fontSize, hAlign, fontWeight, border /* { color, style } */, vAlign){
+        var range = _sheet.getRange(strRange);
+        if(backgroundColor)
+          range.setBackground(backgroundColor);
+        if(foreColor)
+          range.setFontColor(foreColor);
+        if(fontSize)
+          range.setFontSize(fontSize);
+        if(hAlign)
+          range.setHorizontalAlignment(hAlign);
+        if(vAlign)
+          range.setVerticalAlignment(vAlign)
+          if(fontWeight)
+            range.setFontWeight(fontWeight);
+        if(border)
+          range.setBorder(true, true, true, true, true, true, border.color, getBorderStyle(border.style))
+      }, 
+      setNumberFormat: function(strRange){
+        setFormat(strRange, '0');       
+      },
+      setDecimalFormat: function(strRange){
+        setFormat(strRange, '0.00');
+      },
+      setCurrencyFormat: function(strRange){
+        setFormat(strRange, '$0.00');
+      },
+      setPercentageFormat: function(strRange){
+        // e.g: setPercentageFormat('A1'); // set cell
+        // e.g: setPercentageFormat('A1:A10'); // set range
+        
+        setFormat(strRange, '0.00%');
+      },
+      setWeekFormat: function(strRange){
+        setFormat(strRange, 'MMM dd');
+      },
+      setMonthFormat: function(strRange){
+        setFormat(strRange, 'MMM, yyyy');
+      },
+      setCellSumFormula: function(strRange, strCell){
+        // e.g: setCellSumFormula('A1:A10', 'B1'); 
+        // set SUM value of cells A1 to A10 to cell B1
+        
+        var cell = _sheet.getRange(strCell);
+        cell.setFormula('=SUM(' + strRange + ')');
+      },
+      setCellAvgFormula: function(strRange, strCell){
+        // e.g: setCellSumFormula('A1:A10', 'B1'); 
+        // set AVG value of cells A1 to A10 to cell B1
+        
+        var cell = _sheet.getRange(strCell);
+        cell.setFormula('=AVERAGE(' + strRange + ')');
+      }       
+  }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+    
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+    
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+    
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+    if(spreadSheetName == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+    
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheet_id){
+    if(spreadSheet_id == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var file = DriveApp.getFileById(spreadSheet_id);
+    if(!file || file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheet_id);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheet_id);
+    return SpreadsheetApp.openById(file.getId());    
+  },  
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  loadSpreadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  }
+}
+
+/* DRIVE SERVICE */
+var DriveService = function() {
+  var createFile = function(fileName, mimeType){
+    return DriveApp.createFile(fileName, '', mimeType);
+  };
+  
+  return {
+    rootFolder: DriveApp.getRootFolder(),
+    setAsPublic: function(fileName){      
+      var files = this.getFilesByName(fileName);      
+      if(!files) return false;
+      
+      var file = files[0];
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);  
+      return true;
+    },
+    setAsPublicById: function(fileId){      
+      var file = this.getFileById(fileId);      
+      if(!file) return false;
+      
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);  
+      return true;
+    },   
+    setStringContent: function(fileName, content){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return null;
+      
+      var file = files[0];
+      return file.setContent(content); 
+    },
+    getFileById: function(fileId){
+      return DriveApp.getFileById(fileId);       
+    },  
+    getFilesByName: function(fileName){
+      var fileIterator = DriveApp.getFilesByName(fileName);
+      if(!fileIterator.hasNext()) return null;
+      
+      var files = [];
+      while(fileIterator.hasNext())
+        files.push(fileIterator.next());              
+      return files;
+    },
+    getFileByName: function(fileName){
+      var files = this.getFilesByName(fileName);
+      if(!files) return null;
+      return files[0];
+    },
+    getImage: function(imageName){
+      var file = this.getFileByName(imageName); 
+      if(!file) return null;
+      return file.getAs(MimeType.PNG); 
+    },
+    getFilesByPrefix: function(filePrefix){
+      var fileIterator = DriveApp.getFiles();
+      if(!fileIterator.hasNext()) return null;
+      
+      var files = [];
+      while(fileIterator.hasNext())
+      {
+        var file = fileIterator.next();
+        if(file.getName().indexOf(filePrefix) != 0) continue;
+        files.push(file);              
+      }
+      return files;
+    },
+    getFoldersByName: function(folderName){
+      var folderIterator = this.rootFolder.getFoldersByName(folderName);
+      if(!folderIterator.hasNext()) return null;
+      
+      var folders = [];
+      while(folderIterator.hasNext())
+        folders.push(folderIterator.next());              
+      return folders;
+    }, 
+    getFolderByName: function(folderName){
+      var folders = this.getFoldersByName(folderName);
+      if(!folders) return null;
+      return folders[0];
+    },
+    getStringContent: function(fileName){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return null;
+      
+      var file = files[0];
+      return file.getBlob().getDataAsString();
+    },    
+    createTextFile: function(fileName, content){
+      content = content || '';
+      return createFile(fileName, content, MimeType.PLAIN_TEXT);
+    },
+    createFolder: function (folderName){
+      return DriveApp.createFolder(folderName);
+    },
+    moveToFolder: function(fileName, destFolderName){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return false;
+      var file = files[0];
+      
+      var folders = this.getFoldersByName(destFolderName);
+      if(!folders) return false;
+      var folder = folders[0];
+      
+      folder.addFile(file);
+      this.rootFolder.removeFile(file);      
+      return true;
+    }
+  }
+}
+

@@ -1,0 +1,53 @@
+var P_CONVERSION_COST = 0.1;
+var EMAIL = 'rcbuilder@walla.com';
+
+function main() {
+  var report = AdWordsApp.report(
+    'SELECT Id, AdGroupId ' + 
+    'FROM DISPLAY_KEYWORD_PERFORMANCE_REPORT ' + 
+    'WHERE Conversions > 0 ' + 
+    'DURING LAST_30_DAYS');
+  
+  var ids = [];
+  var rows = report.rows(); 
+  while (rows.hasNext()) { 
+	var row = rows.next();
+
+	ids.push([row["AdGroupId"], row["Id"]]);    	
+  } 
+  //Logger.log(ids.length);
+  
+  var keywords = AdWordsApp.keywords().withIds(ids).get();
+  
+  var EMAIL_BODY = '';
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+    
+    var stat = keyword.getStatsFor('ALL_TIME');
+    var cost = stat.getCost();
+    var conversions = stat.getConversions();
+    
+    if(cost / conversions >= P_CONVERSION_COST)
+      continue;
+    
+    var name = keyword.getText();
+    Logger.log(name + ' cost = ' + cost + '  conversions = ' + conversions);
+    
+    var cpc = keyword.getMaxCpc();
+    if(cpc == null)
+    {
+      cpc = keyword.getAdGroup().getKeywordMaxCpc();    
+      Logger.log('USE AD GROUP DEFAULT MAX CPC ' + cpc);
+    }
+    
+    cpc = cpc.toFixed(2);
+    var new_cpc = cpc * 1.1;
+
+    var message = 'need to increase the max cpc of "' + name + '" from ' + cpc + ' to ' + new_cpc;
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';
+  } 
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'Increase Display Keywords Cost per Conversion', EMAIL_BODY);
+}

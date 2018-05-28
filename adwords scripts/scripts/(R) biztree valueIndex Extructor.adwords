@@ -1,0 +1,487 @@
+var DATA_SHEET = 'https://docs.google.com/spreadsheets/d/1lSBOFqD3Jyzq3at1OqoHbMhtrVIW8U8TLkhifFQCQOw/edit#gid=0';
+
+function main() {
+  var sheetService = SpreadsheetLoader.loadSheetServiceByURL(DATA_SHEET);
+  var biztreeService = BiztreeService(sheetService);
+  
+  var arrCampaignsData = biztreeService.getCampaigns();
+  Logger.log('%s campaigns loaded from data sheet', arrCampaignsData.length);
+  
+  arrCampaignsData.getByCampaignName = function(campaignName){
+    for(var i=0;i<this.length;i++)
+      if(this[i].campaignName == campaignName)
+        return this[i];
+    return null;
+  };
+  
+  /*
+  HELPER.foreach(arrCampaignsData, function(campaignData){
+    Logger.log(campaignData);
+  });
+  */
+  
+  // TEMPORARY - REPLACE WITH THE ACTUAL CODE
+  var keywords = AdWordsApp.keywords().withLimit(10).get();
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();    
+    var campaignName = keyword.getCampaign().getName();    
+    var campaignData = arrCampaignsData.getByCampaignName(campaignName); 
+    if(!campaignData) continue;
+    Logger.log(campaignData); // .valueIndex
+  }  
+}
+
+/*  
+=========== HELPER ========================================================== 
+=============================================================================
+*/
+
+var HELPER = {
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }
+}
+
+/*  
+=========== SERVICES ======================================================== 
+=============================================================================
+*/
+
+/* KEYWORDS BUILDER SERVICE */
+var BiztreeService = function(sheetService) { 
+  return {      
+    getCampaigns: function(){
+      var values = [];
+      
+      var range = sheetService.getValues();            
+      for(r in range)
+      {                
+        if(r == 0) continue; // ignore header
+        
+        var campaignName = range[r][0];
+        if(campaignName == '') continue; // ignore empty values
+        
+        campaignName = campaignName.split('_')[1];
+        var valueIndex = range[r][6] == '' || range[r][6] == '-' ? 0 : parseFloat(range[r][6]);
+        values.push({campaignName: campaignName, valueIndex: valueIndex});
+      }
+
+      return values;    
+    },     
+  }
+}
+
+
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+	spreadSheet: _spreadSheet, 
+    getName: function(){
+      return _spreadSheet.getName();
+    },
+    getActiveSheet: function(){
+      return SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+         for(var i= 0; i < _sheets.length; i++)
+            if(_sheets[i].sheetName == sheetName)
+              return _sheets[i];
+          return '';
+    },
+    addNewSheet: function(sheetName){
+        var new_sheet = SheetService(_spreadSheet.insertSheet(sheetName));
+        _sheets.push(new_sheet)
+        return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+        return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    },
+	getId: function(){
+      return _spreadSheet.getId();
+    },
+    setName: function(newName){
+      _spreadSheet.rename(newName);  
+    }, 
+	setActiveSheetByIndex: function(index){
+      _spreadSheet.setActiveSheet(_sheets[index].sheet);
+    },
+    clearALL: function(){
+      for(var i= 0; i < _sheets.length; i++)
+        _sheets[i].clear(true, true, true);
+    }
+  }; 
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+
+  // e.g: setFormat('A1'); // set cell
+  // e.g: setFormat('A1:A10'); // set range
+  var setFormat = function(strRange, format){
+    var range = _sheet.getRange(strRange);
+    range.setNumberFormat(format);  
+  }
+  
+  var getBorderStyle = function(value){
+    value = value.toLowerCase();
+    switch(value){
+      case 'dotted': return SpreadsheetApp.BorderStyle.DOTTED;
+      case 'dashed': return SpreadsheetApp.BorderStyle.DASHED;
+      default:
+      case 'solid': return SpreadsheetApp.BorderStyle.SOLID;
+    }
+  }
+  
+  return {   
+    sheet: _sheet,
+    hasSheet: _sheet != null,
+    sheetName: _sheet ? _sheet.getName() : '',
+    spreadSheet: _sheet.getParent(),
+    getLastRowIndex: function() { 
+      return _sheet.getLastRow();  
+    }, 
+    getLastColumnIndex: function(){ 
+      return _sheet.getLastColumn();
+    }, 
+    getValue: function(rowPosition, columnPosition){ 
+      return _sheet.getRange(rowPosition, columnPosition).getValue();
+    }, 
+    getValueByRange: function(strRange){ /* A3, B1 etc.*/       
+      return _sheet.getRange(strRange).getValue();
+    },  
+    getValues: function(){
+      return _sheet.getDataRange().getValues();
+    },
+    getValuesByRange: function(strRange){ /* A3:B3, C1:C5 etc.*/       
+      return _sheet.getRange(strRange).getValues();
+    }, 
+    getRowValues:function(rowPosition){       
+      return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
+    },      
+    getRowIndex: function(columnPosition, key){
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnPosition - 1] == key)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+    getRowIndexBy2Columns: function(columnAPosition, keyA, columnBPosition, keyB){ 
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnAPosition - 1] == keyA && rows[row][columnBPosition - 1] == keyB)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+      getColumnValues: function(startRowPosition, columnPosition){
+        // getRange(row, column, numRows, numColumns)
+        return _sheet.getRange(startRowPosition, columnPosition, _sheet.getLastRow() - 1, 1).getValues();
+      }, 
+      addRow: function(arrValues){ 
+        //_sheet.appendRow(arrValues);
+        this.addRowAtIndex(arrValues, _sheet.getLastRow() + 1);
+      },
+      addRowAtIndex: function(arrValues, rowPosition){               
+        rowPosition = rowPosition || _sheet.getLastRow() + 1;
+        var range = _sheet.getRange(rowPosition, 1, 1, arrValues.length);
+        range.setValues([arrValues]);
+      },
+      addImageFromURL: function(url, rowPosition, columnPosition, left, top){ 
+        top = top || 0;
+        left = left || 0;
+        
+        _sheet.insertImage(url, rowPosition, columnPosition, left, top);
+      },   
+      addImage: function(blob, rowPosition, columnPosition, left, top){ 
+        top = top || 0;
+        left = left || 0;
+        
+        _sheet.insertImage(blob, rowPosition, columnPosition, left, top);
+      },   
+      deleteRow: function(rowPosition){
+        _sheet.deleteRow(rowPosition);
+      },  
+      sort: function(columnPosition){
+        _sheet.sort(columnPosition);
+      },
+      hasCharts:  _sheet.getCharts().length > 0,
+      findColumnValuesByFilter: function(columnPosition, filterValue, filterColumnPosition){
+        /* 
+        get column values filtered by other column
+        
+        e.g: findColumnValuesByFilter(2, '100', 1)          
+        all B column values that the value in A column equals to '100'
+        */
+        
+        var result = [];       
+        var rows = _sheet.getDataRange().getValues();
+        
+        for(row in rows)
+          if(rows[row][filterColumnPosition - 1] == filterValue)
+            result.push(rows[row][columnPosition]);
+        return result;  
+      }, 
+	  freezeHeader: function(){
+          _sheet.setFrozenRows(1);
+      },
+      merge: function(strRange){
+        _sheet.getRange(strRange).merge();
+      },  
+      clear: function(charts, format, contents){
+        charts = charts || false;
+        format = format || false;
+        contents = contents || true;
+        
+        if(!charts) return; 
+                
+        _sheet.clear({ formatOnly: format, contentsOnly: contents });    
+        
+        // clear all notes
+        _sheet.clearNotes();        
+        
+        // clear all charts
+        var charts = _sheet.getCharts();
+        for (var i in charts)
+          _sheet.removeChart(charts[i]);
+      },          
+      setValue: function(rowPosition, columnPosition, value){ 
+        _sheet.getRange(rowPosition, columnPosition).setValue(value);
+      },     
+      setRangeValue: function(strRange, value){ 
+        // e.g: setCurrencyFormat('A1'); // set cell
+        _sheet.getRange(strRange).setValue(value);
+      },
+      setColumnWidth: function(columnPosition, width){
+        _sheet.setColumnWidth(columnPosition, width);
+      },  
+      setRowHeight: function(rowPosition, height){
+        _sheet.setRowHeight(rowPosition, height);
+      },  
+      setName: function(newName){
+        _sheet.setName(newName);
+      }, 
+      setNote: function(strRange, note){
+         var range = _sheet.getRange(strRange);
+        range.setNote(note);
+      },         
+      setDataUI: function(strRange, backgroundColor, foreColor, fontSize, hAlign, fontWeight, border /* { color, style } */, vAlign){
+        var range = _sheet.getRange(strRange);
+        if(backgroundColor)
+          range.setBackground(backgroundColor);
+        if(foreColor)
+          range.setFontColor(foreColor);
+        if(fontSize)
+          range.setFontSize(fontSize);
+        if(hAlign)
+          range.setHorizontalAlignment(hAlign);
+        if(vAlign)
+          range.setVerticalAlignment(vAlign)
+          if(fontWeight)
+            range.setFontWeight(fontWeight);
+        if(border)
+          range.setBorder(true, true, true, true, true, true, border.color, getBorderStyle(border.style))
+      }, 
+      setNumberFormat: function(strRange){
+        setFormat(strRange, '0');       
+      },
+      setDecimalFormat: function(strRange){
+        setFormat(strRange, '0.00');
+      },
+      setCurrencyFormat: function(strRange){
+        setFormat(strRange, '$0.00');
+      },
+      setPercentageFormat: function(strRange){
+        // e.g: setPercentageFormat('A1'); // set cell
+        // e.g: setPercentageFormat('A1:A10'); // set range
+        
+        setFormat(strRange, '0.00%');
+      },
+      setWeekFormat: function(strRange){
+        setFormat(strRange, 'MMM dd');
+      },
+      setMonthFormat: function(strRange){
+        setFormat(strRange, 'MMM');
+      },
+      setCellSumFormula: function(strRange, strCell){
+        // e.g: setCellSumFormula('A1:A10', 'B1'); 
+        // set SUM value of cells A1 to A10 to cell B1
+        
+        var cell = _sheet.getRange(strCell);
+        cell.setFormula('=SUM(' + strRange + ')');
+      },
+      setCellAvgFormula: function(strRange, strCell){
+        // e.g: setCellSumFormula('A1:A10', 'B1'); 
+        // set AVG value of cells A1 to A10 to cell B1
+        
+        var cell = _sheet.getRange(strCell);
+        cell.setFormula('=AVERAGE(' + strRange + ')');
+      }       
+  }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  
+  // ---  spreadSheets
+  
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+	if(spreadSheetName == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheetId){
+    if(spreadSheetId == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var file = DriveApp.getFileById(spreadSheetId);
+    if(!file || file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheetId);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetId);
+    return SpreadsheetApp.openById(file.getId());    
+  },  
+  loadSpreadSheetByURL: function(spreadSheetUrl){
+    if(spreadSheetUrl == '') {
+      Logger.log('EMPTY URL!');
+      return null;
+    }
+    
+    Logger.log('LOADING %s ... ', spreadSheetUrl);
+    var spreadSheet = SpreadsheetApp.openByUrl(spreadSheetUrl);    
+    
+    if(!spreadSheet){
+      Logger.log('%s NOT EXISTS!', spreadSheetUrl);
+      return null;
+    }
+    
+    return spreadSheet;
+  }, 
+  
+  // ---  sheet Services
+  
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheetId){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheetId);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSheetServiceByURL: function(spreadSheetUrl){
+    var spreadsheet = this.loadSpreadSheetByURL(spreadSheetUrl);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },
+  
+  // ---  spreadSheet Services
+  
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  loadSpreadSheetServiceById: function(spreadSheetId){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheetId);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },  
+  loadSpreadSheetServiceByURL: function(spreadSheetUrl){
+    var spreadsheet = this.loadSpreadSheetByURL(spreadSheetUrl);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet);
+  },  
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  }
+}

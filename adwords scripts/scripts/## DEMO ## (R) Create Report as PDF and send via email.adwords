@@ -1,0 +1,29 @@
+var EMAIL = 'rcbuilder@walla.com';
+
+function main() {
+  var spreadsheet = SpreadsheetApp.create("My Report"); // create new spreadsheet
+  var sheet = spreadsheet.getActiveSheet(); // get active sheet
+  var report = AdWordsApp.report("SELECT AdGroupId, Impressions, Cost FROM SEARCH_QUERY_PERFORMANCE_REPORT DURING LAST_30_DAYS"); // execute report
+  report.exportToSheet(sheet); // fill sheet with the report data
+  
+  var last_row = sheet.getLastRow();
+  var last_column = sheet.getLastColumn();
+      
+  var range = sheet.getRange(1, 1, last_row, last_column); // all data 
+  var values = range.getValues();
+ 
+  var HTML = '<table cellpadding="4" cellspacing="4">';
+  for(r in values)
+  { 
+    HTML += '<tr>';  
+    for(c in values[r])
+      HTML += '<td>' + values[r][c] + '</td>';
+    HTML += '</tr>';    
+  }
+  HTML += '</table>';   
+  
+  var blob = Utilities.newBlob(HTML, MimeType.HTML);
+  var pdfBlob = blob.getAs(MimeType.PDF);
+  pdfBlob.setName('Report.pdf');
+  MailApp.sendEmail(EMAIL, 'HELLO FROM ADWORDS SCRIPTS', 'REPORT FILE ATTACHED', {attachments: [pdfBlob]});
+}

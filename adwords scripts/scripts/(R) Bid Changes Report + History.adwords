@@ -1,0 +1,403 @@
+var LABEL_VALUES = {
+  'Primary' :  { bid: 0.07, position: 2.1, tolerance: 0.3 },
+  'Primary B' :  { bid: 0.04, position: 2.1, tolerance: 0.3 },
+  'Secondary' :  { bid: 0.05, position: 2.8, tolerance: 0.4 },
+};
+
+var PERIOD = 'LAST_7_DAYS'; // LAST_7_DAYS
+var EMAIL = 'RcBuilder@walla.com';
+
+var BID_CHANGES_FOLDER = '';
+var BID_CHANGES_SHEET = 'BidChangesHistory';
+
+function main() {
+  var bidChangesSheetService = SpreadsheetLoader.loadSheetService(BID_CHANGES_SHEET, BID_CHANGES_FOLDER); // load   
+  var sheetNotExists = !bidChangesSheetService;
+  if(sheetNotExists)
+    bidChangesSheetService = SpreadsheetLoader.createSheetService(BID_CHANGES_SHEET, BID_CHANGES_FOLDER); // create  
+  
+  // create a changes service
+  var bidChangesService = new BidChangesService(bidChangesSheetService);
+  
+  if(sheetNotExists)
+    bidChangesService.addHistorySheetHeader();
+  
+  var accounts = MccApp.accounts().get();  
+  while (accounts.hasNext()) {
+    var account = accounts.next();
+    var accountName = account.getName() ? account.getName() : '--';
+    Logger.log('### account %s,%s ###', account.getCustomerId(), accountName);
+    
+    MccApp.select(account);
+    
+    setBids(bidChangesService);    
+  }
+  
+  if(!bidChangesService.hasChanges()) 
+      return;
+  
+  Logger.log('save data to History sheet');
+  bidChangesService.addToHistorySheet()
+  
+  Logger.log('total changes : %s', bidChangesService.countAllData());
+  Logger.log('sending Bid Changes Report to %s', EMAIL);    
+  var reportPDF = HELPER.HTML2PDF(bidChangesService.toHTML(), 'Bid Changes Report'.concat(' ', HELPER.dateFormat(new Date()), '.pdf'));
+  MailApp.sendEmail(EMAIL, 'Bid Changes Report', 'Report Attached!', { attachments: [reportPDF] });
+  Logger.log('Done!');
+}
+
+function setBids(bidChangesService) {  
+  var lables = AdWordsApp.labels().get();
+  
+  while (lables.hasNext()) {
+    var label = lables.next();
+    var label_name = label.getName();
+    var label_values = GetLabelValues(label_name);
+    
+    if(label_values == null) continue;
+    
+    Logger.log('\n# label: %s,%s\n', label_name, label_values);       
+    
+    var adGroups = label.adGroups()
+    .withCondition("Status = ENABLED")
+    .get();
+    
+    while (adGroups.hasNext()) {
+      var adGroup = adGroups.next();      
+      Logger.log('adGroup : %s', adGroup.getName());
+      
+      increaseBids(adGroup, label_values, bidChangesService);
+      decreaseBids(adGroup, label_values, bidChangesService);
+    }   
+  }           
+}
+
+function increaseBids(adGroup, label_values, bidChangesService){
+  var accountId = AdWordsApp.currentAccount().getCustomerId();
+  //var accountName = AdWordsApp.currentAccount().getName();
+  
+  var keywords = adGroup.keywords()
+      .withCondition("Status = ENABLED") 
+      .withCondition("AveragePosition > " + (label_values.position + label_values.tolerance))
+      .orderBy("AveragePosition ASC")
+      .forDateRange(PERIOD) 
+      .get();
+
+      while (keywords.hasNext()) {
+        var keyword = keywords.next();  
+        var max_cpc = keyword.getMaxCpc();
+        var new_max_cpc = max_cpc + (max_cpc * label_values.bid);
+                
+        var keywordText = keyword.getText();
+        Logger.log('%s,  cpc %s -> %s', keywordText, max_cpc, new_max_cpc); 
+        bidChangesService.addData(accountId, keywordText.concat(', cpc ',max_cpc, ' -> ', new_max_cpc));
+        if(!AdWordsApp.getExecutionInfo().isPreview())
+          keyword.setMaxCpc(new_max_cpc);
+      } 
+}
+
+function decreaseBids(adGroup, label_values, bidChangesService){
+  var accountId = AdWordsApp.currentAccount().getCustomerId();
+  //var accountName = AdWordsApp.currentAccount().getCustomerId();
+  
+  var keywords = adGroup.keywords()
+      .withCondition("Ctr > 0.04")
+      .withCondition("Status = ENABLED")
+      .withCondition("AveragePosition < " + (label_values.position - label_values.tolerance))
+      .orderBy("AveragePosition DESC")
+      .forDateRange(PERIOD) 
+      .get();
+
+      while (keywords.hasNext()) {
+        var keyword = keywords.next();  
+        var max_cpc = keyword.getMaxCpc();
+        var new_max_cpc = max_cpc - (max_cpc * label_values.bid);
+            
+        var keywordText = keyword.getText();
+        Logger.log('%s,  cpc %s -> %s', keywordText, max_cpc, new_max_cpc);  
+        bidChangesService.addData(accountId, keywordText.concat(', cpc ',max_cpc, ' -> ', new_max_cpc));
+        if(!AdWordsApp.getExecutionInfo().isPreview())
+          keyword.setMaxCpc(new_max_cpc);
+      } 
+}
+
+
+function GetLabelValues(labelName){
+  try{    
+    var result = LABEL_VALUES[labelName];
+    return result || null;
+  }
+  catch(e){ 
+    Logger.log(e.message);
+    return null; 
+  }
+}
+
+/* Bid Changes Service */
+var BidChangesService = function(sheetService) { 
+  var _bidChangesHistorySheet = sheetService;
+  var _changes = []; // { accountId, [items] }
+  
+  _changes.indexOf = function(accountId){    
+    for(var i=0;i<this.length;i++)
+      if(this[i].accountId == accountId)
+        return i;
+    return -1;        
+  };
+  
+  return {  
+    hasChanges: function() { return _changes.length > 0 },
+    addData: function(accountId, data){
+      var accountIndex = _changes.indexOf(accountId);
+  
+      if(accountIndex == -1)
+      {      
+        _changes.push({ accountId: accountId, items: [] });      
+        accountIndex = _changes.length - 1; // update the key index 
+      }
+      
+      _changes[accountIndex].items.push(data);   
+    }, 
+    getAccountData: function(accountId){
+      var accountIndex = _changes.indexOf(accountId);
+      return _changes[accountIndex];
+    }, 
+    getAllData: function(){
+      return _changes;
+    },
+    countAccountData: function(accountId){
+      var accountIndex = _changes.indexOf(accountId);
+      return _changes[accountIndex].items.length;
+    }, 
+    countAllData: function(){
+      var counter = 0;
+      
+      HELPER.foreach(_changes, function(changesGroup){
+        counter += changesGroup.items.length;
+      });
+
+      return counter;
+    }, 
+    toHTML: function(){
+      var result = '';
+      
+      result += '<h3>Summary:</h3>';
+      result += '<h5>All Accounts, ' + this.countAllData() + ' changes</h5>';
+      HELPER.foreach(_changes, function(changesGroup){
+        result += '<p>' + changesGroup.accountId + ', ' + changesGroup.items.length + ' changes</p>'
+      });
+            
+      result += '<h3>Changes:</h3>';
+      HELPER.foreach(_changes, function(changesGroup){
+        result += '<h5>' + changesGroup.accountId + '</h5>'
+        
+        HELPER.foreach(changesGroup.items, function(item){
+          result += '<p style="font-size:11px;">' + item + '</p>'
+        });
+      });
+
+      return result;
+    }, 
+    addToHistorySheet: function(){
+      var date = new Date();
+      HELPER.foreach(_changes, function(changesGroup){
+        _bidChangesHistorySheet.addRow([date, changesGroup.accountId, changesGroup.items.length]);
+      });  
+    },
+    addHistorySheetHeader: function(){
+      _bidChangesHistorySheet.addRow(['date', 'account', 'changes']);
+    }
+  };
+}
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+    getActiveSheet: function(){
+      return new SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+         for(var i= 0; i < _sheets.length; i++)
+            if(_sheets[i].sheetName == sheetName)
+              return _sheets[i];
+          return '';
+    },
+    addNewSheet: function(sheetName){
+        var new_sheet = new SheetService(_spreadSheet.insertSheet(sheetName));
+        _sheets.push(new_sheet)
+        return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+        return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    }
+  }; 
+}
+ 
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  return {      
+     hasSheet: _sheet != null,
+     sheetName: _sheet ? _sheet.getName() : '',
+     getLastRowIndex: function(){ return _sheet.getLastRow();}, 
+     getValue: function(rowIndex, columnIndex){ 
+       return _sheet.getRange(rowIndex, columnIndex).getValue();
+     }, 
+     getValues: function(){
+       return _sheet.getDataRange().getValues();
+     },  
+     setValue: function(rowIndex, columnIndex, value){ 
+       return _sheet.getRange(rowIndex, columnIndex).setValue(value);
+     },     
+     addRow: function(arrValues){ 
+       return _sheet.appendRow(arrValues);
+     },
+     deleteRow: function(rowIndex){
+       _sheet.deleteRow(rowIndex);
+     },  
+     sort: function(columnIndex){
+       _sheet.sort(columnIndex);
+     },
+     getRowIndex: function(columnIndex, key){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnIndex - 1] == key)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getRowIndexBy2Columns: function(columnAIndex, keyA, columnBIndex, keyB){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnAIndex - 1] == keyA && rows[row][columnBIndex - 1] == keyB)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getColumnValues: function(startRowIndex, columnIndex){
+       return _sheet.getRange(startRowIndex, columnIndex, _sheet.getLastRow() - 1, columnIndex).getValues();
+     }       
+   }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return new SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  },
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return new SheetService(spreadsheet.getActiveSheet());
+  },
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  }
+}
+
+/* HELPER */  
+var HELPER = {
+  HTML2PDF: function(strHtml, pdfName){
+    var blob = Utilities.newBlob(strHtml, MimeType.HTML);
+    var pdf = blob.getAs(MimeType.PDF);  
+    pdf.setName(pdfName);
+    return pdf
+  },
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  }, 
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }  
+};

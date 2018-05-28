@@ -1,0 +1,154 @@
+// ###  STEP 1 : Create campaigns using bulk upload  ###
+
+var XML_URI = 'https://beheer.ingoedebanen.nl/export/appnexus/553e0df132cfd';
+
+function main() { 
+  var jobs_service = new JobsService(new XMLService(XML_URI)); 
+  
+  // get all jobs from the xml feed
+  // { specialisme, location, name, link, salaris }
+  Logger.log('Loading jobs from xml ... ');
+  jobs_service.loadJobs(); 
+  Logger.log('%s jobs loaded', jobs_service.count());  
+  
+  // get all campaigns from db into an array
+  Logger.log('Loading campaigns ... ');
+  var arr_campaigns = [];
+  var campaigns = AdWordsApp.campaigns().withCondition('Name CONTAINS "#"').get();
+  while(campaigns.hasNext()){ 
+    arr_campaigns.push(campaigns.next());
+  }     
+  Logger.log('%s campaigns loaded', arr_campaigns.length);
+  
+  var columns = [
+      'Campaign', 'Budget', 'Bid Strategy type', 'Campaign type'
+    ];
+    
+  var upload = AdWordsApp.bulkUploads().newCsvUpload(
+    columns, {moneyInMicros: false});
+  
+  HELPER.foreach(jobs_service.jobs(), function(job){
+    var job_info = 'job: '.concat('#', job.id, ' ', job.name, ' (specialisme ', job.specialisme, ', location ', job.location, ')')
+    Logger.log('%s', job_info);
+    
+    var isCampaignExists = getIsCampaignExists(arr_campaigns, job);
+    if(!isCampaignExists)
+    {
+      var campaign_name = job.specialisme.concat('#', job.location);
+      Logger.log('Campaign %s append to the bulk upload', campaign_name);
+      
+      upload.append({
+        'Campaign': campaign_name,
+        'Budget': 1,
+        'Bid Strategy type': 'cpc',
+        'Campaign type': 'Search Only',
+        'Campaign state': 'enabled'
+      });
+    }
+  });
+  
+  if(!AdWordsApp.getExecutionInfo().isPreview())           
+    upload.apply();
+}
+
+function getIsCampaignExists(arr_campaigns, job){    
+  var campaign_name = job.specialisme.concat('#', job.location);
+  var campaign = getCampaignByName(arr_campaigns, campaign_name);
+  return campaign != null;
+}
+
+
+function getCampaignByName(arr_campaigns, campaign_name){  
+  for(var i = 0; i< arr_campaigns.length; i++)
+    if(arr_campaigns[i].getName() == campaign_name)
+      return arr_campaigns[i];
+  return null; 
+}
+
+/* JOBS SERVICE */
+var JobsService = function(xml_service) { 
+  var _arr_jobs = [];
+  
+  return {
+    loadJobs: function(){
+      _arr_jobs = [];
+      
+      var jobs_root = xml_service.getElement('vacancies');   
+      var jobs = xml_service.getElements('vacancy', jobs_root);
+      
+      for (var i = 0; i < /*jobs.length*/ 10; i++) {   
+        var job = jobs[i];   
+
+        _arr_jobs.push({
+          id: job.getAttribute('id').getValue(),
+          specialisme: job.getChild('Taxonomy').getChild('specialisme').getChildText('value'),
+          location: job.getChild('Taxonomy').getChild('location').getChildText('value'),
+          name: job.getChild('Position').getChildText('JobTitle'),
+          link: job.getChild('Contact').getChildText('VacancyURL'),
+          salaris: job.getChild('Taxonomy').getChild('salaris').getChildText('value')
+        });               
+      }
+
+      return _arr_jobs;      
+    },    
+    findJobByName: function (value) {
+      for(var i = 0; i < _arr_jobs.length; i++)      
+        if(_arr_jobs[i].name == value)
+          return _arr_jobs[i];
+      return null; 
+    },
+    isJobExists: function (specialisme, name) {
+      for(var i = 0; i < _arr_jobs.length; i++)      
+        if(_arr_jobs[i].specialisme == specialisme && _arr_jobs[i].name == name)
+          return true;
+      return false; 
+    },
+    jobs: function(){ return _arr_jobs; },
+    count: function(){ return _arr_jobs.length; }
+  }
+}
+
+/* XML SERVICE */
+var XMLService = function(uri) { 
+  var _document = null;
+  
+  var _init = function(){
+    var response = UrlFetchApp.fetch(uri);
+    var status_code = response.getResponseCode();
+    
+    if(status_code != 200) // 200 = OK
+    {
+      Logger.log('status code %s', status_code);
+      return;
+    }
+    
+    _document =  XmlService.parse(response.getContentText());
+   };
+  
+   _init();
+  
+   return { 
+     document: function(){ return _document; },
+     getElements: function(element_name, root){
+       if(!_document) return null;
+       
+       if(!root) 
+         root = _document.getRootElement();
+       return root.getChildren(element_name);       
+     },
+     getElement: function(element_name){
+       if(!_document) return null;
+       
+       var root = _document.getRootElement();
+       return root.getChild(element_name);       
+     }
+   }; 
+}
+
+var HELPER = {
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }
+};

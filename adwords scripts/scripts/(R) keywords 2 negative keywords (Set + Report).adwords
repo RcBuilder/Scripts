@@ -1,0 +1,76 @@
+var EMAIL = 'RcBuilder@walla.com';
+var CLICKS = 20;
+var CREATE = true;
+
+function main() {
+  var htmlService = HTMLBuilderService();
+  
+  var keywords = AdWordsApp
+  .keywords()
+  .withCondition('Status = ENABLED')
+  .withCondition('AdGroupStatus = ENABLED')
+  .withCondition('CampaignStatus = ENABLED')  
+  .withCondition('Clicks > ' + CLICKS)
+  .withCondition('Conversions = 0')
+  .forDateRange('ALL_TIME')
+  .get();
+  
+  var TEMPLATE = '<tr>' +
+                    '<th>{0}</th>' +
+                    '<th>{1}</th>' +
+                    '<th>{2}</th>' +
+                    '<th>{3}</th>' +
+                  '</tr>';
+                    
+  htmlService.add('<table cellspacing="3" cellpadding="3" border="1">');
+  htmlService.add('<tr>' +
+                    '<td>#</td>' +
+                    '<td>keyword</td>' +
+                    '<td>adgroup</td>' +
+                    '<td>campaign</td>' +
+                  '</tr>');
+  
+  var matches = keywords.totalNumEntities();
+  Logger.log('%s matches', matches);
+  
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();     
+    var campaign = keyword.getCampaign();        
+    var keywordText = keyword.getText();
+    
+    var row = TEMPLATE
+    .replace('{0}', keyword.getId())
+    .replace('{1}', keywordText)
+    .replace('{2}', keyword.getAdGroup().getName())
+    .replace('{3}', campaign.getName())
+    
+    if(CREATE)
+    {
+      Logger.log('negative keyword created!');
+      campaign.createNegativeKeyword(keywordText);
+      keyword.remove();
+    }
+    
+    Logger.log('#%s %s', keyword.getId().toString(), keyword.getText());
+    htmlService.add(row);    
+  }
+ htmlService.add('</table>');
+  if(matches > 0){    
+    MailApp.sendEmail(EMAIL, 'Keywords 2 Negative Keywords ', '', { 
+      htmlBody: htmlService.get() 
+    });
+  }
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}

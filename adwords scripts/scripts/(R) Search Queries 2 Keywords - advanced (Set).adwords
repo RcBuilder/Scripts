@@ -1,0 +1,96 @@
+// TODAY, YESTERDAY, LAST_7_DAYS, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, THIS_MONTH, LAST_MONTH
+var PERIOD = 'LAST_30_DAYS' //'LAST_30_DAYS'; 
+var CONVERSIONS = 4;
+
+/* tests
+  Logger.log(IsExactMatch('[test]'));
+  Logger.log(IsExactMatch('test'));
+  Logger.log(IsExactMatch('[test test]'));
+  Logger.log(IsExactMatch('test test')+ '\n');
+  
+  Logger.log(IsKeywordExists('test'));
+  Logger.log(IsKeywordExists('"test"'));
+  Logger.log(IsKeywordExists('[test]'));
+*/
+
+function main() {  
+  var report = AdWordsApp.report(
+   'SELECT Query, Impressions, Clicks, Conversions, CampaignId, AdGroupId, KeywordId ' +
+   'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +         
+   'WHERE Conversions > ' + CONVERSIONS + ' ' +      
+   'DURING ' + PERIOD);
+  
+  var rows = report.rows();
+  while (rows.hasNext()) { 
+    try{
+      var row = rows.next();
+      var query = row['Query'];
+      var conversions = row['Conversions'];
+      
+      Logger.log('Query -> %s [%s] conv.', query, conversions); 
+      
+      // triggered keyword
+      var keyword_result = AdWordsApp.keywords().withIds([[row['AdGroupId'], row['KeywordId']]]).get();
+      if(!keyword_result.hasNext()){
+        Logger.log('no keyword found');
+        continue;
+      }
+      
+      var keyword = keyword_result.next();
+      keyword_text = keyword.getText();
+      keyword_cpc = keyword.bidding().getCpc();    
+      Logger.log('keyword -> %s, CPC %s', keyword_text, keyword_cpc);
+      
+      // create new keyword
+      var adGroup = AdWordsApp.adGroups().withIds([row['AdGroupId']]).get().next();
+      var adGroupName = adGroup.getName();   
+      Logger.log('adGroup -> %s', adGroupName);
+            
+      if(IsExactMatch(query))
+      {
+        Logger.log('exact match keyword');
+        continue;
+      }
+      
+      var new_keyword_text = IsPhraseMatch(query) ? query : '"' + query + '"';
+           
+      if(IsKeywordExists(query))
+      {
+        Logger.log('keyword already exists');
+        continue;
+      }
+            
+      if(!AdWordsApp.getExecutionInfo().isPreview()){  // real time only!
+        var new_keyword_result = adGroup.newKeywordBuilder().withText(new_keyword_text).build();
+        if(!new_keyword_result.isSuccessful())
+        {
+          Logger.log('error while trying to create a keyword');
+          continue;
+        }
+        
+        // new keyword created 
+        var new_keyword = new_keyword_result.getResult();
+        new_keyword.bidding().setCpc(keyword_cpc);
+      }
+
+      Logger.log('keyword %s with cpc %s created for adgroup %s', new_keyword_text, keyword_cpc, adGroupName);
+    }
+    finally{
+      Logger.log('--------\n');
+    }
+  }
+}
+
+// exact match text [text]
+function IsExactMatch(keyword_text){
+  return keyword_text.charAt(0) == '[' && keyword_text.charAt(keyword_text.length -1) == ']';
+}
+
+// phrase match text "text"
+function IsPhraseMatch(keyword_text){
+  return keyword_text.charAt(0) == '"' && keyword_text.charAt(keyword_text.length -1) == '"';
+}
+
+function IsKeywordExists(keyword_text){  
+  return AdWordsApp.keywords().withCondition('Text = \'' + keyword_text + '\'').get().hasNext();
+}

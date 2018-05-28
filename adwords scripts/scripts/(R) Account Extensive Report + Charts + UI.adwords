@@ -1,0 +1,1696 @@
+// https://ddm.google.com/ds/r/a/#/reports/Acquire-Learning-Search-Report/2015-10-19/994e42ff-0d50-4bd5-b9e4-a0a554398f28/view
+
+var DATA_SPREADSHEET = 'AccountExtendedReport';
+var AGENCY_LOGO = 'logowme_dark@2x.png';
+
+var useDummyData = false;
+
+function main() {
+  ProcessAccount();
+}
+
+function ProcessAccount(){ 
+  var spreadSheetService = SpreadsheetLoader.loadSpreadSheetService(DATA_SPREADSHEET, false);
+  if(!spreadSheetService){	
+    spreadSheetService = SpreadsheetLoader.createSpreadSheetService(DATA_SPREADSHEET);
+    
+    // create all required sheets
+    spreadSheetService.sheets[0].setName('Overview');
+    spreadSheetService.addNewSheet('Weekly');
+    spreadSheetService.addNewSheet('Monthly');
+    spreadSheetService.addNewSheet('Device');
+    spreadSheetService.addNewSheet('Campaigns');  
+    
+    AddAgencyLogo(spreadSheetService.sheets[0]); // only once
+  }
+
+  spreadSheetService.clearALL();
+  
+  ProcessOverviewTab(spreadSheetService.sheets[0]);
+  ProcessWeeklyTab(spreadSheetService.sheets[1]);
+  ProcessMonthlyTab(spreadSheetService.sheets[2]);
+  ProcessDeviceTab(spreadSheetService.sheets[3]);
+  ProcessCampaignsTab(spreadSheetService.sheets[4]);
+}
+
+/*
+function TEST(sheetService){
+  var chartService = ChartService();
+  var barsChartBlobA = chartService.createStackChart( 
+    [
+      { name: 'Date', type: 'datetime' },
+      { name: 'mobile', type: 'number' },
+      { name: 'tablet', type: 'number' },
+      { name: 'desktop', type: 'number' },
+      { name: 'other', type: 'number' }
+    ],
+    [      
+      [HELPER.parseDate('2016-03-04'), 50, 50, 70, 49],
+      [HELPER.parseDate('2016-03-05'), 40, 40, 40, 79],
+      [HELPER.parseDate('2016-03-02'), 20, 30, 40, 19],
+      [HELPER.parseDate('2016-03-03'), 70, 50, 90, 29],
+    ],
+    { title: 'clicks',
+      lines: [ // vAxis data      
+      {color:'#FF9915', legend:'mobile'},      
+      {color:'#1BC123', legend:'tablet'},      
+      {color:'#4D90FE', legend:'desktop'}      
+    ]},
+    1100, 330, // chart size (width,height)
+    'Traffic By Device - Current Month'
+  );
+  sheetService.sheet.insertImage(barsChartBlobA, 2, 3); // (column, row)
+}
+*/
+
+// ---------------------------------------------------
+
+function AddAccountHeader(sheetService, accountName){
+  sheetService.setRangeValue('A2', accountName);
+  sheetService.setDataUI('A2', null, '#000000', 16, 'center', 'bold', null, 'middle');
+  
+  sheetService.merge('A2:G3');
+  sheetService.setDataUI('A2:G3', '#F2F2F2', '#000000', null, null);
+}
+
+function AddAgencyLogo(sheetService){
+  var driveService = DriveService();
+  var logo = driveService.getImage(AGENCY_LOGO);     
+  sheetService.addImage(logo, 7, 2, 5, -30);
+}
+
+function CalculateCPA(convertedClicks, cost){
+  return convertedClicks == 0 ? 0 : cost / convertedClicks;
+}
+
+// return [{ dateRange, startWeek, stats }]
+function GetWeeklyStats(numOfWeeksToPresent){
+  var arrWeeklyStats = [];
+  
+  var account = AdWordsApp.currentAccount();
+  var nextSunday = HELPER.getTheNextSunday(new Date());  
+  var endWeek = nextSunday;  
+  for(var i = 0; i < numOfWeeksToPresent; i++)
+  {
+    var startWeek = HELPER.dateAdd(endWeek, -6);
+    var dateRange = HELPER.dateFormat(startWeek) + ',' + HELPER.dateFormat(endWeek);        
+    
+    var stats = account.getStatsFor(dateRange)
+    arrWeeklyStats.push({ dateRange: dateRange, startWeek: startWeek, stats: stats });
+    
+    endWeek = HELPER.dateAdd(startWeek, -1);
+    
+    /*
+    var report = AdWordsApp.report(
+      'SELECT Date, Week, Impressions, Clicks, ConversionRate, Cost ' +
+      'FROM   ACCOUNT_PERFORMANCE_REPORT ' +
+      'DURING ' + HELPER.dateFormat(startWeek) + ',' + HELPER.dateFormat(endWeek)
+    );
+    
+    var rows = report.rows();
+    while(rows.hasNext())
+    {
+      var row = rows.next();
+      Logger.log(row["Date"]);
+    }
+    */   
+  }
+  
+  return arrWeeklyStats;
+}
+
+// ---------------------------------------------------
+
+function ProcessOverviewTab(sheetService){ 
+  Logger.log('Process Overview Tab...');
+    
+  var account = AdWordsApp.currentAccount();
+  
+  Logger.log('create header...');
+  AddAccountHeader(sheetService, account.getName());
+  
+  // week vs week DATA  
+  var previousSunday = HELPER.getThePreviousSunday(new Date());    
+  
+  var endWeekA = previousSunday;
+  var startWeekA = HELPER.dateAdd(endWeekA, -6);
+  var dateRangeWeekA = HELPER.dateFormat(startWeekA) + ',' + HELPER.dateFormat(endWeekA);        
+  Logger.log(dateRangeWeekA);
+  
+  var endWeekB = HELPER.dateAdd(startWeekA, -1);
+  var startWeekB = HELPER.dateAdd(endWeekB, -6);
+  var dateRangeWeekB = HELPER.dateFormat(startWeekB) + ',' + HELPER.dateFormat(endWeekB);        
+  Logger.log(dateRangeWeekB);  
+  
+  var statsWeekA = account.getStatsFor(dateRangeWeekA);
+  var statsWeekB = account.getStatsFor(dateRangeWeekB);
+  
+  // yearly DATA
+  var year = new Date().getFullYear().toFixed(0);
+  var dateRangeYear = year.concat('0101,', year, '1231'); 
+  Logger.log(dateRangeYear);
+  
+  var statsYear = account.getStatsFor(dateRangeYear);
+  
+  // title
+  sheetService.setRangeValue('A5', 'WOW Performance');
+  sheetService.setDataUI('A5', null, '#000000', 12, 'left', 'bold');
+
+  // title
+  sheetService.setRangeValue('F5', 'Current Year');
+  sheetService.setDataUI('F5', null, '#000000', 12, 'left', 'bold', null);
+  
+  // header
+  sheetService.addRowAtIndex(['', endWeekA, endWeekB, 'Change (%)', '', '', 'Google'], 6);  
+  sheetService.setDataUI('A6:D6', '#888888', '#FFFFFF', null, 'center'); // week vs week
+  sheetService.setDataUI('F6:G6', '#888888', '#FFFFFF', null, 'center'); // yearly
+  
+  // border
+  sheetService.setDataUI('A6:D14', null, null, null, null, null, { color:'#000000', style:'dotted' });
+  sheetService.setDataUI('F6:G14', null, null, null, null, null, { color:'#000000', style:'dotted' });
+  
+  var costChange = statsWeekB.getCost() == 0 ? 0 : ((statsWeekA.getCost() - statsWeekB.getCost()) / statsWeekB.getCost());
+  var clicksChange = statsWeekB.getClicks() == 0 ? 0 : ((statsWeekA.getClicks() - statsWeekB.getClicks()) / statsWeekB.getClicks());
+  var imprChange = statsWeekB.getImpressions() == 0 ? 0 : ((statsWeekA.getImpressions() - statsWeekB.getImpressions()) / statsWeekB.getImpressions());
+  var cpcChange = statsWeekB.getAverageCpc() == 0 ? 0 : ((statsWeekA.getAverageCpc() - statsWeekB.getAverageCpc()) / statsWeekB.getAverageCpc());
+  var ctrChange = statsWeekB.getCtr() == 0 ? 0 : ((statsWeekA.getCtr() - statsWeekB.getCtr()) / statsWeekB.getCtr());
+  var avgPosChange = statsWeekB.getAveragePosition() == 0 ? 0 : ((statsWeekA.getAveragePosition() - statsWeekB.getAveragePosition()) / statsWeekB.getAveragePosition());
+  var conversionsChange = statsWeekB.getConvertedClicks() == 0 ? 0 : ((statsWeekA.getConvertedClicks() - statsWeekB.getConvertedClicks()) / statsWeekB.getConvertedClicks());
+  
+  var conversionsCpaWeekA = CalculateCPA(statsWeekA.getConvertedClicks(), statsWeekA.getCost());
+  var conversionsCpaWeekB = CalculateCPA(statsWeekB.getConvertedClicks(), statsWeekB.getCost());
+  var conversionsCpaChange = conversionsCpaWeekA == 0 ? 0 : ((conversionsCpaWeekB - conversionsCpaWeekA) / conversionsCpaWeekA);
+  
+  sheetService.addRowAtIndex(['Cost', statsWeekA.getCost(), statsWeekB.getCost(), costChange, '', 'Cost', statsYear.getCost()]); 
+  sheetService.addRowAtIndex(['Clicks', statsWeekA.getClicks(), statsWeekB.getClicks(), clicksChange, '', 'Clicks', statsYear.getClicks()]);
+  sheetService.addRowAtIndex(['Impr', statsWeekA.getImpressions(), statsWeekB.getImpressions(), imprChange, '', 'Impr', statsYear.getImpressions()]);
+  sheetService.addRowAtIndex(['CPC', statsWeekA.getAverageCpc(), statsWeekB.getAverageCpc(), cpcChange, '', 'CPC', statsYear.getAverageCpc()]);
+  sheetService.addRowAtIndex(['CTR', statsWeekA.getCtr(), statsWeekB.getCtr(), ctrChange, '', 'CTR', statsYear.getCtr()]);
+  sheetService.addRowAtIndex(['Avg pos', statsWeekA.getAveragePosition(), statsWeekB.getAveragePosition(), avgPosChange, '', 'Avg pos', statsYear.getAveragePosition()]);
+  sheetService.addRowAtIndex(['Conversions', statsWeekA.getConvertedClicks(), statsWeekB.getConvertedClicks(), conversionsChange, '', 'Conversions', statsYear.getConvertedClicks()]);
+  sheetService.addRowAtIndex(['Conversion CPA', conversionsCpaWeekA, conversionsCpaWeekB, conversionsCpaChange, '', 'Conversion CPA', CalculateCPA(statsYear.getConvertedClicks(), statsYear.getCost())]);
+  
+  // UI and Formats    
+  sheetService.setDataUI('A7:A14', '#F2F2F2', '#000000', null, 'left');  
+  sheetService.setDataUI('F7:F14', '#F2F2F2', '#000000', null, 'left'); 
+  
+  // week vs week
+  sheetService.setWeekFormat('B6:C6');  
+  sheetService.setCurrencyFormat('B7:C7');
+  sheetService.setNumberFormat('B8:C8');  
+  sheetService.setNumberFormat('B9:C9');
+  sheetService.setCurrencyFormat('B10:C10');  
+  sheetService.setPercentageFormat('B11:C11');
+  sheetService.setDecimalFormat('B12:C12');    
+  sheetService.setNumberFormat('B13:C13');
+  sheetService.setCurrencyFormat('B14:C14'); 
+  
+  // yearly
+  sheetService.setWeekFormat('G6');  
+  sheetService.setCurrencyFormat('G7');
+  sheetService.setNumberFormat('G8');  
+  sheetService.setNumberFormat('G9');
+  sheetService.setCurrencyFormat('G10');  
+  sheetService.setPercentageFormat('G11');
+  sheetService.setDecimalFormat('G12');    
+  sheetService.setNumberFormat('G13');
+  sheetService.setCurrencyFormat('G14'); 
+  
+  // change %
+  sheetService.setPercentageFormat('D7:D14');
+  
+  sheetService.setColumnWidth(1, 200);
+  sheetService.setColumnWidth(6, 200);
+  
+  // ----------
+
+  var chartService = ChartService();    
+    
+  var arrWeeklyStats = GetWeeklyStats(20);
+  
+  for(var i = 0; i < arrWeeklyStats.length; i++)
+  {
+    var item = arrWeeklyStats[i]; 
+    Logger.log(HELPER.dateName(item.startWeek));
+  }
+  
+  var rows = [];
+  for(var i = 0; i < arrWeeklyStats.length; i++)
+  {
+    var item = arrWeeklyStats[i]; 
+    var stats = item.stats;
+    
+    if(useDummyData)
+      rows.push([item.startWeek, Math.random() * 300, Math.random() * 20]);
+    else
+      rows.push([item.startWeek, stats.getCost(), stats.getClicks()]);   
+  }
+
+  var barsLineChartBlobA = chartService.createBarsLineChartDualY( 
+    [
+      { name: 'Date', type: 'datetime' },
+      { name: 'Cost', type: 'number' },
+      { name: 'Clicks', type: 'number' }
+    ],
+    rows,
+    { 
+      title: 'Cost',
+      color:'#4D90FE', 
+      legend:'Cost'      
+    },
+    {
+      title: 'Clicks',
+      color:'#1BC123', 
+      legend:'Clicks'
+    }, 
+    905, 330, // chart size (width,height)
+    'Cost vs Clicks by Week'
+  );
+  sheetService.sheet.insertImage(barsLineChartBlobA, 1, 16); // (column, row)
+
+  // ----------
+  
+  rows = [];
+  for(var i = 0; i < arrWeeklyStats.length; i++)
+  {
+    var item = arrWeeklyStats[i]; 
+    var stats = item.stats;
+    
+    if(useDummyData)
+      rows.push([item.startWeek, Math.random() * 100, Math.random() * 10]);  
+    else
+      rows.push([item.startWeek, stats.getClicks(), stats.getAverageCpc()]);       
+  }
+
+  var barsLineChartBlobB = chartService.createBarsLineChartDualY( 
+    [
+      { name: 'Date', type: 'datetime' },
+      { name: 'Clicks', type: 'number' },
+      { name: 'CPC', type: 'number' }
+    ],
+    rows,
+    { 
+      title: 'Clicks',
+      color:'#4D90FE', 
+      legend:'Clicks'      
+    },
+    {
+      title: 'CPC',
+      color:'#1BC123', 
+      legend:'CPC'
+    }, 
+    450, 330, // chart size (width,height)
+    'Clicks vs CPC - Weekly'
+  );
+  sheetService.sheet.insertImage(barsLineChartBlobB, 1, 33); // (column, row)
+  
+  // ----------
+  
+  rows = [];
+  for(var i = 0; i < arrWeeklyStats.length; i++)
+  {
+    var item = arrWeeklyStats[i]; 
+    var stats = item.stats;
+    
+    if(useDummyData)
+      rows.push([item.startWeek, Math.random() * 100, Math.random() * 10]);  
+    else 
+      rows.push([item.startWeek, stats.getConvertedClicks(), CalculateCPA(stats.getConvertedClicks(), stats.getCost())]);             
+  }
+  
+  var barsLineChartBlobC = chartService.createBarsLineChartDualY( 
+    [
+      { name: 'Date', type: 'datetime' },
+      { name: 'Conversions', type: 'number' },
+      { name: 'Conversion CPA', type: 'number' }
+    ],
+    rows,
+    { 
+      title: 'Conversions',
+      color:'#4D90FE', 
+      legend:'Conversions'      
+    },
+    {
+      title: 'Conversion CPA',
+      color:'#1BC123', 
+      legend:'Conversion CPA'
+    }, 
+    450, 330, // chart size (width,height)
+    'Conversions vs Conversion CPA - Weekly'
+  );
+  sheetService.sheet.insertImage(barsLineChartBlobC, 5, 33, -50, 0); // (column, row, left, top)
+  
+  // ----------
+  
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition('Status IN[ENABLED]') // ENABLED, PAUSED
+  .get();
+     
+  var arrCampaignStats = [];
+  while(campaigns.hasNext())
+  {
+    var campaign = campaigns.next();
+    var campaignName = campaign.getName();
+    var stats = campaign.getStatsFor('THIS_MONTH');
+    arrCampaignStats.push({ name: campaignName, stats: stats });
+  }  
+  
+  // top 5 campaigns by clicks and conversions
+  var top = arrCampaignStats.length > 5 ? 5 : arrCampaignStats.length;
+  
+  // order by clicks desc
+  arrCampaignStats.sort(function(a, b){
+    return b.stats.getClicks() - a.stats.getClicks();
+  });
+  
+  Logger.log('top %s campaigns by click', top);
+  rows = [];  
+  
+  // render top x
+  for(var i = 0; i < top; i++)
+  {
+    Logger.log(arrCampaignStats[i].name + ' -> ' + arrCampaignStats[i].stats.getClicks());
+    
+    if(useDummyData)
+      rows.push([arrCampaignStats[i].name, Math.random() * 300]);  
+    else 
+      rows.push([arrCampaignStats[i].name, arrCampaignStats[i].stats.getClicks()]);
+  }
+  
+  // render 'others'
+  var others = 0;
+  for(var i = top; i < arrCampaignStats.length; i++)
+    others += arrCampaignStats[i].stats.getClicks();
+  
+  if(useDummyData)
+    rows.push(['others', Math.random() * 400]);  
+  else 
+    rows.push(['others', others]);
+  
+  var pieChartBlobA = chartService.createPieChart( 
+    [
+      { name: 'Task', type: 'string' },
+      { name: 'Value', type: 'number' }
+    ],
+    rows,
+    { },
+    450, 330, // chart size (width,height)
+    'Campaigns Traffic - Month'
+  );
+  sheetService.sheet.insertImage(pieChartBlobA, 1, 50); // (column, row)
+  
+  // order by conversions desc
+  arrCampaignStats.sort(function(a, b){
+    return b.stats.getConvertedClicks() - a.stats.getConvertedClicks();
+  });
+  
+  Logger.log('top %s campaigns by conversions', top);
+  rows = [];  
+  
+  // render top x
+  for(var i = 0; i < top; i++)
+  {
+    Logger.log(arrCampaignStats[i].name + ' -> ' + arrCampaignStats[i].stats.getConvertedClicks());
+    
+    if(useDummyData)
+      rows.push([arrCampaignStats[i].name, Math.random() * 40]);  
+    else 
+      rows.push([arrCampaignStats[i].name, arrCampaignStats[i].stats.getConvertedClicks()]);
+  }
+  
+  // render 'others'
+  others = 0;
+  for(var i = top; i < arrCampaignStats.length; i++)
+    others += arrCampaignStats[i].stats.getConvertedClicks();
+  
+  if(useDummyData)
+    rows.push(['others', Math.random() * 60]);  
+  else 
+    rows.push(['others', others]);
+  
+  var pieChartBlobB = chartService.createPieChart( 
+    [
+      { name: 'Task', type: 'string' },
+      { name: 'Value', type: 'number' }
+    ],
+    rows,
+    { },
+    450, 330, // chart size (width,height)
+    'Campaigns Conversions - Month'
+  );
+  sheetService.sheet.insertImage(pieChartBlobB, 5, 50, -50, 0); // (column, row, left, top)
+  
+  // ----------
+  
+  var statsAllTime = account.getStatsFor('ALL_TIME');
+  
+  // title
+  sheetService.setRangeValue('A67', 'All Time');
+  sheetService.setDataUI('A67', null, '#000000', 12, 'left', 'bold');
+  
+  // header
+  sheetService.addRowAtIndex(['', 'Google'], 68);  
+  sheetService.setDataUI('A68:B68', '#888888', '#FFFFFF', null, 'center'); // all time
+  
+  // border
+  sheetService.setDataUI('A68:B76', null, null, null, null, null, { color:'#000000', style:'dotted' });
+  
+  sheetService.addRowAtIndex(['Cost', statsAllTime.getCost()]); 
+  sheetService.addRowAtIndex(['Clicks', statsAllTime.getClicks()]);
+  sheetService.addRowAtIndex(['Impr', statsAllTime.getImpressions()]);
+  sheetService.addRowAtIndex(['CPC', statsAllTime.getAverageCpc()]);
+  sheetService.addRowAtIndex(['CTR', statsAllTime.getCtr()]);
+  sheetService.addRowAtIndex(['Avg pos', statsAllTime.getAveragePosition()]);
+  sheetService.addRowAtIndex(['Conversions', statsAllTime.getConvertedClicks()]);
+  sheetService.addRowAtIndex(['Conversion CPA', CalculateCPA(statsAllTime.getConvertedClicks(), statsAllTime.getCost())]); 
+  
+  // UI and Formats    
+  sheetService.setDataUI('A69:A76', '#F2F2F2', '#000000', null, 'left');  
+  
+  sheetService.setCurrencyFormat('B69');
+  sheetService.setNumberFormat('B70');  
+  sheetService.setNumberFormat('B71');
+  sheetService.setCurrencyFormat('B72');  
+  sheetService.setPercentageFormat('B73');
+  sheetService.setDecimalFormat('B74');    
+  sheetService.setNumberFormat('B75'); 
+  sheetService.setCurrencyFormat('B76'); 
+}
+
+function ProcessWeeklyTab(sheetService){  
+  Logger.log('Process Weekly Tab...');
+  
+  // title
+  sheetService.setRangeValue('A2', 'Weekly Results');
+  sheetService.setDataUI('A2', null, '#000000', 12, 'left', 'bold');
+  sheetService.setColumnWidth(1, 200);
+  
+  // header
+  sheetService.addRowAtIndex(['Week', 'Cost', 'Clicks', 'Impr.', 'CPC', 'CTR', 'Avg pos', 'Conversions', 'Conversions CPA'], 3); 
+  sheetService.setDataUI('A3:I3', '#888888', '#FFFFFF', null, 'center');
+
+  // border
+  sheetService.setDataUI('A3:I23', null, null, null, null, null, { color:'#000000', style:'dotted' });
+  
+  var arrWeeklyStats = GetWeeklyStats(20);
+  while(arrWeeklyStats.length > 0)
+  {
+    var item = arrWeeklyStats.shift(); 
+    Logger.log(item.dateRange);
+    
+    var stats = item.stats;
+    sheetService.addRowAtIndex([item.startWeek, stats.getCost(), stats.getClicks(), stats.getImpressions(), stats.getAverageCpc(), stats.getCtr(), stats.getAveragePosition(), stats.getConvertedClicks(), CalculateCPA(stats.getConvertedClicks(), stats.getCost())]); 
+  }
+  
+  // UI and Formats  
+  sheetService.setDataUI('A4:A23', '#F2F2F2', '#000000', null, 'left');  
+  
+  sheetService.setWeekFormat('A4:A23');
+  sheetService.setCurrencyFormat('B4:B23');
+  sheetService.setNumberFormat('C4:D23');  
+  sheetService.setCurrencyFormat('E4:E23');  
+  sheetService.setPercentageFormat('F4:F23');
+  sheetService.setDecimalFormat('G4:G23');
+  sheetService.setNumberFormat('H4:H23');  
+  sheetService.setCurrencyFormat('I4:I23');  
+}
+
+function ProcessMonthlyTab(sheetService){  
+  Logger.log('Process Monthly Tab...');
+  
+  // title
+  sheetService.setRangeValue('A2', 'Monthly Results');
+  sheetService.setDataUI('A2', null, '#000000', 12, 'left', 'bold');
+  
+  // header
+  sheetService.addRowAtIndex(['Month', 'Cost', 'Clicks', 'Impr.', 'CPC', 'CTR', 'Avg pos', 'Conversions', 'Conversions CPA'], 3);  
+  sheetService.setDataUI('A3:I3', '#888888', '#FFFFFF', null, 'center');
+  sheetService.setColumnWidth(1, 200);
+  
+  // border
+  sheetService.setDataUI('A3:I9', null, null, null, null, null, { color:'#000000', style:'dotted' });
+  
+  var account = AdWordsApp.currentAccount();
+  var numOfMonthsToPresent = 6; 
+    
+  var currentMonth = HELPER.getFirstDayOfMonth(new Date());
+  for(var i = 0; i < numOfMonthsToPresent; i++)
+  {       
+    var dateRange = HELPER.dateFormat(currentMonth) + ',' + HELPER.dateFormat(HELPER.getLastDayOfMonth(currentMonth));        
+    Logger.log(dateRange);
+    
+    var stats = account.getStatsFor(dateRange)
+    sheetService.addRowAtIndex([currentMonth, stats.getCost(), stats.getClicks(), stats.getImpressions(), stats.getAverageCpc(), stats.getCtr(), stats.getAveragePosition(), stats.getConvertedClicks(), CalculateCPA(stats.getConvertedClicks(), stats.getCost())]); 
+   
+    currentMonth = HELPER.dateAdd(currentMonth, -1, 'MM');    
+  }
+  
+  // UI and Formats    
+  sheetService.setDataUI('A4:A9', '#F2F2F2', '#000000', null, 'left');  
+  
+  sheetService.setMonthFormat('A4:A9');
+  sheetService.setCurrencyFormat('B4:B9');
+  sheetService.setNumberFormat('C4:D9');  
+  sheetService.setCurrencyFormat('E4:E9');  
+  sheetService.setPercentageFormat('F4:F9');
+  sheetService.setDecimalFormat('G4:G9');
+  sheetService.setNumberFormat('H4:H9');  
+  sheetService.setCurrencyFormat('I4:I9');  
+  
+  // OPTION 2
+  /*
+  var numOfMonthsToPresent = 6; 
+  
+  var now = new Date();
+  var startDate = HELPER.dateAdd(HELPER.getFirstDayOfMonth(now), -numOfMonthsToPresent, 'MM');
+  var dateRange = HELPER.dateFormat(startDate) + ',' + HELPER.dateFormat(now);
+  Logger.log(dateRange);
+  
+  var report = AdWordsApp.report(
+    'SELECT Date, MonthOfYear, Impressions, Clicks, ConversionRate, Cost  ' +
+    'FROM   ACCOUNT_PERFORMANCE_REPORT ' +
+    'DURING ' + dateRange
+  );
+  
+  // { monthName [date, cost] }
+  var result = [];
+  result.IndexOf = function(monthName){
+    for(var i = 0; i < this.length; i++)
+      if(this[i].monthName == monthName)
+        return i;
+    return -1;
+  }
+  
+  var rows = report.rows();
+  while(rows.hasNext())
+  {
+    var row = rows.next();
+    var monthName = row['MonthOfYear'];
+    
+    var index = result.IndexOf(monthName);
+    if(index == -1)
+    {
+      result.push({ monthName: monthName, rows:[] });
+      index = result.length - 1;
+    }
+    
+    var currentItem = result[index];
+    currentItem.rows.push({ date: row['Date'], cost: row['Cost'] });        
+  }
+
+  for(var i = 0; i < result.length; i++)
+    Logger.log('%s -> %s rows', result[i].monthName, result[i].rows.length);
+  
+  output:
+  20150901,20160303
+  February -> 29.0 rows
+  January -> 31.0 rows
+  December -> 31.0 rows
+  November -> 30.0 rows
+  September -> 30.0 rows
+  March -> 3.0 rows
+  October -> 31.0 rows
+  */  
+}
+
+function ProcessDeviceTab(sheetService){
+  Logger.log('Process Device Tab...');
+  
+  var chartService = ChartService();
+  
+  var report = AdWordsApp.report(
+    'SELECT Date, Device, Clicks, ConvertedClicks ' +
+    'FROM   ACCOUNT_PERFORMANCE_REPORT ' +
+    'DURING THIS_MONTH'
+  );
+  
+  // { date, mobile, tablet, desktop, other }
+  var result = [];
+  result.IndexOf = function(date){
+    for(var i = 0; i < this.length; i++)
+      if(this[i].date == date)
+        return i;
+    return -1;
+  }
+  
+  var rows = report.rows();
+  while(rows.hasNext())
+  {
+    var row = rows.next();
+    var date = row["Date"];
+    var device = row["Device"];
+    var clicks = row["Clicks"];   
+    var conversions = row["ConvertedClicks"]; 
+    
+    var index = result.IndexOf(date);    
+    if(index == -1)
+    {
+      result.push({ 
+        date: date, 
+        mobile: { clicks: 0, conversions: 0 }, 
+        tablet: { clicks: 0, conversions: 0 }, 
+        desktop: { clicks: 0, conversions: 0 }, 
+        other: { clicks: 0, conversions: 0 } 
+      });
+      
+      index = result.length - 1;
+    }
+    
+    var currentItem = result[index];
+    
+    if(device == 'Other')
+    {
+      currentItem.other.clicks = clicks;
+      currentItem.other.conversions = conversions;
+      continue;
+    }
+      
+    if(device == 'Computers')
+    {
+      currentItem.desktop.clicks = clicks;
+      currentItem.desktop.conversions = conversions;      
+      continue;
+    }
+    
+    if(device.indexOf('Mobile') == 0)
+    {
+      currentItem.mobile.clicks = clicks;
+      currentItem.mobile.conversions = conversions;       
+      continue;
+    }
+    
+    if(device.indexOf('Tablets') == 0)
+    {
+      currentItem.tablet.clicks = clicks;
+      currentItem.tablet.conversions = conversions;       
+      continue;
+    }
+  }
+  
+  var rows_clicks = []; // for the traffic chart
+  var rows_conversions = []; // for the form submits chart
+  for(var i = 0; i < result.length; i++)
+  {
+    var item = result[i]; 
+    Logger.log('date = %s', item.date);    
+    
+    if(useDummyData)
+    {
+      rows_clicks.push([HELPER.parseDate(item.date), Math.random() * 16, Math.random() * 8, Math.random() * 12, Math.random() * 5]);  
+      rows_conversions.push([HELPER.parseDate(item.date), Math.random() * 16, Math.random() * 8, Math.random() * 12, Math.random() * 5]);  
+    }
+    else 
+    {
+      rows_clicks.push([HELPER.parseDate(item.date), item.mobile.clicks, item.tablet.clicks, item.desktop.clicks, item.other.clicks]);  
+      rows_conversions.push([HELPER.parseDate(item.date), item.mobile.conversions, item.tablet.conversions, item.desktop.conversions, item.other.conversions]);  
+    }
+  }
+    
+  var barsChartBlobA = chartService.createStackChart( 
+    [
+      { name: 'Date', type: 'datetime' },
+      { name: 'mobile', type: 'number' },
+      { name: 'tablet', type: 'number' },
+      { name: 'desktop', type: 'number' },
+      { name: 'other', type: 'number' }
+    ],
+    rows_clicks,
+    { title: 'clicks',
+      lines: [ // vAxis data      
+      {color:'#FF9915', legend:'mobile'},      
+      {color:'#1BC123', legend:'tablet'},      
+      {color:'#4D90FE', legend:'desktop'}      
+    ]},
+    1100, 330, // chart size (width,height)
+    'Traffic By Device - Current Month'
+  );
+  sheetService.sheet.insertImage(barsChartBlobA, 2, 3); // (column, row)
+  
+  var barsChartBlobB = chartService.createStackChart( 
+    [
+      { name: 'Date', type: 'datetime' },
+      { name: 'mobile', type: 'number' },
+      { name: 'tablet', type: 'number' },
+      { name: 'desktop', type: 'number' },
+      { name: 'other', type: 'number' }
+    ],
+    rows_conversions,
+    { title: 'conversions',
+      lines: [ // vAxis data      
+      {color:'#FF9915', legend:'mobile'},      
+      {color:'#1BC123', legend:'tablet'},      
+      {color:'#4D90FE', legend:'desktop'}      
+    ]},
+    1100, 330, // chart size (width,height)
+    'Form Submits By Device - Current Month'
+  );
+  sheetService.sheet.insertImage(barsChartBlobB, 2, 20); // (column, row)  
+}
+
+function ProcessCampaignsTab(sheetService){
+  Logger.log('Process Campaigns Tab...');
+  
+  // title
+  sheetService.setRangeValue('A2', 'Campaigns');
+  sheetService.setDataUI('A2', null, '#000000', 12, 'left', 'bold'); 
+  
+  // header
+  sheetService.addRowAtIndex(['Campaign', 'Cost', 'Clicks', 'Impr.', 'CPC', 'CTR', 'Avg pos', 'Conversions', 'Conversions CPA'], 3); 
+  sheetService.setDataUI('A3:I3', '#888888', '#FFFFFF', null, 'center');
+  
+  sheetService.setColumnWidth(1, 200);     
+  
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition('Status IN[ENABLED, PAUSED]')
+  .get();
+  
+  var arrCampaignStats = [];
+  while(campaigns.hasNext())
+  {
+    var campaign = campaigns.next();
+    var stats = campaign.getStatsFor('LAST_WEEK');
+    
+    var impressions = stats.getImpressions();
+    if(impressions == 0) continue; // filter out non impressions campaigns
+    
+    arrCampaignStats.push({ name: campaign.getName(), stats: stats });
+  }  
+  
+  if(arrCampaignStats.length == 0)  // no campaigns
+    return;
+  
+  // order by clicks desc
+  arrCampaignStats.sort(function(a, b){
+    return b.stats.getClicks() - a.stats.getClicks();
+  });
+  
+  for(var i = 0; i< arrCampaignStats.length; i++){
+    var stats = arrCampaignStats[i].stats;    
+    
+    Logger.log('%s -> %s', arrCampaignStats[i].name, stats.getClicks());
+    
+    if(useDummyData)
+      sheetService.addRowAtIndex([arrCampaignStats[i].name, Math.random() * 600, Math.random() * 80, Math.random() * 600, Math.random() * 20, Math.random() * 50, Math.random() * 18, stats.getConvertedClicks(), Math.random() * 12]); 
+    else 
+      sheetService.addRowAtIndex([arrCampaignStats[i].name, stats.getCost(), stats.getClicks(), stats.getImpressions(), stats.getAverageCpc(), stats.getCtr(), stats.getAveragePosition(), stats.getConvertedClicks(), CalculateCPA(stats.getConvertedClicks(), stats.getCost())]); 
+  }
+  
+  // UI and Formats 
+  var lastCampaignCell = arrCampaignStats.length + 3; /* start campaigns index */
+  sheetService.setDataUI('A4:A'.concat(lastCampaignCell), '#F2F2F2', '#000000', null, 'left');  
+  
+  // border
+  sheetService.setDataUI('A3:I'.concat(lastCampaignCell), null, null, null, null, null, { color:'#000000', style:'dotted' });
+  
+  sheetService.setWeekFormat('A4:A'.concat(lastCampaignCell));
+  sheetService.setCurrencyFormat('B4:B'.concat(lastCampaignCell));
+  sheetService.setNumberFormat('C4:D'.concat(lastCampaignCell));  
+  sheetService.setCurrencyFormat('E4:E'.concat(lastCampaignCell));  
+  sheetService.setPercentageFormat('F4:F'.concat(lastCampaignCell));
+  sheetService.setDecimalFormat('G4:G'.concat(lastCampaignCell));
+  sheetService.setNumberFormat('H4:H'.concat(lastCampaignCell)); 
+  sheetService.setCurrencyFormat('I4:I'.concat(lastCampaignCell));  
+}
+
+// ------------------------------------------
+
+/* CHART SERVICE */
+var ChartService = function(){
+  var buildEmbeddedChart = function(_sheet, arrRanges, series, vAxes, width, height, rowPosition, columnPosition, chartTitle, extraOptions){        
+    var chartBuilder = _sheet.newChart();
+    
+    for (var i in arrRanges)         
+      chartBuilder.addRange(_sheet.getRange(arrRanges[i]));       
+    
+    chartBuilder             
+    .setPosition(rowPosition, columnPosition, 0, 0)  // chart location row X column Y       
+    
+    .setOption('animation.duration', 500) // animation                 
+    .setOption('width', width)        
+    .setOption('height', height)                                    
+    .setOption('legend', { alignment: 'right', position: 'right' }) // alignment: start, center, end  | position: bottom, left, right, top       
+    .setOption('hAxis.textPosition', 'out') // out, in, none 
+    .setOption('hAxis.format', 'dd-MM') // decimal, currency, percent, short, long, none -OR- custom ('MMM d, y', '#,###%' etc.)    
+    .setOption('series', series)  // parameter       
+    .setOption('vAxes', vAxes) // parameter              
+    
+    if(chartTitle)
+      chartBuilder.setOption('title', chartTitle); 
+    
+    // extra options
+    if(extraOptions){
+      for(var i=0;i<extraOptions.length;i++)
+        chartBuilder.setOption(extraOptions[i].key, extraOptions[i].value);
+    }
+    
+    _sheet.insertChart(chartBuilder.build());
+  }
+  
+  var createChart = function(type /* Enum ChartType */, dataSource /* DataTableBuilder */, series, vAxes, width, height, chartTitle, extraOptions /* [{ key,value }] */){        
+    var chartBuilder = null;
+       
+    switch(type){
+      case Charts.ChartType.AREA: chartBuilder = Charts.newAreaChart();   
+        break;
+      case Charts.ChartType.BAR: chartBuilder = Charts.newBarChart();   
+        break;     
+      case Charts.ChartType.PIE: chartBuilder = Charts.newPieChart();  
+        break;
+      default:        
+      case Charts.ChartType.LINE: chartBuilder = Charts.newLineChart();   
+        break;      
+      case Charts.ChartType.COLUMN: chartBuilder = Charts.newColumnChart();   
+        break; 
+      case Charts.ChartType.SCATTER: chartBuilder = Charts.newScatterChart();   
+        break; 
+      case Charts.ChartType.TABLE: chartBuilder = Charts.newTableChart();   
+        break;
+    }
+    
+    chartBuilder
+    .setDataTable(dataSource)                                
+    
+    .setOption('animation.duration', 500) // animation                                                 
+    .setOption('legend', { alignment: 'right', position: 'right' }) // alignment: start, center, end  | position: bottom, left, right, top       
+    .setOption('hAxis.textPosition', 'out') // out, in, none 
+    .setOption('hAxis.format', 'dd-MM') // decimal, currency, percent, short, long, none -OR- custom ('MMM d, y', '#,###%' etc.)     
+    .setOption('series', series)  // parameter       
+    .setOption('vAxes', vAxes) // parameter     
+    .setDimensions(width, height)
+    
+    if(chartTitle)
+      chartBuilder.setOption('title', chartTitle); 
+    
+    // extra options
+    if(extraOptions){
+      for(var i=0;i<extraOptions.length;i++)
+        chartBuilder.setOption(extraOptions[i].key, extraOptions[i].value);
+    }  
+        
+    return chartBuilder.build();   
+  }
+  
+  var getColumnType = function(value){
+    value = value.toLowerCase();
+    switch(value){
+      case 'datetime':
+      case 'date': return Charts.ColumnType.DATE;
+      case 'numeric':
+      case 'float':  
+      case 'int':
+      case 'number': return Charts.ColumnType.NUMBER;
+      default:
+      case 'string': return Charts.ColumnType.STRING;
+    }
+  }
+    
+  var getChartType = function(value){
+    value = value.toLowerCase();
+    switch(value){        
+      case 'area': return Charts.ChartType.AREA;        
+      case 'bars':
+      case 'bar': return Charts.ChartType.BAR;
+      case 'pie': return Charts.ChartType.PIE;
+      case 'cols':
+      case 'columns':
+      case 'column': return Charts.ChartType.COLUMN; 
+      case 'dots':
+      case 'scater':
+      case 'scatter': return Charts.ChartType.SCATTER; 
+      case 'table': return Charts.ChartType.TABLE; 
+      default:
+      case 'line': return Charts.ChartType.LINE;
+    }
+  }
+    
+  return {    
+    // --- EMBEDDED CHARTS ---
+    addChartToSheet: function(_sheet, typeName, arrRanges /* range format: 'B15:B24' */, vAxisData /* { title, ticks, lines[{color, legend}]  } */, width, height, rowPosition, columnPosition, chartTitle){  
+      var series = [];
+      for (var i in vAxisData.lines)         
+        series.push({ 
+          color: vAxisData.lines[i].color, 
+          labelInLegend : vAxisData.lines[i].legend,
+          pointShape: 'square',
+          pointSize: 4,
+          type: typeName,
+          targetAxisIndex: 0 // only one vAxis (index 0)
+        });
+      
+      var minValue = 0;
+      if(vAxisData.ticks) // custom vAxis values      
+        // set minimum value to be the minimum tick value
+        minValue = Math.min.apply(null, vAxisData.ticks).toFixed(0);
+      
+      var vAxis = { 
+        ticks: vAxisData.ticks, // null for default
+        title: vAxisData.title,
+        minValue: minValue, 
+        viewWindow: { min: minValue }
+      };
+      
+      var vAxes = [];
+      vAxes.push(vAxis); // only one vAxis (index 0)
+      
+      buildEmbeddedChart(_sheet, arrRanges, series, vAxes, width, height, rowPosition, columnPosition, chartTitle);
+    },
+    addLineChartToSheet: function(_sheet, arrRanges, vAxisData, width, height, rowPosition, columnPosition, chartTitle){  
+      this.addChartToSheet(_sheet, 'line', arrRanges, vAxisData, width, height, rowPosition, columnPosition, chartTitle);
+    },
+    addAreaChartToSheet: function(_sheet, arrRanges, vAxisData, width, height, rowPosition, columnPosition, chartTitle){  
+      this.addChartToSheet(_sheet, 'area', arrRanges, vAxisData, width, height, rowPosition, columnPosition, chartTitle);
+    },
+    addBarsChartToSheet: function(_sheet, arrRanges, vAxisData, width, height, rowPosition, columnPosition, chartTitle){  
+      this.addChartToSheet(_sheet, 'bars', arrRanges, vAxisData, width, height, rowPosition, columnPosition, chartTitle);
+    },
+    
+    // --- EMBEDDED DUAL-Y CHARTS ---
+    addDualYChartsToSheet: function(_sheet, typeNameLeft, typeNameRight, arrRanges /* range format: 'B15:B24' */, vAxisDataLeft /* { title, ticks, color, legend } */, vAxisDataRight, width, height, rowPosition, columnPosition, chartTitle){  
+      var series = [];
+      
+      series.push({ 
+        color: vAxisDataLeft.color, 
+        labelInLegend : vAxisDataLeft.legend,
+        pointShape: 'square',
+        pointSize: 4,
+        type: typeNameLeft,
+        targetAxisIndex: 0 // vAxis (index 0)
+      });
+      
+      series.push({ 
+        color: vAxisDataRight.color, 
+        labelInLegend : vAxisDataRight.legend,
+        pointShape: 'square',
+        pointSize: 4,
+        type: typeNameRight,
+        targetAxisIndex: 1 // vAxis (index 1)
+      });
+      
+      var minValueLeft = 0;
+      if(vAxisDataLeft.ticks) // custom vAxis values      
+        // set minimum value to be the minimum tick value
+        minValueLeft = Math.min.apply(null, vAxisDataLeft.ticks).toFixed(0);
+      
+      var vAxisLeft = { 
+        ticks: vAxisDataLeft.ticks, // null for default
+        title: vAxisDataLeft.title,
+        minValue: minValueLeft, 
+        viewWindow: { min: minValueLeft }
+      };
+      
+      var minValueRight = 0;
+      if(vAxisDataRight.ticks) // custom vAxis values      
+        // set minimum value to be the minimum tick value
+        minValueRight = Math.min.apply(null, vAxisDataRight.ticks).toFixed(0);
+      
+      var vAxisRight = { 
+        ticks: vAxisDataRight.ticks, // null for default
+        title: vAxisDataRight.title,
+        minValue: minValueRight, 
+        viewWindow: { min: minValueRight }
+      };
+      
+      var vAxes = [];
+      vAxes.push(vAxisLeft); // vAxis (index 0)
+      vAxes.push(vAxisRight); // vAxis (index 1)
+      
+      buildEmbeddedChart(_sheet, arrRanges, series, vAxes, width, height, rowPosition, columnPosition, chartTitle);
+    },
+    addBarsLineChartDualYToSheet: function(_sheet, arrRanges, vAxisDataLeft, vAxisDataRight, width, height, rowPosition, columnPosition, chartTitle){  
+      this.addDualYChartsToSheet(_sheet, 'bars', 'line', arrRanges, vAxisDataLeft, vAxisDataRight, width, height, rowPosition, columnPosition, chartTitle);
+    },
+    addLineChartDualYToSheet: function(_sheet, arrRanges, vAxisDataLeft, vAxisDataRight, width, height, rowPosition, columnPosition, chartTitle){  
+      this.addDualYChartsToSheet(_sheet, 'line', 'line', arrRanges, vAxisDataLeft, vAxisDataRight, width, height, rowPosition, columnPosition, chartTitle);
+    },
+    addBarsChartDualYToSheet: function(_sheet, arrRanges, vAxisDataLeft, vAxisDataRight, width, height, rowPosition, columnPosition, chartTitle){  
+      this.addDualYChartsToSheet(_sheet, 'bars', 'bars', arrRanges, vAxisDataLeft, vAxisDataRight, width, height, rowPosition, columnPosition, chartTitle);
+    },
+    
+    // --- CHARTS AS BLOB ---
+    createChartAsBlob: function(typeName, columns /* [{ name, type }] */, rows /* [[value1,value2...valueN]] */, vAxisData /* { title, ticks, lines[{color, legend}] */, width, height, chartTitle, extraOptions) {
+      
+      // build the data source 
+      var dataSource = Charts.newDataTable();
+      
+      for(var i = 0; i < columns.length; i++) { // add columns
+        var column = columns[i];
+        dataSource.addColumn(getColumnType(column.type), column.name);
+      }
+       
+      for(var i = 0; i < rows.length; i++) // add rows
+        dataSource.addRow(rows[i])
+       
+      dataSource.build();
+       
+      var series = [];
+      for (var i in vAxisData.lines)         
+        series.push({ 
+          color: vAxisData.lines[i].color, 
+          labelInLegend : vAxisData.lines[i].legend,
+          pointShape: 'square',
+          pointSize: 4,          
+          targetAxisIndex: 0 // only one vAxis (index 0)
+        });
+      
+      var minValue = 0;
+      if(vAxisData.ticks) // custom vAxis values      
+        // set minimum value to be the minimum tick value
+        minValue = Math.min.apply(null, vAxisData.ticks).toFixed(0);
+      
+      var vAxis = { 
+        ticks: vAxisData.ticks, // null for default
+        title: vAxisData.title,
+        minValue: minValue, 
+        viewWindow: { min: minValue }
+      };
+      
+      var vAxes = [];
+      vAxes.push(vAxis); // only one vAxis (index 0)
+      
+      var chart = createChart(getChartType(typeName), dataSource, series, vAxes, width, height, chartTitle, extraOptions)
+      return chart.getBlob();
+    },
+    createLineChart: function(columns, rows, vAxisData, width, height, chartTitle) {
+      return this.createChartAsBlob('line', columns, rows, vAxisData, width, height, chartTitle);
+    },
+    createBarsChart: function(columns, rows, vAxisData, width, height, chartTitle) {
+      return this.createChartAsBlob('column', columns, rows, vAxisData, width, height, chartTitle);
+    },
+    createAreaChart: function(columns, rows, vAxisData, width, height, chartTitle) {
+      return this.createChartAsBlob('area', columns, rows, vAxisData, width, height, chartTitle);
+    }, 
+    createPieChart: function(columns, rows, vAxisData, width, height, chartTitle) {
+      return this.createChartAsBlob('pie', columns, rows, vAxisData, width, height, chartTitle);
+    }, 
+    createStackChart: function(columns, rows, vAxisData, width, height, chartTitle) {
+      var extraOptions = [];
+      extraOptions.push({ key:'isStacked', value: 'true' });                  
+      
+      return this.createChartAsBlob('column', columns, rows, vAxisData, width, height, chartTitle, extraOptions);
+    },        
+    
+    // --- DUAL-Y CHARTS AS BLOB ---
+    createDualYChartsAsBlob: function(typeNameLeft, typeNameRight, columns /* [{ name, type }] */, rows /* [[value1,value2...valueN]] */, vAxisDataLeft /* { title, ticks, color, legend } */, vAxisDataRight, width, height, chartTitle) {
+      
+      // build the data source 
+      var dataSource = Charts.newDataTable();
+      
+      for(var i = 0; i < columns.length; i++) { // add columns
+        var column = columns[i];
+        dataSource.addColumn(getColumnType(column.type), column.name);
+      }
+       
+      for(var i = 0; i < rows.length; i++) // add rows
+        dataSource.addRow(rows[i])
+       
+      dataSource.build();
+       
+      var series = [];
+      series.push({ 
+        color: vAxisDataLeft.color, 
+        labelInLegend : vAxisDataLeft.legend,
+        pointShape: 'square',
+        pointSize: 4,
+        type: typeNameLeft,
+        targetAxisIndex: 0 // vAxis (index 0)
+      });
+      
+      series.push({ 
+        color: vAxisDataRight.color, 
+        labelInLegend : vAxisDataRight.legend,
+        pointShape: 'square',
+        pointSize: 4,
+        type: typeNameRight,
+        targetAxisIndex: 1 // vAxis (index 1)
+      });
+      
+      var minValueLeft = 0;
+      if(vAxisDataLeft.ticks) // custom vAxis values      
+        // set minimum value to be the minimum tick value
+        minValueLeft = Math.min.apply(null, vAxisDataLeft.ticks).toFixed(0);
+      
+      var vAxisLeft = { 
+        ticks: vAxisDataLeft.ticks, // null for default
+        title: vAxisDataLeft.title,
+        minValue: minValueLeft, 
+        viewWindow: { min: minValueLeft }
+      };
+      
+      var minValueRight = 0;
+      if(vAxisDataRight.ticks) // custom vAxis values      
+        // set minimum value to be the minimum tick value
+        minValueRight = Math.min.apply(null, vAxisDataRight.ticks).toFixed(0);
+      
+      var vAxisRight = { 
+        ticks: vAxisDataRight.ticks, // null for default
+        title: vAxisDataRight.title,
+        minValue: minValueRight, 
+        viewWindow: { min: minValueRight }
+      };
+      
+      var vAxes = [];
+      vAxes.push(vAxisLeft); // vAxis (index 0)
+      vAxes.push(vAxisRight); // vAxis (index 1)
+      
+      var chart = createChart(getChartType(typeNameLeft), dataSource, series, vAxes, width, height, chartTitle)
+      return chart.getBlob();
+    },
+    createBarsLineChartDualY: function(columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle){
+      return this.createDualYChartsAsBlob('column', 'line', columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle)
+    },
+    createLineChartChartDualY: function(columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle){
+      return this.createDualYChartsAsBlob('line', 'line', columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle)
+    },
+    createBarsChartDualY: function(columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle){
+      return this.createDualYChartsAsBlob('column', 'column', columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle)
+    },
+    createBarsScatterChartDualY: function(columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle){
+      return this.createDualYChartsAsBlob('column', 'scatter', columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle)
+    }, 
+    createBarsAreaChartDualY: function(columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle){
+      return this.createDualYChartsAsBlob('column', 'area', columns, rows, vAxisDataLeft, vAxisDataRight, width, height, chartTitle)
+    }
+  }
+}
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+    getName: function(){
+      return _spreadSheet.getName();
+    },
+    getActiveSheet: function(){
+      return SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+         for(var i= 0; i < _sheets.length; i++)
+            if(_sheets[i].sheetName == sheetName)
+              return _sheets[i];
+          return '';
+    },
+    addNewSheet: function(sheetName){
+        var new_sheet = SheetService(_spreadSheet.insertSheet(sheetName));
+        _sheets.push(new_sheet)
+        return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+        return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    },
+	getId: function(){
+      return _spreadSheet.getId();
+    },
+    setName: function(newName){
+      _spreadSheet.rename(newName);  
+    }, 
+    clearALL: function(){
+      for(var i= 0; i < _sheets.length; i++)
+        _sheets[i].clear(true, true, true);
+    }
+  }; 
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  // e.g: setFormat('A1'); // set cell
+  // e.g: setFormat('A1:A10'); // set range
+  var setFormat = function(strRange, format){
+    var range = _sheet.getRange(strRange);
+    range.setNumberFormat(format);  
+  }
+  
+  var getBorderStyle = function(value){
+    value = value.toLowerCase();
+    switch(value){
+      case 'dotted': return SpreadsheetApp.BorderStyle.DOTTED;
+      case 'dashed': return SpreadsheetApp.BorderStyle.DASHED;
+      default:
+      case 'solid': return SpreadsheetApp.BorderStyle.SOLID;
+    }
+  }
+
+  return {   
+    sheet: _sheet,
+    hasSheet: _sheet != null,
+    sheetName: _sheet ? _sheet.getName() : '',
+    spreadSheet: _sheet.getParent(),
+    getLastRowIndex: function(){ return _sheet.getLastRow(); }, 
+    getLastColumnIndex: function(){ return _sheet.getLastColumn();}, 
+    getValue: function(rowPosition, columnPosition){ 
+       return _sheet.getRange(rowPosition, columnPosition).getValue();
+    }, 
+    getValueByRange: function(strRange){ /* A3, B1 etc.*/       
+       return _sheet.getRange(strRange).getValue();
+    },  
+    getValues: function(){
+       return _sheet.getDataRange().getValues();
+    },
+    getValuesByRange: function(strRange){ /* A3:B3, C1:C5 etc.*/       
+       return _sheet.getRange(strRange).getValues();
+    }, 
+    getRowValues:function(rowPosition){       
+       return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
+    },      
+    getRowIndex: function(columnPosition, key){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnPosition - 1] == key)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getRowIndexBy2Columns: function(columnAPosition, keyA, columnBPosition, keyB){ 
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnAPosition - 1] == keyA && rows[row][columnBPosition - 1] == keyB)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getColumnValues: function(startRowPosition, columnPosition){
+        // getRange(row, column, numRows, numColumns)
+        return _sheet.getRange(startRowPosition, columnPosition, _sheet.getLastRow() - 1, 1).getValues();
+     }, 
+     addRow: function(arrValues){ 
+       //_sheet.appendRow(arrValues);
+       this.addRowAtIndex(arrValues, _sheet.getLastRow() + 1);
+     },
+     addRowAtIndex: function(arrValues, rowPosition){               
+        rowPosition = rowPosition || _sheet.getLastRow() + 1;
+        var range = _sheet.getRange(rowPosition, 1, 1, arrValues.length);
+        range.setValues([arrValues]);
+     },
+     addImageFromURL: function(url, rowPosition, columnPosition, top, left){ 
+       top = top || 0;
+       left = left || 0;
+       
+       _sheet.insertImage(url, rowPosition, columnPosition, left, top);
+     },   
+     addImage: function(blob, rowPosition, columnPosition, top, left){ 
+       top = top || 0;
+       left = left || 0;
+       
+       _sheet.insertImage(blob, rowPosition, columnPosition, left, top);
+     },   
+     deleteRow: function(rowPosition){
+       _sheet.deleteRow(rowPosition);
+     },  
+     sort: function(columnPosition){
+       _sheet.sort(columnPosition);
+     },
+     hasCharts:  _sheet.getCharts().length > 0,
+     findColumnValuesByFilter: function(columnPosition, filterValue, filterColumnPosition){
+       /* 
+          get column values filtered by other column
+          
+          e.g: findColumnValuesByFilter(2, '100', 1)          
+          all B column values that the value in A column equals to '100'
+       */
+
+       var result = [];       
+       var rows = _sheet.getDataRange().getValues();
+ 
+       for(row in rows)
+         if(rows[row][filterColumnPosition - 1] == filterValue)
+           result.push(rows[row][columnPosition]);
+       return result;  
+     }, 
+     merge: function(strRange){
+       _sheet.getRange(strRange).merge();
+     },  
+     clear: function(charts, format, contents){
+       charts = charts || false;
+       format = format || false;
+       contents = contents || true;
+       
+       if(!charts) return; 
+       
+       // clear all charts
+       _sheet.clear({ formatOnly: format, contentsOnly: contents });        
+       var charts = _sheet.getCharts();
+       for (var i in charts)
+         _sheet.removeChart(charts[i]);
+     },          
+     setValue: function(rowPosition, columnPosition, value){ 
+       _sheet.getRange(rowPosition, columnPosition).setValue(value);
+     },     
+     setRangeValue: function(strRange, value){ 
+       // e.g: setCurrencyFormat('A1'); // set cell
+       _sheet.getRange(strRange).setValue(value);
+     },
+     setColumnWidth: function(columnPosition, width){
+       _sheet.setColumnWidth(columnPosition, width);
+     },  
+     setRowHeight: function(rowPosition, height){
+       _sheet.setRowHeight(rowPosition, height);
+     },  
+     setName: function(newName){
+       _sheet.setName(newName);
+     },         
+     setDataUI: function(strRange, backgroundColor, foreColor, fontSize, hAlign, fontWeight, border /* { color, style } */, vAlign){
+       var range = _sheet.getRange(strRange);
+       if(backgroundColor)
+           range.setBackground(backgroundColor);
+       if(foreColor)
+           range.setFontColor(foreColor);
+       if(fontSize)
+           range.setFontSize(fontSize);
+       if(hAlign)
+         range.setHorizontalAlignment(hAlign);
+       if(vAlign)
+         range.setVerticalAlignment(vAlign)
+	   if(fontWeight)
+         range.setFontWeight(fontWeight);
+       if(border)
+         range.setBorder(true, true, true, true, true, true, border.color, getBorderStyle(border.style))
+     }, 
+     setNumberFormat: function(strRange){
+       setFormat(strRange, '0');       
+     },
+     setDecimalFormat: function(strRange){
+       setFormat(strRange, '0.00');
+     },
+     setCurrencyFormat: function(strRange){
+       setFormat(strRange, '$0.00');
+     },
+     setPercentageFormat: function(strRange){
+       // e.g: setPercentageFormat('A1'); // set cell
+       // e.g: setPercentageFormat('A1:A10'); // set range
+       
+       setFormat(strRange, '0.00%');
+     },
+     setWeekFormat: function(strRange){
+       setFormat(strRange, 'MMM dd');
+     },
+     setMonthFormat: function(strRange){
+       setFormat(strRange, 'MMM');
+     },
+     setCellSumFormula: function(strRange, strCell){
+       // e.g: setCellSumFormula('A1:A10', 'B1'); 
+       // set SUM value of cells A1 to A10 to cell B1
+       
+       var cell = _sheet.getRange(strCell);
+       cell.setFormula('=SUM(' + strRange + ')');
+     },
+     setCellAvgFormula: function(strRange, strCell){
+       // e.g: setCellSumFormula('A1:A10', 'B1'); 
+       // set AVG value of cells A1 to A10 to cell B1
+       
+       var cell = _sheet.getRange(strCell);
+       cell.setFormula('=AVERAGE(' + strRange + ')');
+     }       
+   }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+	if(spreadSheetName == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheet_id){
+    if(spreadSheet_id == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var file = DriveApp.getFileById(spreadSheet_id);
+    if(!file || file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheet_id);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheet_id);
+    return SpreadsheetApp.openById(file.getId());    
+  },  
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  loadSpreadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  }
+}
+
+/* DRIVE SERVICE */
+var DriveService = function() {
+  var createFile = function(fileName, mimeType){
+      return DriveApp.createFile(fileName, '', mimeType);
+  };
+  
+  return {
+    rootFolder: DriveApp.getRootFolder(),
+    setAsPublic: function(fileName){      
+      var files = this.getFilesByName(fileName);      
+      if(!files) return false;
+      
+      var file = files[0];
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);  
+      return true;
+    },
+	setAsPublicById: function(fileId){      
+      var file = this.getFileById(fileId);      
+      if(!file) return false;
+
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);  
+      return true;
+    },   
+    setStringContent: function(fileName, content){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return null;
+      
+      var file = files[0];
+      return file.setContent(content); 
+    },
+	getFileById: function(fileId){
+      return DriveApp.getFileById(fileId);       
+    },  
+    getFilesByName: function(fileName){
+      var fileIterator = DriveApp.getFilesByName(fileName);
+      if(!fileIterator.hasNext()) return null;
+      
+      var files = [];
+      while(fileIterator.hasNext())
+        files.push(fileIterator.next());              
+      return files;
+    },
+    getFileByName: function(fileName){
+      var files = this.getFilesByName(fileName);
+      if(!files) return null;
+      return files[0];
+    },
+    getImage: function(imageName){
+      var file = this.getFileByName(imageName); 
+      if(!file) return null;
+      return file.getAs(MimeType.PNG); 
+    },
+	getFilesByPrefix: function(filePrefix){
+      var fileIterator = DriveApp.getFiles();
+      if(!fileIterator.hasNext()) return null;
+      
+      var files = [];
+      while(fileIterator.hasNext())
+      {
+        var file = fileIterator.next();
+        if(file.getName().indexOf(filePrefix) != 0) continue;
+        files.push(file);              
+      }
+      return files;
+    },
+    getFoldersByName: function(folderName){
+      var folderIterator = this.rootFolder.getFoldersByName(folderName);
+      if(!folderIterator.hasNext()) return null;
+      
+      var folders = [];
+      while(folderIterator.hasNext())
+        folders.push(folderIterator.next());              
+      return folders;
+    }, 
+    getStringContent: function(fileName){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return null;
+      
+      var file = files[0];
+      return file.getBlob().getDataAsString();
+    },    
+    createTextFile: function(fileName, content){
+      content = content || '';
+      return createFile(fileName, content, MimeType.PLAIN_TEXT);
+    },
+    createFolder: function (folderName){
+      return DriveApp.createFolder(folderName);
+    },
+    moveToFolder: function(fileName, destFolderName){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return false;
+      var file = files[0];
+      
+      var folders = this.getFoldersByName(destFolderName);
+      if(!folders) return false;
+      var folder = folders[0];
+      
+      folder.addFile(file);
+      this.rootFolder.removeFile(file);      
+      return true;
+    }
+  }
+}
+
+var HELPER = {
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  }, 
+  getTheNextSunday: function(date){
+    var newDate = new Date(date.getTime()); 
+    
+    var numOfweekDays = 7;         
+    if(newDate.getDay() > 0)
+      newDate.setDate(newDate.getDate() + (numOfweekDays - newDate.getDay()));
+    return newDate;  
+  },
+  getThePreviousSunday: function(date){
+    var newDate = new Date(date.getTime()); 
+    
+    var numOfweekDays = 7;         
+    if(newDate.getDay() > 0)
+      newDate.setDate(newDate.getDate() - (numOfweekDays - newDate.getDay()));
+    return newDate;  
+  },
+  dateAdd: function(date, value, type){      
+    type = type || 'dd';
+    
+    var newDate = new Date(date.getTime());
+    
+    if(type == 'dd')
+      newDate.setDate(newDate.getDate() + value);
+    else if(type == 'MM')
+      newDate.setMonth(newDate.getMonth() + value);
+    
+    return newDate;  
+  }, 
+  getFirstDayOfMonth: function(date){
+    var newDate = new Date(date.getTime());
+    newDate.setDate(1);
+    return newDate;  
+  },
+  getLastDayOfMonth: function(date){
+    var newDate = new Date(date.getYear(), date.getMonth() + 1, 1);
+    newDate.setDate(newDate.getDate() - 1); // decrease one day from the first on the following month
+    return newDate;  
+  }, 
+  dateName: function(date){
+    // toDateString() -> Mon Feb 29 2016
+    var arrDateParts = date.toDateString().split(' '); 
+    return arrDateParts[1] + ' ' + arrDateParts[2];  // Feb 29
+  },
+  parseDate: function(strDate){ 
+    // strDate: yyyy-MM-dd
+    var arrDateParts = strDate.split('-');
+    return new Date(arrDateParts[0], arrDateParts[1], arrDateParts[2]);
+  }
+};

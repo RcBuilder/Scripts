@@ -1,0 +1,409 @@
+var MANAGER_SHEET = 'adwordsAccountsManager'; 
+
+function main() {
+  // create accounts manager service
+  var clientsSheetsService = SpreadsheetLoader.loadSheetService(MANAGER_SHEET);  
+  var accountsManagerService = new AccountsManagerService(clientsSheetsService);
+  
+  var arrAccountIds = accountsManagerService.getAccountsIds();
+  HELPER.foreach(arrAccountIds, function(accountId){   
+    ProcessAccount(accountId, accountsManagerService);
+  });
+}
+
+function ProcessAccount(accountId, accountsManagerService){
+  Logger.log('### %s ###', accountId);
+  
+  // load account data sheet
+  var clientDataSheetId = accountsManagerService.getAccountSheetId(accountId);
+  var clientDataSpreadSheet = SpreadsheetLoader.loadSpreadSheetServiceById(clientDataSheetId);
+  if(!clientDataSpreadSheet){
+    Logger.log('No sheets found!');
+    return;
+  }
+  
+  // create account data service  
+  var clientDataService = new ClientDataService(clientDataSpreadSheet);  
+  
+  // get all rows needed to be backup - not of the current month
+  // dataRow: {rowId, date, impressions, clicks, ctr, cpc, convertedClicks, clickConversionRate, cost}      
+  var rows = clientDataService.getRowsToBackup(); 
+
+  if(rows.length == 0){
+    Logger.log('NO ROWS TO BACKUP');
+    return;
+  }
+  
+  // group data by date signature
+  var groups = [];
+  groups.indexOf = function(key){
+    for(var i=0;i<this.length;i++)
+      if(this[i].name == key)
+        return i;
+    return -1;        
+  };
+  
+  // group data by month + year
+  HELPER.foreach(rows, function(dataItem){   
+    var key = HELPER.dateSignature(dataItem.date).toString();  
+    var keyIndex = groups.indexOf(key);
+    
+    if(keyIndex == -1)
+    {      
+      groups.push({ name: key, items: [] });      
+      keyIndex = groups.length - 1; // update the key index 
+    }
+    
+    groups[keyIndex].items.push(dataItem);   
+  });
+  
+  // create backup sheet per month 
+  HELPER.foreach(groups, function(group){
+    Logger.log('sheet name -> %s', group.name);
+    clientDataService.createBackupSheetIfNotExists(group.name); // create data sheet if not exists (201510, 201509 etc.)       
+  });
+  
+  // add date to the corresponding backup sheet
+  HELPER.foreach(groups, function(group){
+    HELPER.foreach(group.items, function(item){
+      clientDataService.addDataRow(item, group.name);
+    });
+  });
+  
+  // delete data from the active sheet
+  clientDataService.deleteRowsAfterBackup();
+}
+
+function GetAccountNameById(accountId){
+  var accountsIterator = MccApp.accounts().withIds([accountId]).get();
+  if(!accountsIterator.hasNext()) return accountId.toString();
+  return accountsIterator.next().getName();
+}
+
+/* CLIENT DATA SERVICE */
+var ClientDataService = function(spreadSheetService) { 
+  var activeSheetService = spreadSheetService.getActiveSheet(); //spreadSheetService.getSheetByName('Active');
+  
+  return {  
+    getRowsToBackup: function(){
+      var values = [];
+      var rows = activeSheetService.getValues().slice(1); // slice(1) - remove the header row
+      var nowSignature = HELPER.dateSignature(new Date());
+      
+      for(row in rows){
+        var date = new Date(rows[row][1]);
+        var dateSignature = HELPER.dateSignature(date); // e.g: 201510
+        
+        if(dateSignature < nowSignature){
+          values.push({
+            rowId: rows[row][0], 
+            date: date, 
+            impressions: rows[row][2], 
+            clicks: rows[row][3], 
+            ctr: rows[row][4], 
+            cpc: rows[row][5], 
+            convertedClicks: rows[row][6], 
+            clickConversionRate: rows[row][7], 
+            cost: rows[row][8]
+          }); // add to backup 
+        }
+      }
+      
+      return values; // as dataItems rows    
+    },
+    deleteRowsAfterBackup: function(dateSignature){
+      var deleted = 0;     
+      var rows = activeSheetService.getValues().slice(1); // slice(1) - remove the header row      
+      var nowSignature = HELPER.dateSignature(new Date());
+      
+      for(row in rows){
+        var date = new Date(rows[row][1]);
+        var dateSignature = HELPER.dateSignature(date); // e.g: 201510
+        
+        if(dateSignature < nowSignature){
+          var rowId = rows[row][0];
+          var rowIndex = activeSheetService.getRowIndex(1, rowId);
+          activeSheetService.deleteRow(rowIndex);
+          deleted++;
+        }
+      }   
+      
+      return deleted;
+    },
+    createBackupSheetIfNotExists: function(sheetName) {
+      if(!spreadSheetService.isSheetExists(sheetName))
+      {
+        spreadSheetService.addNewSheet(sheetName);
+        this.addDataHeader(sheetName);
+      }
+    },    
+    addDataHeader: function(sheetName){
+      sheetName = sheetName || activeSheetService.sheetName;      
+      Logger.log(sheetName);
+      var sheetService = spreadSheetService.getSheetByName(sheetName);    
+     
+      sheetService.addRow(['rowId', 'date', 'impressions', 'clicks', 'ctr', 'cpc', 'convertedClicks', 'clickConversionRate', 'cost']);
+    },
+    addDataRow: function(dataRow, sheetName){      
+      // dataRow: {rowId, date, impressions, clicks, ctr, cpc, convertedClicks, clickConversionRate, cost}      
+      sheetName = sheetName || activeSheetService.sheetName;      
+      var sheetService = spreadSheetService.getSheetByName(sheetName);    
+      
+      sheetService.addRow([
+        dataRow.rowId, 
+        dataRow.date, 
+        dataRow.impressions, 
+        dataRow.clicks, 
+        dataRow.ctr, 
+        dataRow.cpc, 
+        dataRow.convertedClicks, 
+        dataRow.clickConversionRate, 
+        dataRow.cost
+      ]);
+    },
+    getSheetURL: function(){
+      return spreadSheetService.getURL();
+    } 
+  }   
+}
+
+/* ACCOUNTS MANAGER SERVICE */
+var AccountsManagerService = function(sheetService) { 
+  return {  
+    getAccountsIds: function(){
+      var values = [];
+      
+      var range = sheetService.getColumnValues(2, 1);
+      for(r in range)
+        for(c in range[r]){
+          if(range[r][c] == '') continue; // ignore empty values
+          values.push(range[r][c]);
+        }
+      return values;
+    },
+    getAccountEmails: function(accountId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return [];
+      return sheetService.getValue(row_index, 2).split(',');
+    },
+    getAccountSchedule: function(accountId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return 0;
+      
+      var value = sheetService.getValue(row_index, 3); // empty column value
+      if(value == '') return 0;
+      
+      return parseInt(value);
+    },
+    getReportLastSendDate: function(accountId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return '';
+      return sheetService.getValue(row_index, 4);
+    },  
+    getAccountSheetId: function(accountId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return '';
+      return sheetService.getValue(row_index, 5);
+    },  
+    setReportLastSendDate: function(accountId, date){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return;     
+      sheetService.setValue(row_index, 4, date);
+    },
+    setAccountSheetId: function(accountId, sheetId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return;     
+      sheetService.setValue(row_index, 5, sheetId);
+    }        
+  }
+}
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+    getActiveSheet: function(){
+      return new SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+         for(var i= 0; i < _sheets.length; i++)
+            if(_sheets[i].sheetName == sheetName)
+              return _sheets[i];
+          return '';
+    },
+    addNewSheet: function(sheetName){
+        var new_sheet = new SheetService(_spreadSheet.insertSheet(sheetName));
+        _sheets.push(new_sheet)
+        return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+        return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    },
+    getId: function(){
+      return _spreadSheet.getId();
+    }   
+  }; 
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  return {      
+     hasSheet: _sheet != null,
+     sheetName: _sheet ? _sheet.getName() : '',
+     getLastRowIndex: function(){ return _sheet.getLastRow();}, 
+     getValue: function(rowIndex, columnIndex){ 
+       return _sheet.getRange(rowIndex, columnIndex).getValue();
+     }, 
+     getValues: function(){
+       return _sheet.getDataRange().getValues();
+     },  
+     setValue: function(rowIndex, columnIndex, value){ 
+       return _sheet.getRange(rowIndex, columnIndex).setValue(value);
+     },     
+     addRow: function(arrValues){ 
+       return _sheet.appendRow(arrValues);
+     },
+     deleteRow: function(rowIndex){
+       _sheet.deleteRow(rowIndex);
+     },  
+     sort: function(columnIndex){
+       _sheet.sort(columnIndex);
+     },
+     getRowIndex: function(columnIndex, key){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnIndex - 1] == key)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getRowIndexBy2Columns: function(columnAIndex, keyA, columnBIndex, keyB){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnAIndex - 1] == keyA && rows[row][columnBIndex - 1] == keyB)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getColumnValues: function(startRowIndex, columnIndex){
+       return _sheet.getRange(startRowIndex, columnIndex, _sheet.getLastRow() - 1, columnIndex).getValues();
+     }       
+   }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  createSpreadSheet: function(spreadSheet_name){
+    Logger.log('CREATING %s ... ', spreadSheet_name);
+    return SpreadsheetApp.create(spreadSheet_name); // create new file        
+  }, 
+  loadSpreadSheet: function(spreadSheet_name){
+    if(spreadSheet_name == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+    
+    var data_file = null;
+    var temp = DriveApp.getFilesByName(spreadSheet_name);
+    var fileExists = temp.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheet_name);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheet_name);
+    data_file = temp.next();
+    return SpreadsheetApp.openById(data_file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheet_id){
+    if(spreadSheet_id == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var data_file = DriveApp.getFileById(spreadSheet_id);
+    if(!data_file || data_file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheet_id);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheet_id);
+    return SpreadsheetApp.openById(data_file.getId());    
+  },   
+  loadSheetService: function(spreadSheet_name){
+    var spreadsheet = this.loadSpreadSheet(spreadSheet_name);
+    if(!spreadsheet) return null;
+    return new SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return new SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSpreadSheetService: function(spreadSheet_name){
+    var spreadsheet = this.loadSpreadSheet(spreadSheet_name);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  }, 
+  loadSpreadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  },
+  createSpreadSheetService: function(spreadSheet_name){
+    var spreadsheet = this.createSpreadSheet(spreadSheet_name);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  }
+}
+  
+/* HELPER */  
+var HELPER = {
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; 
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day; // return yyyyMMdd
+  },
+  dateSignature: function (date){    
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    
+    if(month.length == 1) month = '0' + month; 
+   
+    return parseInt(year + month); // return yyyyMM as int
+  },  
+  dateDiff: function (date1, date2) {
+    var datediff = date1.getTime() - date2.getTime(); 
+    return parseInt(datediff / (24*60*60*1000));
+  },
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }
+};

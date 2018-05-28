@@ -1,0 +1,342 @@
+var DATE_RANGE = 'LAST_30_DAYS';
+
+var Rules = [];
+Rules['LowImpressionShare'] = { status: 'OFF', limit: 80, action: 0.1 }; // impressionShare < X% -> +Y% bid
+Rules['HighCPA']= { status: 'OFF', limit: 100, action: -0.2 }; // CPA > X -> -Y% bid
+Rules['HighROI']= { status: 'ON', limit: 1, action: -0.1 }; // ROI < X% -> -Y% bid
+Rules['CPCAboveMax'] = { status: 'ON', limit: 2, action: 0.2 }; // Avg.MaxCPC > CPC & ROI > X% -> +Y% bid  
+Rules['CTRAboveAverage'] = { status: 'ON', limit: 2, action: 0.2 }; // Avg.CTR > CTR  & ROI > X% -> +Y% bid
+Rules['LotsOfClicksWithNoConversions'] = { status: 'ON', limit: 125 }; // clicks > X & Conversions = 0 -> Exclude
+Rules['HighCostWithNoConversions'] = { status: 'ON', limit: 50, action: -0.1 }; // cost > X & Conversions = 0 -> -Y% bid
+
+function main() {
+  var products = GetActiveProducts();
+  
+  CheckLowImpressionShare(products, Rules['LowImpressionShare']);
+  CheckHighCPA(products, Rules['HighCPA']);
+  CheckHighROI(products, Rules['HighROI']);
+  CheckCPCAboveAverage(products, Rules['CPCAboveMax']);
+  CheckCTRAboveAverage(products, Rules['CTRAboveAverage']);
+  CheckLotsOfClicksWithNoConversions(products, Rules['LotsOfClicksWithNoConversions']);
+  CheckHighCostWithNoConversions(products, Rules['HighCostWithNoConversions']);
+}
+
+function GetActiveProducts(){
+  // get only active products 
+  var products = [];
+  
+  var productGroups = AdWordsApp.productGroups()  
+  .withCondition('AdGroupStatus IN [ENABLED]')
+  .withCondition('CampaignStatus IN [ENABLED]')
+  .get();
+  
+  while (productGroups.hasNext()) {
+    var productGroup = productGroups.next();
+    
+    if(!IsActiveProduct(productGroup)) 
+      continue;
+       
+    products.push(productGroup);       
+  }
+  
+  return products;
+}
+
+function IsActiveProduct(productGroup){
+  if(productGroup.isExcluded()) 
+      return false;
+    
+  var value = productGroup.getValue();        
+  if(value == null) 
+    return false;
+  
+  var maxCPC = productGroup.getMaxCpc();
+  if(maxCPC == null)
+    return false;
+  
+  /*
+  var adgroup = productGroup.getAdGroup();  
+  if(adgroup.isRemoved() || adgroup.isPaused() || !adgroup.isEnabled())
+    return false;
+  
+  var campaign = productGroup.getCampaign();
+  if(campaign.isRemoved() || campaign.isPaused() || !campaign.isEnabled())
+    return false;
+  */
+  
+  return true;
+}
+
+function GetExtendedProperties(productGroup){
+ 
+  var result = { 
+    impressionShare: 0, 
+    conversionValue: 0,  
+    benchmarkCpc: 0,
+    benchmarkCtr: 0
+  };
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var query =  'SELECT Id, SearchImpressionShare, ConversionValue, BenchmarkAverageMaxCpc, BenchmarkCtr ' + 
+    'FROM PRODUCT_PARTITION_REPORT ' +     
+    'WHERE Id = ' + productGroup.getId().toString() + ' ' +     
+    'DURING ' + DATE_RANGE;
+  
+  var report = AdWordsApp.report(query, reportConfig);
+  var rows = report.rows(); 
+  while (rows.hasNext())
+  {
+    var row = rows.next();
+    var impressionShare = row['SearchImpressionShare'];
+    var conversionValue = row['ConversionValue'];    
+    var benchmarkCpc = row['BenchmarkAverageMaxCpc'];    
+    var benchmarkCtr = row['BenchmarkCtr'];    
+    
+    // Logger.log('[RAW] impressionShare: %s, conversionValue: %s, benchmarkCpc: %s, benchmarkCtr: %s', impressionShare, conversionValue, benchmarkCpc, benchmarkCtr); 
+    
+    // fix the '< 10' value    
+    if(impressionShare == '< 10')
+      impressionShare = '5';
+    
+    // fix the no-value rows
+    if(impressionShare == '--')
+      impressionShare = '0';
+        
+    if(benchmarkCpc == '--')
+      benchmarkCpc = '0';
+
+    if(benchmarkCtr == '--')
+      benchmarkCtr = '0';
+    
+    // skip empty rows
+    if(impressionShare == '0' && conversionValue == 0 && benchmarkCpc == '0' && benchmarkCtr == '0')
+      continue;
+    
+    result.impressionShare = parseFloat(impressionShare.replace('%',''));
+    result.conversionValue = conversionValue;    
+    result.benchmarkCpc = benchmarkCpc;    
+    result.benchmarkCtr = parseFloat(benchmarkCtr.replace('%','')) / 100;      
+  }
+      
+  // Logger.log('[Processed] impressionShare: %s, conversionValue: %s, benchmarkCpc: %s, benchmarkCtr: %s', result.impressionShare, result.conversionValue, result.benchmarkCpc, result.benchmarkCtr); 
+  return result;
+}
+  
+// ----------------
+
+function CheckLowImpressionShare(products, settings){
+  Logger.log('[%s] %s', 'LowImpressionShare', settings);
+  
+  if(settings.status == 'OFF') {
+    Logger.log('STATUS = OFF');
+    return;
+  }
+  
+  for(i in products) {
+    var productGroup = products[i];        
+    var result = GetExtendedProperties(productGroup);
+    
+    Logger.log('#%s -> impressionShare: %s ', productGroup.getId().toString(), result.impressionShare);
+    if(result.impressionShare > 0 && result.impressionShare < settings.limit)
+    {
+      var value = productGroup.getValue();  
+      var maxCPC = productGroup.getMaxCpc();
+      Logger.log('product:%s, bid: %s', value, maxCPC);    
+      
+      var newMaxCPC = maxCPC + (maxCPC * settings.action);
+      Logger.log('New bid -> %s', newMaxCPC);    
+      productGroup.setMaxCpc(newMaxCPC);
+    }   
+  }
+}  
+
+function CheckHighCPA(products, settings){
+  Logger.log('[%s] %s', 'HighCPA', settings);
+  
+  if(settings.status == 'OFF') {
+    Logger.log('STATUS = OFF');
+    return;
+  }
+  
+  for(i in products) {
+    var productGroup = products[i];
+    
+    var stats = productGroup.getStatsFor(DATE_RANGE);            
+    var cost = stats.getCost();
+    var conversions = stats.getConversions()
+    var cpa = conversions == 0 ? 0 : cost / conversions;
+    
+    Logger.log('#%s -> cpa: %s, cost: %s, conversions: %s', productGroup.getId().toString(), cpa, cost, conversions);
+    if(cpa > settings.limit)
+    {
+      var value = productGroup.getValue();  
+      var maxCPC = productGroup.getMaxCpc();
+      Logger.log('product:%s, bid: %s', value, maxCPC);    
+      
+      var newMaxCPC = maxCPC + (maxCPC * settings.action);
+      Logger.log('New bid -> %s', newMaxCPC);    
+      productGroup.setMaxCpc(newMaxCPC);
+    }
+  }  
+}  
+
+function CheckHighROI(products, settings){
+  Logger.log('[%s] %s', 'HighROI', settings);
+  
+  if(settings.status == 'OFF') {
+    Logger.log('STATUS = OFF');
+    return;
+  }
+  
+  for(i in products) {
+    var productGroup = products[i];        
+    
+    var stats = productGroup.getStatsFor(DATE_RANGE); 
+    var cost = stats.getCost();
+    
+    var result = GetExtendedProperties(productGroup);    
+    var ROI = cost == 0 ? 0 : result.conversionValue / cost;
+    
+    Logger.log('#%s -> conversionValue: %s, cost: %s, ROI: %s', productGroup.getId().toString(), result.conversionValue, cost, ROI);
+    if(ROI > 0 && ROI < settings.limit)
+    {
+      var value = productGroup.getValue();  
+      var maxCPC = productGroup.getMaxCpc();
+      Logger.log('product:%s, bid: %s', value, maxCPC);    
+      
+      var newMaxCPC = maxCPC + (maxCPC * settings.action);
+      Logger.log('New bid -> %s', newMaxCPC);    
+      productGroup.setMaxCpc(newMaxCPC);
+    }   
+  }
+}  
+
+function CheckCPCAboveAverage(products, settings){
+  Logger.log('[%s] %s', 'CPCAboveAverage', settings);
+  
+  if(settings.status == 'OFF') {
+    Logger.log('STATUS = OFF');
+    return;
+  }
+  
+  for(i in products) {
+    var productGroup = products[i];
+    
+    var stats = productGroup.getStatsFor(DATE_RANGE);                
+    var avgCPC = stats.getAverageCpc();       
+    var cost = stats.getCost();
+    
+    var result = GetExtendedProperties(productGroup);    
+    var ROI = cost == 0 ? 0 : result.conversionValue / cost;
+    var benchmarkAvgCpc = result.benchmarkCpc;
+    
+    Logger.log('#%s -> avg.cpc: %s,  benchmark avg.cpc: %s, ROI: %s', productGroup.getId().toString(), avgCPC, benchmarkAvgCpc, ROI);
+    if(benchmarkAvgCpc > 0 && benchmarkAvgCpc > avgCPC && ROI > settings.limit)
+    {
+      var value = productGroup.getValue();  
+      var maxCPC = productGroup.getMaxCpc();
+      Logger.log('product:%s, bid: %s', value, maxCPC);    
+      
+      var newMaxCPC = maxCPC + (maxCPC * settings.action);
+      Logger.log('New bid -> %s', newMaxCPC);    
+      productGroup.setMaxCpc(newMaxCPC);
+    }
+  }  
+}  
+
+function CheckCTRAboveAverage(products, settings){
+  Logger.log('[%s] %s', 'CTRAboveAverage', settings);
+  
+  if(settings.status == 'OFF') {
+    Logger.log('STATUS = OFF');
+    return;
+  }
+  
+  for(i in products) {
+    var productGroup = products[i];
+    
+    var stats = productGroup.getStatsFor(DATE_RANGE);        
+    var avgCTR = stats.getCtr();        
+    var cost = stats.getCost();
+    
+    var result = GetExtendedProperties(productGroup);    
+    var ROI = cost == 0 ? 0 : result.conversionValue / cost;
+    var benchmarkCTR = result.benchmarkCtr;
+    
+    Logger.log('#%s -> avg.ctr: %s,  benchmark avg.ctr: %s, ROI: %s', productGroup.getId().toString(), avgCTR, benchmarkCTR, ROI);
+    if(benchmarkCTR > 0 && benchmarkCTR > avgCTR && ROI > settings.limit)
+    {
+      var value = productGroup.getValue();  
+      var maxCPC = productGroup.getMaxCpc();
+      Logger.log('product:%s, bid: %s', value, maxCPC);    
+      
+      var newMaxCPC = maxCPC + (maxCPC * settings.action);
+      Logger.log('New bid -> %s', newMaxCPC);    
+      productGroup.setMaxCpc(newMaxCPC);
+    }
+  }    
+}   
+
+function CheckLotsOfClicksWithNoConversions(products, settings){
+  Logger.log('[%s] %s', 'LotsOfClicksWithNoConversions', settings);
+  
+  if(settings.status == 'OFF') {
+    Logger.log('STATUS = OFF');
+    return;
+  }
+  
+  for(i in products) {
+    var productGroup = products[i];
+    
+    var stats = productGroup.getStatsFor(DATE_RANGE);    
+    
+    var clicks = stats.getClicks();
+    var conversions = stats.getConversions();
+    
+    Logger.log('#%s -> clicks: %s,  conversions: %s', productGroup.getId().toString(), clicks, conversions);
+    if(clicks > settings.limit && conversions == 0)
+    {
+      var value = productGroup.getValue();  
+      var maxCPC = productGroup.getMaxCpc();
+      Logger.log('product:%s, bid: %s', value, maxCPC);    
+      
+      var newMaxCPC = maxCPC + (maxCPC * settings.action);
+      Logger.log('Excluding Product...');    
+      productGroup.exclude();
+    }
+  }    
+}   
+
+function CheckHighCostWithNoConversions(products, settings){
+  Logger.log('[%s] %s', 'HighCostWithNoConversions', settings);
+  
+  if(settings.status == 'OFF') {
+    Logger.log('STATUS = OFF');
+    return;
+  }
+  
+  for(i in products) {
+    var productGroup = products[i];
+    
+    var stats = productGroup.getStatsFor(DATE_RANGE);
+    
+    var cost = stats.getCost();
+    var conversions = stats.getConversions();
+    
+    Logger.log('#%s -> cost: %s,  conversions: %s', productGroup.getId().toString(), cost, conversions);
+    if(cost > settings.limit && conversions == 0)
+    {
+      var value = productGroup.getValue();  
+      var maxCPC = productGroup.getMaxCpc();
+      Logger.log('product:%s, bid: %s', value, maxCPC);    
+      
+      var newMaxCPC = maxCPC + (maxCPC * settings.action);
+      Logger.log('New bid -> %s', newMaxCPC);    
+      productGroup.setMaxCpc(newMaxCPC);
+    }
+  }  
+}
+  

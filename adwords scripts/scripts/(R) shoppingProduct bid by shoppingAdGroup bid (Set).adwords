@@ -1,0 +1,33 @@
+function main() {
+   var shoppingAdGroups = AdWordsApp.shoppingAdGroups()
+   .withCondition('Status = ENABLED')
+   .withCondition('CampaignStatus = ENABLED') 
+   .get();
+  
+   while (shoppingAdGroups.hasNext()) {
+     var shoppingAdGroup = shoppingAdGroups.next();  
+     var shoppingAdGroupName = shoppingAdGroup.getName();
+     
+     Logger.log('\nshoppingAdGroup #%s',shoppingAdGroupName);
+     
+     var adGroupBid = shoppingAdGroup.bidding().getCpc();
+     Logger.log('adGroup bid %s', adGroupBid);
+     
+     var productGroups = shoppingAdGroup.productGroups().get();      
+     while (productGroups.hasNext()) {
+       var productGroup = productGroups.next();  
+       if(productGroup == null || productGroup.isOtherCase()) continue;
+       
+       var productGroupName = productGroup.getValue();                    
+       if(productGroupName == null) continue;
+       
+       var productBid = productGroup.getMaxCpc();
+       
+       if(productBid == adGroupBid) continue;
+       
+       Logger.log('product #%s bid %s -> %s', productGroupName, productBid, adGroupBid);
+       if(!AdWordsApp.getExecutionInfo().isPreview())       
+         productGroup.setMaxCpc(adGroupBid); 
+     }     
+   }
+}

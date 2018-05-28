@@ -1,0 +1,83 @@
+var EMAIL = 'RcBuilder@walla.com';
+var LABEL_NAME = 'Vivian';
+
+function main()
+{
+  var accounts = MccApp.accounts().withCondition("LabelNames CONTAINS '" + LABEL_NAME + "'").get();
+    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+    
+    MccApp.select(account);
+    ProcessAccount(account);
+    
+    Logger.log('--------------------------');
+  }
+}
+  
+function ProcessAccount(account) {
+  var accountName = account.getName();  
+  
+  var emailBody='Yesterday, the following campaigns have had no impressions:<br />';  
+  var noImpCamp=0; 
+  
+  var arrCampaigns = [];
+ 
+  // campaigns
+  var campaigns = AdWordsApp.campaigns()
+  //.withCondition('Status IN[ENABLED,PAUSED]') // ENABLED, PAUSED
+  .get();
+  
+  Logger.log('campaigns count: %s', campaigns.totalNumEntities());
+  
+  while(campaigns.hasNext())
+  {	
+    var campaign = campaigns.next();            
+    arrCampaigns.push(campaign);
+  }  
+  
+  // shopping campaigns
+  var shoppingCampaigns = AdWordsApp.shoppingCampaigns()
+  //.withCondition('Status IN[ENABLED, PAUSED]')
+  .get();
+  
+  Logger.log('shopping campaigns count: %s', shoppingCampaigns.totalNumEntities());
+  
+  while(shoppingCampaigns.hasNext())
+  {
+    var campaign = shoppingCampaigns.next();
+    arrCampaigns.push(campaign);
+  }  
+  
+  // video campaigns
+  var videoCampaigns = AdWordsApp.videoCampaigns()
+  //.withCondition('Status IN[ENABLED, PAUSED]')
+  .get();
+  
+  Logger.log('video campaigns count: %s', videoCampaigns.totalNumEntities());
+  
+  while(videoCampaigns.hasNext())
+  {
+    var campaign = videoCampaigns.next();
+    arrCampaigns.push(campaign);
+  }  
+  
+  
+  for(var i=0;i<arrCampaigns.length;i++){
+    var campaign = arrCampaigns[i];    
+    var stats = campaign.getStatsFor('YESTERDAY');    
+    if (stats.getImpressions() == 0 && campaign.isEnabled()) {    
+      Logger.log(campaign.getName());
+      emailBody = emailBody + campaign.getName() + '<br>';      
+      noImpCamp++;      
+    }    
+  }
+  
+  if (noImpCamp > 0) {    
+    var subject = 'Alert: ' + accountName + ' – ' + noImpCamp + ' Campaigns with no impressions';
+    MailApp.sendEmail(EMAIL, subject,'',{ htmlBody: emailBody })    
+  }
+}

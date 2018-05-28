@@ -1,0 +1,32 @@
+var metaData = [
+  { account: '269-153-4479', emails: 'rcbuilder@walla.com' },
+  { account: '269-153-4478', emails: 'rcbuilder@walla.com' },
+  { account: '269-153-4477', emails: 'rcbuilder@walla.com' }
+];
+
+function toAccount(e){
+  return e.account;
+}
+
+function main() {
+  var accountsIds = metaData.map(toAccount);
+  Logger.log(accountsIds);
+  
+  var accounts = MccApp.accounts().withIds(accountsIds).get();
+    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+        
+    MccApp.select(account);
+    ProcessAccount();
+   
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount() { 
+   // [code here ... ] 
+}

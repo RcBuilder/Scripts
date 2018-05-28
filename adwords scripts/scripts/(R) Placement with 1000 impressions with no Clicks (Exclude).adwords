@@ -1,0 +1,63 @@
+var NUM_OF_IMPRESSIONS = 1000;
+var EMAIL = 'yourEmail';
+        
+function main() {
+  /*
+  var adGroup = AdWordsApp.adGroups().withIds([10365971711]).get().next();  
+  //var result = adGroup.display().newPlacementBuilder().withUrl('http://www.rcb.co.il').exclude().getResult(); 
+  
+  var excluded_placements = adGroup.display().excludedPlacements().get();
+  while (excluded_placements.hasNext()) {
+    var placement = excluded_placements.next();  
+    Logger.log(placement.getUrl());
+  }  
+  return;
+  */  
+
+  var report = AdWordsApp.report(
+    'SELECT Id, CriteriaDestinationUrl, DisplayName, Clicks, Conversions, CampaignId, AdGroupId ' +
+    'FROM PLACEMENT_PERFORMANCE_REPORT ' + 
+    'WHERE Impressions > ' + NUM_OF_IMPRESSIONS + ' AND Clicks = 0 ' + 
+    'DURING 20000101,' + dateFormat(new Date()));
+  
+  var rows = report.rows();
+  
+  var EMAIL_BODY = '';
+  while(rows.hasNext()) {
+    var row = rows.next();
+     
+    var clicks = row['Clicks'];
+    var conversions = row['Conversions'];  
+    //if(clicks < NUM_OF_CLICKS || conversions > 0) continue;
+    
+    var placementUrl = row['CriteriaDestinationUrl'];
+    var displayName = row['DisplayName'];
+    var adGroupId = row["AdGroupId"];
+    //Logger.log(displayName + ' (' + placementUrl + ') ' + ' ' + clicks + ' ' + conversions);
+    
+    try{      
+      var adGroup = AdWordsApp.adGroups().withIds([adGroupId]).get().next();
+      var result = adGroup.display().newPlacementBuilder().withUrl(placementUrl).exclude(); 
+      Logger.log(adGroupId + '.' + adGroup.getName() + ' : ' + placementUrl + ' -> ' +result.isSuccessful());
+      
+      var message = '"' + displayName + '" excluded for adgroup "' + adGroup.getName() + '"';
+      Logger.log(message);
+      EMAIL_BODY += message + '\n';
+    }
+    catch(e){}
+  }
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'No Conversion Placement', EMAIL_BODY);
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = date.getMonth().toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

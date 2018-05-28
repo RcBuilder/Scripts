@@ -1,0 +1,26 @@
+var EMAIL = 'rcbuilder@walla.com';
+
+function main() {
+  
+var date_range = 'LAST_MONTH';  
+  
+var campaigns = AdWordsApp
+.campaigns()
+.forDateRange(date_range)
+.get();
+ 
+  
+var EMAIL_BODY = ''; 
+while (campaigns.hasNext()) {    
+	var campaign = campaigns.next();  
+  
+	var stats = campaign.getStatsFor("LAST_30_DAYS");  
+
+    var message = '"' + campaign.getName() + '" - COST ' + stats.getCost() + ' | CLICKS ' + stats.getClicks();
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';  
+  }
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'COST VS CLICKS', EMAIL_BODY);
+}

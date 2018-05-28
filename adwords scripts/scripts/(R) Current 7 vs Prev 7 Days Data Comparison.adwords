@@ -1,0 +1,207 @@
+/*
+this script uses the KEYWORDS_PERFORMANCE_REPORT REPORT to compare metrics 
+between the last 7 days versus previous 7 days
+the comparison comes in 3 levels: keywords, adgroups and campaigns by grouping thew keywords
+*/
+
+var Search = function(id){
+  for(var i = 0; i < this.length; i++)
+    if(this[i].id == id)
+      return this[i];
+  return null;
+};
+
+function main() {
+  var arrKW = []; // { id, text, currentWeek, prevWeek }
+  var arrGroups = []; // { id, text, currentWeek, prevWeek }
+  var arrCampaigns = []; // { id, text, currentWeek, prevWeek }
+  
+  arrKW.Search = Search;    
+  arrGroups.Search = Search;    
+  arrCampaigns.Search = Search;  
+
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var query =  'SELECT Impressions, Id, Criteria, CampaignId, CampaignName, AdGroupId, AdGroupName, Date ' + 
+    'FROM KEYWORDS_PERFORMANCE_REPORT ' + 
+    'WHERE  HasQualityScore = TRUE ' +    
+    'AND IsNegative = FALSE ' + 
+    'AND Status = ENABLED ' + 
+    'AND AdGroupStatus = ENABLED ' + 
+    'AND Id IN [35788032927, 138620395943] ' // TODO delete 
+    'AND CampaignStatus = ENABLED ';    
+  
+  // TODO actual dates!
+  
+  dateRange = HELPER.generateRange(-7, -1);
+  Logger.log('-- ' + dateRange + ' --');
+  
+  var report = AdWordsApp.report(query + 'DURING ' + dateRange, reportConfig);  
+  var rows = report.rows(); // get rows iterator 
+  while (rows.hasNext()) { // loop the rows to read data
+	var row = rows.next();
+    
+    var keywordId = row['Id'];
+    var keywordImpressions = parseFloat(row['Impressions']);   
+    Logger.log('id: %s CampaignId: %s AdGroupId: %s Impressions: %s', keywordId, row['CampaignId'], row['AdGroupId'], keywordImpressions);  
+    
+    var keyword = arrKW.Search(keywordId);
+    if(!keyword){      
+      keyword = { 
+        id: keywordId, 
+        text: row['Criteria'], 
+        campaignId: row['CampaignId'], 
+        adGroupId: row['AdGroupId'], 
+        count: 0, 
+        currentWeek: 0,  
+        prevWeek: 0 
+      }      
+      
+      arrKW.push(keyword);
+    }
+    
+    keyword.count ++;    
+    keyword.currentWeek += keywordImpressions;     
+  }
+  
+  // fix the average Impressions
+  for(var i=0;i<arrKW.length;i++){
+    var keyword = arrKW[i];  
+    keyword.currentWeek = keyword.count == 0 ? 0 : (parseFloat(keyword.currentWeek) / keyword.count); // average
+    keyword.count = 0; // reset counter
+  }
+  
+  dateRange = HELPER.generateRange(-14, -8);
+  Logger.log('-- ' + dateRange + ' --');
+  
+  report = AdWordsApp.report(query + 'DURING ' + dateRange, reportConfig); 
+  rows = report.rows(); // get rows iterator 
+  while (rows.hasNext()) { // loop the rows to read data
+	var row = rows.next();
+    
+    var keywordId = row['Id'];
+    var keywordImpressions = parseFloat(row['Impressions']);
+    Logger.log('id: %s CampaignId: %s AdGroupId: %s Impressions: %s', keywordId, row['CampaignId'], row['AdGroupId'], keywordImpressions);  
+    
+    var keyword = arrKW.Search(keywordId);
+    if(!keyword){      
+      keyword = { 
+        id: keywordId, 
+        text: row['Criteria'], 
+        campaignId: row['CampaignId'], 
+        adGroupId: row['AdGroupId'], 
+        count: 0, 
+        currentWeek: 0,  
+        prevWeek: 0 
+      }      
+      
+      arrKW.push(keyword);
+    }
+    
+    keyword.count ++;    
+    keyword.prevWeek += keywordImpressions; 
+  }
+  
+  // fix the average Impressions
+  for(var i=0;i<arrKW.length;i++){
+    var keyword = arrKW[i];
+    keyword.prevWeek = keyword.count == 0 ? 0 : (parseFloat(keyword.prevWeek) / keyword.count); // average
+    keyword.count = 0; // reset counter
+  }
+ 
+  Logger.log('-- keywords --');
+  for(var i=0;i<arrKW.length;i++)
+    Logger.log('%s %s %s', arrKW[i].id, arrKW[i].currentWeek, arrKW[i].prevWeek);
+  
+  // -----------------------------------------------
+  
+  for(var i=0;i<arrKW.length;i++)
+  {    
+    var keyword = arrKW[i];        
+    var adGroup = arrGroups.Search(keyword.adGroupId);
+    if(!adGroup){   
+      adGroup = { 
+        id: keyword.adGroupId, 
+        count: 0, 
+        currentWeek: 0,  
+        prevWeek: 0 
+      }      
+      
+      arrGroups.push(adGroup);
+    }
+    
+    adGroup.count ++;    
+    adGroup.currentWeek += keyword.currentWeek; 
+    adGroup.prevWeek += keyword.prevWeek; 
+  }
+  
+  // fix the average Impressions
+  for(var i=0;i<arrGroups.length;i++){
+    var adGroup = arrGroups[i];
+    adGroup.currentWeek = adGroup.count == 0 ? 0 : (parseFloat(adGroup.currentWeek) / adGroup.count); // average
+    adGroup.prevWeek = adGroup.count == 0 ? 0 : (parseFloat(adGroup.prevWeek) / adGroup.count); // average
+    adGroup.count = 0; // reset counter
+  }
+  
+  Logger.log('-- adgroups --');
+  for(var i=0;i<arrGroups.length;i++)
+    Logger.log('%s %s %s', arrGroups[i].id, arrGroups[i].currentWeek, arrGroups[i].prevWeek);
+  
+  // -----------------------------------------------
+  
+  for(var i=0;i<arrKW.length;i++)
+  {    
+    var keyword = arrKW[i];        
+    var campaign = arrCampaigns.Search(keyword.campaignId);
+    if(!campaign){   
+      campaign = { 
+        id: keyword.campaignId, 
+        count: 0, 
+        currentWeek: 0,  
+        prevWeek: 0 
+      }      
+      
+      arrCampaigns.push(campaign);
+    }
+    
+    campaign.count ++;    
+    campaign.currentWeek += keyword.currentWeek; 
+    campaign.prevWeek += keyword.prevWeek; 
+  }
+  
+  // fix the average Impressions
+  for(var i=0;i<arrCampaigns.length;i++){
+    var campaign = arrCampaigns[i];
+    campaign.currentWeek = campaign.count == 0 ? 0 : (parseFloat(campaign.currentWeek) / campaign.count); // average
+    campaign.prevWeek = campaign.count == 0 ? 0 : (parseFloat(campaign.prevWeek) / campaign.count); // average
+    campaign.count = 0; // reset counter
+  }
+  
+  Logger.log('-- campaigns --');
+  for(var i=0;i<arrCampaigns.length;i++)
+    Logger.log('%s %s %s', arrCampaigns[i].id, arrCampaigns[i].currentWeek, arrCampaigns[i].prevWeek);
+}
+
+var HELPER = {
+  generateRange: function(daysFrom, daysTo){
+	var to = new Date();
+	to.setDate(to.getDate() + daysTo);
+  
+    var from = new Date();
+	from.setDate(from.getDate() + daysFrom);
+  
+	return this.dateFormat(from) + ',' + this.dateFormat(to);
+  },
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  }
+}

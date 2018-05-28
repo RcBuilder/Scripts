@@ -1,0 +1,119 @@
+/*
+  find the best profit in the last x days for each keyword with impressions
+  if the data is better than now (last 3 days) - set bid to be the value of the day with the best profit (that we found earlier)
+*/
+
+var PERIOD = GetLastXDays(10); // LAST_30_DAYS, LAST_WEEK .... GetLastXDays(X)
+var POSITIVE_BID = 1.05;
+var NEGATIVE_BID = 0.95;
+
+function main() {
+  Logger.log('Report PERIOD: %s', PERIOD);
+  
+  var reportConfig = {
+	includeZeroImpressions: false
+  };
+  
+  var report = AdWordsApp.report(
+    'SELECT Id, Criteria, AdGroupId, Impressions, Date, AverageCpc, AveragePosition, Cost, ConversionValue,Conversions, Clicks ' +
+    'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+    'WHERE Conversions > 0 ' + 
+    'AND Clicks > 0 ' +
+    'AND IsNegative = false ' +   
+    'AND Id != 3000006 ' + // AutomaticContent 
+    'DURING ' + PERIOD, reportConfig);   
+  
+  var keywords = []; 
+  
+  keywords.indexOfId = function(id){
+    for(var i=0;i<this.length;i++)
+      if(this[i].id == id)
+        return i;
+    return -1;        
+  };
+  keywords.addData = function(id, text, adGroupId, item){
+    var rowIndex = this.indexOfId(id);
+    
+    if(rowIndex == -1)
+    {      
+      this.push({ id: id, text: text, adGroupId: adGroupId, stats: [] });      
+      rowIndex = this.length - 1; // update the index 
+    }
+    
+    this[rowIndex].stats.push(item);   
+  } 
+
+  var rows = report.rows();      
+  while(rows.hasNext()) { 
+    var row = rows.next();
+    
+    var keywordId = row['Id'];
+    var keywordText = row['Criteria'];
+    var adGroupId = row['AdGroupId'];
+    var date = row['Date'];
+    var cpc = row['AverageCpc'];
+    var pos = row['AveragePosition'];
+    var profit = row['ConversionValue'] - row['Cost'];    
+    
+    ///Logger.log('%s - %s (pos: %s, cpc: %s, profit: %s)', keywordText, date, pos, cpc, profit);
+
+    keywords.addData(keywordId, keywordText, adGroupId, { date: date, cpc: cpc, pos: pos, profit: profit }); 
+  }
+  
+  var to = dateFormat(new Date());
+  var from = new Date();
+  from.setDate(from.getDate() - 3);
+  from = dateFormat(from);
+  
+  var DATE_RANGE = from.concat(',', to);
+  Logger.log('DATE RANGE: %s (%s keywords found)', DATE_RANGE, keywords.length);
+  
+  for(var i =0; i< keywords.length; i++)
+  {
+    var keyword = keywords[i];
+    
+    // find the best stats by profit
+    keyword.stats.sort(function(a, b) { return b.profit - a.profit; });
+    var bestStats = keyword.stats[0];
+
+    if(bestStats.profit == 0) 
+      continue;
+    
+    Logger.log('(%s) %s - bestStats: %s', keyword.id, keyword.text, bestStats);   
+    
+    // compare the last 3 days stats against the best stats
+    var keywordEntity = AdWordsApp.keywords().withIds([[keyword.adGroupId, keyword.id]]).get().next();
+    var stats = keywordEntity.getStatsFor(from, to);
+    
+    // i'm paying more today and have a worse position
+    if(stats.getAverageCpc() > bestStats.cpc && stats.getAveragePosition() < keyword.bestPos)
+       continue;
+
+    // for positive profitable: set the stats cpc and increase 5%
+    // for negative profitable: decrease 5% from the current cpc
+    var currentCpc = keywordEntity.bidding().getCpc();
+    var newCpc = bestStats.profit > 0 ? bestStats.cpc * POSITIVE_BID : currentCpc * NEGATIVE_BID;
+
+    keywordEntity.bidding().setCpc(newCpc);
+    Logger.log('(%s) %s - bid change from %s to %s', keyword.id, keyword.text, currentCpc, newCpc);   
+  }
+  
+  Logger.log('Ended!');
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth() + 1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}
+
+function GetLastXDays(days){
+  var from = new Date();
+  from.setDate(from.getDate() - days);
+  return dateFormat(from) + ',' + dateFormat(new Date());
+}

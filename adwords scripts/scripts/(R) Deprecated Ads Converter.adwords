@@ -1,0 +1,78 @@
+/*
+the 'Text' ads will be deprecated from October 26, 2016!
+they will change to 'ExtendedText' ads which supply a more extensive ads content
+this script goes over all the existing ads and create a new 'ExtendedText' ad type copy for each    
+*/
+
+var content = {
+  HE: {
+    title1: 'Title1 HE',
+    description: 'Description HE',
+    path1: 'Path1 HE',
+    path2: 'Path2 HE'
+  },
+  EN: {
+    title1: 'Title1 EN',
+    description: 'Description EN',
+    path1: 'Path1 EN',
+    path2: 'Path2 EN'
+  }
+};
+
+function main() {
+  var ads = AdWordsApp.ads()
+  .withCondition('Status in[ENABLED, PAUSED]')
+  .withCondition('AdGroupStatus in[ENABLED, PAUSED]')
+  .withCondition('CampaignStatus in[ENABLED, PAUSED]')  
+  .withCondition('Type = TEXT_AD') // only 'Text' type ads  
+  //.withLimit(5) // temporary 
+  .get();
+    
+  while(ads.hasNext())
+  {
+    var ad = ads.next();
+    var adGroup = ad.getAdGroup();
+    var campaign = ad.getCampaign();
+    
+    // get the campaign location (IL, US etc.)
+    var locationIter = campaign.targeting().targetedLocations().withLimit(1).get();
+    var location = null;
+    if(locationIter.hasNext())
+      location = locationIter.next();
+    
+    Logger.log('\nad: %s (#%s)', ad.getHeadline(), ad.getId().toString());       
+    if(!location) {
+      Logger.log('location: NULL!');
+      continue;
+    }
+    
+    Logger.log('location: %s (%s)', location.getName(), location.getCountryCode());
+    
+    var finalURL = ad.urls().getFinalUrl();
+    if(!finalURL){
+      Logger.log('NO FINAL URL!');
+      continue;
+    }
+    
+    var matchContent = location.getCountryCode() == 'IL' ? content.HE : content.EN;
+    CreateAd(adGroup, matchContent.title1, ad.getHeadline(), matchContent.description, matchContent.path1, matchContent.path2, finalURL)        
+  }   
+}
+
+// create ad
+function CreateAd(adGroup, header1, header2, description, partURL1, partURL2, destinationURL){ 
+  Logger.log('url: %s', destinationURL);
+  
+  var operation = adGroup.newAd().expandedTextAdBuilder()
+    .withHeadlinePart1(header1) // 30 characters
+    .withHeadlinePart2(header2) // 30 characters
+    .withDescription(description) // 80 characters
+    .withPath1(partURL1) // 15 characters
+    .withPath2(partURL2) // 15 characters
+    .withFinalUrl(destinationURL) // 255 characters
+    .build();
+    
+  if(!operation.isSuccessful())
+    return null;
+  return operation.getResult();
+}

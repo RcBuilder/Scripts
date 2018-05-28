@@ -1,0 +1,122 @@
+/******************************************
+* Match Type Hierarchy Bid Checker
+* @version: 2.1
+******************************************/
+
+var mailIds = ['RcBuilder@walla.com']; // amnon@bimpression.com
+var CAMPAIGN_IDs = ['266841030', '267134070'];
+
+function TEST(){
+  var OPTIONS = { includeZeroImpressions : 'false' };
+
+  var query = 'SELECT CampaignId, CampaignName, AdGroupName, Criteria, KeywordMatchType, CpcBid, Cost ' +
+      'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+      'WHERE IsNegative = FALSE ' +  
+      'AND CampaignId IN [' + CAMPAIGN_IDs.join(',') + '] ' + 
+      'AND Status = ENABLED ' + 
+      'AND AdGroupStatus = ENABLED ' +
+      'AND CampaignStatus = ENABLED '; 
+  
+  var spreadsheet = SpreadsheetApp.create("TEST Report");
+  var sheet = spreadsheet.getActiveSheet(); 
+  var report = AdWordsApp.report(query, OPTIONS);
+  report.exportToSheet(sheet); 
+}
+
+function main() {
+  // Main code goes here..
+  var csvContent  = 'Keyword,Campaign,Ad group,Max. CPC,Cost,Match type\n';
+  var htmlContent = '';
+  var count       = '0';
+  var t           = new Date(Utilities.formatDate(new Date(), AdWordsApp.currentAccount().getTimeZone(), 'MMM d, yyyy HH:mm'));
+  var d           = t.getDate();
+  var m           = t.getMonth()+1;
+  var y           = t.getFullYear();
+  var dateToday   = y+'-'+m+'-'+d;
+  
+  /*
+  TEST();
+  return;
+  */
+  
+  
+  var accountName = AdWordsApp.currentAccount().getName();
+  var keywordsMap = getKeywordsByCampaign();
+  
+  for(var keywordText in keywordsMap) {
+    var row = keywordsMap[keywordText];
+    
+    var exactBid = row.ExactBid, 
+        phraseBid = row.PhraseBid, 
+        broadBid = row.BroadBid;
+    
+    // Logger.log('[Keyword] %s ', keywordText);
+    
+    // Logger.log('[Keyword] %s > exact: %s, phrase: %s, broad: %s', keywordText, exactBid, phraseBid, broadBid);
+    if((exactBid != 0 && (exactBid < phraseBid || exactBid < broadBid)) || (phraseBid != 0 && (phraseBid < broadBid))){
+      count++;
+      
+      var csvRow = keywordText + ','+ row.CampaignName+','+ row.AdGroupName +','+ row.CpcBid +','+ row.Cost +','+ row.KeywordMatchType + '\n';        
+      csvContent += csvRow;
+      
+      var htmlRow = count + ') Keyword: `'+ keywordText + '` have \nEXACT_MATCH_BID: ' + (exactBid == 0 ? 'N/A' : exactBid) + ',\nPHRASE_MATCH_BID: ' + (phraseBid == 0 ? 'N/A' : phraseBid) + ',\nBROAD_MATCH_BID: ' + (broadBid == 0 ? 'N/A' : broadBid) + '\n\n\n';
+      htmlContent += htmlRow;
+    }
+  }
+  
+  if(csvContent != 'Keyword,Campaign,Ad group,Max. CPC,Cost,Match type\n'){
+    var blob = Utilities.newBlob(csvContent, 'text/csv', 'Keyword report.csv');
+    MailApp.sendEmail(mailIds, accountName+'-KeywordReport-'+dateToday,htmlContent,{name:'Keyword Report',attachments: [blob]});
+  }
+}
+
+function getKeywordsByCampaign() {
+  var OPTIONS = { includeZeroImpressions : 'false' };
+
+  var query = 'SELECT CampaignId, CampaignName, AdGroupName, Criteria, KeywordMatchType, CpcBid, Cost ' +
+      'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+      'WHERE IsNegative = FALSE ' +  
+      'AND CampaignId IN [' + CAMPAIGN_IDs.join(',') + '] ' + 
+      'AND Status = ENABLED ' + 
+      'DURING ' + 'LAST_30_DAYS'; // LAST_30_DAYS, 20150101,20170101
+    
+  var results = {}
+  var reportIter = AdWordsApp.report(query, OPTIONS).rows();
+  while(reportIter.hasNext()) {
+    var row = reportIter.next();
+    row.Criteria = row.Criteria.replace(/[+]/g, '');
+    
+    if(!results[row.Criteria]) 
+      results[row.Criteria] = {
+        ExactBid: 0,
+        PhraseBid: 0,
+        BroadBid: 0
+      };
+
+    var kwRow = results[row.Criteria];
+
+    if(row.KeywordMatchType == 'Exact') {
+      kwRow.ExactBid = row.CpcBid;
+    } else if(row.KeywordMatchType == 'Phrase') {
+      kwRow.PhraseBid = row.CpcBid;
+    } else {
+      kwRow.BroadBid = row.CpcBid;
+    }
+      
+    // Logger.log('[report-row] %s | MatchType: %s', row.Criteria, row.KeywordMatchType);
+    
+    results[row.Criteria] = kwRow;
+  }
+  
+  return results;
+}
+
+function addMatchType(text, mt) {
+  if(mt == 'Phrase') {
+    return '"' + text + '"';
+  } else if(mt == 'Exact') {
+    return '[' + text + ']';
+  }
+  
+  return text;
+}

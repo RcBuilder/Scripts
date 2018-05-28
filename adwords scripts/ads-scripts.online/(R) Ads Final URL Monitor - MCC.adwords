@@ -1,0 +1,66 @@
+var EMAIL = 'RcBuilder@walla.com';
+
+function main() {
+  var accounts = MccApp.accounts().get();  
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+    
+    MccApp.select(account);
+    ProcessAccount();
+    
+    Logger.log('--------------------------');
+  }
+  
+  function ProcessAccount(){
+    var accountName = AdWordsApp.currentAccount().getName();
+    
+    var ads = AdWordsApp.ads()
+    .withCondition('CampaignStatus = ENABLED')
+    .withCondition('AdGroupStatus = ENABLED')
+    .withCondition('Status = ENABLED')
+    .withCondition('Type NOT_IN [CALL_ONLY_AD]') // IMAGE_AD, MOBILE_AD, MOBILE_IMAGE_AD, PRODUCT_AD, RICH_MEDIA_AD, TEMPLATE_AD, TEXT_AD, CALL_ONLY_AD
+    //.withLimit(4)
+    .get();
+    
+    while(ads.hasNext()){
+      var ad = ads.next();      
+      var adURL = ad.urls().getFinalUrl();
+      var adHeader = ad.getHeadline();
+      var adType = ad.getType();
+      
+      Logger.log('ad: %s (%s) -> %s', adHeader, adType, adURL);
+
+      var statusCode = -1;
+      try{
+        var response = UrlFetchApp.fetch(adURL, { muteHttpExceptions: true });
+        statusCode = response.getResponseCode();      
+        Logger.log('status code: %s', statusCode);      
+      }
+      catch(e){
+        Logger.log('exception: %s', e.message);      
+      }
+      
+      // OK
+      if(statusCode == 200) 
+        continue;
+      
+      Logger.log('send email notification to %s', EMAIL); 
+      
+      if(!AdWordsApp.getExecutionInfo().isPreview()){
+        var subject = 'Ad Monitor - Account ' + accountName;
+        var body = '<h3>statusCode: ' + statusCode +'</h3>'+
+          '<p>campaign: ' + ad.getCampaign().getName() + '</p>'+
+          '<p>adgroup: ' + ad.getAdGroup().getName() + '</p>'+
+          '<p>ad: #' + ad.getId() + '</p>'+
+          '<p>adHeader: ' + adHeader + '</p>'+
+          '<p>adType: ' + adType + '</p>'+
+          '<p>adURL: ' + adURL + '</p>';
+      
+        MailApp.sendEmail(EMAIL, subject, '', { htmlBody: body });
+      }
+    }    
+  }
+}

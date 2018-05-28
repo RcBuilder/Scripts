@@ -1,0 +1,109 @@
+/*
+   this script is looking for accounts with 'Credit' label, monitor the left budget and notify once the credit reaches its capacity
+   it uses a label with the following structure: Credit_Amount_Date (Credit_1000_20160901 etc.)
+   note! the date format is yyyyMMdd
+   its the client responsibility to update the credit label each time he loads credit - once he load some credit amount, he MUST set the current capacity and date
+*/
+
+// LABEL STRUCTURE: Credit_Amount_Date (Credit_1000_20160901 etc.)
+var LABEL_PREFIX = 'Credit_';
+var EMAIL = 'RcBuilder@walla.com'
+
+function main() {
+  
+  var accounts = MccApp.accounts().get();
+  
+  while(accounts.hasNext())
+  {
+    var account = accounts.next(); 
+    
+    var creditLabel = GetAccountCreditLabel(account);
+    if(!creditLabel)
+      continue;
+    
+    Logger.log('### account: %s ###', account.getName()); 
+    
+    MccApp.select(account); 
+    ProcessAccount(creditLabel);     
+    
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(creditLabel){   
+  /// var account = AdWordsApp.currentAccount();   
+  
+  Logger.log('LABEL = %s', creditLabel);
+  
+  var creditAmount = parseFloat(creditLabel.split('_')[1]);
+  var creditDate = creditLabel.split('_')[2];  
+  Logger.log('credit: %s, date: %s', creditAmount, creditDate);
+  
+  var dateRange = creditDate + ',' + HELPER.dateFormat();
+  
+  var reportConfig = {
+	includeZeroImpressions: false
+  };
+  
+  var report = AdWordsApp.report(
+       'SELECT Cost ' + 
+       'from ACCOUNT_PERFORMANCE_REPORT ' + 
+       'DURING ' + dateRange
+    , reportConfig); 
+  
+  var cost = parseFloat(report.rows().next()['Cost']); 
+  Logger.log('total cost: %s', cost);
+  
+  // not reached to the X% of the full capacity 
+  if(creditAmount * 0.9 > cost)
+    return;
+  
+  // total cost of the specified period depleted - need to add more credit!
+  var body = '';
+  body += '<p>total cost of the specified period depleted - need to add more credit!</p>';
+  body += '<p>credit: ' + creditAmount + '</p>';
+  body += '<p>cost: ' + cost + '</p>';
+  body += '<p>date Range: ' + dateRange + '</p>';
+
+  Logger.log('[NOTIFICATION] Billing Limitation Expiry');
+  MailApp.sendEmail(EMAIL, 'Billing Limitation Expiry', '', { htmlBody: body });
+}
+
+function GetAccountCreditLabel(account){
+  var labelIterator = account.labels().withCondition('Name STARTS_WITH "' + LABEL_PREFIX + '"').get();
+  if(labelIterator.hasNext())
+    return labelIterator.next().getName();
+  return null;
+}
+
+var HELPER = {
+  dateDiff: function (date1, date2) {
+    var datediff = date1.getTime() - date2.getTime(); 
+    return parseInt(datediff / (24*60*60*1000));
+  },
+  dateFormat: function (date){
+    date = date || new Date();
+    
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  }, 
+  dateName: function(date){
+    // toDateString() -> Mon Feb 29 2016
+    var arrDateParts = date.toDateString().split(' '); 
+    return arrDateParts[1] + ' ' + arrDateParts[2];  // Feb 29
+  },
+  parseDate: function(strDate){ 
+    // strDate: yyyy-MM-dd
+    var arrDateParts = strDate.split('-');
+    return new Date(arrDateParts[0], parseInt(arrDateParts[1]) - 1, arrDateParts[2]);
+  },
+  toPercentageFormat: function(value){    
+    return (value * 100).toFixed(2).toString() + '%';
+  }
+};

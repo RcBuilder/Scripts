@@ -1,0 +1,122 @@
+* keywords with AveragePos > x and have conversions for y last days - increase cpc by 10%
+* Audiences with AveragePos > x and have conversions for y last days - email notification to increase cpc by 10%
+* display keywords have conversions for y last days - increase cpc by 10% 
+* topics have conversions for y last days - email notification to increase cpc by 10% 
+* keywords with no conversions and cost > x and top page cpc < maxcpc - increase max cpc by 10%
+* topics with x clicks and no conversions - email notification
+* Audiences with x clicks and no conversions - email notification
+* keywords with x clicks and no conversions - email notification or pause
+* campaigns with x clicks and no conversions - email notification or pause
+* display keywords with x clicks and no conversions - email notification or pause
+* set non converting keywords into negative keywords
+* email notification for each new conversion
+* manage campaigns budget from google sheet 
+* click fraud - looking for anomaly in the clicks increment value - pause all campaigns + email notification
+* Quality Score - creates sheet with all keywords quality score - add column each execution
+* Quality Score per campaign - " (for specific campaign)
+* placements with x clicks and no conversions - exclude or email notification
+* placements with x impressions and no conversions - exclude or email notification
+* Allways On Top - using labels - set labeled keywords always on the first page
+* Position Planner - using labels - try to locate labeled keywords at a specific position 
+* set non converting queries as negative keywords
+* ads report - via email - csv file
+* campaign statistics - 7 vs 30 days - email report
+* campaign statistics - 7 vs 30 days - totals (all campaigns together) - email report
+* campaign statistics - 7 vs current month - totals (all campaigns together) - email report
+* set automatic bids by position target - mcc level - using labels - increase and decrease
+* create keyword from converting queries - also mcc level available
+* manage full campaign from metadata (xml feed) - create/ remove/update adgroups, keywords and ads(custom)
+* web crawlers (custom)
+
+------------------
+
+(R) automatic bids by position target - mcc + labels (Set)
+stabilize bids (increase + decrease max cpc) based on labels and specific data per label, mcc support
+
+(R) Search Queries to Negative Keywords - custom search (Set)
+set keywords as negative refer to a custom search (parameters controlled by the client)
+
+(R) campaign statistics 7 and current month totals (Email)
+campain statistics report - last 7 days vs current month - per campaign
+campain statistics report - last 7 days vs last 30 days - per campaign
+campain statistics report - last 7 days vs last 30 days - totals
+
+(R) Ads Report
+create ads report - statistics - csv file via email
+
+(R) queries 2 negative keywords (Set)
+set non converting queries to a negative keywords 
+
+(R) Allways On Top
+stabilize labeled keywords to stay on the first page
+
+(R) Placement with 1000 impressions with no Clicks (Exclude)
+(R) Placement with 100 Clicks with no Conversions (Exclude)
+exclude non converting placements 
+
+(R) Quality Score
+create a google sheet to monitor changes on your keywords quality score
+
+(R) Quality Score per campaign
+create a google sheet to monitor changes on your keywords quality score of a specify campaign
+
+(R) P1000 Open Sales (Crawler)
+(R) P1000 Closed Sales (Crawler)
+check ad destinations for regex specify pattern and do some action based on its result
+
+(R) Campaigns Click Fraud (ver 2)
+check for unusual sudden cost increment
+
+(R) Campaigns AUTO Budget
+manage campaign auto budget from google sheet
+
+(R) P1000 Ad Param by Ad Price (Crawler) 
+dynamic ad param value based on the value presented in an outer website 
+
+(R) keyword with 100 Clicks with no Conversions(Pause)
+auto pause non converting keywords 
+
+(R) Campaigns With 100 Clicks and No Conversion (Pause)
+auto pause non converting campaigns
+
+(R) campaign's cost vs clicks (Email)
+report that represent the cost and clicks foreach campaign at the specify time range 
+
+(R) New Conversion (Email)
+send an email notification for each new conversion 
+
+(R) Display keyword with 100 Clicks and no Conversions (Pause)
+auto pause non converting display keywords
+
+(R) keywords 2 negative keywords (Set)
+set non converting keywords as negative
+
+(R) queries 2 keywords (Set)
+create keywords from converting search queries
+
+(R) Goal Seek 2.5 (set Max Cpc)
+try to locate your keywords at a specific position
+
+(R) Automatic Placement with 100 Clicks with no Conversions (Email)
+send email notification on every non converting automatic placement needed to be exclued from the campaign
+
+(R) Display keyword with 100 Clicks and no Conversions(Email)
+send email notification on every non converting automatic display keywords needed to be stopped
+
+(R) Audience with 100 Clicks and no Conversions (Email)
+send email notification on every non converting audience needed to be exclued from the campaign
+
+(R) Topics with 100 Clicks and no Conversions (Email)
+send email notification on every non converting topic needed to be exclued from the campaign
+
+(R) Increase Cost per Converted - Topics (Email)
+increase cost per converted topics - email notification
+
+(R) Increase Cost per Converted - Display Keywords (Increase)
+increase cost per converted display keywords
+
+(R) Increase Cost per Converted - Audience (Email)
+increase cost per converted audiences - email notification
+
+(R) Increase Cost per Converted (Increase)
+increase cost per converted keywords

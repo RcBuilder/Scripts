@@ -1,0 +1,119 @@
+var EMAILS = 'RcBuilder@walla.com';
+var UNIT_MAX_INCREMENT_LEVEL_USD = 100;
+var INTERVAL_IN_SEC = 60;
+
+var FILE_NAME = 'campaigns_total_cost_ver2';
+var sheet = null;
+
+function main() {
+  var campaigns_count = AdWordsApp.campaigns().get().totalNumEntities();
+  var sleep_seconds = 0;
+  if(campaigns_count < INTERVAL_IN_SEC)
+    sleep_seconds = INTERVAL_IN_SEC - campaigns_count;
+  Run(30, sleep_seconds);
+}
+
+function Sleep(seconds){
+  var dt = new Date();
+  while(true){
+    var dt2 = new Date();
+    var diff = Math.floor((dt2 - dt) / 1000);
+    if(diff > seconds) break;
+  }
+}
+
+function Run(times, seconds){
+  if(times == 0) return;
+  WORK();
+  Sleep(seconds);
+  Run(times - 1, seconds);
+}
+
+function WORK(){
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition('Status = ENABLED')
+  .get(); 
+  
+  var sum_total_cost = 0;
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();
+    
+    var campaignId = campaign.getId();
+    var campaignName = campaign.getName();
+    
+    var stat = campaign.getStatsFor('ALL_TIME');
+    var total_cost = stat.getCost();
+    
+    //Logger.log('\n(' + campaignId + ') ' + campaignName + ', total cost : ' + total_cost);  
+    
+    sum_total_cost += total_cost;
+  }
+  
+  Logger.log('\nsum total cost : ' + sum_total_cost);
+  
+  var data_file = null;
+  var temp = DriveApp.getFilesByName(FILE_NAME);
+  var fileExists = temp.hasNext();
+
+  // no file found
+  if(!fileExists){
+    Logger.log('\nDATA FILE DOES NOT EXISTS, CREATE NEW');
+	
+    var spreadsheet = SpreadsheetApp.create(FILE_NAME);
+    sheet = spreadsheet.getActiveSheet();
+    sheet.appendRow([sum_total_cost, new Date()]);
+    return;
+  }
+  
+  //Logger.log('\nLOAD DATA FILE FROM GOOGLE DRIVE');
+  
+  data_file = temp.next();
+  var spreadsheet = SpreadsheetApp.openById(data_file.getId());
+  sheet = spreadsheet.getActiveSheet(); 
+  
+  var settings = GetSettings();
+  
+  Logger.log('\nsettings = cost : ' + settings.lastSumTotalCost + ', time : ' + settings.lastExecutionTime);
+  
+  UpdateSettings(sum_total_cost);
+  
+  var dtNow = new Date();
+  var diff_in_min = Math.round((dtNow - settings.lastExecutionTime) / 1000 / 60);
+  if(diff_in_min == 0) diff_in_min = 1;
+  
+  var units = diff_in_min;
+  //Logger.log('dtNow = ' + dtNow + ', last = ' + settings.lastExecutionTime);
+  //Logger.log('units = ' + units);
+  if((sum_total_cost - settings.lastSumTotalCost) <= UNIT_MAX_INCREMENT_LEVEL_USD * units)
+    return;
+  
+  Logger.log('\nTOO HIGH INCREMENT - PAUSE ALL CAMPAIGNS!!');
+
+  // REWIND
+  campaigns = AdWordsApp.campaigns()
+  .withCondition('Status = ENABLED')
+  .get(); 
+  
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();
+    
+    var campaignName = campaign.getName();
+    
+    Logger.log('\npause ' + campaignName);
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      campaign.pause();   
+  }
+  
+  MailApp.sendEmail(EMAILS, 'fraud script', 'all campaigns were paused');
+}
+
+function GetSettings(){
+  var cost = sheet.getRange(1, 1).getValue();
+  var time = sheet.getRange(1, 2).getValue();
+  return { lastSumTotalCost: cost, lastExecutionTime: time };
+}
+
+function UpdateSettings(sum_total_cost){
+  sheet.getRange(1, 1).setValue(sum_total_cost);
+  sheet.getRange(1, 2).setValue(new Date());
+}

@@ -1,0 +1,56 @@
+var EMAIL = 'RcBuilder@walla.com';
+var STATS_PERIOD = 'ALL_TIME'; // TODAY, YESTERDAY, LAST_7_DAYS, THIS_WEEK_SUN_TODAY, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, LAST_BUSINESS_WEEK, LAST_WEEK_SUN_SAT, THIS_MONTH, LAST_MONTH
+
+function main() {
+  var adGroups = AdWordsApp.adGroups()
+  .withCondition('Status = ENABLED')
+  .get();
+  
+  
+  var body = '';
+  while(adGroups.hasNext()){
+    var adGroup = adGroups.next();
+    
+    var ads = adGroup.ads().withCondition('Status = ENABLED').get();
+    
+    var numOfAds = ads.totalNumEntities();
+    if(numOfAds < 2) continue; // single ad or no ads at all 
+    
+    var adGroupStats = adGroup.getStatsFor(STATS_PERIOD);
+    var avarageCPA = CalculateCPA(adGroupStats.getConvertedClicks(), adGroupStats.getCost());
+    if(avarageCPA == 0) continue;
+    
+    Logger.log('adGroup %s -> %s ads, CPA(avg): %s', adGroup.getName(), numOfAds, avarageCPA);
+    
+    // at least 2 active ads 
+    while(ads.hasNext()){
+      var ad = ads.next();
+      var adType = ad.getType();
+      var adTitle = ad.getHeadline();
+      
+      var adStats = ad.getStatsFor(STATS_PERIOD);
+      var asClicks = adStats.getConvertedClicks();
+      if(asClicks == 0)
+        asClicks = 1; // fix the issue of expensive keywords with no conversion
+      
+      var adCPA = CalculateCPA(asClicks, adStats.getCost());
+      if(adCPA == 0) continue;
+      
+      Logger.log('ad [%s] %s -> CPA: %s', adType, adTitle, adCPA);
+      
+      if(adCPA > avarageCPA * 2)
+      {
+        Logger.log('POOR performance ad!!');
+        ad.pause();        
+        body += '<p>ad [' + adType + '] "' + adTitle + '" paused</p>';
+      }
+    }
+  }
+  
+  if(body != '')
+    MailApp.sendEmail(EMAIL, 'POOR performance ads report', '', { htmlBody: body });
+}
+
+function CalculateCPA(convertedClicks, cost){
+  return convertedClicks == 0 ? 0 : cost / convertedClicks;
+}

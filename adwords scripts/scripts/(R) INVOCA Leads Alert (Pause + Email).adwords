@@ -1,0 +1,138 @@
+// api reference
+// http://developers.invoca.net/en/latest/api_documentation/transactions_api/affiliate_user.html
+
+var EMAIL = 'RcBuilder@walla.com';
+var INVOCA_LEADS = 10;
+var CAMPAIGN_ID = '784456013';
+var INVOCA_CAMPAIGN_ID = '245356';
+
+var AFFILIATE_ID = 117009;
+var TOKEN = 'eSKOWt8VibhzIjt9PliWOwl-TddxroKw';
+
+function main() {      
+  Logger.log('configuration: AFFILIATE_ID = %s, INVOCA_LEADS = %s, CAMPAIGN_ID = %s, INVOCA_CAMPAIGN_ID = %s', AFFILIATE_ID, INVOCA_LEADS, CAMPAIGN_ID, INVOCA_CAMPAIGN_ID);
+  
+  var InvocaEndpointTemplate = 'https://revimedia.invoca.net/api/2017-02-01/affiliates/transactions/{0}.json?from={1}&to={2}&oauth_token={3}';
+  var today = FormatDate(new Date());
+  Logger.log('date: %s', today);
+  
+  var InvocaEndpoint = InvocaEndpointTemplate
+  .replace('{0}', AFFILIATE_ID)
+  .replace('{1}', today)
+  .replace('{2}', today)
+  .replace('{3}', TOKEN)  
+      
+  var jsonService = JSONService(InvocaEndpoint);
+  var invocaReaderService = InvocaReaderService(jsonService);
+    
+  var rowsCount = invocaReaderService.countRows();
+  Logger.log('csv total rows %s', rowsCount);
+  
+  var leadsCount = invocaReaderService.countLeads(INVOCA_CAMPAIGN_ID);
+  Logger.log('%s leads found out of %s rows', leadsCount, rowsCount);
+  
+  if(leadsCount < INVOCA_LEADS) 
+    return;
+  
+  var campaignIter = AdWordsApp
+  .campaigns()
+  .withCondition('Status = ENABLED')     
+  .withIds([CAMPAIGN_ID])
+  .get();   
+      
+  Logger.log('found %s adwords campaigns', campaignIter.totalNumEntities());  
+  
+  var emailBody = '<p>the system found {0} actual leads in Invoca</p><p>the limit defined is {1}</p>'
+  .replace('{0}', leadsCount)
+  .replace('{1}', INVOCA_LEADS);;
+  
+  while(campaignIter.hasNext()){
+    var campaign = campaignIter.next();
+    var campaignName = campaign.getName();
+    Logger.log('campaign %s was loaded', campaignName);
+    
+    campaign.pause();
+    Logger.log('pause the campaign');
+    emailBody += '<p>' + campaignName + '</p>';
+  }
+  
+  Logger.log('alert email sent to %s', EMAIL);
+  MailApp.sendEmail(EMAIL, 'INVOCA LEADS ALERT', '', {
+     htmlBody: emailBody
+  });  
+}
+
+function FormatDate(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth() +1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + '-' + month + '-' + day;  
+}
+
+// ----------------------------------------------
+
+/* INVOCA READER SERVICE */
+var InvocaReaderService = function(jsonService) { 
+  var _jsonService = null;  
+  
+  (function(){
+     _jsonService = jsonService;    
+   })();  
+  
+   return {      
+     countRows: function(){       
+       return _jsonService.count();                
+     }, 
+     countLeads: function(campaignId){
+       var leads = this.getLeads(campaignId);
+       return leads.length;
+     },
+     getLeads: function(campaignId){
+       var rows = [];
+       
+       for(i in _jsonService.document){
+         var item =_jsonService.document[i];
+                  
+         if(item.advertiser_campaign_id == campaignId && item.call_result_description_detail.toUpperCase() == 'PAID')
+           rows.push(item);
+         // Logger.log(item.advertiser_campaign_id);         
+       }
+       return rows;
+     }
+   }; 
+}
+
+/* JSON SERVICE */
+var JSONService = function(uri) { 
+  var _document = null;
+  
+  (function(){
+    var response = UrlFetchApp.fetch(uri);
+    var status_code = response.getResponseCode();
+    
+    if(status_code != 200) // 200 = OK
+    {
+      Logger.log('status code %s', status_code);
+      return;
+    }
+    
+    Logger.log('%s was loaded', uri);    
+    _document = JSON.parse(response.getContentText());    
+   })();  
+  
+   return { 
+     document: _document,
+     count: function(){
+       if(!_document) 
+         return 0;
+       
+       if(_document.length)
+         return _document.length;         
+       return 1;
+     }, 
+   }; 
+}

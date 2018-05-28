@@ -1,0 +1,257 @@
+implementation process: 
+1. login to your adwords account
+2. click on 'Bulk operations' option at the left side menu
+3. click on 'Scripts' option
+4. click on '+Script' red button to add a new script
+5. a permission window might pops-up - confirm it and continue
+6. copy-paste the content of the attached file into the created script
+7. set name to the created script and save
+
+the script was added!
+
+after you did those steps - go to your account scripts (steps 1-3) 
+you will see all the account planted scripts. 
+near each you will find 'Run' button for a single manually execution or 'create schedule'. 
+use the 'create schedule' button to determine the script execution schedule.
+
+underneath the scripts list you will find the logs arena which contains logs about all your scripts execution
+
+hope the implementation note is clear enough
+let me know if i can assist you any further 
+
+--------------------------------------
+
+check-out more of our great scripts for ONLY 5$ here:
+https://www.fiverr.com/adwordsscripts
+
+--------------------------------------
+
+1.Bulk operation menu (left pane) -> scripts -> new 
+2.copy-paste the attached file content (open it with notepad)
+3.confirm permissions if required (pop up)
+4.create a schedule for the script
+
+--------------------------------------
+
+more info about the script:
+the script uses the account's google drive to create and manage the sheet file by itself 
+each execution will add another column with the new score 
+
+so all you need to do is to reach your created file in google docs and see the data the script creates
+https://docs.google.com/document/u/0/
+
+the file named 'file_QualityScore'
+
+let me know if i can assist you any further
+
+--------------------------------------
+
+how to implement ? 
+1. open it using any notepad and just copy-paste its content into a new script.
+2 new script definition:
+   - "bulk operation" menu located at the left pane
+   - "scripts"
+   - "+ script" red button
+3. at the top of the scripts there's a global variable needed to define. (your customisations).
+
+please check it and let me know if any modifications are needed 
+
+thanks, Roby (-:
+
+--------------------------------------
+
+configuration:
+just add your mail at the top of the script 
+
+working process (just for you to know):
+the script creates a file in the google drive of the adwords account which it runs in.(you can change the file name)
+it then collects all the active campaigns and each conversions quantity and add it to the file.
+each execution it compares the new against the old conversions quantity and update the file for the next execution.
+
+to implement the script see our video in our gigs page : 
+https://www.fiverr.com/adwordsscripts
+
+https://www.fiverr.com/adwordsscripts/write-a-script-to-track-your-adwords-account?funnel=201502110903137969197960 
+
+thanks
+
+--------------------------------------
+
+check out more of our awesome scripts here : 
+https://www.fiverr.com/adwordsscripts 
+
+** a unique offer for one time purchase ** 
+choose 2 scripts in a price of a single one, choose any scripts you'd like!! 
+
+
+thanks
+
+--------------------------------------
+
+hey, 
+i have a lot of great scripts for you but you have to have an SEM expert for the definitions of things 
+i have the dev capabilities so i can automate everything in adwords  but i am not an expert in the promote strategies 
+
+--------------------------------------
+
+great! 
+
+let me know if i can assist you any further 
+
+it was very nice working with you 
+
+feel free to add a positive review (-: 
+
+thanks roby
+
+--------------------------------------
+
+i'm a developer who writes a great automation adwords scripts but i'm not the one who makes the KWs research
+you need an SEM guy for that 
+
+if you need a script to manage those KWs (remove non-converting ones, create KWs from good search phrases etc.) 
+i could and would like to assist you 
+
+feel free to contact me anytime 
+
+Thanks, Roby(-:
+
+--------------------------------------
+
+hey, 
+yes, we can ........ bla bla bla
+
+but unfortunately, we don't have such script prepared and i'll have to write it from scratch especially for you 
+a custom scripts cost up to 100$ to write 
+
+thanks
+
+--------------------------------------
+
+increase the keywords max cpc by 10 p automatically:
+
+at the top of the script you will find 3 variables which you can control on:
+var FPB_LABEL = 'FirstPageBidRule';
+var TPB_LABEL = 'TopPageBidRule';
+var IncreaseValue = 0.03;
+
+the first two are the corrolated labels names for top and first page bids
+the third is the increase value
+
+--------------------------------------
+
+in order to plant this script within your adwords account do as follow: 
+1. open the script via notepad and copy its content 
+2. login to your adwords account
+3. in the left menu - Bulk operations - scripts - add new script (red button)
+4. paste the content you copied in chapter 1 
+note! allow permissions if required (will see a popup) 
+
+thats it! 
+
+afterwards, you will see it in your scripts zone so you could schedule it as needed (hourly, daily etc)
+
+let me know if i can assist you any further 
+
+thanks, Roby (-:
+
+
+--------------------------------------
+
+to implement the script see our video in our gigs page : 
+https://www.fiverr.com/adwordsscripts
+
+https://www.fiverr.com/adwordsscripts/write-a-script-to-track-your-adwords-account?funnel=201502110903137969197960 
+
+--------------------------------------
+
+scripts capabilities: 
+
+- there's no problem of creating  adgroups, ads etc. based on some sheet file or even an outer feed (site xml, json etc.)
+- we can also use the adwords BULK operations which allows you to upload full campaigns in an async manner 
+
+- we can update ads content based on a website input using crawlers or based on any other requested logic 
+- we can generate script which manage the position by pre-defined settings:
+// e.g:
+'Primary' : { bid: 0.1, position: 3, tolerance: 0.1 } // destination: position 3, increase value: 0.1 with tolerance of 0.1
+'Secondary' : { bid: 0.2, position: 3, tolerance: 0.1 }
+'Experiment' : { bid: 0.3, position: 3, tolerance: 0.1 } 
+
+- we can set keywords position to always be at the 1st page
+- can promote or demote keywords position and price by performance (conversions etc.)
+- can set non-converting keywords as negative 
+- send notification on each new conversion 
+- send daily report on non converting keywords 
+- monitor the landing pages (check each status - if it down - pause ad or notify via email) 
+- account (etc.) daily or monthly stats with charts 
+- working on topics, placements and audiences
+- convert converted search queries into actual keywords 
+- create BLACK LIST placements by any logic (domain suffix etc. - all the .ru domains for example or all domains contains the word forex ....)
+- increase cost per converted
+- we can generate a forecast script for budget - to check if we are going to exceed the budget etc.
+- low quality score keywords daily report 
+- top 10 daily reports - spending, converting etc.
+- creating ads based on search queries 
+- campaign statistics by requested period (weekly, monthly etc.) or period vs period (7 days vs 30 days stats etc.)
+
+
+- in addition, we can connect to any analytics account and combined data from there .. a bit more complicated and requires an OAUTH but doable  
+
+hope you'll find those suggestions effective, there's a lot of more options of course
+
+--------------------------------------
+(R) Allways On Top [attached]
+
+at the top of the script you'll find the following variables (set them for your needs)
+1. FBBID // first page bid increment
+2. TPBID // top page bid increment
+3. MAXBID // includes 3 level labels (each one with the max bid allowed) 
+
+this script basically try to set the bids automatically by increase or decrease them each execution
+it looks at the bid prices and adopt your bids accordingly (2 ways - it might be a scenario where your bid is too high and you can p-ay less for the same spot)
+
+the MAXBID variable allows you to set max bid limitation for 3 labels (so you can set priorities  such as primary, secondary etc.)
+
+the FBBID and TPBID are the "Jumps" to make to your bid on each execution (if needed of course)
+
+--------------------------------------
+(R) Search Queries to Negative Keywords - custom search (Set) [attached]
+
+at the top of the script you'll find the following variables (set them for your needs)
+1. CLICKS, CONVERSIONS, IMPRESSIONS, CTR // metrics filter
+2. DATE_RANGE // period filter 
+
+the script make a query to fetch all the data match the metrics filter you supplied in the date range you provided
+e.g: CLICKS = 100 ... DATE_RANGE = LAST_30_DAYS 
+
+--------------------------------------
+copy script to your account: 
+1. open the script with any editor (notepad etc.) 
+2. copy 
+3. go to your MCC account -> bulk operations (left pane) -> scripts 
+4. create new (+ button) 
+5. paste 
+6. save 
+
+schedule your script: 
+once a script established - you control its schedule via the scripts panel 
+you can also perform an immediate execution 
+--------------------------------------
+
+[Generic Ads Creator]
+
+more about the script: 
+
+this script uses a google sheet as its data supplier and generates adwords ads based on it. 
+it supports multiple sheets whereas each sheet represents an ad. 
+(attached a sample of the sheet structure) 
+
+it uses labels on campaign level to determine where to add the generated ads. 
+each ad includes an adgroup, keywords and ad.
+
+variables: 
+at the top of the script you'll find a few variables to set
+
+var DATA_SPREADSHEET = 'AdsCreatorSheet'; // the sheet name
+var LABEL_NAME = 'AdsRule'; // only campaign/s labeled with this label will generate this ad
+var adGroupDefaultBid = 0.1; // the default bid for the keywords 

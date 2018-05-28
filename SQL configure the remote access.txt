@@ -1,0 +1,9 @@
+allows us to connect to this SQL instance remotely
+
+steps: 
+1. open the 'SQL Server Management Studio'
+2. right-click the server -> Properties.
+3. (tab) Connections -> check the 'Allow remote connections to this server' option -> ok
+
+note: 
+we can also specify the number of concurrent connections and other options 

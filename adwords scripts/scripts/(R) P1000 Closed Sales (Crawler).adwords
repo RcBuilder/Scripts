@@ -1,0 +1,81 @@
+var EMAIL = 'rcbuilder@walla.com';
+var distinct_arr = [];
+
+function main() {
+  /*
+  var arr = [
+    'http://www.p1000.co.il/sales/saledetails.aspx?auid=7752607&came=2745',
+    'http://www.p1000.co.il/sales/saledetails.aspx?auid=7751415',
+    'http://www.rcb.co.il/'
+  ];
+  
+  for(var i = 0; i < arr.length ; i++)
+  {
+    var url_to_fetch = arr[i];
+    if(url_to_fetch.indexOf('p1000.co.il') == -1){ 
+      Logger.log('SKIPPED');
+      continue;
+    }
+      
+    var input = UrlFetchApp.fetch(url_to_fetch).getContentText();
+    var pattern = 'loadCloseSale_0';
+    var regex = new RegExp(pattern, 'i'); // i = ignore case
+    var isMatch = regex.test(input); 
+
+    Logger.log(isMatch ? 'CLOSED': 'OPEN');
+  }
+  */
+ 
+  var ads = AdWordsApp.ads()
+  .withCondition("Status = ENABLED")
+  .withCondition("AdGroupStatus = ENABLED")
+  .withCondition("CampaignStatus = ACTIVE")
+  .withCondition("DestinationUrl CONTAINS 'p1000.co.il'")
+  .get();
+  
+  var pattern = 'loadCloseSale_0';
+  var regex = new RegExp(pattern, 'i'); // i = ignore case
+  
+  Logger.log('ROWS : ' + ads.totalNumEntities());
+  while (ads.hasNext()) {
+    var ad = ads.next();
+    var url_to_fetch = ad.getDestinationUrl();
+    AddUniqueItem(url_to_fetch);
+  }
+  Logger.log('DISTINCT ROWS : ' + distinct_arr.length);
+  
+  var csvString = '';
+  for(var i = 0; i < distinct_arr.length ; i++){
+    try{
+      var url_to_fetch = distinct_arr[i];
+      Logger.log(url_to_fetch); 
+      
+      var input = UrlFetchApp.fetch(url_to_fetch).getContentText();     
+      var isMatch = regex.test(input);
+      
+      if(isMatch)
+      {
+        Logger.log('SALE IS CLOSED!');
+        csvString += url_to_fetch + '\n';
+      }
+    }
+    catch(e){
+      Logger.log('Error');
+    }
+  }
+  
+  
+  if(csvString != '')
+  {
+    var blob = Utilities.newBlob(csvString, 'text/csv')
+    blob.setName('Report.csv');
+    MailApp.sendEmail(EMAIL, 'CLOSED SALES', 'ATTACHED CLOSED SALES REPORT', {attachments: [blob]});
+  }
+}
+  
+  function AddUniqueItem(item){
+    for(var i = 0; i < distinct_arr.length; i++)
+      if(distinct_arr[i] == item)
+        return;
+    distinct_arr.push(item);
+  }   

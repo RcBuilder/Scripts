@@ -1,0 +1,69 @@
+var FILE_NAME = 'campaigns_budget_settings';
+var sheet = null;
+
+function main() {
+  var campaigns = AdWordsApp.campaigns()
+  //.withCondition('Status = ENABLED')
+  .get(); 
+  
+  var data_file = null;
+  var temp = DriveApp.getFilesByName(FILE_NAME);
+  var fileExists = temp.hasNext();
+
+  // no file found
+  if(!fileExists){
+    Logger.log('DATA FILE DOES NOT EXISTS!!');
+	return;
+  }
+  
+  // load settings file from google drive
+  data_file = temp.next();
+  var spreadsheet = SpreadsheetApp.openById(data_file.getId());
+  sheet = spreadsheet.getActiveSheet(); 
+
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();
+    
+    var campaignId = campaign.getId();
+    var campaignName = campaign.getName();
+     
+    var stat = campaign.getStatsFor('TODAY');
+    var conversions = stat.getConvertedClicks(); 
+     
+    Logger.log('\n(' + campaignId + ') ' + campaignName + ', conversions : ' + conversions);  
+    
+    var settings = GetCampaignSettings(campaignName);
+    if(settings == null){
+      Logger.log('NO SETTINGS FOUND FOR CAMPAIGN ' + '(' + campaignId + ') ' + campaignName);
+      continue;
+    }
+    
+    Logger.log('SETTINGS : conversionRate = ' + settings.conversionRate + ', span = ' + settings.span + ', maximum = ' + settings.maximum);
+    
+    var amount = conversions * settings.conversionRate + settings.span;
+
+    if(amount > settings.maximum) {
+      Logger.log('SET AMOUNT AS MAXIMUM VALUE');
+      amount = settings.maximum;    
+    }
+    
+    if(isNaN(amount))
+    {
+      Logger.log('ERROR');
+      continue;
+    }
+    
+    Logger.log('set amount to ' + amount);
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      campaign.getBudget().setAmount(amount);
+  }
+}
+
+function GetCampaignSettings(Name){
+  var rows = sheet.getDataRange().getValues();
+  
+  for(row in rows)
+    if(rows[row][0] == Name)
+      return { conversionRate: rows[row][1], span: rows[row][2], maximum: rows[row][3] };
+  return null;
+}

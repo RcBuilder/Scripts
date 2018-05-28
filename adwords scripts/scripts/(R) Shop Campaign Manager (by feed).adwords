@@ -1,0 +1,504 @@
+var FEED_URI ='http://avc.co.il/products-tree/zap/category/'
+var CAMPAIGN_ID = 809367344;
+var TEST_MODE = true;
+
+var Settings = {
+  defaultBid: 1.0,
+  useUniqueKeywords: true,
+  adDescription: 'מתחייבים למחיר הזול ביותר!',
+  extraKeywords: ['key1', 'key2'],
+  extraNegativeKeywords: ['Nkey1', 'Nkey2']
+};
+
+function main() {
+  if(TEST_MODE)
+    Logger.log('[TEST MODE]');
+  
+  var xService = XMLService(FEED_URI);
+  var adManagerService = AdManagerService();
+  var shopService = ShopService(xService, adManagerService);
+  
+  var products = shopService.getProducts();
+  Logger.log('%s products found', products.length);  
+
+  if(TEST_MODE)
+    products = products.slice(190, 200);
+
+  for(i in products)     
+    ProcessProduct(shopService, products[i]);  
+}
+
+function ProcessProduct(shopService, product){
+  if(!product){
+    Logger.log('No product -> skip');
+    return;
+  }
+  
+  Logger.log('[%s] %s', product.id, product.name);       
+  
+  var campaign = AdWordsApp.campaigns().withIds([CAMPAIGN_ID]).get().next();
+  shopService.saveProduct(campaign, product);
+}
+
+// ----------------------------------------------
+
+/*
+<PRODUCT NUM="1">
+    <PRODUCT_URL>
+        <![CDATA[ http://avc.co.il/?????-7-2-??????-ONKYO-TXNR646.html?___SID=U ]]>
+    </PRODUCT_URL>
+    <PRODUCT_NAME>
+        <![CDATA[ ????? 7.2 ?????? ONKYO TXNR646 ]]>
+    </PRODUCT_NAME>
+    <MODEL>
+        <![CDATA[ ]]>
+    </MODEL>
+    <DETAILS>
+        <![CDATA[
+          Lorem Ipsum is simply dummy text of the printing and typesetting industry..
+        ]]>
+    </DETAILS>
+    <CATALOG_NUMBER>
+        <![CDATA[ 1831583028 ]]>
+    </CATALOG_NUMBER>
+    <PRICE>3190.00</PRICE>
+    <CURRENCY>ILS</CURRENCY>
+    <SHIPMENT_COST>30</SHIPMENT_COST>
+    <DELIVERY_TIME>7</DELIVERY_TIME>
+    <MANUFACTURER>
+        <![CDATA[ ]]>
+    </MANUFACTURER>
+    <WARRANTY/>
+    <IMAGE>
+        http://avc.co.il/media/catalog/product/cache/1/small_image/135x135/9df78eab33525d08d6e5fb8d27136e95/_/o/_onkyo_txnr646_1.jpg
+    </IMAGE>
+    <TAX>0%</TAX>
+</PRODUCT>  
+*/
+
+// SHOP SERVICE
+var ShopService = function(xService, adManagerService){
+  var _xService = xService;
+  var _adManagerService = adManagerService;
+  
+  (function(){ })();
+  
+  return {   
+    getProducts: function(){      
+      var productsRoot = _xService.getNode('PRODUCTS');
+      var productNodes = _xService.getNodes('PRODUCT', productsRoot);
+      
+      var products = [];      
+      for(i in productNodes)
+      {
+        var productNode = productNodes[i];
+        products.push({ 
+          id: _xService.getNodeAttributeValue('NUM', productNode),
+          name: _xService.getNodeValue('PRODUCT_NAME', productNode),
+          url: _xService.getNodeValue('PRODUCT_URL', productNode),
+          model: _xService.getNodeValue('MODEL', productNode),
+          price: _xService.getNodeValue('PRICE', productNode),          
+        });        
+      }
+      
+      return products;
+    },         
+    createProduct: function(campaign, product){
+      Logger.log('create product');
+            
+      var adGroupName = 'product-' + product.id;            
+      var adGroup = _adManagerService.createAdGroup(campaign, adGroupName, Settings.defaultBid);
+      if(!adGroup)
+      {
+        Logger.log('adGroup is NULL!');
+        return;
+      }
+      
+      // clear keywords
+      if(TEST_MODE)
+        Logger.log('[Before] /%s/', product.name);
+      
+      var productName = _adManagerService.clearKeyword(product.name, true);
+      
+      if(TEST_MODE)
+        Logger.log('[After] /%s/', productName);
+      
+      var adTitle = productName;             
+      var adTitle2 = '?? ' + '{param1:' + product.price + '}' + ' ?';       
+      var adDescription = Settings.adDescription;
+      
+      _adManagerService.createAd(adGroup, adTitle, adTitle2, adDescription, product.url);    
+      
+      // set basic keywords (product name)
+      var keywords = [
+        '"' + productName + '"', 
+      ];
+      
+      // add he/en splitted keywords
+      var productNameEN = productName.replace(/[^a-zA-Z0-9\s]/gi, '');
+      var productNameHE = productName.replace(/[a-zA-Z0-9]/gi, '');      
+
+      productNameEN = _adManagerService.clearKeywordSpacers(productNameEN);
+      
+      if(TEST_MODE)
+        Logger.log('[Before] /%s/', productNameHE);
+      
+      productNameHE = _adManagerService.clearKeywordSpacers(productNameHE);
+      
+      if(TEST_MODE)
+        Logger.log('[After] /%s/', productNameHE);
+      
+      var arrProductNameEN = productNameEN.split(' ');
+      if(TEST_MODE)
+        Logger.log('item: %s, length: %s', productNameEN, arrProductNameEN.length);
+      
+      if(arrProductNameEN.length > 1)
+      {
+        productNameEN = arrProductNameEN.join(' ');
+        
+        keywords = keywords.concat([
+          '[' + productNameEN + ']', 
+          '"' + productNameEN + '"', 
+          '+' + productNameEN.split(' ').join('+')       
+        ]);
+      }       
+
+      var arrProductNameHE = productNameHE.split(' ');
+      if(TEST_MODE)
+        Logger.log('item: %s, length: %s', productNameHE, arrProductNameHE.length);
+      
+      if(arrProductNameHE.length > 1)
+      {   
+        productNameHE = arrProductNameHE.join(' ');
+        
+        keywords = keywords.concat([
+          '[' + productNameHE + ']', 
+          '"' + productNameHE + '"',
+          '+' + productNameHE.split(' ').join('+')        
+        ]);
+      }    
+      
+      // add model keywords
+      if(product.model && product.model != '')
+      {
+        keywords = keywords.concat([
+          product.model,
+          '[' + productNameEN + ' ' + product.model + ']', 
+          '"' + productNameEN + ' ' + product.model + '"', 
+          '+' + productNameEN + '+' + product.model,       
+          '[' + productNameHE + ' ' + product.model + ']', 
+          '"' + productNameHE + ' ' + product.model + '"', 
+          '+' + productNameHE + '+' + product.model,             
+        ]);
+      }
+   
+      // add extra (custom) keywords
+      if(Settings.extraKeywords.length > 0)
+        keywords = keywords.concat(Settings.extraKeywords);
+      
+      if(TEST_MODE)
+        Logger.log(keywords);
+      
+      if(Settings.useUniqueKeywords){
+        // prevent KWs duplications within the whole campaign
+        // avoid an internal bid competition between 2 adgroups at the very same campaign
+        var keywordsUnique = [];
+        for(i in keywords)
+        {
+          var keyword = keywords[i];
+          if(_adManagerService.checkIfKeywordExists(campaign, keyword))
+          {
+            Logger.log('keyword %s already exists in this campaign - skip!', keyword);
+            continue; // skip
+          }
+          
+          keywordsUnique.push(keyword);
+        }      
+        
+        _adManagerService.createKeywords(adGroup, keywordsUnique); // unique keywords only 
+      }
+      else
+        _adManagerService.createKeywords(adGroup, keywords); // all keywords
+        
+
+      var negativeKeywords = ['????'];
+      
+      // add extra (custom) negative keywords
+      if(Settings.extraKeywords.length > 0)
+        negativeKeywords = negativeKeywords.concat(Settings.extraNegativeKeywords);
+      
+      _adManagerService.createNegativeKeywords(adGroup, negativeKeywords);   
+    },
+    updateProduct: function(adgroup, product){
+      Logger.log('update product');
+      
+      var keywords = adgroup.keywords().get();
+      while(keywords.hasNext())
+        _adManagerService.setKeywordParams(keywords.next(), product.price);
+    },
+    saveProduct: function(campaign, product){
+      
+      var adGroupName = 'product-' + product.id;  
+      var adgroup = _adManagerService.getAdGroupByName(campaign, adGroupName);
+      
+      if(adgroup) // update
+        this.updateProduct(adgroup, product);
+      else // create
+        this.createProduct(campaign, product);            
+    }
+  };
+}
+
+// ----------------------------------------------
+
+// XML SERVICE
+var XMLService = function(uri) { 
+  var _document = null;
+  
+  (function(){
+    var response = UrlFetchApp.fetch(uri);
+    var status_code = response.getResponseCode();
+    
+    if(status_code != 200) // 200 = OK
+    {
+      Logger.log('status code %s', status_code);
+      return;
+    }
+    
+    Logger.log('%s was loaded', uri);    
+    _document =  XmlService.parse(response.getContentText());
+   })();
+  
+   return { 
+     document: _document,
+     root: _document.getRootElement(),
+     namespace: function(){
+       return this.root.getNamespace();
+     },
+     namespaceURI: function(){
+       return this.namespace().getURI();
+     },
+     count: function(root){
+       root = root || this.root;       
+       return root.getContentSize();
+     },   
+     getNodes: function(nodeName, root){
+       root = root || this.root;     
+       return root.getChildren(nodeName, this.namespace());
+     },
+     getNode: function(nodeName, root){
+       root = root || this.root; 
+       return root.getChild(nodeName, this.namespace());
+     },
+     getNodeValue: function(nodeName, root){
+       return this.getNode(nodeName, root).getText();
+     },
+     getNodeAttribute: function(attributeName, root){
+       return root.getAttribute(attributeName);
+     },
+     getNodeAttributeValue: function(attributeName, root){
+       return this.getNodeAttribute(attributeName, root).getValue();
+     },     
+     filter: function(nodes, childName, regex){                  
+       var result = [];
+       var pattern = new RegExp(regex);
+       
+       for(i in nodes){
+         var children = nodes[i].getChildren(childName, this.namespace());
+         for(i in children)
+         {
+           var value = children[i].getText();
+           if(pattern.test(value))
+             result.push(value);
+         }         
+       }
+       
+       return result;
+     } 
+   }; 
+}
+
+// ----------------------------------------------
+
+// AD MANAGER SERVICE
+var AdManagerService = function() { 
+  return{
+    createAdGroup: function(campaign, adGroupName, defaultBid){
+      var adGroupBuilder = campaign.newAdGroupBuilder();
+      var operation = adGroupBuilder
+      .withName(adGroupName)
+      .withCpc(defaultBid)
+      // .withStatus('ENABLED')
+      .build();
+      
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },
+    createAd: function(adGroup, header1, header2, description, destinationURL, partURL1, partURL2){
+      
+      if(header1.length > 30)
+        header1 = header1.substr(0, 29);
+      if(header2.length > 30)
+        header2 = header2.substr(0, 29);
+      if(description.length > 80)
+        description = description.substr(0, 79);
+     
+      var builder = adGroup.newAd().expandedTextAdBuilder()
+      .withHeadlinePart1(header1) // 30 characters      
+      .withHeadlinePart2(header2) // 30 characters
+      .withDescription(description) // 80 characters      
+      .withFinalUrl(destinationURL) // 255 characters    
+      .withMobileFinalUrl(destinationURL);
+      
+      /* parameters:
+      
+         syntax:
+         {param<num>:<default value>}
+         
+         e.g: 
+         product {param1: 'some product'} for only {param2: 0} $ - buy now!
+      */
+
+      if(partURL1)
+        builder.withPath1(partURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/partURL1/partURL2
+      
+      if(partURL2)
+        builder.withPath2(partURL2); // 15 characters (the second part after the siteURL)
+      
+      var operation = builder.build();
+      
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },        
+    createKeywords: function(adGroup, arrKeywods){
+      
+      /* types:
+         BROAD, PHRASE, EXACT
+         
+         e.g:
+         BROAD: 'word'
+         PHRASE: '"word"'
+         EXACT: '[word]'        
+      */
+      
+      for(i in arrKeywods){
+        var keyword = arrKeywods[i];                        
+        var operation = adGroup.newKeywordBuilder()        
+        .withText(keyword)       
+        // .withCpc(1.0)
+        .build();        
+      }
+    },
+    createNegativeKeywords: function(adGroup, arrKeywods){
+      for(i in arrKeywods){
+        var keyword = arrKeywods[i];
+        adGroup.createNegativeKeyword(keyword);
+      }
+    },    
+    /*
+	   important! 
+	   use it before you add your match type signs! (calling the createKeywords method)
+	   in order to prevent a deletion of those legitimate chars which add to represent the keyword match type ("keyword", [keyword], +keyword)
+
+       Logger.log(adManagerService.clearKeyword('A!@%,*B'));
+       Logger.log(adManagerService.clearKeyword('12%34'));
+       Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K L M N O P'));
+       Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K    L M N      O       P', true));
+    */
+    clearKeyword: function(keyword, clearSpacers){
+      var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']'];
+      var maxWordsAllowed = 10;
+      
+      // non allowed characters
+      // [error] Keywords cannot contain non-standard characters like: ! @ % , *
+      for(i in specialCharacters)
+      {
+        var c = specialCharacters[i];
+        if(keyword.indexOf(c) == -1) continue;
+        keyword = keyword.split(c).join(''); // replace all
+      }      
+      
+      // two many words
+      // [error] Keywords cannot contain more than 10 words
+      if(keyword.split(' ').length > maxWordsAllowed)
+        keyword = keyword.split(' ').slice(0, 9).join(' '); // remove words
+        
+      if(clearSpacers == true)
+        keyword = this.clearKeywordSpacers(keyword);
+      
+      return keyword;
+    },
+    clearKeywordSpacers : function (input){
+		var arrWords = input.split(' ');
+		if(arrWords.length == 1) {
+		// Logger.log('single word: /%s/', input);
+		return input;
+		}
+
+		// clear extra middle spaces ('A B C' -> 'A B C')
+		var temp = [];
+		for(i in arrWords){ 
+		var word = arrWords[i].trim();
+		if(word == '' || word.length == 1) continue; 
+		// Logger.log('word: /%s/', word);
+		temp.push(word); 
+		} 
+
+		var output = temp.join(' ');
+		// Logger.log('input: /%s/', input);
+		// Logger.log('output: /%s/', output);
+		return output; 
+	},
+    setKeywordParams: function(keyword, param1Value, param2Value, param3Value){      
+      if(param1Value)
+        keyword.setAdParam(1, param1Value);
+      
+      if(param2Value)
+        keyword.setAdParam(2, param2Value);
+      
+      if(param3Value)
+        keyword.setAdParam(3, param3Value);
+    },
+    getAds: function(campaign){
+      var ads = [];
+      
+      var adsIter = campaign.ads()
+      .withCondition('Type = EXPANDED_TEXT_AD')
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .get();
+      
+      while(adsIter.hasNext())      
+        ads.push(adsIter.next().asType().expandedTextAd());
+      
+      return ads;      
+    },    
+    checkIfAdExistsByTitle: function(campaign, adTitle){
+      var ads = this.getAds(campaign);
+      for(i in ads)
+        if(ads[i].getHeadlinePart1() == adTitle)
+          return true;
+      return false;
+    },
+    checkIfAdGroupExistsByName: function(campaign, adGroupName){
+      return this.getAdGroupByName(campaign, adGroupName) != null;
+    },
+    getAdGroupByName: function(campaign, adGroupName){
+      var adgroup = campaign.adGroups()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withCondition('Name = "' + adGroupName + '"')
+      .get()
+      
+      if(adgroup.hasNext())
+        return adgroup.next();
+      return null;
+    },
+    checkIfKeywordExists: function(campaign, keywordText){
+      return campaign.keywords()
+      .withCondition('Text = \'' + keywordText + '\'')
+      .get()
+      .hasNext();
+    },
+  };
+}

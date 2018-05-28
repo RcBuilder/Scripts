@@ -1,0 +1,54 @@
+var FPB_LABEL = 'FirstPageBidRule';
+var TPB_LABEL = 'TopPageBidRule';
+
+var IncreaseValue = 0.03;
+
+function main() {
+  ProcessFirstPageBid();
+  Logger.log('------------------');
+  ProcessTopPageBid();
+}
+
+function ProcessFirstPageBid(){
+  var label = AdWordsApp.labels().withCondition('Name = "' + FPB_LABEL + '"').get();     
+  if(!label.hasNext()) {
+    Logger.log('error: label "%s" is not found!', FPB_LABEL);
+    return;
+  }
+  
+  Logger.log('label "%s" loaded', FPB_LABEL);
+  var keywords = label.next().keywords().withCondition('Status = ENABLED').get();
+  while(keywords.hasNext())
+  {
+    var keyword = keywords.next();    
+    var cpc = keyword.bidding().getCpc();
+    var firstOfPageCpc = keyword.getFirstPageCpc();
+    var newCpc = firstOfPageCpc + IncreaseValue;
+          
+    Logger.log('%s, cpc %s -> %s', keyword.getText(), cpc, newCpc.toFixed(2));
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.bidding().setCpc(newCpc);
+  }
+}
+
+function ProcessTopPageBid(){
+  var label = AdWordsApp.labels().withCondition('Name = "' + TPB_LABEL + '"').get();
+  if(!label.hasNext()) {
+    Logger.log('error: label "%s" is not found!', TPB_LABEL);
+    return;
+  }
+  
+  Logger.log('label "%s" loaded', FPB_LABEL);
+  var keywords = label.next().keywords().withCondition('Status = ENABLED').get();
+  while(keywords.hasNext())
+  {
+    var keyword = keywords.next();    
+    var cpc = keyword.bidding().getCpc();
+    var topOfPageCpc = keyword.getTopOfPageCpc();
+    var newCpc = topOfPageCpc + IncreaseValue;
+    
+    Logger.log('%s, cpc %s -> %s', keyword.getText(), cpc, newCpc.toFixed(2));
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.bidding().setCpc(newCpc);        
+  }
+}

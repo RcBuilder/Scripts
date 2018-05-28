@@ -1,0 +1,18 @@
+function main() {
+  var keywords = AdWordsApp
+  .keywords()
+  .withCondition("Clicks > 100")
+  .withCondition("Conversions = 0")
+  .forDateRange("ALL_TIME")
+  .get();
+  
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+ 
+    var campaign = keyword.getCampaign();
+    
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      campaign.createNegativeKeyword(keyword.getText());
+    Logger.log('SET ' + keyword.getText() + ' KEYWORD AS NEGATIVE');  
+  }
+}

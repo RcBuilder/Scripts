@@ -1,0 +1,159 @@
+var FILE_NAME = 'SCRIPT_NEW_CONVERSION_DATA';
+var last_execution_data = [];
+var EMAIL = 'Yosi@sarltd.com';
+
+function main() { 
+  /* RESET FILE
+  var file_to_reset = DriveApp.getFilesByName(FILE_NAME).next();
+  file_to_reset.setContent(' ');
+  DriveApp.removeFile(file_to_reset);
+  return;
+  */
+  
+  var data_file = null;
+  var temp = DriveApp.getFilesByName(FILE_NAME);
+  
+  var fileExists = temp.hasNext();
+  
+  // first execution - create file at google drive
+  if(!fileExists) {
+    Logger.log('FIRST EXECUTION - CREATING START POINT');
+    
+    LoadCampaigns();
+    
+    //Logger.log(last_execution_data.length);
+    //Logger.log(DataToString());
+    
+    data_file = DriveApp.createFile(FILE_NAME, Data2String());
+    return;
+  }
+    
+  // file exists - read content
+  data_file = temp.next();
+  var content = data_file.getBlob().getDataAsString();
+  
+  if(content == ' ')
+  {
+    Logger.log('THE FILE CORRUPTED - TO FIX IT - CHANGE THE FILE NAME');
+    return;
+  }
+   
+  String2Data(content);
+  //Logger.log(last_execution_data)
+  
+  var report = GetReport();
+  
+  var need_to_update_drive = false;
+  
+  var rows = report.rows();
+  
+  var EMAIL_BODY = '';
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var campaignId = row['CampaignId'];
+    var conversions = row['Conversions'];
+    
+    var old_conversions = Search(campaignId);
+    if(old_conversions == -1) // not exists - add it 
+    {
+      Logger.log('ADD NEW ROW ' + campaignId);
+      
+      need_to_update_drive = true;
+      
+      AddData(campaignId, conversions);
+      continue;
+    }
+    
+    if(conversions > old_conversions)
+    {
+      need_to_update_drive = true;
+      
+      UpdateData(campaignId, conversions);
+      
+      var campaignName = row['CampaignName'];
+
+      var message = 'NEW CONVERSION "' + campaignName + '" ('+ campaignId + ')';
+      Logger.log(message);
+      EMAIL_BODY += message + '\n';
+    }
+  }
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'NEW CONVERSION', EMAIL_BODY);
+
+  if(need_to_update_drive)
+    data_file.setContent(Data2String());
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = date.getMonth().toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}
+
+function AddData(campaignId, conversions){
+  last_execution_data.push([campaignId, conversions]);
+}
+
+function UpdateData(campaignId, conversions){
+  for(var i = 0; i < last_execution_data.length; i++)
+    if(last_execution_data[i][0] == campaignId)
+       last_execution_data[i][1] = conversions;
+}
+  
+function Search(campaignId){
+  for(var i = 0; i < last_execution_data.length; i++)
+    if(last_execution_data[i][0] == campaignId)
+      return last_execution_data[i][1];
+  return -1;
+}
+
+function GetReport(){
+  var report = AdWordsApp.report(
+    'SELECT CampaignName, CampaignId, Conversions ' +
+    'FROM CAMPAIGN_PERFORMANCE_REPORT ' +
+    'DURING 20000101,' + dateFormat(new Date())
+  );
+  
+  return report;
+}
+
+function LoadCampaigns(){
+  var report = GetReport();
+  
+  var rows = report.rows();
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var campaignId = row['CampaignId'];
+    var conversions = row['Conversions'];
+    
+    last_execution_data.push([campaignId, conversions]);
+  }
+}
+
+function Data2String(){
+  var sArray = '';
+  for(var i = 0; i < last_execution_data.length; i++)
+  {
+    var row = last_execution_data[i];
+    sArray += row[0] + ',' + row[1] + '\n';
+  }
+  return sArray;
+}
+
+function String2Data(content){
+  var rows = content.split('\n');
+  for(var i = 0; i < rows.length; i++)
+  {
+    if(rows[i] == '') continue;
+    var row = rows[i].split(',');
+    last_execution_data.push([row[0], row[1]]);
+  }
+}

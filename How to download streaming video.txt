@@ -1,0 +1,9 @@
+How to download streaming video ?
+
+steps:
+1. play the video (on the website)
+2. F12 Chrome devTools
+3. Network Tab 
+4. choose the Media Tag
+5. grab the file url and paste it directly in the url address bar
+

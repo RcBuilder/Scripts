@@ -1,0 +1,68 @@
+var POSITION = 8;
+var BID = 0.15;
+var PERIOD = 'TODAY'; // TODAY, YESTERDAY, LAST_7_DAYS, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS
+var RANGE = 0.75;
+
+var MAXBID = { // labels max bid
+  'Label1' : 6, 
+  'Label2' : 4, 
+  'Label3' : 4
+};
+
+function main() {
+  var keywords = AdWordsApp.keywords()  
+  .withCondition('CampaignStatus = ENABLED')
+  .withCondition('AdGroupStatus = ENABLED')
+  .withCondition('Status = ENABLED')  
+  //.withLimit(5)  // temporary
+  .get();
+  
+   while (keywords.hasNext()) {
+     var keyword = keywords.next();          
+     var stats = keyword.getStatsFor(PERIOD);
+     var position = stats.getAveragePosition();
+     
+     Logger.log(keyword.getText() + ' -> position: ' + position);
+     
+     if(position == POSITION) continue;
+     
+     // target position between the specified RANGE - no need to change it (safe zone)
+     if(POSITION > (position - RANGE) && POSITION < (position + RANGE)) {
+       Logger.log('position ' + POSITION + ' is in RANGE of ' + (position - RANGE) + ' and ' + (position + RANGE));
+       continue;
+     }
+     
+     var bidding = keyword.bidding();
+     var current_bid = bidding.getCpc();
+     
+     var added_bid_value = (position <= POSITION) ? (current_bid * BID) : -(current_bid * BID);     
+     var new_bid = current_bid + added_bid_value;
+              
+     var labels = keyword.labels().get();     
+     if(!labels.hasNext()) {
+       Logger.log('no label found');
+       continue;     
+     }
+     
+     var label = labels.next();
+     var label_max_bid = GetLabelMaxBid(label.getName());
+     Logger.log('label: '+ label.getName() + ' max bid: '+ label_max_bid);
+     
+     if(label_max_bid == 0 || new_bid >= label_max_bid) {
+       Logger.log('new bid ' + new_bid + ' is larger then the label max bid');
+       continue; 
+     }
+     
+     if(!AdWordsApp.getExecutionInfo().isPreview())
+         bidding.setCpc(new_bid);
+     Logger.log('bid volume ' + current_bid + ' updated to ' + new_bid);
+   }
+}
+
+function GetLabelMaxBid(labelName){
+  try{
+    var result = MAXBID[labelName];
+    return result || 0;
+  }
+  catch(e){ return 0; }
+}

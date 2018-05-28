@@ -1,0 +1,44 @@
+var CLICKS = 0, CONVERSIONS = 0, IMPRESSIONS = 0;
+var DATE_RANGE = 'LAST_30_DAYS'; // TODAY, YESTERDAY, LAST_7_DAYS, THIS_WEEK_SUN_TODAY, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, THIS_MONTH, LAST_MONTH
+ 
+function main() {
+  var report = GetReport(DATE_RANGE); 
+  Logger.log('### filters : ' + CLICKS + ' Clicks, ' + CONVERSIONS + ' conversions, ' + IMPRESSIONS + ' impressions ###\n');
+  
+  var rows = report.rows();
+  while(rows.hasNext()) {
+    var row = rows.next();
+    var query = row['Query'];
+    var adGroupId = row['AdGroupId'];
+    var clicks = parseInt(row['Clicks']);
+    var conversions = parseInt(row['Conversions']);
+    var impressions = parseInt(row['Impressions']);    
+    
+    Logger.log('"' + query + '" -> ' +  clicks + ' clicks, ' + conversions + ' conversions, ' + impressions + ' impressions');    
+
+    var adGroupIterator = AdWordsApp.adGroups().withIds([adGroupId]).get(); 
+    if(!adGroupIterator.hasNext())
+      continue;
+    
+    var adGroup = adGroupIterator.next();    
+    
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      adGroup.createNegativeKeyword(query);
+    Logger.log('query added as negative keyword for adgroup "' + adGroup.getName() + '"\n')
+  }
+}
+
+function GetReport(dateRange){
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var query = 'SELECT Query, AdGroupId, Clicks, Conversions, Impressions, Ctr ' + 
+    'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' + 
+    'WHERE Clicks < ' + CLICKS + ' ' +
+    'AND Conversions < ' + CONVERSIONS + ' ' +
+    'AND Impressions < ' + IMPRESSIONS + ' '    
+    'DURING ' + dateRange;
+
+  return AdWordsApp.report(query, reportConfig); 
+}

@@ -1,0 +1,26 @@
+var EMAIL = 'BinarOptionsTrade@gmail.com';
+
+function main() {
+  var date_period = 'YESTERDAY';
+  
+  var keywords = AdWordsApp
+  .keywords()
+  .orderBy('Impressions DESC')
+  .forDateRange(date_period)
+  .withLimit(10)
+  .get();
+  
+  var EMAIL_BODY = '';
+  while (keywords.hasNext()) {    
+    var keyword = keywords.next();    
+
+    var stats = keyword.getStatsFor(date_period);
+    
+    var message = '"' + keyword.getText() + '", Impressions : ' + stats.getImpressions();
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';
+  }
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'top 10 keywords with highest impressions', EMAIL_BODY);
+}

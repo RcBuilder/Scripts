@@ -1,0 +1,44 @@
+var EMAIL = 'rcbuilder@walla.com';
+
+function main() {
+  var total = 0;
+  
+  var account = AdWordsApp.currentAccount().getName();
+  Logger.log('## account ' + account + ' ##\n');
+  
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition("Cost > .01")
+  .forDateRange('LAST_7_DAYS')
+  .get();   
+  
+  var EMAIL_BODY = '';
+  
+  while(campaigns.hasNext()){
+    var campaign = campaigns.next();    
+    var campaignName = campaign.getName();
+    
+    var stats7days = campaign.getStatsFor('LAST_7_DAYS');
+    var impressions7days = stats7days.getImpressions();
+    var clicks7days = stats7days.getClicks();
+    var conversions7days = stats7days.getConvertedClicks();
+    
+    var stats30days = campaign.getStatsFor('LAST_30_DAYS');
+    var impressions30days = stats30days.getImpressions();
+    var clicks30days = stats30days.getClicks();
+    var conversions30days = stats30days.getConvertedClicks();
+    
+    var impressions_row = 'impressions:\nlast 7 days:' + impressions7days + '\nlast 30 days: ' + impressions30days + '\n';
+    var clicks_row = 'clicks:\nlast 7 days:' + clicks7days + '\nlast 30 days: ' + clicks30days + '\n';
+    var conversions_row = 'conversions:\nlast 7 days:' + conversions7days + '\nlast 30 days: ' + conversions30days + '\n';
+    var row = campaignName + '\n' + impressions_row + '\n' + clicks_row + '\n' + conversions_row + '\n';
+    Logger.log(row);
+    EMAIL_BODY = EMAIL_BODY + row;
+  }
+  
+  if(EMAIL_BODY != '')
+  {    
+    var EMAIL_SUBJECT = 'campaigns statistics for account ' + account;    
+    MailApp.sendEmail(EMAIL, EMAIL_SUBJECT, EMAIL_BODY);
+    Logger.log('Email sent!');
+  }
+}

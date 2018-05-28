@@ -1,0 +1,122 @@
+var FILE_NAME = 'file_QualityScore';
+var ROWCOUNT = 8000;
+var CAMPAIGN = '';
+
+var sheet = null;
+var str_now = '';
+
+function main() {
+  var keywords = AdWordsApp
+  .keywords()
+  .orderBy("Impressions DESC")
+  .forDateRange("ALL_TIME")
+  .withCondition("CampaignName CONTAINS '" + CAMPAIGN + "'")
+  .withLimit(ROWCOUNT)
+  .get();
+  
+  var file = null;
+  var file_iterator = DriveApp.getFilesByName(FILE_NAME);
+  var spreadsheet = null;
+  
+  if(file_iterator.hasNext()) // file exists - get the first one
+  {
+    Logger.log('LOAD FILE');
+	file = file_iterator.next();
+    var spreadsheet_id = file.getBlob().getDataAsString();
+    spreadsheet = SpreadsheetApp.openById(spreadsheet_id);
+  }
+  else  // no file in google drive - create it!
+  {
+    Logger.log('CREATE FILE');
+    var SPREADSHEET_NAME = 'spreadsheet-' + FILE_NAME;
+    spreadsheet = SpreadsheetApp.create(SPREADSHEET_NAME);
+	file = DriveApp.createFile(FILE_NAME, spreadsheet.getId()); 
+    
+    var temp_sheet = spreadsheet.getActiveSheet();
+    temp_sheet.appendRow(['Id', 'AdGroup', 'Keyword']);
+  }
+  
+  if(spreadsheet == null){
+    Logger.log('no spreadsheet found!!')
+    return;
+  }
+
+  sheet = spreadsheet.getActiveSheet();
+  
+  str_now = dateFormat(new Date());
+
+  var column_index = AddColumn(str_now);
+  
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+    
+    var text = keyword.getText();
+    var score = keyword.getQualityScore();
+    var adgroup = keyword.getAdGroup().getName();
+    var key = keyword.getId();
+    
+    //var message = '"' + text + '"' + ' score ' + score;
+    //Logger.log(message);
+    
+    Logger.log(text);
+
+    var row_index = GetMatchRowIndex(key);
+    
+    if(row_index == -1) // no match
+      row_index = AddRow(key, adgroup, text);
+    UpdateColumn(row_index, column_index, score);
+  }
+  
+  //Print();
+}
+
+function Print(){
+  var rows = sheet.getDataRange().getValues();
+  
+  for(row in rows)
+  {
+    var s_row = '';
+    for(col in rows[row])
+      s_row += rows[row][col] + '\t';
+    Logger.log(s_row);
+  }
+}
+
+function GetMatchRowIndex(key){
+  var rows = sheet.getDataRange().getValues();
+ 
+  for(row in rows)
+    if(rows[row][0] == key)
+      return row;
+  return -1;     
+}
+
+function AddRow(key, adgroup, keyword){
+  var last_row = parseInt(sheet.getLastRow());
+  sheet.appendRow([key, adgroup, '\'' + keyword]);
+  return last_row++;
+}
+
+function AddColumn(title){
+  var last_column = parseInt(sheet.getLastColumn());
+  sheet.insertColumnAfter(last_column);
+  var current_column = last_column++;
+  UpdateColumn(0, current_column, title);
+  return current_column;
+}
+
+function UpdateColumn(row_index, column_index, value){
+  //Logger.log(row_index + 'x'+column_index+' ' + value);
+  sheet.getRange(++row_index, ++column_index).setValue(value);
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth()+1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

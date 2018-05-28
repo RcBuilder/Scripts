@@ -1,0 +1,250 @@
+// ###  STEP 3 : manage ads  ###
+
+var XML_URI = 'https://beheer.ingoedebanen.nl/export/appnexus/553e0df132cfd';
+
+function main() { 
+  var jobs_service = new JobsService(new XMLService(XML_URI)); 
+  
+  // get all jobs from the xml feed
+  // { specialisme, location, name, link, salaris }
+  Logger.log('Loading jobs from xml ... ');
+  jobs_service.loadJobs(); 
+  Logger.log('%s jobs loaded', jobs_service.count());  
+  
+  // get all campaigns from db into an array
+  Logger.log('Loading campaigns ... ');
+  var arr_campaigns = [];
+  var campaigns = AdWordsApp.campaigns().withCondition('Name CONTAINS "#"').get();
+  while(campaigns.hasNext()){ 
+    arr_campaigns.push(campaigns.next());
+  }     
+  Logger.log('%s campaigns loaded', arr_campaigns.length);
+  
+  ExecuteCampaignsCreator(jobs_service, arr_campaigns);
+  ExecuteCampaignsCleaner(jobs_service, arr_campaigns);
+}
+
+function ExecuteCampaignsCreator(jobs_service, arr_campaigns){
+  HELPER.foreach(jobs_service.jobs(), function(job){
+    var job_info = 'job: '.concat('#', job.id, ' ', job.name, ' (specialisme ', job.specialisme, ', location ', job.location, ')')
+    Logger.log('%s', job_info);
+    
+    var campaign_name = job.specialisme.concat('#', job.location);
+    var campaign = getCampaignByName(arr_campaigns, campaign_name);
+    if(!campaign) 
+    {
+      Logger.log('campaign %s not found', campaign_name);
+      return;
+    }
+
+    var isJobExists = isAdGroupExistsInCampaign(campaign, job.name);  
+    if(isJobExists) 
+    {
+      Logger.log('job exists');
+      return;
+    }
+
+    if(!AdWordsApp.getExecutionInfo().isPreview())       
+      campaign = CreateJobCampaign(campaign, job);         
+    Logger.log('append job to campaign #%s #%s', campaign.getId(), campaign.getName());
+  });
+}
+
+function ExecuteCampaignsCleaner(jobs_service, arr_campaigns){  
+  HELPER.foreach(arr_campaigns, function(campaign){
+    
+    var campaign_name = campaign.getName();
+    var specialisme = campaign_name.split('#')[0];
+    var name = campaign_name.split('#')[1];
+    
+    var isJobExists = jobs_service.isJobExists(specialisme, name);
+    if(isJobExists) return;
+    
+    var adgroups = campaign.adGroups().withCondition('Name = "' + name + '"').get();
+    if(!adgroups.hasNext()){ 
+      Logger.log('job not exists but there is no adgroup found either');
+      return;
+    }
+    
+    var adgroup = adgroups.next();
+    if(!AdWordsApp.getExecutionInfo().isPreview())       
+      adgroup.pause();
+    Logger.log('pause adgroup #%s #%s', adgroup.getId(), adgroup.getName());
+  });
+}
+
+function CreateJobCampaign(campaign, job){       
+  if(!campaign)
+    Logger.log('ERROR: campaign is NULL!');
+  
+  var adGroup = CreateAdGroup(campaign, job);
+  if(!adGroup)
+    Logger.log('ERROR: adGroup is NULL!');
+  
+  var success = CreateAds(adGroup, job);
+  if(!success) 
+    Logger.log('ERROR: ads not created successfully!');
+  else   
+    CreateKeywords(adGroup, job);
+  
+  return campaign;
+}
+
+function getCampaignByName(arr_campaigns, campaign_name){  
+  for(var i = 0; i< arr_campaigns.length; i++)
+    if(arr_campaigns[i].getName() == campaign_name)
+      return arr_campaigns[i];
+  return null; 
+}
+
+function isAdGroupExistsInCampaign(campaign, adgroup_name){  
+  return campaign.adGroups().withCondition('Name = "' + adgroup_name + '"').get().hasNext();
+}
+
+function CreateAdGroup(campaign, job){
+  var adGroupBuilder = campaign.newAdGroupBuilder();
+  var adGroupOperation = adGroupBuilder.withName(job.name).withCpc(1).build();
+  return adGroupOperation.getResult();
+}
+
+function CreateAds(adGroup, job){ 
+  var adOperation1 = adGroup.newTextAdBuilder()
+    .withHeadline((job.name + ' Vacatures?').substr(0, 25)) // 25 characters
+    .withDescription1('Experis heeft 300+ Vacatures.') // 35 characters
+    .withDescription2(('Bekijk hier en solliciteer direct! experis.nl/' + job.name).substr(0, 35)) // 35 characters
+    .withDisplayUrl(job.link) // 255 characters
+    .withFinalUrl(job.link) // 255 characters
+    .build();
+  
+  var adOperation2 = adGroup.newTextAdBuilder()
+    .withHeadline((job.name + '?').substr(0, 25)) 
+    .withDescription1((job.name + ' in ' + job.location + ' gezocht').substr(0, 35)) 
+    .withDescription2(('Solliciteer Direct bij Experis.nl! experis.nl/' + job.name).substr(0, 35)) 
+    .withDisplayUrl(job.link) 
+    .withFinalUrl(job.link) 
+    .build();
+  
+  var adOperation3 = adGroup.newTextAdBuilder()
+    .withHeadline((job.name + ' ' + job.location).substr(0, 25)) 
+    .withDescription1(('Salaris indicatie ' + job.salaris).substr(0, 35)) 
+    .withDescription2(('Solliciteer hier binnen 5 min.experis.nl/' + job.name).substr(0, 35)) 
+    .withDisplayUrl(job.link) 
+    .withFinalUrl(job.link) 
+    .build();
+  
+  return adOperation1.isSuccessful() && adOperation2.isSuccessful() && adOperation3.isSuccessful();    
+}
+
+function CreateKeywords(adGroup, job){
+  var keyword = '[' + job.name + ']';
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();
+  
+  keyword = '"' + job.name + '"';
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();
+  
+  keyword = '[' + job.name + ' vacatures' + ']';
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();
+  
+  keyword = '"' + job.name + ' vacatures' + '"';
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();
+  
+  keyword = '[' + 'vacatures ' + job.name + ']';
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();  
+  
+  keyword = '"' + 'vacatures ' + job.name + '"';
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();  
+}
+
+/* JOBS SERVICE */
+var JobsService = function(xml_service) { 
+  var _arr_jobs = [];
+  
+  return {
+    loadJobs: function(){
+      _arr_jobs = [];
+      
+      var jobs_root = xml_service.getElement('vacancies');   
+      var jobs = xml_service.getElements('vacancy', jobs_root);
+      
+      for (var i = 0; i < /*jobs.length*/ 10; i++) {   
+        var job = jobs[i];   
+
+        _arr_jobs.push({
+          id: job.getAttribute('id').getValue(),
+          specialisme: job.getChild('Taxonomy').getChild('specialisme').getChildText('value'),
+          location: job.getChild('Taxonomy').getChild('location').getChildText('value'),
+          name: job.getChild('Position').getChildText('JobTitle'),
+          link: job.getChild('Contact').getChildText('VacancyURL'),
+          salaris: job.getChild('Taxonomy').getChild('salaris').getChildText('value')
+        });               
+      }
+
+      return _arr_jobs;      
+    },    
+    findJobByName: function (value) {
+      for(var i = 0; i < _arr_jobs.length; i++)      
+        if(_arr_jobs[i].name == value)
+          return _arr_jobs[i];
+      return null; 
+    },
+    isJobExists: function (specialisme, name) {
+      for(var i = 0; i < _arr_jobs.length; i++)      
+        if(_arr_jobs[i].specialisme == specialisme && _arr_jobs[i].name == name)
+          return true;
+      return false; 
+    },
+    jobs: function(){ return _arr_jobs; },
+    count: function(){ return _arr_jobs.length; }
+  }
+}
+
+/* XML SERVICE */
+var XMLService = function(uri) { 
+  var _document = null;
+  
+  var _init = function(){
+    var response = UrlFetchApp.fetch(uri);
+    var status_code = response.getResponseCode();
+    
+    if(status_code != 200) // 200 = OK
+    {
+      Logger.log('status code %s', status_code);
+      return;
+    }
+    
+    _document =  XmlService.parse(response.getContentText());
+   };
+  
+   _init();
+  
+   return { 
+     document: function(){ return _document; },
+     getElements: function(element_name, root){
+       if(!_document) return null;
+       
+       if(!root) 
+         root = _document.getRootElement();
+       return root.getChildren(element_name);       
+     },
+     getElement: function(element_name){
+       if(!_document) return null;
+       
+       var root = _document.getRootElement();
+       return root.getChild(element_name);       
+     }
+   }; 
+}
+
+var HELPER = {
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }
+};

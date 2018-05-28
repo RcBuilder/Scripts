@@ -1,0 +1,240 @@
+/**
+*
+* Hourly Email Updates
+*
+* This script emails you every hour with totals for selected performance metrics (like cost)
+* for your account for the day so far.
+*
+*
+* 
+* 
+*
+**/
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+//Options
+
+var campaignNameDoesNotContain = [];
+// Use this if you want to exclude some campaigns.
+// For example ["Display"] would ignore any campaigns with 'Display' in the name,
+// while ["Display","Shopping"] would ignore any campaigns with 'Display' or
+// 'Shopping' in the name.
+// Leave as [] to not exclude any campaigns.
+
+var campaignNameContains = [];
+// Use this if you only want to look at some campaigns.
+// For example ["Brand"] would only look at campaigns with 'Brand' in the name,
+// while ["Brand","Generic"] would only look at campaigns with 'Brand' or 'Generic'
+// in the name.
+// Leave as [] to include all campaigns.
+
+var email = ["rakyoursitez@gmail.com"]; // "rcbuilder@walla.com", "rakyoursitez@gmail.com"
+// The email address you want the hourly update to be sent to.
+// If you'd like to send to multiple addresses then have them separated by commas,
+// for example ["aa@example.com", "bb@example.com"]
+
+var metricsToReport = ["Cost", "Impressions", "Clicks"];
+// Allowed fields: "Impressions", "Clicks", "Cost",
+// "Conversions", "ConversionValue"
+
+var currencySymbol = "$";
+// Used for formatting in the email.
+
+var thousandsSeparator = ",";
+// Numbers will be formatted with this as the thousands separator.
+// eg If this is ",", 1000 will appear in the email as 1,000
+// If this is ".", 1000 will appear in the email as 1.000
+// If this is "" 1000 will appear as 1000.
+
+var decimalMark = ".";
+// Numbers will be formatted with this as the decimal mark
+// eg if this is ".", one and a half will appear in the email as 1.5
+// and if this is "," it will be 1,5
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+// Functions
+
+function main() {
+  // Get the campaign IDs (based on campaignNameDoesNotContain and campaignNameContains)
+  var campaignIds = getCampaignIds();
+
+  // Check the given metrics, and make sure they are trimmed and correctly capitalised
+  var allowedFields = ["Conversions", "ConversionValue", "Impressions", "Clicks", "Cost"];
+  var metrics = checkFieldNames(allowedFields, metricsToReport);
+  
+  var totals_today = getMetrics('YESTERDAY', campaignIds, metrics);  
+  var totals_month = getMetrics('THIS_MONTH', campaignIds, metrics)  
+  
+  var temp = new Date();
+  temp.setDate(temp.getDate() - 1);
+  
+  var timeZone = AdWordsApp.currentAccount().getTimeZone();
+  
+  var today = Utilities.formatDate(new Date(), timeZone, "MMM dd yyyy");
+  var yesterday = Utilities.formatDate(temp, timeZone, "MM/dd");
+  Logger.log("Date: " + today);
+  Logger.log("Time: " + yesterday);
+    
+  var subject = 'Adwords Expense Report for ' + Utilities.formatDate(temp, timeZone, yesterday);
+  var body = '<div style="direction:ltr;text-align:left;padding:12px;color:#0384fd;font-family:Verdana;font-weight:bold;">'+
+        '<h3>Good Morning!</h3>'+
+        '<p>Today is <span style="color:#000;">{today}</span> - This report was generated at 8am</p>'+
+        '<p style="margin-top:8px;">Yesterday\'s {yesterday} total spend was <span style="color:#000;">{cost}</span> we received <span style="color:#000;">{impressions}</span> Impressions and <span style="color:#000;">{clicks}</span> Clicks.</p>'+
+        '<p style="margin-top:8px;">As of today our monthly totals are:</p>'+
+        '<p style="margin-top:8px;">'+
+            '<div>Total spend for the month = <span style="color:#000;">{cost_month}</span></div>'+
+            '<div>Total clicks for the month = <span style="color:#000;">{clicks_month}</span></div>'+
+            '<div>Total impressions for the month = <span style="color:#000;">{impressions_month}</span></div>'+
+        '</p>'+     
+        '<p style="margin-top:8px;">'+
+            'Kind Regards,<br />'+
+            'Jonathan'+
+        '</p>'+
+    '</div>';
+  
+  var cost = 0, impressions = 0, clicks = 0;
+  var cost_month = 0, impressions_month = 0, clicks_month = 0;
+  
+  if(totals_today['Cost'] != null)
+    cost = formatNumber(totals_today['Cost'], true);
+  if(totals_today['Impressions'] != null)
+    impressions = formatNumber(totals_today['Impressions'], false);
+  if(totals_today['Clicks'] != null)
+    clicks = formatNumber(totals_today['Clicks'], false);
+  
+  if(totals_month['Cost'] != null)
+    cost_month = formatNumber(totals_month['Cost'], true);
+  if(totals_month['Impressions'] != null)
+    impressions_month = formatNumber(totals_month['Impressions'], false);
+  if(totals_month['Clicks'] != null)
+    clicks_month = formatNumber(totals_month['Clicks'], false);
+  
+  Logger.log('[today] cost: %s, impressions: %s, clicks: %s', cost, impressions, clicks);
+  Logger.log('[month] cost: %s, impressions: %s, clicks: %s', cost_month, impressions_month, clicks_month);
+  
+  body = body.replace('{today}', today);
+  body = body.replace('{yesterday}', yesterday);
+  body = body.replace('{cost}', cost);
+  body = body.replace('{impressions}', impressions);
+  body = body.replace('{clicks}', clicks);
+  body = body.replace('{cost_month}', cost_month);
+  body = body.replace('{clicks_month}', clicks_month);
+  body = body.replace('{impressions_month}', impressions_month);
+    
+  // Send the email  
+  MailApp.sendEmail(email.join(','), subject, '', { 
+      htmlBody: body 
+    });
+  
+  Logger.log("Message to " + email.join(',') + " sent.");
+}
+
+
+// Get the IDs of campaigns which match the given options
+function getCampaignIds() {
+  var whereStatement = "WHERE CampaignStatus IN ['ENABLED','PAUSED','REMOVED'] AND Impressions > 0 ";
+  var whereStatementsArray = [];
+  var campaignIds = [];
+  
+  for (var i=0; i<campaignNameDoesNotContain.length; i++) {
+    whereStatement += "AND CampaignName DOES_NOT_CONTAIN_IGNORE_CASE '" + campaignNameDoesNotContain[i].replace(/"/g,'\\\"') + "' ";
+  }
+  
+  if (campaignNameContains.length == 0) {
+    whereStatementsArray = [whereStatement];
+  } else {
+    for (var i=0; i<campaignNameContains.length; i++) {
+      whereStatementsArray.push(whereStatement + 'AND CampaignName CONTAINS_IGNORE_CASE "' + campaignNameContains[i].replace(/"/g,'\\\"') + '" ');
+    }
+  }
+  
+  for (var i=0; i<whereStatementsArray.length; i++) {
+    var adTextReport = AdWordsApp.report(
+      "SELECT CampaignId " +
+      "FROM   CAMPAIGN_PERFORMANCE_REPORT " +
+      whereStatementsArray[i] +
+      "DURING TODAY");
+    
+    var rows = adTextReport.rows();
+    while (rows.hasNext()) {
+      var row = rows.next();
+      campaignIds.push(row['CampaignId']);
+    }
+  }
+  
+  if (campaignIds.length == 0) {
+    throw("No campaigns found with the given settings.");
+  }
+  
+  Logger.log(campaignIds.length + " campaigns found");
+  return campaignIds;
+}
+
+
+// Verify that all field names are valid, and return a list of them with the
+// correct capitalisation
+function checkFieldNames(allowedFields, givenFields) {
+  var allowedFieldsLowerCase = allowedFields.map(function (str){return str.toLowerCase()});
+  var wantedFields = [];
+  var unrecognisedFields = [];
+  for (var i=0; i<givenFields.length; i++) {
+    var fieldIndex = allowedFieldsLowerCase.indexOf(givenFields[i].toLowerCase().replace(" ","").trim());
+    if(fieldIndex === -1){
+      unrecognisedFields.push(fields[i]);
+    } else {
+      wantedFields.push(allowedFields[fieldIndex]);
+    }
+  }
+  
+  if (unrecognisedFields.length > 0) {
+    throw unrecognisedFields.length + " field(s) not recognised: '" + unrecognisedFields.join("', '") + 
+      "'. Please choose from '" + allowedFields.join("', '") + "'.";
+  }
+  
+  return wantedFields;
+  
+}
+
+
+// Formats a number with the specified thousand separator and decimal mark
+// Adds the currency symbol and two decimal places if isCurrency is true
+function formatNumber(number, isCurrency) {
+  if (isCurrency) {
+    var formattedNumber = number.toFixed(2);
+    formattedNumber = formattedNumber.substr(0,formattedNumber.length-3);
+    formattedNumber = formattedNumber.split('').reverse().join('').replace(/(...)/g,"$1 ").trim().split('').reverse().join('').replace(/ /g,thousandsSeparator);
+    formattedNumber = currencySymbol + formattedNumber + decimalMark + number.toFixed(2).substr(-2);
+  } else {
+    var formattedNumber = number.toFixed(0).split('').reverse().join('').replace(/(...)/g,"$1 ").trim().split('').reverse().join('').replace(/ /g,thousandsSeparator); 
+  }
+  return formattedNumber;
+}
+
+
+// Get totals for the listed metrics in the given campaigns in the given date range
+function getMetrics(dateRange, campaignIds, metrics) {
+  // Initialise the object that will store the metrics' data
+  var totals = {};
+  for (var i=0; i<metrics.length; i++) {
+    totals[metrics[i]] = 0;
+  }
+  
+  var report = AdWordsApp.report(
+    'SELECT ' + metrics.join(', ') + " " +
+    'FROM   CAMPAIGN_PERFORMANCE_REPORT ' +
+      'WHERE  Impressions > 0 AND CampaignId IN [' + campaignIds.join(',') + '] ' +
+        'DURING ' + dateRange);
+  
+  var rows = report.rows();
+  while (rows.hasNext()) {
+    var row = rows.next();
+    for (var i=0; i<metrics.length; i++) {
+      totals[metrics[i]] += parseFloat(row[metrics[i]].replace(/,/g, ""));
+    }
+  } 
+  
+  return totals;
+}

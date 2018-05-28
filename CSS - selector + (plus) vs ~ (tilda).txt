@@ -1,0 +1,43 @@
+difference between the + (plus) and ~ (tilda) sign
+--------------------------------------------------
+
+[X + Y]
+any sibling Y which comes immediately after X
+only the 1st following sibling
+
+[X ~ Y]
+any sibling Y which comes after X regardless whether immediately or not
+all following siblings
+less strict
+
+---
+
+<div>
+	<ul></ul>
+	<p>1</p>
+	<p>2</p>
+	<p>3</p>
+</div>
+<div>
+	<ul></ul>
+	<p>4</p>
+	<p>5</p>
+	<div></div>
+	<p>6</p>
+</div>
+<div>
+	<p>7</p>
+	<ul></ul>	
+</div>
+
+ul + p {} // matches 1 and 4
+ul ~ p {} // matches 1 - 6 
+    
+---
+
+reference:
+also see 'CSS Selector + and ~ signs.txt' 
+
+
+
+

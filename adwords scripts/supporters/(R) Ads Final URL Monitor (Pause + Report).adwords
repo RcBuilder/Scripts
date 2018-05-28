@@ -1,0 +1,74 @@
+var EMAIL = 'RcBuilder@walla.com';
+var PAUSE = false;
+
+function main(){  
+  var htmlService = HTMLBuilderService();
+  
+  var ads = AdWordsApp.ads()
+  .withCondition('CampaignStatus = ENABLED')
+  .withCondition('AdGroupStatus = ENABLED')
+  .withCondition('Status = ENABLED')
+  .withCondition('Type NOT_IN [CALL_ONLY_AD]') // IMAGE_AD, MOBILE_AD, MOBILE_IMAGE_AD, PRODUCT_AD, RICH_MEDIA_AD, TEMPLATE_AD, TEXT_AD, CALL_ONLY_AD
+  //.withLimit(4)
+  .get();
+  
+  Logger.log('%s ads found.', ads.totalNumEntities());
+  
+  var matches = 0;  
+  while(ads.hasNext()){
+    var ad = ads.next();      
+    var adURL = ad.urls().getFinalUrl();
+    var adHeader = ad.getHeadline();
+    var adType = ad.getType();
+    
+    Logger.log('ad: %s (%s)', adHeader, adType);
+    
+    var statusCode = -1;
+    try{
+      var response = UrlFetchApp.fetch(adURL, { muteHttpExceptions: true });
+      statusCode = response.getResponseCode();      
+      Logger.log('[status %s] %s', statusCode, adURL);      
+    }
+    catch(e){
+      Logger.log('[exception %s] %s', e.message, adURL);      
+    }
+    
+    // OK
+    if(statusCode == 200 || statusCode == -1) 
+      continue;    
+    
+    Logger.log('%s [%s]', adURL, statusCode);
+    
+    matches++;
+    
+    htmlService.add(
+      '<h3>statusCode: ' + statusCode +'</h3>' +                                        
+      '<p>adURL: ' + adURL + '</p>'
+    );    
+    
+    if(PAUSE)
+    {
+      Logger.log('ad paused');
+      ad.pause();            
+    }
+  }
+  
+  if(matches > 0){    
+    MailApp.sendEmail(EMAIL, 'Ad Monitor', '', { 
+      htmlBody: htmlService.get() 
+    });
+  }
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}

@@ -1,0 +1,14 @@
+function main() {
+  var keywords = AdWordsApp.keywords().get() 
+  while (keywords.hasNext()) { 
+	var keyword = keywords.next();
+    
+    var cpc = keyword.getMaxCpc();
+    var first_page_cpc = keyword.getFirstPageCpc();  
+    var cpc_new = first_page_cpc * 1.2;
+    
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.setMaxCpc(cpc_new);
+    Logger.log(keyword.getText() + ' FIRST PAGE NEEDED PRICE : ' + first_page_cpc + ' -> OLD PRICE : ' + cpc + ', NEW PRICE : ' + cpc_new);   
+  } 
+}

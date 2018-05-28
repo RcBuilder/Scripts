@@ -1,0 +1,28 @@
+var ADGROUP_ID = 20823435750;
+
+function main() {
+  var adgroupIterator = AdWordsApp.adGroups().withIds([ADGROUP_ID]).get();
+  if(!adgroupIterator.hasNext()){
+    Logger.log('AD GROUP IS NOT FOUND !!');
+    return;
+  }
+  
+  var adgroup = adgroupIterator.next(); 
+  var keywords = adgroup.keywords().get();
+  
+  var maxKeyword = { text: '', topOfPageCpc: 0 };
+  while(keywords.hasNext()){
+    var keyword = keywords.next();
+    var topOfPageCpc = keyword.getTopOfPageCpc();
+    var text = keyword.getText();
+    
+    //Logger.log('%s -> %s', text, topOfPageCpc);
+    if(maxKeyword.topOfPageCpc > topOfPageCpc) 
+       continue;
+                    
+    maxKeyword.text = text;
+    maxKeyword.topOfPageCpc = topOfPageCpc;
+  }
+  Logger.log('-------------------------------------');
+  Logger.log('the most expensive keyword for adgroup %s is %s with %s topOfPageCpc', adgroup.getName(), maxKeyword.text, maxKeyword.topOfPageCpc);
+}

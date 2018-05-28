@@ -1,0 +1,5 @@
+steps: 
+1. open the 'SQL Server Configuration Management'
+2. right-click the server -> Properties.
+3. (tab) service -> find the 'Host Name'
+

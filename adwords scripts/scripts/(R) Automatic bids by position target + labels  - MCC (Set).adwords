@@ -1,0 +1,95 @@
+var LABEL_VALUES = {
+  'Primary' :  { bid: 0.1, position: 3, tolerance: 0.1 },
+  'Secondary' :  { bid: 0.2, position: 3, tolerance: 0.1 },
+  'Experiment' :  { bid: 0.3, position: 3, tolerance: 0.1 } 
+};
+
+var PERIOD = 'ALL_TIME'; // ALL_TIME, LAST_7_DAYS
+
+function main() {
+  var accounts = MccApp.accounts().get();
+
+  // go over the mcc accounts
+  while (accounts.hasNext()) {
+    var account = accounts.next();
+    var accountName = account.getName() ? account.getName() : '--';
+    Logger.log('### account %s,%s ###', account.getCustomerId(), accountName);
+    
+    // set the active account 
+    MccApp.select(account); 
+    
+    setBids();
+  }
+}
+
+function setBids() {
+  var lables = AdWordsApp.labels().get();
+  
+  while (lables.hasNext()) {
+    var label = lables.next();
+    var label_name = label.getName();
+    var label_values = GetLabelValues(label_name);
+    
+    if(label_values == null) continue;
+    
+    Logger.log('\n# label: %s,%s\n', label_name, label_values);       
+    
+    var adGroups = label.adGroups()
+    .withCondition("Status = ENABLED")
+    .get();
+    
+    while (adGroups.hasNext()) {
+      var adGroup = adGroups.next();      
+      Logger.log('adGroup : %s', adGroup.getName());
+      
+      increaseBids(adGroup, label_values);
+      decreaseBids(adGroup, label_values);
+    }   
+  }           
+}
+
+function GetLabelValues(labelName){
+  try{
+    var result = LABEL_VALUES[labelName];
+    return result || null;
+  }
+  catch(e){ return null; }
+}
+
+function increaseBids(adGroup, label_values){
+  var keywords = adGroup.keywords()
+      .withCondition("Status = ENABLED")
+      .withCondition("AveragePosition > " + (label_values.position + label_values.tolerance))
+      .orderBy("AveragePosition ASC")
+      .forDateRange(PERIOD) 
+      .get();
+
+      while (keywords.hasNext()) {
+        var keyword = keywords.next();  
+        var max_cpc = keyword.getMaxCpc();
+        var new_max_cpc = max_cpc + (max_cpc * label_values.bid);
+            
+        Logger.log('%s,  cpc %s -> %s', keyword.getText(), max_cpc, new_max_cpc);        
+        if(!AdWordsApp.getExecutionInfo().isPreview())
+          keyword.setMaxCpc(new_max_cpc);
+      } 
+}
+
+function decreaseBids(adGroup, label_values){
+  var keywords = adGroup.keywords()
+      .withCondition("Status = ENABLED")
+      .withCondition("AveragePosition < " + (label_values.position - label_values.tolerance))
+      .orderBy("AveragePosition DESC")
+      .forDateRange(PERIOD) 
+      .get();
+
+      while (keywords.hasNext()) {
+        var keyword = keywords.next();  
+        var max_cpc = keyword.getMaxCpc();
+        var new_max_cpc = max_cpc - (max_cpc * label_values.bid);
+            
+        Logger.log('%s,  cpc %s -> %s', keyword.getText(), max_cpc, new_max_cpc);        
+        if(!AdWordsApp.getExecutionInfo().isPreview())
+          keyword.setMaxCpc(new_max_cpc);
+      } 
+}

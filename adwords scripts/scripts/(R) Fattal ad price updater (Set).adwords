@@ -1,0 +1,153 @@
+var HOTELS_PAGE = 'http://www.fattal.co.il/fattal-hotels';
+var labelName = 'fattal';
+
+function main() {
+  var hotelsService = HotelsService(HOTELS_PAGE);
+
+  var campaigns = AdWordsApp.campaigns().withCondition('LabelNames CONTAINS_ANY ["' + labelName + '"]').get();
+  while(campaigns.hasNext())
+  {
+    var campaign = campaigns.next();    
+    ProcessCampaign(campaign, hotelsService);
+  }
+}
+
+function TEST(){
+  var hotelsService = HotelsService(HOTELS_PAGE);
+
+  //'www.fattal.co.il/eilat-hotels'
+  //'www.fattal.co.il/leonardo-royal-resort-eilat-hotel'
+  
+  var destURL = 'www.fattal.co.il/eilat-hotels';
+  
+  var hotelName = hotelsService.destUrl2HotelName(destURL);
+  Logger.log('hotel: %s', hotelName);
+  
+  var region = hotelsService.name2Region(hotelName);
+  Logger.log('region: %s', region);
+  
+  var hotel = hotelsService.getHotelByName(hotelName); // get by name
+  if(!hotel) // get by region  
+    hotel = hotelsService.getLowerPriceHotelByRegion(region); 
+  
+  Logger.log('hotel: %s', hotel);
+}
+
+function ProcessCampaign(campaign, hotelsService){
+  Logger.log('campaign: %s', campaign.getName());
+  
+  var ads = campaign.ads()
+  .withCondition('AdGroupStatus = ENABLED')
+  .withCondition('Status = ENABLED')
+  .get();
+  
+  while (ads.hasNext()) {
+    var ad = ads.next();
+    
+    var destURL = ad.urls().getFinalUrl();
+    Logger.log('ad destURL: %s', destURL);
+    
+    var hotelName = hotelsService.destUrl2HotelName(destURL);
+    Logger.log('hotel: %s', hotelName);
+    
+    var hotel = hotelsService.getHotelByName(hotelName); // get by name
+    if(!hotel) // get by region
+    {
+      var region = hotelsService.name2Region(hotelName);
+      Logger.log('region: %s', region);
+      hotel = hotelsService.getLowerPriceHotelByRegion(region);    
+    }
+    Logger.log('hotel: %s, %s', hotel.name, hotel.price);
+    
+    UpdateAdPrice(ad, hotel.price);
+  }
+  
+  Logger.log('----------------'); 
+}
+
+function UpdateAdPrice(ad, price){ 
+  var adGroup = ad.getAdGroup();
+  if(adGroup.isRemoved()) return;
+  
+  var keywords = adGroup.keywords().withCondition('Status = ENABLED').get();
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+    
+    // var currentPrice = keyword.adParams().get().next().getInsertionText();
+    Logger.log('keyword: %s', keyword.getText());
+    keyword.setAdParam(1, price);
+  }
+} 
+
+
+var HotelsService = function(server){
+  var hotels = [];   
+  var regions = [ 
+    { id: 2, name: 'eilat-hotels' },
+    { id: 3, name: 'dead-sea-hotels' },
+    { id: 4, name: 'tel-aviv-hotels' },
+    { id: 4, name: 'herzliya-hotels' },
+    { id: 6, name: 'haifa-hotels' },
+    { id: 7, name: 'negev-hotels' },
+    { id: 8, name: 'jerusalem-hotels' },
+    { id: 64, name: 'tiberias-hotels' },
+    { id: 287, name: 'netanya-hotels' },
+    { id: 291, name: 'ashkelon-ashdod-hotels' }
+  ];
+  
+  (function(){
+    var input = UrlFetchApp.fetch(server).getContentText();
+    var pattern = '<div\\s+class="moredetails">\\s+'+
+                    '<a\\s+href="http://www.fattal.co.il/([a-zA-Z\-]+)">[\\s\\w]+</a>\\s+'+
+                  '</div>\\s+'+
+                  '<input\\s+type="hidden"\\s+class="sort-values"\\s+data-lowestprice="(\\d+)"\\s+data-abc=".+"\\s+data-avrate="[0-9\.]+"\\s+value="\\d+"\\s*/>\\s+'+
+                  '<input\\s+type="hidden"\\s+class="filter-values"\\s+data-lowestprice="[0-9\.]+"\\s+data-highestprice="[0-9\.]+"\\s+data-resort="[0-9_]+"\\s+data-brand="\\d+"\\s+data-region="(\\d+)"';
+    
+    var regex = new RegExp(pattern, 'gi'); // flags: i = ignore case, g = multi matches
+    var match;
+    while(match = regex.exec(input))
+    hotels.push({ name: match[1], price: match[2], region: match[3] });    
+    Logger.log('%s hotels were loaded!', hotels.length);
+  })();
+  
+  return {
+    getHotels: function(){
+      return hotels;
+    },
+    getHotelByIndex: function(index){
+      return hotels[index];
+    },
+    getHotelByName: function(name){
+      for(var i=0; i< hotels.length; i++)
+        if(hotels[i].name == name)
+          return hotels[i];
+      return null;
+    },
+    getLowerPriceHotelByRegion: function(region){
+      var filtered = [];
+      for(var i=0; i< hotels.length; i++)
+        if(hotels[i].region == region)
+          filtered.push(hotels[i]);
+      
+      filtered.sort(function(a, b){
+        return a.price - b.price;
+      });
+            
+      return filtered[0];
+    },
+    destUrl2HotelName: function(destURL){
+      var queryIndex = destURL.indexOf('?');
+      var nameIndex = destURL.indexOf('il/') + 3;
+      
+      if(queryIndex == -1)
+        return destURL.substr(nameIndex);
+      return destURL.substring(nameIndex, queryIndex);
+    }, 
+    name2Region: function(regionName){
+      for(var i=0; i< regions.length; i++)
+        if(regions[i].name == regionName)
+          return regions[i].id;
+      return -1;
+    }
+  } 
+}

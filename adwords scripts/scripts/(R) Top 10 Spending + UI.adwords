@@ -1,0 +1,435 @@
+var PERIOD = 'ALL_TIME'; //'THIS_MONTH';
+var SPREADSHEET = 'Page1';
+var logoURL = 'http://icons.iconarchive.com/icons/graphics-vibe/classic-3d-social/96/google-icon.png';
+
+function main() {  
+  var sheetService = SpreadsheetLoader.loadSheetService(SPREADSHEET);
+  if(!sheetService) // create the sheet 
+  {
+    sheetService = SpreadsheetLoader.createSheetService(SPREADSHEET);
+    DrawLogo(sheetService);
+  }
+  
+  sheetService.clear();
+  
+  ProcessCampaigns(sheetService);  
+  Logger.log('----------------');
+  ProcessAdGroups(sheetService);
+  Logger.log('----------------');  
+  formatCells(sheetService);
+}
+
+function SetTotals(sheetService){
+  
+  // TOTALS (using formulas)
+  Logger.log('Setting SUM formulas ...');
+  
+  sheetService.addRowAtIndex(['', 'Clicks', 'Cost', 'Conv.', 'CPC'], 2);    // index 1
+  sheetService.setDataUI('B2:E2', '#4382B6', '#FFFFFF', null, 'center');  
+  
+  sheetService.setCellSumFormula('B7:B16', 'B3');
+  sheetService.setCellSumFormula('F7:F16', 'C3');
+  sheetService.setCellSumFormula('G7:G16', 'D3');
+  sheetService.setCellSumFormula('H7:H16', 'E3');
+  sheetService.setDataUI('B3:E3', '#F5F6F9', '#000000', 20, 'center');   
+}
+
+function formatCells(sheetService){  
+  Logger.log('format Cells ...');
+  
+  // totals
+  
+  sheetService.setNumberFormat('B3'); // clicks 
+  sheetService.setNumberFormat('D3'); // conv.
+  sheetService.setCurrencyFormat('C3'); // cost
+  sheetService.setCurrencyFormat('E3'); // cpc
+  
+  // data
+  
+  // campaigns
+  sheetService.setNumberFormat('B7:H16');
+  sheetService.setDecimalFormat('D7:D16');
+  sheetService.setCurrencyFormat('E7:F16');
+  sheetService.setCurrencyFormat('H7:H16');  
+  
+  // ad groups
+  sheetService.setNumberFormat('B20:H29'); // default
+  sheetService.setDecimalFormat('D20:D29');
+  sheetService.setCurrencyFormat('E20:F29');
+  sheetService.setCurrencyFormat('H20:H29');  
+}
+
+function DrawLogo(sheetService){
+  Logger.log('Drawing Logo ... ');  
+  sheetService.addImageFromURL(logoURL, 1, 1);    
+}
+
+function ProcessCampaigns(sheetService){
+  var campaigns = AdWordsApp.campaigns()  
+  .withCondition('Status = ENABLED')
+  .orderBy('Cost DESC')
+  .withLimit(10)   
+  .forDateRange(PERIOD)
+  .get();
+  
+  // header 
+  var startIndex = 5;
+  sheetService.addRowAtIndex(['Top 10 Campaigns Spends'], startIndex);
+  sheetService.setDataUI('A5', '#4382B6', '#FFFFFF');
+  
+  sheetService.addRowAtIndex(['campaign', 'clicks', 'impressions', 'CTR', 'Avg. CPC', 'Total Cost', 'Conv.', 'Cost Per Conv.']);
+  sheetService.setDataUI('A6:H6', '#4382B6', '#FFFFFF');
+  
+  while(campaigns.hasNext()){
+    var campaign = campaigns.next();
+    var stats = campaign.getStatsFor(PERIOD);
+    
+    var clicks = stats.getClicks();
+    var cost = stats.getCost();
+    var conversions = stats.getConversions();
+    var costPerConversion = cost == 0 || conversions == 0 ? 0 : cost / conversions;
+    
+    Logger.log('%s -> clicks %s, impressions %s, CTR %s, Avg. CPC %s, Total Cost %s, Conv. %s, Cost Per Conv. %s', campaign.getName(), stats.getClicks(), stats.getImpressions(), stats.getCtr(), stats.getAverageCpc(), cost, conversions, costPerConversion);
+    sheetService.addRowAtIndex([campaign.getName(), clicks, stats.getImpressions(), stats.getCtr(), stats.getAverageCpc(), cost, conversions, costPerConversion]);
+  } 
+  
+  SetTotals(sheetService);  
+}
+
+function ProcessAdGroups(sheetService){
+  var adGroups = AdWordsApp.adGroups()
+  .withCondition('Status = ENABLED')
+  .orderBy('Cost DESC')
+  .withLimit(10) 
+  .forDateRange(PERIOD)
+  .get();
+  
+  // header     
+  var startIndex = 18;
+  sheetService.addRowAtIndex(['Top 10 Ad Groups Spends'], startIndex);
+  sheetService.setDataUI('A18', '#4382B6', '#FFFFFF');
+  
+  sheetService.addRowAtIndex(['Ad Group', 'clicks', 'impressions', 'CTR', 'Avg. CPC', 'Total Cost', 'Conv.', 'Cost Per Conv.']);
+  sheetService.setDataUI('A19:H19', '#4382B6', '#FFFFFF');
+  
+  while(adGroups.hasNext()){
+    var adGroup = adGroups.next();
+    var stats = adGroup.getStatsFor(PERIOD);
+    
+    var clicks = stats.getClicks();
+    var cost = stats.getCost();
+    var conversions = stats.getConversions();
+    var costPerConversion = cost == 0 || conversions == 0 ? 0 : cost / conversions;
+        
+    Logger.log('%s -> clicks %s, impressions %s, CTR %s, Avg. CPC %s, Total Cost %s, Conv. %s, Cost Per Conv. %s', adGroup.getName(), stats.getClicks(), stats.getImpressions(), stats.getCtr(), stats.getAverageCpc(), cost, conversions, costPerConversion);
+    sheetService.addRowAtIndex([adGroup.getName(), clicks, stats.getImpressions(), stats.getCtr(), stats.getAverageCpc(), cost, conversions, costPerConversion]);
+  }
+}
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+    getActiveSheet: function(){
+      return SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+         for(var i= 0; i < _sheets.length; i++)
+            if(_sheets[i].sheetName == sheetName)
+              return _sheets[i];
+          return '';
+    },
+    addNewSheet: function(sheetName){
+        var new_sheet = SheetService(_spreadSheet.insertSheet(sheetName));
+        _sheets.push(new_sheet)
+        return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+        return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    },
+	getId: function(){
+      return _spreadSheet.getId();
+    }  
+  }; 
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  var setFormat = function(strRange, format){
+    var range = _sheet.getRange(strRange);
+    range.setNumberFormat(format);  
+  }
+  
+  return {      
+     hasSheet: _sheet != null,
+     sheetName: _sheet ? _sheet.getName() : '',
+     getLastRowIndex: function(){ return _sheet.getLastRow();}, 
+     getLastColumnIndex: function(){ return _sheet.getLastColumn();}, 
+     getValue: function(rowPosition, columnPosition){ 
+       return _sheet.getRange(rowPosition, columnPosition).getValue();
+     }, 
+     getValues: function(){
+       return _sheet.getDataRange().getValues();
+     }, 
+     getRowValues:function(rowPosition){       
+       return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
+     }, 
+     setValue: function(rowPosition, columnPosition, value){ 
+       _sheet.getRange(rowPosition, columnPosition).setValue(value);
+     },     
+     addRow: function(arrValues){ 
+       //_sheet.appendRow(arrValues);
+       this.addRowAtIndex(arrValues, _sheet.getLastRow() + 1);
+     },
+     addRowAtIndex: function(arrValues, rowPosition){               
+        rowPosition = rowPosition || _sheet.getLastRow() + 1;
+        var range = _sheet.getRange(rowPosition, 1, 1, arrValues.length);
+        range.setValues([arrValues]);
+     },  
+     deleteRow: function(rowPosition){
+       _sheet.deleteRow(rowPosition);
+     },  
+     sort: function(columnPosition){
+       _sheet.sort(columnPosition);
+     },
+     getRowIndex: function(columnPosition, key){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnPosition - 1] == key)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getRowIndexBy2Columns: function(columnAPosition, keyA, columnBPosition, keyB){ 
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnAPosition - 1] == keyA && rows[row][columnBPosition - 1] == keyB)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getColumnValues: function(startRowPosition, columnPosition){
+        // getRange(row, column, numRows, numColumns)
+        return _sheet.getRange(startRowPosition, columnPosition, _sheet.getLastRow() - 1, 1).getValues();
+     }, 
+     findColumnValuesByFilter: function(columnPosition, filterValue, filterColumnPosition){
+       /* 
+          get column values filtered by other column
+          
+          e.g: findColumnValuesByFilter(2, '100', 1)          
+          all B column values that the value in A column equals to '100'
+       */
+
+       var result = [];       
+       var rows = _sheet.getDataRange().getValues();
+ 
+       for(row in rows)
+         if(rows[row][filterColumnPosition - 1] == filterValue)
+           result.push(rows[row][columnPosition]);
+       return result;  
+     }, 
+     clear: function(format, contents){
+       format = format || false;
+       contents = contents || true;
+       
+       _sheet.clear({ formatOnly: format, contentsOnly: contents }); 
+       
+       var charts = _sheet.getCharts();
+       for (var i in charts)
+         _sheet.removeChart(charts[i]);
+     },     
+     addLineChart: function(arrRanges /* range format: 'B15:B24' */, arrColors, arrLabels, arrVAxisTicks, width, height, rowPosition, columnPosition){        
+       var chartBuilder = _sheet.newChart();
+              
+       for (var i in arrRanges)         
+         chartBuilder.addRange(_sheet.getRange(arrRanges[i]));       
+       
+       var series = [];
+       for (var i in arrColors)         
+         series.push({ color: arrColors[i], labelInLegend : arrLabels[i]});
+       
+       chartBuilder
+       .setChartType(Charts.ChartType.LINE)  // chart type - line        
+       .setPosition(rowPosition, columnPosition, 0, 0)  // chart location row X column Y       
+                            
+       .setOption('animation.duration', 500) // animation                 
+       .setOption('width', width)        
+       .setOption('height', height)   
+       //.setOption('colors', ['#4572A7', '#AA4643', '#89A54E'])   
+       //.setOption('title', '')          
+       .setOption('pointShape', 'square')   
+       .setOption('pointSize', 4)                     
+       .setOption('legend', { position: 'bottom', alignment: 'center' })                 
+       .setOption('series', series)
+       
+       if(arrVAxisTicks)
+         chartBuilder.setOption('vAxis.ticks', arrVAxisTicks);
+       
+       _sheet.insertChart(chartBuilder.build());
+     },
+     addImageFromURL: function(url, rowPosition, columnPosition, top, left){ 
+       top = top || 0;
+       left = left || 0;
+       
+       _sheet.insertImage(url, rowPosition, columnPosition, left, top);
+     },   
+     setDataUI: function(strRange, backgroundColor, foreColor, fontSize, align){
+       var range = _sheet.getRange(strRange);
+       if(backgroundColor)
+           range.setBackground(backgroundColor);
+       if(foreColor)
+           range.setFontColor(foreColor);
+       if(fontSize)
+           range.setFontSize(fontSize);
+       if(align)
+         range.setHorizontalAlignment(align);
+     }, 
+     setNumberFormat: function(strRange){
+       setFormat(strRange, '0');       
+     },
+     setDecimalFormat: function(strRange){
+       setFormat(strRange, '0.00');
+     },
+     setCurrencyFormat: function(strRange){
+       // e.g: setCurrencyFormat('A1'); // set cell
+       // e.g: setCurrencyFormat('A1:A10'); // set range
+       
+       setFormat(strRange, '$0.00');
+     },
+     setCellSumFormula: function(strRange, strCell){
+       // e.g: setCellSumFormula('A1:A10', 'B1'); 
+       // set SUM value of cells A1 to A10 to cell B1
+       
+       var cell = _sheet.getRange(strCell);
+       cell.setFormula('=SUM(' + strRange + ')');
+     }
+   }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+	if(spreadSheetName == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheet_id){
+    if(spreadSheet_id == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var file = DriveApp.getFileById(spreadSheet_id);
+    if(!file || file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheet_id);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheet_id);
+    return SpreadsheetApp.openById(file.getId());    
+  },  
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  loadSpreadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  }
+}

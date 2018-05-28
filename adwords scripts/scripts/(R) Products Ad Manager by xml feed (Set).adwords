@@ -1,0 +1,220 @@
+var XML_URI = 'http://mobileshop.ae/liveupdate-cs.xml';
+var PRODUCTS_CAMPAIGN_ID = 336668190;
+
+function main() { 
+  var products_service = new ProductsService(new XMLService(XML_URI)); 
+  
+  // get all products from the xml feed
+  // { name, stock, price, link, model, maker }
+  Logger.log('Loading Products from xml ... ');
+  products_service.loadProducts(); 
+  Logger.log('%s products loaded', products_service.count());  
+  
+  // get all ads from db into an array
+  Logger.log('Loading Ads ... ');
+  var arrAds = [];
+  var ads = AdWordsApp.ads().get();
+  while(ads.hasNext()){ 
+    arrAds.push(ads.next());
+  }     
+  Logger.log('%s ads loaded', arrAds.length);
+  
+  HELPER.foreach(products_service.products(), function(product){
+    var product_info = 'product: '.concat(product.name, ' (price ', product.price, ', stock ', product.stock, ')')
+    Logger.log('product: %s', product_info);
+    
+    var match_ad = getAdByProduct(arrAds, product);
+    if(!match_ad){
+      Logger.log('no matching ad found - creating a new ad ');
+      if(!AdWordsApp.getExecutionInfo().isPreview())
+      {        
+        var adGroup = CreateAdGroup(product);
+        var success = CreateAd(adGroup, product);
+        if(success) 
+          CreateKeywords(adGroup, product);        
+      }
+      return;
+    }
+    
+    var ad_info = '#'.concat(match_ad.getId(), ' ', match_ad.getHeadline(), ' (', match_ad.isPaused ? 'Paused' : match_ad.isEnabled ? 'Enabled' : '-', ')');
+    Logger.log('ad: %s', ad_info);
+    
+    // product is out of stock and the ad is running - pause it!
+    if(product.stock == 0 && match_ad.isEnabled)
+    {
+      Logger.log('out of stock - pause ad!');
+      if(!AdWordsApp.getExecutionInfo().isPreview())      
+        PauseNoStockAd(match_ad);
+    }
+    
+    // product has stock but the ad is paused - revive it!
+    if(product.stock > 0 && match_ad.isPaused)
+    {
+      Logger.log('there is stock - enable ad!');
+      if(!AdWordsApp.getExecutionInfo().isPreview())      
+        ReviveStockPausedAd(match_ad);
+    }
+    
+    // update ad price by the product updated price 
+    Logger.log('update ad price -> %s', product.price);
+    if(!AdWordsApp.getExecutionInfo().isPreview())      
+      UpdateAdDetails(match_ad, product);
+  });
+}
+
+function getAdByProduct(arr_ads, product){
+  for(var i = 0; i< arr_ads.length; i++)
+     if(arr_ads[i].urls().getFinalUrl() == product.link)
+          return arr_ads[i];
+      return null; 
+}
+
+function CreateAdGroup(product){
+  var campaign = AdWordsApp.campaigns().withIds([PRODUCTS_CAMPAIGN_ID]).get().next();
+  
+  var adGroupBuilder = campaign.newAdGroupBuilder();
+  var adGroupOperation = adGroupBuilder.withName(product.name).build();
+  return adGroupOperation.getResult();
+}
+
+function CreateAd(adGroup, product){ 
+  var adOperation = adGroup.newTextAdBuilder()
+    .withHeadline(product.model) // 25 characters
+    .withDescription1('only {price: ' + product.price + '} AED') // 35 characters
+    .withDescription2('1 Year Warranty. Free Delivery') // 35 characters
+    .withDisplayUrl(product.link) // 255 characters
+    .withFinalUrl(product.link) // 255 characters
+    .build();
+  
+  return adOperation.isSuccessful();    
+}
+
+function CreateKeywords(adGroup, product){
+  var keyword = product.maker.concat(' ', product.model);
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();
+  
+  keyword = product.model;
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();
+  
+  keyword = 'buy'.concat(' ', product.maker, ' ', product.model);
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();
+  
+  keyword = 'buy'.concat(' ', product.model);
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();
+  
+  keyword = product.maker.concat(' ', product.model, ' ', 'price');
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();
+  
+  keyword = product.model.concat(' ', 'price');
+  Logger.log('new keyword %s', keyword);
+  adGroup.newKeywordBuilder().withText(keyword).build();  
+}
+  
+function PauseNoStockAd(ad){ 
+  ad.pause();
+}
+  
+function ReviveStockPausedAd(ad){ 
+  ad.enable();
+} 
+  
+function UpdateAdDetails(ad, product){ 
+  var adGroup = ad.getAdGroup();
+  if(adGroup.isRemoved()) return;
+  
+  var keywords = adGroup.keywords().withCondition("Status = ENABLED").get();
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+    
+    Logger.log('keyword: %s', keyword.getText());
+    keyword.setAdParam(1, product.price);
+  }
+} 
+
+/* PRODUCTS SERVICE */
+var ProductsService = function(xml_service) { 
+  var _arr_products = [];
+  
+  return {
+    loadProducts: function(){
+      _arr_products = [];
+      
+      var products_root = xml_service.getElement('products');   
+      var products = xml_service.getElements('item', products_root);
+      
+      for (var i = 0; i < products.length; i++) {   
+        var product = products[i];   
+
+        _arr_products.push({
+          name: product.getChildText('fullname'),
+          stock: product.getChildText('stock'),
+          price: product.getChildText('price'),
+          link: product.getChildText('link'),
+          model: product.getChildText('model'),
+          maker: product.getChildText('maker')
+        });               
+      }
+
+      return _arr_products;      
+    },    
+    findProductByURL: function (value) {
+      for(var i = 0; i < _arr_products.length; i++)      
+        if(_arr_products[i].link == value)
+          return _arr_products[i];
+      return null; 
+    },
+    products: function(){ return _arr_products; },
+    count: function(){ return _arr_products.length; }
+  }
+}
+
+/* XML SERVICE */
+var XMLService = function(uri) { 
+  var _document = null;
+  
+  var _init = function(){
+    var response = UrlFetchApp.fetch(uri);
+    var status_code = response.getResponseCode();
+    
+    if(status_code != 200) // 200 = OK
+    {
+      Logger.log('status code %s', status_code);
+      return;
+    }
+    
+    _document =  XmlService.parse(response.getContentText());
+   };
+  
+   _init();
+  
+   return { 
+     document: function(){ return _document; },
+     getElements: function(element_name, root){
+       if(!_document) return null;
+       
+       if(!root) 
+         root = _document.getRootElement();
+       return root.getChildren(element_name);       
+     },
+     getElement: function(element_name){
+       if(!_document) return null;
+       
+       var root = _document.getRootElement();
+       return root.getChild(element_name);       
+     }
+   }; 
+}
+
+/* prototypes */  
+var HELPER = {
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }
+};

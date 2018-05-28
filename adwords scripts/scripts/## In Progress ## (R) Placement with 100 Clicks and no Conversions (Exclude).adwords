@@ -1,0 +1,50 @@
+var NUM_OF_CLICKS = 10;
+
+function main() {
+  var campaign = AdWordsApp.campaigns().get().next();
+  
+  var proximities = campaign.targeting().targetedProximities().get();
+  while(proximities.hasNext()) {
+    Logger.log('URL : ' + proximities.next().getAddress());
+  }
+    
+  return;
+  
+  var report = AdWordsApp.report(
+    'SELECT PlacementUrl, DisplayName, Clicks, Conversions, CampaignId ' + 
+    'FROM PLACEMENT_PERFORMANCE_REPORT ' + 
+    'WHERE Clicks > ' + NUM_OF_CLICKS + ' AND Conversions = 0 ' + 
+    'DURING 20000101,' + dateFormat(new Date()));
+  
+  var rows = report.rows();
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var clicks = row['Clicks'];
+    var conversions = row['Conversions'];  
+    //if(clicks < NUM_OF_CLICKS || conversions > 0) continue;
+    
+    var placementUrl = 'http://' + row['PlacementUrl'];
+    var displayName = row['DisplayName'];
+    Logger.log(displayName + ' (' + placementUrl + ') ' + ' ' + clicks + ' ' + conversions);
+    
+    var campaignId = row['CampaignId'];
+    var campaign = AdWordsApp.campaigns().withIds([campaignId]).get().next();
+
+    //if(!AdWordsApp.getExecutionInfo().isPreview())
+      //campaign.removeSitelink(sitelink);
+    
+    Logger.log('"' + displayName + '" excluded from the allowed advertisments list');
+  }
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = date.getMonth().toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

@@ -1,0 +1,369 @@
+var AdGroupId = '49427191408';
+var MerchantId = '10528482';
+
+function TEST(){
+  Logger.log('TEST');
+  
+  var response = ShoppingContent.Products.list(MerchantId);
+  if (!response.resources) 
+  {
+    Logger.log('NO RESOURCES!')
+    return;
+  }
+  
+  Logger.log('%s products found.',response.resources.length); 
+}
+
+function main() {  
+  // TEST();
+  // return;
+  
+  var shoppingAdGroups = AdWordsApp
+  .shoppingAdGroups()
+  .withIds([AdGroupId])  
+  .get();   
+  
+  if(!shoppingAdGroups.hasNext()) 
+  {
+    Logger.log('No shoppingAdGroup Found!');
+    return;
+  }
+  
+  var response = ShoppingContent.Products.list(MerchantId);
+  if (!response.resources) 
+  {
+    Logger.log('NO RESOURCES!')
+    return;
+  }
+  
+  // { brand, productType, customLabel4, itemId }
+  var products = Resources2Products(response.resources);    
+  Logger.log('%s products found.',products.length); 
+  
+  var shoppingAdGroup = shoppingAdGroups.next();  
+  var shoppingCampaign = shoppingAdGroup.getCampaign();
+  
+  
+  CreateProductGroupHierarchy(shoppingAdGroup, products);
+  return;
+  
+  /*
+  var AdGroupName = shoppingAdGroup.getName();
+  
+  var shoppingAdGroupResponse = shoppingCampaign.newAdGroupBuilder()  
+  .withName(AdGroupName)
+  .build();
+    
+  if(!shoppingAdGroupResponse.isSuccessful())
+  {
+    Logger.log(shoppingAdGroupResponse.getErrors());
+    return;
+  }
+  
+  var shoppingAdGroupNew = shoppingAdGroupResponse.getResult();
+  shoppingAdGroupNew.createRootProductGroup();    
+  
+  CreateProductGroupHierarchy(shoppingAdGroupNew, products);
+  
+  shoppingAdGroup.pause();
+  */
+}
+
+
+/*
+{
+    googleProductCategory=Elektronik > Elektronisches Zubehör>Stromversorgung > Steckdosenleisten & Überspannungsschutz, 
+    customLabel4=C, 
+    customLabel3=Steckdosenleisten & Überspannungsschutz, 
+    channel=online, 
+    link=, 
+    description=..., 
+    availability=in stock, 
+    title=..., 
+    itemGroupId=44008, 
+    imageLink=https://www.meinhausshop.de/media/image/92/42/e5/16423_625x6359263896d0b6c_1280x1280.jpg, 
+    unitPricingBaseMeasure={
+        unit=m, 
+        value=1
+    }, 
+    shipping=[{
+        country=CH, 
+        price={
+            currency=CHF, 
+            value=61.06
+        }, 
+        service=DHL
+    }], 
+    shippingWeight={
+        unit=kg, 
+        value=20.68
+    }, 
+    price={
+        currency=CHF, 
+        value=207.37
+    }, 
+    customLabel1=...., 
+    customLabel0=Elektronik, 
+    id=online:de:CH:92014029145, 
+    brand=Markenprodukt, 
+    productType=Elektro > Kabel > Steuer- und Elektronikleitungen, 
+    gtin=4054891135248, 
+    kind=content#product, 
+    destinations=[{
+        destinationName=Shopping, 
+        intention=required
+    }], 
+    mpn=92014029145, 
+    targetCountry=CH, 
+    condition=new, 
+    adwordsRedirect=http://click.cptrack.de/?rd=true&k=UuaZi-Yv8gYd0lMAmjedfYiem_91BfKb1r4G1JfrCqA, 
+    offerId=92014029145, 
+    contentLanguage=de, 
+    unitPricingMeasure={
+        unit=m, 
+        value=50
+    }
+}
+*/
+function Resources2Products(resources){
+  var products = [];
+  
+  for (var i = 0; i < resources.length; i++) {
+    var resource = resources[i];
+    var product = { brand:null, productType: null, customLabel4: null, itemId: null };
+    
+    product.itemId = resource.id;
+    product.customLabel4 = resource.customLabel4;
+    product.brand = resource.brand;
+    product.productType = resource.productType;
+    
+    /*
+    for(j in resource.customAttributes)
+    {
+        var name = resource.customAttributes[j].name;
+        var value = resource.customAttributes[j].value;
+        
+        switch(name){
+            case 'brand': product.brand = value;
+            break;
+            case 'product type': product.productType = value;
+            break; 
+            case 'custom label 4': product.customLabel4 = value;
+            break;
+        }  
+    }
+    */
+    
+    products.push(product);
+  }
+  
+  return products;
+}
+
+/*
+  newChild() -> types: 
+  brandBuilder
+  categoryBuilder
+  channelBuilder
+  channelExclusivityBuilder
+  conditionBuilder
+  customLabelBuilder
+  itemIdBuilder
+  productTypeBuilder
+
+  example:
+  var productGroup = shoppingAdGroup.rootProductGroup();
+  
+  var brandNode = productGroup.newChild()
+      .brandBuilder()
+      .withName('brand')
+      .withBid(0.1)
+      .build()
+      .getResult();
+  
+  var productTypeNode = brandNode.newChild()
+      .productTypeBuilder()      
+      .withValue('productType')
+      .build()
+      .getResult();
+  
+  var customLabel4Node = productTypeNode.newChild()
+      .customLabelBuilder()
+      .withType('CUSTOM_LABEL_4')      
+      .withValue('customLabel4')
+      .build()
+      .getResult();
+  
+  var itemIdNode = customLabel4Node.newChild()
+      .itemIdBuilder()
+      .withValue('itemId')
+      .build()
+      .getResult();
+*/
+
+function CreateProductGroupHierarchy(shoppingAdGroup, products){  
+  var productGroup = shoppingAdGroup.rootProductGroup();
+  productGroup.removeAllChildren();    
+  
+  /*
+  productGroup.remove();
+  shoppingAdGroup.createRootProductGroup();	  
+  productGroup = shoppingAdGroup.rootProductGroup();
+  */
+  
+  for(var i=0; i < products.length; i++){
+    
+    // { brand, productType, customLabel4, itemId }
+    var product = products[i];
+    Logger.log('[product] %s', product);
+    
+    if(!product)
+      continue;
+    
+    if(product.brand == null || product.productType == null || product.customLabel4 == null)
+      continue;
+    
+    var productTypeNode = Search(productGroup, product.productType);
+    if(!productTypeNode)
+    {
+      var productType = productGroup.newChild()
+      .productTypeBuilder()      
+      .withValue(product.productType)
+      .build();      
+      
+      if(!productType.isSuccessful())
+      {
+        PrintErrors('productType', product.productType, productType.getErrors());
+        continue;
+      }
+      
+      productTypeNode = productType.getResult();
+    }
+    
+    var brandNode = Search(productTypeNode, product.brand);
+    if(!brandNode)
+    {         
+      var brand = productTypeNode.newChild()
+      .brandBuilder()
+      .withName(product.brand)      
+      .build();
+          
+      if(!brand.isSuccessful())
+      {
+        PrintErrors('brand', product.brand, brand.getErrors());
+        continue;
+      }
+      
+      brandNode = brand.getResult();
+    }
+        
+    var customLabel4Node = Search(brandNode, product.customLabel4);
+    if(!customLabel4Node)
+    {
+      var customLabel4 = brandNode.newChild()
+      .customLabelBuilder()
+      .withType('CUSTOM_LABEL_4')      
+      .withValue(product.customLabel4)
+      .build();      
+      
+      if(!customLabel4.isSuccessful())
+      {
+        PrintErrors('customLabel4', product.customLabel4, customLabel4.getErrors());
+        continue;
+      }
+      
+      customLabel4Node = customLabel4.getResult();
+    }
+    
+    var itemIdNode = Search(customLabel4Node, product.itemId);
+    if(!itemIdNode)
+    {
+      itemId = customLabel4Node.newChild()
+      .itemIdBuilder()
+      .withValue(product.itemId)
+      .build();   
+      
+      if(!itemId.isSuccessful())
+      {
+        PrintErrors('itemId', product.itemId, itemId.getErrors());
+        continue;
+      }
+      
+      itemIdNode = itemId.getResult();
+    }
+  }
+}
+
+function PrintErrors(type, name, errors){
+  Logger.log('## [%s] %s ##', type, name);
+  for(i in errors)
+    Logger.log('%s. %s', i+1, errors[i]);
+}
+
+function Search(node, nameToFind){
+  if(!node || !node.children())
+  {
+    Logger.log('[Search] NULL Node - %s', nameToFind);
+    return null;
+  }
+  
+  var children = node.children().get();
+  while(children.hasNext()){
+    var child = children.next();
+    
+    if(child.isOtherCase() || child.isExcluded())
+    continue;
+    
+    nameToFind = nameToFind.toLowerCase();
+    var value = child.getValue().toLowerCase();
+        
+    if(value == nameToFind)      
+      return child;        
+  }
+  
+  return null;
+}
+
+/*
+function PrintALL(shoppingAdGroup){
+  var productGroup = shoppingAdGroup.rootProductGroup();
+  
+  var level1 = productGroup.children().get();
+  while(level1.hasNext())
+  {
+    var level1_item = level1.next();
+    if(level1_item.isOtherCase() || level1_item.isExcluded())
+      continue;
+    
+    PrintName(level1_item, '');
+        
+    var level2 = level1_item.children().get();
+    while(level2.hasNext())
+    {
+      var level2_item = level2.next();
+      PrintName(level2_item, '\t');
+      
+      var products = level2_item.children().get();
+      while(products.hasNext())
+      {
+        var product = products.next();
+        PrintName(product, '\t\t');
+      }
+    }
+  } 
+}
+
+function Print(item){
+  Logger.log('Brand:' + item.asBrand().getName());
+  Logger.log('Category:' + item.asCategory().getName());
+  Logger.log('Channel:' + item.asChannel().getValue());
+  Logger.log('CustomLabel:' + item.asCustomLabel().getValue());
+  Logger.log('ItemId:' + item.asItemId().getValue());
+  Logger.log('ProductType:' + item.asProductType().getValue());
+  Logger.log('--------------------------');
+}
+
+function PrintName(item, spacer){      
+  Logger.log(spacer + item.asItemId().getValue());
+}
+*/

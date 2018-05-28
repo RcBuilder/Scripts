@@ -1,0 +1,51 @@
+var NUM_OF_CLICKS = 100;
+var EMAIL = 'yosibaryosef@gmail.com';
+
+function main() {
+  var report = AdWordsApp.report(
+    'SELECT Id, Criteria, Clicks, Conversions, AdGroupId ' + 
+    'FROM DISPLAY_KEYWORD_PERFORMANCE_REPORT ' + 
+    'WHERE Clicks > ' + NUM_OF_CLICKS + ' ' +
+    'AND Conversions < 1 ' + 
+    'DURING 20000101,' + dateFormat(new Date()));
+  
+  var rows = report.rows();
+  
+  var EMAIL_BODY = '';
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var clicks = row['Clicks'];
+    var conversions = row['Conversions'];  
+    //if(clicks < NUM_OF_CLICKS || conversions > 0) continue;
+    
+    var keywordText = row['Criteria'];
+    var keywordId = row['Id'];
+    var adGroupId = row['AdGroupId'];
+    //Logger.log(keywordId + ' "' + keywordText + '" ' + clicks + ' ' + conversions);
+    
+    var id = [];
+    id.push([adGroupId,keywordId]);
+    
+    var keyword = AdWordsApp.keywords().withIds(id).get().next();
+    
+    
+    var message = 'need to stop "' + keywordText + '"';
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';
+  }
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'No Conversion Display Keywords', EMAIL_BODY);
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = date.getMonth().toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

@@ -1,0 +1,83 @@
+Global.asax
+-----------
+// register display-modes rules
+protected void Application_Start() {
+   DisplayConfig.RegisterDisplayModes(DisplayModeProvider.Instance.Modes);
+}
+
+DisplayConfig.cs
+----------------
+    public class DisplayConfig {
+        public static void RegisterDisplayModes(IList<IDisplayMode> displayModes) {
+            displayModes.Clear();
+
+            displayModes.Add(new DefaultDisplayMode("mobile")
+            {
+                ContextCondition = (c => c.Request.IsSmartphone())
+            });
+
+            displayModes.Add(new DefaultDisplayMode("")
+            {
+                ContextCondition = (c => true)
+            });
+        }
+    }
+
+HttpRequestBaseExtensions.cs
+----------------------------
+// extension methods for the base request 
+    public static class HttpRequestBaseExtensions {
+        public static bool IsDesktop(this HttpRequestBase request) {
+            return (!request.IsSmartphone() && !request.IsTablet());
+        }
+
+        public static bool IsSmartphone(this HttpRequestBase request) {
+            Regex regex = new Regex(@"((?=.+\bmobile\b).+?(iphone|ipod|android|blackberry|opera|mini|windows\sce|palm|smartphone|iemobile))|((?!.+\bmobile\b).+?(s7q))", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            var userAgent = request.Headers["User-Agent"];
+            bool isSmartphone = (regex.IsMatch(userAgent));
+            return isSmartphone;
+        }
+
+        public static bool IsTablet(this HttpRequestBase request) {
+            var userAgent = request.Headers["User-Agent"];
+            var ua = userAgent.ToLower();
+            bool isTablet = ua.Contains("ipad") || ua.Contains("gt-");
+            return isTablet;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+examples:
+-----------
+Views/Shared/_MasterPage.cshtml
+Views/Shared/_MasterPage.mobile.cshtml
+
+Home/Partials/Customer.cshtml
+Home/Partials/Customer.mobile.cshtml
+
+@{ Html.RenderPartial("Partials/Customer"); }
+
+
+
+
+

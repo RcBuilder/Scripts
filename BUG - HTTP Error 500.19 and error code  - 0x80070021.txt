@@ -1,0 +1,25 @@
+Bug:
+web api hosting in IIS throws an exception 
+
+Error:
+HTTP Error 500.19 - Internal Server Error
+
+Cause:
+missing NET 4.5 iis support 
+
+Solution:
+add the missing feature 
+
+steps: 
+- control panel -> Programs -> Turn windows features on/off
+- choose 'Internet Information Services' from the list 
+- choose 'World Wide Web Services' 
+- add ASP.NET 4.5 or 4.7 features
+
+
+
+
+
+
+
+ 

@@ -1,0 +1,185 @@
+var EMAIL = 'RcBuilder@walla.com';
+var MinConversions = 2;
+var DATE_RANGE = 'LAST_30_DAYS';
+
+function main() {
+  var genderService = GenderService();
+  var htmlService = HTMLBuilderService();
+  
+  htmlService.add('<table cellspacing="3" cellpadding="3" border="1">');
+  htmlService.add('<tr>' +
+                    '<th>#</th>' +
+                    '<th>adgroup</th>' +
+                    '<th>male</th>' +
+                    '<th>female</th>' +
+                    '<th>undetermined</th>' +                  
+                  '</tr>');
+  
+  var TEMPLATE = '<tr>' +
+                    '<td>{0}</td>' +
+                    '<td>{1}</td>' +
+                    '<td style="direction:ltr;">{2}%</td>' +
+                    '<td style="direction:ltr;">{3}%</td>' +
+                    '<td style="direction:ltr;">{4}%</td>' +
+                  '</tr>';
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var query =  'SELECT Criteria, Date, AdGroupName, AdGroupId, CostPerConversion, Cost, Conversions ' + 
+    'FROM GENDER_PERFORMANCE_REPORT ' + 
+    'WHERE  Conversions > ' + MinConversions + ' ' +       
+    // 'AND AdGroupId = 24683200715 ' + // temp
+    'DURING ' + DATE_RANGE;
+
+  var report = AdWordsApp.report(query, reportConfig);   
+  
+  var rows = report.rows();
+  while (rows.hasNext()) {    
+    var row = rows.next();
+	var criteria = row['Criteria']; // Male, Female, Undetermined      
+    var adGroupId = row['AdGroupId'];
+    
+    genderService.addGroupItem(adGroupId, { type: criteria, conversions: parseFloat(row['Conversions']), cost: parseFloat(row['Cost']) });          
+	Logger.log('[adGroup: #%s] type: %s, conversions: %s, cost: %s', adGroupId, criteria, row['Conversions'], row['Cost']);
+  }
+  
+  /*
+  genderService.addGroupItem('20751913350', { type: 'Male', conversions: 10, cost: 100 });
+  genderService.addGroupItem('20751913350', { type: 'Male', conversions: 20, cost: 50 });
+  genderService.addGroupItem('20751913350', { type: 'Female', conversions: 8, cost: 60 });
+    
+  genderService.addGroupItem('26112982710', { type: 'Female', conversions: 6, cost: 50 });
+  genderService.addGroupItem('26112982710', { type: 'Male', conversions: 4, cost: 30 });
+  genderService.addGroupItem('26112982710', { type: 'Female', conversions: 6, cost: 30 });
+  
+  genderService.addGroupItem('26113241070', { type: 'Male', conversions: 10, cost: 100 });
+  genderService.addGroupItem('26113241070', { type: 'Female', conversions: 4, cost: 60 });  
+  genderService.addGroupItem('26113241070', { type: 'Undetermined', conversions: 15, cost: 120 });  
+  */
+
+  if(genderService.arr.length == 0)
+  {
+    Logger.log('NO DATA');
+    return;
+  }
+  
+  var row;
+  for(var i=0; i < genderService.arr.length; i++){
+    var row = genderService.arr[i];
+    var cpa_average = genderService.getAverage(row);
+    var bids = genderService.calculateBids(row, cpa_average);
+    
+    var adGroup = AdWordsApp.adGroups().withIds([row.key]).get().next();    
+    Logger.log('[#%s %s] avg cpa: %s, bids: { male: %s, female: %s, undetermined: %s }', row.key, adGroup.getName(), cpa_average, bids.male.toFixed(2), bids.female.toFixed(2), bids.undetermined.toFixed(2));
+    
+    row = TEMPLATE
+    .replace('{0}', row.key)
+    .replace('{1}', adGroup.getName())
+    .replace('{2}', (bids.male*100).toFixed(2))
+    .replace('{3}', (bids.female*100).toFixed(2))
+    .replace('{4}', (bids.undetermined*100).toFixed(2))
+
+    htmlService.add(row);    
+  }
+  
+  htmlService.add('</table>');
+    
+  MailApp.sendEmail(EMAIL, 'Bid Adjustment By Gender', '', { 
+    htmlBody: htmlService.get() 
+  });
+  
+  Logger.log('email sent to %s', EMAIL);
+}
+
+/* GENDER SERVICE */
+var GenderService = function(){  
+  var _arr = []; 
+  
+  _arr.indexOf = function(key){
+    for(var i=0;i<this.length;i++)
+      if(this[i].key == key)
+        return i;
+    return -1;        
+  };
+  
+  return { 
+    arr: _arr,  
+    getGroupIndex: function(key){
+      return _arr.indexOf(key);
+    },
+    addGroupItem: function(key, data){
+      var index = this.getGroupIndex(key);
+      
+      if(index == -1) {      
+        _arr.push({ 
+          key: key, 
+          male: { cost: 0, conversions: 0 }, 
+          female: { cost: 0, conversions: 0 }, 
+          undetermined: { cost: 0, conversions: 0 },         
+        });      
+        
+        index = _arr.length - 1; // update the index 
+      }
+      
+      switch(data.type){
+        case 'Male': 
+          _arr[index].male.cost += data.cost;
+          _arr[index].male.conversions += data.conversions;
+          break;
+        case 'Female':
+          _arr[index].female.cost += data.cost;
+          _arr[index].female.conversions += data.conversions;
+          break;
+        case 'Undetermined':
+          _arr[index].undetermined.cost += data.cost;
+          _arr[index].undetermined.conversions += data.conversions;
+          break;
+      }
+        
+      return index;
+    },
+    getCPA: function(row){    
+      var cpa_male = row.male.conversions == 0 ? 0 : row.male.cost/row.male.conversions;
+      var cpa_female = row.female.conversions == 0 ? 0 : row.female.cost/row.female.conversions;
+      var cpa_undetermined = row.undetermined.conversions == 0 ? 0 : row.undetermined.cost/row.undetermined.conversions;
+      
+      return {
+        male: cpa_male,
+        female: cpa_female,
+        undetermined: cpa_undetermined
+      };
+    },
+    getAverage: function(row){       
+      var cpa = this.getCPA(row);      
+      return (cpa.male + cpa.female + cpa.undetermined) / 3;
+    },    
+    calculateBids: function(row, cpa_average){    
+      var cpa = this.getCPA(row);    
+      
+      var bids = { male: 0, female: 0, undetermined: 0 };
+      if(cpa_average > 0)
+      {
+        bids.male = (cpa.male - cpa_average)/cpa_average;
+        bids.female = (cpa.female - cpa_average)/cpa_average;
+        bids.undetermined = (cpa.undetermined - cpa_average)/cpa_average;
+      }
+
+      return bids;
+    }    
+  };
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}

@@ -1,0 +1,75 @@
+var P_CONVERSION_COST = 10;
+var EMAIL = 'rcbuilder@walla.com';
+
+function main() {
+  var report_f1 = AdWordsApp.report(
+    'SELECT Id ' + 
+    'FROM AUDIENCE_PERFORMANCE_REPORT ' + 
+    'WHERE Conversions > 0 ' + 
+    'AND AveragePosition > 1.5 ' +  
+    'DURING LAST_30_DAYS');
+  
+  var rows = report_f1.rows(); 
+  
+  var ids = [];
+  while (rows.hasNext()) { 
+    ids.push(rows.next()['Id']);
+  }
+
+  if(ids.length == 0) return;
+  
+  //Logger.log(ids.toString()); 
+  
+  var report = AdWordsApp.report(
+    'SELECT Id, AdGroupId, Criteria, Cost, Conversions, CostPerConversion, MaxCpc ' + 
+    'FROM AUDIENCE_PERFORMANCE_REPORT ' + 
+    'WHERE Id IN [' + ids.toString() + '] ' + 
+    'DURING 20000101,' + dateFormat(new Date()));
+
+  rows = report.rows();
+  
+  var EMAIL_BODY = '';
+  while (rows.hasNext()) { 
+	var row = rows.next();
+   
+	var costPerConversion = row['CostPerConversion'];
+    
+    if(costPerConversion >= P_CONVERSION_COST) 
+      continue;
+    
+    var name = row['Criteria'];
+    var cost = row['Cost'];
+    var conversions = row['Conversions'];
+    
+    Logger.log(name + ' cost = ' + cost + '  conversions = ' + conversions);
+    
+    var cpc = row['MaxCpc'];
+    if(cpc == '--')
+    {
+      var adGroupId = row['AdGroupId'];
+      cpc = AdWordsApp.adGroups().withIds([adGroupId]).get().next().getKeywordMaxCpc();    
+      Logger.log('USE AD GROUP DEFAULT MAX CPC ' + cpc);
+    }
+    
+    cpc = parseFloat(cpc).toFixed(2);
+    var new_cpc = cpc * 1.1;
+
+    var message = 'need to increase the max cpc of "' + name + '" from ' + cpc + ' to ' + new_cpc;
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';
+  } 
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'Increase AUDIENCE Cost per Conversion', EMAIL_BODY);
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = date.getMonth().toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

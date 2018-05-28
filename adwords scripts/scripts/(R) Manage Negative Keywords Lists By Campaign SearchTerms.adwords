@@ -1,0 +1,72 @@
+var PERIOD = 'LAST_WEEK';
+
+var campaignId = 266841030;
+var listSource = 'List1';
+var listDestination = 'List2';
+
+function main() {
+  var campaign = AdWordsApp.campaigns().withIds([campaignId]).get().next();
+  Logger.log(campaign.getName());
+  
+  var negativeKeywordListSource = AdWordsApp.negativeKeywordLists().withCondition('Name = "' + listSource + '"').get().next();
+ 
+  var negativeKeywordListDestinationIterator = AdWordsApp.negativeKeywordLists().withCondition('Name = "' + listDestination + '"').get();
+  var negativeKeywordListDestination = null;
+  
+  // destination list was not found - create it now
+  if(!negativeKeywordListDestinationIterator.hasNext()) 
+  {
+    Logger.log('Destination List "%s" is not exists - creating it.....', listDestination);
+    var result = AdWordsApp.newNegativeKeywordListBuilder().withName(listDestination).build();
+    if(!result.isSuccessful())
+    {
+      Logger.log('ERROR: %s', result.getErrors());
+      return;
+    }       
+    
+    negativeKeywordListDestination = result.getResult(); // get the new created list
+    campaign.addNegativeKeywordList(negativeKeywordListDestination); // add the created list to the current campaign         
+  }
+  else 
+    negativeKeywordListDestination = negativeKeywordListDestinationIterator.next(); // load existing list
+
+  var arrKeywords = [];
+  arrKeywords.containsIn = function(value){
+    for(var i=0;i<this.length;i++)
+      if(value.indexOf(this[i]) > -1)
+        return true;   
+    return false;
+  }
+  
+  Logger.log('Loading "%s" keywords....', listSource);
+  var keywords = negativeKeywordListSource.negativeKeywords().get();
+  while(keywords.hasNext())
+  {
+    var keyword = keywords.next();
+    var keywordText = keyword.getText();
+    
+    Logger.log('keyword: %s', keywordText);
+    arrKeywords.push(keywordText);
+  }   
+  
+  Logger.log('Loading SEARCH_QUERY report for %s....', PERIOD);  
+  var report = AdWordsApp.report(
+    'SELECT Query ' +
+    'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +
+    'WHERE CampaignId = ' + campaignId + ' ' + 
+    'DURING '+ PERIOD
+  ); 
+  
+  var rows = report.rows();    
+  while(rows.hasNext()) { 
+    var row = rows.next();
+    var searchTerm = row['Query'];
+    
+    Logger.log('searchTerm: %s', searchTerm);
+    if(arrKeywords.containsIn(searchTerm)) // exists in the source List
+      continue;
+    
+    Logger.log('searchTerm %s is NOT contains in any of "%s" values -> add it to "%s"', searchTerm, listSource, listDestination);
+    negativeKeywordListDestination.addNegativeKeyword(searchTerm);
+  } 
+}

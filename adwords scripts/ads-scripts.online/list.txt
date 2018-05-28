@@ -1,0 +1,18 @@
+(R) Increase Cost per Converted (Set + Email)
+(R) No Conversion Keywords with price over 5 and Max CPC higher then the top Page CPC (Email)
+(R) Topics with 100 Clicks and no Conversions (Email)
+(R) keyword with 100 Clicks with no Conversions(Email)
+(R) Campaigns With 100 Clicks and No Conversion (Email)
+(R) keywords 2 negative keywords (Email)
+(R) Automatic Placement with 100 Clicks with no Conversions (Email)
+(R) Quality Score
+(R) Placement with 1000 impressions with no Clicks (Email)
+(R) queries 2 negative keywords (Email)
+(R) queries 2 keywords (Set + Email) 
+(R) queries 2 keywords - Mcc (Set)
+(R) Pause Non Converting or High Cost Ads
+(R) Ads Final URL Monitor - MCC
+(R) Account Daily Stats + Charts - Current Month
+(R) Non COM Placements blacklist (Set)
+(R) Low Quality Score Keywords Report - MCC
+(R) Keywords Position Manager - MCC (Set + Report)

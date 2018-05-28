@@ -1,0 +1,92 @@
+var LABEL_NAME = 'LowQualityScore';
+var EMAIL = 'RcBuilder@walla.com';
+
+function main() {  
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + LABEL_NAME + '"').get();
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+    
+    MccApp.select(account);
+    ProcessAccount();
+    
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(){
+  var htmlBuilderService = HTMLBuilderService();
+  
+  htmlBuilderService.add('<h1>' + AdWordsApp.currentAccount().getName() + '</h1>');
+  htmlBuilderService.add('<table cellspacing="3" cellpadding="3" border="1" style="direction:rtl;text-align:right;">');
+  htmlBuilderService.add('<tr>'+                         
+                         '<th>campaign</th>'+
+                         '<th>ad Group</th>'+
+                         '<th>keyword</th>'+
+                         '<th>quality Score</th>'+                                                                           
+                         '</tr>');
+  
+  var changes = ProcessKeywords(htmlBuilderService);
+  
+  htmlBuilderService.add('</table>');
+  
+  if(changes == 0)
+  {
+    Logger.log('no changes!!');
+    return;
+  }  
+    
+  try{                 
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Low Quality Score Keywords Report', '', {
+      htmlBody: htmlBuilderService.get()
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+function ProcessKeywords(htmlBuilderService){
+  var keywords = AdWordsApp.keywords()
+  .withCondition('Status = ENABLED')
+  .withCondition('AdGroupStatus = ENABLED')
+  .withCondition('CampaignStatus = ENABLED')    
+  .withCondition('QualityScore <= 2')  
+  //.withLimit(5)
+  .get();
+  
+  var changes = 0;  
+  while(keywords.hasNext()){
+    var keyword = keywords.next();
+    var keywordText = keyword.getText();
+    var keywordQS = keyword.getQualityScore();
+    
+    Logger.log('%s -> qs: %s', keywordText, keywordQS);
+    htmlBuilderService.add('<tr>'+                         
+                         '<td>' + keyword.getCampaign().getName() + '</td>'+
+                         '<td>' + keyword.getAdGroup().getName() + '</td>'+
+                         '<td>' + keywordText + '</td>'+
+                         '<td>' + keywordQS + '</td>'+                                                                           
+                         '</tr>');
+    
+    changes++;
+  }
+  
+  return changes;
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}

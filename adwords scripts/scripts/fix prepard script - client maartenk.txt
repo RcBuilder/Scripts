@@ -1,0 +1,122 @@
+var SPREADSHEET_LOG_URL= 'SPREADSHEET_URL';
+var SCRIPT_NAME ='Adgroup negative keywords';
+var ACCOUNT='ACCOUNT_NAME';
+
+var CAMPAIGN_CONTAINS = 'GDN';
+var AD_GROUP_NAME = 'ойчеойн';
+
+function main() {
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition('Status IN [ENABLED, PAUSED]')
+  .withCondition('Name CONTAINS_IGNORE_CASE "' + CAMPAIGN_CONTAINS + '"')
+  .get();
+  
+  while(campaigns.hasNext())
+  {
+    var campaign = campaigns.next();
+    var campaignName = campaign.getName()
+    Logger.log('campaign: %s', campaignName);
+    ProcessCampaign(campaignName, AD_GROUP_NAME);
+  }
+}
+
+function ProcessCampaign(campaignName, adGroupName){
+  var adGroups={};
+  
+  fillAdGroups();
+  
+  if(!adGroups[adGroupName])
+  {
+    Logger.log('adgroup %s was not found', adGroupName);
+    return;
+  }
+  
+  var keywords=getPositiveKeywords();
+  format(keywords);
+  keywords=removeDuplicates(keywords);
+  addNegativeKeywords(keywords);
+  
+  function fillAdGroups(){
+    var adGroupIt=AdWordsApp
+    .adGroups()
+    .withCondition('CampaignName = "'+campaignName+'"')
+    .get();
+    
+    while(adGroupIt.hasNext()){
+      var adGroup=adGroupIt.next();
+      adGroups[adGroup.getName()]=adGroup;
+    }
+  }
+  
+  function getPositiveKeywords(){
+    var positiveKeywords=[];    
+    var adGroup=adGroups[adGroupName];
+    var keywords=adGroup.keywords().get();
+    while(keywords.hasNext()){
+      var keyword=keywords.next();
+      var text=keyword.getText();
+      if(text.charAt(0) != '-'){
+        positiveKeywords.push(text);
+      }
+    }
+    return positiveKeywords;
+  }
+  
+  function format(keywords){
+    for(var i=0;i<keywords.length;i++){
+      var keyword=keywords[i];
+      // change the keyword to exact match 
+      if(keyword.charAt(0) != '['){
+        if(keyword.charAt(0) == '"'){
+          keyword=setCharAt(keyword,0,'[');
+          keyword=setCharAt(keyword,keyword.length-1,']');
+        }
+        else{
+          keyword='['+keyword+']';
+        }
+      }
+      // change the keyword from positive to negative
+      keyword='-'+keyword;
+      keywords[i]=keyword;
+    }
+  }
+  
+  function setCharAt(str,index,chr) {
+    if(index > str.length-1) return str;
+    return str.substr(0,index) + chr + str.substr(index+1);
+  }
+  
+  function removeDuplicates(keywords){
+    map = {};
+    for (var i = 0; i < keywords.length; i++) {
+      map[keywords[i]] = keywords[i];
+    }
+    newKeywords = [];
+    for (var key in map) {
+      newKeywords.push(key);
+    }
+    return newKeywords;
+  }
+  
+  function addNegativeKeywords(keywords){
+    for(var name in adGroups){
+      if(name != adGroupName){
+        var adGroup=adGroups[name];
+        for(var i=0;i<keywords.length;i++){
+          var keyword=keywords[i];
+          adGroup.createKeyword(keyword);
+          var msg='Adding keyword: '+keyword+' to adGroup: "'+adGroup.getCampaign().getName()+'"  "'+adGroup.getName()+'"';
+          Logger.log(msg);
+        }
+      }
+    }
+  }
+}
+
+function log(msg){
+  var spreadsheet=SpreadsheetApp.openByUrl(SPREADSHEET_LOG_URL);
+  var sheet=spreadsheet.getActiveSheet();
+  var range = sheet.getRange(sheet.getLastRow()+1,1,1,4);
+  var formattedDate = Utilities.formatDate(new Date(), "GMT+3", "yyyy-MM-dd");
+  range.setValues([[formattedDate,ACCOUNT,SCRIPT_NAME,msg]]);
+}

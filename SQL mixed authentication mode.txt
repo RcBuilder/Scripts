@@ -1,0 +1,6 @@
+allows us to connect to an SQL instance using both WINDOWS and SQL authentication mode. 
+
+steps: 
+1. open the 'SQL Server Management Studio'
+2. right-click the server -> Properties.
+3. (tab) Security -> Server authentication -> choose 'SQL Server and Windows authentication mode' -> ok

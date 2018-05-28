@@ -1,0 +1,77 @@
+function main() { 
+  
+	// var account = AdWordsApp.currentAccount();    
+  
+  
+	var account_ids = ['515-135-0007', '964-232-8471', '896-472-5579'];
+  
+  
+
+	for(var i=0; i< account_ids.length; i++)
+  {
+    
+		var account_id = account_ids[i];
+    
+		execute(account_id);
+  
+	}
+
+}
+
+
+
+function execute(account_id){  
+
+	var accounts = MccApp.accounts()
+  
+	.withCondition('ManagerCustomerId = "' + account_id + '"')
+  
+	.get();  
+  
+  
+
+	var numOfAccounts = accounts.totalNumEntities();
+  
+	var isMcc = numOfAccounts > 1;
+  
+  
+
+	if(isMcc)
+    
+		Logger.log('MCC account: #%s - %s child accounts', account_id, numOfAccounts);
+  
+  
+
+	while (accounts.hasNext()) {
+    
+		var account = accounts.next();
+    
+ 
+		MccApp.select(account);   
+		Logger.log('#%s %s', account.getCustomerId(), account.getName());  
+  
+	}
+  
+  
+
+	Logger.log('---------------------')
+
+} 
+
+
+
+function isMCC(account_id){
+  
+	var accounts = MccApp.accounts()
+  
+	.withCondition('ManagerCustomerId = "' + account_id + '"')
+  
+	.withLimit(2)
+  
+	.get();
+  
+  
+
+	return accounts.totalNumEntities() > 1;
+
+}

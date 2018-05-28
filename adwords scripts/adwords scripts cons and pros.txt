@@ -1,0 +1,20 @@
+adwords scripts cons: 
+- limited (a bit) than the API 
+- less mature (only a few years in the market)
+- less known 
+- limited to the account they planted on (for MCC - all the downwards accounts as well)
+- have some quata limitations (30 minutes execution time etc.)
+
+adwords scripts pros:
+- easy to implement 
+- can be copied easily between accounts 
+- have a native bond to the google drive files 
+- run on the adwords server directly so you don't need to worry about performances and maintanance 
+- supports charts and embedded charts
+- no auth required (very complicated issue)
+- no servers required
+- zero costs 
+- less development time requires to create them (no need to develop an app - huge time consumer)
+- can be scheduled by the account owner 
+- have extended changes log built in per execution and fully controlled and available for the account owner 
+- supports MCC level 

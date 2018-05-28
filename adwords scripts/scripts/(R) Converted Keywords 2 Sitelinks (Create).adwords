@@ -1,0 +1,145 @@
+var DATE_RANGE = 'ALL_TIME';
+var MIN_CONVERSIONS = 10;
+var MAX_SITELINKS_TO_ADD = 2;
+
+
+function main() {
+  var accounts = MccApp.accounts().get();
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    Logger.log('### account: %s ###', account.getName());   
+    MccApp.select(account);
+    ProcessAccount();    
+    Logger.log('--------------------------');
+  }  
+}
+
+function ProcessAccount() {
+  var keywords = AdWordsApp.keywords()  
+  .withCondition('ConvertedClicks >= ' + MIN_CONVERSIONS) 
+  .forDateRange(DATE_RANGE)
+  .orderBy('ConvertedClicks DESC, ClickConversionRate DESC')
+  .withLimit(50)
+  .get();
+
+  
+  var added = 0;
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+    var adGroup = keyword.getAdGroup();
+    var keywordText = keyword.getText();
+        
+    Logger.log('adGroup %s, keyword %s', adGroup.getName(), keywordText);
+    keywordText = FixkeywordText(keywordText);
+    Logger.log('fixed keyword %s', keywordText);
+    
+    if(IsSiteLinkExists(adGroup, keywordText))
+    {
+      Logger.log('sitelink already exists');
+      continue;
+    }
+    
+    var sitelinkURL = GetBestAdURL(keywordText);
+    Logger.log(sitelinkURL);
+    
+    if(!sitelinkURL) continue;
+    
+    var sitelinkBuilder = AdWordsApp.extensions().newSitelinkBuilder();
+    var newSitelink = sitelinkBuilder
+        .withLinkText(keywordText)
+        .withFinalUrl(sitelinkURL)
+        .withMobilePreferred(true)
+        .build()
+        .getResult();
+    
+    Logger.log('sitelink added!');
+    if(!AdWordsApp.getExecutionInfo().isPreview())      
+      adGroup.addSitelink(newSitelink);    
+    added++;
+    
+    if(added >= MAX_SITELINKS_TO_ADD){ 
+      Logger.log('reach the maximum sitelinks to add - break loop');  
+      break;
+    }
+  }
+  
+  Logger.log('total of %s sitelinks added!', added);
+}
+
+function FixkeywordText(keywordText){
+  
+  var stripped = keywordText;
+  stripped = stripped.split('[').join('');
+  stripped = stripped.split(']').join('');
+  stripped = stripped.split('"').join('');
+  
+  return '"'.concat(stripped, '"');
+}
+
+function IsSiteLinkExists(adGroup, keywordText){
+  var sitelinks = adGroup.extensions().sitelinks().get();
+  
+  while (sitelinks.hasNext()) {
+    var sitelink = sitelinks.next();
+    var sitelinkText = sitelink.getLinkText();
+    if(sitelinkText == keywordText) 
+      return true;
+  }
+  
+  return false;
+}
+
+function GetBestAdURL(keywordText){
+  var adGroups = AdWordsApp.adGroups().withCondition('Status = ENABLED').get();
+  
+  var keywordAdGroups = [];
+  
+  while (adGroups.hasNext()) {
+    var adGroup = adGroups.next();
+    if(HasKeyword(adGroup, keywordText))    
+      keywordAdGroups.push(adGroup);    
+  } 
+  
+  var topAdsData = [];
+  
+  HELPER.foreach(keywordAdGroups, function(keywordAdGroup){
+    
+    var topConvertedAdIterator = keywordAdGroup.ads()
+    .forDateRange(DATE_RANGE)
+    .orderBy('ConvertedClicks DESC, ClickConversionRate DESC')
+    .withLimit(1).get();
+    
+    if(topConvertedAdIterator.hasNext())
+    {
+      var ad = topConvertedAdIterator.next();
+      var stats = ad.getStatsFor(DATE_RANGE);
+      var adConversions = stats.getConvertedClicks();
+      
+      // ad.urls().getFinalUrl()
+      // ad.urls().getMobileFinalUrl()
+      topAdsData.push({url: ad.getDestinationUrl(), conversions: adConversions });
+    }
+    
+  });
+  
+  var selected = {url: '', conversions: -1 };
+  HELPER.foreach(topAdsData, function(topAdData){
+    if(topAdData.conversions > selected.conversions)
+      selected = topAdData;    
+  });
+
+  return selected.url;
+}
+
+function HasKeyword(adGroup, keywordText){
+  return adGroup.keywords().withCondition('Text IN ['+ keywordText + ']').withLimit(1).get().hasNext();
+}
+
+var HELPER = {
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }
+}

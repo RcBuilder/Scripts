@@ -1,0 +1,110 @@
+var EMAIL = 'RcBuilder@walla.com,eyal@kivi.co.il';
+var STATS_PERIOD = 'LAST_7_DAYS'; // TODAY, YESTERDAY, LAST_7_DAYS, THIS_WEEK_SUN_TODAY, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, LAST_BUSINESS_WEEK, LAST_WEEK_SUN_SAT, THIS_MONTH, LAST_MONTH
+var CREATE = false;
+
+function main() {
+  var htmlService = HTMLBuilderService();
+  
+  var adGroups = AdWordsApp.adGroups()
+  .withCondition('CampaignStatus = ENABLED')  
+  .withCondition('Status = ENABLED')  
+  .get();
+    
+  var TEMPLATE = '<tr>' +
+                    '<td>{0}</td>' +
+                    '<td>{1}</td>' +
+                    '<td>{2}</td>' +
+                    '<td>{3}</td>' +
+                    '<td>{4}</td>' +                    
+                  '</tr>';
+                    
+  htmlService.add('<table cellspacing="3" cellpadding="3" border="1">');
+  htmlService.add('<tr>' +
+                    '<th>Title</th>' +
+                    '<th>Campaign</th>' +
+                    '<th>AdGroup</th>' +
+                    '<th>CPA</th>' +
+                    '<th>Type</th>' +                    
+                  '</tr>');
+  
+  var matches = 0;  
+  while(adGroups.hasNext()){
+    var adGroup = adGroups.next();
+    
+    var ads = adGroup.ads()
+    .withCondition('Status = ENABLED')
+    .withCondition('Type IN [EXPANDED_TEXT_AD]')
+    .get();
+    
+    var numOfAds = ads.totalNumEntities();
+    if(numOfAds < 2) continue; // single ad or no ads at all 
+    
+    var adGroupStats = adGroup.getStatsFor(STATS_PERIOD);
+    var avarageCPA = CalculateCPA(adGroupStats.getConversions(), adGroupStats.getCost());
+    if(avarageCPA == 0) continue;
+    
+    Logger.log('adGroup %s -> %s ads, CPA(avg): %s', adGroup.getName(), numOfAds, avarageCPA);
+    
+    // at least 2 active ads 
+    while(ads.hasNext()){
+      var ad = ads.next();
+      var adType = ad.getType();
+      var adTitle = ad.getHeadlinePart1();
+      
+      var adStats = ad.getStatsFor(STATS_PERIOD);
+      var asClicks = adStats.getConversions();
+      if(asClicks == 0)
+        asClicks = 1; // fix the issue of expensive keywords with no conversion
+      
+      var adCPA = CalculateCPA(asClicks, adStats.getCost());
+      if(adCPA == 0) continue;
+      
+      Logger.log('ad [%s] %s -> CPA: %s', adType, adTitle, adCPA);
+      
+
+      if(adCPA > avarageCPA * 2)
+      {
+        Logger.log('POOR performance ad!!');
+        
+        var row = TEMPLATE
+        .replace('{0}', adTitle)
+        .replace('{1}', adGroup.getCampaign().getName())
+        .replace('{2}', adGroup.getName())
+        .replace('{3}', adCPA)
+        .replace('{4}', adType)    
+        
+        matches++;
+        
+        if(CREATE){
+          Logger.log('ad %s paused!!', adTitle);
+          ad.pause();
+        }
+        
+        htmlService.add(row);    
+      }
+    }
+  }
+  htmlService.add('</table>');
+  if(matches > 0){    
+    MailApp.sendEmail(EMAIL, 'POOR Performance ads', '', { 
+      htmlBody: htmlService.get() 
+    });
+  }
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}
+
+function CalculateCPA(convertedClicks, cost){
+  return convertedClicks == 0 ? 0 : cost / convertedClicks;
+}

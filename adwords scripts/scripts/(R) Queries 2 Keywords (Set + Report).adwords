@@ -1,0 +1,109 @@
+var EMAIL = 'RcBuilder@walla.com';
+var Conversions = 15;
+var ACCOUNT_LABEL = 'REPORT';
+var PERIOD = '20010101,20170101'; //'LAST_30_DAYS'; // TODAY, YESTERDAY, LAST_7_DAYS, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, THIS_MONTH, LAST_MONTH
+
+function main() {
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + ACCOUNT_LABEL + '"').get();
+    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();        
+    var accountId = account.getCustomerId();
+    var accountName = account.getName();
+    
+    Logger.log('### account: %s (%s) ###', accountName, accountId);  
+    
+    MccApp.select(account);
+    ProcessAccount(accountId, accountName);
+    
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(accountId, accountName) {
+  var htmlService = HTMLBuilderService();
+  htmlService.add('<h1>' + accountName + '</h1>');
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  var report = AdWordsApp.report(
+   'SELECT Query,Clicks,Conversions,AverageCpc,AdGroupId ' +
+   'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +
+   'WHERE Conversions > ' + Conversions + ' ' +  
+   'DURING ' + PERIOD, reportConfig);
+ 
+  var matches = 0;  
+  
+  var rows = report.rows();  
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var clicks = row['Clicks'];
+    var conversions = row['Conversions'];
+    var adGroupId = row['AdGroupId'];
+    
+    var query = row['Query'];
+    
+    var found_in_my_keywords = AdWordsApp.keywords().withCondition('Text CONTAINS "' + query + '"').get().hasNext();
+    if(found_in_my_keywords)
+    {
+      Logger.log('"%s" found in my keywords', query);
+      continue;
+    }
+    
+    var adGroupIter = AdWordsApp.adGroups().withIds([adGroupId]).withCondition('Status = ENABLED').get();
+    if(!adGroupIter.hasNext()) {
+      Logger.log('#%s -> no adgroup found - skip query', adGroupId);
+      continue;
+    }
+
+    matches++;
+    
+    var adGroup = adGroupIter.next();        
+    var maxcpc = row['AverageCpc'];    
+    createKeyword(adGroup, '[' + query + ']', maxcpc);
+    
+    var conversions = row['Conversions'];      
+    Logger.log('[%s] added (%s Conversions)', query, Conversions);    
+    htmlService.add('<p>[' + query + '] ' + Conversions + ' Conversions (adgroup: ' + adGroup.getName() + ')</p>');
+  }
+  
+  if(matches > 0){    
+    MailApp.sendEmail(EMAIL, 'Queries 2 Keywords #' + accountId, '', { 
+      htmlBody: htmlService.get() 
+    });
+  }
+}
+
+function createKeyword(adGroup, query, maxcpc){
+  adGroup.newKeywordBuilder()
+  .withText(query)
+  .withCpc(maxcpc)
+  .build();
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth() + 1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}

@@ -56,6 +56,9 @@ no network access required!
 note: 
 can use ANY editor to edit files within a gitHub local folder
 
+schema:
+see 'git - version control system - schema.png'
+
 ---
 
 history:
@@ -90,7 +93,7 @@ How to start
 -
 4. > git add .  // staging index
 5. > git commit -m "first commit"  // repository
-6. > git push -u myGitHubServer master // remote
+6. > git push -u GitHubServer master // remote
 
 Git Commands 
 ------------
@@ -151,7 +154,7 @@ note that we can use ANY of the known cmd command using the Git CMD dialog
 > git log // commits log (includes a unique guid foreach commit)
 > git log [tree-ish] // commits log for a specific tree-ish
 > git log [branchName] // commits log for a specific branch
-> git log [remoteBranch] // commits log for a remote specific branch (e.g: myGitHubServer/master)
+> git log [remoteBranch] // commits log for a remote specific branch (e.g: GitHubServer/master)
 > git log [fileName] // commits log for a specific file
 > git log -n [rowscount] // commits log (top x)
 > git log --oneline // commits log as a line per log view
@@ -200,7 +203,7 @@ note that we can use ANY of the known cmd command using the Git CMD dialog
 > git diff --color-words // show differences - highlight the words instead of the rows
 > git diff [commitGuidA]..[commitGuidB] // show differences between commitGuidA and commitGuidB (e.g: 2907d12..acf8750) [tree-ish]
 > git diff [branchName]..[branchName] // show differences between branches e.g: master..branchA [tree-ish]
-> git diff [branchName]..[remoteBranch] // show differences between local and remote branches (e.g: master..myGitHubServer/master) [tree-ish]
+> git diff [branchName]..[remoteBranch] // show differences between local and remote branches (e.g: master..GitHubServer/master) [tree-ish]
 > git diff --stat // show differences + changes statistics
 > git diff --summary // show differences + changes summary
 > git diff -b // show differences (ignore space changes)
@@ -252,7 +255,7 @@ git logs samples:
 - git log --author="RcBuilder" about.txt
 - git log --since="2017-09-01" --author="RcBuilder" --oneline
 - git log --grep="temp" --oneline
-- git log --oneline myGitHubServer/master 
+- git log --oneline GitHubServer/master 
 
 ---
 
@@ -309,7 +312,7 @@ represents a reference to a commit. can be several types such as branchName, bra
 also supports in patterns (a special parsing syntax) 
 - HEAD 
 - branchName // e.g: master 
-- remote branchName // e.g: myGitHubServer/master
+- remote branchName // e.g: GitHubServer/master
 - tagName 
 - commitGuid // e.g: acf87504... 
   note: can use partial guid
@@ -434,7 +437,7 @@ change the HEAD pointer:
 
 ---
 
-undo staging changes:
+undo (revert) staging changes:
 > git reset HEAD index.txt
 note that the HEAD doesn't move! - only pulls the specific file from the repository head pointer to the staging
 
@@ -599,7 +602,7 @@ clone an existing repository:
 
 e.g:
 > git clone https://github.com/RcBuilder/LyndaCourse.git
-> git push -u myGitHubServer master
+> git push -u GitHubServer master
 
 ---
 
@@ -609,18 +612,18 @@ create a new repository and map an existing local folder to it:
   (see '.gitignore file')
 
 - git init
-- git remote add [remoteName] [serverPath] // create a new remote named [remoteName]
-  see 'add a remote server'
 - git add . 
 - git commit -m "Init"
+- git remote add [remoteName] [serverPath] // create a new remote named [remoteName]
+  see 'add a remote server'
 - git push -u [remoteName] [branchName] // push the [branchName] branch to the [remoteName] server
 
 e.g:
 > git init
 > git add . 
 > git commit -m "Init"
-> git remote add myGitHubServer https://github.com/RcBuilder/LyndaCourse.git
-> git push -u myGitHubServer master
+> git remote add GitHubServer https://github.com/RcBuilder/LyndaCourse.git
+> git push -u GitHubServer master
 
 tip:
 add those 2 GLOBAL aliases: 
@@ -637,8 +640,8 @@ push an existing local repository to the server:
 - git push -u [remoteName] [branchName] // push the [branchName] branch to the [remoteName] server
 
 e.g:
-> git remote add myGitHubServer https://github.com/RcBuilder/LyndaCourse.git 
-> git push -u myGitHubServer master
+> git remote add GitHubServer https://github.com/RcBuilder/LyndaCourse.git 
+> git push -u GitHubServer master
 
 ---
 
@@ -682,11 +685,11 @@ note: can use git pull instead (git pull = git fetch + git merge)!
 
 e.g:
 > git branch -a // (optional) find out the branches names
-> git fetch myGitHubServer
-> git diff myGitHubServer/master..master // (optional) check differences
-> git merge myGitHubServer/master master
+> git fetch GitHubServer
+> git diff GitHubServer/master..master // (optional) check differences
+> git merge GitHubServer/master master
 OR
-> git pull myGitHubServer
+> git pull GitHubServer
 
 
 Fast-forward merge
@@ -765,8 +768,8 @@ commit to the remote server:
 - push the merged version back to the remote server
 
 e.g:
-> git pull myGitHubServer 
-> git push -u myGitHubServer master
+> git pull GitHubServer 
+> git push -u GitHubServer master
 
 schema:
 // before fetch

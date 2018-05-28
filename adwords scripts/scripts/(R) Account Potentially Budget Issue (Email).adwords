@@ -1,0 +1,242 @@
+var EMAIL = 'RcBuilder@walla.com';
+var IMPRESSIONS_SHEET = 'AccountImpressions';
+var MAX_MINUTES_WITHOUT_IMPRESSIONS = 120;
+
+function main() { 
+  var accountImpressionsSheetService = SpreadsheetLoader.loadSheetService(IMPRESSIONS_SHEET); // load   
+  var sheetNotExists = !accountImpressionsSheetService;
+  if(sheetNotExists)
+    accountImpressionsSheetService = SpreadsheetLoader.createSheetService(IMPRESSIONS_SHEET); // create  
+  
+  var accountImpressionsService = new AccountImpressionsService(accountImpressionsSheetService);
+  
+  var accounts = MccApp.accounts().get();
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    Logger.log('### account: %s ###', account.getName());    
+    ProcessAccount(account, accountImpressionsService);
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(account, accountImpressionsService){
+  var accountId = account.getCustomerId(); 
+  var accountName = account.getName();
+  
+  var impressions = account.getStatsFor('ALL_TIME').getImpressions();
+  
+  // { date, impressions }
+  var accountData = accountImpressionsService.getAccountData(accountId);
+  
+  // first execution for the current account - creating start point 
+  if(!accountData){ 
+    Logger.log('No Account Data - Creating start point.. ');
+    accountImpressionsService.addAccountData(accountId, impressions);
+    return;
+  }
+    
+  var hasImpressionsIncreasment = impressions - accountData.impressions > 0;  
+  if(hasImpressionsIncreasment){
+    Logger.log('impressions %s -> %s', accountData.impressions, impressions);
+    accountImpressionsService.updateAccountData(accountId, impressions);
+    return;
+  }
+
+  // no impressions increasment - check the diff hours quantity from the last impressions increasment 
+  var dateDiff = HELPER.dateDiffInMinutes(new Date(), accountData.date); // minutes
+  Logger.log('%s minutes from last execution', dateDiff);
+  
+  if(dateDiff > MAX_MINUTES_WITHOUT_IMPRESSIONS){
+    Logger.log('diff: %s, max: %s', dateDiff, MAX_MINUTES_WITHOUT_IMPRESSIONS);
+    Logger.log('potentially budget issue!');
+    MailApp.sendEmail(EMAIL, 'potentially budget issue!', 'account ' + accountName + ' (#' + accountId + ')');
+  }
+}
+
+/* Account Impressions Service */
+var AccountImpressionsService = function(sheetService) {
+  var _sheetService = sheetService;
+  
+  return {
+    getAccountData: function(accountId){
+      var row_index = _sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return null;
+      
+      var row = _sheetService.getRowValues(row_index);
+      return { date: new Date(row[1]), impressions: parseInt(row[2]) };
+    },
+    addAccountData: function(accountId, impressions){
+      _sheetService.addRow([accountId, new Date(), impressions]);
+    },
+    updateAccountData: function(accountId, impressions){
+      var row_index = _sheetService.getRowIndex(1, accountId);
+      _sheetService.setValue(row_index, 2, new Date());
+      _sheetService.setValue(row_index, 3, impressions);
+    }
+  };
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  return {      
+     hasSheet: _sheet != null,
+     sheetName: _sheet ? _sheet.getName() : '',
+     getLastRowIndex: function(){ return _sheet.getLastRow();}, 
+     getLastColumnIndex: function(){ return _sheet.getLastColumn();}, 
+     getValue: function(rowIndex, columnIndex){ 
+       return _sheet.getRange(rowIndex, columnIndex).getValue();
+     }, 
+     getValues: function(){
+       return _sheet.getDataRange().getValues();
+     }, 
+     getRowValues:function(rowIndex){       
+       return _sheet.getRange(rowIndex, 1, 1, this.getLastColumnIndex()).getValues()[0];
+     }, 
+     setValue: function(rowIndex, columnIndex, value){ 
+       return _sheet.getRange(rowIndex, columnIndex).setValue(value);
+     },     
+     addRow: function(arrValues){ 
+       return _sheet.appendRow(arrValues);
+     },
+     deleteRow: function(rowIndex){
+       _sheet.deleteRow(rowIndex);
+     },  
+     sort: function(columnIndex){
+       _sheet.sort(columnIndex);
+     },
+     getRowIndex: function(columnIndex, key){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnIndex - 1] == key)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getRowIndexBy2Columns: function(columnAIndex, keyA, columnBIndex, keyB){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnAIndex - 1] == keyA && rows[row][columnBIndex - 1] == keyB)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getColumnValues: function(startRowIndex, columnIndex){
+       return _sheet.getRange(startRowIndex, columnIndex, _sheet.getLastRow() - 1, columnIndex).getValues();
+     }       
+   }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return new SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  },
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return new SheetService(spreadsheet.getActiveSheet());
+  },
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  }
+}
+
+var HELPER = {
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  },
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  },
+  dateDiffInMinutes: function (date1, date2) {
+    var datediff = date1.getTime() - date2.getTime(); 
+    return parseInt(datediff / (60*1000));
+  },
+  dateSignature: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    
+    if(month.length == 1) month = '0' + month; 
+    
+    return parseInt(year + month); // return yyyyMM as int
+  }
+};

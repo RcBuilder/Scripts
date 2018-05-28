@@ -1,0 +1,25 @@
+function main(){
+  var report1 = AdWordsApp.report(
+     'SELECT Id, AdType, AdGroupName, Clicks, Cost, Impressions, CreativeFinalUrls ' +
+     'FROM   AD_PERFORMANCE_REPORT ' +
+     'DURING YESTERDAY');
+  
+  var rows = report1.rows();
+  while(rows.hasNext()) {
+    var row = rows.next();
+    Logger.log('%s -> %s', row['AdGroupName'], row['CreativeFinalUrls'] /*LIST*/);
+  }
+  
+  Logger.log('\n\n----\n\n');
+  
+  var report2 = AdWordsApp.report(
+     'SELECT AdGroupName, EffectiveFinalUrl ' +
+     'FROM   FINAL_URL_REPORT ' +
+     'DURING YESTERDAY');
+  
+  var rows = report2.rows();
+  while(rows.hasNext()) {
+    var row = rows.next();
+    Logger.log('%s -> %s', row['AdGroupName'], row['EffectiveFinalUrl']);
+  }
+}

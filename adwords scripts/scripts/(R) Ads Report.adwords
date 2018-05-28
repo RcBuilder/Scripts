@@ -1,0 +1,60 @@
+var EMAIL = 'rcbuilder@walla.com';
+
+function main() {
+  var currentAccount = AdWordsApp.currentAccount();
+  var currency = currentAccount.getCurrencyCode();
+  
+  var ads = AdWordsApp.ads()
+  .withCondition("Status = ENABLED")
+  .withCondition("AdGroupStatus = ENABLED")
+  .withCondition("CampaignStatus = ENABLED")
+  .get();
+  
+  
+  Logger.log('ROWS : ' + ads.totalNumEntities() + '\n');
+  
+  var csvHeader = '#, ad url, ad text, campaign, adGroup, impressions, clicks, cpc, ctr, conversions, conversions rate, cost, cpm, views, position, time on site\n'   
+  var csvString = csvHeader;
+  
+  while (ads.hasNext()) {
+    var ad = ads.next();   
+    var campaign = ad.getCampaign();        
+    var adGroup = ad.getAdGroup();
+    var adType = ad.getType();
+    
+    if(adType == 'TEXT_AD' || adType == 'EXPANDED_TEXT_AD')
+    {
+      var stat = ad.getStatsFor('YESTERDAY'); // YESTERDAY, ALL_TIME
+    
+      var csvRow = 
+        ad.getId() + ', ' +
+        ad.urls().getFinalUrl() + ', ' +   
+        ad.getHeadlinePart1().replace(',', '') + ', ' + 
+        campaign.getName().replace(',', '') + ', ' + 
+        adGroup.getName().replace(',', '') + ', ' + 
+        stat.getImpressions() + ', ' +
+        stat.getClicks() + ', ' +
+        stat.getAverageCpc() + ', ' +
+        stat.getCtr() + ', ' +
+        stat.getConversions() + ', ' +
+        stat.getConversionRate() + ', ' +
+        stat.getCost() + ' ' + currency + ', ' +
+        stat.getAverageCpm() + ', ' +
+        stat.getAveragePageviews() + ', ' +
+        stat.getAveragePosition() + ', ' +
+        stat.getAverageTimeOnSite();
+               
+      Logger.log(csvRow + '\n'); 
+      csvString += csvRow + '\n';
+    }
+  }
+  
+  if(csvString != '')
+  {
+    var blob = Utilities.newBlob(csvString, 'text/csv')
+    blob.setName('Report.csv');
+    MailApp.sendEmail(EMAIL, 'AD STATISTICS', 'REPORT ATTACHED', {attachments: [blob]});
+    
+    Logger.log('email sent to ' + EMAIL)
+  }
+}

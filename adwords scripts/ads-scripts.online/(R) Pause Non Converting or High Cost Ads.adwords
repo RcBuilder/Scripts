@@ -1,0 +1,71 @@
+var PERIOD = 'ALL_TIME'; // ALL_TIME, LAST_30_DAYS
+
+function main() {
+  HandleNonConvertingAds();
+  HandleConvertingAds();
+}
+
+function HandleNonConvertingAds(){ 
+  Logger.log('## Non Converting Ads ##')
+  var ads = AdWordsApp.ads()
+     .withCondition('ConvertedClicks = 0')
+     .withCondition('Status = ENABLED')
+     .withCondition('Cost > 0')  
+     .forDateRange(PERIOD)
+     .orderBy('Cost ASC')
+     .get();
+  
+  while (ads.hasNext()) {
+    var ad = ads.next();
+    var adGroup = ad.getAdGroup();
+    var adGroupCPA = GetAdGroupCPA(adGroup);
+    var adCost = ad.getStatsFor(PERIOD).getCost();
+    
+    Logger.log('ad: %s -> cost %s', ad.getHeadline(), adCost);
+    Logger.log('adGroup %s -> CPA %s', adGroup.getName(), adGroupCPA);
+        
+    if(adGroupCPA == null || adCost < adGroupCPA * 2) // no changes require
+      continue;
+    
+    // adCost is too high - pause the ad 
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      ad.pause();
+    Logger.log('PAUSE THE AD!');
+  }
+}
+
+function GetAdGroupCPA(adGroup){
+  var stats = adGroup.getStatsFor(PERIOD);
+  var conversions = stats.getConvertedClicks();
+  return conversions == 0 ? 0 : (stats.getCost() / conversions); // calculate the ad "CPA" - cost per converted
+}
+
+function HandleConvertingAds(){ 
+  Logger.log('## Converting Ads ##')
+  var ads = AdWordsApp.ads()
+     .withCondition('ConvertedClicks > 0')
+     .withCondition('Status = ENABLED')
+     .withCondition('Cost > 0')  
+     .forDateRange(PERIOD)
+     .orderBy('ConvertedClicks DESC')
+     .get();
+  
+  while (ads.hasNext()) {
+    var ad = ads.next();
+    var adGroup = ad.getAdGroup();
+    var adGroupCPA = GetAdGroupCPA(adGroup);
+    var stats = ad.getStatsFor(PERIOD);
+    var adCPA = stats.getCost() / stats.getConvertedClicks(); // calculate the ad "CPA" - cost per converted
+    
+    Logger.log('ad: %s -> Conversions %s, CPA %s', ad.getHeadline(), stats.getConvertedClicks(), adCPA)
+    Logger.log('adGroup %s -> CPA %s', adGroup.getName(), adGroupCPA);
+        
+    if(adGroupCPA == null || adCPA < adGroupCPA * 4) // no changes require
+      continue;
+    
+    // adCost is too high - pause the ad 
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      ad.pause();
+    Logger.log('PAUSE THE AD!');
+  }
+}

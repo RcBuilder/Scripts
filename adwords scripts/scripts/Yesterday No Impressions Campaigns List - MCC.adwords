@@ -1,0 +1,41 @@
+var EMAIL = 'RcBuilder@walla.com';
+
+function main()
+{
+  var accounts = MccApp.accounts().get();
+    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+    
+    MccApp.select(account);
+    ProcessAccount(account);
+    
+    Logger.log('--------------------------');
+  }
+}
+  
+function ProcessAccount(account) {
+  var accountName = account.getName();  
+  
+  var emailBody='Yesterday, the following campaigns have had no impressions:<br />';  
+  var noImpCamp=0; 
+  
+  var campaignsIterator = AdWordsApp.campaigns().get();    
+  while (campaignsIterator.hasNext()) {    
+    var campaign = campaignsIterator.next();    
+    var stats = campaign.getStatsFor('YESTERDAY');    
+    if (stats.getImpressions() == 0 && campaign.isEnabled()) {    
+      Logger.log(campaign.getName());
+      emailBody = emailBody + campaign.getName() + '<br>';      
+      noImpCamp++;      
+    }    
+  }
+  
+  if (noImpCamp > 0) {    
+    var subject = 'Alert: ' + accountName + ' – ' + noImpCamp + ' Campaigns with no impressions';
+    MailApp.sendEmail(EMAIL, subject,'',{ htmlBody: emailBody })    
+  }
+}

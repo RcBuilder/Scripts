@@ -1,0 +1,84 @@
+var distinct_arr = [];
+
+function main() {
+  /*
+  var arr = [
+    'http://www.p1000.co.il/sales/saledetails.aspx?auid=7752607&came=2745',
+    'http://www.p1000.co.il/sales/saledetails.aspx?auid=7751415'
+  ];
+  
+  for(var i = 0; i < arr.length ; i++)
+  {
+    var url_to_fetch = arr[i];
+     
+    var input = UrlFetchApp.fetch(url_to_fetch).getContentText();
+    var pattern = 'itemprop="price">([.,0-9]{1,})</em>';
+    var regex = new RegExp(pattern, 'i'); // i = ignore case
+    var match = regex.exec(input); 
+
+    Logger.log(match[1]);
+  }
+  */
+  
+  var ads = AdWordsApp.ads()
+  .withCondition("Status = ENABLED")
+  .withCondition("AdGroupStatus = ENABLED")
+  .withCondition("CampaignStatus = ACTIVE")
+  .withCondition("DestinationUrl CONTAINS 'p1000.co.il/sales'")
+  .withCondition("AdGroupName CONTAINS 'price_script'")
+  //.withLimit(20)
+  .get();
+  
+  var pattern = 'itemprop="price">([.,0-9]{1,})</em>';
+  var regex = new RegExp(pattern, 'i'); // i = ignore case
+  
+  Logger.log('ROWS : ' + ads.totalNumEntities());
+  while (ads.hasNext()) {
+    var ad = ads.next();
+    var adGroupId = ad.getAdGroup().getId();
+    var url_to_fetch = ad.getDestinationUrl();
+    AddUniqueItem({ url : url_to_fetch, adGroup : adGroupId });
+  }
+  Logger.log('DISTINCT ROWS : ' + distinct_arr.length);
+  
+  for(var i = 0; i < distinct_arr.length ; i++){
+    try{
+      var item = distinct_arr[i];
+      Logger.log('url : ' + item.url + ', adGroup : ' + item.adGroup); 
+      
+      var input = UrlFetchApp.fetch(item.url).getContentText();     
+      var match = regex.exec(input);
+      
+      if(match == null)
+      {
+        Logger.log('NO PRICE FOUND');
+        continue;
+      }
+      Logger.log('PRICE : ' + match[1]);
+      
+      var adGroup = AdWordsApp.adGroups().withIds([item.adGroup]).get().next();
+      if(adGroup == null) continue;
+      
+      Logger.log('adGroup : ' + adGroup.getName());
+      
+      var keywords = adGroup.keywords().get();
+      while (keywords.hasNext()) {
+        var keyword = keywords.next();
+         if(!AdWordsApp.getExecutionInfo().isPreview())
+           keyword.setAdParam(1, match[1]);
+         else  
+           Logger.log('keyword ' + keyword.getText() + ', price ' + match[1]);
+      }
+    }
+    catch(e){
+      Logger.log('Error');
+    }
+  }
+}
+  
+function AddUniqueItem(item){
+   for(var i = 0; i < distinct_arr.length; i++)
+      if(distinct_arr[i].url == item.url && distinct_arr[i].adGroup == item.adGroup)
+        return;
+   distinct_arr.push(item);
+}   

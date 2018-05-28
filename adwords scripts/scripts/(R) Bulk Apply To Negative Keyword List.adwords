@@ -1,0 +1,60 @@
+var LABEL_EXCLUDE_CAMPAIGN = 'Experiment';
+var LIST_NAME = 'MyNegativeKeywordList1';
+
+function main() {
+  
+  var lists = AdWordsApp.negativeKeywordLists()
+  .withCondition('Name  = "' + LIST_NAME + '"')
+  .get();   
+  
+  var list = null;
+  if(lists.hasNext()){  
+    list = lists.next();
+  }
+  else // create 
+  {
+    Logger.log('Negative Keyword List was not found - Creating it...');
+    
+    var operation = AdWordsApp.newNegativeKeywordListBuilder()
+         .withName(LIST_NAME)
+         .build();
+    list = operation.getResult();
+  }
+     
+  if(!list) return;
+  
+  Logger.log('#%s %s', list.getId().toString(), list.getName());
+  
+  
+  var campaigns;  
+  if(IsLabelExists())
+  {    
+    campaigns = AdWordsApp.campaigns()  
+    .withCondition('Status IN [ENABLED]')  
+    .withCondition('LabelNames CONTAINS_NONE ["' + LABEL_EXCLUDE_CAMPAIGN + '"]')
+    .get();
+  }
+  else 
+  {
+    campaigns = AdWordsApp.campaigns()  
+    .withCondition('Status IN [ENABLED]')      
+    .get();
+  }
+  
+  while(campaigns.hasNext()){
+    var campaign = campaigns.next();    
+    Logger.log(campaign.getName()); 
+    campaign.addNegativeKeywordList(list);
+  }
+   
+  /*
+  var budget = AdWordsApp.budgets().withCondition('BudgetName = "MyBudget1"').get().next();       
+  Logger.log('#%s SHARED: %s', budget.getId(), budget.isExplicitlyShared());     
+  */
+}
+
+function IsLabelExists(){  
+  if(LABEL_EXCLUDE_CAMPAIGN == '')
+    return false;
+  return AdWordsApp.labels().withCondition('Name = "' + LABEL_EXCLUDE_CAMPAIGN + '"').get().hasNext();
+}

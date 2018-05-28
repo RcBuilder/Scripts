@@ -1,0 +1,16 @@
+function main() {
+  var campaigns = AdWordsApp
+  .campaigns()
+  .withCondition("Clicks > 100")
+  .withCondition("Conversions = 0")
+  .forDateRange("ALL_TIME")
+  .get();
+  
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();
+
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      campaign.pause();
+    Logger.log('"' + campaign.getName() + '" paused');
+  }
+}

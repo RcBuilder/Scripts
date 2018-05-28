@@ -1,0 +1,67 @@
+var LABEL_ACCOUNT = 'Primary';
+var LABEL_CAMPAIGN = 'MyCampaign';
+var LABEL_ADGROUP = 'MyAdGroup';
+
+function main() {
+  // get all the mcc accounts using the x label
+  var accounts = MccApp.accounts()
+  .withCondition("LabelNames CONTAINS '" + LABEL_ACCOUNT + "'")
+  .get();
+  
+  // go over the mcc accounts
+  while (accounts.hasNext()) {
+    var account = accounts.next();
+    var accountName = account.getName() ? account.getName() : '--';
+    Logger.log('account #%s,%s', account.getCustomerId(), accountName);
+    
+    // set the active account
+    MccApp.select(account);
+    
+    if(!IsLabelsExists(LABEL_CAMPAIGN)){
+      Logger.log('label "%s" does not exists! skip...', LABEL_CAMPAIGN);
+      continue;
+    } 
+    
+    if(!IsLabelsExists(LABEL_ADGROUP)){
+      Logger.log('labels "%s" does not exists! skip...', LABEL_ADGROUP);
+      continue;
+    } 
+    
+    var campaigns = AdWordsApp.campaigns()
+    .withCondition("LabelNames CONTAINS_ANY ['" + LABEL_CAMPAIGN + "']")
+    .get();
+    
+    var arrAdgroups = [];
+    
+    while (campaigns.hasNext()) {
+      var campaign = campaigns.next();
+      Logger.log('campaign %s', campaign.getName() ? campaign.getName() : '--');
+      
+      var adgroups = campaign.adGroups()
+      .withCondition("LabelNames CONTAINS_ANY ['" + LABEL_ADGROUP + "']")
+      .get();
+      
+      while (adgroups.hasNext()) {
+        var adgroup = adgroups.next();
+        Logger.log('adgroup %s', adgroup.getName() ? adgroup.getName() : '--');
+        
+        arrAdgroups.push(adgroup);
+       }
+    }
+    
+    Logger.log('%s adgroups found', arrAdgroups.length);
+  }
+      
+  Process(arrAdgroups);
+}
+
+function Process(arrAdgroups){  
+  // code here...
+}
+
+function IsLabelsExists(labelName){
+  return AdWordsApp.labels()
+  .withCondition('Name = "' + labelName + '"')  
+  .get()
+  .hasNext();
+}

@@ -1,0 +1,140 @@
+/* 
+	source: 
+	https://developers.google.com/adwords/scripts/docs/solutions/mccapp-bid-to-position
+*/
+
+var TARGET_ACCOUNT_LABEL = 'Experiment';
+var TARGET_AVERAGE_POSITION = 3;
+var TOLERANCE = 0.1;
+var BID_ADJUSTMENT_COEFFICIENT = 1.05;
+var EMAIL_ADDRESS = 'RcBuilder@walla.com';
+var EMAIL_CC_ADDRESS = [];
+
+function main() {
+  var accountSelector = MccApp.accounts();
+  if (TARGET_ACCOUNT_LABEL != '') {
+    accountSelector.withCondition('Labels CONTAINS \'' + TARGET_ACCOUNT_LABEL + '\'');
+  }
+  accountSelector.executeInParallel('adjustBids', 'sendEmail');
+}
+
+function adjustBids() {
+  var raisedKeywordCount = raiseKeywordBids();
+  var loweredKeywordCount = 0; //lowerKeywordBids();
+  var retval = {'raised': raisedKeywordCount, 'lowered': loweredKeywordCount};
+  return JSON.stringify(retval);
+}
+
+function raiseKeywordBids() {
+  var keywordsToRaise = getKeywordsToRaise();
+
+  while (keywordsToRaise.hasNext()) {
+    var keyword = keywordsToRaise.next();
+    keyword.bidding().setCpc(getIncreasedCpc(keyword.bidding().getCpc()));
+  }
+  return keywordsToRaise.totalNumEntities();
+}
+
+function lowerKeywordBids() {
+  var keywordsToLower = getKeywordsToLower();
+
+  while (keywordsToLower.hasNext()) {
+    var keyword = keywordsToLower.next();
+    keyword.bidding().setCpc(getDecreasedCpc(keyword.bidding().getCpc()));
+  }
+  return keywordsToLower.totalNumEntities();
+}
+
+function getIncreasedCpc(cpc) {
+  return cpc * BID_ADJUSTMENT_COEFFICIENT;
+}
+
+function getDecreasedCpc(cpc) {
+  return cpc / BID_ADJUSTMENT_COEFFICIENT;
+}
+
+function getKeywordsToRaise() {
+  // Condition to raise bid: Average position is greater (worse) than
+  // target + tolerance
+  return AdWordsApp.keywords()
+      .withCondition('Status = ENABLED')
+      .withCondition('AveragePosition > ' + (TARGET_AVERAGE_POSITION + TOLERANCE))
+      .orderBy('AveragePosition ASC')
+      .forDateRange('LAST_7_DAYS')
+      .get();
+}
+
+function getKeywordsToLower() {
+  // Conditions to lower bid: Ctr greater than 1% AND
+  // average position less (better) than target - tolerance
+  return AdWordsApp.keywords()
+      .withCondition('Ctr > 0.01')
+      .withCondition(
+          'AveragePosition < ' + (TARGET_AVERAGE_POSITION - TOLERANCE))
+      .withCondition('Status = ENABLED')
+      .orderBy('AveragePosition DESC')
+      .forDateRange('LAST_7_DAYS')
+      .get();
+}
+
+function sendEmail(results) {
+  var emailBody = [];
+
+  emailBody.push(
+      '<html>', '<body>',
+      '<table width=800 cellpadding=0 border=0 cellspacing=0>', '<tr>',
+      '<td colspan=2 align=right>',
+      '<div style=\'font: italic normal 10pt Times New Roman, serif; ' +
+          'margin: 0; color: #666; padding-right: 5px;\'>' +
+          'Powered by AdWords Scripts</div>',
+      '</td>', '</tr>', '<tr bgcolor=\'#3c78d8\'>', '<td width=500>',
+      '<div style=\'font: normal 18pt verdana, sans-serif; ' +
+          'padding: 3px 10px; color: white\'>' +
+          'BidToPosition summary report</div>',
+      '</td>', '<td align=right>',
+      '<div style=\'font: normal 18pt verdana, sans-serif; ' +
+          'padding: 3px 10px; color: white\'>',
+      AdWordsApp.currentAccount().getCustomerId(), '</h1>', '</td>', '</tr>',
+      '</table>', '<table width=800 cellpadding=0 border=0 cellspacing=0>',
+      '<tr bgcolor=\'#ddd\'>', '<td style=\'font: 12pt verdana, sans-serif; ' +
+          'padding: 5px 0px 5px 5px; background-color: #ddd; ' +
+          'text-align: left\'>Customer ID</td>',
+      '<td style=\'font: 12pt verdana, sans-serif; ' +
+          'padding: 5px 0px 5px 5px; background-color: #ddd; ' +
+          'text-align: left\'>Results</td>',
+      '</tr>', emailRows(results), '</table>', '</body>', '</html>');
+
+
+  if (EMAIL_ADDRESS != '') {
+    MailApp.sendEmail(
+        EMAIL_ADDRESS, 'BidToPosition summary report', '',
+        {htmlBody: emailBody.join('\n'), cc: EMAIL_CC_ADDRESS.join(',')});
+  }
+}
+
+function emailRows(results) {
+  var rows = [];
+  for (var i = 0; i < results.length; i++) {
+    var result = results[i];
+
+    rows.push(
+        '<tr>',
+        '<td style=\'padding: 5px 10px\'>' + result.getCustomerId() + '</td>',
+        '<td style=\'padding: 0px 10px\'>' + getResultDescription(result) +
+            '</td>',
+        '</tr>');
+  }
+  return rows.join('\n');
+}
+
+function getResultDescription(result) {
+  if (result.getStatus() == 'OK') {
+    var retval = JSON.parse(result.getReturnValue());
+    return 'Raised : ' + retval.raised + ' < br / > ' +
+        'Lowered : ' + retval.lowered;
+  } else if (result.getStatus() == 'ERROR') {
+    return result.getError();
+  } else {
+    return 'Script timed out.';
+  }
+}

@@ -1,0 +1,77 @@
+var EMAIL = 'RcBuilder@walla.com';
+var BLACK_LIST = 'Non COM';
+
+function main() { 
+  var list = null;
+  var listIterator = AdWordsApp.excludedPlacementLists()
+  .withCondition('Name = "'+ BLACK_LIST + '"')
+  .get();
+  
+  if(listIterator.hasNext()) // list exists 
+  {
+    Logger.log('Load "' + BLACK_LIST + '" blacklist');
+    list = listIterator.next();
+  }
+  else // new 
+  {
+    Logger.log('Create "' + BLACK_LIST + '" blacklist');
+    list = AdWordsApp.newExcludedPlacementListBuilder().withName(BLACK_LIST).build().getResult();
+  }
+  
+  var report = AdWordsApp.report(
+    'SELECT Criteria, CampaignId, AdGroupId ' + 
+    'FROM PLACEMENT_PERFORMANCE_REPORT ' + 
+    'WHERE Criteria DOES_NOT_CONTAIN_IGNORE_CASE ".com" ' + 
+    'AND IsNegative = false ' +
+    'DURING LAST_30_DAYS');
+  
+  var rows = report.rows();
+  
+  var campaignIds = [];
+  
+  var EMAIL_BODY = '';
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var placement = row['Criteria'];
+    var campaignId = row["CampaignId"];
+   
+    try{                
+      list.addExcludedPlacement(placement);      
+            
+      var message = '"' + placement + '" added to the "' + BLACK_LIST + '" blacklist';
+      Logger.log(message);
+      EMAIL_BODY += message + '\n';
+      
+      if(campaignIds.indexOf(campaignId) == -1)        
+        campaignIds.push(campaignId);
+    }
+    catch(e){
+      Logger.log('EXCEPTION: ' + e.message);
+    } 
+  }
+  
+  EMAIL_BODY += '\n\n';
+  
+  for(var i=0;i<campaignIds.length;i++)
+  {
+    var campaign = AdWordsApp.campaigns().withIds([campaignIds[i]]).get().next();       
+    
+    var message = 'campaign #' + campaign.getId() + ': ' + campaign.getName();
+    Logger.log(message); 
+    EMAIL_BODY += message + '\n';
+    
+    var isListAttached = campaign.excludedPlacementLists().withCondition('Name = "'+ BLACK_LIST + '"').get().hasNext();
+    if(isListAttached) continue;
+    
+    message = 'blacklist attached to the campaign';
+    Logger.log(message); 
+    EMAIL_BODY += message + '\n';
+    
+    campaign.addExcludedPlacementList(list);
+  }
+  
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'Non COM Blacklist', EMAIL_BODY);
+}

@@ -1,0 +1,23 @@
+
+function main() {
+  var accounts = MccApp.accounts()
+      .withCondition("LabelNames CONTAINS 'MyAccount'")
+      .get();
+
+
+  while (accounts.hasNext()) {
+    var account = accounts.next();
+    var accountName = account.getName() ? account.getName() : '--';
+    Logger.log('%s,%s', account.getCustomerId(), accountName);    
+
+    MccApp.select(account); // set the active account 
+
+   
+    var campaigns = AdWordsApp.campaigns().get();
+
+    while (campaigns.hasNext()) {
+      var campaign = campaigns.next();
+
+      Logger.log('%s', campaign.getName());
+    }
+  }

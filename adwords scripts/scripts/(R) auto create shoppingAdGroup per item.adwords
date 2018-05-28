@@ -1,0 +1,81 @@
+var DEFAULT_BID = 4;
+
+function main() {
+   var shoppingAdGroups = AdWordsApp.shoppingAdGroups()
+  .withCondition('Status = ENABLED')
+   //.withCondition('CampaignStatus = ENABLED')
+   .withCondition('Name = 1018')   
+  .get();
+  
+   while (shoppingAdGroups.hasNext()) {
+     var shoppingAdGroup = shoppingAdGroups.next();  
+     var shoppingAdGroupName = shoppingAdGroup.getName();
+     
+      Logger.log('shoppingAdGroup #%s',shoppingAdGroupName);
+     
+     var productGroupsSelector = shoppingAdGroup.productGroups();
+     var productGroups = productGroupsSelector.get();      
+     //var numOfProductGroups = parseInt(productGroups.totalNumEntities());
+     
+     // { itemId: null, others: null, isValid: false }
+     var data = GetProductGroupData(shoppingAdGroup);
+     if(data.isValid) continue;
+
+     Logger.log('remove all items'); 
+     var productGroupsToRemove = []; // in order to prevent the collection count within the loop
+     productGroups = productGroupsSelector.get(); // rewind 
+     while (productGroups.hasNext()) {
+       var productGroup = productGroups.next();  
+       productGroupsToRemove.push(productGroup);       
+     }
+     
+     Logger.log(productGroupsToRemove.length);
+     for(var i=0;i<productGroupsToRemove.length;i++){
+       var productGroup = productGroupsToRemove[i];
+       Logger.log('%s removed', productGroup.getId());     
+       try{
+         productGroup.remove();              
+       }
+       catch(e){
+         Logger.log('EX: ' + e.message);
+       }
+     }
+    
+     Logger.log('update adGroup default bid %s', DEFAULT_BID);
+     shoppingAdGroup.bidding().setCpc(DEFAULT_BID);
+     
+     Logger.log('create new item');
+     shoppingAdGroup.createRootProductGroup();
+     var root = shoppingAdGroup.rootProductGroup();          
+     var newItem = root.newChild().itemIdBuilder().withValue(shoppingAdGroupName).build().getResult();
+     //newItem.setMaxCpc(DEFAULT_BID);
+     
+     data = GetProductGroupData(shoppingAdGroup);
+     data.others.exclude();    
+   }
+}
+
+function GetProductGroupData(shoppingAdGroup){  
+  var result = { itemId: null, others: null, isValid: false };
+  
+  var root = shoppingAdGroup.rootProductGroup();  
+  if(root == null) return result;
+  
+  var children = root.children().get();
+  
+  if(parseInt(children.totalNumEntities()) != 2)
+    return result;
+  
+  var item1 = children.next().asItemId();
+  if(item1 != null) 
+      result.itemId = item1.getValue();  
+  
+  var item2 = children.next();
+                
+  if(item2.isOtherCase())
+    result.others = item2; 
+  
+  result.isValid = result.itemId != null && result.others != null && result.others.isExcluded;
+  
+  return result;
+}

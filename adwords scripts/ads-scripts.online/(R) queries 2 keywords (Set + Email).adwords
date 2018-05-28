@@ -1,0 +1,54 @@
+var EMAIL = 'RcBuilder@walla.com';
+
+function main() {
+  var report = AdWordsApp.report(
+   'SELECT Query,Clicks,ConvertedClicks,AverageCpc ' +
+   'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +
+   'WHERE ConvertedClicks > 0 ' + 
+   'DURING 20000101,' + dateFormat(new Date()));
+ 
+  var rows = report.rows();
+  
+  var EMAIL_BODY = '';
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var clicks = row['Clicks'];
+    var conversions = row['ConvertedClicks'];
+
+    //if(conversions == 0) continue;
+    
+    var query = row['Query'];
+    //Logger.log(query + ' ' + clicks);
+    var found_in_my_keywords = AdWordsApp.keywords().withCondition('Text CONTAINS "' + query + '"').get().hasNext();
+    if(found_in_my_keywords)
+    {
+      Logger.log('"' + query + '" found in my keywords');
+      continue;
+    }
+    
+    var adGroup = AdWordsApp.adGroups().get().next();
+    var maxcpc = row['AverageCpc'];
+    
+	if(!AdWordsApp.getExecutionInfo().isPreview())
+      adGroup.createKeyword(query, maxcpc);
+
+    var message = 'need to add the query "' + query + '" as keyword with maxcpc of ' + maxcpc;
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';
+  }
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'query 2 keyword', EMAIL_BODY);
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = date.getMonth().toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

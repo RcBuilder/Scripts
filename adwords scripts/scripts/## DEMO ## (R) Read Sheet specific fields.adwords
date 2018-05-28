@@ -1,0 +1,18 @@
+function main() {
+  var spreadsheet = SpreadsheetApp.create("My Report");
+  var sheet = spreadsheet.getActiveSheet(); 
+  
+  var report = AdWordsApp.report(
+    "SELECT AdGroupId, Impressions, Cost " +
+    "FROM SEARCH_QUERY_PERFORMANCE_REPORT " +
+    "DURING LAST_30_DAYS"); // execute report
+  
+  report.exportToSheet(sheet);
+ 
+  var range = sheet.getRange(1, 3, 7, 3); 
+  var values = range.getValues();
+ 
+  for(r in values)
+    for(c in values[r]) 
+      Logger.log(values[r][c]);
+}

@@ -1,0 +1,235 @@
+var LABEL_VALUES = {
+  'Primary' :  { bid: 0.1, position: 3, tolerance: 0.1 },
+  'Secondary' :  { bid: 0.2, position: 3, tolerance: 0.1 },
+  'Experiment' :  { bid: 0.3, position: 3, tolerance: 0.1 } 
+};
+
+var PERIOD = '20000101,20170101'; // LAST_30_DAYS, LAST_7_DAYS, 20000101,20170101
+var IncreaseValue = 0.05;
+var DecreaseValue = 0.95;
+
+
+function main() {
+  var accounts = MccApp.accounts().get();
+
+  // go over the mcc accounts
+  while (accounts.hasNext()) {
+    var account = accounts.next();
+    var accountName = account.getName() ? account.getName() : '--';
+    Logger.log('### account %s,%s ###', account.getCustomerId(), accountName);
+    
+    // set the active account 
+    MccApp.select(account); 
+    
+    setBids('Primary');
+    setBids('Secondary');
+    setBids('Experiment');
+  }
+}
+
+function setBids(labelName) {
+  var labelIterator = AdWordsApp.labels().withCondition('Name = "' + labelName + '"').get();
+  if(!labelIterator.hasNext()) 
+    return;
+  
+  var label = labelIterator.next();
+  var labelValues = GetLabelValues(labelName);
+  
+  if(labelValues == null) 
+    return;
+  
+  Logger.log('# label: %s %s', labelName, labelValues);       
+  
+  var adGroups = label.adGroups()
+  .withCondition("Status = ENABLED")
+  .get();
+  
+  while (adGroups.hasNext()) {
+    var adGroup = adGroups.next();      
+    Logger.log('adGroup : %s', adGroup.getName());
+    
+    increaseBids(adGroup, labelValues);
+    decreaseBids(adGroup, labelValues);
+  }     
+}
+
+function GetLabelValues(labelName){
+  try{
+    var result = LABEL_VALUES[labelName];
+    return result || null;
+  }
+  catch(e){ return null; }
+}
+
+function increaseBids(adGroup, label_values){
+  // { key, entity, top, other }
+  var keywords = [];
+  keywords.indexOfKey = function(key){
+    for(var i=0;i<this.lenght;i++)
+      if(this[i].key == key)
+        return i;
+    return -1;
+  };
+  
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var report = AdWordsApp.report(
+	'SELECT Id, AdGroupId, Criteria, Impressions, Slot ' +
+	'FROM KEYWORDS_PERFORMANCE_REPORT ' +    
+	'WHERE Status = ENABLED ' + 
+    'AND AdGroupStatus = ENABLED ' +
+    'AND CampaignStatus = ENABLED ' +
+    'AND IsNegative = False ' + 
+    'AND Impressions > 0 ' + 
+    'AND AveragePosition > ' + (label_values.position + label_values.tolerance) + ' ' +  
+    'AND AdGroupId = ' + adGroup.getId() + ' ' +
+	'DURING '+ PERIOD, reportConfig); 
+	     
+  var rows = report.rows();    
+  while(rows.hasNext()) { 
+    var row = rows.next();
+    
+    var keywordId = row['Id'];
+    var adGroupId = row['AdGroupId'];
+    var keywordText = row['Criteria'];
+    var impressions = row['Impressions'];
+    var segment = row['Slot'];
+    
+    var index = keywords.indexOfKey(keywordId);
+    if(index == -1) // add
+    {
+      var keywordIterator = AdWordsApp.keywords().withIds([[adGroupId, keywordId]]).get();
+      if(!keywordIterator.hasNext()) continue;
+      
+      var keyword = keywordIterator.next();
+      keywords.push({ key: keywordId, entity: keyword, top: 0, other: 0 });
+      index = keywords.length - 1; // set created keyword index
+    }        
+    
+    // note: both 'Google search: Other' and 'Search partners: Other' includes within 'other' segment etcetera
+    if(segment.indexOf('Top') > -1)
+      keywords[index].top += impressions;
+    else if(segment.indexOf('Other') > -1)
+      keywords[index].other += impressions;
+    
+    //Logger.log('report row: #%s %s -> segment: %s, impressions: %s', keywordId, keywordText, segment, impressions);
+  }
+  
+  
+  for(var i=0; i< keywords.length; i++) {
+    var keywordItem = keywords[i]; 
+
+    var keyword = keywordItem.entity;     
+    Logger.log('keyword: #%s %s -> top: %s, other: %s', keywordItem.key, keyword.getText(), keywordItem.top, keywordItem.other);
+    
+    var max_cpc = keyword.getMaxCpc();
+    var new_max_cpc = max_cpc + (max_cpc * label_values.bid);       
+
+    // check top vs other    
+    if(keywordItem.top > keywordItem.other)
+    {
+      Logger.log('most impressions came from the top page');
+      continue;
+    }
+    
+    var total = keywordItem.top + keywordItem.other;
+    Logger.log('other segment percentage %s', keywordItem.other / total);
+    
+    // the other segment is less then the supplied x%        
+    if(keywordItem.other / total < IncreaseValue)          
+      continue;    
+    
+    Logger.log('change: %s,  cpc %s -> %s', keyword.getText(), max_cpc, new_max_cpc);        
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.setMaxCpc(new_max_cpc);
+  }
+}
+
+function decreaseBids(adGroup, label_values){
+  // { key, entity, top, other }
+  var keywords = [];
+  keywords.indexOfKey = function(key){
+    for(var i=0;i<this.lenght;i++)
+      if(this[i].key == key)
+        return i;
+    return -1;
+  };
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var report = AdWordsApp.report(
+	'SELECT Id, AdGroupId, Criteria, Impressions, Slot ' +
+	'FROM KEYWORDS_PERFORMANCE_REPORT ' +    
+	'WHERE Status = ENABLED ' + 
+    'AND AdGroupStatus = ENABLED ' +
+    'AND CampaignStatus = ENABLED ' +
+    'AND IsNegative = False ' + 
+    'AND Impressions > 0 ' + 
+    'AND AveragePosition < ' + (label_values.position - label_values.tolerance) + ' ' +  
+    'AND AdGroupId = ' + adGroup.getId() + ' ' +
+	'DURING '+ PERIOD, reportConfig); 
+	     
+  var rows = report.rows();    
+  while(rows.hasNext()) { 
+    var row = rows.next();
+    
+    var keywordId = row['Id'];
+    var adGroupId = row['AdGroupId'];
+    var keywordText = row['Criteria'];
+    var impressions = row['Impressions'];
+    var segment = row['Slot'];
+    
+    var index = keywords.indexOfKey(keywordId);
+    if(index == -1) // add
+    {
+      var keywordIterator = AdWordsApp.keywords().withIds([[adGroupId, keywordId]]).get();
+      if(!keywordIterator.hasNext()) continue;
+      
+      var keyword = keywordIterator.next();
+      keywords.push({ key: keywordId, entity: keyword, top: 0, other: 0 });
+      index = keywords.length - 1; // set created keyword index
+    }        
+    
+    // note: both 'Google search: Other' and 'Search partners: Other' includes within 'other' segment etcetera
+    if(segment.indexOf('Top') > -1)
+      keywords[index].top += impressions;
+    else if(segment.indexOf('Other') > -1)
+      keywords[index].other += impressions;
+    
+    //Logger.log('report row: #%s %s -> segment: %s, impressions: %s', keywordId, keywordText, segment, impressions);
+  }
+  
+  
+  for(var i=0; i< keywords.length; i++) {
+    var keywordItem = keywords[i]; 
+
+    var keyword = keywordItem.entity;     
+    Logger.log('keyword: #%s %s -> top: %s, other: %s', keywordItem.key, keyword.getText(), keywordItem.top, keywordItem.other);
+    
+    var max_cpc = keyword.getMaxCpc();
+    var new_max_cpc = max_cpc - (max_cpc * label_values.bid);
+    
+    // check top vs other    
+    if(keywordItem.other < keywordItem.top)
+    {
+      Logger.log('most impressions came from the other segment');
+      continue;
+    }
+    
+    var total = keywordItem.top + keywordItem.other;
+    Logger.log('top segment percentage %s', keywordItem.top / total);
+    
+    // the top segment is less then the supplied x%        
+    if(keywordItem.top / total < DecreaseValue)          
+      continue;    
+    
+    Logger.log('change: %s,  cpc %s -> %s', keyword.getText(), max_cpc, new_max_cpc);  
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.setMaxCpc(new_max_cpc);
+  }
+}

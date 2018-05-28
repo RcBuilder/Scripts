@@ -1,0 +1,15 @@
+function main() {
+  var keywords = AdWordsApp.keywords()
+  .withCondition("Clicks > 100")
+  .withCondition("Conversions = 0")
+  .forDateRange("ALL_TIME")
+  .get();
+  
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+    
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.pause();
+    Logger.log('"' + keyword.getText() + '" stopped');    
+  }
+}

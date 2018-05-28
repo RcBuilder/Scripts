@@ -1,0 +1,29 @@
+var EMAIL = 'RcBuilder@walla.com';
+
+function main() {
+  var keywords = AdWordsApp.keywords()
+  .withCondition("Conversions = 0")
+  .withCondition("Cost > 5")
+  .withCondition("Impressions > 50")
+  .forDateRange("ALL_TIME").get();
+  
+  var EMAIL_BODY = '';
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+
+    var top_page_cpc = keyword.getTopOfPageCpc();  
+    if(top_page_cpc == null) continue;
+    
+    var max_cpc = keyword.getMaxCpc();
+    var new_max_cpc = top_page_cpc + 0.01; 
+    
+    if(max_cpc <= new_max_cpc) continue;  
+    
+    var message = 'need to changed max cpc of "' + keyword.getText() + '" from ' + max_cpc + ' to ' + new_max_cpc + '(top page cpc = ' + top_page_cpc + ')';
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';
+  }
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'LOWER MAX CPC TO THE TOP PAGE CPC', EMAIL_BODY);
+}

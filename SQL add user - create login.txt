@@ -1,0 +1,21 @@
+Create a Login
+--------------
+
+steps: 
+1. open the 'SQL Server Management Studio'
+2. (folder) Security -> (folder) Logins -> right click -> New Login
+3. choose the user type (Windows or SQL) 
+   note: Windows user refer to a pre-defined windows user 
+4. (tab) General:
+   - set password 
+     note: not required for windows user
+   - set the default database
+5. (tab) Server Roles
+   - set the permissions roles for this user (see 'SQL Server Roles.txt')
+6. (tab) User Mapping
+   - set the databases which the user allow to access
+7. (tab) Securables
+   - set the securables and their permissions 
+8. (tab) Status
+   - determine whether this user can login or not and if he has a permission to access the db engine 
+

@@ -1,0 +1,572 @@
+var MANAGER_SHEET = 'adwordsAccountsManager'; 
+var CLIENT_DATA_SHEET = 'TEST'
+var REPORT_TEMPLATE_NAME = 'emailTemplate.txt'; 
+
+function main() {  
+  // create accounts manager service
+  var clientsSheetsService = SpreadsheetLoader.loadSheetService(MANAGER_SHEET);  
+  var accountsManagerService = new AccountsManagerService(clientsSheetsService);
+  
+  // create reporter service   
+  var reportService = new ReportService(); 
+  reportService.setTemplate(REPORT_TEMPLATE_NAME);
+     
+  var account_ids = accountsManagerService.getAccountsIds();
+  Logger.log('account ids: %s', account_ids);
+  
+  var accounts = MccApp.accounts().withIds(account_ids).get();  
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());    
+    ProcessAccount(account, accountsManagerService, reportService);
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(account, accountsManagerService, reportService){
+  var accountId = account.getCustomerId();  
+  var accountName = account.getName();
+   
+  // get the current client sheet id 
+  var clientDataSheetId = accountsManagerService.getAccountSheetId(accountId);
+  
+  // load account data sheet - create it - if not exists    
+  var clientDataSpreadSheet;
+  var isClientDataSpreadSheetCreated = false; // indicates whether the spreadsheet created in the current execution 
+  clientDataSpreadSheet = SpreadsheetLoader.loadSpreadSheetServiceById(clientDataSheetId); 
+  
+  if(!clientDataSpreadSheet){
+    var newSheetName = CLIENT_DATA_SHEET.concat('_', accountName);
+    clientDataSpreadSheet = SpreadsheetLoader.createSpreadSheetService(newSheetName);
+    
+    clientDataSheetId = clientDataSpreadSheet.getId();     
+    
+    // update the clients sheet with the current client created sheet id
+    accountsManagerService.setAccountSheetId(accountId, clientDataSheetId);
+      
+    // share link as public - no sign-in required
+    var driveService = new DriveService();
+    for(var i=0;i<500000; i++); // delay
+    driveService.setAsPublicById(clientDataSheetId);
+      
+    isClientDataSpreadSheetCreated = true;
+  }
+  
+  //Logger.log('sheetId: %s', clientDataSheetId);   
+  
+  // create account data service  
+  var clientDataService = new ClientDataService(clientDataSpreadSheet); 
+  if(isClientDataSpreadSheetCreated)
+    clientDataService.addDataHeader();
+  
+  var stats = account.getStatsFor('ALL_TIME');
+    
+  // dataRow: {rowId, date, impressions, clicks, ctr, cpc, convertedClicks, clickConversionRate, cost}
+  var dataRow = { 
+    rowId: HELPER.generateRandomId(),
+    date: new Date(),
+    impressions: stats.getImpressions(),    
+    clicks: stats.getClicks(), 
+    ctr: stats.getCtr(),
+    cpc: (stats.getCost() / stats.getClicks()).toFixed(2),
+    convertedClicks: stats.getConvertedClicks(),
+    clickConversionRate: stats.getClickConversionRate(),    
+    cost: stats.getCost()
+  };
+  
+  Logger.log('impressions %s, clicks %s, ctr %s, cpc %s, convertedClicks %s, clickConversionRate %s, cost %s', 
+             dataRow.impressions, dataRow.clicks, dataRow.ctr, dataRow.cpc, dataRow.convertedClicks, dataRow.clickConversionRate, dataRow.cost);
+  
+  Logger.log('Adding Sheet Row ...');
+  clientDataService.addDataRow(dataRow);
+  
+  // get the last send report date
+  var reportLastSendDate = accountsManagerService.getReportLastSendDate(accountId);  
+  var needToSendReport = false;
+  
+  if(reportLastSendDate == ''){
+    Logger.log('first report');
+    needToSendReport = true;
+  }
+  else{
+    var accountSchedule = accountsManagerService.getAccountSchedule(accountId);
+    var dateDiffInDays = HELPER.dateDiff(new Date(), new Date(reportLastSendDate));
+    Logger.log('last report sent %s days ago - schedule is %s days', dateDiffInDays, accountSchedule);
+    needToSendReport = dateDiffInDays >= accountSchedule;
+  }
+  
+  if(needToSendReport) 
+  {
+    accountsManagerService.setReportLastSendDate(accountId, new Date());  // update the last report date column
+    SendReport(reportService, accountsManagerService, dataRow, accountId, clientDataService.getSheetURL()); // send the report        
+  }
+  
+  Logger.log('DONE!');
+}
+
+function SendReport(reportService, accountsManagerService, dataRow, accountId, spreadsheetURL){
+  Logger.log('Generating Client Report ...');
+  var reportHTML = reportService.generate(dataRow);
+  
+  // convert html content into pdf blob
+  var reportPDF = HELPER.HTML2PDF(reportHTML, 'account statistics'.concat(HELPER.dateFormat(dataRow.date), '.pdf'));
+  
+  var arr_account_emails = accountsManagerService.getAccountEmails(accountId);
+  HELPER.foreach(arr_account_emails, function(account_email){
+    Logger.log('sending Report to Client (%s) ...', account_email);
+    try{           
+      var body = '<p>Daily Report Attached!</p><p>for the full report <a href="' + spreadsheetURL + '">click here</a></p>'
+      MailApp.sendEmail(account_email, 'Account Statistics Report', '', {
+        attachments: [reportPDF], 
+        htmlBody: body
+      });
+    }
+    catch(ex){
+      Logger.log('exception occured: %s', ex.message);
+    }
+  });
+}
+
+var ReportService = function(){
+  var _template = null;
+  
+  return {   
+    setTemplate: function(templateName){
+      var temp = DriveApp.getFilesByName(templateName);
+      if(!temp.hasNext()) {
+        Logger.log('TEMPLATE %s not found!', templateName);
+        return;
+      }
+      
+      var file = temp.next();
+      _template = file.getBlob().getDataAsString();
+    },    
+    generate: function(dataRow){
+      if(!_template) return '';
+      
+      return _template
+      .replace('{{impressions}}', dataRow.impressions)
+      .replace('{{clicks}}', dataRow.clicks)
+      .replace('{{ctr}}', dataRow.ctr)
+      .replace('{{cpc}}', dataRow.cpc)
+      .replace('{{convertedClicks}}', dataRow.convertedClicks)
+      .replace('{{clickConversionRate}}', dataRow.clickConversionRate)
+      .replace('{{cost}}', dataRow.cost);
+    }
+  }
+}
+
+/* CLIENT DATA SERVICE */
+var ClientDataService = function(spreadSheetService) { 
+  var activeSheetService = spreadSheetService.getActiveSheet(); //spreadSheetService.getSheetByName('Active');
+  
+  return {  
+    getRowsToBackup: function(){
+      var values = [];
+      var rows = activeSheetService.getValues().slice(1); // slice(1) - remove the header row
+      var nowSignature = HELPER.dateSignature(new Date());
+      
+      for(row in rows){
+        var date = new Date(rows[row][1]);
+        var dateSignature = HELPER.dateSignature(date); // e.g: 201510
+        
+        if(dateSignature < nowSignature){
+          values.push({
+            rowId: rows[row][0], 
+            date: date, 
+            impressions: rows[row][2], 
+            clicks: rows[row][3], 
+            ctr: rows[row][4], 
+            cpc: rows[row][5], 
+            convertedClicks: rows[row][6], 
+            clickConversionRate: rows[row][7], 
+            cost: rows[row][8]
+          }); // add to backup 
+        }
+      }
+      
+      return values; // as dataItems rows    
+    },
+    deleteRowsAfterBackup: function(dateSignature){
+      var deleted = 0;     
+      var rows = activeSheetService.getValues().slice(1); // slice(1) - remove the header row      
+      var nowSignature = HELPER.dateSignature(new Date());
+      
+      for(row in rows){
+        var date = new Date(rows[row][1]);
+        var dateSignature = HELPER.dateSignature(date); // e.g: 201510
+        
+        if(dateSignature < nowSignature){
+          var rowId = rows[row][0];
+          var rowIndex = activeSheetService.getRowIndex(1, rowId);
+          activeSheetService.deleteRow(rowIndex);
+          deleted++;
+        }
+      }   
+      
+      return deleted;
+    },
+    createBackupSheetIfNotExists: function(sheetName) {
+      if(!spreadSheetService.isSheetExists(sheetName))
+      {
+        spreadSheetService.addNewSheet(sheetName);
+        addDataHeader(sheetName);
+      }
+    },    
+    addDataHeader: function(sheetName){
+      sheetName = sheetName || activeSheetService.sheetName;      
+      Logger.log(sheetName);
+      var sheetService = spreadSheetService.getSheetByName(sheetName);    
+     
+      sheetService.addRow(['rowId', 'date', 'impressions', 'clicks', 'ctr', 'cpc', 'convertedClicks', 'clickConversionRate', 'cost']);
+    },
+    addDataRow: function(dataRow, sheetName){      
+      // dataRow: {rowId, date, impressions, clicks, ctr, cpc, convertedClicks, clickConversionRate, cost}      
+      sheetName = sheetName || activeSheetService.sheetName;      
+      var sheetService = spreadSheetService.getSheetByName(sheetName);    
+      
+      sheetService.addRow([
+        dataRow.rowId, 
+        dataRow.date, 
+        dataRow.impressions, 
+        dataRow.clicks, 
+        dataRow.ctr, 
+        dataRow.cpc, 
+        dataRow.convertedClicks, 
+        dataRow.clickConversionRate, 
+        dataRow.cost
+      ]);
+    },
+    getSheetURL: function(){
+      return spreadSheetService.getURL();
+    } 
+  }   
+}
+
+/* ACCOUNTS MANAGER SERVICE */
+var AccountsManagerService = function(sheetService) { 
+  return {  
+    getAccountsIds: function(){
+      var values = [];
+      
+      var range = sheetService.getColumnValues(2, 1);
+      for(r in range)
+        for(c in range[r]){
+          if(range[r][c] == '') continue; // ignore empty values
+          values.push(range[r][c]);
+        }
+      return values;
+    },
+    getAccountEmails: function(accountId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return [];
+      return sheetService.getValue(row_index, 2).split(',');
+    },
+    getAccountSchedule: function(accountId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return 0;
+      
+      var value = sheetService.getValue(row_index, 3); // empty column value
+      if(value == '') return 0;
+      
+      return parseInt(value);
+    },
+    getReportLastSendDate: function(accountId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return '';
+      return sheetService.getValue(row_index, 4);
+    },  
+    getAccountSheetId: function(accountId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return '';
+      return sheetService.getValue(row_index, 5);
+    },  
+    setReportLastSendDate: function(accountId, date){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return;     
+      sheetService.setValue(row_index, 4, date);
+    },
+    setAccountSheetId: function(accountId, sheetId){
+      var row_index = sheetService.getRowIndex(1, accountId);
+      if(row_index == -1) return;     
+      sheetService.setValue(row_index, 5, sheetId);
+    }        
+  }
+}
+
+/* DRIVE SERVICE */
+var DriveService = function() { 
+  var createFile = function(fileName, mimeType){
+      return DriveApp.createFile(fileName, '', mimeType);
+  };
+  
+  return {
+    rootFolder: DriveApp.getRootFolder(),
+    setAsPublic: function(fileName){      
+      var files = this.getFilesByName(fileName);      
+      if(!files) return false;
+      
+      var file = files[0];
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);  
+      return true;
+    },
+    setAsPublicById: function(fileId){      
+      var file = this.getFileById(fileId);      
+      if(!file) return false;
+
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);  
+      return true;
+    },   
+    setStringContent: function(fileName, content){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return null;
+      
+      var file = files[0];
+      return file.setContent(content); 
+    },
+    getFileById: function(fileId){
+      return DriveApp.getFileById(fileId);       
+    },  
+    getFilesByName: function(fileName){
+      var fileIterator = DriveApp.getFilesByName(fileName);
+      if(!fileIterator.hasNext()) return null;
+      
+      var files = [];
+      while(fileIterator.hasNext())
+        files.push(fileIterator.next());              
+      return files;
+    },
+    getFoldersByName: function(folderName){
+      var folderIterator = this.rootFolder.getFoldersByName(folderName);
+      if(!folderIterator.hasNext()) return null;
+      
+      var folders = [];
+      while(folderIterator.hasNext())
+        folders.push(folderIterator.next());              
+      return folders;
+    }, 
+    getStringContent: function(fileName){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return null;
+      
+      var file = files[0];
+      return file.getBlob().getDataAsString();
+    },    
+    createTextFile: function(fileName, content){
+      content = content || '';
+      return createFile(fileName, content, MimeType.PLAIN_TEXT);
+    },
+    createFolder: function (folderName){
+      return DriveApp.createFolder(folderName);
+    },
+    moveToFolder: function(fileName, destFolderName){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return false;
+      var file = files[0];
+      
+      var folders = this.getFoldersByName(destFolderName);
+      if(!folders) return false;
+      var folder = folders[0];
+      
+      folder.addFile(file);
+      this.rootFolder.removeFile(file);      
+      return true;
+    }
+  }
+}
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+    getActiveSheet: function(){
+      return new SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+         for(var i= 0; i < _sheets.length; i++)
+            if(_sheets[i].sheetName == sheetName)
+              return _sheets[i];
+          return '';
+    },
+    addNewSheet: function(sheetName){
+        var new_sheet = new SheetService(_spreadSheet.insertSheet(sheetName));
+        _sheets.push(new_sheet)
+        return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+        return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    },
+    getId: function(){
+      return _spreadSheet.getId();
+    }   
+  }; 
+}
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  return {      
+     hasSheet: _sheet != null,
+     sheetName: _sheet ? _sheet.getName() : '',
+     getLastRowIndex: function(){ return _sheet.getLastRow();}, 
+     getValue: function(rowIndex, columnIndex){ 
+       return _sheet.getRange(rowIndex, columnIndex).getValue();
+     }, 
+     getValues: function(){
+       return _sheet.getDataRange().getValues();
+     },  
+     setValue: function(rowIndex, columnIndex, value){ 
+       return _sheet.getRange(rowIndex, columnIndex).setValue(value);
+     },     
+     addRow: function(arrValues){ 
+       return _sheet.appendRow(arrValues);
+     },
+     deleteRow: function(rowIndex){
+       _sheet.deleteRow(rowIndex);
+     },  
+     sort: function(columnIndex){
+       _sheet.sort(columnIndex);
+     },
+     getRowIndex: function(columnIndex, key){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnIndex - 1] == key)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getRowIndexBy2Columns: function(columnAIndex, keyA, columnBIndex, keyB){
+       var rows = _sheet.getDataRange().getValues();
+ 
+       // row index is 0 based but range is 1 based
+       for(row in rows)
+         if(rows[row][columnAIndex - 1] == keyA && rows[row][columnBIndex - 1] == keyB)
+           return parseInt(row) + 1;
+       return -1;  
+     },
+     getColumnValues: function(startRowIndex, columnIndex){
+       return _sheet.getRange(startRowIndex, columnIndex, _sheet.getLastRow() - 1, columnIndex).getValues();
+     }       
+   }; 
+}
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  createSpreadSheet: function(spreadSheet_name){
+    Logger.log('CREATING %s ... ', spreadSheet_name);
+    return SpreadsheetApp.create(spreadSheet_name); // create new file        
+  }, 
+  loadSpreadSheet: function(spreadSheet_name){
+    if(spreadSheet_name == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+    
+    var data_file = null;
+    var temp = DriveApp.getFilesByName(spreadSheet_name);
+    var fileExists = temp.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheet_name);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheet_name);
+    data_file = temp.next();
+    return SpreadsheetApp.openById(data_file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheet_id){
+    if(spreadSheet_id == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var data_file = DriveApp.getFileById(spreadSheet_id);
+    if(!data_file || data_file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheet_id);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheet_id);
+    return SpreadsheetApp.openById(data_file.getId());    
+  },   
+  loadSheetService: function(spreadSheet_name){
+    var spreadsheet = this.loadSpreadSheet(spreadSheet_name);
+    if(!spreadsheet) return null;
+    return new SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return new SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSpreadSheetService: function(spreadSheet_name){
+    var spreadsheet = this.loadSpreadSheet(spreadSheet_name);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  }, 
+  loadSpreadSheetServiceById: function(spreadSheet_id){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheet_id);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  },
+  createSpreadSheetService: function(spreadSheet_name){
+    var spreadsheet = this.createSpreadSheet(spreadSheet_name);
+    if(!spreadsheet) return null;
+    return new SpreadSheetService(spreadsheet);
+  }
+}
+
+/* HELPER */  
+var HELPER = {
+  HTML2PDF: function(strHtml, pdfName){
+    var blob = Utilities.newBlob(strHtml, MimeType.HTML);
+    var pdf = blob.getAs(MimeType.PDF);  
+    pdf.setName(pdfName);
+    return pdf
+  },
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  },
+  dateDiff: function (date1, date2) {
+    var datediff = date1.getTime() - date2.getTime(); 
+    return parseInt(datediff / (24*60*60*1000));
+  },
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  },
+  generateRandomId: function(){
+    var result = '';
+    for(var i=0;i<8;i++)
+      result = result.concat(Math.round(Math.random() * 9));
+    return result;
+  }
+};

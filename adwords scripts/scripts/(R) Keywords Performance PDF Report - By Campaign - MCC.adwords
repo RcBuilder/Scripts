@@ -1,0 +1,248 @@
+var metaData = [
+  { account: '269-153-4479', emails: 'rcbuilder@walla.com' },
+  { account: '107-642-2681', emails: 'rcbuilder2@walla.com' },
+  { account: '279-041-4081', emails: 'rcbuilder3@walla.com' }
+];
+
+metaData.getEmails = function(accountId){
+  for(i in this)
+    if(this[i].account == accountId)
+      return this[i].emails;
+  return '';
+};
+
+var STATS_PERIOD = 'LAST_WEEK';  // 'LAST_WEEK', '20100101,20160101' 
+
+function toAccount(e){
+  return e.account;
+}
+
+function main() {
+  var accountsIds = metaData.map(toAccount);
+  Logger.log(accountsIds);
+  
+  var accounts = MccApp.accounts().withIds(accountsIds).get();
+    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    var accountName = account.getName();
+    
+    Logger.log('### account: %s ###', accountName);  
+        
+    MccApp.select(account);
+    ProcessAccount({ id: account.getCustomerId(), name: accountName });
+   
+    Logger.log('--------------------------');
+  }
+}
+
+// account: { id, name}
+function ProcessAccount(account) { 
+  
+  var builder = HTMLBuilderService();
+  builder.add('<div style="direction:rtl;">');
+  builder.add('<h1>Keywords Performance Report</h1>');
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var report = AdWordsApp.report(
+      'SELECT Id, Criteria, KeywordMatchType, CampaignId, CampaignName, Impressions, Clicks, Cost, Conversions, CostPerConversion, AveragePosition, Ctr, AverageCpc, SearchRankLostImpressionShare, SystemServingStatus ' +
+      'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+      'WHERE Status = ENABLED ' +  
+      'AND AdGroupStatus = ENABLED ' +
+      'AND CampaignStatus = ENABLED ' + 
+      'AND IsNegative = FALSE ' +             
+      'DURING ' + STATS_PERIOD, reportConfig);
+        
+  
+  var groupbyCampaigns = [];
+  
+  var rows = report.rows();
+  while(rows.hasNext()){
+    var row = rows.next();
+    var campaignId = row['CampaignId'];
+    var campaignName = row['CampaignName'];
+      
+    if(!groupbyCampaigns[campaignId])
+      groupbyCampaigns[campaignId] = { name: campaignName, items: [] };
+    groupbyCampaigns[campaignId].items.push(row);       
+  }  
+    
+  for(i in groupbyCampaigns)
+    for(j in groupbyCampaigns)    
+      if(groupbyCampaigns[i].name > groupbyCampaigns[j].name)
+      {
+        var temp = groupbyCampaigns[i];
+        groupbyCampaigns[i] = groupbyCampaigns[j];
+        groupbyCampaigns[j] = temp;
+      }
+  
+  var hasRows = false;  
+    
+  for(i in groupbyCampaigns){
+    var campaign = groupbyCampaigns[i];
+    Logger.log('%s (%s items)', campaign.name, campaign.items.length);
+    
+    var rowcount = 0;
+  
+    var impressionsTotal = 0, 
+      clicksTotal = 0, 
+      conversionsTotal = 0, 
+      cpcTotal = 0, 
+      costTotal = 0, 
+      costPerConversionTotal = 0, 
+      averagePositionTotal = 0; 
+    
+    builder.add('<h3>' + campaign.name + '</h3>');
+        
+    builder.add('<table border="1" cellPadding="2" cellSpacing="2" style="border-collapse:collapse;font-size:11px;width:100%;">');
+    builder.add('<tr>' +
+                '<th>מילת מפתח</th>' +                 
+                '<th style="width:50px;">סוג התאמה</th>' + 
+                '<th style="width:50px;">חשיפות</th>' +
+                '<th style="width:50px;">הקלקות</th>' +
+                '<th style="width:50px;">המרות</th>' +                                     
+                '<th style="width:50px;">מחיר להקלקה</th>' +
+                '<th style="width:70px;">מחיר</th>' +
+                '<th style="width:60px;">מחיר להמרה</th>' +
+                '<th style="width:50px;">מיקום ממוצע</th>' +
+                '<th style="width:50px;">הפסד %</th>' +
+                '<th style="width:50px;">בעיות</th>' + 
+              '</tr>'
+             );
+    
+    for(j in campaign.items)
+    {
+      var row = campaign.items[j];
+      
+      // collect row data
+      var keyword = row['Criteria'];        
+      var impressions = parseInt(row['Impressions']);        
+      var clicks = parseInt(row['Clicks']);  
+      var conversions = parseInt(row['Conversions']);  
+      var cost = parseFloat(row['Cost']);       
+      var cpc = parseFloat(row['AverageCpc']);  
+      var costPerConversion = parseFloat(row['CostPerConversion']);  
+      var averagePosition = parseFloat(row['AveragePosition']);  
+      var searchRankLostImpressionShare = row['SearchRankLostImpressionShare'];  
+      var systemServingStatus = row['SystemServingStatus'];
+      var matchType = row['KeywordMatchType'];      
+            
+      Logger.log('%s', keyword);
+      
+      // aggregate totals 
+      rowcount++;
+      impressionsTotal += impressions;
+      clicksTotal += clicks;
+      conversionsTotal += conversions;
+      cpcTotal += cpc;
+      costTotal += cost;
+      costPerConversionTotal += costPerConversion;
+      averagePositionTotal += averagePosition;      
+      
+      // clear 'GOOD' results
+      
+      if(systemServingStatus == 'eligible')  
+        systemServingStatus = '';
+            
+      if(parseFloat(searchRankLostImpressionShare) == 0)
+        searchRankLostImpressionShare = '';
+      
+      var sMatchType = '';
+      if(matchType == 'Exact') sMatchType = 'מדוייק';      
+      if(matchType == 'Phrase') sMatchType = 'ביטוי';
+      if(matchType == 'Broad') sMatchType = '';
+      
+      hasRows = true;
+      builder.add('<tr>' +
+                    '<td>' + keyword + '</td>' +                     
+                    '<td>' + sMatchType + '</td>' +                    
+                    '<td>' + impressions + '</td>' +
+                    '<td>' + clicks + '</td>' +
+                    '<td>' + conversions + '</td>' +                    
+                    '<td>' + cpc.toFixed(1) + ' ₪</td>' +
+                    '<td>' + cost.toFixed(1) + ' ₪</td>' +
+                    '<td>' + costPerConversion.toFixed(1) + ' ₪</td>' +
+                    '<td>' + averagePosition.toFixed(1) + '</td>' +
+                    '<td>' + searchRankLostImpressionShare + '</td>' +                  
+                    '<td>' + systemServingStatus + '</td>' +  
+                  '</tr>'
+             );
+    }
+    
+    // summary
+    Logger.log('rowcount: %s, impressionsTotal: %s, clicksTotal: %s, conversionsTotal: %s, cpcTotal: %s, costTotal: %s, costPerConversionTotal: %s, averagePositionTotal: %s', rowcount, impressionsTotal, clicksTotal, conversionsTotal, cpcTotal, costTotal, costPerConversionTotal, averagePositionTotal);
+    
+    builder.add('<tr>' +
+                    '<td style="color:red;">' + '' + '</td>' +                     
+                    '<td style="color:red;">' + '' + '</td>' +                    
+                    '<td style="color:red;">' + impressionsTotal + '</td>' +
+                    '<td style="color:red;">' + clicksTotal + '</td>' +
+                    '<td style="color:red;">' + conversionsTotal + '</td>' +                    
+                    '<td style="color:red;">' + (costTotal / clicksTotal).toFixed(1) + ' ₪</td>' +
+                    '<td style="color:red;">' + costTotal.toFixed(1) + ' ₪</td>' +
+                    '<td style="color:red;">' + (costTotal / conversionsTotal).toFixed(1) + ' ₪</td>' +
+                    '<td style="color:red;">' + (averagePositionTotal / rowcount).toFixed(1) + '</td>' +
+                    '<td style="color:red;">' + '' + '</td>' +                  
+                    '<td style="color:red;">' + '' + '</td>' +  
+                  '</tr>'
+             );
+    
+    builder.add('</table>');    
+  }
+
+  builder.add('</div>');
+  
+  if(hasRows)
+  {
+    var emails = metaData.getEmails(account.id);      
+    Logger.log('send email to %s', emails);
+    
+    var pdfReportName = 'Keywords Performance PDF Report {0}_{1}.pdf'.replace('{0}', account.name).replace('{1}', dateToString());
+    var pdfReport = builder.toPDF(pdfReportName);
+    
+    var mailBody = '<p>הי, יום שני שמח</p>' +
+                   '<p>מצורף דוח מילות מפתח -שבוע קודם של הקמפיינים שלכם</p>' +
+                   '<p>כל הערה / הארה תתקבל בברכה' + 
+                   '<br />אבישי</p>';
+    
+    MailApp.sendEmail(emails, 'Keywords Performance PDF Report', '', {
+      attachments: [pdfReport],
+      htmlBody: mailBody
+    });  
+  }
+}
+
+function dateToString(){
+  var date = new Date();  
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth() +1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + '-' + month + '-' + day;
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    },
+    toPDF: function(pdfName){
+      var blob = Utilities.newBlob(_html, MimeType.HTML);
+      var pdf = blob.getAs(MimeType.PDF);  
+      pdf.setName(pdfName);
+      return pdf;
+    }  
+  };
+}

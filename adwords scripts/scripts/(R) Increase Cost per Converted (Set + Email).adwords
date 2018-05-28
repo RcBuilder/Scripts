@@ -1,0 +1,37 @@
+var P_CONVERSION_COST = 10;
+var EMAIL = 'RcBuilder@walla.com';
+
+function main() {
+  var keywords = AdWordsApp.keywords()
+  .withCondition("AveragePosition > 1.5")
+  .withCondition("Conversions > 0")
+  .forDateRange("LAST_30_DAYS").get();
+  
+  var EMAIL_BODY = '';
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+
+    var stat = keyword.getStatsFor('ALL_TIME');
+    var cost = stat.getCost();
+    var conversions = stat.getConvertedClicks();
+    
+    if(cost / conversions >= P_CONVERSION_COST)
+      continue;
+    
+    var name = keyword.getText();
+    Logger.log(name + ' cost = ' + cost + '  conversions = ' + conversions);
+    
+    var cpc = keyword.getMaxCpc().toFixed(2);
+    var new_cpc = cpc * 1.1;
+    
+	if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.setMaxCpc(new_cpc);
+
+    var message = 'need to increase the max cpc of "' + name + '" from ' + cpc + ' to ' + new_cpc;
+    Logger.log(message);
+    EMAIL_BODY += message + '\n';
+  } 
+  
+  if(EMAIL_BODY != '')
+    MailApp.sendEmail(EMAIL, 'INCREASE COST PER CONVERSION', EMAIL_BODY);
+}

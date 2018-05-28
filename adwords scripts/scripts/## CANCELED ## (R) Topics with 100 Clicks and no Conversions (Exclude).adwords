@@ -1,0 +1,41 @@
+var NUM_OF_CLICKS = 100;
+
+function main() {
+  var report = AdWordsApp.report(
+    'SELECT Id, Criteria, Clicks, Conversions, CampaignId ' + 
+    'FROM DISPLAY_TOPICS_PERFORMANCE_REPORT ' + 
+    'WHERE Clicks > ' + NUM_OF_CLICKS + ' AND Conversions = 0 ' + 
+    'DURING 20000101,' + dateFormat(new Date()));
+  
+  var rows = report.rows();
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var clicks = row['Clicks'];
+    var conversions = row['Conversions'];  
+    //if(clicks < NUM_OF_CLICKS || conversions > 0) continue;
+      
+    var topicId = row['Id'];
+    var displayName = row['Criteria'];
+    //Logger.log(displayName + ' (' + topicId + ') ' + ' ' + clicks + ' ' + conversions);
+    
+    var campaignId = row['CampaignId'];
+    var campaign = AdWordsApp.campaigns().withIds([campaignId]).get().next();
+    
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      campaign.excludeLocation(topicId);
+    
+    Logger.log('"' + displayName + '" excluded from the allowed advertisments list');
+  }
+}
+ 
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = date.getMonth().toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

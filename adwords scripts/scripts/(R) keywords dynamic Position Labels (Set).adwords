@@ -1,0 +1,150 @@
+var POSITION_INCREAMENT = 0.1;
+var DEFAULT_LABEL_POSITION = 2.0;
+var MIN_POSITION_ALLOWED = 1.6;
+var MAX_POSITION_ALLOWED = 2.4;
+var DATE_RANGE = 'LAST_30_DAYS'; // ALL_TIME, LAST_30_DAYS
+
+
+var label_prefix = 'Position ';
+
+function main() {
+  Init();
+  IncreasePosition();
+  DecreasePosition();
+}
+
+function Init(){
+  Logger.log('### Initialize ###');
+  CreateLabelPosition(DEFAULT_LABEL_POSITION);    
+  Logger.log('--------------------');
+}
+
+function IncreasePosition(){
+  var keywords = AdWordsApp.keywords()
+  .withCondition("Status = ENABLED")
+  .withCondition("AdGroupStatus = ENABLED")
+  .withCondition("ConversionRate > 0.05")
+  .withCondition("Clicks > 0")
+  .orderBy("QualityScore DESC")
+  .forDateRange(DATE_RANGE)
+  //.withLimit(2)
+  .get();
+  
+  Execute(keywords, POSITION_INCREAMENT);
+}
+
+function DecreasePosition(){
+  var keywords = AdWordsApp.keywords()
+  .withCondition("Status = ENABLED")
+  .withCondition("AdGroupStatus = ENABLED")
+  .withCondition("Clicks = 0")
+  .orderBy("QualityScore ASC")
+  .forDateRange(DATE_RANGE)
+  .withLimit(2)
+  .get();
+  
+  Execute(keywords, -POSITION_INCREAMENT);
+}
+
+/* --- METHODS --- */
+
+function Execute(keywords, incrementValue){
+  while (keywords.hasNext()) {
+    var keyword = keywords.next();
+    var keyword_text = keyword.getText();
+    
+    Logger.log('%s', keyword_text);
+    
+    try{
+      // get the current keyword position label (first or default)
+      var label_position = GetKeywordLabelPosition(keyword);
+      if(!label_position){
+        Logger.log('no label position! - skip keyword');
+        continue;
+      }
+      
+      var new_label_position = (label_position + incrementValue).toFixed(1);
+
+      // position defined borders      
+      if(new_label_position < MIN_POSITION_ALLOWED || new_label_position > MAX_POSITION_ALLOWED)
+      {
+        Logger.log('%s out of range! - skip keyword', new_label_position);
+        continue;
+      }
+      
+      // check if label exists, if not - create it!    
+      CreateLabelPosition(new_label_position);    
+      UpdateKeywordLabelPosition(keyword, new_label_position);
+    }
+    finally{
+      Logger.log('--------------------');
+    }
+  }
+}
+
+function UpdateKeywordLabelPosition(keyword, new_label_position){
+  try{    
+    var label_to_apply = label_prefix.concat(new_label_position);
+    
+    ClearKeywordOldPositionsLabels(keyword);
+    keyword.applyLabel(label_to_apply);
+    
+    Logger.log('%s applied', label_to_apply);
+  }
+  catch(e){
+    Logger.log('METHOD : %s, EX: %s', 'UpdateKeywordLabelPosition', e.message);
+  }
+}
+
+function ClearKeywordOldPositionsLabels(keyword){
+	var labels  = keyword.labels()
+    .withCondition("Name STARTS_WITH '"+ label_prefix +"'").get();
+
+	while(labels.hasNext())
+	{
+      var label = labels.next();
+	  var labelName = label.getName();
+	  	  
+	  keyword.removeLabel(labelName);
+	  Logger.log('%s removed', labelName);
+	}
+}
+
+function GetKeywordLabelPosition(keyword){
+  try{
+    var labels  = keyword.labels()
+    .withCondition("Name STARTS_WITH '"+ label_prefix +"'").get();
+    
+    if(labels.hasNext())
+      return parseFloat(labels.next().getName().split(' ')[1]);
+    return parseFloat(DEFAULT_LABEL_POSITION);
+  }
+  catch(e){
+    Logger.log('METHOD : %s, EX: %s', 'GetKeywordLabelPosition', e.message);
+    return null;
+  }
+}
+
+
+/* --- HELPER --- */
+function isLabelExists(labelName) {
+ return AdWordsApp.labels()
+ .withCondition("Name = '" + labelName + "'")
+ .get()
+ .hasNext();
+}
+
+function CreateLabelPosition(label_position){
+  var labelName = label_prefix.concat(label_position);
+  if(isLabelExists(labelName)) return;
+  
+  Logger.log('label %s created', labelName);
+  AdWordsApp.createLabel(labelName, '', 'red');      
+}
+
+function containsLabel(labelName) {
+ return this.labels()
+ .withCondition("Name = '" + labelName + "'")
+ .get()
+ .hasNext();
+}

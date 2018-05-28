@@ -1,0 +1,23 @@
+var labelName = 'MyAccount';
+
+function main() {
+  // get all the mcc accounts using the x label
+  var accounts = MccApp.accounts()
+      .withCondition("LabelNames CONTAINS '" + labelName + "'")
+      .get();
+
+  // go over the mcc accounts
+  while (accounts.hasNext()) {
+    var account = accounts.next();
+    var accountName = account.getName() ? account.getName() : '--';
+    Logger.log('%s,%s', account.getCustomerId(), accountName);
+    
+    // set the active account 
+    MccApp.select(account); 
+    Execute();   
+  }
+}
+
+function Execute(){
+  // [code here ... ]
+}

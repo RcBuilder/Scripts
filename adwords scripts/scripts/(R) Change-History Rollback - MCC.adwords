@@ -1,0 +1,193 @@
+var CHANGES_FILE_TEMPLATE = 'change_history_{accountId}.csv';
+
+function main() {
+  var drive = DriveService();
+  
+  var accounts = MccApp.accounts().get();
+    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();        
+    var accountId = account.getCustomerId();
+    
+    Logger.log('### account: %s (%s) ###', account.getName(), accountId);  
+    
+    MccApp.select(account);
+    ProcessAccount(accountId, drive);
+    
+    Logger.log('--------------------------');
+  }
+}
+  
+function ProcessAccount(accountId, drive){    
+  var CHANGES_FILE = CHANGES_FILE_TEMPLATE.replace('{accountId}', accountId);
+  var fileContent = drive.getStringContent(CHANGES_FILE);
+  if(!fileContent){
+    Logger.log('no file/no content!');
+    return;
+  }
+  
+  //var data = Utilities.parseCsv(fileContent, ',');
+  var rows = fileContent.split('"\n');
+  var data = [];
+  
+  for(i in rows)
+    data.push(rows[i].split(','))
+  // data = data.slice(100, 150);
+    
+  var rowscount = data.length;
+  Logger.log('%s rows found in csv', rowscount);
+  
+  for (i in data)
+  {
+    if(!data[i][4]) continue;
+    
+    var indexOf;
+    
+    var changesA = data[i][4].toString();    
+    if((indexOf = changesA.indexOf('phrase match keyword max. CPC increased')) == -1)
+      continue;                 
+    
+    i++;
+    
+    if(i == rowscount || !data[i][4]) break;    
+    
+    var changes = data[i][4].toString();    
+    if((indexOf = changes.indexOf('phrase match keyword added')) == -1)
+      continue;
+    
+    var tempIndex = changes.indexOf('"', indexOf) + 1;    
+    var phrase = changes.substring(tempIndex, changes.length - 1);
+    
+    var campaignName = data[i][2];
+    var adgroupName = data[i][3];
+    
+    Logger.log('(%s) campaign: %s, adgroup: %s, phrase: %s', i, campaignName, adgroupName, phrase);  
+    
+    var keyword = getKeyword(campaignName, adgroupName, phrase);
+    if(!keyword){
+      Logger.log('keyword was not found!');
+      continue;
+    }
+    
+    Logger.log('[keyword] #%s', keyword.getId().toString());   
+    keyword.remove();
+  }
+}
+
+function getKeyword(campaignName, adgroupName, phrase){
+  var keywordIter = AdWordsApp.keywords()
+  .withCondition('CampaignName = "' + campaignName + '"')
+  .withCondition('AdGroupName = "' + adgroupName + '"') 
+  .withCondition('Text = ' + phrase) 
+  .get();
+  
+  if(!keywordIter.hasNext()) return null;
+  return keywordIter.next();
+}  
+
+// ------------------------------------------------------------------------ //
+
+/* DRIVE SERVICE */
+var DriveService = function() {
+  var createFile = function(fileName, mimeType){
+      return DriveApp.createFile(fileName, '', mimeType);
+  };
+  
+  return {
+    rootFolder: DriveApp.getRootFolder(),
+    setAsPublic: function(fileName){      
+      var files = this.getFilesByName(fileName);      
+      if(!files) return false;
+      
+      var file = files[0];
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);  
+      return true;
+    },
+	setAsPublicById: function(fileId){      
+      var file = this.getFileById(fileId);      
+      if(!file) return false;
+
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);  
+      return true;
+    },   
+    setStringContent: function(fileName, content){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return null;
+      
+      var file = files[0];
+      return file.setContent(content); 
+    },
+	getFileById: function(fileId){
+      return DriveApp.getFileById(fileId);       
+    },  
+    getFilesByName: function(fileName){
+      var fileIterator = DriveApp.getFilesByName(fileName);
+      if(!fileIterator.hasNext()) return null;
+      
+      var files = [];
+      while(fileIterator.hasNext())
+        files.push(fileIterator.next());              
+      return files;
+    },
+    getFileByName: function(fileName){
+      var files = this.getFilesByName(fileName);
+      if(!files) return null;
+      return files[0];
+    },
+    getImage: function(imageName){
+      var file = this.getFileByName(imageName); 
+      if(!file) return null;
+      return file.getAs(MimeType.PNG); 
+    },
+	getFilesByPrefix: function(filePrefix){
+      var fileIterator = DriveApp.getFiles();
+      if(!fileIterator.hasNext()) return null;
+      
+      var files = [];
+      while(fileIterator.hasNext())
+      {
+        var file = fileIterator.next();
+        if(file.getName().indexOf(filePrefix) != 0) continue;
+        files.push(file);              
+      }
+      return files;
+    },
+    getFoldersByName: function(folderName){
+      var folderIterator = this.rootFolder.getFoldersByName(folderName);
+      if(!folderIterator.hasNext()) return null;
+      
+      var folders = [];
+      while(folderIterator.hasNext())
+        folders.push(folderIterator.next());              
+      return folders;
+    }, 
+    getStringContent: function(fileName){
+      var files = this.getFilesByName(fileName);      
+      if(!files) return null;
+      
+      var file = files[0];
+      return file.getBlob().getDataAsString();
+    },    
+    createTextFile: function(fileName, content){
+      content = content || '';
+      return createFile(fileName, content, MimeType.PLAIN_TEXT);
+    },
+    createFolder: function (folderName){
+      return DriveApp.createFolder(folderName);
+    },
+    moveToFolder: function(fileName, destFolderName){ 
+      var files = this.getFilesByName(fileName);      
+      if(!files) return false;
+      var file = files[0];
+      
+      var folders = this.getFoldersByName(destFolderName);
+      if(!folders) return false;
+      var folder = folders[0];
+      
+      folder.addFile(file);
+      this.rootFolder.removeFile(file);      
+      return true;
+    }
+  }
+}

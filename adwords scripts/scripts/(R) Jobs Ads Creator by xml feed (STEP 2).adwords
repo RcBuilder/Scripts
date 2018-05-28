@@ -1,0 +1,86 @@
+// ###  STEP 2 : update campaigns radius ###
+var GOOGLE_GEO_API_URL = 'https://maps.googleapis.com/maps/api/geocode/json?address={0}&key={1}';
+var API_KEY = 'AIzaSyChy9VRT-pvVmU_G8aa3D5OizD2ggLlUGQ';
+
+function main() { 
+  // get all campaigns from db into an array
+  Logger.log('Loading campaigns ... ');
+  var arr_campaigns = [];
+  var campaigns = AdWordsApp.campaigns().withCondition('Name CONTAINS "#"').get();
+  while(campaigns.hasNext()){ 
+    arr_campaigns.push(campaigns.next());
+  }     
+  Logger.log('%s campaigns loaded', arr_campaigns.length);
+  
+  HELPER.foreach(arr_campaigns, function(campaign){
+    var campaign_name = campaign.getName();
+    var campaign_info = 'campaign: '.concat('#', campaign.getId(), ' ', campaign_name);
+    Logger.log('%s', campaign_info);
+    
+    var location = campaign_name.split('#')[1];
+    var api_url = GOOGLE_GEO_API_URL.replace('{0}', location).replace('{1}', API_KEY);  
+    var coordinatesService = new CoordinatesService(new JSONService(api_url));       
+    
+    // { lng, lat }
+    var coordinates = coordinatesService.getFromName(location);
+    var lat = parseFloat(coordinates.lat.toFixed(2));
+    var lng = parseFloat(coordinates.lng.toFixed(2));
+    Logger.log('%s: lat %s, lng %s ', location, lat, lng);
+    
+    if(!AdWordsApp.getExecutionInfo().isPreview()){
+      ClearOldProximities(campaign);
+      campaign.addProximity(lat, lng, 30, "KILOMETERS");
+      campaign.enable();
+    }
+  });
+}
+
+function ClearOldProximities(campaign){
+  var proximities = campaign.targeting().targetedProximities().get();
+    while (proximities.hasNext()) {
+      var proximity = proximities.next(); 
+      proximity.remove();      
+    }
+}
+
+var HELPER = {
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  }
+};
+
+/* COORDINATES SERVICE */
+var CoordinatesService = function(json_service) { 
+  return { 
+    getFromName: function (value) {
+      // location { lng, lat }
+      return json_service.document().results[0].geometry.location;
+    }
+  }
+}
+
+/* JSON SERVICE */
+var JSONService = function(uri) { 
+  var _document = null;
+  
+  var _init = function(){
+    var response = UrlFetchApp.fetch(uri);
+    var status_code = response.getResponseCode();
+    
+    if(status_code != 200) // 200 = OK
+    {
+      Logger.log('status code %s', status_code);
+      return;
+    }
+    
+    _document =  JSON.parse(response.getContentText());
+   };
+  
+   _init();
+  
+   return { 
+     document: function(){ return _document; }
+   }; 
+}

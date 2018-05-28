@@ -1,0 +1,11 @@
+Setup an FTP Server on IIS 
+--------------------------
+
+1. [Features] Turn Windows Features on/off -> IIS -> FTP Server
+2. [IIS] Sites -> right click -> Add FTP Site 
+3. [Information Tab] Set Site Name and Folder path
+4. [Binding Tab] Set the Machine inner IP and choose the SSL mode 
+5. [Auth Tab] Chooe Basic Authentication and set the allow rules
+6. [Router] open port 21
+7. [Firewall] Allow app 'FTP Server'
+8. [Folder] make sure the user has enough permissions to the FTP folder 

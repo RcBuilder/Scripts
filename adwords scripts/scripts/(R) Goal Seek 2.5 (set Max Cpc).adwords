@@ -1,0 +1,49 @@
+function main() {
+  var max_click_price = 6;
+  
+  var date_range = 'LAST_14_DAYS';
+  var keywords = AdWordsApp
+  .keywords()
+  .forDateRange(date_range)
+  .withCondition("AveragePosition > 6")
+  .withCondition("AverageCpc > " + max_click_price)
+  .get();
+  
+  while (keywords.hasNext()) { 
+	var keyword = keywords.next();
+    var stat = keyword.getStatsFor(date_range);
+    Logger.log(keyword.getText() + ' DELETED' + ' ( position : ' + stat.getAveragePosition() + ')');
+  } 
+  
+  Logger.log('----------------------------------------------');
+  
+  date_range = 'LAST_7_DAYS';
+  keywords = AdWordsApp.keywords().forDateRange(date_range).get();
+  while (keywords.hasNext()) { 
+	var keyword = keywords.next();
+    var stat = keyword.getStatsFor(date_range);
+    var position = stat.getAveragePosition();
+    var cpc = keyword.getMaxCpc();
+    
+    var cpc_new = cpc;
+    if(position >= 1 && position <= 1.70)
+      cpc_new = cpc * 0.97;
+    else if(position >= 1.71 && position <= 2.45)
+      cpc_new = cpc * 0.99;
+    else if(position >= 2.55 && position <= 3.50)
+      cpc_new = cpc * 1.01;
+    else if(position >= 3.51 && position <= 4.50)
+      cpc_new = cpc * 1.03;
+    else if(position >= 4.51 && position <= 0)
+      cpc_new = cpc * 1.06;
+    else 
+      cpc_new = cpc * 1.10;
+    
+    if(cpc_new != cpc)
+    {
+      if(!AdWordsApp.getExecutionInfo().isPreview())
+        keyword.setMaxCpc(cpc_new);
+      Logger.log(keyword.getText() + ' OLD PRICE : ' + cpc + ' -> NEW PRICE : ' + cpc_new + ' ( position : ' + position + ')');         
+    }
+  } 
+}

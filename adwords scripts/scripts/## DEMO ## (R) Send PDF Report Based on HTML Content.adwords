@@ -1,0 +1,15 @@
+var EMAIL = 'BinarOptionsTrade@gmail.com';
+
+function main() { 
+  var html = "<h1>Report Header</h1>" + 
+			 "<p>this report created via adsense script</p>" +
+             "<p>" + new Date() + "</p>"+  
+             "<p>word A : 300 clicks</p>"+  
+             "<p>word B : 263 clicks</p>"+  
+             "<p>word C : 109 clicks</p>"+  
+			 "<p>END OF THE REPORT</p>";
+
+  var blob = Utilities.newBlob(html, MimeType.HTML);
+  var pdfBlob = blob.getAs(MimeType.PDF);
+  MailApp.sendEmail(EMAIL, 'HELLO FROM ADWORDS SCRIPTS', 'ATTACHED PDF FILE', {name: 'report', attachments: [pdfBlob]});
+}

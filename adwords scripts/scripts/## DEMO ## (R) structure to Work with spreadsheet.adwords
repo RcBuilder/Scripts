@@ -1,0 +1,53 @@
+function main() {
+  var sheet = GetSheet('TEST_SHEET');
+  
+  var row_index = GetRowIndexByValue(sheet, 2, 'ROBY');
+
+  if(row_index == -1)
+    row_index = Add(sheet, {id: 1, name: 'ROBY'});
+  
+  var created_date = Get(sheet, row_index, 3);
+  Update(sheet, row_index, 2, 'ROBY COHEN');
+}
+
+function GetSheet(FILE_NAME){
+  var data_file = null;
+  var temp = DriveApp.getFilesByName(FILE_NAME);
+  var fileExists = temp.hasNext();
+
+  // file does not exists - create new
+  if(!fileExists){
+    Logger.log('CREATE ' + FILE_NAME);
+    var spreadsheet = SpreadsheetApp.create(FILE_NAME);
+    return spreadsheet.getActiveSheet();
+  }
+
+  // file exists - load it
+  Logger.log('LOAD ' + FILE_NAME);
+  data_file = temp.next();
+  var spreadsheet = SpreadsheetApp.openById(data_file.getId());
+  return spreadsheet.getActiveSheet();  
+}
+
+function GetRowIndexByValue(sheet, column_index, value){
+  var rows = sheet.getDataRange().getValues();
+ 
+  for(row in rows)
+    if(rows[row][column_index - 1] == value)
+      return parseInt(row) + 1;
+  return -1;   
+}
+
+function Get(sheet, row_index, column_index){
+  return sheet.getRange(row_index, column_index).getValue();
+}
+
+function Update(sheet, row_index, column_index, value){
+  sheet.getRange(row_index, column_index).setValue(value);
+}
+
+function Add(sheet, values){
+  var last_row = parseInt(sheet.getLastRow());
+  sheet.appendRow([values.id, values.name, new Date()]);
+  return last_row + 1;
+}

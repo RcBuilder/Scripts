@@ -1,0 +1,96 @@
+var EMAIL = 'RcBuilder@walla.com,eyal@kivi.co.il';
+var CLICKS = 5;
+var CREATE = false;
+
+function main() {
+  var htmlService = HTMLBuilderService();
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var report = AdWordsApp.report(
+   'SELECT Query, Clicks, Conversions, AdGroupId ' +
+   'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +
+   'WHERE Clicks > ' + CLICKS + ' AND Conversions < 1 ' + 
+   'DURING 20000101,' + dateFormat(new Date()), reportConfig);
+  var rows = report.rows();
+  
+  var TEMPLATE = '<tr>' +                    
+                    '<th>{0}</th>' +
+                    '<th>{1}</th>' +
+                    '<th>{2}</th>' +
+                  '</tr>';
+                    
+  htmlService.add('<table cellspacing="3" cellpadding="3" border="1">');
+  htmlService.add('<tr>' +                    
+                    '<td>query</td>' +
+                    '<td>adgroup</td>' +
+                    '<td>campaign</td>' +
+                  '</tr>');
+  
+  var matches = 0;
+  while (rows.hasNext()) {
+    var row = rows.next();
+    
+    var clicks = row['Clicks'];
+    var conversions = row['Conversions'];
+    
+    var query = row['Query'];    
+    var found_in_my_keywords = AdWordsApp.keywords().withCondition('Text CONTAINS "' + query + '"').get().hasNext();
+    if(found_in_my_keywords)
+    {
+      Logger.log('"' + query + '" found in my keywords');
+      continue;
+    }
+    
+    matches++;
+    
+    var adGroupId = row['AdGroupId'];
+    var adGroup = AdWordsApp.adGroups().withIds([adGroupId]).get().next();
+
+    var row = TEMPLATE
+    .replace('{0}', query)
+    .replace('{1}', adGroup.getName())
+    .replace('{2}', adGroup.getCampaign().getName())
+    
+    if(CREATE)
+    {
+      Logger.log('negative keyword created!');      
+      adGroup.createNegativeKeyword('[' + query + ']');
+    }
+    
+    Logger.log('%s', query);
+    htmlService.add(row);    
+  }
+ htmlService.add('</table>');
+  if(matches > 0){    
+    MailApp.sendEmail(EMAIL, 'Queries 2 Negative Keywords ', '', { 
+      htmlBody: htmlService.get() 
+    });
+  }
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth() + 1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

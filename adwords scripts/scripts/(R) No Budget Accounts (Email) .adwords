@@ -1,0 +1,30 @@
+var EMAIL = 'RcBuilder@walla.com';
+
+function main() { 
+  var accounts = MccApp.accounts().get();
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    var accountName = account.getName();
+    
+    Logger.log('### account: %s ###', accountName);    
+
+    MccApp.select(account);
+    
+    var budgets = AdWordsApp.budgets().get();
+    var daily_budget = 0;
+    if(budgets.hasNext())
+      daily_budget = budgets.next().getAmount();
+    var stats = account.getStatsFor('TODAY');      
+    var daily_cost = stats.getCost();
+
+    Logger.log('daily: budget: %s, cost: %s', daily_budget, daily_cost);
+  
+    if(daily_budget > 0 && daily_cost >= daily_budget){
+      Logger.log('budget is over - add budget!!');
+      MailApp.sendEmail(EMAIL, 'no budget', 'account ' + accountName + ' (#' + account.getCustomerId() + ')');
+    }
+ 
+    Logger.log('--------------------------');
+  }
+}

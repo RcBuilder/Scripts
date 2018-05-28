@@ -1,0 +1,80 @@
+var Import = {
+  Init: function (namespace){
+    var root = DriveApp.getRootFolder();
+    return root.getFilesByName(namespace).next().getBlob().getDataAsString();
+  },
+  MyCodeA: function() { 
+    /*
+    // closure
+    var serviceA = function(){
+       var name = 'serviceA';
+    
+       return{
+          funA: function(){ Logger.log('FUN A'); },
+          funB: function(){ Logger.log(name); },
+          funC: function(p1){ Logger.log(p1); }
+       }	
+    };
+    */
+    
+    var sourceCode = this.Init('MyCodeA.code');
+    return sourceCode;
+  },
+  MyCodeB: function() { 
+    /*
+    // object
+    function ServiceB(){
+       this.funA = function(){ Logger.log('FUN A'); },
+       this.funB = function(){ Logger.log('FUN B'); },
+       this.funC = function(p1){ Logger.log(p1); }
+    }
+    */
+    
+    var sourceCode = this.Init('MyCodeB.code');
+    return sourceCode;
+  }, 
+  MyCodeC: function() { 
+    /*
+    // literal
+    var serviceC = {
+       funA: function(){ Logger.log('FUN A'); },
+       funB: function(){ Logger.log('FUN B'); },
+       funC: function(p1){ Logger.log(p1); }
+    };
+    */
+    
+    var sourceCode = this.Init('MyCodeC.code');
+    return sourceCode;
+  } 
+};
+
+function main() {  
+  // eval MUST locate within the execution function
+  
+  var sourceCodeA = Import.MyCodeA();
+  eval(sourceCodeA);   
+  
+  var aa = eval('serviceA()');  
+  aa.funA(); 
+  aa.funB();
+  aa.funC('SERVICE A');
+  
+  // ----------------------------------
+  
+  var sourceCodeB = Import.MyCodeB();
+  eval(sourceCodeB);   
+  
+  var bb = eval('new ServiceB()');  
+  bb.funA(); 
+  bb.funB();
+  bb.funC('SERVICE B');
+  
+  // ----------------------------------
+  
+  var sourceCodeC = Import.MyCodeC();
+  eval(sourceCodeC);   
+  
+  serviceC.funA(); 
+  serviceC.funB();
+  serviceC.funC('SERVICE C');
+}

@@ -1,0 +1,14 @@
+function main() {
+  var service = SpreadsheetLoader.loadSheetService('TEST111');
+  var sheet = service.getSheet();
+ 
+  var range = sheet.getRange('A2:B5'); // the chart data 
+
+  var chartBuilder = sheet.newChart();
+  chartBuilder.addRange(range)
+     .setChartType(Charts.ChartType.LINE)  // chart type - line
+     .setOption('title', 'My Line Chart!') // chart title 
+     .setOption('animation.duration', 500) // animation 
+     .setPosition(2,4,0,0)  // chart location row 2 column 4
+  sheet.insertChart(chartBuilder.build());
+}

@@ -1,0 +1,76 @@
+var EMAIL = 'BinarOptionsTrade@gmail.com';
+
+function main() {
+  var data = Charts.newDataTable()
+				.addColumn(Charts.ColumnType.STRING, 'Name')
+				.addColumn(Charts.ColumnType.NUMBER, 'Cost')
+				.addColumn(Charts.ColumnType.NUMBER, 'Impressions')
+				.addColumn(Charts.ColumnType.NUMBER, 'Clicks');  
+  
+  var date_range = 'ALL_TIME';
+  var chart_Title = 'TOP 10 Most Expensive Keywords';
+  
+  
+  var keywords = AdWordsApp.keywords().orderBy('Cost DESC').forDateRange(date_range).withLimit(10).get();
+  while (keywords.hasNext()) {    
+    var keyword = keywords.next();    
+    var stat = keyword.getStatsFor(date_range);
+    data.addRow([keyword.getText(), stat.getCost(), stat.getImpressions(), stat.getClicks()]);     
+    //Logger.log(keyword.getText()  + ',' + stat.getCost()  + ',' + stat.getImpressions() + ',' + stat.getClicks());
+  }
+  
+  data.build();  
+  
+  var chart_area = Charts.newAreaChart()      
+  .setDataTable(data)      
+  .setStacked()      
+  .setRange(0, 1000)   
+  .setDimensions(1000, 400)
+  .setTitle(chart_Title)      
+  .build();  
+  
+  var chart_bar = Charts.newBarChart()     
+  .setDataTable(data)      
+  .setStacked()      
+  .setRange(0, 1000)   
+  .setDimensions(1000, 400)
+  .setTitle(chart_Title)      
+  .build();  
+  
+  var chart_column = Charts.newColumnChart()     
+  .setDataTable(data)      
+  .setStacked()      
+  .setRange(0, 1000)   
+  .setDimensions(1000, 400)
+  .setTitle(chart_Title)      
+  .build();  
+  
+  var chart_line = Charts.newLineChart()     
+  .setDataTable(data)          
+  .setRange(0, 1000)   
+  .setDimensions(1000, 400)
+  .setTitle(chart_Title)      
+  .build(); 
+  
+  var chart_pie = Charts.newPieChart()     
+  .setDataTable(data)      
+  .setDimensions(1000, 400)
+  .setTitle(chart_Title)  
+  .set3D()
+  .build(); 
+  
+  var chart_table = Charts.newTableChart()     
+  .setDataTable(data)         
+  .setDimensions(1000, 400)     
+  .build();
+   
+  var blob_area = chart_area.getBlob();
+  var blob_bar = chart_bar.getBlob();
+  var blob_column = chart_column.getBlob();
+  var blob_line = chart_line.getBlob();
+  var blob_pie = chart_pie.getBlob();
+  var blob_table = chart_table.getBlob();
+  
+  MailApp.sendEmail(EMAIL, 'HELLO FROM ADWORDS SCRIPTS', 'ATTACHED CHART FILE', {attachments: [blob_area, blob_bar, blob_column, blob_line, blob_pie, blob_table]});
+
+}
