@@ -1,3 +1,10 @@
-AngularJS/Backup/
-NET Web API - RESTFul/Backup/
-MVC/Backup/
+/Backup/
+/Documents/
+/Publish/
+/packages/
+/Payments/
+/Design/
+bin/
+obj/
+.vs/
+.svn/
