@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <title>test</title>
+
+    <style>
+        .link-tabs-wrapper {
+            width: 100%;
+            margin: 0 auto;
+            text-align: center;
+            display: flex;
+            flex-flow: row wrap;
+        }
+
+        .link-tabs-wrapper > div {
+            flex-grow: 1; /* auto width */
+            padding-right: 5px;
+        }
+
+        .link-tabs-wrapper > div:last-child {            
+            padding-right: 0;
+        }
+
+        .link-tabs-wrapper a {
+            display: block;
+            height: 60px;
+            line-height: 60px;
+            padding: 0 20px;
+            background-color: #f7f7f7;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-family: "lato","Moderat","Helvetica Neue",Helvetica,Arial,sans-serif;
+            font-weight: bold;
+            letter-spacing: 1.6px;
+            color: #141414;
+            text-decoration: none;
+            box-shadow: inset 0 3px 3px 0 rgba(231,231,231,.5);
+        }
+
+        .link-tabs-wrapper > div.active a {
+            color: #ea155c;
+            border-top: 3px solid #ea155c;
+            background-color: #fff;
+        }
+
+        @media (max-width: 960px) {
+            .link-tabs-wrapper > div {   
+                width: 100%;
+                padding: 0;
+                display: none;
+            }
+
+            .link-tabs-wrapper > div.active {
+                display: block;
+                position: relative;
+            }
+
+            .link-tabs-wrapper > div.active::after {
+                display: inline-block;
+                width: 7px;
+                height: 7px;                                
+                content: "";
+                position: absolute;
+                right: 27px;
+                top: 23px;
+                background: none;
+                border: 2px solid #ea155c;
+                border-right: 0;
+                border-top: 0;
+                transform: rotate(-45deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="link-tabs-wrapper">
+        <div>
+            <a href="a" title="go to a">
+                LinkAAAA AAA
+            </a>
+        </div>
+        <div class="active">
+            <a href="b" title="go to b">
+                LinkB
+            </a>
+        </div>
+        <div>
+            <a href="c" title="go to c">
+                LinkC
+            </a>
+        </div>
+    </div>
+    <div>
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    </div>
+
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+    <script>
+        // TODO fix 960 constant value 
+        // TODO handle window resize event (when switching between sizes)
+
+        (function () {
+            if (window.innerWidth <= 960) {
+                var active = $('.link-tabs-wrapper > div.active');
+                if (active[0] == null) return;
+
+                $('.link-tabs-wrapper').prepend(active);
+                active.find('a').removeAttr('href');
+                active.click(function (x) {
+                    let state = active.attr('state') || '';
+                    let newState = state == 'open' ? 'closed' : 'open';
+                    active.attr('state', newState);
+                    $('.link-tabs-wrapper > div').not('.active').css('display', newState == 'open' ? 'block' : 'none');
+                });
+            }
+        })();
+    </script>
+</body>
+</html>

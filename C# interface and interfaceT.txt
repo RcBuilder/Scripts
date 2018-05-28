@@ -1,0 +1,48 @@
+public interface IParser<T> {
+    T Value { get; }
+    void Parse(string Input);
+}
+
+public interface IStringParser : IParser<string> { }
+public interface INumericParser : IParser<int> { }
+
+---
+
+public class Parser1 : IStringParser
+{
+    public string Value { get; private set; }
+
+    public Parser1(string Properties) {
+        // code ...
+    }
+
+    public void Parse(string Input) {
+        // code 
+    }
+}
+
+public class Parser2 : IStringParser
+{
+    public string Value { get; private set; }
+
+    public Parser2(string Properties) {
+        // code ...
+    }
+
+    public void Parse(string Input) {
+        // code 
+    }
+}
+
+public class Parser3 : INumericParser
+{
+    public int Value { get; private set; }
+
+    public Parser3(string Properties) {
+        // code ...
+    }
+
+    public void Parse(string Input) {
+        // code 
+    }
+}

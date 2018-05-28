@@ -1,0 +1,33 @@
+[using reflection]
+
+public class Artwork {            
+    public string Title { get; set; }
+    public string Price { get; set; }
+
+    public override string ToString() {
+        return string.Format("[{0}], Price: {1}", Title, Price);
+    }
+}
+
+
+var artwork = new Artwork();
+var artworkType = artwork.GetType();
+
+var prop1 = artworkType.GetProperty("Title");
+if (prop1 != null)
+    prop1.SetValue(artwork, "Some Title");
+
+var prop2 = artworkType.GetProperty("Price");
+if (prop2 != null)
+    prop2.SetValue(artwork, "300$");
+
+Console.WriteLine(artwork);
+
+-----------------------------
+
+[using serialization]
+
+note:
+we can achieve the same result using a json serialization! 
+create a json-string of all the properties and use 
+JsonConvert.DeserializeObject to do the binding (which based on the fields names)

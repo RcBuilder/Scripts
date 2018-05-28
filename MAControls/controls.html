@@ -2,13 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv=X-UA-Compatible content="IE=edge">
-    <meta name=viewport content="width=device-width,initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 
     <title>controls</title>
 
     <link rel="stylesheet" href="modules.css" />
     <style>
+        body { }
+
         .section {
             width: 200px;
             display: inline-block;
@@ -73,10 +75,11 @@
         <div data-module="checklist" data-action="printToActivitySection" data-query-name="p2">
             <ul>
                 <li>
-                    <label class="checkbox-container">
-                        check A
+                    <label class="checkbox-container" title="very long name which needs to be cut off">
+                        check A very long name which needs to be cut off
                         <input value="c1" type="checkbox" checked="checked" />
                         <span class="checkmark"></span>
+                        <span class="rowcount">86</span>
                     </label>
                 </li>
                 <li>
@@ -84,6 +87,7 @@
                         check B
                         <input value="c2" type="checkbox" checked="checked" />
                         <span class="checkmark"></span>
+                        <span class="rowcount">24</span>
                     </label>
                 </li>
                 <li>
@@ -189,9 +193,9 @@
             </ul>
         </div>
         <br />
-        <div data-module="checklist-autocomplete" data-provider="getDataForAutoCompleteIList" data-action="printToActivitySection" data-init-provider="initDataForAutoCompleteIList" data-full-list-if-no-phrase="1" data-list-height="140px">
+        <div data-module="checklist-autocomplete" data-provider="getDataForAutoCompleteIList" data-action="printToActivitySection" data-init-provider="initDataForAutoCompleteIList" data-list-height="140px">
             <div>
-                <input type="text" placeholder="search" maxlength="20" />
+                <input type="text" placeholder="search" maxlength="20" />                
             </div>
         </div>
     </div>
@@ -241,7 +245,7 @@
             </div>
         </div>
 
-        <div class="collapsable-title">
+        <div class="collapsable-title" data-ignore-collapse>
             <h4>myTitle 2</h4>
             <div>
                 <div data-module="checklist" data-init-provider="initDataForIList" data-action="printToActivitySection"></div>
@@ -268,6 +272,19 @@
                     <input type="text" placeholder="search" maxlength="20" />
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <h4>checklist-addToList</h4>
+        <div data-module="checklist-addToList" data-provider="getDataForAutoCompleteIList" data-action="printToActivitySection" data-list-height="140px" data-query-name="p8">
+            <div>
+                <input type="text" placeholder="search" maxlength="20" />
+            </div>
+        </div>
+        <h4>freeSearch</h4>
+        <div data-module="freeSearch" data-action="printToActivitySection" data-query-name="p9">            
+            <input type="text" placeholder="search" maxlength="20" />            
         </div>
     </div>
 
@@ -331,12 +348,15 @@
                 message = range.min + '-' + range.max;
             }
 
+            if (module instanceof freeSearchModule)                
+                message = module.getSearchPhrase();            
+
             $('.activity-section').prepend('<p>' + message + '</p>');
         }
 
 
         function getDataForAutoComplete(module) {
-            var data = ['roby', 'ronen', 'shirly', 'albert', 'rami', 'ron'];
+            var data = ['roby', 'ronen', 'shirly', 'albert', 'rami', 'ron', 'roby1', 'roby2', 'roby3'];
 
             var phrase = module.getSearchPhrase();
             module.bindItems(data.filter(x => x.includes(phrase)));
