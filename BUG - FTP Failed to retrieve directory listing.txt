@@ -1,0 +1,25 @@
+Bug:
+FTP connection issue 
+
+Error:
+Failed to retrieve directory listing
+
+Cause:
+need to switch from 'Passive' mode to 'Active' mode
+
+Solution:
+
+steps: 
+- open Filezilla > Edit > Settings
+- Connection > FTP: Choose Active.
+- Connection > FTP > Active Mode: Select "Ask your operating system for the external IP address"
+- Connection > FTP > Passive Mode: Choose Fall Back to Active Mode.
+- OK.
+
+
+
+
+
+
+
+ 
