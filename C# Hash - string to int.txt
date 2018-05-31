@@ -1,0 +1,6 @@
+best approach is to use the built-in microsoft GetHashCode implementation 
+
+sample:
+var title = "some title";
+var hash = Math.Abs(title.GetHashCode());
+Console.WriteLine(hash); // 1304464056

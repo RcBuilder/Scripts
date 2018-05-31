@@ -1,0 +1,41 @@
+[HtmlAgilityPack] 
+SelectNodes from a Node
+
+use the './/' to match ANY element from the root
+
+--
+
+note that // without the dot(.) will cause the search of the entire dom and not of the current node.
+álso see 'HtmlAgilityPack - SelectNodes from a Node Issue.txt'
+
+--
+
+sample:
+var doc = new HtmlDocument();
+            doc.LoadHtml(
+                "<body>" +
+                "<div data-item>" +
+                    "<div>" +
+                        "<div>" +
+                            "<a>1</a>" +
+                            "<a>2</a>" +
+                        "</div>" +
+                    "</div>" +
+                "</div>" +
+                "<div data-item>" +
+                    "<div>" +
+                        "<div>" +
+                            "<a>3</a>" +
+                            "<a>4</a>" +
+                        "</div>" +
+                    "</div>" +
+                "</div>" +
+                "</body>");
+
+            var ns1 = d.DocumentNode.SelectNodes("//div[@data-item]");
+            foreach (var n1 in ns1) {
+                var ns2 = n1.SelectNodes(".//a"); 
+                foreach (var n2 in ns2)
+                    Console.WriteLine(n2.InnerText);
+            } 
+

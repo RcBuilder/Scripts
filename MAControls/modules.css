@@ -316,6 +316,12 @@
     transform: rotate(45deg);
 }
 
+.checkbox-container .text {
+    position: absolute;
+    top: 0;
+    height: auto;
+    left: 35px;
+}
 
 /* radiobutton */
 .radio-container .checkmark {

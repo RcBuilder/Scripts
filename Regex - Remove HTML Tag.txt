@@ -1,0 +1,12 @@
+Regex - Remove HTML Tag
+-----------------------
+
+pattern:
+<a [^>]*>.*?</a>
+
+input:
+<a class="some-class" href="/my-page">go to ...</a>
+some text
+
+result:
+some text

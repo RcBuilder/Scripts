@@ -1,0 +1,62 @@
+how to load a Collection into a LinkedList structured object
+
+collection: 
+[A, B, C, D] 
+        
+linkedList:
+A -> B -> C -> D
+
+-------------
+
+[Test]
+        public void Test_Steps_Collection2LinkedList() {
+            var collector = new CollectorMetaData();
+            collector.Name = "TEST";
+
+            var steps = new List<CollectorStepNode> {
+                new CollectorStepNode{ Name = "A" },
+                new CollectorStepNode{ Name = "B" },
+                new CollectorStepNode{ Name = "C" },
+                new CollectorStepNode{ Name = "D" }
+            };
+            
+            if (steps.Count > 0)
+            {
+                var head = steps.First();
+                var current = head;
+                foreach (var step in steps.Skip(1))
+                {
+                    current.Next = step;
+                    current = current.Next;
+                }
+
+                collector.Steps = head;
+            }
+
+            Assert.IsNotNull(collector.Steps);
+            Assert.AreEqual(collector.Steps.Name, "A");
+            Assert.AreEqual(collector.Steps.Next.Name, "B");
+            Assert.AreEqual(collector.Steps.Next.Next.Name, "C");
+            Assert.AreEqual(collector.Steps.Next.Next.Next.Name, "D");
+            Assert.IsNull(collector.Steps.Next.Next.Next.Next);
+        }
+
+-------------
+
+public class CollectorStepNode
+    {
+        public string Name { get; set; }        
+        public string Expression { get; set; }
+        public CollectorStepNode Next = null;
+    }
+
+public class CollectorMetaData
+    {
+        public string Name { set; get; }
+        public CollectorStepNode Steps { set; get; }
+
+        protected void Init(CollectorMetaData MetaData) {
+            this.Name = MetaData.Name;
+            this.Steps = MetaData.Steps;
+        }
+    }

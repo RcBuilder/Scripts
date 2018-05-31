@@ -1,0 +1,12 @@
+C# Create New T()
+-----------------
+
+note!
+- the generic class must have a T of type class constraint 
+- T must have a parameterless constructor
+
+sample:
+public class EntityBindingProcess<T> where T : new() 
+{        
+    public T Entity { get; private set; } = new T();        
+}
