@@ -67,16 +67,31 @@
     </div>
 
     <div class="section">
-        <h3>autocomplete</h3>
-        <div data-module="autocomplete" data-provider="getDataForAutoComplete" data-query-name="p1">
-            <input type="text" placeholder="search" maxlength="20" />
+        <h3>disabled</h3>
+        <div data-module="checklist" data-action="printToActivitySection" data-disabled="1">
+            <ul>
+                <li>
+                    <label class="checkbox-container">
+                        check A
+                        <input value="c3" type="checkbox" checked="checked" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+                <li>
+                    <label class="checkbox-container">
+                        check B
+                        <input value="c4" type="checkbox" />
+                        <span class="checkmark"></span>
+                    </label>
+                </li>
+            </ul>
         </div>
         <h3>checklist</h3>
         <div data-module="checklist" data-action="printToActivitySection" data-query-name="p2">
             <ul>
                 <li>
                     <label class="checkbox-container" title="very long name which needs to be cut off">
-                        check A very long name which needs to be cut off
+                        <span class="text">check A very long name which needs to be cut off</span>
                         <input value="c1" type="checkbox" checked="checked" />
                         <span class="checkmark"></span>
                         <span class="rowcount">86</span>
@@ -282,9 +297,13 @@
                 <input type="text" placeholder="search" maxlength="20" />
             </div>
         </div>
+        <h3>autocomplete</h3>
+        <div data-module="autocomplete" data-provider="getDataForAutoComplete" data-query-name="p1">
+            <input type="text" placeholder="search" maxlength="20" />
+        </div>
         <h4>freeSearch</h4>
-        <div data-module="freeSearch" data-action="printToActivitySection" data-query-name="p9">            
-            <input type="text" placeholder="search" maxlength="20" />            
+        <div data-module="freeSearch" data-action="printToActivitySection" data-query-name="p9">
+            <input type="text" placeholder="search" maxlength="20" />
         </div>
     </div>
 

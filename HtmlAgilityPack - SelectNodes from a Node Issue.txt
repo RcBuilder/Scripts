@@ -32,3 +32,8 @@ foreach (var document in documents) {
    var innerNodes = document.DocumentNode.SelectNodes("//a[contains(@Class, 'someClass')]");
    ....
 }
+
+------------------------
+
+update: 
+there is an out-of-the-box solution - see 'HtmlAgilityPack - Node.SelectNodes.txt'  

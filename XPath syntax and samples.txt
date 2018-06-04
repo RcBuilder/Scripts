@@ -1,0 +1,121 @@
+
+contains
+--------
+contains()
+
+e.g:
+//div[contains(@class, 'title')]/a
+
+position
+--------
+position()
+
+e.g:
+//div[position() < 3]
+
+index
+-----
+[x]
+
+e.g:
+(/div/p/a)[1]
+//p[1]
+
+last
+----
+last()
+
+e.g:
+//p[last()]
+//p[last() - 1]
+
+has attribute
+-------------
+@attribute
+
+e.g:
+//title[@lang]
+
+attribute value
+---------------
+@attribute='value'
+
+e.g:
+//title[@lang='he']
+
+numeric
+-------
+> < ..
+
+e.g:
+//p[@price > 30]
+
+----------------------------------------------
+
+characters
+----------
+* - any element/node
+@* - any attribute
+
+e.g:
+//* 
+//p[@*]
+/div/*
+
+----------------------------------------------
+
+hierarchy
+---------
+/ - direct 
+// - any
+
+e.g:
+//table[contains(@id, ''someTable'')]//tr
+//div[contains(@id, ''someDiv'')]/span 
+/body/div/table
+//table[1]
+
+----------------------------------------------
+
+operators
+---------
+OR 
+AND
++
+-
+*
+div (/)
+!=
+<
+>
+
+----------------------------------------------
+
+axes
+----
+ancestor
+ancestor-or-self	
+attribute
+child
+descendant
+descendant-or-self
+following
+following-sibling	
+parent
+preceding
+preceding-sibling
+self
+
+e.g:
+child::*
+attribute::*
+child::p
+
+----------------------------------------------
+
+notes
+-----
+
+// search the whole document, from the ROOT!
+.// same search from the current node relative point
+

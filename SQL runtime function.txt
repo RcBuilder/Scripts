@@ -1,0 +1,45 @@
+SQL runtime function 
+--------------------
+in order to create a ""runtime" function which can be used in a simple QUERY window (and not StroredProcedure) 
+we need to create the function and drop it after using.
+
+
+sample
+------
+CREATE FUNCTION fn_FindFieldId(@SourceId int, @EntityName varchar(30), @FieldName varchar(30))  
+RETURNS int   
+AS   
+-- Returns the stock level for the product.  
+BEGIN
+	declare @result int;        
+
+    select top(1) @result = RowId 
+	from	SourceFields 
+	where	SourceId = @SourceId    
+	and		EntityName = @EntityName
+	and		FieldName = @FieldName
+
+	return @result
+END; 
+
+---
+
+insert into [dbo].[FieldParsers]
+(FieldRowId, ParserName, Properties)
+values
+((select dbo.fn_FindFieldId(@SourceId, 'Auction', 'Id')), 'XPathParser', './/span[contains(@class, ''timed_sale'')]'),
+((select dbo.fn_FindFieldId(@SourceId, 'Auction', 'Title')), 'XPathParser', './/div[contains(@class, ''auc_description'')]/h2/a[@id=''auction-link'']'),
+((select dbo.fn_FindFieldId(@SourceId, 'Auction', 'Date')), 'XPathParser', './/div[contains(@class, ''auc_description'')]/span[contains(@class, ''auc_date'')]'),
+((select dbo.fn_FindFieldId(@SourceId, 'Auction', 'Date')), 'DateParser', ''),
+						   
+((select dbo.fn_FindFieldId(@SourceId, 'Artwork', 'Id')), 'XPathParser', '//section[1]/div[1]/div/dl/dd[2]'),
+((select dbo.fn_FindFieldId(@SourceId, 'Artwork', 'Title')), 'XPathParser', '//section[@id=''overview'']/p'),
+((select dbo.fn_FindFieldId(@SourceId, 'Artwork', 'Title')), 'RegexParser', '<b>(?<title>.*?)</b>'),
+((select dbo.fn_FindFieldId(@SourceId, 'Artwork', 'Title')), 'InnerTextParser', ''),
+((select dbo.fn_FindFieldId(@SourceId, 'Artwork', 'Title')), 'TrimParser', ''),
+((select dbo.fn_FindFieldId(@SourceId, 'Artwork', 'Price')), 'XPathParser', '//section[@id=''overview'']/p'),
+((select dbo.fn_FindFieldId(@SourceId, 'Artwork', 'Price')), 'RegexParser', '<b>Estimate \\s+ (?<price>\\$[0-9,]+-[0-9,]+)</b>')
+
+---
+
+drop function fn_FindFieldId

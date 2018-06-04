@@ -1,0 +1,3 @@
+
+NUnit nuget:
+Install-Package Microsoft.ApplicationBlocks.Data -Version 2.0.0

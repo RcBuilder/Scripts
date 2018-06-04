@@ -1,0 +1,27 @@
+public interface IFactory<TIn, TOut>
+    {
+        TOut Produce(TIn FactoryParams);
+    }
+
+----
+
+public class CrawlerFactory : IFactory<CrawlerFactoryParams, ICrawler>
+    {
+        public ICrawler Produce(CrawlerFactoryParams FactoryParams) {
+            if (FactoryParams.source == null)
+                return null;
+
+            switch (FactoryParams.source.SourceType)
+            {
+                case eSourceType.Auctions: return new AuctionsCrawler(new CrawlerRepository());
+                default: return null;
+            }
+        }
+    }
+
+----
+
+public class CrawlerFactoryParams
+    {
+        Source source { set; get; }
+    }

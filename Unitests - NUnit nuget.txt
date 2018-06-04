@@ -1,0 +1,5 @@
+
+NUnit nuget:
+Install-Package NUnit -Version 3.10.1
+Install-Package Moq 
+Install-Package NUnit3TestAdapter -Version 3.10.0

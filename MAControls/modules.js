@@ -8,6 +8,7 @@ function iModule(elem) {
     // properties
     this._elem = $(elem);
     this._queryName = null;
+    this._isDisabled = false;
 
     // public methods
     this.equal = equal;
@@ -17,6 +18,10 @@ function iModule(elem) {
     // initialization
     (function () {
         that._queryName = that._elem.attr('data-query-name') || null;
+        
+        var isDisabled = that._elem.attr('data-disabled');
+        if (isDisabled)
+            that._isDisabled = isDisabled == '1';
     })();
 
     // methods
@@ -120,6 +125,7 @@ function iListModule(elem) {
     this.clearItems = clearItems;
     this.hideItems = hideItems;
     this.showItems = showItems;
+    this.disableItems = disableItems;
     this.getItems = getItems;
     this.clearSelected = clearSelected;
     this.findInput = findInput;
@@ -160,6 +166,11 @@ function iListModule(elem) {
     function showItems(theList) {
         theList = theList || that._list;
         theList.find('li').show();
+    }
+
+    function disableItems(theList) {
+        theList = theList || that._list;
+        theList.find('li input').prop('disabled', 'disabled');
     }
 
     function clearSelected(theList) {
@@ -235,6 +246,9 @@ function iListModule(elem) {
             var initProvider = that._elem.attr('data-init-provider');
             if (initProvider)
                 eval(initProvider)(that);
+
+            if (that._isDisabled)
+                that.disableItems();
         }
     }
 }
@@ -1060,7 +1074,7 @@ var modulesManagerHelper = function () {
             return arr;
         }
     }
-};
+}
 
 // --------------------------------
 
