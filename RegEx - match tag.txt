@@ -1,0 +1,17 @@
+RegEx - match tag
+
+pattern:
+(<img [^>]*>.*?</img>)|(<img [^/>]* />)
+
+input:
+<div>
+  <img src='1.jpg' />
+  <p>PPP</p>
+  <img src='2.jpg' />
+  <img src='2.jpg' ></img>
+</div>
+
+result:
+<img src='1.jpg' />
+<img src='2.jpg' />
+<img src='2.jpg' ></img>
