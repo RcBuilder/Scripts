@@ -18,7 +18,7 @@ function iModule(elem) {
     // initialization
     (function () {
         that._queryName = that._elem.attr('data-query-name') || null;
-        
+
         var isDisabled = that._elem.attr('data-disabled');
         if (isDisabled)
             that._isDisabled = isDisabled == '1';
@@ -464,8 +464,9 @@ function checklistModule(elem) {
             let selectAllValue = '0A8E7073D5AD19A4';
             if (x.target.value == selectAllValue) {
                 // select All
+                var checkedStatus = x.target.checked;
                 that.clearSelected();
-                x.target.checked = true;
+                x.target.checked = checkedStatus;
             }
             else {
                 // select Specific 
@@ -770,7 +771,10 @@ function checklistAutoCompleteModule(elem) {
         }
 
         that.showItems();
-        var matches = that._list.find('li > label').toArray().filter(function (x) { !($(x).text().toLowerCase().includes(phrase.toLowerCase())); });
+        var values = that._list.find('li > label').toArray();
+        var matches = values.filter(function (x) {
+            return !($(x).text().trim().toLowerCase().includes(phrase.toLowerCase()));
+        });
         matches.map(function (x) { $(x).closest('li').hide(); });
     }
 
@@ -1099,7 +1103,7 @@ var modulesManagerService = function () {
         },
         loadQuery: function () {
             let dicPrms = that._helper.parseParams();
-            console.log(dicPrms);
+            //console.log(dicPrms);
 
             for (i in that._modules) {
                 let current = that._modules[i];
@@ -1133,10 +1137,11 @@ var modulesManagerService = function () {
             if (query.indexOf('?') == -1 && query.indexOf('&') > -1)
                 query = query.replace('&', '?');
 
-            console.log(query);
+            //console.log(query);
 
             var newURI = ''.concat(document.location.protocol, '//', window.location.host, window.location.pathname, query)
             window.history.replaceState({ urlPath: newURI }, "", newURI);
+            /// addthis_share.url = newURI;
         },
         loadModules: function () {
             // modules
