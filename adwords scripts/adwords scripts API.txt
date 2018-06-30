@@ -1958,6 +1958,25 @@ Extensions
   var campaign_apps = campaign.extensions().mobileApps().get();
   ...
 
+
+---
+Phone calls 
+https://developers.google.com/adwords/scripts/docs/reference/adwordsapp/adwordsapp_phonenumber
+
+- example:
+
+  var phoneNumbers = AdWordsApp.extensions()
+     .phoneNumbers()
+     .withCondition("Impressions > 100")
+     .forDateRange("ALL_TIME")
+     .orderBy("Clicks DESC")
+     .get();
+  
+  while (phoneNumbers.hasNext()) {
+    var phoneNumber = phoneNumbers.next();
+    Logger.log(phoneNumber.getPhoneNumber());
+  }
+
 ======== Ads =========================================================================
 
 - also see 'AD MANAGER SERVICE'

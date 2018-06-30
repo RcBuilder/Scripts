@@ -1,0 +1,78 @@
+var EMAIL = 'RcBuilder@walla.com';
+var TIME_FRAME = 'LAST_7_DAYS';
+
+function main() {
+  var htmlBuilderService = HTMLBuilderService();
+  htmlBuilderService.add('<h1>' + AdWordsApp.currentAccount().getName() + '</h1>');
+  
+  htmlBuilderService.add('<table cellspacing="3" cellpadding="3" border="1">');
+  htmlBuilderService.add('<tr>'+
+                        '<th>Query</th>'+
+                        '<th>Impressions</th>'+
+                        '<th>Clicks</th>'+
+                        '<th>Conversions</th>'+
+                        '<th>CampaignName</th>'+
+                        '<th>AdGroupName</th>'+
+                        '<th>KeywordId</th>'+
+                        '</tr>');
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var query = 'SELECT Query, Impressions, Clicks, Conversions, CampaignName, AdGroupName, KeywordId ' +
+   'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +             
+   'DURING ' + TIME_FRAME;  
+  
+  var report = AdWordsApp.report(query, reportConfig);
+  var rowcount = 0;
+  
+  var rows = report.rows();    
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var query = row['Query'];    
+    Logger.log(query);   
+    
+    rowcount++;
+    htmlBuilderService.add('<tr>'+
+                        '<td>' + query + '</td>'+
+                        '<td>' + row['Impressions'] + '</td>'+
+                        '<td>' + row['Clicks'] + '</td>'+
+                        '<td>' + row['Conversions'] + '</td>'+
+                        '<td>' + row['CampaignName'] + '</td>'+
+                        '<td>' + row['AdGroupName'] + '</td>'+
+                        '<td>' + row['KeywordId'] + '</td>'+
+                        '</tr>');
+  }
+  
+  htmlBuilderService.add('</table>'); 
+  
+  if(rowcount > 0) {
+    Logger.log('email has sent to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'SEARCH_QUERY_PERFORMANCE_REPORT', '', {
+      htmlBody: htmlBuilderService.get()
+    });
+  }
+}
+
+
+/* HTML BUILDER SERVICE */
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    },
+    toPDF: function(pdfName){          
+      var blob = Utilities.newBlob(_html, MimeType.HTML);
+      var pdf = blob.getAs(MimeType.PDF);  
+      pdf.setName(pdfName);
+      return pdf;
+    }  
+  };
+}
