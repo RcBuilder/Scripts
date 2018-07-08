@@ -1,0 +1,48 @@
+public interface I1 { }
+public class C1 : I1 { }
+public class C2 : I1 { }
+public class C3 : I1 { }
+
+public class C4 : C3 { }
+public class C5 : C4 { }
+
+---
+
+public static class InterfaceExtensions
+    {
+        // for a given interface, find all the classes implement it!  
+        public static IEnumerable<Type> FindImplementers(this Type me)
+        {
+            if (!me.IsInterface)
+                return null;
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var types = assembly.GetTypes();
+            return types.Where(x => !x.IsInterface && me.IsAssignableFrom(x));
+        }
+    }
+
+    public static class ClassExtensions
+    {
+        // for a given class, find all the classes implement it!  
+        public static IEnumerable<Type> FindImplementers<T>(this T me) where T : class
+        {
+            var meType = typeof(T);
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var types = assembly.GetTypes();
+            return types.Where(x => !x.IsInterface && meType.IsAssignableFrom(x));
+        }
+    }
+
+---
+
+var types = typeof(I1).FindImplementers();
+foreach (var type in types)
+    Console.WriteLine(type.Name); // C1, C2, C3, C4, C5
+
+---
+
+var types = new C3().FindImplementers();
+foreach (var type in types)
+    Console.WriteLine(type.Name); // C3, C4, C5

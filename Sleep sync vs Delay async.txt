@@ -1,0 +1,19 @@
+// asynchronously
+string result = await WaitAsynchronouslyAsync();
+
+// synchronously
+string result = await WaitSynchronously ();
+
+---
+
+public async Task<string> WaitAsynchronouslyAsync()
+{
+    await Task.Delay(10000);
+    return "Finished";
+}
+
+public async Task<string> WaitSynchronously()
+{
+    Thread.Sleep(10000);
+    return "Finished";
+}

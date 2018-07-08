@@ -1,0 +1,61 @@
+TPL - Task Class with both Sync and Async methods Technique
+
+---
+
+var myTask = new MyTask();
+myTask.DoTest();                     
+
+public class MyTask
+    {
+        public string Exexute()
+        {
+            // heavy stuff here .....
+            Thread.Sleep(5000);
+            return "Done!";
+        }
+
+        public Task<string> ExexuteAsync()
+        {
+            return Task.Factory.StartNew(() => {
+                return Exexute();
+            });
+        }
+
+        public async void DoTest() {
+            Console.WriteLine("ExexuteAsync");
+            var task = ExexuteAsync();
+            Console.WriteLine("working ....");
+            var res1 = await task;
+            Console.WriteLine(res1);
+
+            Console.WriteLine("Exexute");
+            var res2 = Exexute();
+            Console.WriteLine("waiting ....");
+            Console.WriteLine(res2);
+        }
+    }
+
+---
+
+example:
+public class LoadAuctionFiltersTask {
+        public List<IAuctionFilter> Exexute(Source source, ICrawlerRepository repository)
+        {
+            // [Filters]
+            // load auction filters (once for all auctions)
+            var auctionFilterFactory = new AuctionFilterFactory(source);
+            var auctionFiltersMetaData = repository.GetSourceEntityFilters(source.Id, "Auction");
+            var auctionFilters = new List<IAuctionFilter>();
+            auctionFilters.LoadFilters(auctionFiltersMetaData, auctionFilterFactory); // DB
+            auctionFilters.LoadGlobalFilters(auctionFilterFactory); // GLOBAL 
+
+            return auctionFilters;
+        }
+
+        public async Task<List<IAuctionFilter>> ExexuteAsync(Source source, ICrawlerRepository repository)
+        {
+            return await Task.Factory.StartNew(() => {
+                return Exexute(source, repository);
+            });
+        }
+    }

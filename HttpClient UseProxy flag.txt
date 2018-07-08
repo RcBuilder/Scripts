@@ -1,0 +1,29 @@
+HttpClient UseProxy
+-------------------
+set the UseProxy to false to prevent the HttpClient from checking for proxies 
+foreach attempt! increases performance drastically  
+
+in a performance test made for 200 requests it took 2 sec instead of 20 sec!!  
+
+---
+
+HttpClientHandler clientHandler { set; get; } = new HttpClientHandler {
+   UseProxy = false            
+};
+
+public string Load(string URL) {
+            var result = string.Empty;
+            using (var client = new HttpClient(clientHandler)) {
+                client.Timeout = TimeSpan.FromSeconds(TimeOutSec);                
+                using (var resonse = client.GetAsync(URL).Result)
+                    result = resonse.Content.ReadAsStringAsync().Result;
+            }
+            return result;
+        }
+
+        public async Task<string> LoadAsync(string URL) {
+            using (var client = new HttpClient(clientHandler))
+            using (var resonse = await client.GetAsync(URL).ConfigureAwait(false))
+                return await resonse.Content.ReadAsStringAsync();
+        }
+

@@ -181,6 +181,7 @@ note that we can use ANY of the known cmd command using the Git CMD dialog
 > git merge [branchName] // merge the specified branch (source) to the active branch (target)
 > git merge --no-ff [branchName] // don't fast-forward the merged branch, do a merge commit anyway (see 'fast-forward merge')
 > git merge --abort // abort the merge 
+> git cherry-pick [commitGuid] // merge a specific commit (see 'merge a specific commit')
 > git clone [gitPath] // clone the master branch of a git project directly to your machine
 > git clone -b [branchName] [gitPath] // clone a specific branch of a git project directly to your machine
 > git clone --mirror [gitPath] .git // clone a git project with ALL its branches directly to your machine
@@ -256,6 +257,22 @@ git logs samples:
 - git log --since="2017-09-01" --author="RcBuilder" --oneline
 - git log --grep="temp" --oneline
 - git log --oneline GitHubServer/master 
+
+---
+
+merge a specific commit:
+
+- to merge a specific commit to branchB 
+  1. switch to the branch you'd like to add the commit
+  2. use the cherry-pick command with the commit id 
+
+- structure:
+  > git checkout [branchB] 
+  > git cherry-pick [commitGuid]
+
+- sample:
+  > git checkout branchB
+  > git cherry-pick 12a689b19
 
 ---
 

@@ -1,0 +1,19 @@
+C# hidden interfaces
+--------------------
+in order to create an interface for hidden members (data-members, properties, methods etc.)
+we need to implement the interface using its name prefix - an hidden interface implementation! 
+
+---
+
+e.g: 
+public interface ILocker{
+    object syncLock { get; }
+}
+
+public class ReadAuctionTask : ITask<Auction>, ILocker{
+    object ILocker.syncLock => new object(); //  hidden interface implementation
+    /// public object syncLock => new object(); // regular implementation
+}
+
+var task = new ReadAuctionTask();
+task.syncLock // can't be reached/seen
