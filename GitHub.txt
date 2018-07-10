@@ -21,6 +21,7 @@ SSH keys
 Aliases
 Connect To A Remote Server
 Get Latest
+Get a specific version
 Fast-forward merge
 Coparing Branches
 Staging Index
@@ -30,6 +31,7 @@ Diff view
 Files
 GitHub Desktop
 GitHub
+Visual Sudio
 =====================
 
 
@@ -674,6 +676,17 @@ the server pointer points to [D] whereas the HEAD still points to [C], use merge
 server [A]-[B]-[C]-[D] 
 local [A]-[B]-[C]-[D] 
 
+Get a specific version
+----------------------
+> git checkout [commitGuid]
+
+e.g:
+> git checkout 9eab01d9
+
+note! 
+when you're done, just checkout master again and use the merge command to merge the changes (if needed)
+> git checkout master
+
 Get Latest
 ----------
 - (optional) git branch -a // use the branch -a command to find the branches names 
@@ -947,3 +960,24 @@ e.g:
 :blush:
 :hourglass:
 :white_check_mark:
+
+Visual Sudio 
+------------
+Get a specific version:
+- Team Explorer > Actions > View History
+   (the commits list will be presented)
+
+- right click on the choosen commit > New Branch
+   (creates a branch from the specified commit)
+
+Reset (--mixed):
+move the pointer to a specific version, all changes since that point
+will be shown as pending chnages
+ 
+- Team Explorer > Actions > View History
+   (the commits list will be presented)
+
+- right click on the choosen commit > Reset
+- choose 'Reset and Keep Changes (--mixed)' 
+
+
