@@ -1,0 +1,25 @@
+[Reflection]
+get all classes implement the specified interface
+
+see 'Reflection - FindImplementers.txt'
+
+---
+
+public interface I1 { }
+public class C1 : I1 { }
+public class C2 : I1 { }
+public class C3 : I1 { }
+
+---
+
+var interfaceType = typeof(I1);
+var assembly = Assembly.GetExecutingAssembly();
+var types = assembly.GetTypes();
+foreach (var type in types)                
+     if (!type.IsInterface && interfaceType.IsAssignableFrom(type))
+         Console.WriteLine(type.Name);    
+
+---
+
+result:
+C1, C2, C3

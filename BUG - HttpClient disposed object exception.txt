@@ -1,0 +1,36 @@
+Bug:
+HttpClient disposed object exception 
+
+Error:
+Cannot access a disposed object.
+
+Cause:
+the HttpClientHandler get disposed after the first request! 
+
+Solution:
+set the disposehandler flag to false (HttpClient's constructor overload)
+
+e.g:
+new HttpClient(this.clientHandler, false);
+
+sample:
+public class HttpClientLoader : IDocumentLoader
+{
+	private HttpClientHandler clientHandler { set; get; } = new HttpClientHandler {
+		UseProxy = false            
+	};
+
+	public HtmlDocument Load(string URL) {
+		var result = string.Empty;
+		using (var client = new HttpClient(this.clientHandler, false)) {
+			client.Timeout = TimeSpan.FromSeconds(TimeOutSec);                
+			using (var resonse = client.GetAsync(URL).Result)
+				result = resonse.Content.ReadAsStringAsync().Result;
+		}
+		return LoadHtml(result);
+	}
+}
+
+
+
+ 

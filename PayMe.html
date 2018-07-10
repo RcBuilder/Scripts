@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv=X-UA-Compatible content="IE=edge">
+    <meta name=viewport content="width=device-width,initial-scale=1">
+
+    <title>test</title>
+
+    <style>
+        div.space {
+            padding-bottom:20px;
+        }
+
+        div.inline {
+            display:inline-block;
+        }
+
+        input[type="number"] {
+            width: 100px;
+            height: 30px;
+        }
+
+        select {
+            width: 70px;
+            height: 36px;
+        }
+    </style>
+</head>
+<body>
+
+    <form id="paypal-frm" action="https://www.paypal.com/cgi-bin/webscr" method="post">
+        <h2>
+            Make a Payment to Roby
+        </h2>
+        <h3>amount</h3>
+        <div class="space">
+            <div class="inline">
+                <input type="number" name="amount" value="1" />
+            </div>
+            <div class="inline">
+                <select name="currency_code">
+                    <option value="ILS">ILS</option>
+                    <option value="USD">USD</option>
+                </select>
+            </div>
+        </div>
+        <div class="space">
+            <input type="hidden" name="business" value="RcBuilder@walla.com" /><!-- paypal account -->
+            <input type="hidden" name="cmd" value="_xclick" /><!-- command (_xclick = buy now button) -->
+            <input type="hidden" name="item_name" value="Deposit" />
+
+            <input type="image" name="submit" border="0" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynow_LG.gif" alt="PayPal - The safer, easier way to pay online" />
+            <img alt="" border="0" width="1" height="1" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" />
+        </div>
+    </form>
+
+    <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
+</body>
+</html>

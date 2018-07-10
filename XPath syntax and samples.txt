@@ -1,4 +1,9 @@
 
+w3schools:
+https://www.w3schools.com/xml/xpath_axes.asp
+
+----------------------------------------------
+
 contains
 --------
 contains()
@@ -12,6 +17,7 @@ position()
 
 e.g:
 //div[position() < 3]
+//div[position() > 1 and position() < 3]
 
 index
 -----
@@ -110,6 +116,18 @@ e.g:
 child::*
 attribute::*
 child::p
+
+----------------------------------------------
+
+following-sibling
+-----------------
+
+<h4></h4>
+<p></p> 
+<p></p>
+
+e.g:
+//h4/following-sibling::p
 
 ----------------------------------------------
 
