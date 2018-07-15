@@ -1,0 +1,27 @@
+public static Dictionary<string, object> GetProperties<T>(T value) where T : class
+{
+    try
+    {
+        var properties = new Dictionary<string, object>();
+        var type = typeof(T);
+        foreach (var p in type.GetProperties())
+            properties.Add(p.Name, p.GetValue(value));
+        return properties;
+    }
+    catch
+    {
+        return null;
+    }
+}
+
+---
+
+using:
+var properties = Common.GetProperties(auction);
+var properties = Common.GetProperties(artwork);
+
+-
+
+var properties = Common.GetProperties(auction);
+foreach(var p in properties)
+	lstAuctionResult.Items.Add(p.Key + ": " + p.Value);

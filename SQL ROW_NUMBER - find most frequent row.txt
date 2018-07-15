@@ -1,0 +1,29 @@
+Get LOWEST-IDENTITY customer from the MOST frequent customers
+
+declare @t table(id int, customer int)
+insert into @t
+values 
+(1, 100),
+(2, 100),
+(3, 200),
+(4, 300),
+(5, 300),
+(5, 300),
+(1, 100)
+
+;with cte(id, cnt, rowNum) as(
+    select customer, count(*), ROW_NUMBER() over (order by count(*) desc, customer asc)
+    from @t
+    group by customer
+)
+select * from cte 
+
+/*
+	id	  cnt  rowNum
+	100	   3	 1
+	300	   3	 2
+	200	   1	 3
+*/
+
+select top 1 id from cte
+-- 100

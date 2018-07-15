@@ -1,0 +1,10 @@
+socket and websocket
+--------------------
+
+WebSockets typically run from browsers connecting to Application Server 
+over a protocol similar to HTTP that runs over TCP/IP. 
+they are primarily for Web Applications that require a permanent connection to its server. 
+
+plain sockets are more powerful and generic. 
+They run over TCP/IP but they are not restricted to browsers or HTTP protocol. 
+They could be used to implement any kind of communication.
