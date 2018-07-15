@@ -4,9 +4,23 @@ https://www.w3schools.com/xml/xpath_axes.asp
 
 ----------------------------------------------
 
+text
+----
+text()
+
+e.g:
+//div[@class = 'tabs']/h2[1]/text()
+
+count
+-----
+count(exp)
+
+e.g:
+count(/div[@class = 'tabs']/h2)
+
 contains
 --------
-contains()
+contains(arg1, arg2)
 
 e.g:
 //div[contains(@class, 'title')]/a
@@ -18,14 +32,7 @@ position()
 e.g:
 //div[position() < 3]
 //div[position() > 1 and position() < 3]
-
-index
------
-[x]
-
-e.g:
-(/div/p/a)[1]
-//p[1]
+//section/dl/*[position() > 1 and position() < 4]
 
 last
 ----
@@ -34,6 +41,94 @@ last()
 e.g:
 //p[last()]
 //p[last() - 1]
+//script[last()]
+
+node-name
+---------
+node-name(exp) // returns the node name
+
+e.g:
+node-name(//div/*[1]) 
+
+number
+------
+number(string) // toNumber
+
+e.g:
+number('21') // 21
+number('AB') // NaN
+
+abs
+---
+abs(numeric)
+
+abs(10) // 10
+abs(-10) // 10
+
+ceiling
+-------
+ceiling(numeric)
+
+e.g:
+ceiling(3.8) // 4
+
+floor
+-----
+floor(numeric)
+
+e.g:
+floor(3.1) // 3
+
+round
+-----
+round(numeric)
+
+e.g:
+round(3.4) // 3
+round(3.55) // 4
+
+string
+------
+string(value) // toString
+
+e.g:
+string(314) // '314'
+
+compare
+-------
+compare(arg1, arg2) // returns 0, 1 or -1
+
+e.g: 
+compare('A', 'B') // -1  (A is less than B)
+compare('C', 'B') // 1 (C is bigger than B) 
+compare('AB', 'AB') // 0
+compare('AB', 'ab') // -1
+
+concat
+------
+concat(string, string ...)
+
+e.g:
+concat('A', 'B', 'CDE') // ABCDE
+
+string-join
+-----------
+string-join((string, string ...), delimiter)
+
+e.g:
+string-join(('A', 'B', 'C'), '-') // A-B-C
+string-join(('A', 'B', 'C'), ' ') // A B C
+string-join(('A', 'B', 'C')) // ABC
+
+----------------------------------------------
+
+index
+-----
+[x]
+
+e.g:
+(/div/p/a)[1]
+//p[1]
 
 has attribute
 -------------
@@ -47,7 +142,14 @@ attribute value
 @attribute='value'
 
 e.g:
-//title[@lang='he']
+// title[@lang='he']
+
+get attribute
+-------------
+@attribute // returns the value of the attribute
+
+e.g:
+//h2/a/@href
 
 numeric
 -------
@@ -67,6 +169,9 @@ e.g:
 //* 
 //p[@*]
 /div/*
+
+more samples:
+//section[@id='overview']/p//*/text()
 
 ----------------------------------------------
 
@@ -94,6 +199,9 @@ div (/)
 !=
 <
 >
+
+e.g:
+//div[@class and @style][1]
 
 ----------------------------------------------
 
@@ -128,6 +236,14 @@ following-sibling
 
 e.g:
 //h4/following-sibling::p
+
+more samples:
+//h2[contains(@class, 'activeTab')]/following-sibling::h2[1]
+//div[@class = 'gallery']/following-sibling::div[1]
+
+ancestor
+--------
+//img[@alt="Devon"]/ancestor::div[1]
 
 ----------------------------------------------
 

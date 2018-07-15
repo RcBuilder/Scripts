@@ -1,0 +1,27 @@
+WinForms Controls - Clear Form
+------------------------------
+
+private void ClearForm() {
+            foreach (Control child in this.Controls)
+                ClearControl(child);
+        }
+
+        private void ClearControl(Control control) {
+            if (control is TextBox)
+                ((TextBox)control).Text = null;
+
+            if (control is ComboBox) {
+                var combo = (ComboBox)control;
+                combo.Items.Clear();
+                combo.SelectedIndex = -1;
+            }
+
+            if (control is TreeView)
+                ((TreeView)control).Nodes.Clear();
+
+            if (control.Controls.Count == 0)
+                return;
+
+            foreach (Control child in control.Controls)           
+                ClearControl(child);            
+        }

@@ -1,0 +1,14 @@
+// update an existing item, add new if not exists 
+private void UpdateListItem<T>(List<T> list, T current, T updated) where T:class {
+     if (current == null)
+         list.Add(updated);            
+     else
+         current = updated;
+}
+
+// sample using
+public bool SaveSourceEntityField(EntityFieldMetaData MetaData) {
+     var current = TestToolDataBase.Fields.SingleOrDefault(x => x.RowId == MetaData.RowId);
+     UpdateListItem(TestToolDataBase.Fields, current, MetaData);
+     return true;
+}

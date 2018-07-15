@@ -1,0 +1,6 @@
+JObject Properties
+------------------
+
+dynamic jContent = (JObject)JsonConvert.DeserializeObject("{ id: 1, name: 'A', age: 34 }");            
+foreach(JProperty p in jContent.Properties())
+     Console.WriteLine(p.Name);
