@@ -1,0 +1,47 @@
+RegEx Tips
+----------
+
+row exact match: 
+wrap the pattern with ^$ and set the 'Multiple' flag on
+
+e.g:
+// only row with the phrase 'hello world'
+^hello \s{1} world$
+
+--
+
+start of row
+add the ^ prefix to the begining of the pattern
+
+e.g: 
+// row that starts with the pharse 'rcb'
+^rcb  
+
+--
+
+end of row 
+add the $ suffix to the end of the pattern
+
+e.g: 
+// row that ends with the pharse 'rcb'
+rcb$  
+
+--
+
+contains phrase:
+\b phrase \b
+
+--
+
+not phrase:
+also see 'Regex lookaround.txt'
+use negative lookahead (?!)
+(?!phrase).
+
+e.g:
+// all com sites not starts with abc 
+(?!abc)\w+\.com
+
+// all com subdomains (with no www) 
+(https?)://(?<name>(?!www)\w+)\.\w+\.(com)
+

@@ -4,7 +4,7 @@ var requestHeaders =
         string.Format("Host: {0}\r\n", url.Host) +
         "Connection: keep-alive\r\n" +
         "Accept: */*\r\n" +
-        "User-Agent: Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36\r\n" +
+        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36\r\n" +
         "Accept-Encoding: gzip, deflate\r\n" +
         "Accept-Language: en-US,en;q=0.9\r\n" +
         "\r\n"; // important! empty row - spacer

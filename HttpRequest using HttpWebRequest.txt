@@ -67,10 +67,12 @@ try
     var WebResp = (HttpWebResponse)WebReq.GetResponse();
 
     using (var stream = WebResp.GetResponseStream()) {
-        using (var reader = new BinaryReader(stream)) {
-            Byte[] lnByte = reader.ReadBytes(1 * 1024 * 1024 * 10);
-            using (FileStream lxFS = new FileStream("34891.jpg", FileMode.Create))
-                lxFS.Write(lnByte, 0, lnByte.Length);
+        using (var ms = new MemoryStream()) {
+            stream.CopyTo(ms);
+            byte[] readBytes = ms.ToArray();
+
+            using (FileStream fs = new FileStream("downloadedImage.jpg", FileMode.Create))
+                fs.Write(readBytes, 0, readBytes.Length);
         }
     }
 }

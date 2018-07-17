@@ -3,24 +3,24 @@ HttpWebRequest with GZipStream (gzip)
 
 var WebReq = (HttpWebRequest)WebRequest.Create("http://www.sothebys.com/content/dam/sothebys-pages/home-page-slides/2018/7/watches-0710-hp-380.jpg");
 
-                WebReq.Accept = "*/*";
-                WebReq.Method = "GET";                
-                WebReq.Host = "www.sothebys.com";
-                WebReq.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
+WebReq.Accept = "*/*";
+WebReq.Method = "GET";                
+WebReq.Host = "www.sothebys.com";
+WebReq.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36";
                 
-                WebReq.Headers = new WebHeaderCollection();                
-                WebReq.Headers.Add("Accept-Language", "en-US,en;q=0.9");
-                WebReq.Headers.Add("Accept-Encoding", "gzip, deflate");                
+WebReq.Headers = new WebHeaderCollection();                
+WebReq.Headers.Add("Accept-Language", "en-US,en;q=0.9");
+WebReq.Headers.Add("Accept-Encoding", "gzip, deflate");                
 
-                var WebResp = (HttpWebResponse)WebReq.GetResponse();
+var WebResp = (HttpWebResponse)WebReq.GetResponse();
 
-                using (var stream = WebResp.GetResponseStream())
-                {
-                    Stream decodedStream = stream;
+using (var stream = WebResp.GetResponseStream())
+{
+    Stream decodedStream = stream;
 
-                    if (WebResp.ContentEncoding.ToLower().Contains("gzip"))                    
-                        decodedStream = new GZipStream(stream, CompressionMode.Decompress);
+    if (WebResp.ContentEncoding.ToLower().Contains("gzip"))                    
+        decodedStream = new GZipStream(stream, CompressionMode.Decompress);
                     
-                    using (var content = new StreamReader(decodedStream, Encoding.Default))
-                        response = content.ReadToEnd();
-                }
+    using (var content = new StreamReader(decodedStream, Encoding.Default))
+        response = content.ReadToEnd();
+}
