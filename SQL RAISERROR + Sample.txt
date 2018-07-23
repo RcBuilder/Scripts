@@ -1,0 +1,13 @@
+syntax:
+RAISERROR ([Message], [Severity], [State]); 
+
+sample:
+BEGIN TRANSACTION
+BEGIN TRY
+
+	COMMIT TRANSACTION 
+END TRY
+BEGIN CATCH
+	RAISERROR ('Error raised in TRY block', 16, 1); 
+	ROLLBACK TRANSACTION 
+END CATCH 

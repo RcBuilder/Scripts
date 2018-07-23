@@ -1,0 +1,6 @@
+Dictionary With NO CaseSensitive
+--------------------------------
+use the 'IgnoreCase' comparer to define the dictionary as not case sensitive
+
+e.g:
+var dic = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);

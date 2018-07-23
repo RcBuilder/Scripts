@@ -1,0 +1,13 @@
+gmail message filters 
+---------------------
+add message Rules > forward to Folder by pattern
+
+steps:
+1. check a message
+2. More (top menu) > Filter messages like these
+3. create filter with this search
+4. check the 'Skip the inbox' option
+   choose a label to apply from the 'Apply the label' dropdown (create new if necessary)
+   check the 'Also apply filter to matching conversations' option
+   note! configure the filter as per need in this screen
+5. create filter (button)

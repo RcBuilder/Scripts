@@ -1,0 +1,55 @@
+HttpRequest using Socket
+------------------------
+low level call using pure text
+
+---
+
+Uri url = new Uri("http://www.sothebys.com/en.html");
+var requestHeaders = 
+		string.Format("GET {0} HTTP/1.1\r\n", url.ToString()) +
+        string.Format("Host: {0}\r\n", url.Host) +
+        "Connection: keep-alive\r\n" +
+        "Accept: */*\r\n" +
+        "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36\r\n" +
+        "Accept-Encoding: gzip, deflate\r\n" +
+        "Accept-Language: en-US,en;q=0.9\r\n" +
+        "\r\n"; // important! empty row - spacer
+
+
+var sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+sock.Connect(url.Host, 80);
+
+byte[] writeBytes = Encoding.UTF8.GetBytes(requestHeaders);
+sock.Send(writeBytes);
+
+var readBytes = new byte[Int16.MaxValue];
+var bytesReceived = sock.Receive(readBytes, readBytes.Length, SocketFlags.None);
+response = Encoding.Default.GetString(readBytes, 0, bytesReceived);
+
+var dataIndex = response.LastIndexOf("\r\n") + 2;
+var data = response.Substring(dataIndex);
+var headers = response.Substring(0, dataIndex);
+
+var dataBytes = Encoding.Default.GetBytes(data);
+
+var isGZip = false;
+var match = Regex.Match(headers, @"^Content-Encoding: \s+ (?<enc>.*?)$", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+if (match != null && match.Success) {
+    var encoding = match.Groups["enc"].Value;
+    isGZip = encoding.Contains("gzip");
+}
+
+// gzip
+Stream dataStream = new MemoryStream(dataBytes);
+
+if (isGZip)
+    dataStream = new GZipStream(dataStream, CompressionMode.Decompress);
+
+using (var content = new StreamReader(dataStream, Encoding.Default))
+    response = content.ReadToEnd();
+
+var gzipStream = new GZipStream(new MemoryStream(dataBytes), CompressionMode.Decompress);
+using (var content = new StreamReader(gzipStream, Encoding.Default))
+    response = content.ReadToEnd();
+
+sock.Close();

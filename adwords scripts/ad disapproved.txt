@@ -1,0 +1,20 @@
+Google AdWords > Ad Approval & Policy > Destination not Working
+
+--
+
+issue:
+ad disapproved due to a destination not working claim
+
+--
+
+reason:
+The most frequent issue is associated with the requirement that your website is supposed to be available 
+on common browsers and devices all over the world. 
+need to confirm that the site is accessible at distant countries of the world. 
+it should work everywhere.
+
+help tools:
+1. http://www.locabrowser.com
+2. https://www.geoscreenshot.com
+3. https://geopeeker.com
+4. https://www.browserstack.com

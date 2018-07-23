@@ -1,0 +1,67 @@
+RegEx Tips
+----------
+
+row exact match: 
+wrap the pattern with ^$ and set the 'Multiple' flag on
+
+e.g:
+// only row with the phrase 'hello world'
+^hello \s{1} world$
+
+--
+
+start of row
+add the ^ prefix to the begining of the pattern
+
+e.g: 
+// row that starts with the pharse 'rcb'
+^rcb  
+
+--
+
+end of row 
+add the $ suffix to the end of the pattern
+
+e.g: 
+// row that ends with the pharse 'rcb'
+rcb$  
+
+--
+
+contains phrase:
+\b phrase \b
+
+--
+
+not phrase:
+also see 'Regex lookaround.txt'
+use negative lookahead (?!)
+(?!phrase).
+
+e.g:
+// all com sites not starts with abc 
+(?!abc)\w+\.com
+
+// all com subdomains (with no www) 
+(https?)://(?<name>(?!www)\w+)\.\w+\.(com)
+
+-- 
+
+match witout a group:
+input: Roby Cohen
+
+Roby(\s+Cohen)   // using group - the match is 'Roby Cohen' with a ' Cohen' group
+Roby(?=\s+Cohen) // using lookaround - the match is only 'Roby'! (but the regex checks all 'Roby' phrases with followed 'Cohen')
+
+-- 
+
+accuracy using lookaround:
+
+this phrase will find ANY usd price with support of float values, comma mark and prefix or suffix $ sign
+\$[0-9\.,]+|[0-9\.,]+\$
+the only problem is that the following also match the pattern
+.$ or $.
+
+by using lookaround (ahead and behind) we can achieve a better and more accurate result 
+by filtering out those cases where a dot comes before or after the $ sign!
+\$(?!\.)[0-9\.,]+|[0-9\.,]+(?<!\.)\$

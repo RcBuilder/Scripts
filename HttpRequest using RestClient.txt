@@ -1,0 +1,17 @@
+HttpRequest using RestClient
+----------------------------
+External library
+
+---
+
+using RestSharp;
+
+var client = new RestClient("http://www.sothebys.com/en.html");
+var request = new RestRequest(Method.GET);
+request.AddHeader("Host", "www.sothebys.com");
+request.AddHeader("Accept", "*/*");
+request.AddHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36");
+request.AddHeader("Accept-Encoding", "gzip, deflate");
+request.AddHeader("Accept-Language", "en-US,en;q=0.9");
+
+IRestResponse response = client.Execute(request);

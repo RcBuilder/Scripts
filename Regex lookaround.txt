@@ -1,0 +1,59 @@
+Regex lookaround
+----------------
+(?!)  - negative lookahead
+(?=)  - positive lookahead
+(?<!) - negative lookbehind
+(?<=) - positive lookbehind
+
+--
+
+sample:
+robyaviavi
+avi(?!avi) returns the 2nd avi (with no preliminary avi)
+
+process:
+input: aaanotbbbcccdddnoteee
+pattern: ((aaa|bbb|ccc|ddd|eee)(?!not))
+
+the 1st group will match the following: 
+aaa
+bbb
+ccc
+ddd
+eee
+
+then, each will look ahead to check if it followed by the word 'not' 
+both aaa and ddd have 'not' after them so they'll be omitted from the matches
+
+result
+bbb
+ccc
+eee
+
+
+negative lookahead
+------------------
+
+ABBA
+A(?!B) returns the 2nd A
+
+
+positive lookahead
+------------------
+
+ABBA
+A(?=B) returns the 1st A
+
+
+negative lookbehind
+-------------------
+
+ABBA
+(?<!B)A returns the 1st A
+
+
+positive lookbehind
+-------------------
+
+ABBA
+(?<=B)A returns the 2nd A

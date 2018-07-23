@@ -1,0 +1,18 @@
+public static class InterfaceExtensions
+    {
+        // for a given interface, find all the classes implement it!  
+        /*
+            var types = typeof(I1).FindImplementers();
+            foreach (var type in types)
+                Console.WriteLine(type.Name);
+        */
+        public static IEnumerable<Type> FindImplementers(this Type me)
+        {
+            if (!me.IsInterface)
+                return null;
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var types = assembly.GetTypes();
+            return types.Where(x => !x.IsInterface && me.IsAssignableFrom(x));
+        }
+    }

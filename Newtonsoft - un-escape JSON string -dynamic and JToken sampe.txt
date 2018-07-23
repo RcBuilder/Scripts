@@ -1,0 +1,21 @@
+unescaped JSON string 
+---------------------
+convert a string containing escaped JSON to valid JSON
+
+---
+
+var sJson = "unescaped json content here...";
+sJson = (string)JToken.Parse(sJson);
+dynamic oJson = JsonConvert.DeserializeObject(sJson);
+ 
+
+---
+
+e.g:
+var sJson = loader.Load(string.Format(ApiURL, month, year));
+sJson = (string)JToken.Parse(sJson);
+dynamic oJson = JsonConvert.DeserializeObject(sJson);
+                    
+var items = (JArray)oJson.calendar_section.calendar_items;
+                    
+this.Items.AddRange(items.ToObject<List<ChristiesItem>>());

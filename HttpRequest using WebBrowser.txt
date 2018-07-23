@@ -1,0 +1,45 @@
+HttpRequest using WebBrowser
+----------------------------
+Windows.Forms.WebBrowser
+
+---
+
+using System.Threading;
+using System.Windows.Forms;
+
+var response = string.Empty;
+
+Uri url = new Uri("http://www.sothebys.com/en.html");
+string request_txt = string.Format("GET {0} HTTP/1.1\r\n", url.ToString()) +
+            string.Format("Host: {0}\r\n", url.Host) +
+            "Connection: keep-alive\r\n" +
+            "Accept: */*\r\n" +
+            "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36\r\n" +
+            "Accept-Encoding: gzip, deflate\r\n" +
+            "Accept-Language: en-US,en;q=0.9\r\n" +
+            "\r\n"; // important! empty row - spacer
+
+// *** WebBrowser ************************
+
+var waitEvent = new AutoResetEvent(false);
+var webBrowseThread = new Thread(() =>
+{
+    using (var webBrowser = new WebBrowser())
+    {
+        webBrowser.ScriptErrorsSuppressed = true; // disable the script errors popup
+        webBrowser.DocumentCompleted += (s, e) =>
+        {
+            string html = (s as WebBrowser).DocumentText;
+            response = html;
+            waitEvent.Set();
+        };
+
+        webBrowser.Navigate("http://www.sothebys.com/en.html");
+
+        while (webBrowser.ReadyState != WebBrowserReadyState.Complete)
+            Application.DoEvents();
+    }
+});
+webBrowseThread.SetApartmentState(ApartmentState.STA); // required for webBrowser
+webBrowseThread.Start();
+waitEvent.WaitOne(); // wait for the site response

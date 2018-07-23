@@ -1,0 +1,18 @@
+
+// bind
+ddlEntity.Items.AddRange(new string[] { "Auction", "Artwork" });
+ddlParser.Items.AddRange(this.parsersList);
+ddlFields.Items.AddRange(repository.GetSourceEntityFields().ToArray());
+
+ddlEntity.Items.Insert(0, "Entity");
+ddlParser.Items.Insert(0, "Parser");
+ddlFields.Items.Insert(0, "Field");
+
+ddlEntity.SelectedIndex = 0;
+ddlParser.SelectedIndex = 0;
+ddlFields.SelectedIndex = 0;
+
+---
+
+// clear 
+combo.Items.Clear();     

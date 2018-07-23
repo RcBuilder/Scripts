@@ -1,0 +1,16 @@
+TPL Best Practices
+------------------
+
+* use Task.Run instead of Task.Factory.StartNew
+
+* avoid async void, use async Task or async Task<T>
+  void methods cannot be awaited so we couldn't use the TPL methods 
+  such as Task.WhenAny, Task.WhenAll etc.
+  also, unitests will be more difficult to use.
+
+* use ConfigureAwait(false)
+  in GUI apps.
+  when using the Task.Result property instead of using the await keywork, 
+  the active thread (the waiting one) and the performing thread might fight over the SynchronizationContext 
+  and cause a deadlock.
+  also it has a better performance for GUI applications.
