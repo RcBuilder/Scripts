@@ -32,6 +32,11 @@
 * DTO = Data Transfer Object
 * CI/CD =  Continuous Integration and Continuous Delivery
 
+* TLS = Transport Layer Security
+* SSL = Secure Sockets Layer
+* HTTPS = Hyper Text Transfer Protocol Secure (HTTP Secure)
+* TCP = transmission control protocol
+
 * NDA = Non-disclosure agreement
 * DBA – db administrator
 * CTO - Chief Technology Officer 
@@ -41,6 +46,7 @@
 * JSON - Javascript Object Notation
 * POX - Plain Old XML
 * P1 - Priority 1
+* WebRTC - Web Real-Time Communications
 
 * .SVC = file that expose a WCF service 
 * .ASMX = ASP.NET Web Service 
@@ -61,6 +67,7 @@
 
 * Webinar = Web Seminar
 * MVP = Minimum Vital Product
+* MVP = Most Valuable Player
 
 * CDC = Centers for Disease Control and Prevention
 

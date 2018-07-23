@@ -1,15 +1,15 @@
-﻿using System;
+﻿using Entities;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace TestConsole4
+namespace BLL
 {
     public class FileDownloader : IFileDownloader
     {
+        private readonly List<string> FileNameSpecialCharacters = new List<string> { "\\", "/", ":", "*", "?", "\"", "<", ">", "|" };
+
         public byte[] Download(string FileURL) {
             using (var client = new WebClient())
                 return Download(client, FileURL);
@@ -36,8 +36,8 @@ namespace TestConsole4
             if (!Directory.Exists(FolderPath))
                 Directory.CreateDirectory(FolderPath);
 
-            var FileName = System.IO.Path.GetFileName(FileURL);
-            var FileExtension = System.IO.Path.GetExtension(FileName);
+            var FileName = ClearFileName(Path.GetFileName(FileURL));
+            var FileExtension = Path.GetExtension(FileName);
 
             /// var LocalFileName = string.Concat(Guid.NewGuid().ToString().Replace("-", string.Empty), Extension);
             var LocalFileName = string.Concat(Math.Abs(FileName.GetHashCode()), FileExtension);
@@ -49,11 +49,22 @@ namespace TestConsole4
             try {                                
                 client.DownloadFile(FileURL, LocalFilePath);
             }
-            catch(Exception ex) {
+            catch {
                 return string.Empty;
             }
 
             return LocalFileName;
+        }
+
+        private string ClearFileName(string FileName) {
+            // remove querystring
+            FileName = FileName.Split('?')[0]; 
+
+            // replace special characters (windows limitation)
+            foreach (var c in this.FileNameSpecialCharacters)
+                FileName = FileName.Replace(c, string.Empty);
+
+            return FileName;
         }
     }
 }
