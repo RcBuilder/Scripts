@@ -8,6 +8,7 @@ UNITESTS
 * Mock<MyMock>
 * Verify
 * It.IsAny<T>
+* It.Is<T>(Func)
 * It.IsRegex
 * It.IsInRange
 * Dependency Injection 
@@ -334,6 +335,21 @@ public void TEMP() {
     Assert.IsTrue(resultFoo2_A.Contains("1")); // true
     Assert.IsTrue(resultFoo2_B.Contains("1")); // true
 }
+
+It.Is<T>(Func)
+--------------
+
+override a method behaviour using any match of the Func response
+
+structure:
+var mock = new Mock<T>();
+mock.Setup(x => x.SomeMethod(It.Is<T>([Func]))).Returns([value]);
+
+example:
+
+mockDocumentLoader.Setup(x => x.Load(It.Is<string>(url => url == "https://www.a.com" || url == "https://www.b.com") )).Returns(() => { 
+	// code here.... 
+});
 
 It.IsRegex
 ----------

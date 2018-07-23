@@ -34,15 +34,6 @@ e.g:
 //div[position() > 1 and position() < 3]
 //section/dl/*[position() > 1 and position() < 4]
 
-last
-----
-last()
-
-e.g:
-//p[last()]
-//p[last() - 1]
-//script[last()]
-
 node-name
 ---------
 node-name(exp) // returns the node name
@@ -129,6 +120,19 @@ index
 e.g:
 (/div/p/a)[1]
 //p[1]
+
+last
+----
+last()
+
+e.g:
+(//p/a)[last()]
+(//p/a)[last() - 1]
+(//script)[last()]
+
+note:
+//a//b[last()]  - select last b (among siblings) under a element
+(//a//b)[last()] - select last b (in the document) under a element
 
 has attribute
 -------------
@@ -247,9 +251,48 @@ ancestor
 
 ----------------------------------------------
 
+grouping
+--------
+(expression)
+
+e.g: 
+(//div[@class='title'])
+(//p/img)
+
+--
+
+common issue: 
+lack of grouping refers to the last node in the expression and NOT the whole expression 
+
+<p>
+	<img id='img1' />
+	<img id='img2' />
+	<img id='img3' />
+</p>
+<p>
+	<img id='img11' />
+	<img id='img12' />	
+</p>
+
+//p/img[last()] 
+
+result:
+select the last img (among siblings) under p (multiple results)
+<img id='img3' />
+<img id='img12' />
+
+[vs]
+
+(//p/img)[last()] 
+
+result:
+select the last img (in the document) under p (single result)
+<img id='img12' />
+
+----------------------------------------------
+
 notes
 -----
 
 // search the whole document, from the ROOT!
 .// same search from the current node relative point
-
