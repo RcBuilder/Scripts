@@ -1,0 +1,9 @@
+SQL - Nested select statement
+-----------------------------
+select in select
+
+structure:
+SELECT T2.*
+FROM (SELECT ... FROM T1) T2
+
+SELECT a.name FROM (SELECT name FROM agentinformation) a 
