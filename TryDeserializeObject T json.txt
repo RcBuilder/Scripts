@@ -1,0 +1,42 @@
+private bool TryDeserializeObject<T>(string json, out T value)
+        {
+            try
+            {
+                dynamic temp = JsonConvert.DeserializeObject(json);
+                if (temp is T)
+                {
+                    value = temp;
+                    return true; ;
+                }
+
+                throw new ArgumentException(string.Format("item is not of type {0}", typeof(T)));
+            }
+            catch {
+                value = default(T);
+                return false; 
+            }
+        }
+
+================================
+-- USING --
+
+public IEnumerable<T> GetAll<T>()
+        {
+            var keys = this.server.Keys().ToArray();
+            var entries = this.dataBase.StringGet(keys);
+
+            if (entries == null)
+                return null;
+
+            T entry;
+            var result = new List<T>();
+
+            foreach (var e in entries)
+            {
+                var isT = TryDeserializeObject<T>(e.ToString(), out entry);
+                if (!isT) continue;
+                result.Add(entry);
+            }
+
+            return result;
+        }

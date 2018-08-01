@@ -1,0 +1,65 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace TestWindowsForms
+{
+    public partial class Form1 : Form
+    {
+        private Stack<string> StkUNDO = new Stack<string>();
+        private Stack<string> StkREDO = new Stack<string>();
+
+        public Form1() {
+            InitializeComponent();            
+        }
+
+        private void btnStore_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(txtValue.Text))
+                return;
+
+            StkUNDO.Push(txtValue.Text);
+            txtValue.Text = "";
+
+            RenderStacksView();
+        }
+
+        private void btnUndo_Click(object sender, EventArgs e)
+        {
+            if (StkUNDO.Count == 0)
+                return;
+
+            StkREDO.Push(txtValue.Text);
+            txtValue.Text = StkUNDO.Pop();
+
+            RenderStacksView();
+        }
+
+        private void btnRedo_Click(object sender, EventArgs e)
+        {
+            if (StkREDO.Count == 0)
+                return;
+
+            StkUNDO.Push(txtValue.Text);
+            txtValue.Text = StkREDO.Pop();
+
+            RenderStacksView();
+        }
+
+        private void RenderStacksView() {
+            lstUndo.Items.Clear();
+            foreach (var item in StkUNDO.ToList())
+                lstUndo.Items.Add(item);
+
+            lstRedo.Items.Clear();
+            foreach (var item in StkREDO.ToList())
+                lstRedo.Items.Add(item);
+        }
+    }
+}

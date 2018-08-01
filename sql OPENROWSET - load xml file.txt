@@ -1,0 +1,11 @@
+/*
+SINGLE_BLOB // reads as varbinary(max)
+SINGLE_CLOB // reads as varchar(max)
+SINGLE_NCLOB // reads as nvarchar(max)
+*/
+
+
+declare @result xml
+set @result = (SELECT * FROM OPENROWSET (BULK 'D:\MyXML.xml', SINGLE_NCLOB) AS x)
+--select @result
+select xTbl.xRows.query('data(ID/.)') from @result.nodes('/ROWSET/Row') as xTbl(xRows)
