@@ -23,7 +23,11 @@ contains
 contains(arg1, arg2)
 
 e.g:
+// contains class name (note: title-1, my-title etc. included)
 //div[contains(@class, 'title')]/a
+
+// exact class name 
+//div[contains(concat(' ', @class, ' '), ' title ')]
 
 position
 --------

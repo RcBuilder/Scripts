@@ -1,0 +1,39 @@
+public class StepPaging
+    {
+        public static StepPaging CopyFrom(StepPaging itemToCopy)
+        {
+            if (itemToCopy == null) return null;
+
+            return new StepPaging
+            {
+                PagingPageNumber = itemToCopy.PagingPageNumber,
+                PagingParamFilter = itemToCopy.PagingParamFilter,
+                PagingParamName = itemToCopy.PagingParamName,
+                PagingXPathExpression = itemToCopy.PagingXPathExpression
+            };
+        }
+
+        public int PagingPageNumber { get; set; } = 1;        
+        public string PagingParamName { get; set; }
+        public string PagingParamFilter { get; set; }
+        public string PagingXPathExpression { get; set; } 
+    }
+
+---
+
+public  class SingleItemCollectorStepNode : CollectorStepNode
+    {
+        public static SingleItemCollectorStepNode CopyFrom(CollectorStepNode itemToCopy)
+        {
+            return new SingleItemCollectorStepNode
+            {
+                Expression = itemToCopy.Expression,
+                Name = itemToCopy.Name,
+                Paging = StepPaging.CopyFrom(itemToCopy.Paging),
+                Position = itemToCopy.Position,
+                Next = itemToCopy.Next
+            };
+        }
+	
+	// code ....
+    }
