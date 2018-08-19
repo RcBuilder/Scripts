@@ -1,0 +1,5 @@
+var someList = new List<string> { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+            someList.AsParallel().WithDegreeOfParallelism(10).ForAll((item) => {
+                Thread.Sleep(1000);
+                Console.WriteLine("{0} (thread #{1})", item, Thread.CurrentThread.ManagedThreadId);
+            });

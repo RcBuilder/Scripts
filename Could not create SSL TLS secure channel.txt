@@ -12,6 +12,10 @@ Solution:
 ServicePointManager.Expect100Continue = true;
 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
 
+OR 
+
+ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
+
 eaxmple:
 
 var webReq = (HttpWebRequest)WebRequest.Create(url);
@@ -22,3 +26,4 @@ ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtoc
 ...
 ...
 var webResp = (HttpWebResponse)webReq.GetResponse();
+

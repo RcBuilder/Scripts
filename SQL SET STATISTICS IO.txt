@@ -1,0 +1,7 @@
+
+// enable execution statistics
+// when enabling statistics, the result will be shown on the Messages tab in the result window
+SET STATISTICS IO ON
+
+// disable execution statistics
+SET STATISTICS IO OFF

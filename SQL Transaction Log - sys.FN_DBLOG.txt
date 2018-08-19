@@ -1,0 +1,22 @@
+FN_DBLOG
+--------
+SQL Transaction Log
+
+using:
+SELECT * FROM FN_DBLOG(NULL,NULL)
+
+e.g:
+SELECT	[Current LSN],
+		[Transaction ID],
+		[Operation],
+		[Transaction Name],
+		[CONTEXT],
+		[AllocUnitName],
+		[Page ID],
+		[Slot ID],
+		[Begin Time],
+		[End Time],
+		[Number of Locks],
+		[Lock Information]
+FROM	SYS.FN_DBLOG(NULL,NULL)
+WHERE Operation IN ('LOP_INSERT_ROWS', 'LOP_MODIFY_ROW', 'LOP_DELETE_ROWS','LOP_BEGIN_XACT', 'LOP_COMMIT_XACT')

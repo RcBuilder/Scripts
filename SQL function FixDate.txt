@@ -1,0 +1,31 @@
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		<Roby Cohen>
+-- Create date: <08-03-2016>
+/* 
+   Description:	
+   <fixes the issue of date filters which uses the execution time instead of the WHOLE day
+	e.g: if the execution took place in 01-01-2016 at 14:00 - any rows created in the very same day in 14:01 and up will not received 
+   >      
+*/
+-- select dbo.FixDate('2016-03-08 15:06', DEFAULT);
+-- =============================================
+alter FUNCTION FixDate
+(	
+	@dateToFix datetime,
+	@Direction bit = 1 -- 0 -> down (first minute of the day), 1 -> up (last minute of the day)
+)
+RETURNS datetime
+AS
+BEGIN
+	if(@Direction = 0)	
+		set @dateToFix = cast((convert(varchar, @dateToFix, 101) + ' 00:00:00') as datetime)
+	else 
+		set @dateToFix = cast((convert(varchar, @dateToFix, 101) + ' 23:59:00') as datetime)
+
+	return @dateToFix;
+END
+GO

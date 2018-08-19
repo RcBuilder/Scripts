@@ -1,0 +1,21 @@
+-- create a new data base -- 
+CREATE DATABASE MyData;
+
+-- set as active --
+USE MyData
+
+-- create a new table + key + identity --
+CREATE TABLE Persons
+(
+	Id INT IDENTITY(1,1) PRIMARY KEY,	
+	FirstName NVARCHAR(50) NOT NULL,	
+	City NVARCHAR(150),	
+);
+
+-- drop table --
+-- drop table Persons
+
+-- add columns --
+ALTER TABLE Persons 
+ADD  LastName NVARCHAR(50) NOT NULL DEFAULT '', 
+	 IsDeleted BIT DEFAULT 0;

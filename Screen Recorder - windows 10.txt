@@ -1,0 +1,9 @@
+Screen Recorder Windows 10
+--------------------------
+
+built-in recorder:
+1. use Windows key + G to open the Game bar
+2. check the 'Yes, this is a game' option
+3. record or take snapshots 
+
+note: recordings will be saved to the user Videos folder

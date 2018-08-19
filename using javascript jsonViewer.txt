@@ -1,0 +1,65 @@
+﻿see 'jsonViewer' folder
+
+using:
+======
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>json viewer</title>
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous" />
+
+    <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="jquery.json-viewer.js"></script>
+    <link href="jquery.json-viewer.css" type="text/css" rel="stylesheet" />
+
+    <style type="text/css">
+        body {
+            padding: 10px;
+            margin: 0px;
+        }
+
+        textarea#json-input {            
+            height:250px !important;
+        }
+
+        pre#json-renderer {
+            padding-left: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="col-lg-6">
+        <p>
+            <textarea id="json-input" autocomplete="off" class="form-control">{"@id":"Course1234","@type":"ItemList","context":{"Item":"http:\/\/www.blackboard.com\/lms-integration\/1.0\/#Item","ItemList":"http:\/\/www.blackboard.com\/lms-integration\/1.0\/#ItemList","URI":"http:\/\/www.blackboard.com\/lms-integration\/1.0\/#Uri"},"items":[{"@id":"a300","@type":"Item","category":"c1","custom":{"tool_id":"Simnet"},"description":"","dueDate":null,"gradingSchema":"PERCENT","includeInTotal":true,"pointsPossible":91,"targetUri":{"@id":"636040775687412384","@type":"Uri","scheme":"ACTION","uri":"action:openItem"},"title":"bla bla bla","visibility":true}]}</textarea>
+        </p>
+        <p>
+            <input type="button" value="view" id="btn-json-viewer" class="btn btn-info" />
+        </p>
+    </div>
+    <div class="col-lg-6">
+        <pre id="json-renderer"></pre>
+    </div>
+
+    <script>
+        function view() {
+            try {
+                var data = eval('(' + $('#json-input').val() + ')'); // convert json string to object
+            }
+            catch (ex) {
+                data = '';
+            }
+            
+            var options = { collapsed: false, withQuotes: true };
+            $('#json-renderer').jsonViewer(data, options);
+        }
+
+        $(function () {
+            $('#btn-json-viewer').click(view);
+            view(); // show the demo json view
+        });
+    </script>
+</body>
+</html>

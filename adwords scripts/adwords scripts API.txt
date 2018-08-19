@@ -4993,6 +4993,20 @@ see 'INDIEBOOK READER SERVICE'
 http://searchengineland.com/spell-check-new-expanded-text-ads-adwords-script-256914
 
 --------------------
+
+// account performance report
+var report = AdWordsApp.report(
+     'SELECT Date, Impressions, Clicks, ConversionRate, Conversions, ConversionValue, Cost ' +
+     'FROM   ACCOUNT_PERFORMANCE_REPORT ' +
+     'DURING THIS_MONTH');
+  
+  var rows = report.rows();
+  while(rows.hasNext()){
+    var row = rows.next();
+    Logger.log('Clicks: %s, Conversions: %s, ConversionValue: %s, Cost: %s', row['Clicks'], row['Conversions'], row['ConversionValue'], row['Cost'])
+  }
+
+--------------------
  
 // account statistics - today's impressions
   var reportConfig = {

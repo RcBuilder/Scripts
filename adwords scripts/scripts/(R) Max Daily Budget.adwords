@@ -1,0 +1,21 @@
+var MAX_DAILY_BUDGET = 10; 
+
+function main() {    
+  var campaigns = AdWordsApp.campaigns()
+   .withCondition("Status = ENABLED")
+   .withCondition("Cost > 0")
+   .forDateRange("TODAY").get();
+  
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();
+    var campaignName = campaign.getName();
+    var budgetAmount = campaign.getBudget().getAmount();
+    var costToday = campaign.getStatsFor("TODAY").getCost();
+    
+    Logger.log('campaign: %s', campaignName);
+    if(costToday >= MAX_DAILY_BUDGET) {
+      Logger.log('the campaign spent %s which is more than the %s allowed.', costToday, MAX_DAILY_BUDGET);      
+      campaign.pause();    
+    }
+  }
+}
