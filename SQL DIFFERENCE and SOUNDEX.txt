@@ -1,0 +1,28 @@
+DIFFERENCE Function: 
+
+returns the difference between the SOUNDEX values of two strings.
+the return value is 0-4 which represents the number of 
+identical/ shared characters in the Soundex values!
+
+---
+
+SOUNDEX Function:
+
+consists of 4 characters.
+identical or sounds-like words will share the same 4 characters, 
+words with no similarity will have NO common characters!
+words with some similarity with have some shared characters.
+the shared characters can be 0-4.
+
+---
+
+samples: 
+
+SELECT DIFFERENCE('Two','Too'); // 4 (all characters are identical)
+SELECT SOUNDEX('Two'), SOUNDEX('Too'); // T000, T000
+ 
+SELECT DIFFERENCE('Tea','Coffee'); // 2 (0 and 0)
+SELECT SOUNDEX('Tea'), SOUNDEX('Coffee'); // T000, C100 
+
+SELECT DIFFERENCE('Mouse','London'); // 0 (none)
+SELECT SOUNDEX('Tea'), SOUNDEX('Coffee'); // M200, L535
