@@ -1,0 +1,23 @@
+How to enable Bitlocker in windows 10
+-------------------------------------
+
+support:
+ALL editions excepts of 'Home' edition 
+
+--
+
+enable bitLocker:
+1. Control Panel > BitLocker Drive Encryption
+2. Choose the drive to encrypt > click on 'Turn on BitLocker'
+3. checked 'Use a password..' option > Set Password
+4. save Recovery password to file (optional)
+5. 
+--
+
+check bitLocker status:
+[Cmd command]
+> manage-bde - status [drive]
+
+// sample
+> manage-bde - status D:
+

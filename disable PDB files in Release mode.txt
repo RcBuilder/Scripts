@@ -1,0 +1,5 @@
+disable PDB files in Release mode:
+
+1. Project > Properties > Build (tab)
+2. Choose the 'Release' profile > Advanced 
+3. set Debugging Information to 'None'
