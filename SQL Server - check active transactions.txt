@@ -1,0 +1,22 @@
+SQL Server - check active transactions
+--------------------------------------
+
+1. using query:
+SELECT * FROM sys.sysprocesses WHERE open_tran = 1
+
+2. using DBCC command:
+DBCC OPENTRAN
+
+---
+
+sample:
+
+CREATE TABLE T1(Col1 int, Col2 char(3));  
+BEGIN TRAN  
+	INSERT INTO T1 VALUES (101, 'abc');  
+
+	-- DBCC OPENTRAN;  
+	-- SELECT * FROM sys.sysprocesses WHERE open_tran = 1
+
+ROLLBACK TRAN;  
+DROP TABLE T1;  

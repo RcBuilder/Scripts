@@ -1,12 +1,24 @@
 var EMAIL = 'RcBuilder@walla.com';
 var Conversions = 15;
+var ACCOUNT_LABEL = 'REPORT';
 var PERIOD = 'LAST_30_DAYS'; // TODAY, YESTERDAY, LAST_7_DAYS, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, THIS_MONTH, LAST_MONTH
 
 function main() {
-  var account = AdWordsApp.currentAccount();        
-  var accountId = account.getCustomerId();
-  var accountName = account.getName();
-  ProcessAccount(accountId, accountName);
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + ACCOUNT_LABEL + '"').get();
+    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();        
+    var accountId = account.getCustomerId();
+    var accountName = account.getName();
+    
+    Logger.log('### account: %s (%s) ###', accountName, accountId);  
+    
+    MccApp.select(account);
+    ProcessAccount(accountId, accountName);
+    
+    Logger.log('--------------------------');
+  }
 }
 
 function ProcessAccount(accountId, accountName) {

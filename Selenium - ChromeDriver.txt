@@ -19,6 +19,10 @@ var content = browser.PageSource;
 browser.Close();
 browser.Dispose();
 
+// performance
+// when using the 'using' clause, the browser is closed so new instance will be opened each call - this costs a lot!
+// its better to create a single ChromeDriver instance and re-used it multiple time till it has no use and only then - close it! 
+
 // var screenshot = browser.GetScreenshot();
 // screenshot.SaveAsFile("D:\\1.png");
 
