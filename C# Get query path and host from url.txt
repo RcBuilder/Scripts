@@ -1,0 +1,3 @@
+ar uri = new Uri("https://skinnerlive.auctionserver.net/view-auctions/catalog/id/407/?page=1&key=NASA&cat=&xclosed=no");
+            var URL = string.Concat(uri.Scheme, "://", uri.Host, uri.LocalPath); // https://skinnerlive.auctionserver.net/view-auctions/catalog/id/407/
+            var QUERY = uri.Query; // ?page=1&key=NASA&cat=&xclosed=no

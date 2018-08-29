@@ -1,6 +1,9 @@
 // Install-Package Selenium.WebDriver
 // Install-Package Selenium.Chrome.WebDriver
 
+// note:
+// we MUST have Chrome browser installed - this is the engine which the chromeDriver depends on
+
 // flags
 // https://peter.sh/experiments/chromium-command-line-switches/
 
@@ -54,3 +57,113 @@ foreach (var item in items)
 
 // browser.Keyboard.SendKeys("some content"); // send keys command
 // browser.Keyboard.SendKeys(Keys.Enter); // send enter command
+
+/*
+// PageLoadStrategy
+var chromeOptions = new ChromeOptions();
+chromeOptions.PageLoadStrategy = PageLoadStrategy.None; // Default, Normal, Eager, None
+*/
+
+/*
+// wait handler
+// note: execute the wait function after calling the Navigate 
+WebDriverWait([driver], [wait TimeOut])
+
+// wait for page ready, equivalent to PageLoadStrategy.Normal flag
+var wait = new WebDriverWait(browser, TimeSpan.FromSeconds(20));
+wait.Until(d =>
+{
+    var result = ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState");
+    return result.Equals("interactive") || result.Equals("complete");
+});
+
+// wait for angular (if any)
+var wait = new WebDriverWait(browser, TimeSpan.FromSeconds(20));            
+wait.Until(d => {
+	var res = ((IJavaScriptExecutor)d).ExecuteScript("return typeof(angular) == 'undefined' || angular.element(document).injector().get('$http').pendingRequests.length === 0");
+	return Convert.ToBoolean(res);
+});
+*/
+
+/*
+// By
+browser.FindElements(By.ClassName("classA"))
+browser.FindElements(By.Id("btn1"))
+*/
+
+/*
+browser.Navigate().GoToUrl(site);
+
+Console.WriteLine("Loading Page");
+
+var wait = new WebDriverWait(this.browser, TimeSpan.FromSeconds(10));
+wait.Until(d => {
+    return d.FindElements(By.ClassName("grid_cell_contents")).Count > 0;    
+});
+
+Console.WriteLine("Page Ready");
+
+result = browser.PageSource; // wait till fully rendered 
+*/
+
+/*
+	public class ChromeDriverWaitHandler {
+        public static void WaitForAngular(ChromeDriver browser, int timeOutInSec = 20) {
+            var wait = new WebDriverWait(browser, TimeSpan.FromSeconds(timeOutInSec));
+            wait.Until(d => {                
+                var result = ((IJavaScriptExecutor)d).ExecuteScript("return typeof(angular) == 'undefined' || angular.element(document).injector().get('$http').pendingRequests.length === 0");
+                return Convert.ToBoolean(result);
+            });
+        }
+
+        public static void WaitForJQuery(ChromeDriver browser, int timeOutInSec = 20) {
+            var wait = new WebDriverWait(browser, TimeSpan.FromSeconds(timeOutInSec));
+            wait.Until(d => {
+                var result = ((IJavaScriptExecutor)d).ExecuteScript("return typeof(jQuery) == 'undefined' || jQuery.active == 0");
+                return Convert.ToBoolean(result);
+            });
+        }
+
+        // equivalent to PageLoadStrategy.Normal flag
+        public static void WaitForReadyState(ChromeDriver browser, int timeOutInSec = 20) {
+            var wait = new WebDriverWait(browser, TimeSpan.FromSeconds(timeOutInSec));
+            wait.Until(d => {
+                var result = ((IJavaScriptExecutor)d).ExecuteScript("return document.readyState");
+                return result.Equals("interactive") || result.Equals("complete");
+            });
+        }
+    }
+
+	---
+
+	var chromeOptions = new ChromeOptions();
+    chromeOptions.PageLoadStrategy = PageLoadStrategy.None; // override it with WebDriverWait 
+
+	chromeOptions.AddArguments("headless");
+    // chromeOptions.AddArguments("blink-settings=imagesEnabled=false");
+    chromeOptions.AddArguments("proxy-server='direct://'");
+    chromeOptions.AddArguments("proxy-bypass-list=*");
+    chromeOptions.AddArguments("disable-logging");
+    var browser = new ChromeDriver(chromeOptions); 
+
+	---
+
+	var result = string.Empty;            
+    browser.Navigate().GoToUrl(site);
+
+	Console.WriteLine("Loading...");
+
+    ChromeDriverWaitHandler.WaitForReadyState(browser);
+    ChromeDriverWaitHandler.WaitForAngular(browser);
+
+    Console.WriteLine("Page Ready!");
+
+    result = browser.PageSource;
+            
+    var cnt = browser.FindElements(By.ClassName("grid_cell_contents")).Count;
+    Console.WriteLine(cnt);
+
+	note: 
+	our implementation of WaitForReadyState is faster than using the built-in PageLoadStrategy.Normal flag!
+	so set the PageLoadStrategy flag as None and use it instead!
+*/

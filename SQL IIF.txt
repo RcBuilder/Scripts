@@ -1,0 +1,8 @@
+SQL IIF
+
+syntax:
+IIF(expression, ifTrue, ifFalse)
+
+using:
+@idEvent int = null
+declare @isNew bit = iif(@idEvent is null, 1, 0)

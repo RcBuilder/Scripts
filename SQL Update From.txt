@@ -1,0 +1,39 @@
+declare @tblMapResults table(Id varchar(30), MA_Id int) 
+insert into @tblMapResults
+values
+('A1', 1001), 
+('A2', 1002),
+('A3', 1003),
+('A4', 1004),
+('A5', 1005)
+
+create table #tblItems(Id varchar(30), Title nvarchar(200), MA_Id int) 
+insert into #tblItems
+values
+('A1', 'Title Of A1', 0), 
+('A2', 'Title Of A2', 0),
+('A3', 'Title Of A3', 0),
+('A4', 'Title Of A4', 0),
+('A5', 'Title Of A5', 0),
+('A6', 'Title Of A6', 0),
+('A7', 'Title Of A7', 0),
+('A8', 'Title Of A8', 0)
+
+update	#tblItems
+set		MA_Id = T.MA_Id
+from	@tblMapResults T
+where	#tblItems.Id = T.Id
+
+select * from #tblItems
+-- drop table #tblItems
+
+/*
+	A1, Title Of A1, 1001
+	A2, Title Of A2, 1002
+	A3, Title Of A3, 1003
+	A4, Title Of A4, 1004
+	A5, Title Of A5, 1005
+	A6, Title Of A6, 0
+	A7, Title Of A7, 0
+	A8, Title Of A8, 0
+*/

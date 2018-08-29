@@ -1,0 +1,3 @@
+RegEx Domain
+
+(https?)://(www.)?([\w-]+\.)+[a-zA-Z]{2,6}

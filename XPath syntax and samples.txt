@@ -29,6 +29,14 @@ e.g:
 // exact class name 
 //div[contains(concat(' ', @class, ' '), ' title ')]
 
+starts-with
+-----------
+starts-with(arg1, arg2)
+
+e.g:
+// rows with id attribute which starts with lot- prefix (lot-1, lot-300 etc.)
+//table[@id="lot-list"]//tr[starts-with(@id, 'lot-')]
+
 position
 --------
 position()
