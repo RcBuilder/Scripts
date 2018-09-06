@@ -1,0 +1,24 @@
+SQL Server Aliases
+------------------
+- open the SQL Server Configuration Managment
+  note: if you can't find it - see 'BUG -SQL Server Configuration Manager not found'
+
+- SQL Native Client Configuration > Aliases
+- New Alias
+- Set Name, Port (usually 1433), Protocol and Server IP/Name
+
+e.g:
+Alias Name: RCB_PROD
+Port No: 1433 
+Protocol: TCP/IP
+Server: mssql.rcb.co.il  // note: can use ip instead
+
+
+---
+
+now, you can use the alias anywhere within the SQL server to reach that remote server.
+
+tip: 
+a great solution for LinkedServer definition which doesn't allow to change the server name.
+use an alias to determine the LinkedServer object name!
+

@@ -1,0 +1,19 @@
+Bug:
+SQL Server Configuration Manager not found
+
+Cause:
+newer versions of 'SQL Configuration Manager' are a snap-in for the MS Management Console program.
+Its not a stand-alone program and can't be seen in the programs list.
+
+
+Solution (Console):
+SQLServerManager[Version].msc
+
+e.g:
+> SQLServerManager11.msc  // for SQL 2012
+
+-- 
+
+Solution (Windows):
+- Control Panel > Administrative Tools > Computer Management
+- Services And Application 

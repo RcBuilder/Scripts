@@ -32,7 +32,7 @@
 * DTO = Data Transfer Object
 * CI/CD =  Continuous Integration and Continuous Delivery
 * TDD = Test Driven Development
-* CLI = Command Line Interface
+* CLI = Command Line Interface (cmd etc.)
 
 * TLS = Transport Layer Security
 * SSL = Secure Sockets Layer

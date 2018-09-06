@@ -1,0 +1,554 @@
+###### SUBJECTS ######
+- Reference
+- Forum
+- Install
+- About
+- Android Device
+- Android Virtual Device (AVD)
+- Nativescript CLI
+- Create A New Project
+- Project Files
+- Run The APP
+- DEBUG
+- LiveSync Emulators
+- NativeScript & Visual Studio
+- UI Widgets
+- UI Layouts
+- Platform Specific Capabilities
+- CSS
+- Launch Process
+- iOS
+- Sidekick APP
+- MarketPlace
+- Playground
+- Issues
+######################
+
+Reference
+---------
+https://docs.nativescript.org
+https://docs.nativescript.org/api-reference/globals
+
+Forum
+-----
+https://forum.nativescript.org
+
+Install
+-------
+install the nativescript CLI:
+>npm install -g nativescript
+
+note! 
+make sure npm (node package manager) installed on your machine, 
+if not, install it (node-v8.11.4-x64.msi)
+
+About
+-----
+an open-source framework which uses the Javascript Engine to generate a Native Application! 
+it adds a converting layer which translates javascript code into native runtime.
+allows us to create a single app which then can be complied as APK package (android), IPA package (iOs) and XAP (windows).
+it uses an XML to generate the UI and allows us to use regular CSS which later be translated 
+into native stylish rules! (note: not ALL the CSS rules have mapped).
+
+How it works:
+the framework uses javascript with Css-like and XML to write uniform code which fits to all mobile operating-systems alike. 
+it doing so by mapping each javascript Code, Css rules and XML tags to the corresponding native code of the target app.
+meaning, a build for iOS will be translated into a different code than a build which Android is the target. 
+
+Motto:
+"Write Once, Run everywhere"
+Share 100% code between iOs, Android and Windows.
+
+Structure:
+Javascript Engine > Javascript 2 Native runtime > Native UI + APIs
+
+Support:
+- Javascript
+- TypeScript
+- Angular 
+
+Android Device
+--------------
+we can connect via usb an android device for debugging purposes.
+in order to do so, we'll have to turn on the 'Developer options' and enable the 'USB debugging' feature.
+
+Virtual Devices:
+see 'Android Virtual Device (AVD)'
+
+Android Virtual Device (AVD)
+----------------------------
+in order to debug an app on android, we have to configure a AVD on our machine 
+
+Physical Devices:
+see 'Android Device'
+
+AVD Manager using Android Studio:
+- open Android Studio
+- (menu) Tools > AVD Manager
+
+- actions:
+  run - use the green 'play' button to run the emulator.
+  stop - use the arrow button > stop
+  clear - use the arrow button > Wipe Data
+  duplicate - use the arrow button > duplicate
+
+- note!
+  behind the scene, the android studio interface runs the avd manager tool (see 'AVD Manager Tool')
+
+- default location:
+  C:\Users\[User]\.android\avd
+
+AVD Manager Tool:
+file avdmanager.bat.
+use the avdmanager tool to create and manage android virtual devices (AVDs) from the command line.
+this tool is provided in the android SDK. 
+located within the %ANDROID_HOME%\tools\bin folder in the SDK.
+
+Create an AVD using Android Studio:
+- open Android Studio
+- (menu) Tools > AVD Manager
+- click on 'Create Virtual Device' button (bottom-left corner)
+- choose 'Category' (TV, Phone, Tablet etc.) from the left pane
+- choose pre-defined device from the list presented in the right pane > next
+- select the system image
+- set AVD name and some more settings (if needed) > finish
+
+- tip: custom hardware profiles
+  we can generate an AVD based on a custom hardware (instead of using the built-in suggested hardwares) by using 
+  the 'New Hardware Profile' button underneath the Category section! 
+
+Create an AVD using the CLI:
+- syntax
+  // using the avdmanager tool
+  > avdmanager create avd -n [AVD Name] -k [options] -p [path]
+
+- sample  
+  > avdmanager create avd -n testAVD -k "system-images;android-25;google_apis;x86" -p "D:\\"
+
+Options:
+- Hardware Profile  // Profile - Nexus 5, Pixel 2 etc.
+- System Image  // OS - Oreo, Lollipop, Marshmallow etc.
+- Startup Orientation  // Portrait or Landscape
+- Camera  // enable camera - Back-Facing/ Front-Facing Camera 
+- Network: Speed  // network protocol to determine the speed of data transfer - GSM, LTE etc. 
+- Network: Latency  // network Latency
+- Memory and Storage: RAM  // amount of RAM on the device 
+- Memory and Storage: VM Heap  // VM heap size
+- Memory and Storage: Internal Storage  // amount of nonremovable memory space available on the device
+- Memory and Storage: SD Card  // amount of removable memory space available to store data on the device
+- Device Frame: Enable Device Frame  // enable a frame around the emulator window
+- Custom Skin Definition  // the emulator's skin
+- Keyboard: Enable Keyboard Input  // to use your hardware keyboard to interact with the emulator
+
+Nativescript CLI
+----------------
+tns = Telerik NativeScript
+
+commands:
+> tns // help
+> tns --help // help
+> tns help // help (html view)
+> tns /? // help (html view)
+
+> tns create [projectName]
+> tns create [projectName] --template [templateName]
+> tns run [target]  // run the app (target: android or ios)
+> tns run --device [deviceId] // run the app on specific connected device (note: use tns device command to get the device id)
+> tns device  // list of connected devices (physical and virtual)
+> tns device android
+> tns device ios
+
+stop tns run command:
+> ctrl + c
+
+samples:
+// create an HelloWorld project with blank template 
+> tns create HelloWorld --template tns-template-blank  
+
+// run the app on an android emulator 
+// also see 'Android Virtual Device (AVD)'
+> tns run android  
+
+// run the app on an ios emulator 
+// only available on MAC!
+> tns run ios
+
+// TODO 
+
+Create A New Project
+--------------------
+using NPM: 
+> tns create [ProjectName]
+> tns create project1  // e.g
+
+Project Files
+-------------
+Root
+  - app
+  	- App_Resources  // resources (icons etc.)
+	  - Android
+	  - iOS
+
+	- app.css  // app global style
+	- app.js  // app starting point
+
+	- main-page.css  // page css (style) 
+	- main-page.js   // page code (logic)
+	- main-page.xml	 // page layout (UI)
+
+	- package.json  // packages
+    - node_modules  // npm modules
+    - tns_modules  // nativescript modules
+
+  - platforms
+    - android 
+	- ios
+
+Run The APP
+-----------
+using NPM: 
+> tns run  // all connected devices/emulators
+> tns run android  // target specific platform
+> tns run ios  // target specific platform
+> tns run ios --emulator
+
+to connect to android device or AVD see 'Android Device'
+
+DEBUG
+-----
+using devTools: 
+> tns debug android
+
+the above command generates a URL to copy from the console, 
+copy it and paste it into chrome and use the devTools (F12) to start debugging!
+
+--
+
+using ConsoleLog:
+use this command write any message to the console, similar to the web version but the messages will be written to the terminal 
+console.log([message]);
+
+another great command for debugging is console.dir([object]) which creates a dump of the object. 
+very handy when we have an object and we need to log it's content (json serialization).
+note that for complex types, the console.log prints [object Object] and NOT the content!
+
+// [object Object]
+console.log({ id: 1001, name: 'someName' }); 
+
+/*
+	{
+        'id': '1001',
+        'name': 'someName'
+    }
+*/
+console.dir({ id: 1001, name: 'someName' });
+
+--
+
+notes: 
+- to debug an physical device see 'Android Device'
+- use the tns device command to see the list of connected devices (physical and virtual)
+
+--
+
+error handling:
+exception will be logged to the terminal with the relevant message and the exact location.
+
+// e.g
+JS ERROR Error: Building UI from XML. @file:///app/main-page.xml:2:50
+     > close tag
+
+
+LiveSync Emulators
+------------------
+note that the command 'tns run' not only starts the app, it also activates the live sync mode which monitor the code for changes! 
+// TODO
+
+NativeScript & Visual Studio
+----------------------------
+
+Nativescript Extension For Visual Studio Code:
+- find nativescript extension at visual studio's marketplace:
+  https://marketplace.visualstudio.com/items?itemName=Telerik.nativescript
+- install it
+
+reference: 
+also see 'Visual Studio Code'
+
+---
+
+SideKick Extension For Visual Studio:
+- open visual studio
+- (menu) Tools > Extensions & updates
+- (tab) Online 
+- search for 'nativescript'
+- download 'nativeScript SideKick for VS'
+- run the downloaded installation file
+
+a new 'sidekick' menu will be added to the top menu!
+
+UI Widgets
+----------
+- Button
+- Label
+- TextField
+- SearchBar
+- Switch
+- Slider
+- Progress
+- ActivityIndicator
+- Image
+- ListView
+- HtmlView
+- WebView
+- TabView
+- SegmentedBar
+- DatePicker
+- TimePicker
+- ListPicker
+- Dialogs
+
+UI Layouts
+----------
+- Absolute  // x,y coordinates to specify the layer position 
+- Dock      // screen location (top, bottom, right, left, center)
+- Grid      // grid/table based layer 
+- Stack     // one on top of the other
+- Wrap      // wraps elements 
+- Flexbox
+
+note! 
+the power of layouts is not by the individual layout but with the collaboration of them together. 
+a proper way of creating a page is by using a few/ all layouts one inside the other. 
+
+e.g: 
+a Stack layout as Root whereas in each layout (in the Stack) there's inner layout of different type (Grid etc.)
+
+- Stack Layout
+	- Grid Layout
+		- Label Element 
+		- TextField Element 
+- Stack Layout
+	- ListView Element
+- Stack Layout
+	- Grid Layout
+		- More Elements
+
+Platform Specific Capabilities
+------------------------------
+- File level:
+  [view].android
+  [view].ios
+
+- Tag level:
+  <android></android>
+  <ios></ios>
+
+- Attribute level:
+  android: [attribute]
+  ios: [attribute] 
+
+  e.g: 
+  <label android:class="A" ios:class="B" />
+
+CSS
+---
+nativescript map the known css rules into native style.
+
+supported selectors:
+- Element Type
+- Class (.)
+- Id (#)
+
+supported properties:
+- https://docs.nativescript.org/ui/styling#supported-css-properties
+
+themes:
+- https://docs.nativescript.org/ui/theme
+  https://docs.nativescript.org/ui/theme#color-schemes
+
+- the selected theme located in the app.css file 
+  @import '~nativescript-theme-core/css/sky.css';
+
+convention:
+- app.css  // global styles
+- [view].css  // view/ page styles
+- [view].[platform].css  // platform specific styles
+
+Less/ Saas:
+> tns install less
+> tns install sass
+
+Units:
+DO NOT specify px!
+
+// e.g
+button{
+	border-radius: 3;
+	border-width: 1;
+	border-color: #d3d3d3;
+	width: 100;	
+}
+
+
+
+Launch Process
+--------------
+[OPTION 1]
+
+1. the file app/package.json should define the name of the starting js file 
+
+   e.g:
+   {
+       "main": "app.js"
+   	   "name": "my-app"
+   }
+
+2. in the app.js we need to execute the application 
+
+   var application = require("application");
+   application.run({ moduleName: "app-root" });
+
+3. need to create the app-root.xml file defined in chapter 2
+ 
+   <Frame defaultPage="main-page"></Frame>
+
+4. create the main-page view
+   - main-page.js
+   - main-page.xml
+   - main-page.css
+   
+---
+
+[OPTION 2]
+
+1. same as in [OPTION 1]
+2. app.js 
+   
+   var application = require("application");
+   application.mainModule = "main-page";
+   application.start();
+
+3. create the main-page view
+
+iOS 
+---
+IPA file:
+iOS app store package.
+
+IOS on Windows:
+we can't build for iOS using windows due to a requirement of Xcode which is only available on MAC machines! 
+there's a cloud build option using nativescript Sidekick (see 'Sidekick APP')
+
+requirements:
+- Certificate 
+- App Id
+- Provisioning Profile
+
+to get those, we need to enroll in the Apple iOS Developer Program and then, to use the dev Center platform.
+
+tip! 
+we can use the nativescript Sidekick app to generate those requirements
+see 'establish environment for iOS' chapter under 'Sidekick APP' section 
+
+certificate types:
+- Certificate for Development
+- Certificate for Distribution   
+
+developer Program:
+https://developer.apple.com/programs/
+
+dev Center:
+https://developer.apple.com/account/
+
+Sidekick APP
+------------
+install:
+NativeScriptSidekickSetup.exe
+
+a desktop application which built on top of the nativeScript CLI.
+it was built using Electron to provide us a cross-platform desktop app for Windows, macOS, and Linux. 
+with sidekick we can access templates and verified plugins, we can use a cloud builds service and a debugging service.
+
+cloud build:
+sidekick allows us to build an app in the cloud! 
+no configuration required nor extra local packages.
+this allows windows users to build for iOS without needing a Mac!
+the build server uses a super fast Mac processor so the cloud build process will be really fast! 
+it also provides us a way to submit apps to the app stores and generate certificates for app signing.
+
+debugging: 
+sidelick provides us a few great debugging options such as liveSync and the chrome devTools.
+
+Create a Build:
+- Run > Build 
+- choose the 'Cloud Build' option and the target package (iOS or Android)
+- click on 'Build'
+
+create an iOS Certificate Signing Request (CSR):
+- (menu) Tools > Certificate Signing Request
+- specify name, email and country 
+- click on 'Create CSR' button
+- save the generated CSR to the local disk (.csr file)
+- use the certificate request to create a Certificate (see 'create an iOS Certificate')
+
+create an iOS Certificate (CER):
+// TODO
+
+create a P12 file from iOS Certificate:
+- (menu) Tools > Certificate Signing Request
+- click on 'Import CER' button
+- load the certificate file (.cer file)
+- provide a password > save
+
+establish environment for iOS:
+[steps]
+1. create an apple account 
+2. see 'create an iOS Certificate Signing Request (CSR)'
+3. see 'create an iOS Certificate (CER)'
+4. see 'create a P12 file from iOS Certificate'
+
+
+MarketPlace
+-----------
+in the nativescript MarketPlace we can find Plugins, Templates and Samples!
+https://market.nativescript.org/
+
+Playground
+----------
+https://play.nativescript.org/
+
+app: 
+"NativeScript Playground app"
+
+this app allows us to get a REAL-TIME review of the changes we do in the web Playground site! 
+download the app, scan the QR code and get a liveSync view on the mobile.
+
+
+Issues
+------
+issue:
+Unable to apply changes on device: xxxx. Error is: Command gradlew.bat failed with exit code 1.
+
+solution:
+change the jvmargs value to -Xmx256M
+
+file "platforms/android/gradle.properties"
+org.gradle.jvmargs=-Xmx256M
+
+--
+
+issue:
+can't find the AVD Manager menu in Android Studio after update 
+
+solution:
+open android studio > (tab) messages/ event log (located in the bottom)
+click "Install missing platforms(s)..."
+then after the download/install, click "Intall Build Tools..."
+
+--
+
+
+
+
+

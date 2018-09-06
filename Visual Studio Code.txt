@@ -1,0 +1,70 @@
+******************************
+***** Visual Studio Code *****
+******************************
+
+===========================
+what is Visual Studio Code? 
+Support
+Reference
+Keyboard Shortcuts
+Manage Extensions
+Market
+Extensions
+===========================
+
+
+
+what is Visual Studio Code? 
+---------------------------
+a lightweight source code Editor which runs on your desktop and is available for Windows, macOS and Linux!
+
+Support
+-------
+Visual Studio Code has a built-in support for JavaScript, TypeScript and Node.js
+and a lot of extensions for other languages (C++, C#, Java, Python, PHP, NativeScript etc.)
+
+Reference
+---------
+https://code.visualstudio.com/
+https://code.visualstudio.com/docs
+
+Keyboard Shortcuts
+------------------
+https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf
+
+Manage Extensions
+-----------------
+we can add extensions via the Editor or the Market 
+for some common extensions see 'Extensions' 
+
+Editor:
+- open the 'Visual Studio Code' Editor  
+- Settings Icon (the left-bottom cog-wheel)
+  note: can use View > Extensions
+- Manage Extensions
+- Search for the desired extension > 
+
+Market:
+see 'Market' 
+
+Market
+------
+https://marketplace.visualstudio.com/vscode
+
+Extensions
+----------
+- vscode-icons
+  an improved UI experience using icons set 
+  https://marketplace.visualstudio.com/items?itemName=robertohuertasm.vscode-icons
+
+- C# 
+  support for C# code	
+  https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp
+
+- nativescript 
+  support for nativescript apps
+  https://marketplace.visualstudio.com/items?itemName=Telerik.nativescript
+
+- Debugger for Chrome
+  debug JavaScript code in the Google Chrome browser
+  https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome

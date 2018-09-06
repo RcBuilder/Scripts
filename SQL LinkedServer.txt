@@ -1,0 +1,27 @@
+SQL LinkedServer
+----------------
+allow us to define a remote server as a local object 
+so we could use it within our queries to access the remote server data.
+
+Create:
+- open SQL Managment Tools
+- Server Objects > Linked Server > New
+- (tab) General
+  1. Set the Server Name/IP (tip: see 'SQL Server Aliases') 
+  2. Choose the 'SQL Server' radio option
+
+- (tab) Security
+  1. Choose the 'Be made using this security context' option
+  2. set the credentials of the remote server 
+
+Access:
+use the LinkedServer object name for a direct access to the remote server.  
+
+// e.g
+// in this sample, the LinkedServer object is 'MyLinkedServer' 
+select * from MyLinkedServer.dbo.Table1
+
+important:
+there's NO way to set/change the LinkedServer object directly! 
+use SQL alias to achieve this goal. 
+see 'SQL Server Aliases'  
