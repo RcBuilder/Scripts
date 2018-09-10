@@ -5,3 +5,13 @@ Alt (press) + Shift (press) + ARROWS // mark a group
 
 Ctrl + M + O // collapse all regions
 Ctrl + M + P // open all regions
+
+Shift (press) + End // mark line
+Shift (press) + Home // mark line (backwards)
+
+Ctrl+Space  // open the intelliSense menu
+
+Ctrl + .  // add missing reference
+Alt (press) + Shift (press) + F10  // add missing reference
+
+Shift + Alt + F  // format document

@@ -1,0 +1,98 @@
+[trigger]
+
+create TRIGGER [triggerName]
+	ON	[tableName]
+	[triggerType] // FOR | AFTER | INSTEAD OF
+	[action] // INSERT | DELETE | UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	-- tables: inserted, deleted				
+
+	declare @hasDeleted bit = isNull((select 1 from deleted), 0)
+	declare @hasInserted bit = isNull((select 1 from inserted), 0)
+		
+	declare @action varchar(10)
+	if(@hasDeleted = 1 and @hasInserted = 1)
+		set @action = 'UPDATE';
+	else if(@hasInserted = 1)
+		set @action = 'INSERT';
+	else if(@hasDeleted = 1)
+		set @action = 'DELETE';
+
+	-------
+
+	CODE HERE ... 
+
+-------------------------------------------
+[sample]
+
+alter TRIGGER trg_RestaurantBalanceMonitor
+	ON	RestaurantBank
+	AFTER INSERT,DELETE,UPDATE
+AS 
+BEGIN
+	SET NOCOUNT ON;
+	
+	-- tables: inserted, deleted				
+
+	declare @hasDeleted bit = isNull((select 1 from deleted), 0)
+	declare @hasInserted bit = isNull((select 1 from inserted), 0)
+		
+	declare @action varchar(10)
+	if(@hasDeleted = 1 and @hasInserted = 1)
+		set @action = 'UPDATE';
+	else if(@hasInserted = 1)
+		set @action = 'INSERT';
+	else if(@hasDeleted = 1)
+		set @action = 'DELETE';
+
+	-------
+
+	declare @OldValue nvarchar(200), @NewValue nvarchar(200), @RelatedId varchar(30)
+	set @OldValue = (select Balance from deleted) 
+	set @NewValue = (select Balance from inserted)
+	
+	if(@hasInserted = 1)
+		set @RelatedId = (select RestaurantId from inserted)
+	else if(@hasDeleted = 1)
+		set @RelatedId = (select RestaurantId from deleted)
+
+	insert into ChangesLog
+	([Action], TableName, ColumnName, OldValue, NewValue, RelatedId, Notes)
+	values	
+	(@action, 'RestaurantBank', 'Balance', isNull(@OldValue, 0), isNull(@NewValue, 0), isNull(@RelatedId, 0), '')
+
+
+-------------------------------------------
+[ChangesLog]
+
+RowId int identity, 
+Action varchar(10), 
+CreatedDate datetime default getdate(), 
+TableName varchar(30), 
+ColumnName varchar(30), 
+OldValue nvarchar(200),
+NewValue nvarchar(200), 
+RelatedId varchar(30), 
+Notes nvarchar(200)
+
+-------------------------------------------
+[using]
+
+// trigger by insert
+insert into RestaurantBank values('2222', 300)	
+
+// trigger by update
+update RestaurantBank set Balance = 1000 where RestaurantId = '2222'
+
+// trigger by delete
+delete from RestaurantBank where RestaurantId = '222'	
+
+result:
+select * from ChangesLog
+
+1, INSERT, 2018-09-07 13:28:29.897, RestaurantBank, Balance, 0, 300.00, 2222	
+2, UPDATE, 2018-09-07 13:28:55.750, RestaurantBank, Balance, 300.00, 1000.00, 2222	
+3, DELETE, 2018-09-07 13:29:51.293, RestaurantBank, Balance, 300.00, 0, 2222	

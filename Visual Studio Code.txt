@@ -2,21 +2,25 @@
 ***** Visual Studio Code *****
 ******************************
 
-===========================
+==============================
 what is Visual Studio Code? 
 Support
 Reference
+Updates
 Keyboard Shortcuts
 Manage Extensions
+Working With VS Code
 Market
 Extensions
-===========================
+Git
+==============================
 
 
 
 what is Visual Studio Code? 
 ---------------------------
 a lightweight source code Editor which runs on your desktop and is available for Windows, macOS and Linux!
+VS Code is an open source project.
 
 Support
 -------
@@ -28,9 +32,32 @@ Reference
 https://code.visualstudio.com/
 https://code.visualstudio.com/docs
 
+Updates
+-------
+VS Code releases a new version each month
+https://code.visualstudio.com/updates
+
 Keyboard Shortcuts
 ------------------
-https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf
+shortcuts:
+- File > Preferences > Keyboard Shortcuts
+- https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf
+
+edit:
+we can change each shortcut to be any keyboard combination we'd like! 
+- open 'Visual Studio Code' Editor
+- use the Edit icon to the left of each defined shortcut
+- set a new shortcut
+
+note:
+the shortcuts map is saved to the keybindings.json file and can be managed from there as well.
+
+keymap Extensions:
+- File > Preferences > Keymap Extensions // list of popular keymap extensions
+- allow us to Use the keyboard shortcuts of other editors in VS Code by installing a Keymap extension.
+  a great feature which allows us to use our familiar shortcuts from our old editor instead of learn new shortcuts!
+
+tip: we can search the extensions for more keymaps (see 'Manage Extensions')
 
 Manage Extensions
 -----------------
@@ -42,10 +69,77 @@ Editor:
 - Settings Icon (the left-bottom cog-wheel)
   note: can use View > Extensions
 - Manage Extensions
-- Search for the desired extension > 
+- Search for the desired extension > install 
+
+- note
+  Extensions represents the content of the market place, 
+  so each search actually performs a search on the market from within the editor!
+
+- tip
+  we can reach the Extensions manager from the left menu (see 'Working With VS Code')
+  we can reach it using the Ctrl + Shift + X shortcut
 
 Market:
 see 'Market' 
+
+Working With VS Code
+--------------------
+activity bar:
+at the left, we have a stripe menu with the following items:
+- File Explorer
+- Search 
+- Source Code
+- Debug 
+- Extensions
+
+shortcuts:
+- all commands list
+  Ctrl + Shift + P 
+
+- go to file
+  Ctrl + P 
+
+- find in files
+  Ctrl + Shift + F
+
+- view Extensions
+  Ctrl + Shift + X
+
+- start debugging
+  F5
+
+Themes:
+- open 'all commands list' (Ctrl + Shift + P) 
+- search per 'color theme'
+- choose a theme from the list
+
+Settings:
+we can set the editor settings using the UI 
+Ctrl + Shift + P > Settings 
+
+or in json view 
+Ctrl + Shift + P > Settings (JSON)
+
+at the left pane we'll find the default settings whereas in the right it's our customization.
+we can override each of the default pre-defined settings (left pane) and even specifies a language-specific settings.
+
+MS Syntax
+VS Code comes with a built-in MS-syntax feature. 
+depending on the page type we are in, we get a powerful tool which makes our coding better and easier. 
+
+e.g: for html type
+write '!' and then click on 'tab' to generate a basic html page template
+write tag name (h1 etc.) then 'tab' to create an html tag with it's enclosing tag (<h1></h1>)
+write 'link' then 'tab' to get a link tag to a css file.
+// TODO ...
+
+Search
+supports free-text or regEx patterns.
+supports replace matches feature. 
+
+Tasks
+-----
+// TODO
 
 Market
 ------
@@ -68,3 +162,15 @@ Extensions
 - Debugger for Chrome
   debug JavaScript code in the Google Chrome browser
   https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome
+
+- XML Tools
+  XML Formatting, XQuery, and XPath Tools
+  https://marketplace.visualstudio.com/items?itemName=DotJoshJohnson.xml
+
+- ESLint
+  JavaScript linting to improve our code
+  https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
+
+Git
+---
+//TODO
