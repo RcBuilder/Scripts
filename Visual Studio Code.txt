@@ -9,9 +9,10 @@ Reference
 Updates
 Keyboard Shortcuts
 Manage Extensions
-Working With VS Code
 Market
 Extensions
+Working With VS Code
+Tasks
 Git
 ==============================
 
@@ -82,65 +83,6 @@ Editor:
 Market:
 see 'Market' 
 
-Working With VS Code
---------------------
-activity bar:
-at the left, we have a stripe menu with the following items:
-- File Explorer
-- Search 
-- Source Code
-- Debug 
-- Extensions
-
-shortcuts:
-- all commands list
-  Ctrl + Shift + P 
-
-- go to file
-  Ctrl + P 
-
-- find in files
-  Ctrl + Shift + F
-
-- view Extensions
-  Ctrl + Shift + X
-
-- start debugging
-  F5
-
-Themes:
-- open 'all commands list' (Ctrl + Shift + P) 
-- search per 'color theme'
-- choose a theme from the list
-
-Settings:
-we can set the editor settings using the UI 
-Ctrl + Shift + P > Settings 
-
-or in json view 
-Ctrl + Shift + P > Settings (JSON)
-
-at the left pane we'll find the default settings whereas in the right it's our customization.
-we can override each of the default pre-defined settings (left pane) and even specifies a language-specific settings.
-
-MS Syntax
-VS Code comes with a built-in MS-syntax feature. 
-depending on the page type we are in, we get a powerful tool which makes our coding better and easier. 
-
-e.g: for html type
-write '!' and then click on 'tab' to generate a basic html page template
-write tag name (h1 etc.) then 'tab' to create an html tag with it's enclosing tag (<h1></h1>)
-write 'link' then 'tab' to get a link tag to a css file.
-// TODO ...
-
-Search
-supports free-text or regEx patterns.
-supports replace matches feature. 
-
-Tasks
------
-// TODO
-
 Market
 ------
 https://marketplace.visualstudio.com/vscode
@@ -171,6 +113,249 @@ Extensions
   JavaScript linting to improve our code
   https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint
 
+- IIS Express
+  allows us to run the current folder as a website in IIS Express
+  https://marketplace.visualstudio.com/items?itemName=warren-buckley.iis-express
+
+- GitHub
+  Integrates GitHub and its workflows into vscode
+  https://marketplace.visualstudio.com/items?itemName=KnisterPeter.vscode-github
+
+- GitLab
+  Integrates GitLab and its workflows into vscode
+  https://marketplace.visualstudio.com/items?itemName=rrivera.vscode-gitlab-explorer
+
+Working With VS Code
+--------------------
+activity bar:
+at the left, we have a stripe menu with the following views:
+- File Explorer
+- Search 
+- Source Code
+- Debug 
+- Extensions
+
+---
+
+Views:
+use the 'open view' command to open a view (file explorer, debug, extensions etc.)
+
+1. open the 'all commands list' terminal using the Ctrl + Shift + P shortcut.
+2. > open view > enter
+3. choose the view to open from the list 
+
+---
+
+shortcuts:
+- all commands list
+  Ctrl + Shift + P 
+
+- go to file
+  Ctrl + P 
+
+- find in files
+  Ctrl + Shift + F
+
+- view Extensions
+  Ctrl + Shift + X
+
+- start debugging
+  F5
+
+- go to line number
+  Ctrl + G
+
+- undo cursor position
+  Ctrl + U
+
+- trim trailing whitespace
+  Ctrl + K and then Ctrl + X
+
+- code folding
+  Ctrl + Shift + [ 
+  Ctrl + Shift + ]
+ 
+- select current line
+  Ctrl + I
+
+- IntelliSense
+  Ctrl + Space
+
+- peek definition
+  Ctrl + Shift + F12
+
+- go to definition
+  F12
+
+- find all references
+  Shift + F12
+
+---
+
+Split Editor:
+use the top-right button to split editors. each click adds another editor to the right. 
+use Ctrl + 1,2,3 to switch between open editors (left-center-right) 
+
+---
+
+Themes:
+- open 'all commands list' (Ctrl + Shift + P) 
+- search per 'color theme'
+- choose a theme from the list
+
+---
+
+Settings:
+we open the editor settings using the UI in one of the following ways:
+- Ctrl + Shift + P > Settings 
+- File > Preferences > Settings
+- left-bottom cog-wheel > Settings
+
+or in json view 
+- Ctrl + Shift + P > Settings (JSON)
+
+at the left pane we'll find the default settings whereas in the right it's our customization.
+we can override each of the default pre-defined settings (left pane) and even specifies a language-specific settings.
+
+note
+we can set a global or folder settings. all settings saved to settings.json file!
+%APPDATA%\Code\User\settings.json
+
+reference
+https://code.visualstudio.com/docs/getstarted/settings
+
+---
+
+MS Syntax:
+VS Code comes with a built-in MS-syntax feature. 
+depending on the page type we are in, we get a powerful tool which makes our coding better and easier. 
+
+e.g: for html type
+write '!' and then click on 'tab' to generate a basic html page template
+write tag name (h1 etc.) then 'tab' to create an html tag with it's enclosing tag (<h1></h1>)
+write 'link' then 'tab' to get a link tag to a css file.
+
+---
+
+Search:
+supports free-text or regEx patterns.
+supports replace matches feature. 
+
+---
+
+Editors view type:
+we can choose the way our editors are presented (single, two columns, grid etc.)
+a grid view, for example, splits the editor area into 2x2 smaller areas which can fit to 4 different editors.
+
+View > Editor Layout
+
+e.g: 
+View > Editor Layout > Grid (2x2)
+
+---
+
+Windows:
+- OUTPUT (Ctrl + Shift + U)
+
+- DEBUG CONSOLE (Ctrl + Shift + Y)
+  this window show us the debbuger output.
+  any output from the debbuging code will be written to this window.
+  see 'Debug'
+
+- TERMINAL
+  an integrated terminal.
+  in this window we can execute commands. 
+  the output of the executed code will be written to this window.
+
+  e.g: // execute a single js file using the node engine 
+  > node test.js 
+
+---
+
+Debug:
+- windows:
+  click the 'debug' item on the activity bar to show the debugger related windows.
+  we can find the following windows there: Variables, Watch, Call Stack and Breakpoints.
+
+- Output:
+  open the DEBUG CONSOLE window to see the debugging related output 
+  can use the Ctrl + Shift + Y shortcut
+
+- profiles/ configurations:
+  with VS Code we can create our own debugging profiles!
+  the profiles are json based and located within the '.vscode' folder. 
+  the file name is 'launch.json' and it contains a 'configurations' section.
+
+  once a profile has created, it will be automatically add to the dropdown menu of the Debug play button. 
+  so we can create a few different profiles for different tasks/ apps and choose which one to execute.
+
+  the profiles dropdown menu located near the debug play button at the top of the debug window. 
+
+  to generate a new debug profile: 
+  1. choose 'Add Configuration' option from the profiles dropdown menu > the launch.json file will be shown at the right pane.
+  2. within the 'configurations' section - set the profile type, request, name and the command to execute.
+     note: click the 'Add Configuration' big soft-blue button a the right-bottom.
+  3. save     
+  4. the profile will be added to the profiles dropdown menu!   
+
+  // launch.json
+  // in the below sample, two profiles has defined - App1 amd App2
+  // we should see them both in the profiles dropdown menu
+  e.g: 
+  {
+       "type": "node",
+       "request": "attach",
+       "name": "site1 (port 3000)",
+       "port": 3000
+  },
+  {
+      "type": "node",
+      "request": "attach",
+      "name": "pick process",
+      "processId": "${command:PickProcess}"
+  },
+  {
+      "type": "node",
+      "request": "launch",
+      "name": "app1",
+      "program": "${workspaceFolder}/app\\app.js"
+  },
+  {
+      "type": "node",
+      "request": "launch",
+      "name": "app2",
+      "program": "${workspaceFolder}/app\\app2.js"
+  }
+  
+  common debug profile request types:
+  - Attach
+  - Launch
+  - Attach to Process 
+
+Tasks
+-----
+// TODO
+
 Git
 ---
-//TODO
+- windows:
+  click the 'Source Code' item on the activity bar to show the source code related windows.  
+
+- Git Output:
+  we can show the git output, which shows all git commands the VS Code uses to integrate with the git repositories.
+  to bring-up the git output window: 
+  1. open the 'Source Code' menu item 
+  2. click the 3 dots at the top (...) 
+  3. choose 'Show git output'
+
+- Git Commands:  
+  1. click Ctrl + Shift + P to brings-up the 'all commands list' terminal 
+  2. use the git commands (e.g: git pull)
+
+- Git Basic:
+  1. open the 'Source Code' menu item 
+  2. click the 3 dots at the top (...)
+  3. we'll find there most of the familiar git commands .. 
+     (undo last commit, pull, push, sync, commit, stage etc.)
+
+

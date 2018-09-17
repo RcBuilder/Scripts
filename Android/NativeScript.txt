@@ -14,10 +14,16 @@
 - Project Files
 - Run The APP
 - DEBUG
-- LiveSync Emulators
+- LiveSync
 - NativeScript & Visual Studio
-- UI Widgets
 - UI Layouts
+- UI Components
+- Dialogs
+- Events
+- JS Modules
+- Plugins
+- Working With Nativescript
+- systemIcon
 - Platform Specific Capabilities
 - CSS
 - Launch Process
@@ -26,6 +32,7 @@
 - MarketPlace
 - Playground
 - Issues
+- Code Samples
 ==============================
 
 Reference
@@ -48,6 +55,7 @@ if not, install it (node-v8.11.4-x64.msi)
 
 About
 -----
+by Telerik.
 an open-source framework which uses the Javascript Engine to generate a Native Application! 
 it adds a converting layer which translates javascript code into native runtime.
 allows us to create a single app which then can be complied as APK package (android), IPA package (iOs) and XAP (windows).
@@ -156,11 +164,14 @@ commands:
 
 > tns create [projectName]
 > tns create [projectName] --template [templateName]
-> tns run [target]  // run the app (target: android or ios)
+> tns run [android|ios]  // run the app
 > tns run --device [deviceId] // run the app on specific connected device (note: use tns device command to get the device id)
 > tns device  // list of connected devices (physical and virtual)
-> tns device android
-> tns device ios
+> tns device [android|ios] 
+> tns plugin add [plaginName]  // add plugin
+
+> tns debug [android|ios]  // debug a device
+> tns debug [android|ios] --bundle  // debug bundled app
 
 stop tns run command:
 > ctrl + c
@@ -176,6 +187,9 @@ samples:
 // run the app on an ios emulator 
 // only available on MAC!
 > tns run ios
+
+// debug android device
+> tns debug android  
 
 // TODO 
 
@@ -198,15 +212,43 @@ Root
 
 	- main-page.css  // page css (style) 
 	- main-page.js   // page code (logic)
+	- main-page-view-model.js   // page view-model
 	- main-page.xml	 // page layout (UI)
 
 	- package.json  // packages
     - node_modules  // npm modules
     - tns_modules  // nativescript modules
 
-  - platforms
+  - platforms  // the generated native code
     - android 
 	- ios
+
+note!
+in NativeScript, a .js file with the same name as an XML file is known as a code-behind file.
+
+sample:
+// main-page-view-model.js
+var Observable = require("data/observable").Observable;
+function createViewModel() { 
+    var viewModel = new Observable();	
+    ...
+	...
+    return viewModel;
+}
+exports.createViewModel = createViewModel;
+
+// main-page.js
+var createViewModel = require("./main-page-view-model").createViewModel;
+function onNavigatingTo(args) {    
+    var page = args.object;
+    page.bindingContext = createViewModel();
+}
+exports.onNavigatingTo = onNavigatingTo;
+
+// main-page.xml
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo" class="page">
+	...
+</Page>
 
 Run The APP
 -----------
@@ -263,10 +305,9 @@ JS ERROR Error: Building UI from XML. @file:///app/main-page.xml:2:50
      > close tag
 
 
-LiveSync Emulators
-------------------
+LiveSync
+--------
 note that the command 'tns run' not only starts the app, it also activates the live sync mode which monitor the code for changes! 
-// TODO
 
 NativeScript & Visual Studio
 ----------------------------
@@ -291,36 +332,124 @@ SideKick Extension For Visual Studio:
 
 a new 'sidekick' menu will be added to the top menu!
 
-UI Widgets
-----------
-- Button
-- Label
-- TextField
-- SearchBar
-- Switch
-- Slider
-- Progress
-- ActivityIndicator
-- Image
-- ListView
-- HtmlView
-- WebView
-- TabView
-- SegmentedBar
-- DatePicker
-- TimePicker
-- ListPicker
-- Dialogs
-
 UI Layouts
 ----------
-- Absolute  // x,y coordinates to specify the layer position 
-- Dock      // screen location (top, bottom, right, left, center)
-- Grid      // grid/table based layer 
-- Stack     // one on top of the other
-- Wrap      // wraps elements 
-- Flexbox
+- Absolute  
+  - about: 
+    x,y coordinates to specify the components position within the layer
 
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_layouts_absolute_layout_
+
+  - define the layout inner components using the following properties:
+    left
+	top
+	height
+	width
+
+  - sample:
+    <AbsoluteLayout>
+        <Label text="Component" class="h3 text-center" backgroundColor="#0099CC" left="10" top="10" height="50" width="100" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#C3C3E5" left="10" top="50" height="50" width="100" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#8C489F" left="90" top="20" height="50" width="100" />
+    </AbsoluteLayout> 
+
+- Dock      
+  - about: 
+    screen location (top, bottom, right, left, center) to specify the components position within the layer
+
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_layouts_dock_layout_
+
+  - dock property: 
+    define the component position using one of the following values
+    left
+	right
+	bottom
+	top	
+
+  - stretchLastChild property:     
+    determines whether the last component will be stretched or not.	
+	value can be true or false 
+
+  - sample:
+    <DockLayout stretchLastChild="true">
+        <Label text="Component" class="h3 text-center" backgroundColor="#0099CC" dock="left" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#C3C3E5" dock="right" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#8C489F" dock="bottom" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#B3B3D7" dock="top" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#CCFFFF" height="50" />
+    </DockLayout> 
+
+- Grid
+  - about: 
+    grid/table based layer 
+
+  - reference:
+  - sample:
+
+- Stack     
+  - about: 
+    one on top of the other
+
+  - reference:
+  - sample:
+
+- Wrap
+  - about: 
+    wraps elements 
+
+  - reference:
+  - sample:
+
+- Flexbox
+  - about: 
+    a single-direction layout concept. 
+	either in horizontal rows or vertical columns.
+
+  - reference:
+    https://docs.nativescript.org/api-reference/classes/_ui_layouts_flexbox_layout_.flexboxlayout
+	https://docs.nativescript.org/api-reference/modules/_ui_layouts_flexbox_layout_
+
+  - flexDirection property:
+    define the layout direction/ behaviour using one of the following values		
+	row
+	row-reverse  
+	column
+	column-reverse
+
+	note! 
+	when using the 'reverese' mode - the last item will be presented first and the first will be at the end.
+
+  - flexGrow property
+    determines the remaining space distribution between the items. not their ratio!!!
+	e.g: 
+	itemA has flexGrow 1 
+	itemB has flexGrow 3
+	the container size is 500px, each item takes 200px
+	-
+	the remaining space is 100px (500 - (200 * 2))
+	each flex-grow unit is 25px (100 / (1 + 3))
+	-
+	itemA total size will be 225px (200 + (1 * 25))
+	itemB total size will be 275px (200 + (3 * 25))
+
+  - tip:
+    in 'row' direction, setting height on a single item will affect ALL the others. 
+
+  - sample:
+    <FlexboxLayout flexDirection="column">
+        <Label text="Component" class="h3 text-center" backgroundColor="#0099CC" flexGrow="1" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#C3C3E5" flexGrow="1" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#8C489F" flexGrow="1" />
+    </FlexboxLayout>
+
+	<FlexboxLayout flexDirection="row">  
+        <Label text="Component" class="h3 text-center" backgroundColor="#0099CC" flexGrow="1" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#C3C3E5" flexGrow="1" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#8C489F" flexGrow="1" />
+    </FlexboxLayout>
+  
 note! 
 the power of layouts is not by the individual layout but with the collaboration of them together. 
 a proper way of creating a page is by using a few/ all layouts one inside the other. 
@@ -337,6 +466,416 @@ a Stack layout as Root whereas in each layout (in the Stack) there's inner layou
 - Stack Layout
 	- Grid Layout
 		- More Elements
+
+UI Components
+-------------
+// see 'UI Layouts'
+AbsoluteLayout
+DockLayout
+GridLayout
+StackLayout
+WrapLayout
+FlexboxLayout
+
+- ScrollView
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_scroll_view_
+
+  - about:
+    allows us to add scroll to the page or to a specific container. 
+	display a scrollable area by wrapping the content with a ScrollView tag.
+
+  - orientation property:    
+    horizontal
+	vertical
+
+  - scroll event:    
+    <ScrollView scroll="onScroll($event)">
+		....
+	</ScrollView>
+
+  - sample:
+    <ScrollView orientation="vertical">
+		<StackLayout class="p-20">
+		   ...
+		   ...
+		</StackLayout>
+	</ScrollView>
+
+
+- ActionBar
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_action_bar_
+
+  - android.position:
+    left 
+	right 
+	popup // items that will be shown under the 3 dots right menu
+
+  - systemIcon
+    see 'systemIcon'
+
+  - ActionBar Title
+    title 
+	android.icon  // add an icon 
+	android.iconVisibility 
+	
+  - sample:
+    <ActionBar title="Title" android.icon="res://icon" android.iconVisibility="always">		
+		<ActionItem text="Menu Item" android.position="popup"></ActionItem>        
+        <ActionItem text="Menu Item" android.position="popup"></ActionItem>        
+
+        <ActionItem text="Item"></ActionItem>
+		<ActionItem ios.systemIcon="12" android.systemIcon="ic_menu_search"></ActionItem>	        				
+	</ActionBar>  
+
+- Button  
+  - reference:
+    https://docs.nativescript.org/api-reference/classes/_ui_button_
+
+  - sample:
+    <Button text="Button" class="btn btn-primary btn-active" tap="{{ onTap }}" />
+
+	viewModel.onTap = function () { 
+		...
+	}
+
+- Label
+  - reference:    
+	https://docs.nativescript.org/api-reference/classes/_ui_label_
+
+  - sample:
+    <Label text="Label" class="h3 text-center" />
+
+- TextField
+- Switch
+- Progress
+- ActivityIndicator
+- Animations
+- Image
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_image_
+
+  - src property:
+	use 'http://' prefix to load image from URL 
+	use 'res://' prefix to load image from resource
+	use '~/' prefix to load image from local file system
+	
+  - stretch property:
+    use 'none' for orignal size
+	use 'fill' for streching the image based on it's container
+	use 'aspectFit' for stretching with aspect ratio preservation (clip image to fit destination)
+	use 'aspectFill' for stretching with aspect ratio preservation 
+
+  - resources location:
+    App_Resources\Android\src\main\res
+	should be added to the corresponding drawable-XXX folders
+
+  - css:
+    background-image: url("~/images/logo.png");
+    background-repeat: no-repeat;
+    height: 120;
+    margin: 15;
+
+
+  - javascript:
+    let image = new imageModule.Image();
+    image.src = "~/logo.png";
+    dockLayout.addChild(image);
+
+  - sample:
+	<Image src="~/logo.png" /> 
+	<Image src="http://my-domain.com/logo.png" />
+	<Image src="res://logo" stretch="none" />
+	<Image src="{{ base64ImageSource }}" />
+
+- SegmentedBar
+- DatePicker
+  - reference:
+    https://docs.nativescript.org/api-reference/classes/_ui_date_picker_
+
+  - events:
+    loaded 
+	dateChange
+	dayChange
+	monthChange
+	yearChange
+
+  - sample:
+    <DatePicker maxDate="2020-01-01" minDate="2015-01-01" verticalAlignment="center"></DatePicker>
+
+- FormattedString
+  - reference:
+    https://docs.nativescript.org/api-reference/classes/_text_formatted_string_.formattedstring
+
+  - support:
+    TextField 
+	Label 
+
+  - sample:
+    <Label class="h3 text-center">
+        <FormattedString>
+        <Span text="bla " color="#006600" ></Span>
+        <Span text="bla " color="#990000" fontAttributes="Bold"></Span>
+        <Span text="bla " color="#ffcc00"></Span>
+        <Span text="bla"></Span>
+        </FormattedString>
+    </Label>
+
+- TimePicker
+- ListPicker
+- Dialogs
+  see 'Dialogs'
+  
+- SearchBar
+- Slider
+
+- HtmlView
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_html_view_
+
+  - about:
+    use this component to show a static HTML content. 
+	for dynamic HTML content or web page use the WebView Component (see 'WebView')
+
+  - sample:
+    <HtmlView html="<p>Paragraph</p><p>Static HTML Content</p>"></HtmlView>   
+
+- WebView
+  - reference:
+    https://docs.nativescript.org/api-reference/classes/_ui_web_view_
+
+  - about:
+  //TODO 
+
+  - sample:
+    <WebView src="~/Pages/HtmlViews/1.html"></WebView>
+    <WebView src="http://example.com"></WebView>
+
+- ListView
+- TabView 
+
+Dialogs
+-------
+- Types:
+  Action
+  Alert
+  Confirm
+  Login
+  Prompt
+
+- Action Dialog
+    
+  sample:
+	let options = {
+	  	title: "Age Range",
+	  	message: "Choose your age",
+	  	cancelButtonText: "Cancel",
+	  	actions: ["0-18", "19-30", "31-55", "Above 56"]
+	};
+	  
+	action(options).then((result) => {
+	  	console.log('action result:' + result);
+	});
+
+- Alert Dialog
+
+  sample:
+	let options = {
+	  	title: "Alert",
+	  	message: "Some message ..",
+	  	okButtonText: "OK"		
+	};
+	  
+	alert(options).then(() => {
+	  	console.log('alert');
+	});
+
+- Confirm Dialog
+
+  sample:
+	let options = {
+	  	title: "Confirm",
+	  	message: "Are you sure?",
+        okButtonText: "YES",
+        cancelButtonText: "NO",
+        neutralButtonText: "Cancel"		
+	};
+	  
+	confirm(options).then((result) => {
+	  	console.log('confirm result:' + result);
+	});  
+
+
+- Login Dialog
+
+  sample:
+	let options = {
+	  	title: "Login",
+	  	message: "Login",        
+        okButtonText: "Ok",
+        cancelButtonText: "Cancel"
+	};
+	  
+	login(options).then((loginResult) => {
+	  	console.log('login result:' + loginResult.result);
+	});
+
+- Prompt Dialog
+
+  sample:
+	let options = {
+	  	title: "Prompt",
+        message: "Enter your name",
+        defaultText: "",               
+        okButtonText: "Ok",
+        cancelButtonText: "Cancel",
+        cancelable: true
+	};
+	  
+	prompt(options).then((result) => {
+	  	console.log('prompt result:' + result.text);
+	});
+
+
+Events
+------
+// TODO
+// TODO Gestures https://docs.nativescript.org/angular/ui/ng-ui-widgets/gestures
+
+- tap
+- navigatingTo
+
+JS Modules
+----------
+// TODO
+
+- Observable
+  path: 'data/observable'
+
+  about:
+  // TODO
+
+  e.g:
+  var Observable = require("data/observable").Observable;
+
+  function createViewModel(){
+	var viewModel = new Observable();
+	viewModel.param1 = 'A';  
+	viewModel.param2 = 'B';
+	
+	return viewModel;
+  }
+  exports.createViewModel = createViewModel;
+
+- frame
+  path: 'ui/frame'
+
+  about:
+  allows us to navigate between pages
+
+  navigate:
+  frameModule.topmost().navigate([options]);
+  frameModule.topmost().navigate([modulePath]);
+
+  e.g: // redirect to about-page
+  var frameModule = require("ui/frame");
+  var options={
+    moduleName:'Pages/About/about-page',
+    context:{param1: 'value1', param2: 'value2' }
+  }
+  frameModule.topmost().navigate(options); 
+
+- dialogs
+  path: 'ui/dialogs'
+  // TODO
+
+
+note!
+use the 'require' to import modules (see 'require' chapter in 'Working With Nativescript')
+
+Plugins
+-------
+// TODO 
+- nativescript-social-share
+  share capabilities.
+
+note!
+find more plugins in the market (see 'MarketPlace')
+
+Working With Nativescript
+-------------------------
+- exports:  
+  - the 'exports' object allows us to expose ANY js function so it'll be accessible from the project files.   
+  - syntax:
+    exports.[Name] = [Function];
+
+  - e.g: 
+    <Button text="tapMe" tap="fun1" class="btn btn-primary" />
+    exports.fun1 = function() { 
+	  ... 
+    } 
+
+- require
+  - import modules.
+  - syntax:
+    var [variableName] = require("[modulePath]");
+  - use the npm to import the module from the web to the node_modules local folder! (see 'npm install')
+  
+  - e.g:
+    // import the observable module (in node_modules folder)
+    var Observable = require("data/observable").Observable;	
+
+	// import the myModule function in my-view-model.js file (in the same folder)
+	var myModule = require("./my-view-model").myModule;
+
+	// import the my-shared-view-model.js file
+	var myView = require("../shared/my-shared-view-model"); 
+
+- npm install 
+  - syntax:
+    > npm install [packageName] --save
+
+- page context
+  - page.bindingContext = [context];
+  - e.g: 
+    var createViewModel = require("./view-model").createViewModel; // view-model.js
+	function onNavigatingTo(args) { 
+		var page = args.object;
+		page.bindingContext = createViewModel();
+	}
+	exports.onNavigatingTo = onNavigatingTo;
+
+systemIcon
+----------
+- android.systemIcon 
+  https://developer.android.com/reference/android/R.drawable
+
+- iOs.systemIcon
+  0: Done
+  1: Cancel
+  2: Edit
+  3: Save
+  4: Add
+  5: FlexibleSpace
+  6: FixedSpace
+  7: Compose
+  8: Reply
+  9: Action
+  10: Organize
+  11: Bookmarks
+  12: Search
+  13: Refresh
+  14: Stop
+  15: Camera
+  16: Trash
+  17: Play
+  18: Pause
+  19: Rewind
+  20: FastForward
+  21: Undo
+  22: Redo
+  23: PageCurl
 
 Platform Specific Capabilities
 ------------------------------
@@ -359,41 +898,59 @@ CSS
 ---
 nativescript map the known css rules into native style.
 
-supported selectors:
-- Element Type
-- Class (.)
-- Id (#)
+- supported selectors:
+  - Element Type
+  - Class (.)
+  - Id (#)
 
-supported properties:
-- https://docs.nativescript.org/ui/styling#supported-css-properties
+- supported properties:
+  - https://docs.nativescript.org/ui/styling#supported-css-properties
 
-themes:
-- https://docs.nativescript.org/ui/theme
-  https://docs.nativescript.org/ui/theme#color-schemes
+- themes:
+  - https://docs.nativescript.org/ui/theme
+    https://docs.nativescript.org/ui/theme#color-schemes
+  
+  - the selected theme located in the app.css file 
+    @import '~nativescript-theme-core/css/sky.css';
 
-- the selected theme located in the app.css file 
-  @import '~nativescript-theme-core/css/sky.css';
+- convention:
+  - app.css  // global styles
+  - [view].css  // view/ page styles
+  - [view].[platform].css  // platform specific styles
 
-convention:
-- app.css  // global styles
-- [view].css  // view/ page styles
-- [view].[platform].css  // platform specific styles
+- Less/ Saas:
+  > tns install less
+  > tns install sass
 
-Less/ Saas:
-> tns install less
-> tns install sass
+- Units:
+  - DO NOT specify px!
+  - e.g
+  button{
+  	border-radius: 3;
+  	border-width: 1;
+  	border-color: #d3d3d3;
+  	width: 100;	
+  }
 
-Units:
-DO NOT specify px!
-
-// e.g
-button{
-	border-radius: 3;
-	border-width: 1;
-	border-color: #d3d3d3;
-	width: 100;	
-}
-
+- @keyframes:
+  - we can use css keyframes
+  - e.g
+    @keyframes spin {
+        from {
+            transform: rotate(0);
+        }
+    
+        to {
+            transform: rotate(360);
+        }
+    }
+    
+    Image {
+        animation-name: spin;
+        animation-duration: 3s;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+    }
 
 
 Launch Process
@@ -553,6 +1110,48 @@ then after the download/install, click "Intall Build Tools..."
 --
 
 
+Code Samples
+------------
+// page navigation
+<Button tap="goToAboutPage" text="About" />
 
+var frameModule = require("tns-core-modules/ui/frame");
+exports.goToAboutPage = function(){                  
+    var options={
+        moduleName: 'Pages/About/about-page',
+        context: { param1: 'value1', param2: 'value2'}
+    }
+    frameModule.topmost().navigate(options);       
+}
 
+note: // redirect with no context
+frameModule.topmost().navigate('Pages/About/about-page');
+
+---
+
+// navigatingTo event + bind content from view-model
+
+// view-model.js
+var Observable = require("data/observable").Observable;
+function createViewModel() { 
+    var viewModel = new Observable();    
+    viewModel.text = 'bla bla bla...';
+    return viewModel;
+}
+exports.createViewModel = createViewModel;
+
+// page.js
+var createViewModel = require("./view-model").createViewModel;
+function onNavigatingTo(args) { 
+    var page = args.object;
+    page.bindingContext = createViewModel();
+}
+exports.onNavigatingTo = onNavigatingTo;
+
+// page.xml
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo" class="page">  
+    <Label text="{{ text }}" />
+</Page>
+
+---
 

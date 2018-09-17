@@ -5042,6 +5042,30 @@ if(sheetNotExists){
 
 --------------------
 
+// print campaign performance report for yesterday
+  var account = AdWordsApp.currentAccount();
+  Logger.log('### %s ###', account.getName());
+  
+  var dateRange = 'YESTERDAY';
+  
+  var reportConfig = {
+    includeZeroImpressions: true
+  };
+  
+  var query =  'SELECT CampaignId, CampaignName, Date, Impressions, Clicks, Ctr, Cost, AverageCpc, AveragePosition, Conversions, ConversionRate, CostPerConversion ' + 
+    'FROM CAMPAIGN_PERFORMANCE_REPORT ' + 
+    'WHERE CampaignStatus IN [ENABLED, PAUSED] ' +    
+    'DURING ' + dateRange;
+
+  var report = AdWordsApp.report(query, reportConfig);
+  var rows = report.rows();
+  while(rows.hasNext()){
+    var row = rows.next();
+    Logger.log('[%s] %s > %s', row['Date'], row['CampaignName'], row['Impressions']);
+  }
+
+--------------------
+
 // export a report to a new sheet 
 var reportConfig = { includeZeroImpressions : 'false' };
 
