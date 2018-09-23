@@ -18,12 +18,19 @@
 - NativeScript & Visual Studio
 - UI Layouts
 - UI Components
+- Page
+- View Class
+- Find Elements
+- Animations
 - Dialogs
 - Events
 - JS Modules
+- Ng Directives
 - Plugins
 - Working With Nativescript
+- Icons
 - systemIcon
+- Font Awesome
 - Platform Specific Capabilities
 - CSS
 - Launch Process
@@ -386,21 +393,121 @@ UI Layouts
     grid/table based layer 
 
   - reference:
+    https://docs.nativescript.org/api-reference/classes/_ui_layouts_grid_layout_.gridlayout
+    https://docs.nativescript.org/api-reference/modules/_ui_layouts_grid_layout_
+
+  - columns property:
+    defines the number of columns and each size 
+	use * or 'auto' for auto size
+
+  - rows property:
+    defines the number of rows and each size 
+	use * for auto size
+
+  - grid size:
+    specify the grid size using the 'columns' and 'rows' properties
+	e.g:
+	columns="*,*,*" rows="*,*,*,*,*" // 3 columns and 4 rows equally sized 
+
+  - rowSpan property:
+    join rows. the value represents the number of rows to join
+	e.g: rowSpan="2"
+
+  - colSpan property:
+    join columns. the value represents the number of columns to join
+	e.g: colSpan="3" 
+
+  - col property:
+    set the component column index 
+
+  - row property:
+    set the component row index 
+
+  - choose cell:
+    use the 'col' and 'row' properties to choose the cell which be the container of the component
+	e.g: row="0" col="0" represents the 1st cell (0,0), the first column in the first row
+	e.g: row="1" col="2" represents the 3rd cell in the 2nd row (2,1), the third column in the second row
+
   - sample:
+    <GridLayout columns="*,*" rows="*,*,*">
+        <Button text="1" row="0" col="0"></Button>
+        <Button text="2" row="0" col="1"></Button>
+        <Button text="3" row="1" col="0"></Button>
+        <Button text="4" row="1" col="1"></Button>
+        <Button text="5" row="2" col="0"></Button>
+        <Button text="6" row="2" col="1"></Button>
+    </GridLayout>
+
+	<GridLayout columns="40,*" rows="*,*,*">
+        <Button text="1" row="0" col="0"></Button>
+        <Button text="2" row="1" col="0"></Button>
+        <Button text="3" row="2" col="0"></Button>
+        <Button text="4" row="0" col="1" rowSpan="3"></Button>            
+    </GridLayout>
+
+    <GridLayout columns="*,*,*" rows="40,40,40,40,40">
+        <Label text="1" row="0" col="0" backgroundColor="#0099CC"></Label>
+        <Label text="2" row="0" col="1" backgroundColor="#FFFF66"></Label>
+        <Label text="3" row="0" col="2" rowSpan="2" backgroundColor="#AA0078"></Label>
+        <Label text="4" row="1" col="0" rowSpan="2" colSpan="2" backgroundColor="#8C489F"></Label>
+        <Label text="5" row="2" col="2" backgroundColor="#CCFFFF"></Label>
+        <Label text="6" row="3" col="0" colSpan="3" backgroundColor="#0099CC"></Label>
+    </GridLayout>
 
 - Stack     
   - about: 
-    one on top of the other
+    one on top of the other.
+
+  - orientation property:    
+    horizontal
+	vertical (default)
 
   - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_layouts_stack_layout_
+
   - sample:
+    <StackLayout class="p-4">
+        <Button text="Component" class="text-center" backgroundColor="#0099CC" />
+        <Button text="Component" class="text-center" backgroundColor="#C3C3E5" />
+        <Button text="Component" class="text-center" backgroundColor="#8C489F" />       
+    </StackLayout>
+
+	<StackLayout orientation="horizontal" class="p-4">
+        <Button text="Component" class="text-center" backgroundColor="#0099CC" />
+        <Button text="Component" class="text-center" backgroundColor="#C3C3E5" />
+        <Button text="Component" class="text-center" backgroundColor="#8C489F" />       
+    </StackLayout>
 
 - Wrap
   - about: 
-    wraps elements 
+    wraps elements.
+	similar to the StackLayout, but it does not just stack all child elements, it wraps them if no space is left.
+	can be used for galleries where the images are not the same size. 
 
   - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_layouts_wrap_layout_
+
+  - center:
+    set horizontalAlignment property to 'center' in order to center the content 
+
   - sample:
+    <WrapLayout>
+        <Button text="1" width="150" height="100" backgroundColor="#0099CC" />
+        <Button text="2" width="100" height="150" backgroundColor="#FFFF66" />
+        <Button text="3" width="200" height="120" backgroundColor="#8C489F" />
+        <Button text="4" width="100" height="50"  backgroundColor="#CCFFFF" />
+        <Button text="5" width="250" height="100" backgroundColor="#AA0078" />
+    </WrapLayout>
+
+	<WrapLayout horizontalAlignment="center">
+        <Image src="~/Pages/Layouts/logo_220.png" width="90" height="90" style="margin:5;" />
+        <Image src="~/Pages/Layouts/logo_220.png" width="70" height="70" style="margin:5;" />
+        <Image src="~/Pages/Layouts/logo_220.png" width="40" height="40" style="margin:5;" />            
+        <Image src="~/Pages/Layouts/logo_220.png" width="80" height="80" style="margin:5;" />
+        <Image src="~/Pages/Layouts/logo_220.png" width="100" height="100" style="margin:5;" />
+        <Image src="~/Pages/Layouts/logo_220.png" width="100" height="100" style="margin:5;" />
+        <Image src="~/Pages/Layouts/logo_220.png" width="120" height="120" style="margin:5;" />            
+    </WrapLayout>
 
 - Flexbox
   - about: 
@@ -421,7 +528,10 @@ UI Layouts
 	note! 
 	when using the 'reverese' mode - the last item will be presented first and the first will be at the end.
 
-  - flexGrow property
+	tip!
+    in 'row' direction, setting height on a single item will affect ALL the others.
+
+  - flexGrow property:
     determines the remaining space distribution between the items. not their ratio!!!
 	e.g: 
 	itemA has flexGrow 1 
@@ -434,8 +544,38 @@ UI Layouts
 	itemA total size will be 225px (200 + (1 * 25))
 	itemB total size will be 275px (200 + (3 * 25))
 
-  - tip:
-    in 'row' direction, setting height on a single item will affect ALL the others. 
+	note! 
+	in 'wrap' mode (see 'flexWrap property') this property is optional! 
+	without it, the remaining space will not be distributed between the items. 
+
+  - flexWrap property: 
+    by default, flex items will all try to fit onto one line. setting 'flexWrap' property changes this behaviour. 
+	set it to value 'wrap' or 'wrap-reverse' to set the items as multi-line. 
+	use the 'flexWrapBefore' property to decide when to start a new line (see 'flexWrapBefore property')
+
+	note!
+	when using this property, the flexGrow property is optional!
+	
+  - flexWrapBefore property:
+    available in 'wrap' mode (see 'flexWrap property').    
+	decides when to start a new line. 
+	each item with flexWrapBefore set to true will open a new line and will be first in that line.
+
+  - justifyContent property:
+    available in 'wrap' mode (see 'flexWrap property'). 
+	defines the alignment along the main axis.
+
+	values:
+	flex-end
+	space-between
+	space-around
+
+	note!
+	only works in 'wrap' mode when NO flexGrow defined!  
+
+  - flex custom sort:
+    use 'order' property on the inner items to define the sorting 
+	e.g: <Label order="2" text="ComponentB" .... />
 
   - sample:
     <FlexboxLayout flexDirection="column">
@@ -448,6 +588,30 @@ UI Layouts
         <Label text="Component" class="h3 text-center" backgroundColor="#0099CC" flexGrow="1" />
         <Label text="Component" class="h3 text-center" backgroundColor="#C3C3E5" flexGrow="1" />
         <Label text="Component" class="h3 text-center" backgroundColor="#8C489F" flexGrow="1" />
+    </FlexboxLayout>
+
+	<FlexboxLayout flexWrap="wrap" alignContent="flex-start">  
+        <Label text="Component" class="h3 text-center" backgroundColor="#0099CC" flexGrow="2" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#C3C3E5" flexGrow="1" />           
+        <Label flexWrapBefore="true" text="Component" class="h3 text-center" backgroundColor="#8C489F" flexGrow="1" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#CCFFFF" flexGrow="1" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#B3B3D7" flexGrow="1" />
+        <Label flexWrapBefore="true" text="Component" class="h3 text-center" backgroundColor="#A6BBC8" flexGrow="1" />
+    </FlexboxLayout>
+
+	<FlexboxLayout flexWrap="wrap" alignContent="flex-start">  
+        <Label text="Component" class="h3 text-center" backgroundColor="#0099CC" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#C3C3E5"  />           
+        <Label flexWrapBefore="true" text="Component" class="h3 text-center" backgroundColor="#8C489F" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#CCFFFF" />
+        <Label text="Component" class="h3 text-center" backgroundColor="#B3B3D7" />
+        <Label flexWrapBefore="true" text="Component" class="h3 text-center" backgroundColor="#A6BBC8" />
+    </FlexboxLayout>
+
+	<FlexboxLayout flexDirection="column">  
+        <Label order="2" text="ComponentB" class="h3 text-center" backgroundColor="#0099CC" flexGrow="1" />
+        <Label order="3" text="ComponentC" class="h3 text-center" backgroundColor="#C3C3E5" flexGrow="1" />
+        <Label order="1" text="ComponentA" class="h3 text-center" backgroundColor="#8C489F" flexGrow="1" />
     </FlexboxLayout>
   
 note! 
@@ -469,6 +633,12 @@ a Stack layout as Root whereas in each layout (in the Stack) there's inner layou
 
 UI Components
 -------------
+important! 
+we can reach all components via javascript code by importing them from the 'ui' folder 
+e.g: var c = require("tns-core-modules/ui/[component-folder]");
+
+--
+
 // see 'UI Layouts'
 AbsoluteLayout
 DockLayout
@@ -476,6 +646,14 @@ GridLayout
 StackLayout
 WrapLayout
 FlexboxLayout
+
+--
+
+- Page
+  see 'Page'
+
+- View 
+  see 'View Class'
 
 - ScrollView
   - reference:
@@ -489,10 +667,8 @@ FlexboxLayout
     horizontal
 	vertical
 
-  - scroll event:    
-    <ScrollView scroll="onScroll($event)">
-		....
-	</ScrollView>
+  - events:    
+    scroll
 
   - sample:
     <ScrollView orientation="vertical">
@@ -548,10 +724,91 @@ FlexboxLayout
     <Label text="Label" class="h3 text-center" />
 
 - TextField
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_text_field_
+
+  - events:
+    returnPress
+	focus
+	blur
+
+  - keyboardType property:
+    defines the type of keyboard which will be presented to the user. 
+
+	values:
+	datetime
+	email
+	number
+	phone
+	url
+
+	e.g: 
+	keyboardType="number" will open a numeric keyboard
+
+  - returnKeyType property:
+    represents which type of the 'completed' button to present in the keyboard 
+
+	values:
+	done
+	go
+	next
+	search
+	send
+
+	e.g: 
+	returnKeyType="done" will open a keyboard with green-circle v button!
+
+  - autocorrect property:
+    determines whether to apply the autocorrection feature or not
+
+  - maxLength preoperty:
+    defines the maximum length of the input
+
+  - submit a value:
+    To submit a value use the 'returnPress' event along with the 'returnKeyType' property
+
+  - sample:
+    <TextField hint="fill your name" returnKeyType="done" autocorrect="false" maxLength="10" /> 
+	<TextField hint="fill your ade" returnKeyType="done" keyboardType="number" maxLength="3" /> 
+
+- TextView 
+  - reference:
+    https://docs.nativescript.org/api-reference/classes/_ui_text_view_.textview
+
+  - about:
+    a kind-of TextArea, a TextField with multiple lines.
+    usually used for read-only large text.
+
+  - editable property:
+    determines whether the content is editable or not.
+	when editable is set to false, the text is read-only and the keyboard will not open.
+
+  - properties and events:
+    the same as 'TextField' component 
+	autocorrect, maxLength, returnKeyType, keyboardType etc.	
+
+  - sample:  
+    <TextView editable="false" text="some long content ...." height="80" />
+
 - Switch
-- Progress
-- ActivityIndicator
-- Animations
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_switch_
+
+  - isEnabled property:
+    determine whether the component is enabled or disabled.
+	true/false.
+
+  - events:
+    checkedChange
+
+  - sample:  
+    <StackLayout orientation="horizontal">
+        <Switch class="m-15" checked="false" />
+        <Switch class="m-15" checked="true" />
+        <Switch class="m-15" checked="true" color="red" />
+        <Switch class="m-15" checked="true" color="#00FF00" />                  
+    </StackLayout> 
+
 - Image
   - reference:
     https://docs.nativescript.org/api-reference/modules/_ui_image_
@@ -589,7 +846,57 @@ FlexboxLayout
 	<Image src="res://logo" stretch="none" />
 	<Image src="{{ base64ImageSource }}" />
 
+
+- ActivityIndicator
+  - reference:
+    https://docs.nativescript.org/api-reference/classes/_ui_activity_indicator_.activityindicator
+
+  - about:
+    displays a progress indicator hinting the user for some background operation running (loading image etc.)
+
+  - busy property:
+    defines whether to presents a 'loading' indicator or not.
+    true/false
+
+  - events:
+    busyChange
+
+  - sample:
+    <ActivityIndicator busy="true" width="70" height="70" class="activity-indicator" />
+
+- Animations  
+  see 'Animations'
+
 - SegmentedBar
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_segmented_bar_
+	https://docs.nativescript.org/api-reference/classes/_ui_segmented_bar_.segmentedbar
+	https://docs.nativescript.org/api-reference/classes/_ui_segmented_bar_.segmentedbaritem
+
+	about:
+	collection of tabbed views.
+
+	SegmentedBar vs TabView:
+	1. the position of SegmentedBar is not fixed.
+	2. can place and style a SegmentedBar as needed on the page or inside additional app elements.
+	3. need to handle the content shown after selection separately.
+
+  - selectedIndex property:
+    gets/ sets the index of the selected item.
+
+  - selectedBackgroundColor property:
+    gets/ sets the background color of the selected item.
+
+  - events:
+    selectedIndexChange
+
+  - sample:
+    <SegmentedBar>
+        <SegmentedBarItem title="First" />
+        <SegmentedBarItem title="Second" />
+        <SegmentedBarItem title="Third" />
+    </SegmentedBar>
+
 - DatePicker
   - reference:
     https://docs.nativescript.org/api-reference/classes/_ui_date_picker_
@@ -604,11 +911,40 @@ FlexboxLayout
   - sample:
     <DatePicker maxDate="2020-01-01" minDate="2015-01-01" verticalAlignment="center"></DatePicker>
 
+- TimePicker
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_time_picker_
+
+  - events:
+    loaded
+	timeChange
+
+  - max and min properties:    
+    maxMinute
+	minMinute
+	maxHour
+	minHour
+
+  - set time:
+    use 'hour' property to set the hour 
+	use 'minute' property to set the minute 
+
+  - sample:
+    <TimePicker hour="9" minute="45" verticalAlignment="center" />
+
+- Span
+  - reference:
+    https://docs.nativescript.org/api-reference/classes/_text_span_.span
+
+  - sample:
+    // TODO
+
 - FormattedString
   - reference:
     https://docs.nativescript.org/api-reference/classes/_text_formatted_string_.formattedstring
 
   - support:
+	TextView 
     TextField 
 	Label 
 
@@ -622,13 +958,87 @@ FlexboxLayout
         </FormattedString>
     </Label>
 
-- TimePicker
 - ListPicker
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_list_picker_
+	https://docs.nativescript.org/api-reference/classes/_ui_list_picker_.listpicker
+
+  - selectedIndex property:
+    select an item by it's index.
+	the value represents the item index to select. 
+	e.g: selectedIndex="0" for the 1st item in the list
+
+  - events:
+    selectedIndexChange
+
+  - sample:
+    viewModel.colors = ['blue', 'red', 'purple', 'green', 'brown', 'black', 'yellow', 'pink'];
+
+	<ListPicker items="{{ colors }}" selectedIndex="0" class="p-15" />
+
+
 - Dialogs
   see 'Dialogs'
   
+- Progress
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_progress_
+
+  - events:
+    loaded
+	valueChange
+
+  - sample:
+    viewModel.progressValue = 1;
+    setInterval(() => {                 
+        let progressValue = viewModel.get('progressValue');
+		if(progressValue >= 100) progressValue = 0;
+        viewModel.set('progressValue', progressValue + 1); 
+    }, 200);
+
+    <Progress value="{{ progressValue }}" maxValue="100" class="m-20" />
+
 - SearchBar
+  - events:
+    textChange
+	submit
+	clear
+
+  - clear focus:    
+    function onSearchBarLoaded(args){
+		args.object.android.clearFocus();
+	}
+	exports.onSearchBarLoaded = onSearchBarLoaded;
+
+	<SearchBar hint="Search..." text="{{ searchPhrase }}" loaded="onSearchBarLoaded" />
+
+  - binding:
+    set the search value as model in order to get the ability to bind it into a label etc.
+
+  - sample:
+    <SearchBar hint="Search..." text="{{ searchPhrase }}" />
+    <Label text="{{ searchPhrase }}" textWrap="true" class="h3 p-15 text-center" />
+
 - Slider
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_slider_
+
+  - minValue property:
+    specify the minimum value allowed
+
+  - maxValue property:
+    specify the maximum value allowed
+
+  - events:
+    valueChange
+
+  - sample:
+    <GridLayout class="m-15" rows="auto auto" columns="50 * 50">
+        <Label row="0" colSpan="3" class="h2 p-15" text="{{ 'selected:' + sliderValue }}" textWrap="true" />
+        <Label row="1" col="0" text="0" textWrap="true" fontSize="15" />
+        <Slider row="1" col="1" value="{{ sliderValue }}" minValue="0" maxValue="100" />
+        <Label row="1" col="2" text="100" textWrap="true" fontSize="15" horizontalAlignment="right" />  
+    </GridLayout>
 
 - HtmlView
   - reference:
@@ -638,22 +1048,457 @@ FlexboxLayout
     use this component to show a static HTML content. 
 	for dynamic HTML content or web page use the WebView Component (see 'WebView')
 
+  - html property:
+    use this property to set an HTML content. 
+
+  - support:    
+	HTML static content
+
   - sample:
-    <HtmlView html="<p>Paragraph</p><p>Static HTML Content</p>"></HtmlView>   
+    <HtmlView html="<p>Paragraph</p><p>Static HTML Content</p>" />
 
 - WebView
   - reference:
     https://docs.nativescript.org/api-reference/classes/_ui_web_view_
 
   - about:
-  //TODO 
+	this component is used to display web content within your application.
+	for static HTML content we can also use the HtmlView Component (see 'HtmlView')
+
+  - src property:
+    use this property to set the URL or local HTML File.
+
+  - support:
+    URL
+	HTML file
+	HTML static content
+
+  - events:
+    loadStarted
+    loadFinished	
+
+  - methods:
+    goBack
+	goForward
 
   - sample:
-    <WebView src="~/Pages/HtmlViews/1.html"></WebView>
-    <WebView src="http://example.com"></WebView>
+    <WebView src="<p>Paragraph</p><p>Static HTML Content</p>" />
+    <WebView src="~/Pages/HtmlViews/1.html" />
+    <WebView src="http://example.com" />
 
 - ListView
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_list_view_
+	https://docs.nativescript.org/api-reference/classes/_ui_list_view_.listview
+
+  - ng-template:
+    we can use angular ng-template instead of the nativescript itemTemplate.
+
+	e.g:
+	<ListView [items]="countries">
+		<ng-template let-country="item" let-i="index" let-odd="odd" let-even="even">
+			...
+		</ng-template>
+	</ListView>
+
+  - events:
+    itemTap
+
+  - sample:
+    viewModel.countries = [
+        { id: 1, name: 'Austria' }, 
+        { id: 2, name: 'Belgium' }, 
+        { id: 3, name: 'Cyprus' }, 
+        { id: 4, name: 'Israel' },         
+        { id: 5, name: 'Spain' }, 
+        { id: 6, name: 'Sweden' }
+    ];   
+
+    <ListView items="{{ countries }}" class="list-group">
+		<ListView.itemTemplate>
+			<StackLayout orientation="horizontal" class="list-group-item">
+				<Label text="{{ '#' + id + ' > ' }}" />                  
+				<Label text="{{ name }}" fontWeight="bold" />    
+			</StackLayout> 
+		</ListView.itemTemplate>            
+	</ListView>
+    
+
 - TabView 
+  - reference:
+    https://docs.nativescript.org/api-reference/modules/_ui_tab_view_
+	https://docs.nativescript.org/api-reference/classes/_ui_tab_view_.tabview
+	https://docs.nativescript.org/api-reference/classes/_ui_tab_view_.tabviewitem	
+
+  - selectedIndex property:
+    choose the active tab by it's index
+
+  - tab colors:
+    use 'tabTextColor' to set the color of the tabs
+	use 'selectedTabTextColor' to set the color of the active tab
+	use 'tabBackgroundColor' to set the back-color
+
+  - iconSource property:
+    apply on the 'TabViewItem' tag.
+	allows us to add icon to each tab.
+
+  - events:
+    tabChange
+
+  - sample:
+    <TabView id="tabViewContainer" selectedIndex="1" tabTextColor="#d3d3d3" selectedTabTextColor="#333333">
+        <TabViewItem title="Tab1" iconSource="~/Pages/TabView/browser-icon.png">       
+            <Label text="content for Tab1" textWrap="true" class="m-15 h3 text-left" color="blue" />
+        </TabViewItem>
+        <TabViewItem title="Tab2" iconSource="~/Pages/TabView/notes-icon.png">       
+            <Label text="content for Tab2" textWrap="true" class="m-15 h3 text-left" color="blue" />
+        </TabViewItem>
+        <TabViewItem title="Tab3" iconSource="~/Pages/TabView/wallpaper-icon.png">       
+            <Label text="content for Tab3" textWrap="true" class="m-15 h3 text-left" color="blue" />
+        </TabViewItem>
+    </TabView> 
+
+
+Page
+----
+- reference:
+  https://docs.nativescript.org/api-reference/classes/_ui_page_.page
+
+- events:
+  navigatingTo
+  loaded
+
+- page context
+  - page.bindingContext = [context];
+  - e.g: 
+    var createViewModel = require("./view-model").createViewModel; // view-model.js
+	function onNavigatingTo(args) { 
+		var page = args.object;
+		page.bindingContext = createViewModel();
+	}
+	exports.onNavigatingTo = onNavigatingTo;
+
+	note!
+	on the UI - bind the 'navigatingTo' event
+
+- page reference:
+  var _page;
+
+  function onLoad(args){        
+	  _page = args.object;
+  }
+  exports.onLoad = onLoad;
+
+  note!
+  on the UI - bind the 'loaded' event
+
+- sample:
+  var _page;
+
+  function onLoad(args){        
+	  _page = args.object;
+  }
+  exports.onLoad = onLoad;
+
+  function onNavigatingTo(args) { 
+	  var page = args.object;
+	  page.bindingContext = [context]
+  }
+  exports.onNavigatingTo = onNavigatingTo;
+
+  <Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo" loaded="onLoad" class="page">  
+	  ...
+  </Page>
+
+View Class
+----------
+- reference:  
+  https://docs.nativescript.org/api-reference/classes/_ui_core_view_.view
+
+- import:
+  var view = require("ui/core/view");
+
+// TODO
+
+- methods:
+
+- sample:
+
+Find Elements
+-------------
+
+1. the basic: 
+  // get reference to the 'view' class and the current 'page'
+  var view = require("ui/core/view");
+  var _page;
+  
+  function onLoad(args){    
+      _page = args.object;
+  }
+  exports.onLoad = onLoad;
+  
+  <Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo" loaded="onLoad" class="page">
+  	...
+  </Page> 
+
+2. use the 'view' class to find elements on the view 
+   view.getViewById(_page, '[name]');
+
+   e.g: 
+   var label = view.getViewById(_page, 'lbl1');
+
+   // TODO
+
+Animations
+----------
+about:
+supports every native component!
+apply to the component's properties.
+
+animate:
+use the 'animate' function to make the animation.
+
+syntax:
+[component].animate([options])
+	.then(() => { ... })
+	.catch((e) => { ... });
+
+Chaining Animations:
+[component].animate([options])
+    .then(() => [component].animate([options]))
+    .then(() => [component].animate([options]))
+    .then(() => [component].animate([options]))
+    .then(() => { ... })
+    .catch((e) => { ... });
+
+supported properties:
+- opacity
+  type: numeric 0-1
+
+- backgroundColor 
+  type: Color
+
+- translate 
+  type: {x, y}
+
+- scale 
+  type: {x, y}
+
+- rotate
+  type: numeric 0-360
+
+behaviour:
+- duration
+- delay
+- iterations 
+- originX and originY 
+- curve  // see 'curves'
+
+curves:
+  note! need to add enums module (see 'JS Modules/enums')
+
+- linear
+  enums.AnimationCurve.linear
+
+- Ease-in
+  enums.AnimationCurve.easeIn
+
+- Ease-out
+  enums.AnimationCurve.easeOut
+ 
+- Ease-in-out
+  enums.AnimationCurve.easeInOut
+
+- Spring
+  enums.AnimationCurve.spring
+
+- cubicBezier
+  function (x1: number, y1: number, x2: number, y2: number)
+  custom curve
+
+working with colors:
+see 'JS Modules/color'
+
+view:
+can target the whole view for animation! 
+view.animate([options])
+
+css:
+to apply animations via css, use @keyframes 
+see 'CSS/@keyframes'
+
+animation module:
+note! need to add animation module (see 'JS Modules/animation')
+allows us to play multiple animations. 
+supports multiple components 
+
+multiple Views:
+use the module to play multiple definitions 
+set the playSequentially to true
+see 'animation module'
+
+chain using module:
+use the module to play chain animations
+set the playSequentially to false
+see 'animation module'
+
+samples:
+<WrapLayout class="p-4">       
+    <Button tap="animate1"  id="c1"  text="Opacity" />          
+    <Button tap="animate2"  id="c2"  text="Change Color" backgroundColor="red" color="white" />          
+    <Button tap="animate3"  id="c3"  text="translate" />   
+    <Button tap="animate4"  id="c4"  text="translate" />   
+    <Button tap="animate5"  id="c5"  text="translate" />   
+    <Button tap="animate6"  id="c6"  text="rotate" />   
+    <Button tap="animate7"  id="c7"  text="scale" />   
+    <Button tap="animate8"  id="c8"  text="scale" />   
+    <Button tap="animate9"  id="c9"  text="chain" backgroundColor="red" color="white" />   
+    <Button tap="animate10" id="c10" text="chain" backgroundColor="red" color="white" />   
+    <Button tap="animate11" text="multi" />   
+</WrapLayout>
+
+var view = require("ui/core/view");
+var enums = require("ui/enums");
+var colorModule = require("color");
+var animationModule = require("ui/animation");
+
+var _page;
+
+function onLoad(args){        
+    _page = args.object;
+}
+exports.onLoad = onLoad;
+
+exports.animate1 = function(){    
+    var component = view.getViewById(_page, 'c1');
+    component.animate({
+        opacity: 0.2,        
+        duration: 1000
+    });
+}
+
+exports.animate2 = function(){    
+    var component = view.getViewById(_page, 'c2');
+    component.animate({
+        backgroundColor: new colorModule.Color("Purple"),         
+        duration: 1000        
+    });
+}  
+
+exports.animate3 = function(){    
+    var component = view.getViewById(_page, 'c3');
+    component.animate({
+        translate: { x:120, y:0 },        
+        duration: 1000,
+        curve: enums.AnimationCurve.bounce 
+    });
+} 
+
+exports.animate4 = function(){    
+    var component = view.getViewById(_page, 'c4');
+    component.animate({
+        translate: { x: 0, y: -120 },        
+        duration: 1000    
+    });
+}
+
+exports.animate5 = function(){      
+    var component = view.getViewById(_page, 'c5');
+    component.animate({
+        translate: { x: 0, y: 120 },        
+        duration: 1000        
+    });
+}
+
+exports.animate6 = function(){      
+    var component = view.getViewById(_page, 'c6');
+    component.animate({
+        rotate: 360,        
+        duration: 1000        
+    });
+}
+
+exports.animate7 = function(){      
+    var component = view.getViewById(_page, 'c7');
+    component.animate({
+        scale: { x: 0.5, y: 0.5 },        
+        duration: 1000        
+    });
+}
+
+exports.animate8 = function(){      
+    var component = view.getViewById(_page, 'c8');
+    component.animate({
+        scale: { x: 2, y: 2 },        
+        duration: 1000        
+    });
+}
+
+exports.animate9 = function(){      
+    var component = view.getViewById(_page, 'c9');
+
+    var optionSet1 = {
+        scale: { x: 0.5, y: 0.5 },        
+        duration: 1000        
+    };
+
+    var optionSet2 = {
+        backgroundColor: new colorModule.Color("Purple"),     
+        duration: 1000        
+    };
+
+    component.animate(optionSet1)
+        .then(() => component.animate(optionSet2));
+}
+
+exports.animate10 = function(){      
+    var component = view.getViewById(_page, 'c10');
+
+    var definitions = [];
+    definitions.push({
+        target: component,
+        scale: { x: 0.5, y: 0.5 },        
+        duration: 1000        
+    });
+
+    definitions.push({
+        target: component,
+        backgroundColor: new colorModule.Color("Purple"),     
+        duration: 1000        
+    });
+
+    var animationSet = new animationModule.Animation(definitions, true);
+    animationSet.play();
+}
+
+exports.animate11 = function(){      
+    var component1 = view.getViewById(_page, 'c1');
+    var component2 = view.getViewById(_page, 'c2');
+    var component3 = view.getViewById(_page, 'c3');
+
+    var definitions = [];
+    definitions.push({
+        target: component1,
+        scale: { x: 0.5, y: 0.5 },        
+        duration: 1000        
+    });
+
+    definitions.push({
+        target: component2,
+        backgroundColor: new colorModule.Color("Purple"),     
+        translate: { x: 0, y: 120 },    
+        duration: 1000        
+    });
+
+    definitions.push({
+        target: component3,
+        rotate: 360,        
+        duration: 1000       
+    });
+
+    var animationSet = new animationModule.Animation(definitions, false);
+    animationSet.play();
+}  
 
 Dialogs
 -------
@@ -756,7 +1601,26 @@ JS Modules
   about:
   // TODO
 
+  get and set functions:
+  allow us to set/ get a value to/ from an Observable object
+
+  e.g: 
+  var viewModel = new Observable(); 
+  viewModel.p = 1;
+  var p = viewModel.get('p');
+  viewModel.set('p');
+
+  setInterval:
+  can use setInterval to define a background worker. a great example is a Progress bar (see 'UI Components/Progress') 
+  
   e.g:
+  viewModel.progressValue = 1;
+	setInterval(() => {         
+		let progressValue = viewModel.get('progressValue');
+		viewModel.set('progressValue', progressValue+1); 
+  }, 300);
+
+  sample:
   var Observable = require("data/observable").Observable;
 
   function createViewModel(){
@@ -790,15 +1654,253 @@ JS Modules
   path: 'ui/dialogs'
   // TODO
 
+- color:
+  path: 'color'
+  
+  sample:
+  var colorModule = require("color");
+  var blue Color = new colorModule.Color("Blue");
+
+- enums
+  path: 'ui/enums'
+
+  sample:
+  var enums = require("ui/enums");
+
+  component.animate({
+        translate: { x:120, y:0 },        
+        duration: 1000,
+        curve: enums.AnimationCurve.bounce       
+    }); 
+
+- animation:
+  path: 'ui/animation'
+
+  Animation function:
+  Animation([definitions: array], [playSequentially: bool])
+
+  playSequentially parameter:
+  determines whether to play the definitions one after the other or all at once.
+
+  sample:
+  var animationModule = require("ui/animation");
+
+  var component1 = view.getViewById(_page, 'c1');
+  var component2 = view.getViewById(_page, 'c2');
+  var component3 = view.getViewById(_page, 'c3');
+  
+  var definitions = [];
+  definitions.push({
+  	target: component1,
+  	scale: { x: 0.5, y: 0.5 },        
+  	duration: 1000        
+  });
+  
+  definitions.push({
+  	target: component2,
+  	backgroundColor: new colorModule.Color("Purple"),     
+  	translate: { x: 0, y: 120 },    
+  	duration: 1000        
+  });
+  
+  definitions.push({
+  	target: component3,
+  	rotate: 360,        
+  	duration: 1000       
+  });
+  
+  var animationSet = new animationModule.Animation(definitions);
+  animationSet.play();
+
 
 note!
 use the 'require' to import modules (see 'require' chapter in 'Working With Nativescript')
 
+Ng Directives
+-------------
+//TODO
+// https://docs.nativescript.org/angular/ui/ng-ui-widgets/ng-directives
+
 Plugins
 -------
 // TODO 
+
 - nativescript-social-share
+
+  about:
   share capabilities.
+
+  source:
+  https://github.com/tjvantoll/nativescript-social-share
+
+  install:
+  > tns plugin add nativescript-social-share
+
+  methods:
+  shareImage([image: imageSource], [subject: string])
+  shareText([text: string], [subject: string])
+  shareUrl([url: string], [text: string], [subject: string])
+
+  using:
+  var socialShareModule = require("nativescript-social-share");
+  var imageSourceModule = require("image-source");
+
+  SocialShare.shareImage(imageSourceModule.fromFile("~/myImage.jpg"));
+  SocialShare.shareText("text to share...");
+  SocialShare.shareUrl("http://example.com/", "example site");
+
+- nativescript-dom
+  
+  about:
+  html dom helper
+
+  source:
+  https://www.npmjs.com/package/nativescript-dom
+
+  install:
+  > tns plugin add nativescript-dom
+
+  methods:
+  [view].getElementById([id: string])
+  [view].getElementsByClassName([className: string])
+  [view].getElementsByTagName([tagName: string])
+
+  [view].classList.add([className: string], [className: string] ...)
+  [view].classList.insert([className: string], [className: string] ...)
+  [view].classList.remove([className: string], [className: string] ...)
+
+  [view].classList.toggle([className: string])
+  [view].classList.item([index: int])
+  [view].classList.contains([className: string])
+
+  using:
+  require("nativescript-dom");
+
+  var component = _page.getElementById('c1');
+  var components = _page.getElementsByClassName('class1');  
+
+- nativescript-geolocation
+  
+  about:
+  work with geolocation
+
+  source:
+  https://github.com/NativeScript/nativescript-geolocation
+  https://docs.nativescript.org/hardware/location
+  
+  install:
+  > tns plugin add nativescript-geolocation
+
+  methods:
+  getCurrentLocation([options])  
+  watchLocation([onSuccess: function], [onError: function], [options])	
+  clearWatch([watchId: number])
+  enableLocationRequest() // promise
+  isEnabled() // promise 
+  distance([location], [location])
+
+  options:
+  - desiredAccuracy
+    number 1-3  
+	accuracy  level 
+
+  - updateDistance
+    number (in meters) 
+	how often to update the location - distance based
+
+  - updateTime
+    number (in milliseconds)
+	interval between location updates
+
+  - minimumUpdateTime
+    number (in milliseconds)  
+	minimum time interval between location updates
+
+  - timeout
+    number (in milliseconds)
+
+  - iosAllowsBackgroundLocationUpdates
+    bool
+
+  - iosPausesLocationUpdatesAutomatically
+    bool
+  
+  location response:
+  {
+      "android": {},
+      "latitude": 32.1780184,
+      "longitude": 35.016326,
+      "altitude": 0,
+      "horizontalAccuracy": 18.240999221801758,
+      "verticalAccuracy": 18.240999221801758,
+      "speed": 0,
+      "direction": 0,
+      "timestamp": "2018-09-23T14:45:18.648Z"
+  }
+
+  background mode:
+  once the app is in background, the monitor stops! use background service to solve this
+  see 'Background Services'
+
+  using:
+  var geolocation = require("nativescript-geolocation");
+  
+  // check for permissions, ask the user if needed
+  geolocation.isEnabled().then(function (isEnabled) {
+  	console.log(isEnabled);
+  	if (!isEnabled) {
+  		geolocation.enableLocationRequest().then(function () {}, function (ex) {
+  			console.log('ex: ' + ex.message);
+  		});
+  	}
+  }, function (ex) {
+  	console.log('ex: ' + ex.message);
+  });
+
+  --
+
+  // watch location  
+  var options = {       
+    desiredAccuracy: 3, 
+    updateTime: 5000,     
+    timeout: 2000  
+  };
+
+  watchId = geolocation.watchLocation(function(location) {
+	  if (!location) return;      
+      console.log(locations.latitude + ' ' + locations.longitude);                      
+  },function(ex){  
+      console.log('ex: ' + ex.message);
+  }, options);
+
+  // clear watch
+  geolocation.clearWatch(watchId);
+
+  --
+
+  // get current position
+  geolocation.getCurrentLocation(options).then(function(location) {
+      if (!location) return;
+	  console.log(locations.latitude + ' ' + locations.longitude);
+  }, function(ex){  
+      console.log('ex: ' + ex.message);
+  });
+
+- nativescript-google-maps-sdk
+  
+  about:
+  google Maps api
+
+  source:
+  
+  install:
+  > tns plugin add nativescript-google-maps-sdk
+
+  methods:
+  // TODO
+
+  using:
+  
 
 note!
 find more plugins in the market (see 'MarketPlace')
@@ -836,15 +1938,29 @@ Working With Nativescript
   - syntax:
     > npm install [packageName] --save
 
-- page context
-  - page.bindingContext = [context];
-  - e.g: 
-    var createViewModel = require("./view-model").createViewModel; // view-model.js
-	function onNavigatingTo(args) { 
-		var page = args.object;
-		page.bindingContext = createViewModel();
-	}
-	exports.onNavigatingTo = onNavigatingTo;
+- images sources:
+  from URL > 'http://' prefix
+  from Resource > 'res://' prefix
+  from File system > '~/' prefix
+
+- resources location:
+  App_Resources\Android\src\main\res
+  drawable-XXX folders
+
+- relative location:
+  use './' for relative location 
+
+  e.g: // page-view-model.js located in the same level as the caller
+  var createViewModel = require("./page-view-model").createViewModel;
+
+- application:
+  to get a reference to the current application:  
+  var application = require("application");
+
+Icons
+-----
+see 'systemIcon'
+see 'Font Awesome'
 
 systemIcon
 ----------
@@ -876,6 +1992,114 @@ systemIcon
   21: Undo
   22: Redo
   23: PageCurl
+
+Font Awesome
+------------
+in order to add fonts to the app, we'll need to place the '.ttf' files 
+in a 'fonts' folder under the 'app' folder
+
+- icons folder: 
+  fonts
+
+- npm install:
+  npm install @fortawesome/fontawesome-free
+
+- icon list
+  https://fontawesome.com/icons?d=gallery&m=free
+
+- free packages
+  Regular
+  Solid
+  Brands
+
+- icon code:
+  &#x[code];
+
+  e.g:
+  &#xf36d;
+  &#xf4e7;
+  &#xf589;
+
+- font color:
+  css > use 'color' and 'background-color'
+  property > use 'color' and 'backgroundColor'
+
+  e.g:
+  
+
+- font family:
+  Font Awesome 5 [packageName], [fileName]
+
+  e.g:
+  Font Awesome 5 Brands, fa-brands-400
+  Font Awesome 5 Regular, fa-regular-400
+  Font Awesome 5 Solid, fa-solid-900
+
+- Implementation:
+  1. download fontAwesome
+  2. copy '.ttf' files to 'app/fonts' folder
+  3. set the component font family (see 'font family')
+  4. set the icon code as the component text (see 'icon code')
+  5. (optional) set the icon color using (see 'font color')
+  
+
+- sample:
+  
+  <Label android:text="&#xf09b;" fontFamily="Font Awesome 5 Brands, fa-brands-400" fontSize="30" color="blue" />  
+  <Label android:text="&#xf4e7;" fontFamily="Font Awesome 5 Brands, fa-brands-400" fontSize="30" color="green" />
+  <Label android:text="&#xf0b2;" fontFamily="Font Awesome 5 Solid, fa-solid-900" fontSize="30" />
+  <Label android:text="&#xf589;" fontFamily="Font Awesome 5 Regular, fa-regular-400" fontSize="30" color="red" />
+
+  ---
+
+  .faSolid {
+    font-family: Font Awesome 5 Solid, fa-solid-900;
+    font-weight: 400; 
+  }
+  
+  .faBrands {
+  	font-family: Font Awesome 5 Brands, fa-brands-400;
+  	font-weight: 400; 
+  }
+  
+  .faRegular {
+  	font-family: Font Awesome 5 Regular, fa-regular-400;
+  	font-weight: 900; 
+  }
+
+  .pink{
+    color: pink;
+  }
+
+  <Label android:text="&#xf09b;" class="faBrands pink" fontSize="30" />
+
+  ---
+
+  // default vs colored 
+  <FlexboxLayout class="p-4">
+      <Label flexGrow="1" android:text="&#xf09b;" class="faBrands"  fontSize="30" color="#283593" />  
+      <Label flexGrow="1" android:text="&#xf36d;" class="faBrands"  fontSize="30" color="#c43c00" />            
+      <Label flexGrow="1" android:text="&#xf4e7;" class="faBrands"  fontSize="30" color="#790e8b" />  
+      <Label flexGrow="1" android:text="&#xf0b2;" class="faSolid"   fontSize="30" color="#6ff9ff" />
+      <Label flexGrow="1" android:text="&#xf55f;" class="faSolid" fontSize="30" color="#00c853" />
+      <Label flexGrow="1" android:text="&#xf1fa;" class="faSolid" fontSize="30" color="#b71c1c" />
+      <Label flexGrow="1" android:text="&#xf589;" class="faRegular" fontSize="30" color="#1b1b1b" />
+      <Label flexGrow="1" android:text="&#xf164;" class="faRegular" fontSize="30" color="#009624" />
+      <Label flexGrow="1" android:text="&#xf2bd;" class="faRegular" fontSize="30" color="#e91e63" />
+  </FlexboxLayout> 
+  <FlexboxLayout class="p-4">
+      <Label flexGrow="1" android:text="&#xf09b;" class="faBrands"  fontSize="30" />  
+      <Label flexGrow="1" android:text="&#xf36d;" class="faBrands"  fontSize="30" />            
+      <Label flexGrow="1" android:text="&#xf4e7;" class="faBrands"  fontSize="30" />  
+      <Label flexGrow="1" android:text="&#xf0b2;" class="faSolid"   fontSize="30" /> 
+      <Label flexGrow="1" android:text="&#xf55f;" class="faSolid"   fontSize="30" />
+      <Label flexGrow="1" android:text="&#xf1fa;" class="faSolid"   fontSize="30" />
+      <Label flexGrow="1" android:text="&#xf589;" class="faRegular" fontSize="30" />
+      <Label flexGrow="1" android:text="&#xf164;" class="faRegular" fontSize="30" />
+      <Label flexGrow="1" android:text="&#xf2bd;" class="faRegular" fontSize="30" />
+  </FlexboxLayout>
+
+
 
 Platform Specific Capabilities
 ------------------------------
@@ -1108,6 +2332,40 @@ click "Install missing platforms(s)..."
 then after the download/install, click "Intall Build Tools..."
 
 --
+
+issue:
+ListView inside a ScrollView - the list is NOT scrollable
+
+tip:
+try to avoid such case, do not wrap a ListView with ScrollView.. 
+it causes a scrolling issue due to it's inner calculation process. 
+
+solution:
+use either ListView or ScrollView!
+
+--
+
+issue:
+nativescript-geolocation - issue in enableLocationRequest
+
+error:
+Cannot enable the location service. Error: java.lang.NoClassDefFoundError
+Failed resolution of: Lcom/google/android/gms/internal/zzbck nativescript-geolocation
+
+cause:
+Version Conflicts – Google Play Services
+
+https://github.com/NativeScript/nativescript-geolocation
+'Known Issues' section
+
+
+solution:
+add the below code to the app.gradle file 
+located in 'app/App_Resources/Android/app.gradle'
+
+project.ext {
+    googlePlayServicesVersion = "+"
+}
 
 
 Code Samples
