@@ -27,6 +27,7 @@
 - JS Modules
 - Ng Directives
 - Plugins
+- Other Services
 - Working With Nativescript
 - Icons
 - systemIcon
@@ -695,6 +696,15 @@ FlexboxLayout
     title 
 	android.icon  // add an icon 
 	android.iconVisibility 
+
+  - custom title	
+	<Page.actionBar>
+		<ActionBar class="action-bar">
+		  <StackLayout class="action-bar-title">
+			<Label text="My App" class="font-weight-bold" color="blue"></Label>
+		  </StackLayout>
+		</ActionBar>
+	</Page.actionBar>	
 	
   - sample:
     <ActionBar title="Title" android.icon="res://icon" android.iconVisibility="always">		
@@ -732,6 +742,9 @@ FlexboxLayout
 	focus
 	blur
 
+  - isEnabled property:
+    <TextField isEnabled="false" />
+  
   - keyboardType property:
     defines the type of keyboard which will be presented to the user. 
 
@@ -937,7 +950,7 @@ FlexboxLayout
     https://docs.nativescript.org/api-reference/classes/_text_span_.span
 
   - sample:
-    // TODO
+    <Span text="some test " fontSize="16" color="#006600" />
 
 - FormattedString
   - reference:
@@ -1024,10 +1037,13 @@ FlexboxLayout
     https://docs.nativescript.org/api-reference/modules/_ui_slider_
 
   - minValue property:
-    specify the minimum value allowed
+    specifies the minimum value allowed
 
   - maxValue property:
-    specify the maximum value allowed
+    specifies the maximum value allowed
+
+  - isEnabled property:
+    determines whether the component is enabled or disabled 
 
   - events:
     valueChange
@@ -1248,6 +1264,9 @@ Find Elements
    var label = view.getViewById(_page, 'lbl1');
 
    // TODO
+
+note:
+also see 'Plugins/nativescript-dom'
 
 Animations
 ----------
@@ -1596,10 +1615,10 @@ JS Modules
 // TODO
 
 - Observable
-  path: 'data/observable'
+  path: 'data/observable' and 'data/observable-array'
 
   about:
-  // TODO
+  // TODO  
 
   get and set functions:
   allow us to set/ get a value to/ from an Observable object
@@ -1609,6 +1628,10 @@ JS Modules
   viewModel.p = 1;
   var p = viewModel.get('p');
   viewModel.set('p');
+
+  viewModel.locations = new ObservableArray();
+  var locations = viewModel.get('locations');
+  locations.push(location); 
 
   setInterval:
   can use setInterval to define a background worker. a great example is a Progress bar (see 'UI Components/Progress') 
@@ -1627,10 +1650,177 @@ JS Modules
 	var viewModel = new Observable();
 	viewModel.param1 = 'A';  
 	viewModel.param2 = 'B';
-	
+	viewModel.param3 = new ObservableArray();
+
 	return viewModel;
   }
   exports.createViewModel = createViewModel;
+
+- file system
+  path: 'file-system'
+
+  source:
+  https://docs.nativescript.org/api-reference/modules/_file_system_
+
+  supports:
+  Create/ Update (see 'writeText function' and 'fromPath static function')
+  Delete (see 'remove function')
+  Read (see 'readText function' and 'read as binary data')
+  Rename (see 'change name')
+  Paths (see 'path class')
+  clear (see 'clear function')
+
+  knownFolders class:
+  use the module knownFolders to get the known folders (documents, temp, currentApp)    
+  [module].knownFolders
+
+  // syntax
+  let documents = fileSystemModule.knownFolders.documents();
+
+  getFolder function:
+  [folder].getFolder([folderName: string]);  // returns a folder
+
+  getFile function:
+  [folder].getFile([fileName: string]);  // returns a file
+
+  writeText function:
+  [file].writeText([string])
+	.then([onSuccess])
+	.catch([onError]);
+
+  readText function:
+  [file].readText()
+	.then([onSuccess])
+	.catch([onError]);
+
+  remove function:
+  supports file and folder 
+
+  [file].remove()
+	.then([onSuccess])
+	.catch([onError]);
+
+  [folder].remove()
+	.then([onSuccess])
+	.catch([onError]);
+
+  clear function:  
+  [folder].clear()
+	.then([onSuccess])
+	.catch([onError]);
+
+  path class:
+  provides us with path utilities such as separator, join, normalize...
+  [module].path
+
+  // <documents>/myFiles/test.txt
+  documents = fileSystemModule.knownFolders.documents();
+  var filePath = fileSystemModule.path.join(documents.path, 'myFiles', 'test.txt');
+
+  fromPath static function:
+  get or create a file/ folder from path
+  [module].File.fromPath([path: string]); // returns a file
+  [module].Folder.fromPath([path: string]); // returns a file
+  
+  var documents = fileSystemModule.knownFolders.documents();
+
+  var folderPath = fileSystemModule.path.join(documents.path, 'myFiles');
+  var folder = fileSystemModule.Folder.fromPath(folderPath);  
+
+  var filePath = fileSystemModule.path.join(documents.path, 'myFiles', 'test.txt');
+  var file = fileSystemModule.File.fromPath(filePath);  
+
+  readSync function:
+  [file].readSync([onError]); // returns binary
+
+  writeSync function:
+  [file].writeSync([binary], [onError]);
+
+  read as binary data:
+  also see 'readSync function'
+
+  // sample
+  var image = imageSourceModule.fromResource("icon");
+  var documents = fileSystemModule.knownFolders.documents();
+  var path = fileSystemModule.path.join(documents.path, "1.png");
+  var saved = image.saveToFile(path, "png");
+
+  if (saved) {
+    let imageFile = fileSystemModule.File.fromPath(path);
+    let binarySource = imageFile.readSync(ex => { });    
+  }
+
+  write binary data:
+  also see 'writeSync function'
+
+  // sample
+  imageFile.writeSync(binarySource, ex => { });
+
+  getEntities function:
+  returns array of entity (see 'entity class')
+  [folder].getEntities()
+	.then(entities => {
+		entities.forEach(entity => { ... });
+	})
+    .catch(ex => { ... });   
+
+  exists static function:  
+  check if exists
+  [module].File.exists([path: string]); // returns bool
+  [module].Folder.exists([path: string]); // returns bool
+
+  change name:  
+  rename a folder or a file 
+  [file].rename([newName: string])
+	.then([onSuccess])
+	.catch([onError]);
+
+  [folder].rename([newName: string])
+	.then([onSuccess])
+	.catch([onError]);
+
+  folder class:
+  https://docs.nativescript.org/api-reference/classes/_file_system_.folder
+
+  file class:
+  https://docs.nativescript.org/api-reference/classes/_file_system_.file
+
+  entity class:
+  - name: string
+  - path: string 
+  - lastModified: date
+  - parent: folder
+
+  sample:
+  let documents = fileSystemModule.knownFolders.documents();
+
+  let folder = documents.getFolder('myFiles');
+  let file = folder.getFile('myFile.txt');
+
+  // create
+  file.writeText('hello world')
+    .then(result => { })
+	.catch(ex => {
+        console.log(ex);
+    });
+
+  // read
+  file.readText()
+    .then(result => { });
+	.catch(ex => {
+        console.log(ex);
+    }
+
+  // remove
+  file.remove()
+    .then(result => { })
+	.catch(ex => {
+        console.log(ex);
+    });
+  
+  // get file path
+  var filePath = fileSystemModule.path.join(documents.path, 'myFiles', 'myFile.txt'); 
+
 
 - frame
   path: 'ui/frame'
@@ -1712,6 +1902,103 @@ JS Modules
   var animationSet = new animationModule.Animation(definitions);
   animationSet.play();
 
+- fetch
+  path: 'fetch'
+
+  about:
+  allows GET and POST requests to a remote server
+
+  syntax:
+  fetch([url]).then(response => ...).catch(e => ... )  
+  fetch([url], [options]).then(response => ...).catch(e => ... )
+
+  note! 
+  can add an extra processing layer by adding another 'then' clause
+
+  using:
+  // GET as string
+  fetch("https://example.com")
+  .then(response => response.text())
+  .then(responseText => { ... })
+  .catch((e) => { });
+
+  // GET as json
+  fetch("https://example.com")
+  .then(response => response.json())
+  .then(responseJson => { ... })
+  .catch((e) => { });
+
+  // GET as form data
+  fetch("https://example.com")
+  .then(response => response.formData())
+  .then(responseData => { ... })
+  .catch((e) => { });
+
+  // check status
+  fetch("https://example.com")
+  .then(response => response.status)
+  .then(responseStatus => { ... })
+  .catch((e) => { });
+
+  // POST
+  var options = {
+    method: "POST",
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+		p1: 'value1',
+		p2: 'value2'
+	})
+  }
+
+  fetch("https://example.com", options)
+  .then(response => { ...})  
+  .catch((e) => { });
+
+  sample:
+  var params = [];
+  params.push('origin='+fromAddress);
+  params.push('destination='+toAddress);
+  params.push('mode='+'driving');
+  params.push('key='+'AIzaSyBhVm2XXfP9BWKX6oTaBmMEig1Jw1J0m5U');
+  
+  var query = '?' + params.join('&');
+  var endpoint = 'https://maps.googleapis.com/maps/api/directions/json' + query;
+  
+  fetch(endpoint)
+  .then(response => response.json())
+  .then(response => {
+      console.log(response);
+  }).catch(ex => { 
+      console.log('ex: ' + ex.message);
+  });
+
+- platform
+  path: 'platform'
+  
+  properties:
+  isAndroid  
+  device  // get a Device object represents the connected device 
+  device.sdkVersion  // get sdk version installed in the device 
+
+  sample:
+  var platform  = require("tns-core-modules/platform");
+  console.log('isAndroid: ' + platform.isAndroid);
+  console.log('sdkVersion: ' + platform.device.sdkVersion);
+
+- application
+  path: 'application'
+  
+  about:
+  a reference to the current application
+
+  properties:
+  android  // get an Android object
+  setCssFileName([filePath])  // apply a css file on the application
+  getCssFileName // get the application css file 
+
+  sample:
+  var application = require("tns-core-modules/application");
+  console.log(application.android);
 
 note!
 use the 'require' to import modules (see 'require' chapter in 'Working With Nativescript')
@@ -1825,26 +2112,39 @@ Plugins
   - iosPausesLocationUpdatesAutomatically
     bool
   
-  location response:
+  location class: 
   {
-      "android": {},
-      "latitude": 32.1780184,
-      "longitude": 35.016326,
-      "altitude": 0,
-      "horizontalAccuracy": 18.240999221801758,
-      "verticalAccuracy": 18.240999221801758,
-      "speed": 0,
-      "direction": 0,
-      "timestamp": "2018-09-23T14:45:18.648Z"
+      latitude: number;
+      longitude: number;
+      altitude: number;
+      horizontalAccuracy: number;
+      verticalAccuracy: number;
+      speed: number;
+      direction: number;
+      timestamp: Date;
   }
 
   background mode:
   once the app is in background, the monitor stops! use background service to solve this
   see 'Background Services'
 
+  viewModel.set:
+  note that when using a viewModel we MUST use the 'set' method instead of a direct access to it's properties
+
+  viewModel.latitude = 32.0853;   
+  viewModel.longitude = 34.7818;
+
+  geolocation.watchLocation(function(location) {
+  	if (!location) return;
+  
+  	console.log(location.latitude + ' ' + location.longitude);  
+  	viewModel.set('latitude', location.latitude); 
+  	viewModel.set('longitude', location.longitude);           	
+  },function(ex){ }, options);
+
   using:
   var geolocation = require("nativescript-geolocation");
-  
+   
   // check for permissions, ask the user if needed
   geolocation.isEnabled().then(function (isEnabled) {
   	console.log(isEnabled);
@@ -1857,8 +2157,6 @@ Plugins
   	console.log('ex: ' + ex.message);
   });
 
-  --
-
   // watch location  
   var options = {       
     desiredAccuracy: 3, 
@@ -1867,16 +2165,14 @@ Plugins
   };
 
   watchId = geolocation.watchLocation(function(location) {
-	  if (!location) return;      
-      console.log(locations.latitude + ' ' + locations.longitude);                      
+	  if (!location) return;            
+	  console.log(location.latitude + ' ' + location.longitude);  
   },function(ex){  
       console.log('ex: ' + ex.message);
   }, options);
 
   // clear watch
   geolocation.clearWatch(watchId);
-
-  --
 
   // get current position
   geolocation.getCurrentLocation(options).then(function(location) {
@@ -1886,24 +2182,450 @@ Plugins
       console.log('ex: ' + ex.message);
   });
 
+
 - nativescript-google-maps-sdk
   
   about:
   google Maps api
 
   source:
-  
+  https://github.com/dapriett/nativescript-google-maps-sdk
+  https://www.npmjs.com/package/nativescript-google-maps-sdk
+  https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap
+  https://developers.google.com/maps/documentation/
+
   install:
   > tns plugin add nativescript-google-maps-sdk
 
+  google maps reference:
+  important!
+  we can reach all of the google maps features by using the package namespace in our code
+  'com.google.android.gms.maps'
+
+  // using alias
+  let LatLngBounds = com.google.android.gms.maps.model.LatLngBounds;
+  let LatLng = com.google.android.gms.maps.model.LatLng;
+  
+  var bounds = new LatLngBounds.Builder();
+  bounds.include(new LatLng(northeast.latitude, northeast.longitude));
+  bounds.include(new LatLng(southwest.latitude, southwest.longitude));
+
+  // example
+  _gMap.animateCamera(com.google.android.gms.maps.CameraUpdateFactory.zoomIn());
+  
+  zoom:
+  _mapView.zoom = [zoomLevel: int];
+
+  // sample
+  _mapView.zoom = 12;
+
+  // animateCamera to a specific zoom level
+  let CameraUpdateFactory = com.google.android.gms.maps.CameraUpdateFactory;
+  _gMap.animateCamera(CameraUpdateFactory.zoomTo(16));
+
+  setup:
+  1. copy the file 'nativescript_google_maps_api.xml' 
+     from 'node_modules/nativescript-google-maps-sdk/platforms/android/res/values' 
+	 to 'app/App_Resources/Android/src/main/res/'
+
+  2. set the api key
+     <resources>
+        <string name="nativescript_google_maps_api_key">[key]</string>
+     </resources>  
+
+  3. add new tag to the 'AndroidManifest.xml' file 
+     located in 'app/App_Resources/Android/'
+
+     <meta-data
+         android:name="com.google.android.geo.API_KEY"
+         android:value="@string/nativescript_google_maps_api_key" />
+
+  4. make sure we have the following defined within the app.gradle file (location: '/app/App_Resources/Android/app.gradle')
+     project.ext {
+		googlePlayServicesVersion = "+"
+	 }  
+
+  add map-view:
+  1. add namespace to the 'Page' component holding the 'mapView' component
+     xmlns:maps="nativescript-google-maps-sdk"
+
+	 <Page xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:maps="nativescript-google-maps-sdk" navigatingTo="onNavigatingTo" class="page">...</Page>
+
+  2. add 'mapView' component 
+     <maps:mapView latitude="{{ latitude }}" longitude="{{ longitude }}" />
+
+  properties:
+  latitude
+  longitude
+  zoom  
+  bearing
+  tilt
+  padding
+  mapAnimationsEnabled
+
+  events:
+  mapReady
+  coordinateTapped
+  coordinateLongPress
+  markerSelect
+  markerBeginDragging
+  markerDrag
+  markerEndDragging
+  markerInfoWindowTapped
+  cameraChanged
+  cameraMove
+
   methods:
+  Position() // returns a position object (aka coordinates) 
+  Polyline()  // returns a polyline object
+  Marker()  // returns a marker object
+
+  static methods:
+  Position.positionFromLatLng([lat: number], [lng: number]);  // returns a position object
+
+  mapView methods:
+  addMarker([marker])
+  addPolyline([polyline])
+
+  polyline methods:
+  addPoints([position[]]);
+  addPoint([position]);
+
+  draw a route: 
+  in order to draw a route between 2 points we need to do as follow
+  1. use 'google direction api' to get the directions between those 2 locations. 
+     see 'Other Services/google Directions API'
+  2. draw a Polyline using the points received from chapter 1.
+
+  add a marker:
+  var marker = new mapsModule.Marker();
+  marker.position = mapsModule.Position.positionFromLatLng(latitude, longitude);
+  marker.title = "title";
+  marker.snippet = "some description";
+  marker.userData = { };
+  _mapView.addMarker(marker);
+
+  add a polyline:
+  var points = [];
+  points.push(mapsModule.Position.positionFromLatLng(latitude, longitude));
+  points.push(mapsModule.Position.positionFromLatLng(latitude, longitude));
+  points.push(mapsModule.Position.positionFromLatLng(latitude, longitude));              
+  polyline.addPoints(points);
+  polyline.width = 8;
+  polyline.geodesic = true;
+  polyline.color = new colorModule.Color("Purple");                             
+  _mapView.addPolyline(polyline);
+
+  create bounds:
+  let LatLngBounds = com.google.android.gms.maps.model.LatLngBounds;
+  let LatLng = com.google.android.gms.maps.model.LatLng;
+  
+  var bounds = new LatLngBounds.Builder();
+  bounds.include(new LatLng(northeast.latitude, northeast.longitude));
+  bounds.include(new LatLng(southwest.latitude, southwest.longitude));
+
+  setMyLocationEnabled property:
+  enable/ disable my location icon
+  gMap.setMyLocationEnabled([bool]);
+
+  mapView reference technique:
+
+  var _mapView;    
+  var _gMap;
+
+  onMapReady = args => {
+      _mapView = mapView;
+      _gMap = mapView.gMap;       
+  };
+
+  <maps:mapView latitude="{{ latitude }}" longitude="{{ longitude }}" mapReady="{{ onMapReady }}" />
+
+  animateCamera:
+  _gMap.animateCamera([cameraUpdateFactory])
+
+  // example
+  _gMap.animateCamera(com.google.android.gms.maps.CameraUpdateFactory.zoomIn());
+
+  cameraUpdateFactory:
+  - source
+    https://developers.google.com/android/reference/com/google/android/gms/maps/CameraUpdateFactory
+
+  - newCameraPosition([CameraPosition])
+  - newLatLng([LatLng])
+  - newLatLngBounds([LatLngBounds], [int])
+  - newLatLngZoom([LatLng], [zoom])
+  - scrollBy([float], [float])
+  - zoomBy([float])
+  - zoomIn()
+  - zoomOut()
+  - zoomTo([float])
+  
+  UI Settings:
+  - mapToolbarEnabled
+  - rotateGesturesEnabled
+  - scrollGesturesEnabled
+  - tiltGesturesEnabled
+  - zoomControlsEnabled
+  - zoomGesturesEnabled
+  - compassEnabled
+  - indoorLevelPickerEnabled
+
+  enable my Location:
+  _mapView.myLocationEnabled = true; // enable my location
+  _mapView.settings.myLocationButtonEnabled = true; // show my location buttton
+
+
+  using:
+  // basic 
+  viewModel.latitude = 32.0853;
+  viewModel.longitude = 34.7818;
+  viewModel.zoom = 12;
+
+  <Page xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:maps="nativescript-google-maps-sdk" navigatingTo="onNavigatingTo" class="page">  
+    <Page.actionBar>        
+        <StackLayout>     
+            <maps:mapView latitude="{{ latitude }}" longitude="{{ longitude }}" />
+        </StackLayout>
+    </Page.actionBar>        
+  </Page>
+
+  // advanced 
+  var mapsModule = require("nativescript-google-maps-sdk");
+
+  viewModel.latitude = 32.0853;   
+  viewModel.longitude = 34.7818;
+  viewModel.zoom = 12;
+    
+  viewModel.onMapReady = function(args) {    
+    var mapView = args.object;
+    var gMap = mapView.gMap;
+	
+    var marker = new mapsModule.Marker();
+    marker.position = mapsModule.Position.positionFromLatLng(viewModel.latitude, viewModel.longitude);
+    marker.title = "some title";
+    marker.snippet = "some description";
+    marker.userData = { };
+    mapView.addMarker(marker);
+          
+	_mapView.zoom = 12; // set the zoom level
+    _mapView.settings.zoomGesturesEnabled = false; // disabling zoom gestures
+	_mapView.settings.zoomControlsEnabled = true; // enabling zoom control
+
+	_mapView.myLocationEnabled = true; // enable my location
+	_mapView.settings.myLocationButtonEnabled = true; // show my location buttton
+  }
+      
+  viewModel.onMarkerSelect = function(args) {
+    console.log(args.marker.title);
+  }
+
+  <Page xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:maps="nativescript-google-maps-sdk" navigatingTo="onNavigatingTo" class="page">  
+    <Page.actionBar>       
+        <StackLayout>                 
+            <maps:mapView latitude="{{ latitude }}" longitude="{{ longitude }}"  
+                    mapReady="{{ onMapReady }}" 
+                    markerSelect="{{ onMarkerSelect }}" />
+        </StackLayout>
+    </Page.actionBar>        
+  </Page> 
+
+- android-maps-utils
+
+  about:
+  an open-source library contains utilities for the Google Maps Android API
+
+  source:
+  https://github.com/googlemaps/android-maps-utils
+  http://googlemaps.github.io/android-maps-utils/javadoc/
+
+- google-maps-ios-utils
+
+  about:
+  an open-source library contains utilities for the Google Maps Android API
+
+  source:
+  https://github.com/googlemaps/google-maps-ios-utils
+  https://developers.google.com/maps/documentation/ios-sdk/intro
+
+- nativescript-google-maps-utils
+  
+  about:
+  allows us to create an Heatmap based on position set 
+  and a cluster based on marker set
+
+  dependencies:
+  ios util (see 'google-maps-ios-utils')
+  android utils (see 'android-maps-utils')
+
+  supported:
+  android
+
+  source:
+  https://market.nativescript.org/plugins/nativescript-google-maps-utils
+
+  install:
+  > tns plugin add nativescript-google-maps-utils
+
+  methods:
+  setupHeatmap
+  setupMarkerCluster
+
+  sample:
+  var mapsUtils = require('nativescript-google-maps-utils');
+
+  mapsUtils.setupHeatmap(_mapView, positions);
+  mapsUtils.setupMarkerCluster(_mapView, markers);
+
+- nativescript-directions
+  
+  about:
+  get directions and navigation plan from google api. 
+  open the naitive maps app and show directions.
+
+  important:
+  this extension opens the google Maps-app and NOT draws the route on an internal mapView item!!
+
+  source:
+  https://github.com/EddyVerbruggen/nativescript-directions
+
+  install:
+  > tns plugin add nativescript-directions
+
+  setup:
+  properties:
+  events:
+
+  navigate function:  
+  navigate([options]).then([onSuccess], [onError]);
+
+  navigate options:
   // TODO
 
   using:
-  
+  var directionsModule = require("nativescript-directions").Directions;
+
+  var directions = new directionsModule();
+  directions.navigate({
+	  from: {
+		lat: 52.215987,
+		lng: 5.282764
+	  },
+	  to: { 
+		address: "Hof der Kolommen 34, Amersfoort, Netherlands"
+	  }  
+  }).then(function(){ ... }, function(e){ ... });
+
 
 note!
 find more plugins in the market (see 'MarketPlace')
+
+Other Services
+--------------
+- google Directions API
+  
+  about:
+  get the directions between 2 or more locations. 
+  supports coordinates or address
+  supports direction modes (driving etc.)
+
+  security tip:
+  proxying the web service via your server when you're using the API in a mobile app, to protect your API key!
+
+  source:
+  https://developers.google.com/maps/documentation/directions/start
+
+  setup:
+  1. go to the developer console 
+  2. enable the direction api 
+  3. create api-key
+
+  parameters:
+  - origin 
+    - address 
+	- coordinates (comma seperated)
+	- place (place_id:)
+  - destination
+    - see 'origin'
+  - key // api key
+  - mode
+    - see 'transportation modes'
+
+
+  transportation modes:  
+  - driving
+  - walking
+  - cycling
+  - transit (see 'transit mode')
+  - texi (see 'texi mode')
+
+  transit mode:
+  when choosing this mode, we get the ability to set some extra optional parameters to refine the result
+  - departure_time
+  - arrival_time
+  - transit_mode
+    - bus
+	- subway
+	- train
+	- tram
+	- rail
+  - transit_routing_preference
+    - less_walking
+	- fewer_transfers
+
+  texi mode:
+  use the following combination
+  - mode=transit
+  - transit_routing_preference=less_walking
+
+  avoid options:
+  - tolls
+  - highways
+  - ferries
+  - indoor
+  
+  how to encode a decoded polyline?
+  > npm install polyline
+  var polyline = require('polyline');
+  var polylineData = polyline.decode(route.overview_polyline.points);
+
+  supported languages:
+  https://developers.google.com/maps/faq#languagesupport
+
+  server:
+  'https://maps.googleapis.com/maps/api/directions/json'
+
+  query:
+  - origin: string
+  - destination: string
+  - mode: string (see 'transportation modes')
+  - key: string
+  - alternatives: bool
+  - avoid: string (see 'avoid options')
+  - language: string (see 'supported languages')
+
+  syntax:  
+  fetch([server] + [query])
+  .then(response => response.json())
+  .then(response => { ... })
+  .catch(ex => { ... }); 
+
+  sample:
+  var params = [];
+  params.push('origin=' + fromAddress);
+  params.push('destination=' + toAddress);
+  params.push('mode=' + 'driving');
+  params.push('key=' + 'xxxxxxxxxxxxxxxx');
+  
+  var query = '?' + params.join('&');
+  var endpoint = 'https://maps.googleapis.com/maps/api/directions/json' + query;
+  
+  fetch(endpoint)
+  .then(response => response.json())
+  .then(response => {
+      console.log(response);
+  }).catch(ex => { 
+      console.log('ex: ' + ex.message);
+  }); 
 
 Working With Nativescript
 -------------------------
@@ -1919,11 +2641,11 @@ Working With Nativescript
     } 
 
 - require
-  - import modules.
+  - import modules or js files (see 'require js files')
   - syntax:
     var [variableName] = require("[modulePath]");
-  - use the npm to import the module from the web to the node_modules local folder! (see 'npm install')
-  
+  - use the npm to import the module from the web to the node_modules local folder! (see 'npm install')  
+
   - e.g:
     // import the observable module (in node_modules folder)
     var Observable = require("data/observable").Observable;	
@@ -1933,6 +2655,30 @@ Working With Nativescript
 
 	// import the my-shared-view-model.js file
 	var myView = require("../shared/my-shared-view-model"); 
+
+- require js files:
+  - create reference to a local js file
+  - syntax:
+    var [variableName] = require("[jsPath]");
+
+  - e.g:
+    // fileA 
+    var srv = require("./fileB.js").myService();
+    
+    function fun() { 
+      srv.run();
+    }
+    
+    // fileB.js
+    function myService(){
+      return{
+          run: function(){
+              ...
+          }
+       }
+    }
+    exports.myService = myService;
+
 
 - npm install 
   - syntax:
@@ -1954,8 +2700,8 @@ Working With Nativescript
   var createViewModel = require("./page-view-model").createViewModel;
 
 - application:
-  to get a reference to the current application:  
-  var application = require("application");
+  to get a reference to the current application:    
+  see 'JS Modules/application'  
 
 Icons
 -----
@@ -2115,6 +2861,9 @@ Platform Specific Capabilities
   android: [attribute]
   ios: [attribute] 
 
+- CSS:
+  see 'CSS/platform specific css'
+
   e.g: 
   <label android:class="A" ios:class="B" />
 
@@ -2126,6 +2875,7 @@ nativescript map the known css rules into native style.
   - Element Type
   - Class (.)
   - Id (#)
+  - Hierachical (.A > .B etc.)
 
 - supported properties:
   - https://docs.nativescript.org/ui/styling#supported-css-properties
@@ -2136,11 +2886,293 @@ nativescript map the known css rules into native style.
   
   - the selected theme located in the app.css file 
     @import '~nativescript-theme-core/css/sky.css';
+	
+  - schemes
+	- core.light.css
+	- core.dark.css
+
+    - aqua.css
+    - blue.css
+    - brown.css
+    - forest.css
+    - grey.css
+    - lemon.css
+    - lime.css
+    - orange.css
+    - purple.css
+    - ruby.css
+    - sky.css
+
+  - headings
+    h1-h6
+    use the h1-h6 css classes to replace the html h tags
+
+	<Label class="h1" text="big heading" />
+	<Label class="h6" text="small heading"></Label>
+
+  - text alignment
+    text-left
+	text-right
+	text-center
+
+	<Label class="text-left" text="left aligned" />
+	<Label class="text-right" text="right aligned" />
+	<Label class="text-center" text="center aligned" />
+
+  - text transform
+    text-lowercase
+	text-uppercase
+	text-capitalize
+
+	<Label class="text-lowercase" text="Hello" />
+	<Label class="text-uppercase" text="Hello" />
+	
+  - font
+    font-weight-normal
+	font-weight-bold
+	font-italic
+
+	<Label class="font-weight-bold" text="bold text" />
+	<Label class="font-italic" text="italic text" />
+
+  - margin
+    m-[value] 
+	m-t-[value]
+	m-b-[value]
+	m-r-[value]
+	m-l-[value]
+	m-x-[value]
+	m-y-[value]
+	m-x-auto
+
+	m stands-for margin 
+	t stands-for top 
+	b stands-for bottom
+	r stands-for right
+	l stands-for left
+	x represents the x axis
+	y represents the y axis
+	[value] can be one of the following values > 0, 2, 5, 10, 15, 20, 25, 30 
+
+	// using
+	m-0 // margin 0
+	m-t-2 // margin top 2
+	m-b-20 // margin bottom 20
+	m-x-10 // margin left and right 10
+	m-y-5 // margin top and bottom 5
+	m-x-auto // horizontal-align center
+
+  - padding
+    p-[value] 
+	p-t-[value]
+	p-b-[value]
+	p-r-[value]
+	p-l-[value]
+	p-x-[value]
+	p-y-[value]	
+
+	p stands-for pagging 
+	t stands-for top 
+	b stands-for bottom
+	r stands-for right
+	l stands-for left
+	x represents the x axis
+	y represents the y axis
+	[value] can be one of the following values > 0, 2, 5, 10, 15, 20, 25, 30 
+
+	// using
+	p-0 // pagging 0
+	p-t-2 // pagging top 2
+	p-b-20 // pagging bottom 20
+	p-x-10 // pagging left and right 10
+	p-y-5 // pagging top and bottom 5	
+
+  - hr divider
+    hr-light
+	hr-dark
+
+	need to apply to 'StackLayout' component
+
+	<Label text="part 1" />
+	<StackLayout class="hr-light m-10" />
+	<Label text="part 2" />
+
+  - colors
+    text-primary // soft-blue 
+	text-muted   // light-silver
+	text-danger  // red
+	bg-primary	 // soft-blue 
+	bg-danger    // red
+
+  - page class
+    alters text colors when using the dark color scheme
+	<Page class="page">...</Page>
+
+  - action-bar classes
+
+    action-bar
+    applies the theme’s color scheme to ActionBar components		
+	<Page.actionBar>
+		<ActionBar class="action-bar" title="My App">
+		</ActionBar>
+	</Page.actionBar>	
+
+	action-bar-title
+	applies the theme’s color scheme when using a custom title view	
+	<Page.actionBar>
+		<ActionBar class="action-bar">
+		  <StackLayout class="action-bar-title">
+			<Label text="My App" class="font-weight-bold" color="blue"></Label>
+		  </StackLayout>
+		</ActionBar>
+	</Page.actionBar>	
+	
+	action-item
+	applies the theme’s color scheme to custom UI components
+
+	tip! 
+	we can create a custom action-bar without the 'ActionBar' component 
+	using the action-bar classes on other UI components as presented below
+	<GridLayout rows="auto" columns="75,*,75" class="action-bar p-10">
+		<Button text="Close" class="text-left action-item" row="0" col="0"></Button> 
+		<Label text="My Modal" class="text-center action-bar-title" row="0" col="1"></Label>
+	</GridLayout>
+
+  - buttons
+    btn
+	btn-primary		// soft-blue color
+	btn-outline		// border and a transparent background
+	btn-rounded-sm  // small rounded corners
+	btn-rounded-lg	// large rounded corners
+	btn-active		// highlighted when tapped
+
+  - form
+    form			// the form container
+	input			// form input
+    input-border    // input with border
+	input-rounded   // input with rounded corners
+	label			// form label
+	input-field     
+	input-sides
+
+  - images
+    img-rounded
+	img-circle
+
+	<Image src="1.jpeg" width="150" class="img-rounded" />
+    <Image src="1.jpeg" width="150" class="img-circle" />
+
+  - listViews 
+    list-group				// applied on the ListView components
+	list-group-item			// applied to each item template
+	list-group-item.active  // set item as active
+	list-group-item.thumb   // represents a thumbnail image, applied to Image component
+	list-group-item-heading // represents an heading in multiline template
+	list-group-item-text	// represents a text content in multiline template
+
+	<ListView class="list-group">
+	  <ListView.itemTemplate>
+		<GridLayout class="list-group-item" rows="auto, *" columns="80, *">
+		  <Image row="0" col="0" src="80x80.jpg" class="thumb img-circle" rowSpan="2"></Image>
+		  <Label row="0" col="1" text="" class="list-group-item-heading" />
+		  <Label row="1" col="1" text="" class="list-group-item-text" />
+		</GridLayout>
+	  </ListView.itemTemplate>
+	</ListView>
+
+  - progress bar
+    progress  // applied to the Progress component
+	<Progress class="progress m-20" value="50" />
+
+  - activity indicator
+	activity-indicator  // applied to the ActivityIndicator component
+	<ActivityIndicator class="activity-indicator" busy="true" />
+
+  - sliders
+    slider  // applied to the Slider component
+	<Slider minValue="1" maxValue="100" value="50" class="slider" />
+
+  - switches
+    switch  // applied to the Switch component 
+	<Switch checked="true" class="switch" horizontalAlignment="center" />
+
+  - tabViews 
+    tab-view // applied to the TabView component 
+
+
+  - predefined css classes
+    - see 'headings'	
+	- see 'text alignment'
+	- see 'text transform'
+	- see 'font'
+	- see 'margin'
+	- see 'padding'
+	- see 'hr divider'
+	- see 'colors'
+	- see 'page class'
+	- see 'action-bar classes'
+	- see 'buttons'
+	- see 'form'
+	- see 'images'
+	- see 'listViews'
+	- see 'progress bar'
+	- see 'activity indicator'
+	- see 'sliders'
+	- see 'switches'
+	- see 'tabViews'
+
+	- pull-left
+	- pull-right  
+	- body  // long text	
 
 - convention:
   - app.css  // global styles
   - [view].css  // view/ page styles
-  - [view].[platform].css  // platform specific styles
+  - [view].ios.css  // ios platform specific styles
+  - [view].android.css  // android platform specific styles
+  - [view].common.css  // shared styles
+
+  note: 
+  use '@import' to import the 'common.css'  file in both 'android' and 'ios' specific css files.
+
+- platform specific css:
+  [name].[platform].css
+
+  e.g:  
+  styles.ios.css  
+  styles.android.css 
+
+- @import: 
+  use this command to import css files 
+  use it within a css file.
+  
+  e.g:
+  // ios.css
+  @import 'common.css';
+  .class1 { ... }
+  .class2 { ... }
+
+- auto css apply:
+  a css file with the same name as the xml file within the same directory will be loaded and applied automatically by the nativescript engine!
+  e.g: given a folder with both mypage.xml and mypage.css, the css will be applied automatically on the xml page. 
+
+- addCssFile function:
+  level > page component
+  use the page function 'addCssFile' to add css files to the page.
+
+- addCss function:
+  level > page component
+  use the page function 'addCss' to add css content to the page.
+
+  e.g: 
+  page.addCss('button {background-color: blue}');  
+  
+- inline css: 
+  level > any component
+  use the 'style' property to add an inline css rules
+
+  e.g:
+  <Button text="inline style" style="background-color: green;" />
 
 - Less/ Saas:
   > tns install less
@@ -2367,6 +3399,29 @@ project.ext {
     googlePlayServicesVersion = "+"
 }
 
+--
+
+issue:
+nativescript-google-maps - maps:mapView tag is not recognize
+
+error:
+'ui/map-view' not found for element 'MapView'
+
+cause:
+missing namespace 
+
+solution:
+add the below namespace to the 'Page' tag
+xmlns:maps="nativescript-google-maps-sdk"
+
+sample:
+<Page xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:maps="nativescript-google-maps-sdk" navigatingTo="onNavigatingTo" class="page">  
+    <Page.actionBar>        
+        <StackLayout>             
+            <maps:mapView latitude="{{ latitude }}" longitude="{{ longitude }}" />
+        </StackLayout>
+    </Page.actionBar>        
+</Page> 
 
 Code Samples
 ------------
