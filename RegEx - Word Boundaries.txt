@@ -1,0 +1,4 @@
+RegEx - Word Boundaries
+
+pattern:
+\b word \b

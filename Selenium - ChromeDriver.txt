@@ -128,7 +128,14 @@ result = browser.PageSource; // wait till fully rendered
             });
         }
 
-        // equivalent to PageLoadStrategy.Normal flag
+        /* 
+            [Strategy] 
+            equivalent to PageLoadStrategy.Normal flag
+            
+            [Performance] 
+            this implementation of WaitForReadyState is faster than using the built-in PageLoadStrategy.Normal flag!
+            so set the PageLoadStrategy flag as None and use it instead!
+        */
         public static void WaitForReadyState(ChromeDriver browser, int timeOutInSec = 20) {
             var wait = new WebDriverWait(browser, TimeSpan.FromSeconds(timeOutInSec));
             wait.Until(d => {

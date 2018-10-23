@@ -1,0 +1,21 @@
+create table #tbl(val int)
+insert into #tbl 
+values(1),(2),(3),(4)
+
+--------------------------------------------------
+declare @current int
+
+-- pop
+select top(1) @current = Val from #tbl
+if(@current is null) return
+delete from #tbl where Val = @current
+
+print(@current)
+
+-- code here 
+
+GO 10
+--------------------------------------------------
+
+drop table #tbl
+-- select * from #tbl
