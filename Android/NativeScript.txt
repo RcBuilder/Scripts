@@ -18,18 +18,23 @@
 - NativeScript & Visual Studio
 - UI Layouts
 - UI Components
-- Page
+- User Controls 
+- Custom UI Components
+- Page Component
 - View Class
 - Find Elements
 - Animations
 - Dialogs
-- Events
+- Modals
+- Events/ Gestures
 - JS Modules
 - Ng Directives
 - Plugins
 - Other Services
 - Working With Nativescript
+- Multiple Screens
 - Icons
+- App Resources 
 - systemIcon
 - Font Awesome
 - Platform Specific Capabilities
@@ -177,9 +182,12 @@ commands:
 > tns device  // list of connected devices (physical and virtual)
 > tns device [android|ios] 
 > tns plugin add [plaginName]  // add plugin
+> tns plugin remove [plaginName]  // remove a plugin
 
 > tns debug [android|ios]  // debug a device
 > tns debug [android|ios] --bundle  // debug bundled app
+
+> tns resources generate icon [imagePath] // generate app icons from image
 
 stop tns run command:
 > ctrl + c
@@ -640,6 +648,10 @@ e.g: var c = require("tns-core-modules/ui/[component-folder]");
 
 --
 
+for custom components see 'Custom UI Components'
+
+--
+
 // see 'UI Layouts'
 AbsoluteLayout
 DockLayout
@@ -651,7 +663,7 @@ FlexboxLayout
 --
 
 - Page
-  see 'Page'
+  see 'Page Component'
 
 - View 
   see 'View Class'
@@ -837,9 +849,8 @@ FlexboxLayout
 	use 'aspectFit' for stretching with aspect ratio preservation (clip image to fit destination)
 	use 'aspectFill' for stretching with aspect ratio preservation 
 
-  - resources location:
-    App_Resources\Android\src\main\res
-	should be added to the corresponding drawable-XXX folders
+  - resources:    
+	see 'App Resources'
 
   - css:
     background-image: url("~/images/logo.png");
@@ -982,7 +993,7 @@ FlexboxLayout
 	e.g: selectedIndex="0" for the 1st item in the list
 
   - events:
-    selectedIndexChange
+    loaded
 
   - sample:
     viewModel.colors = ['blue', 'red', 'purple', 'green', 'brown', 'black', 'yellow', 'pink'];
@@ -1174,9 +1185,81 @@ FlexboxLayout
         </TabViewItem>
     </TabView> 
 
+	--
 
-Page
-----
+	<TabView id="tabView1">
+		<TabView.items>
+		  <TabViewItem title="Tab1">
+			<TabViewItem.view>
+			  <Label text="content for Tab1" />
+			</TabViewItem.view>
+		  </TabViewItem>
+		  <TabViewItem title="Tab2">
+			<TabViewItem.view>
+			  <Label text="content for Tab2" />
+			</TabViewItem.view>
+		  </TabViewItem>
+		</TabView.items>
+	  </TabView>
+
+User Controls
+-------------
+see 'Custom UI Components/Using XML'
+
+Custom UI Components
+--------------------
+
+[Using Code]
+1. write your component logic code 
+   note that it has to inherit a component!
+2. export your component
+3. import the namespace to the Page Component 
+4. add your component to the XML
+
+// components/my-controls.js
+// step 1
+var MyStackLayout = (function (_super) {
+		__extends(MyControl, _super);
+
+		function MyControl() {
+			_super.call(this);
+
+			...
+			...
+		}
+		return MyControl;
+	})(stackLayout.StackLayout);
+
+exports.MyStackLayout = MyStackLayout; // step 2
+
+// steps 3 + 4
+<Page xmlns:customControls="components/my-controls" navigatingTo="navigatingTo" class="page">
+    <customControls:MyStackLayout /> 
+</Page>
+
+--- 
+
+[Using XML]
+1. create an XML layout using the nativescript components 
+2. import the namespace to the Page Component 
+3. add your component to the XML
+
+// components/myLayout.xml
+// step 1
+<StackLayout class="p-20" loaded="onLoaded">
+    <Label text="some text..." />    
+    <Label text="{{ message }}" />
+	...
+	...
+</StackLayout>
+
+// steps 2 + 3
+<Page xmlns:customControls="components" navigatingTo="navigatingTo" class="page">
+  <customControls:myLayout />
+</Page>
+
+Page Component
+--------------
 - reference:
   https://docs.nativescript.org/api-reference/classes/_ui_page_.page
 
@@ -1521,6 +1604,8 @@ exports.animate11 = function(){
 
 Dialogs
 -------
+also see 'Modals'
+
 - Types:
   Action
   Alert
@@ -1602,17 +1687,152 @@ Dialogs
 	});
 
 
-Events
+Modals
 ------
-// TODO
-// TODO Gestures https://docs.nativescript.org/angular/ui/ng-ui-widgets/gestures
+also see 'Dialogs'
 
-- tap
+methods:
+showModal([view], [context: object], [closeCallback: function], [fullscreen: bool]?, [animated: bool]?, [stretched: bool]?)
+showModal([moduleName: string], [context: object], [closeCallback: function], [fullscreen: bool]?, [animated: bool]?, [stretched: bool]?)
+closeModal([context])
+
+events:
+shownModally  // when a modal is shown
+
+implementation:
+1. (parent) create a main view (parent)
+2. (parent) add a button to open the modal view (popup)
+3. (parent) generate a custom context to pass to the popup view
+4. (parent) use the 'showModal' method to open the popup view with the above context and a 'closeCallback' callback function
+5. (popup) create a popup view and register to the 'shownModally' event
+6. (popup) add a button to close the popup
+7. (popup) add a reference to the 'closeCallback' function received from the parent 
+8. (popup) execute the 'closeCallback' function once the user clicked on the close popup button from chapter 6
+
+using:
+
+[parent] 
+<Button text="Open modal" (tap)="openModal" />  // step 2
+
+exports.openModal = function(args){
+	let parentView = args.object;
+    let context = { p1:'value1', p2:'value2' }; // step 3
+    
+    parentView.showModal("./popup-view", context, (result) => {  // step 4
+        console.log('result: ' + result);        
+    });
+};
+
+[popup]
+// step 5
+<Page xmlns="http://www.nativescript.org/tns.xsd" shownModally="onShownModally">
+    <StackLayout>
+        ...
+		...
+        <Button text="Send" tap="onSendButtonTap" />  // step 6
+    </StackLayout>
+</Page>
+
+
+var observableModule = require("data/observable");
+var closeCallback;  // step 7 
+
+exports.onShownModally = function(args){
+	let context = args.context;
+    closeCallback = args.closeCallback;
+
+    let page = args.object;
+    page.bindingContext = observableModule.fromObject(context);
+};
+
+// step 8
+exports.onLoginButtonTap = function(args){
+	let page = args.object.page;
+    let bindingContext = page.bindingContext;    
+    closeCallback('success!');
+};
+
+Events/ Gestures
+----------------
+[Gestures]
+- require:
+  path 'tns-core-modules/ui/gestures'
+
+- enum:
+  gestures.GestureTypes.[gesture]
+
+  e.g:
+  gestures.GestureTypes.tap
+  gestures.GestureTypes.doubleTap
+
+- syntax (code):
+  on([type: number], [callback])
+  on([name: string], [callback])
+  on([names: Comma separated String], [callback])
+
+  off([type: number], [callback])
+  off([name: string], [callback])
+  off([names: Comma separated String], [callback])
+
+- syntax (UI):
+  ([gestureName])="[functionName]"
+
+  e.g:
+  (doubleTap)="onDoubleTap($event)"
+
+
+- Tap
+  a single tap on the screen
+
+- Double Tap
+  two quick taps
+
+- Long Press
+  press the screen for a few moments
+
+- Swipe
+  slide the screen aside
+
+- Pan
+  press down and immediately start moving it around
+
+- Pinch
+  pinch the screen 
+
+- Rotation
+  rotate two fingers simultaneously left or right
+
+- Touch
+  any touch on the screen
+
+- samples (code):
+  var gestures = require("tns-core-modules/ui/gestures");    
+  ...
+  ... 
+  label.on(gestures.GestureTypes.tap, function (args) {
+    console.log("Tap");
+  });
+
+  label.on("loaded, tap, doubleTap, longPress", function (args) {
+    console.log("Event: " + args.eventName + ", sender: " + args.object);
+  });
+
+- samples (UI):
+  <GridLayout width="200" height="200" (longPress)="onLongPress($event)">
+  ...
+  </GridLayout>
+
+  exports.onLongPress = function(args) {
+	console.log("LongPress");
+  };
+
+[Events]
 - navigatingTo
 
 JS Modules
 ----------
-// TODO
+- Gestures
+  see 'Events/ Gestures'
 
 - Observable
   path: 'data/observable' and 'data/observable-array'
@@ -1821,6 +2041,37 @@ JS Modules
   // get file path
   var filePath = fileSystemModule.path.join(documents.path, 'myFiles', 'myFile.txt'); 
 
+- timer
+  path: 'timer'
+
+  about:
+  the nativescript's implementation of the javascript functionality 
+
+  source:
+  https://docs.nativescript.org/api-reference/modules/_timer_
+
+  methods:
+  setTimeout([function], [interval])  
+  setInterval([function], [interval])  // returns a timer id
+  clearInterval([id: int])  
+
+  interval parameter:
+  in milliseconds, 1000 equals to 1 second
+
+  sample:
+  const timerModule = require("tns-core-modules/timer");
+
+  viewModel.rndNumber = 0;
+  var timerId = timerModule.setInterval(() => {
+  	var num = Math.floor(Math.random() * 10000);
+    	viewModel.set('rndNumber', num);
+  }, 1000);
+  
+  viewModel.status = 'working.......';
+  timerModule.setTimeout(() => {
+  	viewModel.set('status', 'done!');
+  	timerModule.clearInterval(timerId); 
+  }, 5000);
 
 - frame
   path: 'ui/frame'
@@ -1831,6 +2082,14 @@ JS Modules
   navigate:
   frameModule.topmost().navigate([options]);
   frameModule.topmost().navigate([modulePath]);
+
+  options:
+  moduleName // the page to redirect to
+  context    // the request context
+
+  note! 
+  to get the context use the page.navigationContext property 
+  see 'Page/navigatingTo event'
 
   e.g: // redirect to about-page
   var frameModule = require("ui/frame");
@@ -2000,6 +2259,30 @@ JS Modules
   var application = require("tns-core-modules/application");
   console.log(application.android);
 
+- builder
+  path: 'ui/builder'
+  
+  about:
+  used to dynamic loading of custom components (also see 'Custom UI Components')
+
+  methods:
+  load([options])
+
+  options:
+  path: string
+  name: string
+  attributes: { bindingContext.. }
+
+  sample:
+  let builder = require("tns-core-modules/ui/builder");
+  let myComponentInstance = builder.load({
+        path: "~/components/myControl",
+        name: "MyControl",
+		attributes: {
+            bindingContext: myBindingModel
+        }
+  });
+
 note!
 use the 'require' to import modules (see 'require' chapter in 'Working With Nativescript')
 
@@ -2010,7 +2293,223 @@ Ng Directives
 
 Plugins
 -------
-// TODO 
+- nativescript-filter-select
+
+  about:
+  // TODO
+
+  source:
+  https://github.com/moayadnajd/nativescript-filter-select
+  https://www.nsplugins.com/plugin/nativescript-filter-select
+
+  install:
+  > tns plugin add nativescript-filter-select
+
+  // TODO
+  methods:
+  using:
+
+- nativescript-drop-down
+
+  source:
+  https://github.com/PeterStaev/NativeScript-Drop-Down
+  https://www.npmjs.com/package/nativescript-drop-down
+
+  install:
+  > tns plugin add nativescript-drop-down
+
+  // TODO
+  methods:
+  using:
+  
+
+- nativescript-speech
+
+  source:
+  https://market.nativescript.org/plugins/nativescript-speech-recognition
+  https://developer.android.com/reference/android/speech/SpeechRecognizer
+
+  install:
+  > tns plugin add nativescript-speech-recognition
+
+  methods:
+  available  // determines whether or not the speech recognition supported 
+  requestPermission // request permissions
+  startListening([options])
+  stopListening
+
+  options:
+  locale: string
+  returnPartialResults: bool
+  onResult: function
+  onError: function
+
+  onResult callback:
+  returns transcription object
+  
+  transcription object:
+  text			// the recording value 
+  finished		// determines whether the recording is completed or not 
+
+  onError callback:
+  returns string representation for iOS 
+  returns statusCode for android (see 'statusCodes')
+
+  statusCodes:
+  audio recording error = 3
+  insufficient permissions = 9
+  other client side errors = 5
+  other network related errors = 2
+  network operation timed out = 1
+  no recognition result matched = 7
+  recognitionService busy = 8
+  server sends error status = 4
+  no speech input = 6
+
+  available:
+  available()
+	.then((available) => { })
+	.catch(ex => {  });
+
+
+  requestPermission:
+  requestPermission()
+	.then((granted) => { })
+	.catch(ex => {  });
+
+  using: 
+  var Speech = require("nativescript-speech-recognition").SpeechRecognition;
+
+  var speech = new Speech();
+ 
+  // is available
+  speech.available()
+    .then(available => {
+        console.log(available ? "YES!" : "NO");
+    })
+    .catch(ex => {
+        console.log(ex.message);
+    });
+
+  // request permissions
+  speech.requestPermission()
+    .then(granted => {
+        console.log(granted ? "granted" : "NO permissions!");
+    })
+    .catch(ex => {
+        console.log(ex.message);
+    });
+
+  // start listening
+  var options = {
+    locale: 'en-US',            
+    returnPartialResults: true,            
+    onResult: (transcription) => {
+        console.log('result: ' + transcription.text); 
+        console.log('status: ' + transcription.finished);
+    },
+    onError: (error) => { 
+        console.log('error: ' + error);
+    }
+  };
+
+  speech.startListening(options)
+    .then(() => {
+        console.log('start listening...');  
+    })
+    .catch(ex => {
+        console.log('[startListening] ' + ex.message);
+    })
+
+
+  // stop listening
+  speech.stopListening();
+
+- nativescript-sound
+
+  source:
+  https://www.npmjs.com/package/nativescript-sound
+
+  install:
+  > tns plugin add nativescript-sound
+
+  methods:
+  create([filePath])  // returns sound object
+
+  sound object methods:
+  play
+  stop
+  reset
+
+  note! 
+  best practice is to preload the audio file before playing it due to a delay during the audio creation.
+
+  using: 
+  var soundModule = require("nativescript-sound");
+  var tada = soundModule.create("~/sounds/tada.mp3");
+  tada.play();
+
+  -- 
+
+  sounds = {
+    'Tada': soundModule.create("~/sounds/tada.mp3"),
+    'Boo': soundModule.create("~/sounds/boo.mp3"),    
+  };
+
+  sounds['Boo'].play();
+
+
+- nativescript-camera
+
+  about:
+  allows us to take a picture and optionally save it to device storage
+
+  source:
+  https://github.com/NativeScript/nativescript-camera#nativescript-camera-
+
+  install:
+  > tns plugin add nativescript-camera
+
+  methods:
+  takePicture([options])  // take a photo
+  requestPermissions	  // check required permissions 
+  isAvailable			  // check if camera available to use, returns true/false 
+
+  options:
+  width						  // set the photo width 
+  height					  // set the photo height
+  keepAspectRatio([bool])	  // keep the aspect ratio during picture resizing 
+  saveToGallery([bool])		  // save the photo to the gallery
+  cameraFacing([rear|front])  // set the camera to use, front or rear			
+
+  takePicture method:
+  takePicture([options])
+	.then([function])
+	.catch([function])
+
+  using: 
+  var camera = require("nativescript-camera");
+  var imageModule = require("ui/image");
+
+  var hasCamera = camera.isAvailable();
+  if(!hasCamera) return;
+
+  /// camera.requestPermissions();
+
+  var options = { 
+	width: 300, 
+	height: 300, 
+	keepAspectRatio: false, 
+	saveToGallery: true 
+  };
+
+  camera.takePicture(options)   
+    .then(function (imageAsset) {        
+        var image = new imageModule.Image();
+        image.src = imageAsset;
+    }).catch(function(ex) {
+        console.log(ex.message);
+    });
 
 - nativescript-social-share
 
@@ -2629,6 +3128,54 @@ Other Services
 
 Working With Nativescript
 -------------------------
+- run the application:
+  add those code lines to the app.js file
+  the 'pageName' represents the starting point (the home page)
+
+  var application = require("application");
+  application.run({ moduleName: "[pageName]" });
+
+  note! DO NOT add more code after the 'run' method! it will not be executed on iOS
+
+- set as start page:
+  see 'run the application' 
+
+- bindings
+  - use double curly brackets syntax.
+  - syntax:
+    {{ p }}
+
+  - tip:
+    avoid accessing components by ID. It is recommended to use bindings to specify component properties.
+
+  - e.g:
+    // xml
+    <Page  navigatingTo="navigatingTo">
+		<Label text="{{ myTitle }}" />
+		<Button tap="{{ onTap }}" />
+
+		<ListView items="{{ myItems }}">
+			<ListView.itemTemplate>
+				...
+			</ListView.itemTemplate>
+		</ListView>
+    </Page>
+
+	// code 
+	function navigatingTo(args) {
+		const page = args.object;
+		page.bindingContext = { 
+			myTitle: "Some content...",
+			onTap: () => { ... },
+			myItems: [
+				{ name: "Name1" }, 
+				{ name: "Name2" }, 
+				{ name: "Name3" }
+			]
+		};
+	}
+	exports.navigatingTo = navigatingTo;
+
 - exports:  
   - the 'exports' object allows us to expose ANY js function so it'll be accessible from the project files.   
   - syntax:
@@ -2703,10 +3250,111 @@ Working With Nativescript
   to get a reference to the current application:    
   see 'JS Modules/application'  
 
+- multiple views
+  see 'Multiple Views'
+
+- terminal:
+  we can use the VS Code terminal to perform the CLI commands as well as the npm commands 
+
+- event object:
+  args.object returns the object which triggered the event. 
+
+  tip:
+  use custom attributes to pass data to an event through the object (button etc.) which triggered it!
+
+  sample:
+  <Button text="Vista" soundType="vista" tap="{{ onSoundTap }}" />
+
+  viewModel.onSoundTap = (args) => {         
+        var button = args.object;   // buttton
+        var soundToPlay = button.soundType;  // custom attribute 
+        console.log('play ' + soundToPlay);                       
+    }
+
+Multiple Views
+--------------
+nativescript provides a way to define different files (.js, .css, .xml etc.) to be loaded based on the screen size, platform and orientation.
+
+qualifiers:
+- Platform 
+- Screen size
+- Orientation 
+
+Platform:
+- android 
+- ios 
+
+  note!
+  also see 'Platform Specific Capabilities'
+
+Screen size:
+- minWH<X>
+- minW<X>
+- minH<X>
+
+Orientation:
+- land 
+- port 
+
+samples:
+app.android.css
+app.ios.css
+
+main-page.minW600.xml
+main-page.minH400.xml
+
 Icons
 -----
 see 'systemIcon'
 see 'Font Awesome'
+
+App Resources
+-------------
+- load image syntax:
+  res://[resourceName]
+
+- auto choose:
+  the engine loads the best image for the current device screen density
+
+- support formats:
+  PNG
+  JPG
+
+- change application icon:
+  > tns resources generate icon [path]
+
+- sample:
+  <Image src="res://logo" stretch="none" /> 
+
+[android]
+- location
+  App_Resources\Android\src\main\res
+
+- add resource:
+  images should be added to the corresponding drawable-XXX folders.
+
+  e.g:
+  drawable-hdpi/icon.png
+  drawable-ldpi/icon.png
+  drawable-mdpi/icon.png
+  drawable-nodpi/icon.png
+  drawable-xhdpi/icon.png
+  drawable-xxhdpi/icon.png
+  drawable-xxxhdpi/icon.png
+
+[iOS]
+- location:
+  App_Resources\ios
+
+- add resource:
+  @1x
+  @2x
+  @3x
+
+  e.g:
+  icon.png
+  icon@2x.png
+  icon@3x.png
 
 systemIcon
 ----------
@@ -3257,8 +3905,14 @@ IOS on Windows:
 we can't build for iOS using windows due to a requirement of Xcode which is only available on MAC machines! 
 there's a cloud build option using nativescript Sidekick (see 'Sidekick APP')
 
+pre-requirements:
+- open an apple account
+- enable the 'Two-factor Authentication' mode
+- enroll as a development (join the Apple Developer Program)
+  note: annual cost of 99$ 
+
 requirements:
-- Certificate 
+- Certificate (see 'certificates')
 - App Id
 - Provisioning Profile
 
@@ -3268,15 +3922,27 @@ tip!
 we can use the nativescript Sidekick app to generate those requirements
 see 'establish environment for iOS' chapter under 'Sidekick APP' section 
 
-certificate types:
-- Certificate for Development
-- Certificate for Distribution   
+certificates:
+- terms:
+  CSR = Certificate Signing Request 
+  CER = iOS Certificate 
+
+- process:
+  use a Certificate Signing Request (CSR) to generate an iOS Certificate (CER)
+
+- types:
+  Certificate for Development
+  Certificate for Distribution   
 
 developer Program:
 https://developer.apple.com/programs/
 
 dev Center:
 https://developer.apple.com/account/
+
+deploy steps:
+1. go to the 'dev Center' > 
+// TODO
 
 Sidekick APP
 ------------

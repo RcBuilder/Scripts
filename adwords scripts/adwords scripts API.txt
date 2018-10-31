@@ -7,10 +7,36 @@ https://developers.google.com/adwords/scripts/
 
 METRICS
 -------
+* CPC 
+  Cost per Click
+  [Total Cost / Total Clicks]
+  the cost of a single click
+
+* CPM
+  Cost per Thousand Impressions (aka: Cost per Mille)
+  [Total Cost / number of Impressions] x 1000
+  the cost of 1000 impressions
+
 * CTR
-  Clickthrough rate
-  how often people who see your ad end up clicking it.
-  formula: clicks º impressions 
+  Click through rate
+  [Total Clicks / Total Impressions]
+  the clicking-on-ad rate. how often people who see your ad end-up clicking it.
+
+* CPA
+  Cost per Acquisition (aka: Cost per Conversion)
+  [Total Cost / Total Conversions]
+  the cost of a lead/sale
+
+* CR
+  Conversion Rate
+  [Total Conversions / Total Clicks] x 100
+  how often an ad click results in a desired action.
+
+* ROI
+  Return on Investment
+  [(Revenue - Cost) / Investment Cost X 100(%)]
+  how much benefit a business is getting from a specific ad campaign.
+
 
 NEW SCRIPT
 ----------
@@ -59,6 +85,10 @@ LOG
 
 * %s // placeholders
   Logger.log('%s,%s', account.getCustomerId(), accountName); // placeholder
+
+* %% // percent symbol:
+  var grade = 89;
+  Logger.log('%s%%', grade); // 89%
 
 JSON STRUCTURE 
 --------------
@@ -5279,6 +5309,24 @@ clearKeyword: function(keyword){
 
 --------------------
 
+// update ad param + print old value
+// also see 'AD MANAGER SERVICE'
+
+var adgroup = adManagerService.getAdGroupByName(campaign, product.adGroupName);
+  
+var keywords = adgroup.keywords().get();
+while(keywords.hasNext())
+{        
+	var keyword = keywords.next();
+        
+	var params = adManagerService.getKeywordParams(keyword);
+	Logger.log('price update: %s > %s', params.length == 0 ? 'NULL' : params[0].text, product.price);
+        
+	adManagerService.setKeywordParams(keyword, product.price);    	
+}
+
+--------------------
+
 /* Impressions Share */
 also known as SearchImpressionShare
 
@@ -7683,9 +7731,9 @@ var JSONService = function(uri) {
 --------------------
 
 /* CSV SERVICE */
-var CSVService = function(uri) { 
+var CSVService = function(uri, delimiter) { 
   var _document = null;
-  var _delimiter = ',';
+  var _delimiter = delimiter || ',';
   var _charset = 'UTF-8';
   
   (function(){
@@ -7711,7 +7759,18 @@ var CSVService = function(uri) {
        if(_document.length)
          return _document.length;         
        return 1;
-     }, 
+     },
+     getRows: function(){
+       var rows = [];
+    
+      for(i in _document){
+        var row = _document[i];
+        if(row[0].length == 1) 
+          continue;      
+        rows.push(row);
+      }
+      return rows;
+     }
    }; 
 }
 
@@ -8575,7 +8634,6 @@ var SheetService = function(sheet) {
 }
 
 --------------------
-
 /* SPREADSHEET LOADER */
 var SpreadsheetLoader = {
   
@@ -8710,7 +8768,7 @@ var SpreadsheetLoader = {
     if(!spreadsheet) return null;
     return SpreadSheetService(spreadsheet);
   },  
-  loadSheetServiceByURL: function(spreadSheetUrl){
+  loadSpreadSheetServiceByURL: function(spreadSheetUrl){
     var spreadsheet = this.loadSpreadSheetByURL(spreadSheetUrl);
     if(!spreadsheet) return null;
     return SheetService(spreadsheet);
@@ -9061,19 +9119,20 @@ var AdManagerService = function() {
         return null;
       return operation.getResult();
     },
-    createAd: function(adGroup, header1, header2, description, destinationURL, partURL1, partURL2){
+    // createAd: function(adGroup, header1, header2, description, destinationURL, pathURL1, pathURL2)
+    createAd: function(adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2){
       
       if(header1.length > 30)
         header1 = header1.substr(0, 29);
       if(header2.length > 30)
         header2 = header2.substr(0, 29);
-      if(description.length > 80)
-        description = description.substr(0, 79);
+      if(description1.length > 80)
+        description1 = description1.substr(0, 79);
      
       var builder = adGroup.newAd().expandedTextAdBuilder()
       .withHeadlinePart1(header1) // 30 characters      
       .withHeadlinePart2(header2) // 30 characters
-      .withDescription(description) // 80 characters      
+      .withDescription1(description1) // 80 characters      
       .withFinalUrl(destinationURL) // 255 characters    
       .withMobileFinalUrl(destinationURL);
       
@@ -9086,21 +9145,36 @@ var AdManagerService = function() {
          product {param1: 'some product'} for only {param2: 0} $ - buy now!
       */
 
-      if(partURL1)
-        builder.withPath1(partURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/partURL1/partURL2
+      if(pathURL1)
+        builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/partURL1/partURL2
       
-      if(partURL2)
-        builder.withPath2(partURL2); // 15 characters (the second part after the siteURL)
+      if(pathURL2)
+        builder.withPath2(pathURL2); // 15 characters (the second part after the siteURL)
+
+      if(header3){
+      	if(header3.length > 30)
+        	header3 = header3.substr(0, 29);
+        
+        builder.withHeadlinePart3(header3) // 30 characters
+      }
+      
+      if(description2){
+      	if(description2.length > 80)
+        description2 = description2.substr(0, 79);
+        
+        builder.withDescription2(description2) // 80 characters  
+      }
       
       var operation = builder.build();
       
       if(!operation.isSuccessful())
         return null;
       return operation.getResult();
-    },        
+    },
+        
     createKeywords: function(adGroup, arrKeywods){
-      
-      // see 'Match Types'
+      // arrKeywods: [string]
+      // match type: see 'Match Types'
       
       for(i in arrKeywods){
         var keyword = arrKeywods[i];                        
@@ -9115,7 +9189,19 @@ var AdManagerService = function() {
         var keyword = arrKeywods[i];
         adGroup.createNegativeKeyword(keyword);
       }
-    },    
+    },   
+    
+    createSiteLink: function(text, url){   
+      var operation = AdWordsApp.extensions().newSitelinkBuilder()
+        .withLinkText(text)
+        .withFinalUrl(url)
+        .build();
+
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },
+
     /*
 	   important! 
 	   use it before you add your match type signs! (calling the createKeywords method)
@@ -9251,6 +9337,21 @@ var AdManagerService = function() {
       if(campaign.hasNext())
         return campaign.next();
       return null;
+    },
+    getKeywordParams: function(keyword){
+      // [{index, text}]
+      var result = [];
+      
+      var adParams = keyword.adParams().get();
+      while (adParams.hasNext()) {
+        var adParam = adParams.next();
+        result.push({ 
+          index: adParam.getIndex(),
+          text: adParam.getInsertionText()
+      	});
+      }
+      
+      return result;
     },
     checkIfKeywordExists: function(campaign, keywordText){
       return campaign.keywords()

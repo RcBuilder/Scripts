@@ -1,0 +1,136 @@
+var EMAIL = 'RcBuilder@walla.com';
+var AlertThreshold = 10; // alert for a 10% increment 
+var MinAmount = 40; // skip campaigns under 40 USD (assuming the account predefined currency is USD)
+var campaignsToIgnore = ['1614445426', '150363751'];
+
+function main() {
+  Logger.log('Variables: [EMAIL: %s, AlertThreshold: %s%%, MinAmount: %s]', EMAIL, AlertThreshold, MinAmount);
+  
+  var htmlBuilderService = HTMLBuilderService();
+  var accountName = AdWordsApp.currentAccount().getName();
+  var rowcount = 0;
+
+  var dt = new Date();
+  var currentDate = dateFormat(dt);
+  var previousDate = dateFormat(dateAdd(dt, -7));  
+  Logger.log('[%s] vs [%s]', previousDate, currentDate);      
+  	
+  htmlBuilderService.add('<h2>' + accountName + '</h2>');
+  htmlBuilderService.add('<h4>' + previousDate + ' - ' + currentDate + '</h4>');
+
+  htmlBuilderService.add('<table cellspacing="10" cellpadding="10" border="1" style="text-align:center;direction:ltr;">');
+  htmlBuilderService.add('<tr>'+
+                         '<th>Campaign</th>'+                                                  
+                         '<th>Cost</th>'+
+                         '<th>PreviousCost</th>'+                          
+                         '<th>Increment (%)</th>'+                           
+                         '</tr>');
+
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition("Status IN [ENABLED,PAUSED]")
+  .get();
+
+  while(campaigns.hasNext()){
+    Logger.log('-----');
+    
+    var campaign = campaigns.next();
+    var campaignName = campaign.getName();
+    var campaignId = campaign.getId().toString();
+
+    var currentStats = campaign.getStatsFor(currentDate, currentDate);
+    var currentCost = currentStats.getCost();
+    
+    var previousStats = campaign.getStatsFor(previousDate, previousDate);
+    var previousCost = previousStats.getCost();
+	
+    var difference = currentCost - previousCost;
+    
+    Logger.log('[#%s] campaign: %s', campaignId, campaignName);
+    Logger.log('%s > %s (%s)', previousCost, currentCost, difference.toFixed(2));            
+    
+    if(campaignsToIgnore.indexOf(campaignId) != -1) {
+      Logger.log('found in the Ignore-List - skip...')
+      continue;
+    }
+    
+    if(difference == 0) 
+    {
+      Logger.log('no difference - skip...')
+      continue;
+    }
+    
+    if(currentCost < MinAmount)
+    {
+      Logger.log('low cost campaign - skip...')
+      continue;
+    }    
+        
+    var differencePercentage = (previousCost == 0 ? 1 : difference / previousCost) * 100;    
+        
+    if(differencePercentage < AlertThreshold) continue;
+    Logger.log('ALERT! %s', differencePercentage.toFixed(2));    
+    
+    htmlBuilderService.add('<tr>'+
+                         '<td>' + campaignName + '</td>'+                                                 
+                         '<td>' + currentCost + '</td>'+
+                         '<td>' + previousCost + '</td>'+                          
+                         '<td>' + differencePercentage + '</td>'+                           
+                         '</tr>');
+    rowcount++;
+  }
+
+  if(rowcount > 0) {
+    Logger.log('email has sent to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'COST ALERT', '', {
+      htmlBody: htmlBuilderService.get()
+    });
+  }
+};
+
+// -------------------------------------
+
+function dateFormat(date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+
+    return year + month + day;
+};
+
+function dateAdd(date, value, type){      
+    type = type || 'dd';
+    
+    var newDate = new Date(date.getTime());
+    
+    if(type == 'dd')
+      newDate.setDate(newDate.getDate() + value);
+    else if(type == 'MM')
+      newDate.setMonth(newDate.getMonth() + value);
+    
+    return newDate;  
+};
+
+// -------------------------------------
+
+/* HTML BUILDER SERVICE */
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    },
+    toPDF: function(pdfName){          
+      var blob = Utilities.newBlob(_html, MimeType.HTML);
+      var pdf = blob.getAs(MimeType.PDF);  
+      pdf.setName(pdfName);
+      return pdf;
+    }  
+  };
+}

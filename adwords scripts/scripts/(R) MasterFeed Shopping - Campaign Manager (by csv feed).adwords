@@ -1,0 +1,531 @@
+﻿/*
+    About
+    -----
+	this script creates a fully functioning campaign (adgroup, ad, keywords etc.) based on a feed (csv) 
+    
+    feed Columns
+    ------------
+    [index 47] c:Title_TM_Safe_Max_25  				// Ad Group 
+    [index 47] c:Title_TM_Safe_Max_25  				// header line1 
+    [index 01] title 				   				// description line1
+    [index 53] c:subtitel 			   				// description line2 (partial)
+    [index 07] link 			   	   				// url path
+    [index 36] c:Category_Last_Level_FirstWord		// url path
+    [index 37] c:Category_Last_Level_LastWord 		// url path
+    [index 47] c:Title_TM_Safe_Max_25				// sitelink text
+    [index 07] link 			   	   				// sitelink url
+    [index 03] Price								// price 
+    [index 09] availability							// in stock / out of stock     
+    [index 38] c:Title_TM_Safe						// KW
+    [index 48] c:Title_ohne_Marke					// KW
+    [index 14] gtin									// KW
+    [index 15] mpn									// KW
+     
+    
+            
+            
+    process steps
+    -------------
+	STEP 1: load campaign by Id
+    STEP 2: create adgroup
+    STEP 3: create a text ad
+    STEP 4: create keywords (positive)
+    STEP 5: create siteLinks
+*/
+
+var FEED_URI ='http://transport.productsup.io/477ea0c7540f340cf614/channel/5261/masterfeed-shopping-de.csv'
+var TEST_MODE = true;
+
+function main() {
+  if(TEST_MODE)
+    Logger.log('[TEST MODE]');
+  
+  var csvService = CSVService(FEED_URI, '|');   
+  var dataReaderService = DataReaderService(csvService);
+  var adManagerService = AdManagerService(); 
+   
+  var products = dataReaderService.getProducts();
+  Logger.log('%s products found', products.length);  
+
+  if(TEST_MODE)
+    products = products.slice(0, 10);
+  
+  for(i in products)     
+  {
+    Logger.log('---------------------');
+    ProcessProduct(products[i], adManagerService);      
+  }
+}
+
+function ProcessProduct(product, adManagerService){
+    if(!product){
+      Logger.log('NULL row -> skip');
+      return;
+    }
+
+    Logger.log('campaign: #%s, adGroup: %s, product: %s', product.campaignId, product.adGroupName, product);       
+
+    // STEP 1: load campaign by Id
+  	var campaign = null;
+  	try{
+    	campaign = AdWordsApp.campaigns().withIds([product.campaignId]).get().next();
+    }
+  	catch(ex){ }
+  
+    if(!campaign){
+      Logger.log('campaign was NOT found -> skip');
+      return;
+    }
+
+  	var adGroupExists = adManagerService.checkIfAdGroupExistsByName(campaign, product.adGroupName);
+  	if(!adGroupExists)	  
+    	CreateProduct(adManagerService, campaign, product);
+  	else 
+    	UpdateProduct(adManagerService, campaign, product);
+}
+
+function CreateProduct(adManagerService, campaign, product){
+    // STEP 2: create adgroup
+    var adGroup = adManagerService.createAdGroup(campaign, product.adGroupName, product.defaultBid);
+    if(!adGroup){
+      Logger.log('exception: create adGroup');
+      return;
+    }             
+    Logger.log('adGroup created successfully');
+  
+    // STEP 3: create a text ad 
+    // { adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2 }
+  
+  	var param1Value = '{param1:' + product.price + '}';  
+    var textAd = adManagerService.createAd(
+      adGroup, 
+      product.header.line1, 
+      product.header.line2 + ' ' + param1Value, 
+      product.header.line3, 
+      product.description.line1, 
+      product.description.line2, 
+      product.url.path, 
+      product.url.segment1, 
+      product.url.segment2
+    );
+  
+    if(!textAd){
+      Logger.log('exception: create ad');
+      return;
+    }
+    Logger.log('ad created successfully');
+
+    // STEP 4: create keywords (positive)  
+    adManagerService.createKeywords(adGroup, product.keywords); 
+    Logger.log('keywords created successfully');
+
+    // STEP 5: create siteLinks
+    var sitelink = adManagerService.createSiteLink(product.sitelink.text, product.sitelink.url);  
+    adGroup.addSitelink(sitelink); 
+    Logger.log('sitelink created successfully');  
+}
+
+function UpdateProduct(adManagerService, campaign, product){  
+  	var adgroup = adManagerService.getAdGroupByName(campaign, product.adGroupName);
+  
+	var keywords = adgroup.keywords().get();
+      while(keywords.hasNext())
+      {        
+        var keyword = keywords.next();
+        
+        var params = adManagerService.getKeywordParams(keyword);
+        Logger.log('price update: %s > %s', params.length == 0 ? 'NULL' : params[0].text, product.price);
+        
+        adManagerService.setKeywordParams(keyword, product.price);    	
+      }
+}
+
+// ----------------------------------------------
+
+/* DATA READER SERVICE */
+var DataReaderService = function(csvService) { 
+  return {  
+     /*
+      { 
+          campaignId: string, 
+          adGroupName: string, 
+          defaultBid: float, 
+          header: {
+          	line1,
+			line2,
+			line3
+          }
+          description: {
+          	line1, 
+            line2
+          }, 
+          url: { 
+              path, 
+              segment1, 
+              segment2 
+          }, 
+          keywords: string[], 
+          sitelink: { 
+              text, 
+              url 
+          },
+          price,
+          stock
+      }
+    */    
+    getProducts: function(){
+      var result = [];
+      
+      // slice(1) - remove the header row;
+      var rows = csvService.getRows().slice(1); 
+      
+      for(i in rows){
+      	result.push({ 
+          campaignId: '1611206305', 
+          adGroupName: rows[i][47], 
+          defaultBid: 0.1, 
+          header: {
+          	line1: rows[i][47], 
+			line2: 'Für nur CHF',
+			line3: 'Jetzt bei Fust online kaufen'
+          },
+          description: {
+          	line1: rows[i][1], 
+            line2: rows[i][53] + ' . Grosse Auswahl bei Fust.ch – günstige Preise'
+          }, 
+          url: { 
+              path: rows[i][7],  
+              segment1: rows[i][36], 
+              segment2: rows[i][37], 
+          }, 
+          keywords: [
+            rows[i][1],
+            rows[i][14] + ' ' + rows[i][15],
+            rows[i][38],
+            rows[i][48]
+          ], 
+          sitelink: { 
+              text: rows[i][47],  
+              url: rows[i][7],  
+          },
+          price: rows[i][3], 
+          stock: rows[i][9] 
+      	});
+      }
+      
+      return result;
+    }
+  }
+}
+
+// ----------------------------------------------
+
+/* CSV SERVICE */
+var CSVService = function(uri, delimiter) { 
+  var _document = null;
+  var _delimiter = delimiter || ',';
+  var _charset = 'UTF-8';
+  
+  (function(){
+    var response = UrlFetchApp.fetch(uri);
+    var status_code = response.getResponseCode();
+    
+    if(status_code != 200) // 200 = OK
+    {
+      Logger.log('status code %s', status_code);
+      return;
+    }
+    
+    Logger.log('%s was loaded', uri);            
+    _document = Utilities.parseCsv(response.getContentText(_charset), _delimiter);    
+   })();  
+  
+   return { 
+     document: _document,
+     count: function(){
+       if(!_document) 
+         return 0;
+       
+       if(_document.length)
+         return _document.length;         
+       return 1;
+     },
+     getRows: function(){
+       var rows = [];
+    
+      for(i in _document){
+        var row = _document[i];
+        if(row[0].length == 1) 
+          continue;      
+        rows.push(row);
+      }
+      return rows;
+     }
+   }; 
+}
+
+// ----------------------------------------------
+
+// AD MANAGER SERVICE
+var AdManagerService = function() { 
+  return{
+    createAdGroup: function(campaign, adGroupName, defaultBid){
+      var adGroupBuilder = campaign.newAdGroupBuilder();
+      var operation = adGroupBuilder
+      .withName(adGroupName)
+      .withCpc(defaultBid)
+      // .withStatus('ENABLED')
+      .build();
+      
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },
+    // createAd: function(adGroup, header1, header2, description, destinationURL, pathURL1, pathURL2)
+    createAd: function(adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2){
+      
+      if(header1.length > 30)
+        header1 = header1.substr(0, 29);
+      if(header2.length > 30)
+        header2 = header2.substr(0, 29);
+      if(description1.length > 80)
+        description1 = description1.substr(0, 79);
+     
+      var builder = adGroup.newAd().expandedTextAdBuilder()
+      .withHeadlinePart1(header1) // 30 characters      
+      .withHeadlinePart2(header2) // 30 characters
+      .withDescription1(description1) // 80 characters      
+      .withFinalUrl(destinationURL) // 255 characters    
+      .withMobileFinalUrl(destinationURL);
+      
+      /* parameters:
+      
+         syntax:
+         {param<num>:<default value>}
+         
+         e.g: 
+         product {param1: 'some product'} for only {param2: 0} $ - buy now!
+      */
+
+      if(pathURL1)
+        builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/partURL1/partURL2
+      
+      if(pathURL2)
+        builder.withPath2(pathURL2); // 15 characters (the second part after the siteURL)
+
+      if(header3){
+      	if(header3.length > 30)
+        	header3 = header3.substr(0, 29);
+        
+        builder.withHeadlinePart3(header3) // 30 characters
+      }
+      
+      if(description2){
+      	if(description2.length > 80)
+        description2 = description2.substr(0, 79);
+        
+        builder.withDescription2(description2) // 80 characters  
+      }
+      
+      var operation = builder.build();
+      
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },
+        
+    createKeywords: function(adGroup, arrKeywods){
+      // arrKeywods: [string]
+      // match type: see 'Match Types'
+      
+      for(i in arrKeywods){
+        var keyword = arrKeywods[i];                        
+        var operation = adGroup.newKeywordBuilder()        
+        .withText(keyword)       
+        // .withCpc(1.0)
+        .build();        
+      }
+    },
+    createNegativeKeywords: function(adGroup, arrKeywods){
+      for(i in arrKeywods){
+        var keyword = arrKeywods[i];
+        adGroup.createNegativeKeyword(keyword);
+      }
+    },   
+    
+    createSiteLink: function(text, url){   
+      var operation = AdWordsApp.extensions().newSitelinkBuilder()
+        .withLinkText(text)
+        .withFinalUrl(url)
+        .build();
+
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },
+
+    /*
+	   important! 
+	   use it before you add your match type signs! (calling the createKeywords method)
+	   in order to prevent a deletion of those legitimate chars which add to represent the keyword match type ("keyword", [keyword], +keyword)
+
+       Logger.log(adManagerService.clearKeyword('A!@%,*B'));
+       Logger.log(adManagerService.clearKeyword('12%34'));
+       Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K L M N O P'));
+       Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K    L M N      O       P', true));
+    */
+    clearKeyword: function(keyword, clearSpacers){
+      var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']'];
+      var maxWordsAllowed = 10;
+      
+      // non allowed characters
+      // [error] Keywords cannot contain non-standard characters like: ! @ % , *
+      for(i in specialCharacters)
+      {
+        var c = specialCharacters[i];
+        if(keyword.indexOf(c) == -1) continue;
+        keyword = keyword.split(c).join(''); // replace all
+      }      
+      
+      // two many words
+      // [error] Keywords cannot contain more than 10 words
+      if(keyword.split(' ').length > maxWordsAllowed)
+        keyword = keyword.split(' ').slice(0, 9).join(' '); // remove words
+        
+      if(clearSpacers == true)
+        keyword = this.clearKeywordSpacers(keyword);
+      
+      return keyword;
+    },
+    clearKeywordSpacers : function (input){
+		var arrWords = input.split(' ');
+		if(arrWords.length == 1) {
+		// Logger.log('single word: /%s/', input);
+		return input;
+		}
+
+		// clear extra middle spaces ('A B C' -> 'A B C')
+		var temp = [];
+		for(i in arrWords){ 
+		var word = arrWords[i].trim();
+		if(word == '' || word.length == 1) continue; 
+		// Logger.log('word: /%s/', word);
+		temp.push(word); 
+		} 
+
+		var output = temp.join(' ');
+		// Logger.log('input: /%s/', input);
+		// Logger.log('output: /%s/', output);
+		return output; 
+	},
+    setKeywordParams: function(keyword, param1Value, param2Value, param3Value){      
+      if(param1Value)
+        keyword.setAdParam(1, param1Value);
+      
+      if(param2Value)
+        keyword.setAdParam(2, param2Value);
+      
+      if(param3Value)
+        keyword.setAdParam(3, param3Value);
+    },
+    getAds: function(campaign){
+      var ads = [];
+      
+      var adsIter = campaign.ads()
+      .withCondition('Type = EXPANDED_TEXT_AD')
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .get();
+      
+      while(adsIter.hasNext())      
+        ads.push(adsIter.next().asType().expandedTextAd());
+      
+      return ads;      
+    },  
+    getAdsByAdgroup: function(adgroup){
+      var ads = [];
+      
+      var adsIter = adgroup.ads()      
+      .withCondition('Type = EXPANDED_TEXT_AD')
+      .withCondition('Status IN [ENABLED]')
+      .get();
+      
+      while(adsIter.hasNext())      
+        ads.push(adsIter.next().asType().expandedTextAd());
+      
+      return ads;      
+    },  
+    checkIfAdExistsByTitle: function(campaign, adTitle){
+      var ads = this.getAds(campaign);
+      for(i in ads)
+        if(ads[i].getHeadlinePart1() == adTitle)
+          return true;
+      return false;
+    },
+    checkIfAdGroupExistsByName: function(campaign, adGroupName){
+      return this.getAdGroupByName(campaign, adGroupName) != null;
+    },
+    getAdGroupByName: function(campaign, adGroupName){
+      adGroupName = adGroupName.toLowerCase();
+      
+      var adgroups = campaign.adGroups()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withCondition('Name STARTS_WITH_IGNORE_CASE "' + adGroupName + '"')
+      .get()
+      
+      while(adgroups.hasNext())
+      { 
+        var adgroup = adgroups.next();
+        if(adgroup.getName().toLowerCase() == adGroupName)
+          return adgroup;
+      }
+      return null;
+    },
+    getAdGroupById: function(adGroupId){            
+      var adgroup = AdWordsApp.adGroups()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withIds([adGroupId])
+      .get()
+      
+      if(adgroup.hasNext())
+        return adgroup.next();
+      return null;
+    },
+    getCampaignById: function(campaignId){            
+      var campaign = AdWordsApp.campaigns()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withIds([campaignId])
+      .get()
+      
+      if(campaign.hasNext())
+        return campaign.next();
+      return null;
+    },
+    getKeywordParams: function(keyword){
+      // [{index, text}]
+      var result = [];
+      
+      var adParams = keyword.adParams().get();
+      while (adParams.hasNext()) {
+        var adParam = adParams.next();
+        result.push({ 
+          index: adParam.getIndex(),
+          text: adParam.getInsertionText()
+      	});
+      }
+      
+      return result;
+    },
+    checkIfKeywordExists: function(campaign, keywordText){
+      return campaign.keywords()
+      .withCondition('Text = \'' + keywordText + '\'')
+      .get()
+      .hasNext();
+    },
+    checkIfKeywordExistsInAdGroup: function(adgroup, keywordText){
+      return adgroup.keywords()
+      .withCondition('Text = \'' + keywordText + '\'')
+      .get()
+      .hasNext();
+    },
+  };
+}
