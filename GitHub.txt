@@ -32,6 +32,7 @@ Files
 GitHub Desktop
 GitHub
 Visual Sudio
+Issues
 =====================
 
 
@@ -998,3 +999,18 @@ will be shown as pending chnages
 - choose 'Reset and Keep Changes (--mixed)' 
 
 
+Issues
+------
+error:
+Updates were rejected because the tip of your current branch is behind
+
+solution:
+git push -f <remote> <branch>
+
+-
+
+error:
+refusing to merge unrelated histories
+
+solution:
+git pull <remote> <branch> --allow-unrelated-histories

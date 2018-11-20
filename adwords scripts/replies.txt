@@ -255,3 +255,77 @@ at the top of the script you'll find a few variables to set
 var DATA_SPREADSHEET = 'AdsCreatorSheet'; // the sheet name
 var LABEL_NAME = 'AdsRule'; // only campaign/s labeled with this label will generate this ad
 var adGroupDefaultBid = 0.1; // the default bid for the keywords 
+
+
+
+
+
+
+-------------
+
+
+hi mate, thanks for the payment! 
+
+attached is the script (first version),
+
+please check it and let me know if i missed something or you need any modification 
+
+
+
+implementation: 
+
+copy the content of the attached script and paste it in your adwords bulk operation section (within a new script)
+
+
+
+tip: you can use any text editor to open and see its source code 
+
+
+
+waiting for your reply 
+
+
+
+note: i'm just leaving the office for a couple of hours, am available via whatsapp (phone app) 
+in +972-54-561-4020 .... 
+feel free to reach me there 
+
+
+
+campaign id: 
+you need to set your own id (of which the ads will be created in) 
+
+to find your campaign id using adwords console, just go to the "all campaigns" dashboard > find the "add columns" button > add campaign id column 
+(let me know if you need further assistance here and i'll remote to your machine and show you how its done) 
+
+
+
+
+once you have the campaign id to replace, go to line 184 (yes, there are lots of code there [lol])  
+and paste it there 
+that it, execute the script and check the result 
+
+
+
+hope you'll like it (-: 
+
+
+thanks, Roby(-: 
+
+
+------------
+Q:can I have some more details on your service?
+
+of course 
+i write great automation scripts for adwords. the scripts can do almost ANY action  you can do manually. 
+the scripts have access to lots of 3rd party services (by google and others) and we can use it to generate reports, maintain an adwords account, send mails, read feeds and do some logic based on them and more and more ... 
+
+an example for a script can be a monitor script which checks for broken ad final url and notifies the account owner before it uses all its budget. 
+another good example can be adding a NON PROFIT searches to a negative Keywords,
+and there's lots more ...  
+
+let me know if you need any further assistance 
+
+thanks, Roby(-: 
+
+

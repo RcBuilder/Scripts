@@ -9126,13 +9126,13 @@ var AdManagerService = function() {
         header1 = header1.substr(0, 29);
       if(header2.length > 30)
         header2 = header2.substr(0, 29);
-      if(description1.length > 80)
-        description1 = description1.substr(0, 79);
+      if(description1.length > 90)
+        description1 = description1.substr(0, 89);
      
       var builder = adGroup.newAd().expandedTextAdBuilder()
       .withHeadlinePart1(header1) // 30 characters      
       .withHeadlinePart2(header2) // 30 characters
-      .withDescription1(description1) // 80 characters      
+      .withDescription1(description1) // 90 characters      
       .withFinalUrl(destinationURL) // 255 characters    
       .withMobileFinalUrl(destinationURL);
       
@@ -9145,10 +9145,10 @@ var AdManagerService = function() {
          product {param1: 'some product'} for only {param2: 0} $ - buy now!
       */
 
-      if(pathURL1)
-        builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/partURL1/partURL2
+      if(pathURL1 && pathURL1.length <= 15)     
+        builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/pathURL1/pathURL2      
       
-      if(pathURL2)
+      if(pathURL2 && pathURL2.length <= 15)
         builder.withPath2(pathURL2); // 15 characters (the second part after the siteURL)
 
       if(header3){
@@ -9159,10 +9159,10 @@ var AdManagerService = function() {
       }
       
       if(description2){
-      	if(description2.length > 80)
-        description2 = description2.substr(0, 79);
+      	if(description2.length > 90)
+        description2 = description2.substr(0, 89);
         
-        builder.withDescription2(description2) // 80 characters  
+        builder.withDescription2(description2) // 90 characters  
       }
       
       var operation = builder.build();
@@ -9213,7 +9213,7 @@ var AdManagerService = function() {
        Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K    L M N      O       P', true));
     */
     clearKeyword: function(keyword, clearSpacers){
-      var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']'];
+      var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']', '|', '>', '/'];
       var maxWordsAllowed = 10;
       
       // non allowed characters

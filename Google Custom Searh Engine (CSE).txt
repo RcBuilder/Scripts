@@ -1,0 +1,25 @@
+Google Custom Searh Engine (CSE)
+
+implementation:
+1. go to https://cse.google.com/cse/create/new
+2. set the following:
+   - Sites to search // supports multiple, supports specific pages 
+   - Language
+   - Name
+3. choose 'Get Code' > copy-paste the code in your site  
+4. (optional) look and feel
+5. (optional) setup
+
+e.g: 
+<script>
+  (function() {
+    var cx = '004683207147767747544:ulcp-oxvkbm';
+    var gcse = document.createElement('script');
+    gcse.type = 'text/javascript';
+    gcse.async = true;
+    gcse.src = 'https://cse.google.com/cse.js?cx=' + cx;
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(gcse, s);
+  })();
+</script>
+<gcse:search></gcse:search> 

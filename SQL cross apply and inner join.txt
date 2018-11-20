@@ -1,0 +1,38 @@
+cross apply and inner join
+--------------------------
+declare @products table(Id int, Name varchar(30), CategoryId int)
+insert into @products
+values
+(1001, 'P1', 3),
+(1002, 'P2', 1),
+(1003, 'P3', 3),
+(1004, 'P4', 2),
+(1005, 'P5', 1)
+
+declare @categories table(Id int, Name varchar(30))
+insert into @categories
+values
+(1, 'C1'),
+(2, 'C2'),
+(3, 'C3')
+
+-- using cross apply
+select P.*, C.* from @products P 
+cross apply (
+	select * from @categories where id = P.CategoryId
+) as C
+
+-- using inner join 
+select P.*, C.* 
+from @products P 
+     inner join 
+	 @categories C on (C.id = P.CategoryId)
+
+
+/*	
+	1001	P1	3	3	C3
+	1002	P2	1	1	C1
+	1003	P3	3	3	C3
+	1004	P4	2	2	C2
+	1005	P5	1	1	C1
+*/

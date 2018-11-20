@@ -1,0 +1,26 @@
+cross apply with table function 
+-------------------------------
+
+// Syntax Error!! 
+// can't join function uses dynamic parameter
+
+select F.* from SomeTable S  
+inner join dbo.SomeFunction(S.name) F   
+on F.id= S.id
+
+---
+
+// OK
+
+select F.* from SomeTable S
+cross apply (
+	select * from dbo.SomeFunction(S.name) 
+) F  
+where F.id= S.id
+
+- OR -
+
+// shortcut 
+select F.* from SomeTable S 
+cross apply dbo.SomeFunction(S.name) F
+where F.id= S.id

@@ -29,6 +29,7 @@
 - Events/ Gestures
 - JS Modules
 - Ng Directives
+- Google Firebase
 - Plugins
 - Other Services
 - Working With Nativescript
@@ -183,6 +184,8 @@ commands:
 > tns device [android|ios] 
 > tns plugin add [plaginName]  // add plugin
 > tns plugin remove [plaginName]  // remove a plugin
+> tns plugin update [plaginName]  // update a plugin
+> tns plugin // installed plugin list
 
 > tns debug [android|ios]  // debug a device
 > tns debug [android|ios] --bundle  // debug bundled app
@@ -1835,10 +1838,49 @@ JS Modules
   see 'Events/ Gestures'
 
 - Observable
-  path: 'data/observable' and 'data/observable-array'
+  path: 'data/observable'
 
   about:
   // TODO  
+
+  MVVM pattern:
+  var Observable = require("data/observable").Observable;
+
+  function createViewModel(){
+	var viewModel = new Observable();
+	...
+	...
+	return viewModel;
+  }
+  exports.createViewModel = createViewModel;
+
+  sub-classes:
+  1.Observable
+    const Observable = require("tns-core-modules/data/observable").Observable;	
+
+  2.fromObject
+    const fromObject = require("tns-core-modules/data/observable").fromObject;
+
+	e.g:
+	var newViewModel = fromObject({ 'p1': 'someValue' });
+
+	// equal to:	
+	///let newViewModel = new Observable();
+	///newViewModel.set('p1', 'someValue');	
+
+  3.fromObjectRecursive
+    const fromObjectRecursive = require("tns-core-modules/data/observable").fromObjectRecursive; 
+
+	e.g:
+	var newViewModel = fromObject({ 
+		'p1': 'someValue', 
+		'p2': { 'p3': 'someOtherValue' }
+	});
+
+	// equal to:	
+	///let newViewModel = new Observable();
+	///newViewModel.set('p1', 'someValue');
+	///newViewModel.set('p2', fromObject({ 'p3': 'someOtherValue' }));
 
   get and set functions:
   allow us to set/ get a value to/ from an Observable object
@@ -1875,6 +1917,82 @@ JS Modules
 	return viewModel;
   }
   exports.createViewModel = createViewModel;
+
+
+- Observable Array
+  path: 'data/observable-array'
+
+  sub-classes:
+  ObservableArray    
+  const ObservableArray  = require("tns-core-modules/data/observable-array").ObservableArray;
+
+  methods:
+  getItem([index: number]) // returns an item by its index
+  setItem([index: number], [item: object])  // add an item in a specific index
+  push([item: object])  // add item
+  push([items: array])  // add items
+  reverse() // reverse the items
+  shift()  // remove the 1st element
+  sort()  // sort the array
+  indexOf([item: object]) // returns the item index, -1 of not exists
+
+  events:
+  on([event], [function]);
+
+  e.g
+  arr.on(ObservableArray.changeEvent, (args) => {
+    console.log(args.index); // Index of the changed item
+    console.log(args.action); // Action
+    console.log(args.addedCount); // Number of added items
+    console.log(args.removed); // Array of removed items
+  });
+
+  using:
+  // with lenght
+  var arr1 = new ObservableArray([length]);
+
+  // from array
+  var arr2 = new ObservableArray([Array]);
+
+  // from arguments
+  var arr3 = new ObservableArray([arg1, arg2 ....]);
+
+  e.g:
+  // with lenght
+  var arr1 = new ObservableArray(10);
+
+  // from array
+  var arr2 = new ObservableArray([0, 1, 1, 2, 3, 5, 8, 13, 21, 34]);
+
+  // from arguments
+  var arr3 = new ObservableArray(1, 2, 3, 5, 8, 13, 21, 33, 55, 89);
+
+  sample:
+  const Observable = require("data/observable").Observable;
+  const ObservableArray  = require("tns-core-modules/data/observable-array").ObservableArray;
+
+  function createViewModel(){
+	var viewModel = new Observable();	
+
+	var arr = new ObservableArray([0, 1, 1, 2, 3, 5, 8, 13, 21, 34]);
+	viewModel.param1 = arr;
+
+	var firstItem = arr.getItem(0);
+	var secondItem = arr.getItem(1);
+
+	return viewModel;
+  }
+  exports.createViewModel = createViewModel;
+
+
+
+- virtual array
+  path: 'virtual-array'
+
+  source:
+  https://docs.nativescript.org/api-reference/modules/_data_virtual_array_
+
+  // TODO
 
 - file system
   path: 'file-system'
@@ -2041,15 +2159,52 @@ JS Modules
   // get file path
   var filePath = fileSystemModule.path.join(documents.path, 'myFiles', 'myFile.txt'); 
 
-- timer
+- trace
   path: 'timer'
 
+  source:
+  https://docs.nativescript.org/api-reference/modules/_trace_
+
   about:
-  the nativescript's implementation of the javascript functionality 
+  for debugging purposes, a diagnostic information log about the application in runtime 
+
+- xml parser
+  path: 'xml'
+
+  source:
+  https://docs.nativescript.org/api-reference/modules/_xml_
+
+  about:
+  allows us to parse data from an XML content
+
+  parser:
+  XmlParser([onSuccess], [onError])
+
+  methods (parser):
+  parse([sXML: string])
+
+  using:
+  const xmlModule = require("tns-core-modules/xml");
+
+  var xmlParser = new xmlModule.XmlParser(event => { }, ex => { });
+
+  xmlParser.parse('
+  	<root>
+  		<Node1 attr1="" attr2="">...</Node1>
+  		<Node2>...</Node2>			
+  	</root>
+  ');
+
+  
+- timer
+  path: 'timer'
 
   source:
   https://docs.nativescript.org/api-reference/modules/_timer_
 
+  about:
+  the nativescript's implementation of the javascript functionality 
+ 
   methods:
   setTimeout([function], [interval])  
   setInterval([function], [interval])  // returns a timer id
@@ -2105,10 +2260,23 @@ JS Modules
 
 - color:
   path: 'color'
+
+  source:
+  https://docs.nativescript.org/api-reference/classes/_color_.color
+
+  constructor:
+  Color([colorName]);   // e.g: Color('Blue');
+  Color([colorCode]);   // e.g: Color('#FF0000');
+  Color([colorCode]);   // e.g: Color('#F80');
+  Color([alpha], [red], [green], [blue]);   // [ARGB] e.g: Color(100, 255, 100, 100);  
   
+  equals:
+  let red = new Color("#FF0000");
+  let isRed = red.equals(new Color("red"));  
+
   sample:
   var colorModule = require("color");
-  var blue Color = new colorModule.Color("Blue");
+  var blueColor = new colorModule.Color("Blue");
 
 - enums
   path: 'ui/enums'
@@ -2166,6 +2334,7 @@ JS Modules
 
   about:
   allows GET and POST requests to a remote server
+  also see 'http'
 
   syntax:
   fetch([url]).then(response => ...).catch(e => ... )  
@@ -2234,30 +2403,296 @@ JS Modules
 - platform
   path: 'platform'
   
+  source: 
+  https://docs.nativescript.org/api-reference/modules/_platform_
+
+  about:
+  allows us to get information about the device 
+
   properties:
   isAndroid  
-  device  // get a Device object represents the connected device 
-  device.sdkVersion  // get sdk version installed in the device 
+  isIOS
+  device  // get a Device object represents the connected device   
+  screen  // get a Screen object represents the connected device screen  
+
+  device.model
+  device.deviceType
+  device.os
+  device.osVersion
+  device.sdkVersion  
+  device.language
+  device.manufacturer
+  device.uuid
+
+  screen.mainScreen.heightDIPs
+  screen.mainScreen.heightPixels)
+  screen.mainScreen.scale
+  screen.mainScreen.widthDIPs
+  screen.mainScreen.widthPixels
 
   sample:
   var platform  = require("tns-core-modules/platform");
   console.log('isAndroid: ' + platform.isAndroid);
   console.log('sdkVersion: ' + platform.device.sdkVersion);
 
+- http
+  path: 'http'
+
+  source:
+  https://docs.nativescript.org/ns-framework-modules/http
+  https://docs.nativescript.org/api-reference/modules/_http_
+
+  about:
+  allows GET and POST requests to a remote server
+  also see 'fetch'
+
+  methods:
+  getString([url]).then([onSuccess], [onError])
+  getJSON([url]).then([onSuccess], [onError])
+  getImage([url]).then([onSuccess], [onError])
+  getFile([url]).then([onSuccess], [onError])
+  request([options]).then([onSuccess], [onError])
+
+
+  using:
+  const httpModule = require("http");
+
+  // GET string
+  httpModule.getString("http://domain.com").then(response => {
+    console.log(response);
+  }, (ex) => {
+	console.log('ex: ' + ex.message);
+  });
+
+  // GET Json
+  httpModule.getJSON("http://domain.com/json").then(response => {
+    console.log(response);
+  }, (ex) => {
+	console.log('ex: ' + ex.message);
+  });
+
+  // GET an Image
+  httpModule.getImage("http://domain.com/test.jpeg").then(response => {
+    console.log(response);
+  }, (ex) => {
+	console.log('ex: ' + ex.message);
+  });
+
+  // create a GET request
+  var options = {
+    url: "http://domain.com",
+    method: "GET"
+  };
+
+  httpModule.request(options).then(response => {
+    console.log(response);
+  }, (ex) => {
+	console.log('ex: ' + ex.message);
+  });
+
+  // create a POST request
+  var options = {
+    url: "https://httpbin.org/post",
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    content: JSON.stringify({
+        username: 'user',
+        password: 'password'
+    })
+  };
+
+  httpModule.request(options).then(response => {
+    console.log(response);
+  }, (ex) => {
+	console.log('ex: ' + ex.message);
+  });
+
+- image source
+  path: 'image-source'
+
+  source:
+  https://docs.nativescript.org/api-reference/classes/_image_source_.imagesource
+
+  methods (module):
+  fromResource([name: string]) // returns an image
+  fromFile([path: string])  // returns an image
+  fromBase64([source: string])  // returns an image
+  ImageSource() // returns an empty image
+
+  methods (image):
+  saveToFile([path: string], [imageType: string], [quality: number])  // returns bool
+  saveToFile([path: string], [imageType: string])  // returns bool
+  toBase64String([imageType: string])
+  fromAsset([asset]).then([callback])  // async load from an asset
+
+  imageTypes:
+  png
+  jpeg 
+  jpg
+
+  using:
+  const imageSourceModule = require("tns-core-modules/image-source");
+
+  // load a resource
+  var resource = imageSourceModule.fromResource("icon");
+
+  // load a local image file
+  let folder = fileSystemModule.knownFolders.currentApp();
+  let path = fileSystemModule.path.join(folder.path, "images/logo.png");
+  let image = imageSourceModule.fromFile(path);
+
+  // save an image  
+  let folder = fileSystemModule.knownFolders.documents();
+  let path = fileSystemModule.path.join(folder.path, "1.png");
+  let saved = img.saveToFile(path, "png");
+
+
 - application
   path: 'application'
   
+  source:
+  https://docs.nativescript.org/api-reference/modules/_application_
+
   about:
   a reference to the current application
 
   properties:
   android  // get an Android object
+  ios  // get an iOS object
+
+  methods:
   setCssFileName([filePath])  // apply a css file on the application
   getCssFileName // get the application css file 
 
-  sample:
+  events:
+  launchEvent
+  suspendEvent
+  resumeEvent
+  exitEvent
+  displayedEvent
+  lowMemoryEvent
+  orientationChangedEvent
+  uncaughtErrorEvent
+
+  register application events:
+  on([event], [callback]) // returns listener object
+  off([event], [listener])
+
+  register android events:
+  android.registerBroadcastReceiver([action], [callback]) // returns a receiver object
+  android.unregisterBroadcastReceiver([receiver])
+
+  using:
   var application = require("tns-core-modules/application");
   console.log(application.android);
+
+  samples:
+
+  // check platform
+  if (application.android)
+    console.log("We are running on Android device!");
+  else if (application.ios)
+	console.log("We are running on iOS device");   
+
+  ---
+
+  // application event - orientation changed
+  orientationChangedListener = applicationModule.on(applicationModule.orientationChangedEvent, (args) => {
+    // args.newValue: 'portrait', 'landscape', 'unknown'
+    viewModel.set("orientation", args.newValue);
+  });
+
+  ---
+
+  // android event - battery changed 
+  if (application.android) {    
+    receiver = applicationModule.android.registerBroadcastReceiver(android.content.Intent.ACTION_BATTERY_CHANGED, (context, intent) => {
+        const level = intent.getIntExtra(android.os.BatteryManager.EXTRA_LEVEL, -1);
+        const scale = intent.getIntExtra(android.os.BatteryManager.EXTRA_SCALE, -1);
+        const percent = (level / scale) * 100.0;
+        viewModel.set("batteryLife", percent.toString());
+    });
+  }
+
+- application-settings
+  path: 'application-settings'
+  
+  source:
+  https://docs.nativescript.org/api-reference/modules/_application_settings_
+
+  about:
+  allows us to store and retrieve data from the  device’s local storage.  
+
+  methods:
+  setBoolean(string key, bool value)
+  getBoolean(string key, bool default)
+
+  setString(string key, string value)  
+  getString(string key, bool default)
+  getString(string key)
+
+  setNumber(string key, float value)
+  getNumber(string key)
+
+  hasKey(string key) // returns true/false whether the ket exists or not
+  remove(string key) // removes a key from the storage 
+  clear()  // delete all values from the storage 
+
+  using:
+  var appSettings = require("application-settings");
+
+  appSettings.setString("username", "roby");
+  var username = appSettings.getString("username");
+
+- connectivity
+  path: 'connectivity'
+  
+  source:
+  https://docs.nativescript.org/api-reference/modules/_connectivity_
+
+  about:
+  allows us to get information about the device connectivity
+
+  connectionType enum:
+  none
+  wifi
+  mobile
+  bluetooth
+  ethernet
+
+  methods:
+  getConnectionType() // returns the connectionType 
+  startMonitoring([callback]) // monitor connection changes
+  stopMonitoring();
+
+  permissions:
+  app/App_Resources/Android/AndroidManifest/xml
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+  using:
+  const connectivityModule = require("tns-core-modules/connectivity");
+  let connectionType = connectivityModule.getConnectionType();
+  
+  switch (connectionType) {
+    case connectivityModule.connectionType.none:        
+        console.log("No connection");
+        break;
+    case connectivityModule.connectionType.wifi:        
+        console.log("WiFi connection");
+        break;
+    case connectivityModule.connectionType.mobile:        
+        console.log("Mobile connection");
+        break;
+    case connectivityModule.connectionType.ethernet:        
+        console.log("Ethernet connection");
+        break;    
+    default:
+        break;
+  }
+
+  connectivityModule.startMonitoring(newConnectionType => { ... });
+
+
 
 - builder
   path: 'ui/builder'
@@ -2291,12 +2726,122 @@ Ng Directives
 //TODO
 // https://docs.nativescript.org/angular/ui/ng-ui-widgets/ng-directives
 
+Google Firebase
+---------------
+about:
+// TODO
+  
+source:
+https://github.com/EddyVerbruggen/nativescript-plugin-firebase  	
+https://github.com/EddyVerbruggen/nativescript-plugin-firebase-demo
+  
+blog:
+https://firebase.googleblog.com/
+  
+install:
+> tns plugin add nativescript-plugin-firebase
+  
+configuration:
+1. go to https://console.firebase.google.com/ > create an account 
+2. Add Project > choose the Project type from the provided list (Auth, Database, Cloud Messaging etc.)
+3. Add App (android and/or iOS) > download the generated config file/s 
+   for ios - file 'GoogleService-Info.plist' > copy it to 'app/App_Resources/iOS/'
+   for android - file 'google-services.json' > copy it to 'app/App_Resources/Android/'
+4. configure the plugin: 'firebase.nativescript.json' file
+   note! defined during the installation process, to re-configure it - delete the file and re-install the plugin or run an 'npm run config' from within the module (node_modules/nativescript-plugin-firebase)
+5. set-up the 'build.gradle' file to use the desired services (located in platforms/android)
+   - add 'classpath "com.google.gms:google-services:4.2.0"' as a dependency
+6. make sure the applicationId is correct in the 'app.gradle' file (located in App_Resources/Android)
+7. bootstrap firebase in the 'app.js' before the 'application.run' (see 'bootstrap firebase')   
+   
+supported services:
+AdMob
+Analytics
+Authentication
+Cloud Firestore
+Cloud Functions
+Cloud Messaging / Non-Firebase Push Messaging
+Crash Reporting / Crashlytics
+Invites and Dynamic Links
+ML Kit
+Performance Monitoring
+Realtime Database
+Remote Config
+Storage
+  
+analytics:
+once installed, we'll have analytics about the service and its usage.
+note! apply for ANY installed service by firebase!
+
+reference:
+see 'firebase Cloud Messaging'
+see 'firebase Invites'
+// TODO
+
+bootstrap firebase:
+// app.js
+const application = require("application");
+const firebase = require("nativescript-plugin-firebase");
+
+firebase.init().then(instance => {
+      console.log("firebase.init done");
+    },
+    error => {
+      console.log("firebase.init error: " + error);
+    }
+);
+
+application.run({ moduleName: "app-root" });
+
+--
+
+- firebase Authentication:
+
+  about:
+
+  videos:
+  https://www.youtube.com/watch?list=PLl-K7zZEsYLmOF_07IayrTntevxtbUxDL&time_continue=34&v=8sGY55yxicA
+
+  enable/disable providers:
+  in the firebase console > Authentication > Sign-in method > enable/disable provider
+
+  add authorised domain:
+  in the firebase console > Authentication > Sign-in method > authorised domains
+
+  // TODO
+
+--
+
+- firebase Cloud Messaging:
+
+  about:
+  allows us to send messages to the users via a backend server, 
+  supports individuals users, groups and topics. 
+
+  videos:
+  https://www.youtube.com/watch?time_continue=10&v=sioEY4tWmLI
+
+-- 
+
+- firebase Invites
+
+  about:
+  an easy way to share content from our app. 
+  it also supports referral codes (refer a friend).
+
+  videos:
+  https://www.youtube.com/watch?v=LkaIJCZ_HyM&list=PLl-K7zZEsYLmOF_07IayrTntevxtbUxDL
+
+
 Plugins
 -------
+- google-firebase
+  see 'Google Firebase'
+  
 - nativescript-filter-select
 
   about:
-  // TODO
+  listview widget to select AND filter items.
 
   source:
   https://github.com/moayadnajd/nativescript-filter-select
@@ -2305,9 +2850,67 @@ Plugins
   install:
   > tns plugin add nativescript-filter-select
 
-  // TODO
+  implementation:
+  1. add namespace to the Page tag
+     <Page xmlns:FS="nativescript-filter-select">
+
+  2. create an instance of the component 
+     <FS:FilterSelect ..... />
+
+  3. import the css 
+     @import 'nativescript-filter-select/styles.css';
+
+  options:
+  render: string ('tags', 'label', 'drop')  // items render mode
+  multiple: bool   
+  search_param: string  // item-text
+  primary_key: string  // item-value
+  item_template: string  // sXML template   
+  modal_title: string
+  hint: string 
+  items: []  
+  selected: []   // items to mark as selected
+  disabled: bool
+  allowSearch: bool
+  searchHint: string
+  xbtn: string // text for the remove-tag action
+  closeText: string 
+  doneText: string 
+  clearText: string 
+  selectText: string 
+    
+  events:
+  change // on Change/ Select 
+  close  // on Modal Closed	
+
   methods:
-  using:
+  open  // open modal
+  refresh // to refresh the item
+
+  using:  
+  <FS:FilterSelect class="m-20"
+        items="{{ countries }}" 
+        change="{{ onCountriesSelected }}"
+        hint="select countries" 
+        modal_title="Countries" 
+        search_param="name" 
+        primary_key="id" 
+        item_template="{{ countryItemTemplate }}"
+    />
+  
+  viewModel.countries = [
+        { id: 1, name: 'Austria' }, 
+        { id: 2, name: 'Belgium' }, 
+        { id: 3, name: 'Cyprus' }, 
+        { id: 4, name: 'Israel' },         
+        { id: 5, name: 'Spain' }, 
+        { id: 6, name: 'Sweden' }
+  ];  
+
+  viewModel.onCountriesSelected = (args) => {
+        console.log('onCountriesSelected');
+  };
+  viewModel.countryItemTemplate = "<Label text=\"{{ name }}\" />";
 
 - nativescript-drop-down
 
@@ -2318,10 +2921,39 @@ Plugins
   install:
   > tns plugin add nativescript-drop-down
 
-  // TODO
+  implementation:
+  1. add namespace to the Page tag
+     <Page xmlns:DDL="nativescript-drop-down">
+
+  2. create an instance of the component 
+     <DDL:DropDown ..... />
+
+  options:
+  items: [] 
+  selectedIndex: number 
+  hint: string  
+  isEnabled: bool 
+
+  events:
+  opened
+  closed
+  selectedIndexChanged
+
   methods:
+  open
+  close
+
   using:
-  
+  <DDL:DropDown class="m-20"                 
+		items="{{ colors }}" 
+		selectedIndexChanged="{{ onColorSelected }}"
+		selectedIndex="0" 
+   />
+
+   viewModel.colors = ['blue', 'red', 'purple', 'green', 'brown', 'black', 'yellow', 'pink'];
+   viewModel.onColorSelected = (args) => {
+        console.log('onColorSelected');
+   };
 
 - nativescript-speech
 
@@ -3145,6 +3777,16 @@ Working With Nativescript
   - syntax:
     {{ p }}
 
+  - combination of text and property:
+    {{ 'p=' + p }}
+
+  - $value:
+    use this keyword to bind a list item value   
+	{{ $value }}
+
+  - $parent and $parents
+    use those keywords to access the parent/ parents bindingContext object
+
   - tip:
     avoid accessing components by ID. It is recommended to use bindings to specify component properties.
 
@@ -3186,6 +3828,25 @@ Working With Nativescript
     exports.fun1 = function() { 
 	  ... 
     } 
+
+- console
+  
+  log operations:  
+  info
+  log
+  warn
+  error
+  dir
+
+  stopwatch:
+  time([key])
+  timeEnd([key])
+
+  using:
+  console.time('key1');
+  ...
+  ...
+  console.timeEnd('key1');
 
 - require
   - import modules or js files (see 'require js files')
@@ -3270,6 +3931,52 @@ Working With Nativescript
         var soundToPlay = button.soundType;  // custom attribute 
         console.log('play ' + soundToPlay);                       
     }
+
+- templates:
+  
+  source:
+  https://docs.nativescript.org/app-and-screen-templates/app-templates
+
+  create an app using a template: 
+  > tns create [appName] --template [templateName]
+
+  e.g
+  >  tns create my-app-name --template tns-template-name
+
+  tip: 
+  we can also use sideKick to create an app using a template 
+
+  source:
+  each template has its own repo in github 
+
+  list:
+  - blank
+    tns-template-blank
+
+  - drawer
+	tns-template-drawer-navigation
+
+  - tabs
+    tns-template-tab-navigation
+
+  - master detail with firebase
+	tns-template-master-detail
+
+  - master detail with kinvey
+    tns-template-master-detail-kinvey
+
+  note:
+  we can create our own templates
+
+- performance:  
+  enable webpack and usign bundle and uglify to achieve a better app. 
+  in addition, for images, use the src property instead of ImageSource, set the loadMode to be async, set a decodeWidth and decodeHeight and use the useCache property.
+
+  source:
+  https://docs.nativescript.org/performance-optimizations/bundling-with-webpack
+  https://docs.nativescript.org/performance-optimizations/startup-times
+  https://docs.nativescript.org/performance-optimizations/images-optimisations
+
 
 Multiple Views
 --------------
@@ -3930,9 +4637,142 @@ certificates:
 - process:
   use a Certificate Signing Request (CSR) to generate an iOS Certificate (CER)
 
+  step1 - create an iOS Certificate Signing Request (CSR)
+  step2 - create an iOS Certificate (CER)
+  step3 - create distribution provisioning
+  step4 - create a P12 file from iOS Certificate
+  step5 - connect a P!2 file to an app 
+  step6 - publish the app
+  step7 - add an App to the Store
+
 - types:
   Certificate for Development
   Certificate for Distribution   
+
+create an iOS Certificate Signing Request (CSR):
+- open 'Sidekick APP'
+- (menu) Tools > Certificate Signing Request
+- specify name, email and country 
+- click on 'Create CSR' button
+- save the generated CSR to the local disk (.csr file)
+- use the certificate request to create a Certificate (see 'create an iOS Certificate')
+
+create an iOS Certificate (CER):
+- go to the 'dev Center'
+- (menu) Certificates, Identifiers & Profiles
+- on the top-left dropdown > select 'iOS, tvOS, watchOS'
+- (menu) Certificates > Production
+- click the + button (on the top-right)
+- choose the certificate distribution typeto create > continue 
+  (need to choose 'App Store and Ad Hoc' type)
+- continue
+- load the generated CSR > continue
+  see 'create an iOS Certificate Signing Request (CSR)'
+- Download the CER!
+
+create distribution provisioning:
+- go to the 'dev Center'
+- (menu) Certificates, Identifiers & Profiles
+- on the top-left dropdown > select 'iOS, tvOS, watchOS'
+- (menu) Provisioning Profiles > Distribution
+- click the + button (on the top-right)
+- select the distribution > continue
+  (need to choose 'App Store')
+- select an App ID to associate with the profile > continue  
+  note! to create app id see 'create an App id'
+- select the certificate > continue
+- set the profile name > continue
+- download the provisioning profile
+
+create an App id:
+- go to the 'dev Center'
+- (menu) Certificates, Identifiers & Profiles
+- on the top-left dropdown > select 'iOS, tvOS, watchOS'
+- (menu) Identifiers > App IDs
+- App AI Description: the app name 
+  e.g: HaDeliverim Restaurant
+- App ID Suffix > Explicit App ID: a unique app id 
+  e.g: com.HaDeliverim.Restaurant
+- App Services: choose the services the app uses 
+- click on register
+
+  notes! 
+  * app id is just a custom string value to identify the app.
+  * don't forget to set the app id in the package.json file!
+
+create a P12 file from iOS Certificate:
+- open 'Sidekick APP'
+- (menu) Tools > Certificate Signing Request
+- click on 'Import CER' button
+- load the certificate file (.cer file)
+- provide a password > save
+
+connect a P!2 file to an app:
+- open 'Sidekick APP'
+- open the project 
+- (tab) connected devices > settings (cogwheel icon)
+- choose the P12 file > add 
+
+build the app on a specific Phone/AVD:
+- open 'Sidekick APP'
+- open the project 
+- (tab) connected devices > choose the device 
+- choose build type (local or cloud)
+- choose build config (debug or release)
+- click 'Run on Device'
+
+publish the app:
+see 'publish the app (iphone)'
+see 'publish the app (android)'
+
+publish the app (iphone):
+- open 'Sidekick APP'
+- open the project 
+- click on publish button (top-right) 
+- choose 'Apple App Store' as a destination
+- settings (cogwheel icon) > set the certificate (P12) and provisioning files 
+- choose build type (local or cloud)
+- Next  
+- once the build completed - an .IPA file will be created in [yourProject]\.cloud\ios\device 
+  and a popup will be shown requesting your developer credentials - provide them and click 'Upload'
+
+publish the app (android):
+- open 'Sidekick APP'
+- open the project 
+- click on publish button (top-right) 
+- choose 'Google Play' as a destination
+- settings (cogwheel icon) > set the certificate (keystore) file
+- choose build type (local or cloud)
+- Next
+
+add an App to the Store:
+- go to the 'dev Center'
+- (menu) App Store Connect > click on 'Go to ..' button
+- choose 'My Apps'
+- App information: App Name 
+  app name as it will apear in the store)
+- App information: Privacy Policy URL 
+  provide a url to the app policy 
+- General information: Bundle ID 
+  choose the created bundle
+- General information: SKU 
+  unique identifier 
+  e.g: co.il.rcbuilder.sample
+- General information: Category 
+  choose the app category 
+  e.g: Food & Drink
+- Pricing and Availability: Price Schedule
+  set the app price 
+  e.g: ILS 0 (Free)
+- Prepare for Submission: Keywords
+  app keywords
+- Prepare for Submission: Support URL
+  provide a url to a support page
+- App Review Information: Contact Information
+- General App Information: App Store Icon
+  app icon (1024x1024)
+  // TODO 
+
 
 developer Program:
 https://developer.apple.com/programs/
@@ -3969,20 +4809,10 @@ Create a Build:
 - click on 'Build'
 
 create an iOS Certificate Signing Request (CSR):
-- (menu) Tools > Certificate Signing Request
-- specify name, email and country 
-- click on 'Create CSR' button
-- save the generated CSR to the local disk (.csr file)
-- use the certificate request to create a Certificate (see 'create an iOS Certificate')
-
-create an iOS Certificate (CER):
-// TODO
+reference > 'iOS'
 
 create a P12 file from iOS Certificate:
-- (menu) Tools > Certificate Signing Request
-- click on 'Import CER' button
-- load the certificate file (.cer file)
-- provide a password > save
+reference > 'iOS'
 
 establish environment for iOS:
 [steps]
@@ -4010,6 +4840,17 @@ download the app, scan the QR code and get a liveSync view on the mobile.
 
 Issues
 ------
+issue:
+some services are not working properly or we have a build errors
+
+cause:
+applicationId is __PACKAGE__ in app.gradle file in 'app/App_Resources/Android' folder
+
+solution:
+Must set the app identity as defined in 'package.json' under the root
+
+--
+
 issue:
 Unable to apply changes on device: xxxx. Error is: Command gradlew.bat failed with exit code 1.
 

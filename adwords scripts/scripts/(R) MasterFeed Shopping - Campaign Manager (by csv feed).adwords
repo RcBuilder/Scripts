@@ -34,7 +34,9 @@
 */
 
 var FEED_URI ='http://transport.productsup.io/477ea0c7540f340cf614/channel/5261/masterfeed-shopping-de.csv'
-var TEST_MODE = true;
+var TEST_MODE = false;
+var CAMPAIGN_ID = '1622518701';
+var ProductsRange = '500-1000';
 
 function main() {
   if(TEST_MODE)
@@ -48,7 +50,16 @@ function main() {
   Logger.log('%s products found', products.length);  
 
   if(TEST_MODE)
-    products = products.slice(0, 10);
+    products = products.slice(10, 13);
+  else if(ProductsRange) {
+    var range = ProductsRange.split('-');
+    var from = range[0];
+    var to = range[1] != '' ? range[1] : products.length;
+    
+    Logger.log('range: %s > %s', from, to);  
+    
+  	products = products.slice(from, to);
+  }
   
   for(i in products)     
   {
@@ -58,6 +69,7 @@ function main() {
 }
 
 function ProcessProduct(product, adManagerService){
+  try{
     if(!product){
       Logger.log('NULL row -> skip');
       return;
@@ -82,6 +94,11 @@ function ProcessProduct(product, adManagerService){
     	CreateProduct(adManagerService, campaign, product);
   	else 
     	UpdateProduct(adManagerService, campaign, product);
+  }
+  catch(e){
+    Logger.clear();
+  	Logger.log('[ERROR] ProcessProduct: %s', e.message);
+  }
 }
 
 function CreateProduct(adManagerService, campaign, product){
@@ -115,8 +132,9 @@ function CreateProduct(adManagerService, campaign, product){
     }
     Logger.log('ad created successfully');
 
-    // STEP 4: create keywords (positive)  
-    adManagerService.createKeywords(adGroup, product.keywords); 
+    // STEP 4: create keywords (positive)    	
+  	var keywordsClear = product.keywords.map(function(x) { return adManagerService.clearKeyword(x)});  	
+    adManagerService.createKeywords(adGroup, keywordsClear); 
     Logger.log('keywords created successfully');
 
     // STEP 5: create siteLinks
@@ -181,7 +199,7 @@ var DataReaderService = function(csvService) {
       
       for(i in rows){
       	result.push({ 
-          campaignId: '1611206305', 
+          campaignId: CAMPAIGN_ID, 
           adGroupName: rows[i][47], 
           defaultBid: 0.1, 
           header: {
@@ -190,11 +208,11 @@ var DataReaderService = function(csvService) {
 			line3: 'Jetzt bei Fust online kaufen'
           },
           description: {
-          	line1: rows[i][1], 
-            line2: rows[i][53] + ' . Grosse Auswahl bei Fust.ch – günstige Preise'
+          	line1: rows[i][1] + '.', 
+            line2: rows[i][53] + '. Grosse Auswahl bei Fust.ch – günstige Preise.'
           }, 
           url: { 
-              path: rows[i][7],  
+              path: rows[i][7].replace('http://', 'https://'),  
               segment1: rows[i][36], 
               segment2: rows[i][37], 
           }, 
@@ -208,7 +226,7 @@ var DataReaderService = function(csvService) {
               text: rows[i][47],  
               url: rows[i][7],  
           },
-          price: rows[i][3], 
+          price: rows[i][3].replace('CHF', '').trim(), 
           stock: rows[i][9] 
       	});
       }
@@ -288,13 +306,13 @@ var AdManagerService = function() {
         header1 = header1.substr(0, 29);
       if(header2.length > 30)
         header2 = header2.substr(0, 29);
-      if(description1.length > 80)
-        description1 = description1.substr(0, 79);
+      if(description1.length > 90)
+        description1 = description1.substr(0, 89);
      
       var builder = adGroup.newAd().expandedTextAdBuilder()
       .withHeadlinePart1(header1) // 30 characters      
       .withHeadlinePart2(header2) // 30 characters
-      .withDescription1(description1) // 80 characters      
+      .withDescription1(description1) // 90 characters      
       .withFinalUrl(destinationURL) // 255 characters    
       .withMobileFinalUrl(destinationURL);
       
@@ -307,10 +325,10 @@ var AdManagerService = function() {
          product {param1: 'some product'} for only {param2: 0} $ - buy now!
       */
 
-      if(pathURL1)
-        builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/partURL1/partURL2
+      if(pathURL1 && pathURL1.length <= 15)     
+        builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/pathURL1/pathURL2      
       
-      if(pathURL2)
+      if(pathURL2 && pathURL2.length <= 15)
         builder.withPath2(pathURL2); // 15 characters (the second part after the siteURL)
 
       if(header3){
@@ -321,10 +339,10 @@ var AdManagerService = function() {
       }
       
       if(description2){
-      	if(description2.length > 80)
-        description2 = description2.substr(0, 79);
+      	if(description2.length > 90)
+        description2 = description2.substr(0, 89);
         
-        builder.withDescription2(description2) // 80 characters  
+        builder.withDescription2(description2) // 90 characters  
       }
       
       var operation = builder.build();
@@ -339,7 +357,7 @@ var AdManagerService = function() {
       // match type: see 'Match Types'
       
       for(i in arrKeywods){
-        var keyword = arrKeywods[i];                        
+        var keyword = arrKeywods[i];                                
         var operation = adGroup.newKeywordBuilder()        
         .withText(keyword)       
         // .withCpc(1.0)
