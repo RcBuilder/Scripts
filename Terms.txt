@@ -74,3 +74,10 @@
 * CDC = Centers for Disease Control and Prevention
 
 * VPC = Virtual Private Cloud
+
+* CPC = Cost per Click
+* CPM = Cost per Thousand Impressions (aka: Cost per Mille)
+* CTR = Click through rate
+* CPA = Cost per Acquisition (aka: Cost per Conversion)
+* CR = Conversion Rate
+* ROI = Return on Investment
