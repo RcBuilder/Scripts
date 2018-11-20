@@ -1,0 +1,38 @@
+
+structure:
+((?! \b word \b)charType)quantifier
+
+e.g:
+((?! \b test \b).)*
+((?<! \b numbered \b)\D)+)
+
+note:
+wrap the word with \b to match a whole word!
+
+----------------------------
+
+input:
+# bla bla test bla bla bla bla #
+# bla bla test #
+# test bla bla bla bla #
+# bla bla bla bla bla bla #  
+
+pattern:
+\# ((?! \b test \b).)* \#
+
+ANY phrase NOT contains the word test
+
+result:
+# bla bla bla bla bla bla #
+
+
+
+------
+
+input:
+signed 'Michele Cascella' (lower left); numbered '2755'
+
+(?<=signed \s+ '? ((?<! \b numbered \b)\D)+) (\d{4}|\d{2}) (?=')
+
+result:
+no match! contains 'numbered'

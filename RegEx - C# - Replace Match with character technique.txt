@@ -1,0 +1,30 @@
+var matches = Regex.Matches(Input, expression, RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
+if (matches == null || matches.Count == 0) continue;
+
+var result = List<IndexValuePair>();
+
+foreach (Match match in matches) {
+   // remove the match from the Input in order to prevent conflicts with other expressions with lower priority 
+   // DO NOT remove the match but use a replace technique to preserve the original Input indexes! 
+
+   // e.g: 
+   // Input = 'abcd 1234 abcd', Match = 1234 
+   // Output = 'abcd #### abcd'
+   Input = Input.Replace(match.Value,  new string('#', match.Value.Length));
+                    
+   // collect the match 
+   result.Add(new IndexValuePair(match.Value, match.Index));
+}
+
+---
+
+public class IndexValuePair
+    {
+        public string Value { get; set; }
+        public int Index { get; set; }
+
+        public IndexValuePair(string Value, int Index) {
+            this.Value = Value;
+            this.Index = Index;
+        }
+    }

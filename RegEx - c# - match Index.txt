@@ -1,0 +1,7 @@
+var matches = Regex.Matches(Input, expression, RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
+if (matches == null || matches.Count == 0) continue;
+
+foreach (Match match in matches){
+    var value = match.Value;  // the match value  
+    var index = match.Index;  // the match index in the string 
+}

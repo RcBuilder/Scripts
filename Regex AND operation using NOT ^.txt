@@ -1,0 +1,29 @@
+Input
+-----
+a$1111 
+b-2222 
+c=3333 
+d#4444
+e:5555
+
+Pattern
+-------
+\b [a-e]{1} [$-=\#:] \d+ \b
+
+match all
+
+Not
+---
+\b [a-e]{1} [^$\#:] \d+ \b
+
+result:
+all matches which don't have '$', '#' or ':' before the digits
+
+b-2222 
+c=3333 
+
+-----------------------------------------------
+No Space Nor Word (special characters only)
+
+[^\w\s]
+non-word and non-space character

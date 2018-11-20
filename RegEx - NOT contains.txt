@@ -1,0 +1,29 @@
+input:
+# bla bla test bla bla bla bla #
+# bla bla test #
+# test bla bla bla bla #
+# bla bla bla bla bla bla #  
+
+pattern:
+\# ((?!test).)* \#
+ANY phrase NOT contains the word test
+
+result:
+# bla bla bla bla bla bla #
+
+--
+input:
+#AA BB#
+
+#CC 
+DD#
+
+pattern:
+\# [A-Z]+ ((?!\n)\s)* [A-Z]+ \#
+ANY space with is NOT a new line
+
+note: 
+without the (?!\n) clause - the #CC DD# will return as a match
+
+result:
+#AA BB#
