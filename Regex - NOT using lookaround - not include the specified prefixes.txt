@@ -1,0 +1,16 @@
+Input
+-----
+name 1111 
+number 2222 
+number 3333 
+mr 4444
+title 5555
+
+Pattern
+-------
+\b (?! (name|title|mr))\w+ \s+ \d+ \b
+
+matches all cases when theres NO 'name', 'title' or 'mr' prefix
+
+number 2222 
+number 3333 

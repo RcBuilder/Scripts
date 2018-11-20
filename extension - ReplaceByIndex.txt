@@ -1,0 +1,25 @@
+public static class StringExtensions
+{
+	public static string ReplaceByIndex(this string me, int index, string valueToReplace, char Replacement = '#')
+        {
+            /*
+                // the below replacment technique is NOT accurate! use the Remove-Insert instead. 
+                
+                // BUG:
+                // Input = 'abcd 1234 abcd 3456 abcd', Match = first 34 (index 7)
+                // Output = 'abcd 12## abcd ##56 abcd'
+
+                Input = Input.Replace(value,  new string('#', value.Length));
+                Input = Input.Replace("34", "##");
+            */
+
+            /*
+                // Input = 'abcd 1234 abcd 3456 abcd', Match = first 34 (index 7)
+                // Output = 'abcd 12## abcd 3456 abcd'
+
+                Input = Input.Remove(index, value.Length).Insert(index, new string('#', value.Length))
+                Input = Input.Remove(7, "34").Insert(7, "##");
+            */
+            return me.Remove(index, valueToReplace.Length).Insert(index, new string(Replacement, valueToReplace.Length));            
+        }
+}

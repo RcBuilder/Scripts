@@ -1,0 +1,15 @@
+input:
+Dated 12 March
+Dated 12 May
+Dated 12 bla bla   // match
+Dated 68 // match
+Dated 68 x 123
+
+pattern:
+(?<= \b dated \s+ .*?) (?<!x \s*) (?<date>\b (\d{4}|\d{2}) \b) (?! \s* [x/\d(March|may)] )
+
+meaning:
+[x/\d(March|may)]
+x or ANY digit or ANY of the specifed words(march or may)
+
+use (?! ) for negative look-ahead

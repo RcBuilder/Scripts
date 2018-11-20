@@ -192,6 +192,7 @@ note that we can use ANY of the known cmd command using the Git CMD dialog
 > git config --system [key] "[value]" // system level configuration (see 'Configfuration keys')
 > git config --global [key] "[value]" // user level configuration (see 'Configfuration keys')
 > git config --list // get list of defined configuration
+> git config --global --list  // get list of defined global configuration
 > git config [key] //get specific configuration by key
 > git config --unset [key] //remove specific configuration by key - project level (note: can choose the level --global, --system)
 > git show [tree-ish] // show commit content
@@ -229,6 +230,7 @@ note that we can use ANY of the known cmd command using the Git CMD dialog
 > git remote -v // show remote servers list (extended)
 > git remote rm [remoteName] // delete a remote referecne
 > git remote add [remoteName] [remotePath] // add a new remote server (see 'add a remote server')
+> git remote set-url [remoteName] [remotePath]  // change the remote path 
 > git push // push a branch content to the remote server (based on the tracking server connected to the active branch) 
 > git push -u [remoteName] [branchName] // push a branch to the remote server (see 'server pointer')
 > git push -u [remoteName] --delete [branchName] // delete a remote branch

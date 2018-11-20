@@ -1,0 +1,20 @@
+new string([char], [count])
+
+using:
+new string('#', 6); // returns '######'
+
+sample:
+var Input = @"
+	<h2>Some Title, 1960</h2>
+	the artwork is Conceived in 1944<br />
+	designed 1945, bla bla bla ..... Modeled by 49<br /><br />
+	and finally painted in 1961."
+
+var replace = "Conceived in 1944";
+Input = Input.Replace(replace,  new string('#', replace.Length));
+
+// result
+// <h2>Some Title, 1960</h2>
+// the artwork is #################<br />
+// designed 1945, bla bla bla ..... Modeled by 49<br /><br />
+// and finally painted in 1961.
