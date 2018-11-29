@@ -1,0 +1,38 @@
+/* format-3 */
+nav.top-menu.format-3 > ul > li {
+    margin-right: 35px;
+}
+
+nav.top-menu.format-3 > ul > li.selected { }
+
+nav.top-menu.format-3 > ul > li > a {
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 0;
+}
+
+nav.top-menu.format-3 > ul > li > a > i {
+    font-style: normal;
+}
+
+nav.top-menu.format-3 > ul > li.selected > a {
+    color: #cf6766;
+}
+
+nav.top-menu.format-3 > ul > li:hover {
+    box-shadow: 0 3px 0 0 #cf6766;
+}
+
+nav.top-menu.format-3 > ul > li:hover > a {
+    color: #cf6766;
+    text-decoration: none;
+}
+
+nav.top-menu.format-3 > ul > li.selected:hover > a { }
+
+@media screen and (max-width: 768px) {
+    nav.top-menu.format-3 > ul > li {
+        margin: 0;
+    }
+}

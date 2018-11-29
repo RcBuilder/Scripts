@@ -1,0 +1,7 @@
+CSS box-shadow
+--------------
+
+box-shadow: <horizontal offset> <vertical offset> <blur radius> <spread radius> <color>;
+
+border bottom:
+box-shadow: 0 3px 0 0 #cf6766;

@@ -1,0 +1,21 @@
+*** Regex Substitutions ***
+***************************
+
+$<groupNumber>
+--------------
+input: 
+12-34-56
+
+pattern:
+(\d{2})-(\d{2})-(\d{2})
+
+replace:
+$1##$2##$3
+
+match:
+Group 1: 12
+Group 2: 34
+Group 3: 56
+
+replace result:
+12##34##56

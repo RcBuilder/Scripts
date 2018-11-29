@@ -1,0 +1,208 @@
+menu-base.css
+-------------
+/* top-menu (shared) */
+nav.top-menu {
+    width: 100%;
+}
+
+nav.top-menu > ul {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: flex-start;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+nav.top-menu > ul > li {
+    display: inline-block;
+}
+
+nav.top-menu > ul > li.selected { }
+
+nav.top-menu > ul > li > a {
+    display: block;
+    text-decoration:none;
+    transition: all .1s;
+}
+
+nav.top-menu > ul > li > a > i { }
+
+nav.top-menu > ul > li.selected > a { }
+
+nav.top-menu > ul > li:hover { }
+
+nav.top-menu > ul > li:hover > a { }
+
+nav.top-menu > ul > li.selected:hover > a { }
+
+/* mobile/ tablet section */
+@media screen and (max-width: 768px) {
+    nav .top-menu > ul {
+        flex-direction: column;
+    }
+
+    nav.top-menu > ul > li {
+        width: 100%;
+    }
+}
+
+menu-format-1.css
+-----------------
+/* format-1 */
+nav.top-menu.format-1 > ul > li {
+    padding-right: 30px;
+}
+
+nav.top-menu.format-1 > ul > li.selected { }
+
+nav.top-menu.format-1 > ul > li > a {
+    color: #ea155c;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 4px 0;
+}
+
+nav.top-menu.format-1 > ul > li > a > i {
+    font-style: normal;
+}
+
+nav.top-menu.format-1 > ul > li.selected > a {
+    color: #ea155c;
+}
+
+nav.top-menu.format-1 > ul > li:hover { }
+
+nav.top-menu.format-1 > ul > li:hover > a {
+    color: #cf6766;
+    text-decoration: none;
+}
+
+nav.top-menu.format-1 > ul > li.selected:hover > a { }
+
+@media screen and (max-width: 768px) { }
+
+menu-format-2.css
+-----------------
+/* format-2 */
+nav.top-menu.format-2 > ul > li {
+    min-width: 200px;
+    background-color: #cf6766;
+    border-color: #fff;
+    border-style: solid;
+    border-width: 0;
+    border-right-width: 3px;
+}
+
+nav.top-menu.format-2 > ul > li.selected { }
+
+nav.top-menu.format-2 > ul > li > a {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 4px 0;
+    text-align: center;
+}
+
+nav.top-menu.format-2 > ul > li > a > i {
+    font-size: 12px;
+    font-style: italic;
+}
+
+nav.top-menu.format-2 > ul > li.selected > a {
+    color: #000;
+}
+
+nav.top-menu.format-2 > ul > li:hover { }
+
+nav.top-menu.format-2 > ul > li:hover > a {
+    color: #000;
+    text-decoration: none;
+}
+
+nav.top-menu.format-2 > ul > li.selected:hover > a { }
+
+@media screen and (max-width: 768px) {
+    nav.top-menu.format-2 > ul > li {
+        border-right-width: 0;
+        border-bottom-width: 3px;
+    }
+}
+
+menu-format-3.css
+-----------------
+/* format-3 */
+nav.top-menu.format-3 > ul > li {
+    margin-right: 35px;
+}
+
+nav.top-menu.format-3 > ul > li.selected { }
+
+nav.top-menu.format-3 > ul > li > a {
+    color: #000;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 6px 0;
+}
+
+nav.top-menu.format-3 > ul > li > a > i {
+    font-style: normal;
+}
+
+nav.top-menu.format-3 > ul > li.selected > a {
+    color: #cf6766;
+}
+
+nav.top-menu.format-3 > ul > li:hover {
+    box-shadow: 0 3px 0 0 #cf6766;
+}
+
+nav.top-menu.format-3 > ul > li:hover > a {
+    color: #cf6766;
+    text-decoration: none;
+}
+
+nav.top-menu.format-3 > ul > li.selected:hover > a { }
+
+@media screen and (max-width: 768px) {
+    nav.top-menu.format-3 > ul > li {
+        margin: 0;
+    }
+}
+
+TopMenu
+-------
+<div class="container-fluid">
+    <nav class="top-menu format-@format">
+        <ul>
+            @{ RenderContainer(); }
+        </ul>
+    </nav>    
+</div>
+
+TopMenuItem
+-----------
+@{
+    var title = Model.ModuleParams["Title"].AsString("<Title>");
+    var url = Model.ModuleParams["URL"].AsString();
+    var isSelected = Model.ModuleParams["IsSelected"].AsString("0");
+    var isHideEmptyCollections = Model.ModuleParams["HideEmptyCollections"].AsString("1");
+
+    int? count = Html.GetPresentedCollectionCount(Model, Model.ModelDO);
+    var renderItem = !(count != null && count.Value == 0 && isHideEmptyCollections == "1");  // hide links with NO count!
+}
+
+@if (renderItem) {
+    <li class="@(isSelected == "1" ? "selected" : "" )">
+        <a title="@title" href="@url">
+            @title
+
+            @if (count != null) {
+                <i>(@count.Value)</i>
+            }
+        </a>
+    </li>
+}

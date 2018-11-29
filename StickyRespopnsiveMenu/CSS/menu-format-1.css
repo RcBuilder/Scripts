@@ -1,0 +1,32 @@
+/* format-1 */
+nav.top-menu.format-1 > ul > li {
+    padding-right: 30px;
+}
+
+nav.top-menu.format-1 > ul > li.selected { }
+
+nav.top-menu.format-1 > ul > li > a {
+    color: #ea155c;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 4px 0;
+}
+
+nav.top-menu.format-1 > ul > li > a > i {
+    font-style: normal;
+}
+
+nav.top-menu.format-1 > ul > li.selected > a {
+    color: #ea155c;
+}
+
+nav.top-menu.format-1 > ul > li:hover { }
+
+nav.top-menu.format-1 > ul > li:hover > a {
+    color: #cf6766;
+    text-decoration: none;
+}
+
+nav.top-menu.format-1 > ul > li.selected:hover > a { }
+
+@media screen and (max-width: 768px) { }
