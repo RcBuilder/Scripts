@@ -1,0 +1,21 @@
+IIS SSL:
+> select site > bindings > https > choose SSL certificate 
+
+note! 
+use 'IIS Express Development Certificate' for self-signed cert
+
+---
+
+Block IP:
+> select site > IP Address and Domain Restrictions (icon)
+> add allows/ deny rule    
+
+---
+
+Monitor Traffic:
+> root > Worker Processes (icon) 
+> select site 
+
+
+
+
