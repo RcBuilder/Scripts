@@ -15,6 +15,8 @@
 - Run The APP
 - DEBUG
 - LiveSync
+- App-Root
+- Using Services
 - NativeScript & Visual Studio
 - UI Layouts
 - UI Components
@@ -33,7 +35,10 @@
 - Plugins
 - Other Services
 - Working With Nativescript
-- Multiple Screens
+- Debugging
+- Storage
+- Push Notifications
+- Multiple Views
 - Icons
 - App Resources 
 - systemIcon
@@ -179,6 +184,7 @@ commands:
 > tns create [projectName]
 > tns create [projectName] --template [templateName]
 > tns run [android|ios]  // run the app
+> tns run [android|ios] --debug --scan --stacktrace // run the app with extra info
 > tns run --device [deviceId] // run the app on specific connected device (note: use tns device command to get the device id)
 > tns device  // list of connected devices (physical and virtual)
 > tns device [android|ios] 
@@ -187,8 +193,14 @@ commands:
 > tns plugin update [plaginName]  // update a plugin
 > tns plugin // installed plugin list
 
-> tns debug [android|ios]  // debug a device
-> tns debug [android|ios] --bundle  // debug bundled app
+> tns debug [android|ios]  // debug a device (see 'Debugging')
+> tns debug [android|ios] --bundle  // debug bundled app (see 'Debugging')
+
+> tns build [android|ios] // build the app
+> tns build [android|ios] --log trace // build the app + trace log
+
+> tns platform remove [android|ios] // remove a platform 
+> tns platform add [android|ios] // add a platform 
 
 > tns resources generate icon [imagePath] // generate app icons from image
 
@@ -327,6 +339,109 @@ JS ERROR Error: Building UI from XML. @file:///app/main-page.xml:2:50
 LiveSync
 --------
 note that the command 'tns run' not only starts the app, it also activates the live sync mode which monitor the code for changes! 
+
+App-Root
+--------
+file:
+app/app-root.xml
+
+about:
+prior nativescript 4, we couldn't share layout betwwen pages and we had to duplicate it for each page. 
+in version 4+ we've got a support for shared layout using the main app-root (which previously contained ONLY a Frame). 
+
+support: 
+SideDrawer 
+TabView 
+
+set shared layout:
+const application = require("application");
+application.run({ moduleName: "app-root" });   
+
+note! we can add app-root.js if needed
+
+using TabView:
+// app/app-root.xml
+<TabView androidTabsPosition="bottom">
+  <TabViewItem title="Home">
+    <Frame defaultPage="Pages/Home/home-page"></Frame>
+  </TabViewItem>
+  <TabViewItem title="Login">
+    <Frame defaultPage="Pages/Login/login-page"></Frame>
+  </TabViewItem>
+  <TabViewItem title="Search">
+    <Frame defaultPage="Pages/Search/search-page"></Frame>
+  </TabViewItem>
+</TabView>
+
+using SideDrawer:
+<sd:RadSideDrawer id="app-drawer" xmlns:sd="nativescript-ui-sidedrawer" drawerTransition="SlideInOnTopTransition" drawerLocation="Left" drawerContentSize="150">
+    <sd:RadSideDrawer.drawerContent>                                 
+        <StackLayout class="drawerContent">
+            <Label text="Home" />
+            <Label text="About" />
+            <Label text="Contact" />
+            <Label text="FAQ" />                
+        </StackLayout>
+    </sd:RadSideDrawer.drawerContent>
+
+    <sd:RadSideDrawer.mainContent>
+        <StackLayout>                        
+            <Frame defaultPage="Pages/Home/main-page"></Frame>              
+        </StackLayout>
+    </sd:RadSideDrawer.mainContent>
+</sd:RadSideDrawer>
+
+Using Services
+--------------
+we can add services as js files and consume them using the 'require' method 
+
+steps:
+1. create a new js file 
+2. reference the created js file from chapter 1
+3. use the service 
+
+using:
+
+// app/Services/serviceA.js
+function serviceA(){
+    return{
+        sayHello: function(){
+            return "Hello from service A";
+        }
+    };
+}
+exports.serviceA = serviceA; 
+
+// app/Services/serviceB.js
+function serviceB(){
+    return{
+        sayHello: function(){
+            return "Hello from service B";
+        }
+    };
+}
+exports.serviceB = serviceB; 
+
+// some view-model js file
+var Observable = require("data/observable").Observable;
+var ServiceA = require('~/Services/serviceA').serviceA();
+var ServiceB = require('~/Services/serviceB').serviceB();
+
+function createViewModel(page) { 
+    var viewModel = new Observable();    
+    
+    viewModel.serviceResult = '';
+    viewModel.useServiceA = args => {
+        viewModel.set('serviceResult', ServiceA.sayHello());
+    };
+
+    viewModel.useServiceB = args => {
+        viewModel.set('serviceResult', ServiceB.sayHello());
+    };
+    
+    return viewModel;   
+}
+exports.createViewModel = createViewModel; 
 
 NativeScript & Visual Studio
 ----------------------------
@@ -721,6 +836,18 @@ FlexboxLayout
 		</ActionBar>
 	</Page.actionBar>	
 	
+  - NavigationButton
+    <ActionBar title="My App" icon="" class="action-bar">
+        <NavigationButton tap="{{ onBackButton }}" android.systemIcon="ic_menu_back" />
+    </ActionBar>
+
+	viewModel.onBackButton = args => {
+        let view = args.object;
+        let frame = view.page.frame;
+        console.log('frame: ' + frame);
+        frame.goBack();
+    };
+
   - sample:
     <ActionBar title="Title" android.icon="res://icon" android.iconVisibility="always">		
 		<ActionItem text="Menu Item" android.position="popup"></ActionItem>        
@@ -1829,6 +1956,51 @@ Events/ Gestures
 	console.log("LongPress");
   };
 
+- using:
+  <Button text="playground" class="text-center" height="400" 
+            tap="{{ onTap }}"
+            doubleTap="{{ onDoubleTap }}" 
+            longPress="{{ onLongPress }}"
+            swipe="{{ onSwipe }}"
+            pan="{{ onPan }}"
+            pinch="{{ onPinch }}"
+            rotation="{{ onRotation }}"
+            touch="{{ onTouch }}"
+        />
+
+  var viewModel = new Observable();         
+  viewModel.onTap = (args) =>{
+  	console.log('onTap');
+  };
+  
+  viewModel.onDoubleTap = (args) =>{
+  	console.log('onDoubleTap');
+  };
+  
+  viewModel.onLongPress = (args) =>{
+  	console.log('onLongPress');
+  };
+  
+  viewModel.onSwipe = (args) =>{
+  	console.log('onSwipe ' + (args.direction == 1 ? 'right': 'left'));
+  };
+  
+  viewModel.onPan = (args) =>{
+  	console.log('onPan [' + args.deltaX + ',' + args.deltaY + ']');
+  };
+  
+  viewModel.onPinch = (args) =>{
+  	console.log('onPinch ' + args.scale);
+  };
+  
+  viewModel.onRotation = (args) =>{
+  	console.log('onRotation ' + args.rotation);
+  };
+  
+  viewModel.onTouch = (args) =>{
+  	console.log('onTouch [' + args.getX() + ',' + args.getY() + ']');
+  };
+
 [Events]
 - navigatingTo
 
@@ -1926,6 +2098,10 @@ JS Modules
   ObservableArray    
   const ObservableArray  = require("tns-core-modules/data/observable-array").ObservableArray;
 
+  $value:
+  when binding an observable array, use the $value keyword to get the item data.
+  useful when we have an array of primitive objects (string, int etc.)
+
   methods:
   getItem([index: number]) // returns an item by its index
   setItem([index: number], [item: object])  // add an item in a specific index
@@ -1984,7 +2160,17 @@ JS Modules
   }
   exports.createViewModel = createViewModel;
 
+  sample:
+  viewModel.logs = new ObservableArray();
+  logs.push('A');
+  logs.push('B');
+  logs.push('C');
 
+  <ListView items="{{ logs }}" class="list-group">
+       <ListView.itemTemplate>
+           <Label text="{{ $value }}" />                  
+       </ListView.itemTemplate>            
+   </ListView>  
 
 - virtual array
   path: 'virtual-array'
@@ -2232,11 +2418,12 @@ JS Modules
   path: 'ui/frame'
 
   about:
-  allows us to navigate between pages
+  allows us to navigate between frames and use UI frames
 
-  navigate:
-  frameModule.topmost().navigate([options]);
-  frameModule.topmost().navigate([modulePath]);
+  methods:
+  frameModule.topmost().navigate(options: object);
+  frameModule.topmost().navigate(modulePath: string);
+  getFrameById(id: string)
 
   options:
   moduleName // the page to redirect to
@@ -2253,6 +2440,19 @@ JS Modules
     context:{param1: 'value1', param2: 'value2' }
   }
   frameModule.topmost().navigate(options); 
+
+  UI:
+  <Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="onNavigatingTo" class="page">  
+    <Page.actionBar>
+        <ActionBar title="Frames" icon="" class="action-bar" />        
+    </Page.actionBar>
+    
+    <GridLayout columns="*,*" rows="*,*">
+        <Frame defaultPage="Pages/FanApp/fan-page" row="0" col="0"></Frame>
+        <Frame defaultPage="Pages/Calendar/calendar-page" row="0" col="1"></Frame>
+        <Frame defaultPage="Pages/Fonts/fonts-page" row="1" colSpan="2"></Frame>
+    </GridLayout>         
+  </Page>
 
 - dialogs
   path: 'ui/dialogs'
@@ -2335,6 +2535,9 @@ JS Modules
   about:
   allows GET and POST requests to a remote server
   also see 'http'
+
+  reference:
+  https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API
 
   syntax:
   fetch([url]).then(response => ...).catch(e => ... )  
@@ -2444,7 +2647,7 @@ JS Modules
 
   about:
   allows GET and POST requests to a remote server
-  also see 'fetch'
+  also see 'JS Modules/fetch'
 
   methods:
   getString([url]).then([onSuccess], [onError])
@@ -2545,7 +2748,6 @@ JS Modules
   let folder = fileSystemModule.knownFolders.documents();
   let path = fileSystemModule.path.join(folder.path, "1.png");
   let saved = img.saveToFile(path, "png");
-
 
 - application
   path: 'application'
@@ -2748,7 +2950,7 @@ configuration:
    for ios - file 'GoogleService-Info.plist' > copy it to 'app/App_Resources/iOS/'
    for android - file 'google-services.json' > copy it to 'app/App_Resources/Android/'
 4. configure the plugin: 'firebase.nativescript.json' file
-   note! defined during the installation process, to re-configure it - delete the file and re-install the plugin or run an 'npm run config' from within the module (node_modules/nativescript-plugin-firebase)
+   note! defined during the installation process, to re-configure it - delete the file and re-install the plugin OR run an 'npm run config' from within the module (node_modules/nativescript-plugin-firebase)
 5. set-up the 'build.gradle' file to use the desired services (located in platforms/android)
    - add 'classpath "com.google.gms:google-services:4.2.0"' as a dependency
 6. make sure the applicationId is correct in the 'app.gradle' file (located in App_Resources/Android)
@@ -2835,6 +3037,68 @@ application.run({ moduleName: "app-root" });
 
 Plugins
 -------
+
+- nativescript-phone
+  
+  about:
+  use the device phone and SMS
+
+  source:
+  https://github.com/msywensky/nativescript-phone
+
+  install:
+  tns plugin add nativescript-phone
+
+  permissions:
+  // android > AndroidManifest.xml
+  <uses-permission android:name="android.permission.CALL_PHONE" />
+
+  // iOS > Info.plist
+  <key>LSApplicationQueriesSchemes</key>
+  <array>
+     <string>tel</string>
+     <string>telprompt</string>
+  </array>
+
+  methods:
+  dial(telNum: string, prompt: bool) 
+  sms(telNum: string], messageText: string)  // (promise) single number
+  sms(telNums: [string], messageText: string)  // (promise) multiple numbers
+  requestCallPermission(message: string) // (promise)
+
+  prompt argument: 
+  specifies if a confirmation prompt is required
+
+  request permissions:  
+  // structure
+  requestCallPermission(message: string)
+	.then(success: function)
+	.catch(error: function);
+
+  // e.g
+  phoneModule.requestCallPermission('need permissions')
+      .then(() => phoneModule.dial(number, false))
+      .catch(() => console.log('no permissions!'));
+
+  using:
+  <Button text="Call" class="text-center" number="054-5614020" tap="{{ onCall }}" flexGrow="1" />           
+  <Button text="SMS" class="text-center" number="054-5614020" tap="{{ onSMS }}" flexGrow="1" />
+
+  viewModel.onCall = args => {
+        var number = args.object.number;
+        console.log('calling ' + number);
+        phoneModule.dial(number,false);
+    };
+
+    viewModel.onSMS = args => {
+        var number = args.object.number;
+        console.log('SMSing ' + number);
+        phoneModule.sms(number,'Hello World!').then(
+            response => { console.log('message sent'); }, 
+            err => {}
+        );
+    };
+
 - google-firebase
   see 'Google Firebase'
   
@@ -2954,6 +3218,907 @@ Plugins
    viewModel.onColorSelected = (args) => {
         console.log('onColorSelected');
    };
+
+
+- RadAutoCompleteTextView 
+
+  source:  
+  http://docs.telerik.com/devtools/nativescript-ui/Controls/NativeScript/AutoCompleteTextView/overview
+  https://www.nativescript.org/blog/a-deep-dive-into-telerik-ui-for-nativescripts-autocompletetextview
+  https://github.com/rdlauer/ui-for-nativescript-autocompletetextview
+
+  install:
+  tns plugin add nativescript-ui-autocomplete
+
+  namespace:
+  xmlns:au="nativescript-ui-autocomplete"
+
+  structure:
+  - RadAutoCompleteTextView
+	- RadAutoCompleteTextView.suggestionView  // a placeholder for autocomplete suggestions
+		- SuggestionView
+
+  select an item:
+  use the 'space' key to select an item
+
+  options:
+  suggestMode  // see 'suggest Modes'
+  displayMode  // see 'display Modes'
+  noResultsText // text for no result
+
+  suggest Modes:
+  Append		  // inline display
+  Suggest         // drop-down list of options
+  SuggestAppend   // combines both Append and Suggest
+
+  display Modes:
+  Plain    // single selection
+  Tokens   // multiple selections
+
+  TokenModel class:
+  used for adding items to the autocomplete list.
+  TokenModel(text: string, image: string)
+
+  // e.g
+  var TokenModel = require("nativescript-ui-autocomplete").TokenModel;
+  var colors = new ObservableArray();
+  colors.push(new TokenModel('blue'));
+  colors.push(new TokenModel('purple'));
+  ...
+
+  using:
+
+  // view-model
+  var ObservableArray = require("data/observable-array").ObservableArray;
+  var TokenModel = require("nativescript-ui-autocomplete").TokenModel;
+
+  viewModel.colors = ['blue', 'red', 'purple', 'green', 'brown', 'black', 'yellow', 'pink'];
+
+  viewModel.colorsForAutoComplete = new ObservableArray();
+  viewModel.colors.forEach(color => {
+      viewModel.colorsForAutoComplete.push(new TokenModel(color));     
+  });
+
+  // UI
+  <AC:RadAutoCompleteTextView items="{{ colorsForAutoComplete }}" suggestMode="Append" displayMode="Token">
+        <AC:RadAutoCompleteTextView.suggestionView>
+            <AC:SuggestionView suggestionViewHeight="200">
+                <AC:SuggestionView.suggestionItemTemplate>
+                    <StackLayout>
+                        <Label text="{{ text }}" />
+                    </StackLayout>
+                </AC:SuggestionView.suggestionItemTemplate> 
+            </AC:SuggestionView>
+        </AC:RadAutoCompleteTextView.suggestionView>
+   </AC:RadAutoCompleteTextView>
+
+
+
+- RadDataForm 
+
+  about:
+  convert any object to a UI form!
+
+  source:  
+  http://docs.telerik.com/devtools/nativescript-ui/Controls/NativeScript/DataForm/dataform-overview
+  https://www.nativescript.org/blog/a-deep-dive-into-telerik-ui-for-nativescripts-dataform
+  https://github.com/rdlauer/ui-for-nativescript-dataform
+  https://github.com/telerik/nativescript-ui-samples
+
+  install:
+  tns plugin add nativescript-ui-dataform
+
+  namespace:
+  xmlns:df="nativescript-ui-dataform"
+
+  structure:
+  - RadDataForm 
+	- groups  // see 'Grouping'
+	  - PropertyGroup
+		- properties
+		  - EntityProperty
+			- editor
+			  - PropertyEditor  // see 'PropertyEditor'
+				- params
+				  - PropertyEditorParams  // see 'PropertyEditorParams class'
+			- validators
+			  - [validator] // see 'validator types'
+
+
+  options:	
+  source: object
+
+  EntityProperty class:
+  name: string			// the object property name
+  displayName: string   // a new name to display
+  index: int			// the index to show in the form  
+  readOnly: bool	    // set the property readonly state
+  hintText: string		// html5 placeholder
+  required: bool		// validations, set the property is-required state
+  validators:
+
+  PropertyEditor:
+  optional
+  if needed we can change the default property editor, 
+  replace the textbox mode with slider for numeric range etc.
+
+  structure
+  <df:EntityProperty name="[propertyName]" displayName="[displayName]" index="[presentedIndex]">
+    <df:EntityProperty.editor>
+        <df:PropertyEditor type="[editorType]">  // see 'PropertyEditor types'
+			<df:PropertyEditor.params>
+                <df:PropertyEditorParams [properties] />
+            </df:PropertyEditor.params>
+		</df:PropertyEditor>
+    </df:EntityProperty.editor>
+  </df:EntityProperty>
+
+  // textbox to slider 
+  // change the 'someRangeProperty' object property to use a slider from 0 to 10
+  <df:EntityProperty name="someRangeProperty" displayName="My Range" index="3">
+    <df:EntityProperty.editor>
+        <df:PropertyEditor type="Slider">
+            <df:PropertyEditor.params>
+                <df:PropertyEditorParams minimum="0" maximum="10" />
+            </df:PropertyEditor.params>
+        </df:PropertyEditor>
+    </df:EntityProperty.editor>
+  </df:EntityProperty>
+
+  // textbox to numeric control
+  // change the 'someNumericProperty' object property to use a numeric control
+  <df:EntityProperty name="someNumericProperty" displayName="Year" index="4">
+    <df:EntityProperty.editor>
+        <df:PropertyEditor type="Number" />
+    </df:EntityProperty.editor>
+  </df:EntityProperty>
+
+  PropertyEditorParams class:
+  maximum
+  minimum
+  step
+
+
+  PropertyEditor types:
+  http://docs.telerik.com/devtools/nativescript-ui/Controls/NativeScript/DataForm/Editors/dataform-editors-list#complete-list
+  https://docs.telerik.com/devtools/nativescript-ui/api/enums/editortype.html
+
+  Text
+  MultilineText
+  Email
+  Password
+  Phone
+  Number
+  Decimal
+  Switch
+  Stepper				// choosing a number by tapping on buttons to increase or decrease it.
+  Slider
+  Picker				// picking a value from a predefined list (drop-down list).
+  SegmentedEditor		// picking a value from a predefined list (horizontal list).
+  List					// picking a value from a predefined list (vertical list).
+  DatePicker			// picking a date from a calendar.
+  TimePicker			// picking a time from a clock.
+  AutoCompleteInline	//picking single or multiple items from a suggestion list.
+  Label
+
+  Validators:
+  use this feature to validate the properties input, use the property required flag to mark it for validation
+  and choose the validator type to apply (see 'validator types')
+
+  options
+  validationMode: string  // see 'validation modes'
+
+  validator types:
+  NonEmptyValidator
+  RangeValidator: { minimum, maximum ... }
+  MinimumLengthValidator: { length ... }
+  MaximumLengthValidator: { length ... }
+  EmailValidator:
+  PhoneValidator:
+  IsTrueValidator:
+  RegExValidator: { regEx ... }
+  Custom Validators
+
+  validation modes:
+  Immediate
+  OnLostFocus
+  Manual
+
+  structure
+  <df:EntityProperty name="[propertyName]" .....>
+    <df:EntityProperty.validators>
+        [validator]
+		....
+    </df:EntityProperty.validators>
+  </df:EntityProperty>
+
+  // text length validators
+  <df:EntityProperty name="year" displayName="Release Year" index="2">
+    <df:EntityProperty.validators>
+        <df:MinimumLengthValidator 
+            errorMessage="Year must be at least 4 digits!" 
+            length="4" />
+        <df:MaximumLengthValidator 
+            errorMessage="Year cannot be more than 4 digits!" 
+            length="4" /> 
+    </df:EntityProperty.validators>
+  </df:EntityProperty>
+
+  Grouping:
+  optional
+  use this feature if a needed to group some form elements (similar to a collapsible content),
+  useful for reducing presented length of long forms.
+
+  PropertyGroup options
+  collapsed: bool
+  collapsible: bool
+  hidden: bool
+  name: string
+  titleHidden: bool
+  titleStyle: GroupTitleStyle  // collapsible title style
+  properties: [EntityProperty]
+
+  structure
+  <df:RadDataForm.groups>
+        <df:PropertyGroup collapsible="[bool]" name="[groupTitle]">
+            <df:PropertyGroup.properties>
+                [EntityProperty]
+				[EntityProperty]
+				...
+            </df:PropertyGroup.properties>
+        </df:PropertyGroup>
+        ...
+		...
+  </df:RadDataForm.groups>
+
+  using:
+    
+  viewModel.album = {
+        bandName: "Pink Floyd",
+        albumName: "The Dark Side of the Moon",
+        year: "1973",
+        owned: true,
+        myRating: 9
+  };
+
+  // basic
+  <df:RadDataForm source="{{ album }}" />
+
+  --
+
+  // with properties
+  <df:RadDataForm id="myDataForm" source="{{ album }}">
+        <df:RadDataForm.properties>
+            <df:EntityProperty name="albumName" displayName="Name of Album" index="0" />
+            <df:EntityProperty name="bandName" displayName="Name of Band" index="1" />
+
+            <df:EntityProperty name="year" displayName="Release Year" index="2">
+                <df:EntityProperty.editor>
+                    <df:PropertyEditor type="Number" />
+                </df:EntityProperty.editor>
+            </df:EntityProperty>    
+
+            <df:EntityProperty name="myRating" displayName="My Rating" index="3">
+                <df:EntityProperty.editor>
+                    <df:PropertyEditor type="Slider">
+                        <df:PropertyEditor.params>
+                            <df:PropertyEditorParams minimum="0" maximum="10" />
+                        </df:PropertyEditor.params>
+                    </df:PropertyEditor>
+                </df:EntityProperty.editor>
+            </df:EntityProperty>
+            
+            <df:EntityProperty name="owned" displayName="Do I Own This?" index="4" />
+        </df:RadDataForm.properties>
+    </df:RadDataForm>
+
+	--
+
+	// using grouping
+	<df:RadDataForm id="myDataForm" source="{{ album }}">
+        <df:RadDataForm.groups>
+
+            <df:PropertyGroup collapsible="false" name="basic details">
+                <df:RadDataForm.properties>
+                    <df:EntityProperty name="albumName" displayName="Name of Album" index="0" />
+                    <df:EntityProperty name="bandName" displayName="Name of Band" index="1" />                
+                </df:RadDataForm.properties>
+            </df:PropertyGroup>
+
+            <df:PropertyGroup collapsible="true" name="extra details" collapsed="true">
+                <df:RadDataForm.properties>
+                    <df:EntityProperty name="year" displayName="Release Year" index="2">
+                        <df:EntityProperty.editor>
+                            <df:PropertyEditor type="Number" />
+                        </df:EntityProperty.editor>
+                    </df:EntityProperty>    
+
+                    <df:EntityProperty name="myRating" displayName="My Rating" index="3">
+                        <df:EntityProperty.editor>
+                            <df:PropertyEditor type="Slider">
+                                <df:PropertyEditor.params>
+                                    <df:PropertyEditorParams minimum="0" maximum="10" />
+                                </df:PropertyEditor.params>
+                            </df:PropertyEditor>
+                        </df:EntityProperty.editor>
+                    </df:EntityProperty>
+                    
+                    <df:EntityProperty name="owned" displayName="Do I Own This?" index="4" />
+                </df:RadDataForm.properties>
+            </df:PropertyGroup>
+
+        </df:RadDataForm.groups>
+    </df:RadDataForm>
+
+	-- 
+
+	// with validators
+	<df:RadDataForm id="myDataForm" source="{{ album }}">
+        <df:RadDataForm.groups>
+
+            <df:PropertyGroup collapsible="false" name="basic details">
+                <df:RadDataForm.properties>
+                    <df:EntityProperty name="albumName" displayName="Name of Album" index="0">
+                        <df:EntityProperty.validators>                            
+                            <df:NonEmptyValidator errorMessage="required" />
+                        </df:EntityProperty.validators>
+                    </df:EntityProperty>
+                    <df:EntityProperty name="bandName" displayName="Name of Band" index="1">
+                        <df:EntityProperty.validators>
+                            <df:MinimumLengthValidator length="3" errorMessage="invalid length"  />
+                        </df:EntityProperty.validators>
+                    </df:EntityProperty>                
+                </df:RadDataForm.properties>
+            </df:PropertyGroup> 
+
+            <df:PropertyGroup collapsible="true" name="extra details" collapsed="true">
+                <df:RadDataForm.properties>
+                    <df:EntityProperty name="year" displayName="Release Year" index="2">
+                        <df:EntityProperty.editor>
+                            <df:PropertyEditor type="Number" />
+                        </df:EntityProperty.editor>
+                        <df:EntityProperty.validators>                            
+                            <df:RangeValidator minimum="1970" maximum="2020" errorMessage="invalid year" />
+                        </df:EntityProperty.validators>
+                    </df:EntityProperty>    
+
+                    <df:EntityProperty name="myRating" displayName="My Rating" index="3">
+                        <df:EntityProperty.editor>
+                            <df:PropertyEditor type="Slider">
+                                <df:PropertyEditor.params>
+                                    <df:PropertyEditorParams minimum="0" maximum="10" />
+                                </df:PropertyEditor.params>
+                            </df:PropertyEditor>
+                        </df:EntityProperty.editor>
+                    </df:EntityProperty>
+                    
+                    <df:EntityProperty name="owned" displayName="Do I Own This?" index="4" />
+                </df:RadDataForm.properties>
+            </df:PropertyGroup>
+
+        </df:RadDataForm.groups>
+    </df:RadDataForm>
+
+- RadListView
+ 
+  source:  
+  http://docs.telerik.com/devtools/nativescript-ui/Controls/NativeScript/ListView/overview
+  https://github.com/rdlauer/ui-for-nativescript-listview
+  https://www.nativescript.org/blog/a-deep-dive-into-telerik-ui-for-nativescripts-listview
+  https://github.com/telerik/nativescript-ui-samples/tree/master/listview/app/examples
+
+  install:
+  > tns plugin add nativescript-ui-listview
+
+  namespace:
+  xmlns:lv="nativescript-ui-listview"
+
+  structure:
+  - RadListView 
+	  - listViewLayout
+		- ListViewGridLayout
+		- ListViewStaggeredLayout
+		- ListViewLinearLayout
+	  - itemTemplate
+	  - itemSwipeTemplate
+
+  options (ListViewLayout):
+  scrollDirection: string // Vertical or Horizontal 
+  itemHeight: int
+  spanCount: int
+  itemInsertAnimation: string // animation type - see 'animations'
+
+  options (RadListView):
+  items: [object]  // ANY object!! 
+  pullToRefresh: bool  // determine whether or not to enable the pull-to-refresh feature
+  pullToRefreshInitiated: function // function to execute once pulled to refresh
+  swipeActions: bool  // determine whether or not to enable swipe actions
+  itemSwipeTemplate: template  // template which will be presented once the user swipe a list item
+
+  swipe:
+  set swipeActions to 'true' and define the itemSwipeTemplate to show once an item is swiped 
+  use the tap event for 'onLeftSwipe' and 'onRightSwipe' events
+
+  <lv:RadListView items="{{ items }}" swipeActions="true">
+	  <lv:RadListView.itemSwipeTemplate>
+		...
+		...
+	  </lv:RadListView.itemSwipeTemplate>
+  </lv:RadListView>
+
+  pull to refresh:
+  set pullToRefresh to 'true' and set the pullToRefreshInitiated to the function to call once a user pulled-down to refresh
+  we must call the 'notifyPullToRefreshFinished' listview function to signal the view that the refreash process is completed 
+
+  <lv:RadListView items="{{ items }}" pullToRefresh="true" pullToRefreshInitiated="{{ onPullToRefresh }}">
+		...
+		...
+  </lv:RadListView>
+
+  animations:
+  Default 
+  Fade
+  Scale
+  Slide
+
+  using:
+
+  // UI
+  <Page xmlns="http://schemas.nativescript.org/tns.xsd" xmlns:lv="nativescript-ui-listview" navigatingTo="onNavigatingTo" class="page">  
+    <Page.actionBar>
+        <ActionBar title="ListView" icon="" class="action-bar"></ActionBar>
+    </Page.actionBar>
+            
+    <lv:RadListView id="listview1" items="{{ items }}" 
+        pullToRefresh="true" pullToRefreshInitiated="{{ onPullToRefresh }}" swipeActions="false">
+        <lv:RadListView.listViewLayout>
+            <lv:ListViewLinearLayout scrollDirection="Vertical" itemHeight="100" itemInsertAnimation="Slide" />
+        </lv:RadListView.listViewLayout>
+        <lv:RadListView.itemTemplate>
+            <GridLayout rows="auto" columns="auto, *">
+                <Image row="0" col="0" src="{{ itemImage }}" class="thumb img-rounded" />
+                <StackLayout row="0" col="1" >
+                    <Label text="{{ itemName }}" />
+                    <Label text="{{ itemDesc }}" />
+                </StackLayout> 
+            </GridLayout>
+        </lv:RadListView.itemTemplate>        
+    </lv:RadListView>
+  </Page>
+
+  // view-model
+  var Observable = require("data/observable").Observable;
+  var ObservableArray = require("data/observable-array").ObservableArray;
+  var view = require("ui/core/view");
+
+  function createViewModel(page) { 
+    var viewModel = new Observable();         
+    viewModel.listview = view.getViewById(page, 'listview1');
+    viewModel.items = new ObservableArray([        
+        { itemName: "brazil", itemDesc: "bla bla bla", itemImage: "~/Pages/ListView/brazil-flag-icon.png" },
+        { itemName: "cameroon", itemDesc: "bla bla bla", itemImage: "~/Pages/ListView/cameroon-flag-icon.png" },
+        { itemName: "israel", itemDesc: "bla bla bla", itemImage: "~/Pages/ListView/israel-flag-icon.png" },
+        { itemName: "cuba", itemDesc: "bla bla bla", itemImage: "~/Pages/ListView/cuba-flag-icon.png" }
+    ]);
+
+    viewModel.onPullToRefresh = args => {
+        console.log('onPullToRefresh');  
+
+        let temp =  viewModel.get('items');
+        temp.push({ itemName: "united-kingdom", itemDesc: "bla bla bla", itemImage: "~/Pages/ListView/united-kingdom-flag-icon.png" })
+        viewModel.set('items', temp);
+
+        let listview = viewModel.get('listview');
+        listview.notifyPullToRefreshFinished();
+    };
+
+    return viewModel;     
+  }
+
+- RadCharts
+  
+  source:
+  http://docs.telerik.com/devtools/nativescript-ui/Controls/NativeScript/Chart/overview
+  https://www.nativescript.org/blog/a-deep-dive-into-telerik-ui-for-nativescript-s-charts
+
+  samples:
+  https://github.com/telerik/nativescript-ui-samples/tree/master/chart/app/examples
+
+  install:
+  > tns plugin add nativescript-ui-chart
+
+  namespace:
+  xmlns:chart="nativescript-ui-chart"
+
+  structure:
+  - ChartType  // see 'chartTypes'
+	- series   // note! supports multiple!
+		- AxisSeries  // see 'axesSeries (RadCartesianChart)'
+			- horizontalAxis // Y Axis
+				- AxisType   // see 'axisTypes'
+			- verticalAxis   // X Axis 
+				- AxisType   // see 'axisTypes'
+
+		- AxisSeries (Pie) // see 'axesSeries (RadPieChart)'
+	- legend		
+		- LegendViews  // see 'legendViews'
+
+  chartTypes:
+  - RadCartesianChart  // x,y points based		
+  - RadPieChart  // data points based    
+
+  axesSeries:
+  see 'axesSeries (RadCartesianChart)'
+  see 'axesSeries (RadPieChart)' 
+
+  axesSeries (RadCartesianChart):  
+  - AreaSeries
+  - BarSeries
+  - LineSeries
+  - SplineSeries
+  - SplineAreaSeries  
+  - RangeBarSeries
+  - BubbleSeries
+  - ScatterBubbleSeries
+  - ScatterSeries
+  - CandlestickSeries
+  - OhlcSeries
+
+  axesSeries (RadPieChart):
+  - PieSeries
+  - DonutSeries
+
+  axisTypes:
+  - CategoricalAxis  // displays the 'category' property value as text 
+  - DateTimeCategoricalAxis  // displays the 'category' property value as date 
+  - DateTimeContinuousAxis // a hybrid between a categorical and a linear axis
+  - LinearAxis  // displays the 'value' property value as data point
+  - LogarithmicAxis
+
+  legendViews:
+  - RadLegendView
+
+  options (axesSeries): 
+  items: [{ object }]   
+  valueProperty: string  // item-value
+  showLabels: bool
+  categoryProperty: string  // item-text
+  selectionMode: string // DataPoint|DataPointMultiple|None|NotSet|Series
+  outerRadiusFactor: float  // (PieSeries) pie-size (0.8 for 80% etc.)
+  legendLabel: string
+  bubbleScale: int // (BubbleSeries) the scale of the bubbles
+  bubbleSizeProperty: string // the item-property indicates of the bubble relative size
+
+  options (axisTypes): 
+  labelFitMode: string   // Multiline|None|Rotate
+  labelLayoutMode: string  // Inner|Outer 
+
+  option (RadLegendView):
+  position: string // Right|Left|Bottom|Top|Floating
+  width: int 
+
+  horizontalAxis & verticalAxis:
+  those properties control of the rendered view by specify which 
+  axis mode to render on x and y axes. 
+  so if we switch between the defined axisType of the horizontalAxis and verticalAxis - we'll get the opposite view!
+
+  // e.g
+  <chart:BarSeries.horizontalAxis>
+      <chart:CategoricalAxis />
+  </chart:BarSeries.horizontalAxis>
+  <chart:BarSeries.verticalAxis>
+      <chart:LinearAxis />
+  </chart:BarSeries.verticalAxis>
+
+  VS
+
+  <chart:BarSeries.horizontalAxis>
+      <chart:LinearAxis />  // switched  
+  </chart:BarSeries.horizontalAxis>
+  <chart:BarSeries.verticalAxis>
+      <chart:CategoricalAxis /> // switched 
+  </chart:BarSeries.verticalAxis>
+
+  using:
+
+  viewModel.data = [         
+        { key: "2017", value: 112, impact: 1 },
+        { key: "2016", value: 240, impact: 8 },
+        { key: "2015", value: 290, impact: 4 },
+        { key: "2014", value: 109, impact: 2 },
+        { key: "2013", value: 98, impact: 1 },
+        { key: "2012", value: 301, impact: 8 },
+        { key: "2011", value: 196, impact: 7 },
+        { key: "2010", value: 221, impact: 3 }
+    ];
+
+  <chart:RadCartesianChart class="m-t-10" height="350">
+        <chart:RadCartesianChart.series>
+            <chart:LineSeries items="{{ data }}" categoryProperty="key" valueProperty="value">                
+                <chart:LineSeries.horizontalAxis>
+                    <chart:CategoricalAxis labelFitMode="Rotate" />
+                </chart:LineSeries.horizontalAxis>
+
+                <chart:LineSeries.verticalAxis>
+                    <chart:LinearAxis labelLayoutMode="Outer" />
+                </chart:LineSeries.verticalAxis>    
+            </chart:LineSeries>
+        </chart:RadCartesianChart.series>
+    </chart:RadCartesianChart>     
+
+    <chart:RadCartesianChart class="m-t-10" height="350">
+        <chart:RadCartesianChart.series>
+            <chart:BarSeries items="{{ data }}" categoryProperty="key" valueProperty="value">                
+                <chart:BarSeries.horizontalAxis>
+                    <chart:CategoricalAxis />
+                </chart:BarSeries.horizontalAxis>
+
+                <chart:BarSeries.verticalAxis>
+                    <chart:LinearAxis />
+                </chart:BarSeries.verticalAxis>     
+            </chart:BarSeries>
+        </chart:RadCartesianChart.series>
+    </chart:RadCartesianChart>  
+
+    <chart:RadCartesianChart class="m-t-10" height="350">
+        <chart:RadCartesianChart.series>
+            <chart:BarSeries items="{{ data }}" categoryProperty="key" valueProperty="value">                
+                <chart:BarSeries.horizontalAxis>
+                    <chart:LinearAxis />
+                </chart:BarSeries.horizontalAxis>
+
+                <chart:BarSeries.verticalAxis>
+                    <chart:CategoricalAxis />
+                </chart:BarSeries.verticalAxis>     
+            </chart:BarSeries>
+        </chart:RadCartesianChart.series>
+    </chart:RadCartesianChart>  
+
+    <chart:RadPieChart class="m-t-10" height="350">
+        <chart:RadPieChart.series>
+            <chart:PieSeries items="{{ data }}" categoryProperty="key" valueProperty="value" showLabels="true" outerRadiusFactor="0.8" />
+            <chart:RadPieChart.legend>
+                <chart:RadLegendView position="Right" width="110" />
+            </chart:RadPieChart.legend>
+        </chart:RadPieChart.series>
+    </chart:RadPieChart>  
+            
+    <chart:RadCartesianChart class="m-t-10" height="350">
+        <chart:RadCartesianChart.series>
+            <chart:AreaSeries items="{{ data }}" categoryProperty="key" valueProperty="value">                
+                <chart:LineSeries.horizontalAxis>
+                    <chart:CategoricalAxis labelFitMode="Rotate" />
+                </chart:LineSeries.horizontalAxis>
+
+                <chart:LineSeries.verticalAxis>
+                    <chart:LinearAxis labelLayoutMode="Outer" />
+                </chart:LineSeries.verticalAxis>    
+            </chart:AreaSeries>                    
+        </chart:RadCartesianChart.series>
+    </chart:RadCartesianChart>             
+
+    <chart:RadCartesianChart class="m-t-10" height="350">
+        <chart:RadCartesianChart.series>
+            <chart:SplineAreaSeries items="{{ data }}" categoryProperty="key" valueProperty="value">                
+                <chart:LineSeries.horizontalAxis>
+                    <chart:CategoricalAxis labelFitMode="Rotate" />
+                </chart:LineSeries.horizontalAxis>
+
+                <chart:LineSeries.verticalAxis>
+                    <chart:LinearAxis labelLayoutMode="Inner" />
+                </chart:LineSeries.verticalAxis>    
+            </chart:SplineAreaSeries>                    
+        </chart:RadCartesianChart.series>
+    </chart:RadCartesianChart> 
+
+    <chart:RadCartesianChart class="m-t-10" height="350">
+        <chart:RadCartesianChart.series>
+            <chart:BubbleSeries items="{{ data }}" categoryProperty="key" valueProperty="value" bubbleScale="10" bubbleSizeProperty="impact">                
+                <chart:LineSeries.horizontalAxis>
+                    <chart:CategoricalAxis labelFitMode="Rotate" />
+                </chart:LineSeries.horizontalAxis>
+
+                <chart:LineSeries.verticalAxis>
+                    <chart:LinearAxis labelLayoutMode="Outer" />
+                </chart:LineSeries.verticalAxis>    
+            </chart:BubbleSeries>                    
+        </chart:RadCartesianChart.series>
+    </chart:RadCartesianChart> 
+
+- RadSideDrawer
+  
+  source:
+  http://docs.telerik.com/devtools/nativescript-ui/Controls/NativeScript/SideDrawer/overview  
+  https://github.com/rdlauer/ui-for-nativescript-sidedrawer
+  http://docs.telerik.com/devtools/nativescript-ui/api/classes/radsidedrawer.html
+  https://www.nativescript.org/blog/a-deep-dive-into-telerik-ui-for-nativescripts-sidedrawer
+
+  install:
+  > tns plugin add nativescript-ui-sidedrawer
+
+  namespace:
+  xmlns:sd="nativescript-ui-sidedrawer"
+
+  structure:
+  - RadSideDrawer 
+	- drawerContent
+	- mainContent
+
+  options:
+  drawerLocation: string // see 'drawerLocations'
+  drawerTransition: string // see 'transitions'
+  drawerContentSize: int // the drawer width
+
+  methods:
+  toggleDrawerState()
+
+  drawerLocations:
+  Top
+  Bottom
+  Left
+  Right
+
+  transitions:
+  FadeTransition
+  PushTransition
+  RevealTransition
+  ReverseSlideOutTransition
+  ScaleDownPusherTransition
+  ScaleUpTransition
+  SlideAlongTransition
+  SlideInOnTopTransition
+
+  share drawer:
+  use custom components to create a shared xml content and put that UC within the drawerContent
+  see 'Custom UI Components'
+
+  open from actionBar:
+  <ActionBar title="SideDrawer" icon="" class="action-bar">
+      <ActionItem tap="{{ toggleDrawer }}" ios.systemIcon="4" android.systemIcon="ic_menu_btn_add" ios.position="left" />
+  </ActionBar>
+
+  full screen:
+  DO NOT wrap the drawer element with StackLayout! it'll cause it to take a partial height (based on the content height)
+  the default height of the Drawer grid is 100%!
+
+  using:
+
+  // UI
+  <Page xmlns="http://schemas.nativescript.org/tns.xsd" 
+      xmlns:sd="nativescript-ui-sidedrawer" 
+      navigatingTo="onNavigatingTo" class="page">  
+    <Page.actionBar>
+        <ActionBar title="SideDrawer" icon="" class="action-bar">
+            <ActionItem tap="{{ toggleDrawer }}" ios.systemIcon="4" android.systemIcon="ic_menu_btn_add" ios.position="left" />
+        </ActionBar>
+    </Page.actionBar>
+
+    <sd:RadSideDrawer id="drawer1" drawerTransition="SlideInOnTopTransition" drawerLocation="{{ drawerLocation }}" drawerContentSize="150">
+        <sd:RadSideDrawer.drawerContent>                                 
+            <StackLayout class="drawerContent">
+                <Label text="Home" />
+                <Label text="About" />
+                <Label text="Contact" />
+                <Label text="FAQ" />                
+            </StackLayout>
+        </sd:RadSideDrawer.drawerContent>
+
+        <sd:RadSideDrawer.mainContent>
+            <StackLayout>
+                <Button text="Toggle Drawer" class="btn btn-primary" tap="{{ toggleDrawer }}" />
+                <StackLayout orientation="horizontal" horizontalAlignment="center">
+                    <Button text="Top" class="text-center" tap="{{ setDrawerLocation }}" />
+                    <Button text="Bottom" class="text-center" tap="{{ setDrawerLocation }}" />
+                    <Button text="Left" class="text-center" tap="{{ setDrawerLocation }}"  />
+                    <Button text="Right" class="text-center" tap="{{ setDrawerLocation }}"  />
+                </StackLayout>                
+            </StackLayout>
+        </sd:RadSideDrawer.mainContent>
+    </sd:RadSideDrawer>  
+  </Page>          
+
+  // CSS   
+  StackLayout.drawerContent{
+    background-color:#888;
+    color: #fff;         
+  }
+
+  StackLayout.drawerContent Label{
+    padding: 12;
+  }
+
+  // JS
+  var Observable = require("data/observable").Observable;
+  var view = require("ui/core/view");
+
+  function createViewModel(page) { 
+    var viewModel = new Observable();  
+
+    viewModel.page = page;
+    viewModel.drawer = view.getViewById(page, 'drawer1');
+    viewModel.drawerLocation = "Left";
+
+    viewModel.toggleDrawer = args => {
+        viewModel.drawer.toggleDrawerState();
+    };
+
+    viewModel.setDrawerLocation = args => {
+        var value = args.object.text;
+        console.log(value);
+        viewModel.set('drawerLocation', value);
+    };
+
+    return viewModel;   
+  }
+  exports.createViewModel = createViewModel;        
+
+- RadCalendar
+
+  source:
+  http://docs.telerik.com/devtools/nativescript-ui/Controls/NativeScript/Calendar/overview
+  https://github.com/rdlauer/ui-for-nativescript-calendar
+  https://github.com/telerik/nativescript-ui-samples/tree/master/calendar/app
+
+  install:
+  > tns plugin add nativescript-ui-calendar
+
+  namespace:
+  xmlns:calendar="nativescript-ui-calendar"
+
+  options:
+  eventSource: [CalendarEvent]
+  eventsViewMode: string // how to show the event data - see 'eventViewMode property'
+  viewMode: string // view type - see 'viewMode property'
+  transitionMode: string // transitions - see 'transitionMode property'
+
+  eventsViewMode property:
+  Inline
+  Popover
+  none
+
+  viewMode property:
+  Day 
+  Week
+  Month
+  MonthNames
+  Year
+
+  transitionMode property:
+  None
+  Slide
+  Stack
+  Flip     // iOS
+  Fold     // iOS
+  Float    // iOS
+  Rotate   // iOS
+  Plain    // Android
+  Free	   // Android
+  Combo    // Android
+  Overlap  // Android
+
+  CalendarEvent:
+  eventTitle: string 
+  startDate: date
+  endDate: date
+
+  events:
+  pageLoaded
+  loaded
+
+  using:
+  <Page xmlns:calendar="nativescript-ui-calendar">
+    <calendar:RadCalendar eventSource="{{ events }}" eventsViewMode="Inline" viewMode="{{ viewMode }}" />
+  </Page>
+
+  var calendarModule = require("nativescript-ui-calendar");
+
+  var now = new Date();    
+  viewModel.viewMode = "Month";
+  viewModel.events = [        
+        new calendarModule.CalendarEvent('eventA', now, now),
+        new calendarModule.CalendarEvent('eventB', now, now),
+        new calendarModule.CalendarEvent('eventC', now, now),
+  ];
 
 - nativescript-speech
 
@@ -3328,6 +4493,34 @@ Plugins
   install:
   > tns plugin add nativescript-google-maps-sdk
 
+  setup:
+  1. copy the keys from 'node_modules/nativescript-google-maps-sdk/platforms/android/res/values/nativescript_google_maps_api.xml' 
+	 to 'app/App_Resources/Android/src/main/res/values/strings.xml'
+
+  2. set the api key
+     <resources>
+        <string name="nativescript_google_maps_api_key">[key]</string>
+     </resources>  
+
+  3. add new tag to the 'AndroidManifest.xml' file 
+     located in 'app/App_Resources/Android/src/main'
+
+     <meta-data
+         android:name="com.google.android.geo.API_KEY"
+         android:value="@string/nativescript_google_maps_api_key" />
+
+  4. add permissions to the 'AndroidManifest.xml' file  
+     located in 'app/App_Resources/Android/src/main'
+     ...
+	 ...
+     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+	 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>	
+
+  5. make sure we have the following defined within the app.gradle file (location: '/app/App_Resources/Android/app.gradle')
+     project.ext {
+		googlePlayServicesVersion = "+"
+	 }  
+
   google maps reference:
   important!
   we can reach all of the google maps features by using the package namespace in our code
@@ -3353,29 +4546,7 @@ Plugins
   // animateCamera to a specific zoom level
   let CameraUpdateFactory = com.google.android.gms.maps.CameraUpdateFactory;
   _gMap.animateCamera(CameraUpdateFactory.zoomTo(16));
-
-  setup:
-  1. copy the file 'nativescript_google_maps_api.xml' 
-     from 'node_modules/nativescript-google-maps-sdk/platforms/android/res/values' 
-	 to 'app/App_Resources/Android/src/main/res/'
-
-  2. set the api key
-     <resources>
-        <string name="nativescript_google_maps_api_key">[key]</string>
-     </resources>  
-
-  3. add new tag to the 'AndroidManifest.xml' file 
-     located in 'app/App_Resources/Android/'
-
-     <meta-data
-         android:name="com.google.android.geo.API_KEY"
-         android:value="@string/nativescript_google_maps_api_key" />
-
-  4. make sure we have the following defined within the app.gradle file (location: '/app/App_Resources/Android/app.gradle')
-     project.ext {
-		googlePlayServicesVersion = "+"
-	 }  
-
+ 
   add map-view:
   1. add namespace to the 'Page' component holding the 'mapView' component
      xmlns:maps="nativescript-google-maps-sdk"
@@ -3760,6 +4931,85 @@ Other Services
 
 Working With Nativescript
 -------------------------
+
+- global variables:
+  // TODO 
+
+  app.js
+  var application = require("application");
+  ...
+  global.myVariable = 'some value';
+  ...
+
+- module.exports vs exports:
+// TODO
+
+- inheritance:
+
+  // base-services.js
+  function baseServices(){
+    var that = this; // reference
+    
+    // public methods
+    this.funAA = funAA;
+
+    // initialization
+    (function () { })();
+
+    function funAA(){
+        console.log('funAA');        
+    }  
+  }
+  exports.baseServices = baseServices;
+
+  // employee-services.js
+  let baseServices = require('./base-services').baseServices;
+
+  function employeeServices(){
+    var that = this; // reference
+
+    // properties
+    // public methods
+    this.fun = fun;
+
+    // initialization
+    (function () { })();
+
+    function fun(){ 
+        console.log('fun');
+        that.funAA();
+    }     
+  }
+  employeeServices.prototype = new baseServices(); // inheritance
+  exports.employeeServices = employeeServices; 
+
+  // using 
+  let employeeServices = require('~/Services/employee-services').employeeServices;
+  var service = new employeeServices();    
+  service.fun();
+
+- constant values: 
+  
+  steps:
+  1. create a js file for the constants values
+     use exports to expose those values.
+  2. require the file    
+
+  // option1 - using  Object.freeze
+  module.exports = Object.freeze({  
+    API_ENDPOINT: 'http://delivit-shared.com'    
+  });
+
+  // option2 - direct exposure
+  exports.API_ENDPOINT: 'http://delivit-shared.com';
+  
+  // using
+  let Constants  = require('~/Services/config');
+  console.log(Constants.API_ENDPOINT);
+
+- using API:
+  see 'fetch'
+
 - run the application:
   add those code lines to the app.js file
   the 'pageName' represents the starting point (the home page)
@@ -3771,6 +5021,11 @@ Working With Nativescript
 
 - set as start page:
   see 'run the application' 
+
+- foreach:
+  [array].forEach(item => {
+        // code ...
+  });
 
 - bindings
   - use double curly brackets syntax.
@@ -3853,6 +5108,9 @@ Working With Nativescript
   - syntax:
     var [variableName] = require("[modulePath]");
   - use the npm to import the module from the web to the node_modules local folder! (see 'npm install')  
+  - use . for relative path (to the current folder)
+  - use ~ for relative path (to the app folder)
+  - default path - nodes_modules/ tns_modules
 
   - e.g:
     // import the observable module (in node_modules folder)
@@ -3932,10 +5190,44 @@ Working With Nativescript
         console.log('play ' + soundToPlay);                       
     }
 
+- passing arguments to a binded function:
+  <Button text="Btn" p1="value1" tap="{{ myTapFunc }}" />
+
+  viewModel.myTapFunc = args => {        
+      let button = args.object;
+	  console.log(button.p1);
+  };
+
+- get reference to a component:
+
+  // UI
+  <lv:RadListView id="listview1" items="{{ items }}">
+	.....
+  </lv:RadListView>
+
+  // page-js
+  function onNavigatingTo(args) { 
+    var page = args.object;
+    page.bindingContext = createViewModel(page);
+  }
+
+  // view-model-js
+  var view = require("ui/core/view");
+
+  function createViewModel(page) { 
+    var viewModel = new Observable();         
+    viewModel.listview = view.getViewById(page, 'listview1');
+    ...
+	...
+  }
+
 - templates:
   
   source:
   https://docs.nativescript.org/app-and-screen-templates/app-templates
+
+  more templates:
+  https://plugins.nativescript.rocks/templates
 
   create an app using a template: 
   > tns create [appName] --template [templateName]
@@ -3946,12 +5238,21 @@ Working With Nativescript
   tip: 
   we can also use sideKick to create an app using a template 
 
-  source:
+  source:cd
   each template has its own repo in github 
 
   list:
   - blank
-    tns-template-blank
+    tns-template-blank   // built-in
+
+  - hello world 
+    tns-template-hello-world  // built-in
+
+  - master detail 
+    tns-template-master-detail  // built-in
+
+  - tabbed app 
+    tns-template-tab-navigation  // built-in
 
   - drawer
 	tns-template-drawer-navigation
@@ -3965,8 +5266,52 @@ Working With Nativescript
   - master detail with kinvey
     tns-template-master-detail-kinvey
 
+  - whatsapp 
+    nativescript-whatsapp-template
+
+	install
+	npm i nativescript-whatsapp-template
+
   note:
-  we can create our own templates
+  we can create our own templates (see 'create a template')
+
+- create a template:
+  a nativescript template is nothing more than an app folder of a nativescript app!
+  
+  steps:
+  1. create an nativescript app and set all the content you need for the template 
+
+  2. copy the app content + the package.json from the root.
+     note: DO NOT copy the app folder but its content!
+
+  3. create a new folder for the template, named it using the following convention 
+     nativescript-template-[templateName]
+
+	 e.g:
+	 nativescript-template-rcbuilder-foo
+
+  4. place the copied content from chapter 3 within the template folder
+
+     notes: 
+	 * the 'App_Resources' folder is optional, the engine will generate a default one if not exists.
+	 * the 'package.json' should be the one that was copied from the root.
+
+     structure sample:
+	 - nativescript-template-rcbuilder-foo
+	   - App_Resources  // optional
+	   - app-root.xml
+	   - app.css
+	   - app.js
+	   - package.json  // copied from the root
+
+   5. upload the new template to githab (or any other server)        
+
+   6. use the tempalte path to refer to it
+      note: you can also refer a local template (for debugging)
+      
+      e.g:
+	  tns create my-app-name --template https://github.com/rcbuilder/nativescript-template-rcbuilder-foo
+	  tns create my-app-name --template ~/Desktop/nativescript-template-rcbuilder-foo   // local 
 
 - performance:  
   enable webpack and usign bundle and uglify to achieve a better app. 
@@ -3976,6 +5321,83 @@ Working With Nativescript
   https://docs.nativescript.org/performance-optimizations/bundling-with-webpack
   https://docs.nativescript.org/performance-optimizations/startup-times
   https://docs.nativescript.org/performance-optimizations/images-optimisations
+
+-  
+  
+
+Debugging
+---------
+
+syntax:
+> tns debug [android|ios]  // debug a device
+
+livesync:
+an auto livesync process applied 
+
+flags:
+--bundle // debug a Webpack bundled application
+--start
+--emulator  // debug the app in an emulator
+--timeout
+--no-watch  // disable the livesync
+--clean  // forces rebuilding the native application
+
+using:
+1. > tns debug android
+2. copy the generated url and copy it into chrome browser
+3. use the devTools (F12) to debug the app!
+
+Storage
+-------
+types:
+LocalStorage
+SessionStorage
+
+install:
+tns plugin add nativescript-localstorage
+
+source:
+https://github.com/NathanaelA/nativescript-localstorage
+
+require:
+nativescript-localstorage
+
+properties:
+length
+
+methods:
+setItem(key: string, value: string)
+setItemObject(key: string, value: json)
+getItem(key: string)
+removeItem(key: string)
+clear()
+
+using:
+let localStorage = require('nativescript-localstorage');
+
+localStorage.clear();
+localStorage.setItemObject("test", {a: 1, b: 2});
+
+localStorage.setItem('counter', 33);
+var counter = localStorage.getItem('counter');
+
+
+Push Notifications
+------------------
+about the process:
+notifications are sending to the end user device through a 'Notification Server'. 
+each user register to that server and get a unique token which will used to identify him once a message enter, 
+then we send the received token to our 'APP Server' and map it to the user. 
+now, we can use those token to target each user and send a message to him by send the desired message to the 'Notification Server' using the desired token/s.
+
+to recup
+the app make a registeration of the device in the 'Notification Server' and get the token, than the app sends it to the 'App Server' and store it. 
+later, it uses the strored tokens to call the 'Notification Server' and send messages to the end users.
+
+schema:
+App Server > Notification Server > User Device
+
+// TODO 
 
 
 Multiple Views
@@ -4225,6 +5647,11 @@ Platform Specific Capabilities
 CSS
 ---
 nativescript map the known css rules into native style.
+
+- nativeScript Theme Builder
+  a great feature which allows us to create a css layout and import it to our app!
+  https://www.nativescriptthemebuilder.com
+
 
 - supported selectors:
   - Element Type
@@ -4841,6 +6268,22 @@ download the app, scan the QR code and get a liveSync view on the mobile.
 Issues
 ------
 issue:
+build error
+
+error:
+ANY
+
+cause:
+clear cache!
+try to refresh the platform folder (remove and add its content)
+
+solution:
+> tns platform remove android
+> tns platform add android
+
+--
+
+issue:
 some services are not working properly or we have a build errors
 
 cause:
@@ -4859,6 +6302,42 @@ change the jvmargs value to -Xmx256M
 
 file "platforms/android/gradle.properties"
 org.gradle.jvmargs=-Xmx256M
+
+--
+
+issue:
+build error
+
+error:
+No inputs were found in config file '...tsconfig.json'.
+
+solution:
+no .ts files, must have at least one, add a blank one 
+
+app
+ - dummy.ts // (empty file)
+
+--
+
+issue:
+Could not create the Java Virtual Machine
+Invalid maximum heap size: -Xmx16384M
+
+solution:
+change the jvmargs value to -Xmx256M
+
+file "platforms/android/gradle.properties"
+org.gradle.jvmargs=-Xmx256M
+
+--
+
+issue:
+my location requires permission ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION
+
+solution:
+add the following lines in the 'AndroidManifest.xml' (app/App_Resources/Android/src/main)
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>	
 
 --
 
@@ -4909,6 +6388,70 @@ project.ext {
 --
 
 issue:
+build error
+
+error:
+gradlew.bat failed with exit code 1
+
+cause:
+need to refresh the platform folder (remove and add its content)
+
+solution:
+> tns platform remove android
+> tns platform add android
+
+--
+
+issue:
+build error - missing key
+
+error:
+@string/nativescript_google_maps_api_key not found
+
+cause:
+need to add the resource key to 
+App_Resources\Android\values\strings.xml
+
+solution:
+// strings.xml
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nativescript_google_maps_api_key">xxxxxxxxxxx</string>
+</resources> 
+
+--
+
+issue:
+build error
+
+error:
+The number of method references in a .dex file cannot exceed 64K.
+
+solution:
+add multiDexEnabled flag to the app/App_Resources/Android/app.gradle file 
+
+android {  
+  defaultConfig {  
+    ...
+    multiDexEnabled true        
+  }  
+  ...    
+} 
+
+--
+
+error:
+calendar.RadCalendarView is not a constructor
+
+plugin:
+calendar
+
+solution:
+remove and then add platform
+
+--
+
+issue:
 nativescript-google-maps - maps:mapView tag is not recognize
 
 error:
@@ -4946,6 +6489,20 @@ exports.goToAboutPage = function(){
 
 note: // redirect with no context
 frameModule.topmost().navigate('Pages/About/about-page');
+
+---
+
+// page navigation - dynamic 
+<Button tap="goToPage" text="Tracking" path="Pages/Tracking/tracking-page" />
+<Button tap="goToPage" text="Fan" path="Pages/FanApp/fan-page" />
+<Button tap="goToPage" text="Components" path="Pages/Components/components-page" />
+<Button tap="goToPage" text="Layouts" path="Pages/Layouts/layouts-page" />
+
+exports.goToPage = args => {
+    var path = args.object.path;    
+    console.log(path);          
+    frameModule.topmost().navigate(path);       
+}
 
 ---
 

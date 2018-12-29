@@ -1,0 +1,18 @@
+Bug:
+browserlink javascript error 
+
+Error:
+browserlink unsupported pseudo
+
+Cause:
+bug when using VS2013 with jQuery
+
+Solution:
+add to the web.config
+<add key ="vs:EnableBrowserLink" value="false"/>
+
+
+
+
+
+ 
