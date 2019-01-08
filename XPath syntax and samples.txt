@@ -10,6 +10,10 @@ text()
 
 e.g:
 //div[@class = 'tabs']/h2[1]/text()
+//div[@class="desc"]/p/text()[1]  // first text line
+//div[@class="desc"]/p//b[text() != '']  // b tag with some text (non-empty)
+//dt[text()="Price"]/following-sibling::dd
+//p[substring(text(),1,1) = "‡"] // first character
 
 count
 -----
@@ -28,6 +32,16 @@ e.g:
 
 // exact class name 
 //div[contains(concat(' ', @class, ' '), ' title ')]
+
+matches
+-------
+[xpath 2.0]
+matches(subject, pattern, flags)
+
+ends-with
+---------
+[xpath 2.0]
+ends-with(arg1, arg2)
 
 starts-with
 -----------
@@ -124,6 +138,19 @@ string-join(('A', 'B', 'C'), ' ') // A B C
 string-join(('A', 'B', 'C')) // ABC
 
 ----------------------------------------------
+
+brackets
+--------
+[ANY]
+
+-- support
+[index]
+[path]
+[build-in function]
+
+e.g:
+-- every p with b tag inside of it 
+//p[b]  
 
 index
 -----
@@ -256,10 +283,69 @@ e.g:
 more samples:
 //h2[contains(@class, 'activeTab')]/following-sibling::h2[1]
 //div[@class = 'gallery']/following-sibling::div[1]
+//div[@class="artist-info"]//h6[a/text()="Essay"]/following-sibling::div/p
+
+direct sibling: 
+-- get an 'i' tag which comes directly after 'b' tag
+-- like the ~ in css
+-- see 'XPath following-sibling'
+//div[@class="lot-info-wrap"]/p[2]/b/following-sibling::*[1][name() = "i"]
+
+preceding-sibling
+-----------------
+<div>
+	<p>A</p>
+	<p>B</p>
+	<p>C</p>
+	<h2>Some Header</h2>
+	<p>D</p>
+	<p>E</p>
+</div>
+
+e.g:
+-- all p which don't have h2 tag sibling before! 
+-- all p tags till the first h2  
+//div/child::p[not(preceding-sibling::h2)]
+
+result:
+<p>A</p>
+<p>B</p>
+<p>C</p>
+
+parent
+------
+// also see ancestor
+
+<div>
+   <div>
+	<p>
+		<img />
+	</p>
+   </div>
+<div>
+
+-- select specific parent (not the first tag match!)
+//img/parent::div  -- 1st div tag
+//img/parent::p   -- p tag 
+//img/parent::*   -- p tag
+
 
 ancestor
 --------
+<div id="wrapper">
+   <div>
+	<p>
+		<img />
+	</p>
+   </div>
+<div>
+
+-- select specific parent (not the first tag match!)
+//img/ancestor::div[@id="wrapper"]
+
+-- more samples:
 //img[@alt="Devon"]/ancestor::div[1]
+
 
 ----------------------------------------------
 

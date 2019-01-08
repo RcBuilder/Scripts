@@ -1,0 +1,88 @@
+
+Query<T>  // returns IEnumerable<T> 
+Execute // void
+
+---
+
+// Install-Package Dapper
+using Dapper;
+
+public class Data {
+    public string Id { get; set; }
+    public string AuctionId { get; set; }
+    public string Medium { get; set; }
+    public string Description { get; set; }        
+}
+
+private static List<Data> GetRowsToProcess(SqlConnection conn, int SourceId) {
+    var query = @"select Id, AuctionId, Medium, [Description] from [Artworks] where SourceId = @SourceId and LEN(Medium) > 100";
+    return conn.Query<Data>(query, param: new { SourceId }).ToList();
+}
+
+private static int UpdateRow(SqlConnection conn, int SourceId, string AuctionId, string Id, string Medium)
+{
+    var query = @"update [Artworks] set Medium = @Medium where SourceId = @SourceId and AuctionId = @AuctionId and Id = @Id";
+    return conn.Execute(query, param: new { Medium, SourceId, AuctionId, Id });
+}
+
+// using
+using (var conn = new SqlConnection(ConnectionString)) {
+	var result = GetRowsToProcess(conn, SourceId);
+	if (result == null) return;
+	foreach (var row in result) {
+		....
+	}
+}
+
+-----------------------------------------------------
+
+// return @@Identity
+var id = conn.Query<int>(@"
+	INSERT INTO tbl([Name]) VALUES(@name) SELECT CAST(SCOPE_IDENTITY() as int)", 
+	param: new { name = "Some Name" }, buffered: false
+).SingleOrDefault();
+
+--
+
+// void
+conn.Execute(@"
+	INSERT INTO tbl([Name]) VALUES(@name)",
+	param: new { name = "Some Name" }
+);
+
+--
+
+// get list
+var result = conn.Query<string>(@"
+	select [Name] from tbl"	
+).ToList();
+
+--
+
+class MyObject(){
+	public int Id { get; set; }
+    public string Name { get; set; }
+	public byte Age { get; set; }
+}
+
+var result = conn.Query<MyObject>(@"
+	select Id, [Name], Age from tbl"	
+).ToList();
+
+--
+
+// using parameters
+var result = conn.Query<string>(@"
+	select [Name] from tbl where LEN([Name]) > @Length", 
+	param: new { Length = 10 }
+).ToList();
+
+--
+
+// using stored procedure
+var result = conn.Query<string>("sp_Names_ByLength_Get"	 
+	param: new { Length = 10 },
+	commandType: CommandType.StoredProcedure, 
+	buffered: false
+).ToList();
+

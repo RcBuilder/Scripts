@@ -178,3 +178,85 @@ result = browser.PageSource; // wait till fully rendered
 	our implementation of WaitForReadyState is faster than using the built-in PageLoadStrategy.Normal flag!
 	so set the PageLoadStrategy flag as None and use it instead!
 */
+
+/*
+	var chromeOptions = new ChromeOptions();
+            chromeOptions.PageLoadStrategy = PageLoadStrategy.None; // override it with IWaitHandler
+            chromeOptions.AddArguments("headless"); // no UI 
+            chromeOptions.AddArguments("proxy-server='direct://'");
+            chromeOptions.AddArguments("proxy-bypass-list=*");
+            chromeOptions.AddArguments("disable-logging"); // disable logging  
+
+            using (var browser = new ChromeDriver(chromeOptions))
+            {
+                browser.Navigate().GoToUrl("https://payroll.priority-software.com/prl1/PP001/priority/prihtml.dll?WWWIPHONE&_portal=1&_tabulaini=tabPP001.ini");
+
+                try
+                {
+                    var waitHandler = new WebDriverWait(browser, TimeSpan.FromSeconds(10));
+                    waitHandler.Until(d => d.FindElements(By.Name("NAM")).Count > 0);
+                }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
+
+                browser.FindElementByName("NAM").SendKeys(credentials.user);
+                browser.FindElementByName("PAS").SendKeys(credentials.password);
+                browser.FindElementByName("I2").Click();
+
+                try
+                {
+                    var waitHandler = new WebDriverWait(browser, TimeSpan.FromSeconds(10));
+                    waitHandler.Until(d => d.FindElements(By.ClassName("last2")).Count > 0);
+                }
+                catch (Exception ex) { Console.WriteLine(ex.Message); }
+
+                browser.FindElementByXPath("(//td[@class=\"last2\"])[1]//a").Click();
+
+                Thread.Sleep(5000);
+
+                browser.SwitchTo().Frame("FRAME1");
+
+                var links = browser.FindElementByClassName("buttonstbl").FindElements(By.TagName("a"));
+
+                var OUTLink = links[0];
+                var INLink = links[1];
+
+                if (action == "IN") INLink.Click();
+                if (action == "OUT") OUTLink.Click();
+
+                Console.WriteLine(action);
+                Thread.Sleep(5000);
+*/
+
+
+/* load more
+	var chromeOptions = new ChromeOptions();
+            chromeOptions.PageLoadStrategy = PageLoadStrategy.None;
+
+            // chromeOptions.AddArguments("headless");
+            // chromeOptions.AddArguments("blink-settings=imagesEnabled=false");
+            chromeOptions.AddArguments("proxy-server='direct://'");
+            chromeOptions.AddArguments("proxy-bypass-list=*");
+            chromeOptions.AddArguments("disable-logging");
+
+            var browser = new ChromeDriver(chromeOptions);
+            browser.Navigate().GoToUrl("http://www.sothebys.com/en/auctions/2018/israeli-international-art-n09959.html");
+
+            var wait = new WebDriverWait(browser, TimeSpan.FromSeconds(30));            
+            wait.Until(d => d.FindElements(By.XPath("//article[contains(@class, \"sale-article\")]/div[@class=\"details\"]/h4/a")).Count > 0);
+
+            long lastScrollHeight = 0, scrollHeight = 0;
+            do
+            {
+                lastScrollHeight = scrollHeight;
+
+                IJavaScriptExecutor js = (IJavaScriptExecutor)browser;
+                js.ExecuteScript("window.scrollTo(0, document.body.scrollHeight);");
+                scrollHeight = (long)js.ExecuteScript("return document.body.scrollHeight");
+
+                Console.WriteLine("Loading More...");
+                Thread.Sleep(3000);
+            }
+            while (lastScrollHeight < scrollHeight);
+
+            return browser.PageSource;
+*/

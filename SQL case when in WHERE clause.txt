@@ -1,0 +1,6 @@
+select * 
+from   tbl 
+where  id = case when @ConfigSource > 0 
+		then @ConfigSource 
+		else @Id 
+ 	    end

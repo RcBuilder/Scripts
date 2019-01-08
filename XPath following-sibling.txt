@@ -1,0 +1,32 @@
+following-sibling
+-----------------
+
+-- match 'p' after 'h4'
+//h4/following-sibling::p
+
+-- match first h2 after h2 contains 'activeTab' class
+//h2[contains(@class, 'activeTab')]/following-sibling::h2[1]
+
+-- match first div after div with class 'gallery'
+//div[@class = 'gallery']/following-sibling::div[1]
+
+all siblings:
+-- following-sibling::*
+//b/following-sibling::*
+
+sibling by index:
+-- following-sibling::*[index]
+-- get the second sibling after a 'b' tag
+//b/following-sibling::*[2]
+
+direct sibling: 
+-- get an 'i' tag which comes directly after 'b' tag
+-- like the ~ in css
+//b/following-sibling::*[1][name() = "i"]
+
+specific sibling: 
+-- get an 'i' tag which comes after 2 elements which come after a 'b' tag
+//b/following-sibling::*[3][name() = "i"]
+
+get text  node:
+//div[@class="details"]/p/br[2]/following-sibling::text()[1]

@@ -19,3 +19,23 @@ Group 3: 56
 
 replace result:
 12##34##56
+
+${<groupName>}
+--------------
+input: 
+03-11-2013
+
+pattern:
+(\d{2})-(\d{2})-(?<year>\d{4})
+
+replace:
+## ${year} ##
+
+match:
+Group 1: 03
+Group 2: 11
+Group 'year': 2013
+
+replace result:
+## 2013 ##
+
