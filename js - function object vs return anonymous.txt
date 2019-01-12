@@ -1,0 +1,65 @@
+A function without a return statement will return a default value.
+
+In the case of a constructor called with the new keyword, the default value is the value of its 'this' parameter (the current object)
+for all other functions, the default return value is undefined!
+
+---
+
+function myObject1() {
+    var that = this; // reference
+
+    this.funA = funA;
+    this.funB = funB;
+
+    (function () { })(); 
+
+    function funA(){ 
+        console.log('A');
+    }
+
+    function funB(){ 
+        funC();
+    }
+
+    function funC(){ 
+        console.log('C');
+    }
+}
+
+function myObject2() {
+    var that = this; // reference
+
+    (function () { })(); 
+
+    function funC(){ 
+        console.log('C');
+    }
+
+    return{
+        funA: function(){ 
+            console.log('A');
+        },
+    
+        funB: function(){ 
+            funC();
+        },
+    }    
+}
+
+var o1 = new myObject1();
+var o2 = new myObject2();
+
+// myObject1 { funA: [Function: funA], funB: [Function: funB] }
+// strong-type object
+// supports all the OOP features (inheritance etc.)
+console.log(o1);
+
+// { funA: [Function: funA], funB: [Function: funB] }
+// anonymous object
+console.log(o2);
+
+o1.funA();  // A
+o2.funB();  // C
+
+o2.funA();  // A
+o2.funB();  // C

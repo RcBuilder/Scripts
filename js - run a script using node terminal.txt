@@ -1,0 +1,5 @@
+// test.js
+console.log('Hello World');
+
+terminal:
+> node test.js

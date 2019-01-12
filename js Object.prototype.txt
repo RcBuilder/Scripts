@@ -1,0 +1,404 @@
+Object.prototype
+----------------
+
+properties:
+* constructor  
+* __proto__  // reference to the prototype object
+
+methods:
+* __defineGetter__() // getter
+* __defineSetter__() // setter 
+hasOwnProperty()  // indicates whether a property is defined in the current object or not
+isPrototypeOf()  // check if the object exists in another object's prototype chain 
+
+
+---
+
+* constructor
+  all types have a constructor property which is part of the inheritance. 
+  tip: we can use it to find the variable type
+  
+  var o1 = {};
+  console.log(o1.constructor);  // Object
+  
+  var o2 = new Object;
+  console.log(o2.constructor); // Object 
+  
+  var a1 = [];
+  console.log(a1.constructor); // Array
+  
+  var a2 = new Array;
+  console.log(a2.constructor); // Array
+  
+  var n1 = new Number(3);
+  console.log(n1.constructor); // Number
+  
+  var n2 = 3;
+  console.log(n2.constructor); // Number
+  
+  var n3 = 3.5;
+  console.log(n3.constructor); // Number
+  
+  var s1 = new String('Hello');
+  console.log(s1.constructor); // String
+  
+  var s2 = 'Hello';
+  console.log(s2.constructor); // String
+  
+  var b = true;
+  console.log(b.constructor); // Boolean
+  
+  var rgx = /\d+/g;
+  console.log(rgx.constructor); // RegExp
+
+  -- 
+
+  get the class name using constructor:
+  we can use the 'name' function property of the constructor to get the instance's class name
+
+  className = function() {  
+	return this.constructor.name;
+  }
+
+  example:
+  var b = new classB();  
+  console.log(b.constructor.name);  // classB
+
+  --
+
+  clone using constructor:
+  we can use it for clonning an object
+
+  clone = function() {  
+	return new this.constructor(); // create a new instance
+  }
+
+  example:
+  function classA(){ 
+    this.name = 'A';   
+    console.log('IN classA');
+  }
+
+  var a = new classA();
+  var copy = new a.constructor();
+  console.log(copy.name);  // A
+
+  --
+
+  constructor with inheritance:
+  foreach object, the default constructor is a reference to the prototype object.
+  with that in mind, when using sub-class - we'll have to set the constructor manually, 
+  if not - it will reference the parent class so ant attempt to call the constructor will perform an instance of the parent and NOT the sub-class!
+
+  function classA(){ 
+    this.name = 'A';       
+  }
+  function classB(){ 
+      this.name = 'B';      
+  }
+  classB.prototype = Object.create(classA.prototype);  // B:A 
+  /// classB.prototype.constructor = classB;
+    
+  var b = new classB();  
+  console.log(b.constructor === classA);  // TRUE
+  console.log(b.constructor === classB);  // FALSE
+  
+  var copy = new b.constructor();
+  console.log(copy.name); // A!!!
+
+
+  note!
+  to solve the issue above, just set the constructor manually to point classB:
+  classB.prototype.constructor = classB;
+
+  -- 
+
+  constructor vs instanceof:  
+  the instanceof checks an object against the other object itself and it's prototype chain!
+  constructor checks an object only against its constractor (which can only be one!)
+
+  in the example below, classB inherit from classA.
+  note that 'instanceof' returns TRUE for both classA and classB whereas 'constructor' is unique and returns TRUE only for classB 
+  (assuming we fixed it manually - see 'constructor with inheritance')
+  
+  function classA(){ }
+  function classB(){ }
+
+  classB.prototype = Object.create(classA.prototype);  // B:A 
+  classB.prototype.constructor = classB;  // update manually the constructor
+
+  var b = new classB();
+  console.log(b instanceof classA);  // TRUE 
+  console.log(b instanceof classB);  // TRUE 
+  
+  console.log(b.constructor === classA);  // FALSE
+  console.log(b.constructor === classB);  // TRUE 
+
+  --
+
+  example:
+
+  function classA(){ 
+    this.name = 'A';   
+    console.log('IN classA');
+  }
+  function classB(){ 
+      this.name = 'B';
+      console.log('IN classB');
+  }
+  classB.prototype = Object.create(classA.prototype);  // B:A 
+  classB.prototype.constructor = classB;  // update manually the constructor
+  
+  var a = new classA();
+  var copyA = new a.constructor();  // create new instance of a (clone a)
+  console.log(copyA.name);  // A
+  
+  var b = new classB();
+  console.log(b.name);  // B
+  console.log(b.constructor.name);  // classB
+  
+  var copyB = new b.constructor(); // create new instance of b (clone b)
+  console.log(copyB.name);  // B
+  
+  console.log(b instanceof classA);  // TRUE 
+  console.log(b instanceof classB);  // TRUE 
+  
+  console.log(b.constructor === classA);  // FALSE
+  console.log(b.constructor === classB);  // TRUE 
+    
+* Inheritance 
+  
+  // option1
+  // inherit a prototype of an object
+
+  // note that once inherit a prototype - ONLY the prototype properties/ methods will be available on classB 
+  // ANY properties/methods defined directly on the object will NOT be recognized! 
+  // to solve that, we need to call the base class (classA) and populate it!
+  // classA.call(that)
+  
+  // bear in mind that using this technique actually creates those properties/methods on the current object (classB) 
+  // so the following phrase: hasOwnProperty('propA') will return true!
+
+  function classA(){ 
+    this.propA = 'A';
+  }
+
+  function classB(){
+	var that = this; // reference
+
+    this.propB = 'B';
+	
+    (function () { 
+        classA.call(that); // call base
+    })();  // init
+  }
+
+  classB.prototype = Object.create(classA.prototype); // B:A  
+
+  --
+
+  // option2
+  // inherit an object
+  
+  function classA(){ 
+    this.propA = 'A';
+  }
+
+  function classB(){
+    this.propB = 'B';
+  }
+
+  classB.prototype = new classA(); // B:A (inherit an object A) 
+
+  --
+
+  // option3 [best practice]
+  // inherit a prototype of an object BUT set all properties and method on it
+
+  function classA(){ }
+
+  function classB(){
+    this.propB = 'B';
+  }
+
+  classA.prototype.propA = 'A';  
+  classB.prototype = Object.create(classA.prototype); // B:A (inherit a prototype of an A)
+
+---
+
+* __proto__
+
+  prototype vs __proto__:
+  the keyword 'prototype' can only be reached from a function and NOT an object 
+  the '__proto__' keyword allow us to access the prototype from within the instance itself
+  classA.prototype === a.__proto__
+
+  --
+
+  function classA(propA){ ... }
+  function classB(propA, propB){ ... }
+  function classC(propA, propB, propC){ ... }
+  
+  classA.prototype.showProto = function(){
+  	console.log(this.__proto__);
+  }
+  
+  classB.prototype = Object.create(classA.prototype); // B:A 
+  classC.prototype = Object.create(classB.prototype); // C:B
+  
+  var a = new classA('A');
+  a.showProto();  // classA {}
+  console.log(classA.prototype === a.__proto__);  // true
+  
+  var b = new classB('A', 'B');
+  b.showProto(); // classA {}
+  
+  var c = new classC('A', 'B', 'C');
+  c.showProto(); // classA {}
+
+---
+
+* set; get;  
+  
+  // basic - using a private data member
+  function classA(){ 
+    var p;    
+    this.__defineGetter__('value', () => { return p; });
+    this.__defineSetter__('value', value => { p = value; });    
+  }
+
+  var a = new classA();
+  a.value = 'v1';
+  console.log(a.value);  // v1
+  console.log(a.p);  // undefined
+
+  -- 
+
+  // shortcut - with no pre-defined data member
+  function classA(){     
+    this.__defineGetter__('value', () => _value );
+    this.__defineSetter__('value', value => { _value = value;})
+  }  
+
+  var a = new classA();
+  a.value = 'v1';
+  console.log(a.value);  // v1  
+  console.log(a._value);  // undefined
+
+  --
+
+  // common - using the get;set; keywords
+  function classA(){ 
+    var _name;    
+  }
+
+  classA.prototype = {
+    set name(value){ this._name = value;},
+    get name(){ return this._name;}
+  }
+
+  var a = new classA();
+  a.name = 'AAA';
+  console.log(a.name); // AAA
+
+---
+
+* hasOwnProperty
+
+  // option1: inherit an object 
+  function classA(){ 
+    this.propA = 'A';
+  }
+
+  function classB(){
+    this.propB = 'B';
+  }
+
+  classB.prototype = new classA(); // B:A (inherit an object A) 
+
+  var b = new classB();
+
+  console.log(b.propA);  // A
+  console.log(b.propB);  // B
+  console.log(b.hasOwnProperty('propA')); // false (base classA)
+  console.log(b.hasOwnProperty('propB')); // true
+  console.log(b.hasOwnProperty('toString'));  // false (object)
+
+  -- 
+
+  // option2: inherit a prototype of an object
+  function classA(){ }
+
+  function classB(){
+    this.propB = 'B';
+  }
+
+  classA.prototype.propA = 'A';
+  classB.prototype = Object.create(classA.prototype); // B:A (inherit a prototype of an A)
+  
+  var b = new classB();
+  
+  console.log(b.propA);  // A
+  console.log(b.propB);  // B
+  console.log(b.hasOwnProperty('propA')); // false (base classA)
+  console.log(b.hasOwnProperty('propB')); // true
+  console.log(b.hasOwnProperty('toString'));  // false (object)
+
+  -- 
+
+  NOTE! 
+  when using the technique of inheriting a prototype of an object with properties that defined DIRECTLY on the derived object instead of on it's prototype 
+  and using the base.call(this) to populate them, we'll get true for the properties defined in the base class!! 
+
+  function classA(){ 
+    this.propA = 'A'; // defined directly on the object and NOT it's prototype
+  }
+
+  function classB(){
+    var that = this; // reference
+    
+    (function () { 
+        classA.call(that);  // call base (populating the base class properties - propA)
+    })();  // init
+
+    this.propB = 'B';
+  }
+
+  classB.prototype = Object.create(classA.prototype);  // B:A - inherit the prototype of A! not the object A
+  
+  var b = new classB();
+  
+  console.log(b.propA);  // A
+  console.log(b.propB);  // B
+  console.log(b.hasOwnProperty('propA')); // true !!!!! 
+  console.log(b.hasOwnProperty('propB')); // true
+  console.log(b.hasOwnProperty('toString'));  // false (object)
+  
+---
+
+* isPrototypeOf
+  
+  function classA(){ }
+  function classB(){ }
+  function classC(){ }
+
+  classB.prototype = Object.create(classA.prototype);  // B:A 
+
+  var a = new classA();
+  var b = new classB();
+  var c = new classC();
+
+  console.log(classA.prototype.isPrototypeOf(a));  // true
+  console.log(classA.prototype.isPrototypeOf(b));  // true
+  console.log(classA.prototype.isPrototypeOf(c));  // false
+
+  --
+
+  // note! 
+  in the above example we've checked the isPrototypeOf of the prototype (classA.prototype) and not the object (classA) 
+  because we used a prototype inheritance (and not an object inheritance).
+
+  // isPrototypeOf vs instanceof 
+  the isPrototypeOf checks an object against the other object's prototype
+  the instanceof checks an object against the other object itself!
+

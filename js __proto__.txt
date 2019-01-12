@@ -1,0 +1,30 @@
+__proto__
+// also see 'js Object.prototype.txt'
+
+  prototype vs __proto__:
+  the keyword 'prototype' can only be reached from a function and NOT an object 
+  the '__proto__' keyword allow us to access the prototype from within the instance itself
+  classA.prototype === a.__proto__
+
+  --
+
+  function classA(propA){ ... }
+  function classB(propA, propB){ ... }
+  function classC(propA, propB, propC){ ... }
+  
+  classA.prototype.showProto = function(){
+  	console.log(this.__proto__);
+  }
+  
+  classB.prototype = Object.create(classA.prototype); // B:A 
+  classC.prototype = Object.create(classB.prototype); // C:B
+  
+  var a = new classA('A');
+  a.showProto();  // classA {}
+  console.log(classA.prototype === a.__proto__);  // true
+  
+  var b = new classB('A', 'B');
+  b.showProto(); // classA {}
+  
+  var c = new classC('A', 'B', 'C');
+  c.showProto(); // classA {}

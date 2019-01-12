@@ -1,0 +1,116 @@
+Inheritance - prototype
+-----------------------
+// also see 'js Object.prototype.txt'
+
+
+[option1]
+inherit a prototype of an object
+
+note that once inherit a prototype - ONLY the prototype properties/ methods will be available on classB 
+ANY properties/methods defined directly on the object will NOT be recognized! 
+to solve that, we need to call the base class (classA) and populate it!
+classA.call(that)
+  
+bear in mind that using this technique actually creates those properties/methods on the current object (classB) 
+so the following phrase: hasOwnProperty('propA') will return true!
+
+example:
+function classA(){ 
+  this.propA = 'A';
+}
+
+function classB(){
+  var that = this; // reference
+
+  this.propB = 'B';
+	
+  (function () { 
+    classA.call(that); // call base
+  })();  // init
+}
+
+classB.prototype = Object.create(classA.prototype); // B:A  
+
+---
+
+[option2]
+inherit an object
+
+example:  
+function classA(){ 
+  this.propA = 'A';
+}
+
+function classB(){
+  this.propB = 'B';
+}
+
+classB.prototype = new classA(); // B:A (inherit an object A) 
+
+---
+
+[option3] best practice
+inherit a prototype of an object BUT set all properties and method on it
+
+example:
+function classA(){ }
+function classB(){
+  this.propB = 'B';
+}
+
+classA.prototype.propA = 'A';  
+classB.prototype = Object.create(classA.prototype); // B:A (inherit a prototype of an A)
+
+---
+
+// sample:
+
+function classA(propA){
+    var that = this; // reference
+
+    this.propA = propA;
+
+    (function () { })(); // init
+
+    this.print = function(){
+        console.log(this.propA);
+    }
+}
+
+function classB(propA, propB){
+    var that = this; // reference
+
+    this.propB = propB;
+
+    (function () { 
+        classA.call(that, propA); // call base
+    })();  // init
+
+    this.print = function(){  // override      
+        console.log(this.propA + this.propB);
+    }
+}
+
+function classC(propA, propB, propC){
+    var that = this; // reference
+
+    this.propC = propC;
+
+    (function () { 
+        classB.call(that, propA, propB); // call base
+    })();  // init
+
+    this.print = function(){  // override       
+        console.log(this.propA + this.propB + this.propC);
+    }
+}
+
+classB.prototype = Object.create(classA.prototype); // B:A 
+classC.prototype = Object.create(classB.prototype); // C:B
+
+var c = new classC('A', 'B', 'C');
+c.print();
+
+console.log(c instanceof classC); // true
+console.log(c instanceof classB); // true
+console.log(c instanceof classA); // true

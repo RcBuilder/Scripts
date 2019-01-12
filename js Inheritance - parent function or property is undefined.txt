@@ -1,0 +1,57 @@
+Inheritance - parent function/ property is undefined
+----------------------------------------------------
+
+the below code snippet will raise an error: 
+
+function classA(propA){ 
+    this.sayHello = function(){
+        console.log('Hello'); 
+    }
+}
+function classB(propA, propB){ }
+
+classB.prototype = Object.create(classA.prototype); // B:A 
+
+var b = new classB('A', 'B');
+b.sayHello();  // [exception] b.sayHello is not a function!!
+
+---
+
+we have a few options to solve this exception (listed)
+
+1.instantiate the base class!
+
+function classB(propA, propB){ 
+   var that = this; // reference
+
+    (function () { 
+        classA.call(that, propA); // call base
+    })();  // init
+}
+
+2. make an instance prototype
+classB.prototype = new classA(); // B:A 
+
+3. extend the prototype of the base class (instead of the instance itself)
+   [best practice]
+
+classA.prototype.sayHello = function(){
+    console.log('Hello'); 
+}
+
+
+---
+
+sample:
+
+function classA(propA){ }
+function classB(propA, propB){ }
+
+classA.prototype.sayHello = function(){
+    console.log('Hello'); 
+}
+
+classB.prototype = Object.create(classA.prototype); // B:A 
+
+var b = new classB('A', 'B');
+b.sayHello();  // Hello

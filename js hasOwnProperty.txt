@@ -1,0 +1,73 @@
+hasOwnProperty
+--------------
+// also see 'js Object.prototype.txt'
+
+
+  // option1: inherit an object 
+  function classA(){ 
+    this.propA = 'A';
+  }
+
+  function classB(){
+    this.propB = 'B';
+  }
+
+  classB.prototype = new classA(); // B:A (inherit an object A) 
+
+  var b = new classB();
+
+  console.log(b.propA);  // A
+  console.log(b.propB);  // B
+  console.log(b.hasOwnProperty('propA')); // false (base classA)
+  console.log(b.hasOwnProperty('propB')); // true
+  console.log(b.hasOwnProperty('toString'));  // false (object)
+
+  -- 
+
+  // option2: inherit a prototype of an object
+  function classA(){ }
+
+  function classB(){
+    this.propB = 'B';
+  }
+
+  classA.prototype.propA = 'A';
+  classB.prototype = Object.create(classA.prototype); // B:A (inherit a prototype of an A)
+  
+  var b = new classB();
+  
+  console.log(b.propA);  // A
+  console.log(b.propB);  // B
+  console.log(b.hasOwnProperty('propA')); // false (base classA)
+  console.log(b.hasOwnProperty('propB')); // true
+  console.log(b.hasOwnProperty('toString'));  // false (object)
+
+  -- 
+
+  NOTE! 
+  when using the technique of inheriting a prototype of an object with properties that defined DIRECTLY on the derived object instead of on it's prototype 
+  and using the base.call(this) to populate them, we'll get true for the properties defined in the base class!! 
+
+  function classA(){ 
+    this.propA = 'A'; // defined directly on the object and NOT it's prototype
+  }
+
+  function classB(){
+    var that = this; // reference
+    
+    (function () { 
+        classA.call(that);  // call base (populating the base class properties - propA)
+    })();  // init
+
+    this.propB = 'B';
+  }
+
+  classB.prototype = Object.create(classA.prototype);  // B:A - inherit the prototype of A! not the object A
+  
+  var b = new classB();
+  
+  console.log(b.propA);  // A
+  console.log(b.propB);  // B
+  console.log(b.hasOwnProperty('propA')); // true !!!!! 
+  console.log(b.hasOwnProperty('propB')); // true
+  console.log(b.hasOwnProperty('toString'));  // false (object)

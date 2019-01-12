@@ -1,0 +1,17 @@
+js setter/getter 
+----------------
+also see 'Object.prototype' functions '__defineSetter__' and '__defineGetter__'
+
+
+function classA(){ 
+    var _name;    
+  }
+
+  classA.prototype = {
+    set name(value){ this._name = value;},
+    get name(){ return this._name;}
+  }
+
+  var a = new classA();
+  a.name = 'AAA';
+  console.log(a.name); // AAA

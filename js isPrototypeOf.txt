@@ -1,0 +1,28 @@
+isPrototypeOf
+-------------
+// also see 'js Object.prototype.txt'
+
+  
+  function classA(){ }
+  function classB(){ }
+  function classC(){ }
+
+  classB.prototype = Object.create(classA.prototype);  // B:A 
+
+  var a = new classA();
+  var b = new classB();
+  var c = new classC();
+
+  console.log(classA.prototype.isPrototypeOf(a));  // true
+  console.log(classA.prototype.isPrototypeOf(b));  // true
+  console.log(classA.prototype.isPrototypeOf(c));  // false
+
+  --
+
+  // note! 
+  in the above example we've checked the isPrototypeOf of the prototype (classA.prototype) and not the object (classA) 
+  because we used a prototype inheritance (and not an object inheritance).
+
+  // isPrototypeOf vs instanceof 
+  the isPrototypeOf checks an object against the other object's prototype
+  the instanceof checks an object against the other object itself!

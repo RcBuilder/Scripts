@@ -848,6 +848,15 @@ FlexboxLayout
         frame.goBack();
     };
 
+  - hide the ActionBar
+    use the 'actionBarHidden' page property to hide the bar
+
+	// via code
+	page.actionBarHidden = true;
+
+	// via UI page tag
+	<Page .... actionBarHidden="true">
+
   - sample:
     <ActionBar title="Title" android.icon="res://icon" android.iconVisibility="always">		
 		<ActionItem text="Menu Item" android.position="popup"></ActionItem>        
