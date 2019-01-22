@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2042
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Server", "Server\Server.csproj", "{B7DD4298-8052-4FE3-A648-F7483F5B1333}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{8E67E374-E696-4C96-A0D2-4FA81071F37D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client-Web", "Client-Web\Client-Web.csproj", "{77AD540C-BFC8-456E-8A95-1D20472C7C72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client-Form", "Client-Form\Client-Form.csproj", "{24BE982C-D507-4D76-9F38-834E4EC5474C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client-HTML", "Client-HTML", "{9363B8D9-C166-42AE-BCF4-A267BAE1AEEC}"
+	ProjectSection(SolutionItems) = preProject
+		Index.html = Index.html
+		Client-Web\Scripts\jquery-3.3.1.min.js = Client-Web\Scripts\jquery-3.3.1.min.js
+		Client-Web\Scripts\jquery.signalR-2.4.0.min.js = Client-Web\Scripts\jquery.signalR-2.4.0.min.js
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8288EA9E-C37C-4D38-8942-B46B09FE5C02}"
+	ProjectSection(SolutionItems) = preProject
+		ReadMe.txt = ReadMe.txt
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B7DD4298-8052-4FE3-A648-F7483F5B1333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7DD4298-8052-4FE3-A648-F7483F5B1333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7DD4298-8052-4FE3-A648-F7483F5B1333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7DD4298-8052-4FE3-A648-F7483F5B1333}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E67E374-E696-4C96-A0D2-4FA81071F37D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E67E374-E696-4C96-A0D2-4FA81071F37D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E67E374-E696-4C96-A0D2-4FA81071F37D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E67E374-E696-4C96-A0D2-4FA81071F37D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{77AD540C-BFC8-456E-8A95-1D20472C7C72}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77AD540C-BFC8-456E-8A95-1D20472C7C72}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77AD540C-BFC8-456E-8A95-1D20472C7C72}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77AD540C-BFC8-456E-8A95-1D20472C7C72}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24BE982C-D507-4D76-9F38-834E4EC5474C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24BE982C-D507-4D76-9F38-834E4EC5474C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24BE982C-D507-4D76-9F38-834E4EC5474C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24BE982C-D507-4D76-9F38-834E4EC5474C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2AA6BC8D-079B-40E2-8687-0C3FA20F61DB}
+	EndGlobalSection
+EndGlobal

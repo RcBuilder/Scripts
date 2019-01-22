@@ -1,0 +1,179 @@
+/*
+	[flag] replaceLetters
+    [flag] pauseDuplicates 
+    [flag] pauseCampaign
+    
+    [var] replacementRules [{ old, new }]
+
+	e.g: 
+	"a" with "f"
+    "b" with "w"
+    "c" with "g"
+    
+    [process]
+    1. foreach campaign has "es|S|exact" (??!) 
+    2. foreach keyword in campaign
+    3. replace characters based on replacementRules variable 
+    4. find duplicates (same match type only) -> ALL Camapigns! 
+    5. if duplicate found - pause the one with less clicks (90 days)
+	6. send a report via email
+*/
+
+// variables
+var containsLabelName = 'TEST';
+
+// flags
+var replaceLetters = true;
+var pauseDuplicates = true;
+var pauseCampaign = true;
+
+// rules
+var replacementRules = [
+  { oldChar: 'A', newChar: '1' },
+  { oldChar: 'B', newChar: '2' },
+  { oldChar: 'C', newChar: '3' }
+];
+
+function main() {
+  var campaigns = GetCampaignsIterator();  
+  while(campaigns.hasNext())  	
+    ProcessCampaign(campaigns.next());      
+}
+
+function GetCampaignsIterator(){
+	return AdWordsApp.campaigns()
+  	.withCondition('Status = ENABLED') 
+  	.withCondition('LabelNames CONTAINS_ANY ["' + containsLabelName + '"]')
+  	.get();
+}
+
+// [{id, text, matchType}]
+function GetAccountKeywords(){
+	var keywords = AdWordsApp.keywords()
+    .withCondition('CampaignStatus = ENABLED')    	
+    .withCondition('AdGroupStatus = ENABLED')    	
+  	.withCondition('Status = ENABLED')    	
+  	.get();
+  
+  var result = [];
+  while(keywords.hasNext()){
+    var keyword = keywords.next();
+    result.push({ 
+      id: keyword.getId().toString(), 
+      text: keyword.getText(), 
+      matchType: keyword.getMatchType()
+    });
+  }
+  
+  return result;
+}
+
+function ProcessCampaign(campaign){
+  Logger.log('campaign: %s', campaign.getName());
+  
+  var keywords = campaign.keywords()
+  .withCondition('Status = ENABLED')
+  .get();
+  
+  /* 
+  	{ 
+    	keywordsGroup = [keywords],
+        keywordsGroup = [keywords],
+        ...
+    }
+    
+    e.g:
+    {
+    	BROAD = ['keyword1', 'keyword2', 'keyword3'],
+        EXACT = ['keyword10', 'keyword20', 'keyword30']
+    }
+  */
+  var arrKeywordsToCheck = {};
+  
+  while(keywords.hasNext())  {
+  	var keyword = keywords.next();
+    var keywordText = keyword.getText();
+    var keywordMatchType = keyword.getMatchType();
+    
+    if(!arrKeywordsToCheck[keywordMatchType])
+      arrKeywordsToCheck[keywordMatchType] = [];
+    
+    var newKeywordText = keywordText;
+    if(replaceLetters){
+      replacementRules.forEach(function(rule){    	
+        newKeywordText = HELPER.replaceALL(newKeywordText, rule.oldChar, rule.newChar);      
+      });
+    }
+         
+    // replace keyword
+    if(newKeywordText != keywordText){
+      keyword.pause(); // pause old
+      CreateKeyword(keyword.getAdGroup(), newKeywordText); // create new
+    }
+    
+    if(arrKeywordsToCheck[keywordMatchType].indexOf(newKeywordText) == -1)
+    	arrKeywordsToCheck[keywordMatchType].push(newKeywordText); // add item to the replaced list    
+  }
+  
+  // [{id, text, matchType}]
+  var arrAccountKeywords = GetAccountKeywords();
+  Logger.log('%s keywords loaded', arrAccountKeywords.length);
+  SetExtensions(arrAccountKeywords);
+      
+  HELPER.forEachProperty(arrKeywordsToCheck, function(propName) {
+    /// Logger.log('keywordsGroup: %s', propName);
+  	
+    var keywordsGroup = arrKeywordsToCheck[propName];    
+    FindDuplicates(propName, keywordsGroup, arrAccountKeywords);   
+  });  
+}
+
+function FindDuplicates(matchType, keywordsGroup, arrAccountKeywords){
+	keywordsGroup.forEach(function(keyword) {      
+      if(arrAccountKeywords.isDuplicate(matchType, keyword))
+      	Logger.log('duplicate: %s > %s', matchType, keyword);
+  	});     
+}
+
+function CreateKeyword(adGroup, keywordText){
+  var operation = adGroup.newKeywordBuilder()     
+  	.withText(keywordText)              
+    .build();        
+}
+
+function SetExtensions(arrAccountKeywords){
+	arrAccountKeywords.isDuplicate = function(matchType, keyword){    
+    var count = 0;
+  	this.forEach(function(current){       
+      if(current.text == keyword && current.matchType == matchType){
+        count++;                
+      }
+    });
+    
+    return count > 1;
+  }  
+  
+  arrAccountKeywords.removeById = function(id){
+    var index = -1;
+  	for(i in this) {            
+      if(this[i].id == id){        
+        index = i; 
+        break;
+      }
+    }
+        
+    if(index >= 0)    
+      this.splice(index, 1);      
+  }
+}
+
+var HELPER = {
+  replaceALL: function (value, toReplace, replacement) {
+    return value.split(toReplace).join(replacement);
+  },
+  forEachProperty: function(o, callback){
+  	for(var prop in o) 
+      if(o.hasOwnProperty(prop))
+        callback.call(o, prop);
+  }  
+};

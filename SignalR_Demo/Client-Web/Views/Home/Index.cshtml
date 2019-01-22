@@ -1,0 +1,45 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignalR Demo</title>
+
+    <script src="Scripts/jquery-3.3.1.min.js"></script>
+    <script src="Scripts/jquery.signalR-2.4.0.min.js"></script>
+</head>
+<body>   
+    <div class="messages"></div>
+    <input type="text" id="txtMessage" /> 
+    <button id="btnSend">Send</button>
+
+    <script>
+        var con, hub;
+
+        $(document).ready(() => {
+            con = $.hubConnection('http://localhost:8888');
+            hub = con.createHubProxy('MyHub');
+
+            registerToServerActions();
+            con.start(onConnected);            
+        });
+
+        function registerToServerActions() {
+            hub.on('onMessageAdded', msg => {                
+                $('div.messages').append('<div>{0}</div>'.replace('{0}', msg));
+            });            
+        }
+
+        function onConnected() {
+            BindClientActions();
+        }
+
+        function BindClientActions() {
+            $('#btnSend').click(() => {
+                hub.invoke('AddMessage', $('#txtMessage').val());
+                $('#txtMessage').val(''); // empty
+            });            
+        }
+    </script>
+</body>
+</html>

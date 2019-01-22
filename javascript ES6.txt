@@ -1,0 +1,402 @@
+*** javascript ES6 ***
+**********************
+ES6 refers to version 6 of the ECMA Script programming language (aka JavaScript)
+
+
+-----------------------------------------
+- Arrow functions
+- Constants
+- Default Parameter Values
+- HashSet
+- Map Data-Structure
+- Array find
+- Array findIndex
+- Object assign
+- String Repeating
+- String startsWith
+- String endsWith
+- String includes
+- Number isNaN
+- Number isFinite
+- Number isInteger
+- Number isSafeInteger
+- Math trunc
+- Math sign
+- Promise
+- Reflection
+-----------------------------------------
+
+
+Arrow functions
+---------------
+syntax:
+() => { ... } 
+<item> => { ... }
+
+e.g:
+var nums = [1, 2, 3, 4, 5];
+nums.forEach(n => {
+   if (n % 2 === 0)
+       console.log(n + ' is even');
+});
+
+Constants
+---------
+immutable variable! 
+variables which cannot be re-assigned new content.
+
+note that only the variable itself is immutable, not its assigned content. 
+in case of an object - the object properties can be altered! 
+
+syntax:
+const <name> = <value>
+
+e.g:
+const PI = 3.141593;
+console.log(PI);
+PI = 3.15; // exception! can't be re-assigned
+
+Default Parameter Values
+------------------------
+default values for parameters. 
+must be added last!
+
+syntax:
+function <name> (<param>, <param> = <value>) { ... }
+
+e.g:
+function fun (p1, p2 = 1, p3 = 5) {
+    return p1 + p2 + p3;
+}
+
+fun(20, 10, 7); // 37
+fun(20, 10); // 35 
+fun(20); // 26
+
+HashSet
+-------
+storing unique items with highly-performed read.
+
+syntax:
+var <name> = new Set();
+
+methods:
+Set add(<key>);
+bool has(<key>);
+IEnumerable values();
+
+properties:
+size // items count
+
+e.g:
+var hashSet = new Set();
+hashSet.add('roby');
+hashSet.add('avi');
+hashSet.add('roby');
+hashSet.add('ronen');
+
+console.log(hashSet.size); // 3
+console.log(hashSet.has('avi')); // true
+
+var keys = hashSet.values();
+for(let key of keys)
+    console.log(key);    
+
+Map Data-Structure
+------------------
+for mapping purposes.
+
+syntax:
+var <name> = new Map();
+
+methods:
+Map set(<key>);
+Any get(<key>);
+IEnumerable entries();
+
+properties:
+size // items count
+
+e.g:
+var mapObject = new Map();
+mapObject.set(1, 'A');
+mapObject.set(2, 'B');
+mapObject.set(3, 'C');
+mapObject.set(4, 'D');
+
+console.log(mapObject.size); // 4
+console.log(mapObject.get(3)); // C
+
+var entries = mapObject.entries();
+for(let entry of entries)
+    console.log(entry[0] + ' = ' + entry[1]); 
+
+Array find
+----------
+find an element within an array.
+first match.
+
+syntax:
+<Array>.find(predicate);
+
+e.g:
+var arr = [100, 200, 300, 400, 500];
+
+var prd = x => x > 350; // predicate 
+console.log(arr.find(prd)); // 400
+
+Array findIndex
+---------------
+find an element index within an array. 
+first match.
+
+syntax:
+<Array>.findIndex(predicate);
+
+e.g:
+var arr = [100, 200, 300, 400, 500];
+
+var prd = x => x > 350; // predicate 
+console.log(arr.findIndex(prd)); // 3
+
+Object assign
+-------------
+merge all <src> objects to one <dest> object.
+add all non-exists <src> properties, override exists properties.
+
+syntax:
+Object.assign(<dest>, <src1>, <src2> ....);
+
+e.g:
+var dest = { n1: 1 }
+var src1 = { n2: 5, n3: 3 }  // add n2 and n3
+var src2 = { n2: 2, n4: 4 }  // override n2 and add n4
+var src3 = { n5: 5 }  // add n5
+
+Object.assign(dest, src1, src2, src3);
+console.log(dest); // { n1: 1, n2: 2, n3: 3, n4: 4, n5: 5 }
+
+String Repeating
+----------------
+syntax:
+<String>.repeat(<number>);
+
+e.g:
+console.log('ABC'.repeat(3));  // ABCABCABC
+console.log('#'.repeat(5));  // #####
+
+String startsWith
+-----------------
+syntax:
+<String>.startsWith(<string>, <startIndex>);
+
+e.g:
+let names = 'Roby Avi Bonnie Ron Roby Shirly';
+console.log(names.startsWith('Roby'));  // true
+console.log(names.startsWith('Roby', 0));  // true
+console.log(names.startsWith('Avi', 5));  // true
+
+console.log(names.startsWith('Avi', 6));  // false 
+
+String endsWith
+---------------
+syntax:
+<String>.endsWith(<string>, <numOfChars>);
+
+note:
+the <numOfChars> represents the number of characters to take from the original <String>
+for 'Roby Avi Bonnie Ron Roby Shirly' with <numOfChars> equals to 4  - we'll get the substring 'Roby'
+
+e.g:
+let names = 'Roby Avi Bonnie Ron Roby Shirly';
+console.log(names.endsWith('Shirly'));  // true
+console.log(names.endsWith('Avi', 8));  // true
+console.log(names.endsWith('by', 4));  // true
+
+String includes
+---------------
+syntax:
+<String>.includes(<string>, <startIndex>);
+
+e.g:
+let names = 'Roby Avi Bonnie Ron Roby Shirly';
+console.log(names.includes('Bonnie'));  // true
+console.log(names.includes('Bonn'));  // true
+console.log(names.includes('Avi', 0));  // true
+console.log(names.includes('Avi', 2));  // true
+console.log(names.includes('Avi', 10));  // false 
+
+Number isNaN
+------------
+Number Type Checking.
+check if the passing object is of type NaN.
+returns true ONLY for the NaN value!
+
+syntax:
+Number.isNaN(<any>);
+
+e.g:
+console.log(Number.isNaN(NaN));  // true
+console.log(Number.isNaN(0/0));  // true
+
+console.log(Number.isNaN(10));  // false
+console.log(Number.isNaN('10'));  // false
+console.log(Number.isNaN(' '));  // false
+console.log(Number.isNaN('ABC'));  // false
+console.log(Number.isNaN(null));  // false
+
+Number isFinite
+---------------
+Number Type Checking.
+check if the passing object is a finite number.
+
+syntax:
+Number.isFinite(<any>);
+
+e.g:
+console.log(Number.isFinite(10));  // true
+console.log(Number.isFinite(10.5));  // true
+
+console.log(Number.isFinite('10'));  // false
+console.log(Number.isFinite(' '));  // false
+console.log(Number.isFinite('ABC'));  // false
+console.log(Number.isFinite(null));  // false
+console.log(Number.isFinite(Infinity));  // false
+console.log(Number.isFinite(NaN));  // false
+
+Number isInteger
+---------------
+Number Type Checking.
+check if the passing object is an integer.
+
+syntax:
+Number.isInteger(<any>);
+
+e.g:
+console.log(Number.isInteger(10));  // true
+console.log(Number.isInteger(-10));  // true
+console.log(Number.isInteger(10.5));  // false
+
+console.log(Number.isInteger('10'));  // false
+console.log(Number.isInteger(' '));  // false
+console.log(Number.isInteger('ABC'));  // false
+console.log(Number.isInteger(null));  // false
+console.log(Number.isInteger(Infinity));  // false
+console.log(Number.isInteger(NaN));  // false
+
+Number isSafeInteger
+--------------------
+Number Type Checking.
+check if the passing object is a safe integer (in the safe numeric range)
+
+syntax:
+Number.isSafeInteger(<any>);
+
+e.g:
+console.log(Number.isSafeInteger(10));  // true
+console.log(Number.isSafeInteger(-10));  // true
+console.log(Number.isSafeInteger(10000));  // true
+
+console.log(Number.isSafeInteger(10.5));  // false
+console.log(Number.isSafeInteger(10000000000000000000));  // false
+
+console.log(Number.isSafeInteger('10'));  // false
+console.log(Number.isSafeInteger(' '));  // false
+console.log(Number.isSafeInteger('ABC'));  // false
+console.log(Number.isSafeInteger(null));  // false
+console.log(Number.isSafeInteger(Infinity));  // false
+console.log(Number.isSafeInteger(NaN));  // false
+
+Math trunc
+----------
+truncate the floating point of a number.
+convert to int.
+
+syntax:
+Math.trunc(<any>);
+
+e.g:
+console.log(Math.trunc(12.3)) // 12
+console.log(Math.trunc(-12.3)) // -12
+console.log(Math.trunc(0.1)) // 0
+console.log(Math.trunc(0.3)) // 0
+console.log(Math.trunc(-0.1)) // -0
+
+Math sign
+----------
+determine the sign of a number.
+
+returns: 
+ 1  for positive numbers
+-1  for negative numbers
+ 0  for the value 0 
+-0  for the value -0 
+NaN for non-numbers 
+
+note:
+no typed checked, we can use string values
+
+syntax:
+Math.sign(<any>);
+
+e.g:
+console.log(Math.sign(12)) // 1
+console.log(Math.sign(-12)) // -1
+console.log(Math.sign(0.1)) // 1
+console.log(Math.sign(-0.1)) // -1
+
+console.log(Math.sign('12')) // 1
+console.log(Math.sign('-12')) // -1
+console.log(Math.sign('ABC')) // NaN
+
+console.log(Math.sign(0)) // 0
+console.log(Math.sign(-0)) // -0
+console.log(Math.sign(NaN)) // NaN
+
+Promise
+-------
+used for async actions. releases the thread (js is single-threaded) for other work while waiting.
+resolve indicates on completion, 
+reject indicates on cancelation or exception. 
+
+syntax:
+Promise((resolve, reject);
+
+e.g:
+function funAsync(){
+    return new Promise((resolve, reject) => {
+        setTimeout(() => resolve('response from async'), 1500);
+    });
+}
+
+console.log('before async call');
+funAsync().then(msg => {
+    console.log(msg);
+});
+console.log('after async call');
+
+/*
+	before async call
+	after async call
+	response from async
+*/
+
+Reflection
+----------
+syntax:
+Reflect.ownKeys(<object>);
+
+e.g:
+let obj = { p1: 1 };
+Object.defineProperty(obj, 'p2', { value: 2 });
+obj['p3'] = 3;
+
+console.log(obj);
+console.log(Reflect.ownKeys(obj));  // ES6
+console.log(Object.getOwnPropertyNames(obj));  // ES5
+
+/*
+	{ p1: 1, p3: 3 }
+	[ 'p1', 'p2', 'p3' ]
+	[ 'p1', 'p2', 'p3' ]
+*/

@@ -555,6 +555,26 @@ UI Layouts
 	e.g: row="0" col="0" represents the 1st cell (0,0), the first column in the first row
 	e.g: row="1" col="2" represents the 3rd cell in the 2nd row (2,1), the third column in the second row
 
+  - using seperator line
+    <GridLayout columns="100,*,50" rows="30,30,30,30,30">            
+        <Label row="0" col="0" text="A" />
+        <Label row="0" col="1" text="B" />
+        <Label row="0" col="2" text="C" /> 
+                
+        <StackLayout row="1" colSpan="3" class="hr-light" />
+    
+        <Label row="2" col="0" text="D" />
+        <Label row="2" col="1" text="E" />
+        <Label row="2" col="2" text="F" />
+
+        <StackLayout row="3" colSpan="3" class="hr-light"  />
+    
+        <Label row="4" col="0" text="G" />
+        <Label row="4" col="1" text="H" />
+        <Label row="4" col="2" text="I" />   
+    </GridLayout>
+    
+
   - sample:
     <GridLayout columns="*,*" rows="*,*,*">
         <Button text="1" row="0" col="0"></Button>
@@ -579,7 +599,7 @@ UI Layouts
         <Label text="4" row="1" col="0" rowSpan="2" colSpan="2" backgroundColor="#8C489F"></Label>
         <Label text="5" row="2" col="2" backgroundColor="#CCFFFF"></Label>
         <Label text="6" row="3" col="0" colSpan="3" backgroundColor="#0099CC"></Label>
-    </GridLayout>
+    </GridLayout>  
 
 - Stack     
   - about: 
@@ -892,6 +912,9 @@ FlexboxLayout
     returnPress
 	focus
 	blur
+
+  - secure property:
+    convert the input text into input password
 
   - isEnabled property:
     <TextField isEnabled="false" />
@@ -1328,18 +1351,63 @@ FlexboxLayout
 
 	<TabView id="tabView1">
 		<TabView.items>
-		  <TabViewItem title="Tab1">
+			<TabViewItem title="Tab1">
 			<TabViewItem.view>
-			  <Label text="content for Tab1" />
+				<Label text="content for Tab1" />
 			</TabViewItem.view>
-		  </TabViewItem>
-		  <TabViewItem title="Tab2">
+			</TabViewItem>
+			<TabViewItem title="Tab2">
 			<TabViewItem.view>
-			  <Label text="content for Tab2" />
+				<Label text="content for Tab2" />
 			</TabViewItem.view>
-		  </TabViewItem>
+			</TabViewItem>
 		</TabView.items>
-	  </TabView>
+	</TabView>
+
+    --
+
+	// history-page.xml
+	// note: no js requires!
+	<TabView selectedIndex="1" tabTextColor="#d3d3d3" selectedTabTextColor="#333333">        
+        <TabViewItem title="הודעות">       
+            <Frame defaultPage="Pages/History/Messages/messages-history-page" />
+        </TabViewItem>    
+        <TabViewItem title="משלוחים">       
+            <Frame defaultPage="Pages/History/Deliveries/deliveries-history-page" />
+        </TabViewItem>
+    </TabView> 
+
+	// deliveries-history-page.xml
+	<Page class="page"
+    navigatingTo="onNavigatingTo"  
+    xmlns="http://schemas.nativescript.org/tns.xsd"
+    xmlns:lv="nativescript-ui-listview"
+    xmlns:partials="Pages/History/Partial"
+    actionBarHidden="true">
+
+		<lv:RadListView id="listview1" items="{{ items }}" class="mt-20"
+			pullToRefresh="true" pullToRefreshInitiated="{{ onPullToRefresh }}" swipeActions="false">
+			<lv:RadListView.listViewLayout>
+				<lv:ListViewLinearLayout scrollDirection="Vertical" itemInsertAnimation="Slide" />
+			</lv:RadListView.listViewLayout>
+			<lv:RadListView.itemTemplate>
+				<partials:delivery-item />
+			</lv:RadListView.itemTemplate>        
+		</lv:RadListView>
+	</Page>
+
+	// delivery-item.xml (partial)
+	<GridLayout columns="*,80" rows="20,60,30" tap="{{ onItemClick }}" itemId="{{ id }}">            
+		<Label row="0" colSpan="2" text="{{ deliveredOn }}" class="contentTitle alignTop left mh-10" />
+		<StackLayout row="1" col="0">
+			<Label text="{{ name }}" class="contentValue" />
+			<Label text="{{ toAddress }}" class="contentTitle" />
+			<Label text="{{ '&#8362; ' + amount }}" class="contentTitle" />
+		</StackLayout>                                 
+		<Image rowSpan="2" col="1" src="~/Images/avatars/Male-Avatar-Bow-Tie-icon.png" class="thumb img-rounded" />
+
+		<StackLayout row="2" colSpan="2" class="hr-light" />
+	</GridLayout>
 
 User Controls
 -------------
@@ -1396,6 +1464,32 @@ exports.MyStackLayout = MyStackLayout; // step 2
 <Page xmlns:customControls="components" navigatingTo="navigatingTo" class="page">
   <customControls:myLayout />
 </Page>
+
+samples:
+
+// app/Pages/History/history-page.xml
+<Page class="page"
+    navigatingTo="onNavigatingTo"  
+    xmlns="http://schemas.nativescript.org/tns.xsd"
+    xmlns:partials="Pages/History/Partial"
+    actionBarHidden="true">
+
+    <StackLayout>
+       <partials:history-items />         
+    </StackLayout>
+</Page>
+
+// app/Pages/History/Partial/history-items.xml
+ <StackLayout xmlns:partials="Pages/History/Partial">
+    <Label text="ITEMS" /> 
+    
+    <partials:history-item /> 
+    <partials:history-item /> 
+    <partials:history-item />     
+ </StackLayout>
+
+// app/Pages/History/Partial/history-item.xml
+<Label text="ITEM" />
 
 Page Component
 --------------
@@ -3194,6 +3288,9 @@ Plugins
   install:
   > tns plugin add nativescript-drop-down
 
+  namespace:
+  xmlns:DDL="nativescript-drop-down"
+
   implementation:
   1. add namespace to the Page tag
      <Page xmlns:DDL="nativescript-drop-down">
@@ -3211,6 +3308,10 @@ Plugins
   opened
   closed
   selectedIndexChanged
+
+  selectedIndexChanged args:
+  newIndex
+  oldIndex
 
   methods:
   open
@@ -3670,6 +3771,60 @@ Plugins
   Scale
   Slide
 
+  using structure:
+
+  // UI
+  <Page class="page"
+		navigatingTo="onNavigatingTo"  
+		xmlns="http://schemas.nativescript.org/tns.xsd"
+		xmlns:lv="nativescript-ui-listview"	
+		actionBarHidden="true">
+
+		<lv:RadListView id="listview1" items="{{ items }}" class="mt-20"
+			pullToRefresh="true" pullToRefreshInitiated="{{ onPullToRefresh }}" swipeActions="false">
+			<lv:RadListView.listViewLayout>
+				<lv:ListViewLinearLayout scrollDirection="Vertical" itemInsertAnimation="Slide" />
+			</lv:RadListView.listViewLayout>
+			<lv:RadListView.itemTemplate>
+				...
+			</lv:RadListView.itemTemplate>        
+		</lv:RadListView>
+  </Page>
+
+  // JS
+  function onNavigatingTo(args) {
+    let page = args.object;    
+    page.bindingContext = new PageViewModel(page);
+  }
+  exports.onNavigatingTo = onNavigatingTo;
+
+  // JS view-model
+  var Observable = require("data/observable").Observable;
+  var ObservableArray  = require("data/observable-array").ObservableArray;
+  var utilities = require("~/Services/utilities");
+  var view = require("ui/core/view");
+
+  function PageViewModel(page) {
+    var viewModel = new Observable();   
+
+    viewModel.listview = view.getViewById(page, 'listview1');
+    viewModel.items = new ObservableArray(loadItems()); 
+
+    viewModel.onPullToRefresh = args => {                  
+        viewModel.set('items',loadItems()); 
+
+        let listview = viewModel.get('listview');
+        listview.notifyPullToRefreshFinished();    
+    };
+
+    return viewModel;
+  }
+  module.exports = PageViewModel;
+  
+  function loadItems(){ ... }
+
+  --
+
   using:
 
   // UI
@@ -3724,6 +3879,7 @@ Plugins
     return viewModel;     
   }
 
+  
 - RadCharts
   
   source:
@@ -4941,6 +5097,13 @@ Other Services
 Working With Nativescript
 -------------------------
 
+- &quot;
+  used to escape " sign
+
+  // e.g
+  <Label text="{{ sumDistance + ' ק&quot;מ' }}" />  
+  
+
 - global variables:
   // TODO 
 
@@ -5566,7 +5729,7 @@ in a 'fonts' folder under the 'app' folder
   Font Awesome 5 Brands, fa-brands-400
   Font Awesome 5 Regular, fa-regular-400
   Font Awesome 5 Solid, fa-solid-900
-
+     
 - Implementation:
   1. download fontAwesome
   2. copy '.ttf' files to 'app/fonts' folder

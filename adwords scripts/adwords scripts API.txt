@@ -296,6 +296,21 @@ MICROSOFT_WORD
 MICROSOFT_WORD_LEGACY
 ZIP
 
+PolicyApprovalStatus
+--------------------
+Ad Approval Status
+https://developers.google.com/adwords/api/docs/reference/v201809/AdGroupAdService.PolicyApprovalStatus
+
+Ad.getPolicyApprovalStatus();
+
+UNKNOWN	
+APPROVED	
+APPROVED_LIMITED	
+ELIGIBLE	
+UNDER_REVIEW	
+DISAPPROVED	
+SITE_SUSPENDED
+
 ======== AdWordsApp ===================================================================
 
 * adGroups(); 
@@ -4463,6 +4478,14 @@ var sheetCellFormats = {
 ======== MY HELPER ====================================================================
 
 var HELPER = {
+  replaceALL: function (value, toReplace, replacement) {
+    return value.split(toReplace).join(replacement);
+  },
+  forEachProperty: function(o, callback){
+  	for(var prop in o) 
+      if(o.hasOwnProperty(prop))
+        callback.call(o, prop);
+  },  
   foreach: function (arr, callback) {
     if (!(arr instanceof Array)) return;
     for (var i = 0; i < arr.length; i++)

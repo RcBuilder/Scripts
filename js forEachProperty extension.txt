@@ -1,0 +1,24 @@
+function forEachProperty(o, callback){
+   for(var prop in o) 
+     if(o.hasOwnProperty(prop))
+       callback.call(o, prop);
+}  
+
+
+var obj = {};
+obj['A'] = 1;
+obj.B = 2;
+obj.C = 3;
+
+forEachProperty(obj, function(propName){
+	console.log(propName);
+});
+
+---
+
+console:
+A
+B
+C
+
+  
