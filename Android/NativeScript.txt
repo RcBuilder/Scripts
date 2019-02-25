@@ -28,16 +28,20 @@
 - Animations
 - Dialogs
 - Modals
+- Popups
 - Events/ Gestures
 - JS Modules
 - Ng Directives
 - Google Firebase
 - Plugins
+- Background Services
 - Other Services
 - Working With Nativescript
+- Passing Context
+- Navigation
+- Notifications
 - Debugging
 - Storage
-- Push Notifications
 - Multiple Views
 - Icons
 - App Resources 
@@ -554,6 +558,18 @@ UI Layouts
     use the 'col' and 'row' properties to choose the cell which be the container of the component
 	e.g: row="0" col="0" represents the 1st cell (0,0), the first column in the first row
 	e.g: row="1" col="2" represents the 3rd cell in the 2nd row (2,1), the third column in the second row
+
+  - bindingContext
+    <sd:RadSideDrawer id="app-drawer" xmlns:sd="nativescript-ui-sidedrawer" drawerOpening="OnDrawerOpen"> 
+		... 
+	</sd:RadSideDrawer>
+
+	var drawer;
+	exports.OnDrawerOpen = args => {
+		drawer = args.object;        
+		drawer.bindingContext = { ... };
+	};
+    
 
   - using seperator line
     <GridLayout columns="100,*,50" rows="30,30,30,30,30">            
@@ -1275,6 +1291,9 @@ FlexboxLayout
     <WebView src="~/Pages/HtmlViews/1.html" />
     <WebView src="http://example.com" />
 
+- Repeater
+  see 'ListView'
+
 - ListView
   - reference:
     https://docs.nativescript.org/api-reference/modules/_ui_list_view_
@@ -1311,9 +1330,27 @@ FlexboxLayout
 			</StackLayout> 
 		</ListView.itemTemplate>            
 	</ListView>
+
+	--
+
+	viewModel.items = [
+        { v: 1 },
+        { v: 2 },
+        { v: 3 },
+        { v: 4 }
+    ];
+
+	<GridLayout>
+        <ListView items="{{items}}">
+            <ListView.itemTemplate>
+                <Label text="{{v}}" />
+            </ListView.itemTemplate>
+        </ListView>
+    </GridLayout>
     
 
-- TabView 
+- TabView
+
   - reference:
     https://docs.nativescript.org/api-reference/modules/_ui_tab_view_
 	https://docs.nativescript.org/api-reference/classes/_ui_tab_view_.tabview
@@ -1331,8 +1368,10 @@ FlexboxLayout
     apply on the 'TabViewItem' tag.
 	allows us to add icon to each tab.
 
-  - events:
-    tabChange
+  - events:    
+	loaded
+	selectedIndexChanged
+	showingModally
 
   - sample:
     <TabView id="tabViewContainer" selectedIndex="1" tabTextColor="#d3d3d3" selectedTabTextColor="#333333">
@@ -1465,6 +1504,35 @@ exports.MyStackLayout = MyStackLayout; // step 2
   <customControls:myLayout />
 </Page>
 
+---
+
+[tip] custom properties:
+we can add logic to a component by adding a js file, then we can use custom properties to relay data. 
+
+// menu-strip.xml
+<ActionBar loaded="onMenuLoaded">
+    <Label text="{{menuTitle}}" class="bold center" fontSize="18" />          
+</ActionBar>
+
+// menu-strip-view-model.js
+function MenuViewModel(menu) {
+    ...
+    viewModel.menuTitle = menu.title;
+	...
+}
+
+// menu-strip.js
+function onMenuLoaded(args) {
+    let menu = args.object;    
+    menu.bindingContext = new MenuViewModel(menu);
+}
+exports.onMenuLoaded = onMenuLoaded; 
+
+// using 
+<customControls:menu-strip title="{{someTitle}}" />
+
+---
+
 samples:
 
 // app/Pages/History/history-page.xml
@@ -1523,6 +1591,9 @@ Page Component
 
   note!
   on the UI - bind the 'loaded' event
+
+- page frame:
+  page.frame returns the current page frame.
 
 - sample:
   var _page;
@@ -1839,6 +1910,12 @@ Dialogs
 -------
 also see 'Modals'
 
+- path
+  'ui/dialogs'
+
+  const dialogs = require('ui/dialogs');
+  dialogs.<type>
+
 - Types:
   Action
   Alert
@@ -1924,6 +2001,9 @@ Modals
 ------
 also see 'Dialogs'
 
+source:
+https://docs.nativescript.org/ui/modal-view
+
 methods:
 showModal([view], [context: object], [closeCallback: function], [fullscreen: bool]?, [animated: bool]?, [stretched: bool]?)
 showModal([moduleName: string], [context: object], [closeCallback: function], [fullscreen: bool]?, [animated: bool]?, [stretched: bool]?)
@@ -1984,6 +2064,23 @@ exports.onLoginButtonTap = function(args){
     let bindingContext = page.bindingContext;    
     closeCallback('success!');
 };
+
+close model:
+closeModal();
+
+// e.g
+<Image src="~/Images/x2.jpg" class="center" width="20" tap="onCloseModally" />
+
+function onCloseModally(args){
+    let page = args.object.page;
+    page.closeModal();
+}
+exports.onCloseModally = onCloseModally;
+
+
+Popups
+------
+see 'Modals' and 'Dialogs'
 
 Events/ Gestures
 ----------------
@@ -2283,6 +2380,15 @@ JS Modules
 
   // TODO
 
+- utils
+  path: 'utils/utils'
+
+  source:
+  https://docs.nativescript.org/api-reference/modules/_utils_utils_
+
+  methods:
+  openUrl([url: string]);
+
 - file system
   path: 'file-system'
 
@@ -2524,9 +2630,12 @@ JS Modules
   allows us to navigate between frames and use UI frames
 
   methods:
-  frameModule.topmost().navigate(options: object);
-  frameModule.topmost().navigate(modulePath: string);
-  getFrameById(id: string)
+  <frame> frameModule.topmost() 
+  <frame> frameModule.getFrameById(id: string)
+
+  <frame>.navigate(options: object);
+  <frame>.navigate(moduleName: string);
+  <frame>.goBack();
 
   options:
   moduleName // the page to redirect to
@@ -2535,6 +2644,10 @@ JS Modules
   note! 
   to get the context use the page.navigationContext property 
   see 'Page/navigatingTo event'
+
+  utilities.goToPage:
+  var frame = frameName ? frameModule.getFrameById(frameName) : frameModule.topmost();
+  frame.navigate(path);
 
   e.g: // redirect to about-page
   var frameModule = require("ui/frame");
@@ -2556,10 +2669,6 @@ JS Modules
         <Frame defaultPage="Pages/Fonts/fonts-page" row="1" colSpan="2"></Frame>
     </GridLayout>         
   </Page>
-
-- dialogs
-  path: 'ui/dialogs'
-  // TODO
 
 - color:
   path: 'color'
@@ -2868,6 +2977,7 @@ JS Modules
   methods:
   setCssFileName([filePath])  // apply a css file on the application
   getCssFileName // get the application css file 
+  getRootView() // return the root view 
 
   events:
   launchEvent
@@ -2906,6 +3016,20 @@ JS Modules
     // args.newValue: 'portrait', 'landscape', 'unknown'
     viewModel.set("orientation", args.newValue);
   });
+
+  ---
+
+  // some-page.xml
+  const application = require("application");
+
+  var rootView = application.getRootView();
+  viewModel.drawer = rootView.getViewById('app-drawer');
+
+  // app-root.xml
+  <sd:RadSideDrawer id="app-drawer">
+	....
+	<Frame defaultPage="some-page.xml"></Frame>
+  </sd:RadSideDrawer>
 
   ---
 
@@ -3042,22 +3166,26 @@ https://github.com/EddyVerbruggen/nativescript-plugin-firebase-demo
   
 blog:
 https://firebase.googleblog.com/
+
+firebase console:
+https://console.firebase.google.com
   
 install:
 > tns plugin add nativescript-plugin-firebase
   
 configuration:
-1. go to https://console.firebase.google.com/ > create an account 
+1. go to firebase console > create an account 
 2. Add Project > choose the Project type from the provided list (Auth, Database, Cloud Messaging etc.)
-3. Add App (android and/or iOS) > download the generated config file/s 
+3. Add App (android and/or iOS) > set your app package name (e.g: com.hadeliverim.employee) > Register app
+4. download the generated config file/s 
    for ios - file 'GoogleService-Info.plist' > copy it to 'app/App_Resources/iOS/'
    for android - file 'google-services.json' > copy it to 'app/App_Resources/Android/'
-4. configure the plugin: 'firebase.nativescript.json' file
+5. configure the plugin: 'firebase.nativescript.json' file
    note! defined during the installation process, to re-configure it - delete the file and re-install the plugin OR run an 'npm run config' from within the module (node_modules/nativescript-plugin-firebase)
-5. set-up the 'build.gradle' file to use the desired services (located in platforms/android)
-   - add 'classpath "com.google.gms:google-services:4.2.0"' as a dependency
-6. make sure the applicationId is correct in the 'app.gradle' file (located in App_Resources/Android)
-7. bootstrap firebase in the 'app.js' before the 'application.run' (see 'bootstrap firebase')   
+6. set-up the 'build.gradle' file to use the desired services (located in platforms/android)
+   - add 'classpath "com.google.gms:google-services:4.2.0"' as a dependency (buildscript/dependencies)
+7. make sure the applicationId is correct in the 'app.gradle' file (located in App_Resources/Android)
+8. bootstrap firebase in the 'app.js' before the 'application.run' (see 'bootstrap firebase')   
    
 supported services:
 AdMob
@@ -3079,9 +3207,14 @@ once installed, we'll have analytics about the service and its usage.
 note! apply for ANY installed service by firebase!
 
 reference:
+see 'firebase Authentication'
 see 'firebase Cloud Messaging'
 see 'firebase Invites'
+see 'firebase Storage'
 // TODO
+
+add firebase app:
+see 'configuration' steps 3-4
 
 bootstrap firebase:
 // app.js
@@ -3117,7 +3250,7 @@ application.run({ moduleName: "app-root" });
 
 --
 
-- firebase Cloud Messaging:
+- firebase Cloud Messaging (FCM):
 
   about:
   allows us to send messages to the users via a backend server, 
@@ -3125,6 +3258,141 @@ application.run({ moduleName: "app-root" });
 
   videos:
   https://www.youtube.com/watch?time_continue=10&v=sioEY4tWmLI
+
+  method:
+  Promise getCurrentPushToken() 
+  Promise subscribeToTopic(<topicName: string>)
+  Promise unsubscribeFromTopic(<topicName: string>)
+
+  events:
+  onMessageReceivedCallback(<callback: message>); // app init
+  addOnMessageReceivedCallback(<callback: message>) // firebase objet
+
+  onPushTokenReceivedCallback(<callback: token>) // app init
+  addOnPushTokenReceivedCallback(<callback: token>) // firebase objet
+
+  properties:
+  showNotifications: bool
+  showNotificationsWhenInForeground: bool
+
+  require:
+  const firebase = require("nativescript-plugin-firebase");
+
+  device token:
+  each device gets a unique token generated by the firebase service. use that token to identify that device.  
+  we can add a mapping table in our storage with user-token values.
+  note that if a device serves more then one user - we'll still get the same token (which refers to the device+app) so we'll need an extra logic to support that case.
+  
+  a token refreshes in the following cases
+  1. app deletes instanceId
+  2. app is restored on a new device 
+  3. user install/ uninstall the app
+  4. user clear app data
+
+  use 'getCurrentPushToken' method to get the device token.
+
+  // sample token 
+  fG_FDIHUR70:APA91bF2B5ItgWZqaStDYYlLHhMlD5VYFbQ9saSjjIVWfmNzR6yX5NRYcMmyQElC6x-G0yGBHlzXFNWsHSahJSLaWqKa1PB_-IF6pWGL6flG3BLWWuQ1CCwMVQ6cR0iq9qG2P3Ei_y5q
+
+  topics:
+  // TODO about + how to create + register device to topic
+
+  groups:
+  // TODO about + how to create + register device to topic
+
+  on message received:
+  when a new message arrives: 
+  if the app is in the foreground - firebase will ONLY execute the onMessageReceivedCallback.
+  if it in the background - firebase will show a tray notification which will route the user to our app and perform the onMessageReceivedCallback once he click on it! 
+  in addition, a property named 'foreground' (which represents the app state) will be added to the payload. 
+
+  init:
+  // app.js 
+  // hook-up to the MessageReceived event
+  firebase.init({
+    onMessageReceivedCallback: message => {
+        console.log(message);                
+    }}).then(() => {
+      console.log("firebase.init done");
+    },
+    error => {
+      console.log("firebase.init error: " + error);
+    }
+  );
+
+  // get device token
+  firebase.getCurrentPushToken().then(token => {
+    console.log(token);
+  });
+
+  send notification from firebase console:
+  can be used for testing, remarketing, reminders promotion etc.
+
+  (steps)
+  1. open firebase console > (tab) cloud messaging 
+  2. new notification 
+  3. set notification data > next
+     note! can choose a specific device by it's token
+  4. set target app/ topic > next 
+  5. schedule it > next 
+  6. review > send 
+
+  tip! 
+  an FCM benchmark is available to track all your defined messages metrics (sends, opens, conversions and more ...)
+
+  tests:
+  use the firebase console to send test messages.
+  see 'send notification from firebase console' 
+
+  api: 
+  to send messages to the server, we need to use firebase REST service. 
+
+  reference
+  https://firebase.google.com/docs/cloud-messaging/http-server-ref
+  https://firebase.google.com/docs/cloud-messaging/send-message
+
+  ServerKey:
+  firebase console > Project Settings > (tab) Cloud Messaging > Server key
+
+  properties:
+  - to: string  // a device-token, a group key or a single topic (prefixed with /topics/)
+  - registration_ids: [string]  // device-token list for sending message to multiple devices at once
+  - condition: string  // condition to determine the message target/s (e.g: topicA && topicB) 
+  - priority: string  // normal or high
+  - dry_run: bool  // test mode - create a request without delivering the message
+  - data: object  // a custom key-value pair object to include within the payload ( e.g: { "p1":"v1", "p2":"v2" })
+  - notification: object  // see 'notification object'
+
+  notification object:
+  - title: string  
+  - body: string
+  - sound: string  // the sound of the notification (supports: default)
+  - icon: string  // icon file name
+  - click_action: string  // action name
+  - color: string  // icon color (#rrggbb format)
+  - tag: string  // use it to update an existing notification with the same tag
+
+  using:
+  POST https://fcm.googleapis.com/fcm/send
+  Content-type: application/json
+  Authorization: key=<ServerKey>
+  <body>
+
+  // sample payload (body)
+  { 
+      "notification": {
+			"title": "My title", 
+			"text": "My text", 
+			"badge": "1", 
+			"sound": "default"
+       }, 
+       "data":{
+			"p1":"v1",
+			"p2":"v2"
+        }, 
+       "priority": "High", 
+       "to": "fG_FDIHUR70:APA91bF2B5ItgWZqaS.."
+	}
 
 -- 
 
@@ -3136,6 +3404,13 @@ application.run({ moduleName: "app-root" });
 
   videos:
   https://www.youtube.com/watch?v=LkaIJCZ_HyM&list=PLl-K7zZEsYLmOF_07IayrTntevxtbUxDL
+
+--
+
+- firebase Storage
+
+  about:
+  // TODO
 
 
 Plugins
@@ -3299,7 +3574,7 @@ Plugins
      <DDL:DropDown ..... />
 
   options:
-  items: [] 
+  items: [string] OR ValueList
   selectedIndex: number 
   hint: string  
   isEnabled: bool 
@@ -3317,6 +3592,14 @@ Plugins
   open
   close
 
+  classes:
+  ValueList([{value, display}]);
+  ValueList(); 
+
+  note!
+  * array-type object, use push to add items, use length to get the items quantity.
+  * use getIndex([value]) or getValue([index]) or getItem([index]) to pull data from it.
+	
   using:
   <DDL:DropDown class="m-20"                 
 		items="{{ colors }}" 
@@ -3328,6 +3611,21 @@ Plugins
    viewModel.onColorSelected = (args) => {
         console.log('onColorSelected');
    };
+
+   --
+
+   // using key-value pair
+   var DropDown = require('nativescript-drop-down');
+
+   viewModel.colors = new DropDown.ValueList([
+	 { display: 'blue', value: '1' },
+	 { display: 'red', value: '2' },
+	 { display: 'purple', value: '3' },
+	 { display: 'green', value: '4' },
+	 { display: 'brown', value: '5' },
+	 { display: 'black', value: '6' },
+	 { display: 'yellow', value: '7' }
+   ]);
 
 
 - RadAutoCompleteTextView 
@@ -4115,7 +4413,15 @@ Plugins
   drawerContentSize: int // the drawer width
 
   methods:
-  toggleDrawerState()
+  toggleDrawerState();
+  closeDrawer();
+
+  events:
+  drawerPan
+  drawerClosed
+  drawerClosing
+  drawerOpened
+  drawerOpening
 
   drawerLocations:
   Top
@@ -4549,7 +4855,7 @@ Plugins
 
   options:
   - desiredAccuracy
-    number 1-3  
+    number 1-3  // Accuracy.high for 3 meter accuracy, Accuracy.any for 300
 	accuracy  level 
 
   - updateDistance
@@ -4660,20 +4966,23 @@ Plugins
 
   setup:
   1. copy the keys from 'node_modules/nativescript-google-maps-sdk/platforms/android/res/values/nativescript_google_maps_api.xml' 
-	 to 'app/App_Resources/Android/src/main/res/values/strings.xml'
+	 to 'app/App_Resources/Android/src/main/res/values/'
 
   2. set the api key
      <resources>
-        <string name="nativescript_google_maps_api_key">[key]</string>
+        <string name="nativescript_google_maps_api_key">[key]</string>nativescript-geolocation
      </resources>  
 
   3. add new tag to the 'AndroidManifest.xml' file 
      located in 'app/App_Resources/Android/src/main'
 
-     <meta-data
-         android:name="com.google.android.geo.API_KEY"
-         android:value="@string/nativescript_google_maps_api_key" />
-
+	<application>
+		...
+		<meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/nativescript_google_maps_api_key" />
+		...
+	</application>
+		
+  [optional]
   4. add permissions to the 'AndroidManifest.xml' file  
      located in 'app/App_Resources/Android/src/main'
      ...
@@ -4986,8 +5295,42 @@ Plugins
 note!
 find more plugins in the market (see 'MarketPlace')
 
+Background Services
+-------------------
+// TODO
+
 Other Services
 --------------
+- open google maps 
+  
+  source:
+  https://developers.google.com/maps/documentation/urls/guide  
+
+  how to:
+  use the 'openUrl' method of the 'utils' class (see 'JS Modules/utils')
+
+  url:
+  https://www.google.com/maps/search/?api=1&query=<query>
+
+  e.g:
+  // address: Alenbi 40 Tel Aviv, Israel
+  utils.openUrl("https://www.google.com/maps/search/?api=1&query=Alenbi+40+Tel+Aviv%2C+Israel");
+
+- open waze maps 
+  
+  source:
+  https://developers.google.com/waze/deeplinks/
+
+  how to:
+  use the 'openUrl' method of the 'utils' class (see 'JS Modules/utils')
+
+  url:
+  https://waze.com/ul?<query>
+
+  e.g:
+  // coordinates: 32.1093,34.8555
+  utils.openUrl("https://waze.com/ul?ll=32.1093,34.8555&z=10");
+
 - google Directions API
   
   about:
@@ -5094,8 +5437,62 @@ Other Services
       console.log('ex: ' + ex.message);
   }); 
 
+Page Structure
+--------------
+- app
+--- app.js
+--- app.css
+--- app-root.xml
+--- Pages
+------ Page
+--------- page.xml
+--------- page.js
+--------- view-model.js
+--------- page.css
+	- Page
+--------- Tab
+----------- tab.xml
+----------- tab.js
+----------- view-model.js
+----------- tab.css
+--------- Tab
+----------- tab.xml
+----------- tab.js
+----------- view-model.js	  
+----------- tab.css
+--------- page.xml	  
+	- Page
+--------- Partial	    
+----------- item.xml		
+--------- page.xml
+--------- page.js
+--------- view-model.js
+--------- page.css
+
+samples:
+// TODO
+
+
+
 Working With Nativescript
 -------------------------
+
+- passing Parameters:
+  see 'Passing Context'
+
+- bindingContext:
+
+  .js
+  [object].bindingContext = [object] 
+  
+  .xml 
+  use {{ .. }} to bind a value from the binded context
+
+  e.g:
+  Page.bindingContext = { name: 'John Joe', id: 1234 }
+
+  <Label text="{{id}}" />
+  <Label text="{{name}}" />
 
 - &quot;
   used to escape " sign
@@ -5447,6 +5844,17 @@ Working With Nativescript
   note:
   we can create our own templates (see 'create a template')
 
+- values-v21
+  app/App_Resources/Android/src/main/res
+
+  app config key such as strings, integers, and colors for themes supported only on API Level 21+
+
+- AndroidManifest.xml
+  app/App_Resources/Android/src/main/res
+
+  provides information about your app to the Android system. 
+  use it to change the app icon, app name etc. 
+
 - create a template:
   a nativescript template is nothing more than an app folder of a nativescript app!
   
@@ -5494,8 +5902,171 @@ Working With Nativescript
   https://docs.nativescript.org/performance-optimizations/startup-times
   https://docs.nativescript.org/performance-optimizations/images-optimisations
 
--  
+- splash Screen:
   
+  drawable-X folders
+  app/App_Resources/Android/src/main/res/
+
+  splash_screen.xml
+  app/App_Resources/Android/src/main/res/drawable-hdpi
+
+  <layer-list xmlns:android="http://schemas.android.com/apk/res/android" android:gravity="fill">
+    <item>
+        <bitmap android:gravity="fill" android:src="@drawable/background" />
+    </item>
+    <item>
+        <bitmap android:gravity="center" android:src="@drawable/splashscreenlogo" />
+    </item>
+  </layer-list> 
+
+Passing Context
+---------------
+we can pass a custom context between pages using the navigationContext.
+
+steps: 
+1. use the frame module to navigate from PageA to pageB. add context to the navigation.
+2. use the 'navigationContext' property in PageB to read the transfered context from chapter 1.
+
+// PageA
+var frameModule = require("tns-core-modules/ui/frame");
+var frame = frameName ? frameModule.getFrameById(frameName) : frameModule.topmost();
+
+var options = {
+    moduleName: path,
+    context: { .... }
+}   
+frame.navigate(options);
+
+---
+
+// PageB
+const defaultContext = { ... };
+
+function onNavigatingTo(args) {
+    let page = args.object;    
+    let context = page.navigationContext || defaultContext;     
+    page.bindingContext = context;
+}
+exports.onNavigatingTo = onNavigatingTo; 
+
+Navigation
+----------
+see 'JS Modules/frame'
+see 'Page Component/page frame'
+see 'TabView'
+see 'RadSideDrawer'
+see 'Modals'
+
+Notifications
+-------------
+
+[Local Notifications]
+notifications that are pushed from the app itself.
+
+install:
+tns plugin add nativescript-local-notifications
+
+source:
+https://github.com/EddyVerbruggen/nativescript-local-notifications
+
+Notification object:
+id: number
+title: string 
+subtitle: string 
+body: string
+color: Color
+ticker: string  // status-bar message (instead of the body)
+interval
+image: URL  // big image below the message body
+forceShowWhenInForeground  // always show the notification
+actions: [NotificationAction]  // add buttons/Inputs
+at: Date  // Date object indicating when the notification should be shown 
+bigTextStyle: boolean  // multiple body lines (default: false)
+icon  // system tray icon (res://filename located in App_Resouces/Android/drawable)
+silhouetteIcon  // same as icon for Android >= Lollipop (21)
+thumbnail  // notification right icon 
+
+NotificationAction object:
+id
+type  // button or input
+title
+
+methods:
+schedule(<[Notification]>);  // promise
+requestPermission();  // promise
+hasPermission();  // promise
+cancelAll()
+cancel(<id>)
+
+callback registration:
+addOnMessageReceivedCallback(callback);  // promise
+
+require:
+const localNotifications = require("nativescript-local-notifications").LocalNotifications;
+
+sample:
+<Button tap="{{ onNotificationTap }}" text="notification" /> 
+
+const localNotifications = require("nativescript-local-notifications").LocalNotifications;
+const dialogs = require('ui/dialogs');
+var colorModule = require("color");
+
+// notification callback registration
+localNotifications.addOnMessageReceivedCallback(notification => {
+    let options = {
+        title: notification.title,
+        message: `callback from message #[${notification.id}]`,
+        okButtonText: "OK"		
+    };
+        
+    dialogs.alert(options); 
+});
+
+viewModel.onNotificationTap = args => {
+    localNotifications.requestPermission().then(granted => {
+        if(!granted) return;
+  
+        var notifications = [];
+        notifications.push({
+            id: 100,
+            title: 'Lorem Ipsum',
+            subtitle: 'What is Lorem Ipsum?',
+            body: 'dummy text of he printing and typesetting industry',
+            color: new colorModule.Color('#85c241'),
+            at: new Date(new Date().getTime() + (2 * 1000)),  // in 2 sec
+            silhouetteIcon: 'res://nowings',
+            icon: 'res://nowings',
+            thumbnail: 'res://logo',
+            image: 'https://cdn-images-1.medium.com/max/1200/1*c3cQvYJrVezv_Az0CoDcbA.jpeg'
+        });
+
+        localNotifications.schedule(notifications);
+    });
+};
+
+---
+   
+[Push Notifications]
+notifications that are pushed from a server. 
+
+about the process:
+notifications are sending to the end user device through a 'Notification Server'. 
+each user register to that server and get a unique token which will used to identify him once a message enter, 
+then we send the received token to our 'APP Server' and map it to the user. 
+now, we can use those token to target each user and send a message to him by send the desired message to the 'Notification Server' using the desired token/s.
+
+to recup
+the app make a registeration of the device in the 'Notification Server' and get the token, than the app sends it to the 'App Server' and store it. 
+later, it uses the strored tokens to call the 'Notification Server' and send messages to the end users.
+
+schema:
+App Server > Notification Server > User Device
+
+// TODO 
+  
+Firebase:
+see 'Google Firebase/firebase Cloud Messaging' 
+
 
 Debugging
 ---------
@@ -5549,27 +6120,7 @@ let localStorage = require('nativescript-localstorage');
 
 localStorage.clear();
 localStorage.setItemObject("test", {a: 1, b: 2});
-
-localStorage.setItem('counter', 33);
-var counter = localStorage.getItem('counter');
-
-
-Push Notifications
-------------------
-about the process:
-notifications are sending to the end user device through a 'Notification Server'. 
-each user register to that server and get a unique token which will used to identify him once a message enter, 
-then we send the received token to our 'APP Server' and map it to the user. 
-now, we can use those token to target each user and send a message to him by send the desired message to the 'Notification Server' using the desired token/s.
-
-to recup
-the app make a registeration of the device in the 'Notification Server' and get the token, than the app sends it to the 'App Server' and store it. 
-later, it uses the strored tokens to call the 'Notification Server' and send messages to the end users.
-
-schema:
-App Server > Notification Server > User Device
-
-// TODO 
+]jkj .;lxssdkjm64localStorage.setItem('counter', 33);945ikl['p7p[;0-var counter = localStorage.getItem('counter');
 
 
 Multiple Views
@@ -5642,6 +6193,9 @@ App Resources
   drawable-xhdpi/icon.png
   drawable-xxhdpi/icon.png
   drawable-xxxhdpi/icon.png
+
+  note! we can create our own drawable folders based on specific sizes > drawable-800x480 etc.
+
 
 [iOS]
 - location:
@@ -5794,7 +6348,13 @@ in a 'fonts' folder under the 'app' folder
       <Label flexGrow="1" android:text="&#xf2bd;" class="faRegular" fontSize="30" />
   </FlexboxLayout>
 
+  ---
 
+  <FlexboxLayout class="bubble-green big">
+       <Button flexGrow="1" tap="{{ onEndShift }}" text="In &#xf204;" class="faSolid" />                     
+       <Button flexGrow="1" tap="{{ onTakeABreak }}" text="Break &#xf0f4;" class="faSolid" />        
+       <Button flexGrow="1" tap="{{ onStartShift }}" text="Out &#xf205;" class="faSolid" />                       
+  </FlexboxLayout>
 
 Platform Specific Capabilities
 ------------------------------
@@ -5823,7 +6383,6 @@ nativescript map the known css rules into native style.
 - nativeScript Theme Builder
   a great feature which allows us to create a css layout and import it to our app!
   https://www.nativescriptthemebuilder.com
-
 
 - supported selectors:
   - Element Type
@@ -6050,7 +6609,7 @@ nativescript map the known css rules into native style.
     switch  // applied to the Switch component 
 	<Switch checked="true" class="switch" horizontalAlignment="center" />
 
-  - tabViews 
+  - fzzz 
     tab-view // applied to the TabView component 
 
 
@@ -6162,6 +6721,19 @@ nativescript map the known css rules into native style.
         animation-timing-function: linear;
     }
 
+- background-image
+
+  - sample:
+    // css
+	.app-background{
+		background-image: url('~/Images/background.jpg');
+		background-repeat: no-repeat;
+		background-position: center top;
+		background-size: cover;  /* background-size: 750 695; */
+	}
+
+	// ui
+	<Page ... class="app-background">
 
 Launch Process
 --------------
@@ -6545,6 +7117,14 @@ Failed resolution of: Lcom/google/android/gms/internal/zzbck nativescript-geoloc
 cause:
 Version Conflicts – Google Play Services
 
+note: 
+mostly occur when there's multiple services using the googlePlayServices (geolocation, firebase and google-maps etc.)
++ represents the latest version
+
+tip:
+we can also go to each plugin and check the version it uses
+path 'node_modules/<plugin>/platforms/android/include.gradle'
+
 https://github.com/NativeScript/nativescript-geolocation
 'Known Issues' section
 
@@ -6554,8 +7134,17 @@ add the below code to the app.gradle file
 located in 'app/App_Resources/Android/app.gradle'
 
 project.ext {
-    googlePlayServicesVersion = "+"
+    googlePlayServicesVersion = "15.0.1"
 }
+
+OR 
+
+[best solution]
+1.create a 'before-plugins.gradle' file under 'app/App_Resources/Android' folder
+2.add the below code snippet:
+  project.ext {
+    googlePlayServicesVersion = "15.0.1"
+  }
 
 --
 
@@ -6620,6 +7209,45 @@ calendar
 
 solution:
 remove and then add platform
+
+--
+
+error:
+Cannot read property 'registerCallbacks' of undefined
+
+plugin:
+nativescript-local-notifications
+
+solution:
+remove and then add platform
+
+--
+
+issue:
+Creating a Button with no border or shadow
+
+solution:
+<Button text="clickMe" class="no-border" /> 
+
+.no-border{    
+    border-color: transparent;
+    border-width: 1;       
+}
+
+--
+
+issue:
+localhost network connection issue
+(usually for debug purposes)
+
+error:
+java.net.ConnectException: localhost/127.0.0.1:1234 - Connection refused
+
+cause:
+127.0.0.1 or localhost will be emulator's own loopback address
+
+solution:
+use inner machine ip
 
 --
 
@@ -6703,4 +7331,3 @@ exports.onNavigatingTo = onNavigatingTo;
 </Page>
 
 ---
-

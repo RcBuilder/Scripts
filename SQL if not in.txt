@@ -1,0 +1,6 @@
+declare @val int = 13
+
+if(@val not in (14, 15, 16))
+	select 'TRUE'
+else 
+	select 'FALSE'

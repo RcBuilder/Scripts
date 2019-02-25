@@ -1,0 +1,174 @@
+var LABEL_VALUES = {
+  'Primary' :  { bid: 0.1, position: 3, tolerance: 0.2 },
+  'Secondary' :  { bid: 0.2, position: 6, tolerance: 0.5 },
+  'Experiment' :  { bid: 0.3, position: 9, tolerance: 0.5 } 
+};
+
+var PERIOD = 'LAST_30_DAYS'; // LAST_30_DAYS, LAST_7_DAYS, 20190101,20190301
+
+function main() {  
+    setBids('Primary');
+    setBids('Secondary');
+    setBids('Experiment'); 
+}
+
+function setBids(labelName) {
+  var labelIterator = AdWordsApp.labels().withCondition('Name = "' + labelName + '"').get();
+  if(!labelIterator.hasNext()) 
+    return;
+  
+  var label = labelIterator.next();
+  var labelValues = GetLabelValues(labelName);
+  
+  if(labelValues == null) 
+    return;
+  
+  Logger.log('# label: %s %s', labelName, labelValues);       
+  
+  var adGroups = label.adGroups()
+  .withCondition("Status = ENABLED")
+  .get();
+  
+  while (adGroups.hasNext()) {
+    var adGroup = adGroups.next();      
+    Logger.log('adGroup : %s', adGroup.getName());
+    
+    increaseBids(adGroup, labelValues);
+    decreaseBids(adGroup, labelValues);
+  }     
+}
+
+function GetLabelValues(labelName){
+  try{
+    var result = LABEL_VALUES[labelName];
+    return result || null;
+  }
+  catch(e){ return null; }
+}
+
+function increaseBids(adGroup, label_values){
+  // { key, entity, top, other }
+  var keywords = [];
+  keywords.indexOfKey = function(key){
+    for(var i=0;i<this.lenght;i++)
+      if(this[i].key == key)
+        return i;
+    return -1;
+  };
+  
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var report = AdWordsApp.report(
+	'SELECT Id, AdGroupId, Criteria, Impressions ' +
+	'FROM KEYWORDS_PERFORMANCE_REPORT ' +    
+	'WHERE Status = ENABLED ' + 
+    'AND AdGroupStatus = ENABLED ' +
+    'AND CampaignStatus = ENABLED ' +
+    'AND IsNegative = False ' + 
+    'AND Impressions > 0 ' + 
+    'AND AveragePosition > ' + (label_values.position + label_values.tolerance) + ' ' +  
+    'AND AdGroupId = ' + adGroup.getId() + ' ' +
+	'DURING '+ PERIOD, reportConfig); 
+	     
+  var rows = report.rows();    
+  while(rows.hasNext()) { 
+    var row = rows.next();
+    
+    var keywordId = row['Id'];
+    var adGroupId = row['AdGroupId'];
+    var keywordText = row['Criteria'];
+    var impressions = row['Impressions'];    
+    Logger.log('AAA');
+    var index = keywords.indexOfKey(keywordId);
+    if(index == -1) // add
+    {
+      var keywordIterator = AdWordsApp.keywords().withIds([[adGroupId, keywordId]]).get();
+      if(!keywordIterator.hasNext()) continue;
+      
+      var keyword = keywordIterator.next();
+      keywords.push({ key: keywordId, entity: keyword });
+      index = keywords.length - 1; // set created keyword index
+    }                
+  }
+  
+  Logger.log('increaseBids: %s keywords found', keywords.length);
+  for(var i=0; i< keywords.length; i++) {
+    var keywordItem = keywords[i]; 
+
+    var keyword = keywordItem.entity;     
+    Logger.log('keyword: #%s %s', keywordItem.key, keyword.getText());
+    
+    var max_cpc = keyword.getMaxCpc();
+    var new_max_cpc = max_cpc + (max_cpc * label_values.bid);       
+    
+    Logger.log('change: %s,  cpc %s -> %s', keyword.getText(), max_cpc, new_max_cpc);        
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.setMaxCpc(new_max_cpc);
+  }
+}
+
+function decreaseBids(adGroup, label_values){
+  // { key, entity, top, other }
+  var keywords = [];
+  keywords.indexOfKey = function(key){
+    for(var i=0;i<this.lenght;i++)
+      if(this[i].key == key)
+        return i;
+    return -1;
+  };
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var report = AdWordsApp.report(
+	'SELECT Id, AdGroupId, Criteria, Impressions ' +
+	'FROM KEYWORDS_PERFORMANCE_REPORT ' +    
+	'WHERE Status = ENABLED ' + 
+    'AND AdGroupStatus = ENABLED ' +
+    'AND CampaignStatus = ENABLED ' +
+    'AND IsNegative = False ' + 
+    'AND Impressions > 0 ' + 
+    'AND AveragePosition < ' + (label_values.position - label_values.tolerance) + ' ' +  
+    'AND AdGroupId = ' + adGroup.getId() + ' ' +
+	'DURING '+ PERIOD, reportConfig); 
+	     
+  var rows = report.rows();     
+  while(rows.hasNext()) { 
+    var row = rows.next();
+    
+    var keywordId = row['Id'];
+    var adGroupId = row['AdGroupId'];
+    var keywordText = row['Criteria'];
+    var impressions = row['Impressions'];    
+    
+    var index = keywords.indexOfKey(keywordId);
+    if(index == -1) // add
+    {
+      var keywordIterator = AdWordsApp.keywords().withIds([[adGroupId, keywordId]]).get();
+      if(!keywordIterator.hasNext()) continue;
+      
+      var keyword = keywordIterator.next();
+      keywords.push({ key: keywordId, entity: keyword, top: 0, other: 0 });
+      index = keywords.length - 1; // set created keyword index
+    }               
+  }
+  
+  Logger.log('decreaseBids: %s keywords found', keywords.length);
+  for(var i=0; i< keywords.length; i++) {
+    var keywordItem = keywords[i]; 
+
+    var keyword = keywordItem.entity;     
+    Logger.log('keyword: #%s %s', keywordItem.key, keyword.getText());
+    
+    var max_cpc = keyword.getMaxCpc();
+    var new_max_cpc = max_cpc - (max_cpc * label_values.bid);      
+    
+    Logger.log('change: %s,  cpc %s -> %s', keyword.getText(), max_cpc, new_max_cpc);  
+    if(!AdWordsApp.getExecutionInfo().isPreview())
+      keyword.setMaxCpc(new_max_cpc);
+  }
+}

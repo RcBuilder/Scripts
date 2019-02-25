@@ -205,8 +205,11 @@ STATUS (enum)
 KEYWORD MATCH TYPE (enum)
 -------------------------
 * BROAD
-* EXACT
+* EXPANDED
 * PHRASE
+* NEAR_PHRASE
+* EXACT
+* NEAR_EXACT
 
 APPROVAL STATUS (enum)
 ----------------------
@@ -1005,7 +1008,16 @@ var campaigns = budget.campaigns() // get the shared budget campaigns
 
 ======== Match Types =================================================================
 
-* keywords support 4 match types:
+also see 'KEYWORD MATCH TYPE (enum)'
+
+
+
+* NEAR_PHRASE
+
+* NEAR_EXACT
+
+
+* keywords support the following match types:
   1. BROAD (default)
      - widest audience, the least strict option.
 	 - any word in your key phrase, in any order!
@@ -1014,7 +1026,7 @@ var campaigns = budget.campaigns() // get the shared budget campaigns
 	   keyword: luxury car 
 	   ad display: fast car, luxury apartment, expensive vehicles etc.
 
-  2. MODIFIED BROAD 
+  2. MODIFIED BROAD or EXPANDED
      - more restrictive than BROAD but less then PHRASE and EXACT
      - use a '+' sign. 
      - allows you to anchor/lock a keyword for better control of the BROAD match.	 
@@ -1033,7 +1045,14 @@ var campaigns = budget.campaigns() // get the shared budget campaigns
 	   ad display: luxury car, common luxury car, luxury car for sale etc.
 	   luxury car phrase must be fully included within the search phrase! 
 
-  4. EXACT
+  4. NEAR_PHRASE
+     similar to PHRASE but also includes variations that share the same meaning. 
+
+     - e.g: 
+	   keyword: "yosemite camping"
+	   ad display: yosemite campground
+
+  5. EXACT
 	 - most specific and restrictive option.
 	 - wrap the key phrase with [] sign. 
 	 - the exact phrase, in the exact order with no addition content!
@@ -1041,7 +1060,13 @@ var campaigns = budget.campaigns() // get the shared budget campaigns
      - e.g: 
 	   keyword: [luxury car]
 	   ad display: luxury car.	   
+ 
+  6. NEAR_EXACT
+     similar to EXACT but also includes variations that share the same meaning. 
 
+     - e.g: 
+	   keyword: [yosemite camping]
+	   ad display: yosemite campground
 note! 
 use negative keywords to exclude keywords, excluded keywords will NEVER trigger the ad 
 
@@ -4902,8 +4927,12 @@ CsvUpload
   - forOfflineConversions() // specifies that this upload is used for reporting offline conversions.
   - forCampaignManagement() // (default) specifies that this upload is used for entity changes 
 
+* source:
+  https://developers.google.com/google-ads/scripts/docs/features/bulk-upload
+  
+
 *  supported entities
-  -	more info: 
+  - more info: 
     https://developers.google.com/adwords/scripts/docs/features/bulk-upload-entities
 
   - campaign
@@ -5040,10 +5069,222 @@ see 'SHOP SERVICE'
 see 'INVOCA READER SERVICE'
 see 'INDIEBOOK READER SERVICE'
 
+======== MOCK =======================================================================
+
+Mock<Report>
+------------
+
+function SearchQueryReportMock(){
+	this.rows = function(){
+    	return new SearchQueryReportRowsMock();
+    }
+}
+
+function SearchQueryReportRowsMock() {
+  var i = 0;
+  
+  // item: { Query, KeywordTextMatchingQuery, QueryMatchTypeWithVariant}
+  var arr = [
+    { Query: 'KW1', KeywordTextMatchingQuery: 'bla bla KW1 bla bla', QueryMatchTypeWithVariant: 'broad' },
+    { Query: 'KW2', KeywordTextMatchingQuery: 'KW2', QueryMatchTypeWithVariant: 'exact' },
+    { Query: 'KW3', KeywordTextMatchingQuery: 'KW3s', QueryMatchTypeWithVariant: 'exact (close variant)' },
+    { Query: 'KW4', KeywordTextMatchingQuery: 'KW4', QueryMatchTypeWithVariant: 'exact' },
+    { Query: 'KW5', KeywordTextMatchingQuery: 'bla KW5', QueryMatchTypeWithVariant: 'phrase' }
+  ];
+
+  this.next = function(){
+    return arr[i++];      
+  }
+
+  this.hasNext = function(){
+    return arr.length > i;
+  }
+} 
+
+using:
+
+var report = DEBUG == true ? new SearchQueryReportMock() : AdWordsApp.report(query, reportConfig); 
+var rows = report.rows();
+	
+while (rows.hasNext()) {
+	var row = rows.next();
+            
+	var searchQuery = row['Query'].toLowerCase();
+	var keyword = row['KeywordTextMatchingQuery'];   
+	var matchTypeDisplayName = row['QueryMatchTypeWithVariant'];	
+}
+
 ======== EXAMPLES ===================================================================
 
 // ads spell checker (bing api)
 http://searchengineland.com/spell-check-new-expanded-text-ads-adwords-script-256914
+
+--------------------
+
+// Search Queries report sample
+var reportConfig = {
+	includeZeroImpressions: true
+};  
+  
+var query =  
+    'SELECT Query, CampaignId, KeywordId, KeywordTextMatchingQuery, Impressions, QueryMatchTypeWithVariant ' +
+    'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +      
+    'DURING LAST_7_DAYS';
+
+var report = AdWordsApp.report(query, reportConfig); 
+var rows = report.rows();
+  
+while (rows.hasNext()) {
+	var row = rows.next();
+        
+	var keywordId = parseInt(row['KeywordId']);  // triggered keyword id
+	var searchQuery = row['Query'].toLowerCase(); // actual search value
+	var keyword = row['KeywordTextMatchingQuery'];  // triggered keyword text 	
+
+	/*
+		broad
+		exact
+		phrase
+		exact (close variant)
+		phrase (close variant)
+	*/
+	var matchTypeDisplayName = row['QueryMatchTypeWithVariant'];   // search match type    
+}
+
+--------------------
+
+// create a negative keyword with specific matchType
+function setAsNegative(campaign, negativeKeywords, matchType){
+  for(i in negativeKeywords){
+    var searchQuery = negativeKeywords[i];        
+    Logger.log('searchQuery: %s', searchQuery);
+    
+    if(isNegativeKeywordExists(campaign, searchQuery, matchType))
+      continue;
+    
+    var keywordToAdd;
+    switch (matchType){
+      default:
+      case 'EXPANDED': 
+      case 'BROAD': keywordToAdd = searchQuery;        
+        break;
+      case 'NEAR_EXACT': 
+      case 'EXACT': keywordToAdd = '[' + searchQuery + ']';
+        break;
+      case 'NEAR_PHRASE':          
+      case 'PHRASE': keywordToAdd = '"' + searchQuery + '"';
+  	}
+    
+    Logger.log('create %s as negative keyword', keywordToAdd);
+    
+    if(DEBUG == false)
+    	campaign.createNegativeKeyword(keywordToAdd);
+  } 
+}
+
+--------------------
+
+// load campaigns by label name
+function loadCampaignsByLabel(labelName){  
+  var campaigns = [];
+  
+  var campaignsIter = AdWordsApp.campaigns()
+      .withCondition('LabelNames CONTAINS_ANY ["' + labelName + '"]')
+      .withCondition('Status = ENABLED')
+      .get();
+  
+  while(campaignsIter.hasNext()) 
+    campaigns.push(campaignsIter.next());  
+  return campaigns;
+}
+
+--------------------
+
+// check if the specified keyword exists as negative in the provided campaign
+function isNegativeKeywordExists(campaign, keywordText, keywordMatchType){
+	return campaign.negativeKeywords()
+      .withCondition('Text = "' + keywordText + '"')
+      .withCondition('KeywordMatchType = ' + keywordMatchType)
+      .get()
+      .hasNext();
+}
+
+--------------------
+
+// matchType mapping table
+var matchTypeMappingTable = {};
+matchTypeMappingTable['BROAD'] = 'broad';
+matchTypeMappingTable['EXACT'] = 'exact';
+matchTypeMappingTable['EXPANDED'] = 'broad';
+matchTypeMappingTable['PHRASE'] = 'phrase';
+matchTypeMappingTable['NEAR_EXACT'] = 'exact (close variant)';
+matchTypeMappingTable['NEAR_PHRASE'] = 'phrase (close variant)';
+
+matchTypeMappingTable.find = function(displayName){
+	displayName = displayName.toLowerCase();
+	for(key in this)
+		if(this[key].toLowerCase() == displayName)
+		return key;
+	return null;
+}
+
+// using
+var matchTypeDisplayName = row['QueryMatchTypeWithVariant'];
+var matchType = matchTypeMappingTable.find(matchTypeDisplayName);
+
+--------------------
+
+// get search queries by match Types
+function GetSearchQueries(campaignId, matchTypes){
+  var searchQueries = [];
+  
+  var matchTypeMappingTable = {};
+  matchTypeMappingTable['BROAD'] = 'broad';
+  matchTypeMappingTable['EXACT'] = 'exact';
+  matchTypeMappingTable['EXPANDED'] = 'broad';
+  matchTypeMappingTable['PHRASE'] = 'phrase';
+  matchTypeMappingTable['NEAR_EXACT'] = 'exact (close variant)';
+  matchTypeMappingTable['NEAR_PHRASE'] = 'phrase (close variant)';
+  matchTypeMappingTable.find = function(displayName){
+    displayName = displayName.toLowerCase();
+  	for(key in this)
+      if(this[key].toLowerCase() == displayName)
+        return key;
+    return null;
+  }
+
+  var reportConfig = {
+    includeZeroImpressions: true
+  };  
+  
+  var query =  
+      'SELECT Query, CampaignId, KeywordId, KeywordTextMatchingQuery, Impressions, QueryMatchTypeWithVariant ' +
+      'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +
+      'WHERE CampaignId = ' + campaignId + ' '+
+      'DURING LAST_7_DAYS';
+  
+  var report = DEBUG == true ? new SearchQueryReportMock() : AdWordsApp.report(query, reportConfig); 
+  var rows = report.rows();
+	
+  while (rows.hasNext()) {
+    var row = rows.next();
+            
+    var searchQuery = row['Query'].toLowerCase();
+    var keyword = row['KeywordTextMatchingQuery'];
+    
+	// see 'matchTypeMappingTable' for available values
+    var matchTypeDisplayName = row['QueryMatchTypeWithVariant'];
+    var matchType = matchTypeMappingTable.find(matchTypeDisplayName);
+    
+    if(!matchType || matchTypes.indexOf(matchType) == -1) 
+      continue;
+    
+    Logger.log('searchQuery: %s', searchQuery);
+    searchQueries.push(searchQuery);
+  }
+  
+  return searchQueries;
+}
 
 --------------------
 

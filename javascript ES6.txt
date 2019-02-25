@@ -1,4 +1,4 @@
-*** javascript ES6 ***
+﻿*** javascript ES6 ***
 **********************
 ES6 refers to version 6 of the ECMA Script programming language (aka JavaScript)
 
@@ -23,7 +23,12 @@ ES6 refers to version 6 of the ECMA Script programming language (aka JavaScript)
 - Math trunc
 - Math sign
 - Promise
+- Params
 - Reflection
+- Localization
+- Destructuring assignment
+- Generators
+- Enums
 -----------------------------------------
 
 
@@ -381,6 +386,52 @@ console.log('after async call');
 	response from async
 */
 
+Binary & Octal 
+--------------
+use 0b for binary representation (base 2)
+use 0o for octal representation (base 8) 
+
+syntax:
+console.log(0b00010111);
+console.log(0o10);
+
+e.g: 
+// using ES6
+console.log(0b00000111);  // 7
+console.log(0o10);  // 8
+
+// using ES5
+console.log(parseInt('00000111', 2));
+console.log(parseInt('10', 8));
+
+Params
+------
+use the 3 dots to set a function params (unknown number of sequential parameters)
+
+syntax:
+...<name>
+
+function <name>(...<prms>){ }
+function <name>(<p>, <p>, ...<prms>){ }
+
+e.g:
+function fun1(prms) {
+    console.log(prms);   
+}
+
+function fun2(...prms) {
+    console.log(prms);   
+}
+
+function fun3(p1, p2, ...prms) {     
+    console.log(prms);    
+}
+
+fun1(1,2,3,4,5,6,7); // 1
+fun2(1,2,3,4,5,6,7); // [ 1, 2, 3, 4, 5, 6, 7 ]
+fun2('A','B',1,2,true,false,x=> x*2); // [ 'A', 'B', 1, 2, true, false, [Function] ]
+fun3('A','B',1,2,3,4,5); // [ 1, 2, 3, 4, 5 ]
+
 Reflection
 ----------
 syntax:
@@ -400,3 +451,173 @@ console.log(Object.getOwnPropertyNames(obj));  // ES5
 	[ 'p1', 'p2', 'p3' ]
 	[ 'p1', 'p2', 'p3' ]
 */
+
+Localization
+------------
+syntax:
+// unicode characters
+<collator> Intl.Collator(<locale>); 
+
+// number, currency, date etc.
+<formater> Intl.NumberFormat(<locale>);  
+<formater> Intl.DateTimeFormat(<locale>); 
+
+methods:
+int <collator>.compare(<string>, <string>);
+string <formater>.format(<value>, <options>);
+
+-- 
+
+e.g: collator
+
+var collatorDE = new Intl.Collator("de"); // German: a, ä ... z
+
+// +1 - a is bigger than ä
+// reminder: compare returns -1 if the right parameter is bigger, +1 if the left is
+console.log(collatorDE.compare("ä", "a"));  // -1
+console.log([ 'ä', 'a', 'b', 'z'].sort(collatorDE.compare));  // [ 'a', 'ä', 'b', 'z' ]
+
+--
+
+e.g: formater
+
+var formaterDE = new Intl.NumberFormat("de"); 
+console.log(formaterDE.format(1234567.89));  // 1,234,567.89
+
+var formaterDE_EUR = new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR" });
+console.log(formaterDE_EUR.format(1234567.89));  // € 1,234,567.89
+
+var formaterEN_Date = new Intl.DateTimeFormat("en-US");
+var formaterHE_Date = new Intl.DateTimeFormat("he-IL");
+
+console.log(formaterEN_Date.format(new Date('2019-04-21'))); // 4/21/2019
+console.log(formaterHE_Date.format(new Date('2019-04-21'))); // 2019-4-21
+
+Destructuring assignment
+------------------------
+allows us to 
+1. assign multiple values.
+2. set an array of values into a distinct variables!
+
+e.g: multiple assignments
+
+let i1, i2, i3;
+
+[ i1, i2, i3 ] = [ 1, 2, 3 ]
+console.log(i1 + ', ' + i2 + ', ' + i3); // 1, 2, 3
+
+[ i1, i2, i3 ] =  [ i1 * 2, i2 * 2, i3 * 2 ];
+console.log(i1 + ', ' + i2 + ', ' + i3); // 2, 4, 6
+
+[ i2, i3 ] = [ i1 * 10, i1 * 20 ];
+console.log(i1 + ', ' + i2 + ', ' + i3); // 2, 20, 40
+
+--
+
+e.g: array 2 variables
+
+let v1, v2, v3;
+let arr = [ 10, 'A', true ];
+
+[ v1, v2, v3, v4 ] = arr;
+console.log(v1); // 10
+console.log(v2); // A
+console.log(v3); // true
+
+
+Generators
+----------
+* Generator Function
+  
+syntax:
+
+// standalone function
+function* <name>(<params>){ 
+	... 
+	yield <value>;
+	...
+}
+
+// within a class 
+class <name> {
+    * <name>(<params>) {        
+		...
+        yield item;                                
+		...
+    }
+}
+
+
+// within a literal
+let <name> = {
+    * <name>(<params>) {        
+		...
+        yield item;                                
+		...
+    }
+}
+
+--
+
+// e.g: range
+function* range (start, end, step) {
+    while (start < end) {
+        yield start;
+        start += step;
+    }
+}
+
+for (let item of range(0, 10, 2)) {
+    console.log(item); // 0, 2, 4, 6, 8
+}
+
+
+// e.g: fibonacci
+function* fibonacci(steps){
+    let previos = 0, current = 1, temp = 0;
+    for(let i=0;i<steps;i++) {
+        yield current;    
+
+        temp = current
+        current += previos;    
+        previos = temp;        
+    }
+} 
+
+for (let item of fibonacci(8)) {
+    console.log(item) // 1, 1, 2, 3, 5, 8, 13, 21
+}
+
+
+// e.g: within a class
+class ClassA {
+    * getItems() {
+        let arr = [ 'A', 'B', 'C', 'D' ];
+        for(let item of arr)
+            yield item;                                
+    }
+}
+
+let c = new ClassA();
+for (let item of c.getItems()) {
+    console.log(item) // A, B, C, D
+}
+
+
+// e.g: within a literal
+let obj = {
+    * getItems() {
+        let arr = [ 'A', 'B', 'C', 'D' ];
+        for(let item of arr)
+            yield item;                                
+    }
+}
+
+Enums
+-----
+// TODO
+const eColor = {
+    RED: 0,
+    GREEN: 1,
+    BLUE: 2
+}

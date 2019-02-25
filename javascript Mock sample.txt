@@ -1,0 +1,42 @@
+Mock<Report>
+------------
+
+function SearchQueryReportMock(){
+	this.rows = function(){
+    	return new SearchQueryReportRowsMock();
+    }
+}
+
+function SearchQueryReportRowsMock() {
+  var i = 0;
+  
+  // item: { Query, KeywordTextMatchingQuery, QueryMatchTypeWithVariant}
+  var arr = [
+    { Query: 'KW1', KeywordTextMatchingQuery: 'bla bla KW1 bla bla', QueryMatchTypeWithVariant: 'broad' },
+    { Query: 'KW2', KeywordTextMatchingQuery: 'KW2', QueryMatchTypeWithVariant: 'exact' },
+    { Query: 'KW3', KeywordTextMatchingQuery: 'KW3s', QueryMatchTypeWithVariant: 'exact (close variant)' },
+    { Query: 'KW4', KeywordTextMatchingQuery: 'KW4', QueryMatchTypeWithVariant: 'exact' },
+    { Query: 'KW5', KeywordTextMatchingQuery: 'bla KW5', QueryMatchTypeWithVariant: 'phrase' }
+  ];
+
+  this.next = function(){
+    return arr[i++];      
+  }
+
+  this.hasNext = function(){
+    return arr.length > i;
+  }
+} 
+
+using:
+
+var report = DEBUG == true ? new SearchQueryReportMock() : AdWordsApp.report(query, reportConfig); 
+var rows = report.rows();
+	
+while (rows.hasNext()) {
+	var row = rows.next();
+            
+	var searchQuery = row['Query'].toLowerCase();
+	var keyword = row['KeywordTextMatchingQuery'];   
+	var matchTypeDisplayName = row['QueryMatchTypeWithVariant'];	
+}

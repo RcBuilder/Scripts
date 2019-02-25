@@ -1,0 +1,195 @@
+/* 
+	this script convert search queries from campaignA (label-based) as negative keywords on campaignB (label-based). 
+    the goal of this script is to prevent bidding against yourself by matching multiple campaigns to the very same search query!
+    you can define the behaviour of each rule. a rule can define from which campaigns to take the search queries and with which match types (supports multiple)   
+    and to which destination campaigns to set those queries as negative keywords and with which match type (single-mode).
+
+	rule properties:
+	{ fromTier, toTier, fromMatchType, toMatchType }
+    
+    match types:
+    BROAD
+    EXACT
+    EXPANDED
+    PHRASE
+    NEAR_EXACT    
+    NEAR_PHRASE
+    
+    note!
+    use comma seperator for multiple 'from' match types
+*/
+var rules = [
+  { fromTier: 'Tier2', toTier: 'Tier1', fromMatchType: 'NEAR_EXACT,BROAD', toMatchType: 'PHRASE' },
+  { fromTier: 'Tier3', toTier: 'Tier2', fromMatchType: 'PHRASE', toMatchType: 'EXACT' }
+];
+
+var DEBUG = true;
+
+function main() {   
+  for(i in rules)
+    processRule(rules[i]);
+}
+
+function processRule(rule){
+  Logger.log('[rule] %s', rule);
+  
+  var fromTierCampaigns = loadCampaignsByLabel(rule.fromTier), 
+      toTierCampaigns = loadCampaignsByLabel(rule.toTier);   
+  
+  for(i in fromTierCampaigns){
+  	var fromTierCampaign = fromTierCampaigns[i];
+    
+    var fromTierCampaignName = fromTierCampaign.getName();
+    var fromTierCampaignId = fromTierCampaign.getId();
+    
+    Logger.log('from "%s" with types %s', fromTierCampaignName, rule.fromMatchType);
+    
+    var searchQueries = GetSearchQueries(fromTierCampaignId, rule.fromMatchType.split(','));    
+    Logger.log('%s search queries found', searchQueries.length);
+    
+    if(searchQueries.length == 0) 
+      continue;
+    
+    for(j in toTierCampaigns){
+      var toTierCampaign = toTierCampaigns[j];
+      
+      var toTierCampaignName = toTierCampaign.getName();
+      var toTierCampaignId = toTierCampaign.getId();
+      
+      Logger.log('to "%s" with type %s', toTierCampaignName, rule.toMatchType);
+      
+      setAsNegative(toTierCampaign, searchQueries, rule.toMatchType);      
+    } 
+  }
+}
+
+function setAsNegative(campaign, negativeKeywords, matchType){
+  for(i in negativeKeywords){
+    var searchQuery = negativeKeywords[i];        
+    Logger.log('searchQuery: %s', searchQuery);
+    
+    if(isNegativeKeywordExists(campaign, searchQuery, matchType))
+      continue;
+    
+    var keywordToAdd;
+    switch (matchType){
+      default:
+      case 'EXPANDED': 
+      case 'BROAD': keywordToAdd = searchQuery;        
+        break;
+      case 'NEAR_EXACT': 
+      case 'EXACT': keywordToAdd = '[' + searchQuery + ']';
+        break;
+      case 'NEAR_PHRASE':          
+      case 'PHRASE': keywordToAdd = '"' + searchQuery + '"';
+  	}
+    
+    Logger.log('create %s as negative keyword', keywordToAdd);
+    
+    if(DEBUG == false)
+    	campaign.createNegativeKeyword(keywordToAdd);
+  } 
+}
+
+function isNegativeKeywordExists(campaign, keywordText, keywordMatchType){
+	return campaign.negativeKeywords()
+      .withCondition('Text = "' + keywordText + '"')
+      .withCondition('KeywordMatchType = ' + keywordMatchType)
+      .get()
+      .hasNext();
+}
+
+function loadCampaignsByLabel(labelName){  
+  var campaigns = [];
+  
+  var campaignsIter = AdWordsApp.campaigns()
+      .withCondition('LabelNames CONTAINS_ANY ["' + labelName + '"]')
+      .withCondition('Status = ENABLED')
+      .get();
+  
+  while(campaignsIter.hasNext()) 
+    campaigns.push(campaignsIter.next());  
+  return campaigns;
+}
+
+function GetSearchQueries(campaignId, matchTypes){
+  var searchQueries = [];
+  
+  var matchTypeMappingTable = {};
+  matchTypeMappingTable['BROAD'] = 'broad';
+  matchTypeMappingTable['EXACT'] = 'exact';
+  matchTypeMappingTable['EXPANDED'] = 'broad';
+  matchTypeMappingTable['PHRASE'] = 'phrase';
+  matchTypeMappingTable['NEAR_EXACT'] = 'exact (close variant)';
+  matchTypeMappingTable['NEAR_PHRASE'] = 'phrase (close variant)';
+  matchTypeMappingTable.find = function(displayName){
+    displayName = displayName.toLowerCase();
+  	for(key in this)
+      if(this[key].toLowerCase() == displayName)
+        return key;
+    return null;
+  }
+
+  var reportConfig = {
+    includeZeroImpressions: true
+  };  
+  
+  var query =  
+      'SELECT Query, CampaignId, KeywordId, KeywordTextMatchingQuery, Impressions, QueryMatchTypeWithVariant ' +
+      'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +
+      'WHERE CampaignId = ' + campaignId + ' '+
+      'DURING LAST_7_DAYS';
+  
+  var report = DEBUG == true ? new SearchQueryReportMock() : AdWordsApp.report(query, reportConfig); 
+  var rows = report.rows();
+	
+  while (rows.hasNext()) {
+    var row = rows.next();
+            
+    var searchQuery = row['Query'].toLowerCase();
+    var keyword = row['KeywordTextMatchingQuery'];
+    
+	// see 'matchTypeMappingTable' for available values
+    var matchTypeDisplayName = row['QueryMatchTypeWithVariant'];
+    var matchType = matchTypeMappingTable.find(matchTypeDisplayName);
+    
+    if(!matchType || matchTypes.indexOf(matchType) == -1) 
+      continue;
+    
+    Logger.log('searchQuery: %s', searchQuery);
+    searchQueries.push(searchQuery);
+  }
+  
+  return searchQueries;
+}
+
+//-------------------------------------------------------------------------------
+
+/* MOCK*/
+
+function SearchQueryReportMock(){
+	this.rows = function(){
+    	return new SearchQueryReportRowsMock();
+    }
+}
+
+function SearchQueryReportRowsMock() {
+  var i = 0;
+  
+  // item: { Query, KeywordTextMatchingQuery, QueryMatchTypeWithVariant}
+  var arr = [
+    { Query: 'KW1', KeywordTextMatchingQuery: 'bla bla KW1 bla bla', QueryMatchTypeWithVariant: 'broad' },
+    { Query: 'KW2', KeywordTextMatchingQuery: 'KW2', QueryMatchTypeWithVariant: 'exact' },
+    { Query: 'KW3', KeywordTextMatchingQuery: 'KW3s', QueryMatchTypeWithVariant: 'exact (close variant)' },
+    { Query: 'KW4', KeywordTextMatchingQuery: 'KW4', QueryMatchTypeWithVariant: 'exact' },
+    { Query: 'KW5', KeywordTextMatchingQuery: 'bla KW5', QueryMatchTypeWithVariant: 'phrase' }
+  ];
+
+  this.next = function(){
+    return arr[i++];      
+  }
+
+  this.hasNext = function(){
+    return arr.length > i;
+  }
+} 

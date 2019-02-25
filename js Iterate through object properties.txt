@@ -1,0 +1,43 @@
+Iterate through object properties
+---------------------------------
+
+structure:
+
+// all properties
+for(property in object) { ...}
+
+OR
+
+// direct properties only
+for(property in object){
+   if (object.hasOwnProperty(property)) { ...}
+}
+
+note:
+hasOwnProperty checks if the property is a direct property of the object 
+and NOT an inherited one. 
+
+---
+
+sample:
+
+var matchTypeMappingTable = {};
+matchTypeMappingTable['BROAD'] = 'broad';
+matchTypeMappingTable['EXACT'] = 'exact';
+matchTypeMappingTable['EXPANDED'] = 'broad';
+matchTypeMappingTable['PHRASE'] = 'phrase';
+matchTypeMappingTable['NEAR_EXACT'] = 'exact (close variant)';
+matchTypeMappingTable['NEAR_PHRASE'] = 'phrase (close variant)';
+
+matchTypeMappingTable.find = function(displayName){
+	displayName = displayName.toLowerCase();
+	for(key in this)
+		if(this[key].toLowerCase() == displayName)
+		return key;
+	return null;
+}
+  
+Logger.log(matchTypeMappingTable.find('exact (close variant)'));  // NEAR_EXACT
+Logger.log(matchTypeMappingTable.find('broad'));  				// BROAD
+Logger.log(matchTypeMappingTable.find('phrase (close variant)')); // NEAR_PHRASE
+Logger.log(matchTypeMappingTable.find('phrase'));					// PHRASE

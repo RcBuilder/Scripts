@@ -1,0 +1,39 @@
+Create a timeoutPromise wrapper
+===============================
+
+syntax:
+const requestTimeOut = <milliseconds>;
+new Promise((resolve,reject) => {        
+    <promise>.then(resolve, reject);      
+    setTimeout(() => { reject({ message: 'timeOut!' })}, requestTimeOut);
+})
+.then(response => { ... })
+.catch(ex => { ... });
+
+----
+
+
+sample:
+baseServices.prototype.MAKE_REQUEST = function(action, method, headers, body, callback){
+    const requestTimeOut = 10000;
+
+    let url = this.servicesServerURI.concat(action);
+    console.log(''.concat(method, ': ', url));
+    
+    var options = {
+        method: method,
+        headers: headers || null,
+        body: body || null        
+    }
+
+    new Promise((resolve,reject) => {        
+        fetch(url, options).then(resolve, reject);      
+        setTimeout(() => { reject({ message: 'timeOut!' })}, requestTimeOut);
+    }).then(response => { 
+        if(callback) callback.call(null, response);
+    })
+    .catch(ex => { 
+        console.log('[ERROR] '.concat(action, ': ', ex.message));
+        if(callback) callback.call(null, null);
+    });  
+};

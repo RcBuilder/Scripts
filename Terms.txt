@@ -81,3 +81,5 @@
 * CPA = Cost per Acquisition (aka: Cost per Conversion)
 * CR = Conversion Rate
 * ROI = Return on Investment
+
+* devOps - developer operations 

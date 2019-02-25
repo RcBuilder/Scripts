@@ -1,0 +1,20 @@
+Convert.ChangeType
+------------------
+// using TypeCode
+var s = "True";
+var b = Convert.ChangeType(s, TypeCode.Boolean);
+Type t = b.GetType(); // Boolean
+
+// using casting
+var c = new MyClass();
+c.P1 = (int)Convert.ChangeType("123", typeof(int));
+c.P2 = (bool)Convert.ChangeType("True", typeof(bool));
+c.P3 = (string)Convert.ChangeType(123, typeof(string));
+
+// using reflection
+var propP1 = c.GetType().GetProperty("P1");
+var propP2 = c.GetType().GetProperty("P2");
+var propP3 = c.GetType().GetProperty("P3");
+propP1.SetValue(c, Convert.ChangeType("123", propP1.PropertyType));
+propP2.SetValue(c, Convert.ChangeType("True", propP2.PropertyType));
+propP3.SetValue(c, Convert.ChangeType(123, propP3.PropertyType));

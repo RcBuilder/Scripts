@@ -1,0 +1,44 @@
+SQL Values Table (variable)
+---------------------------
+
+select t.* from (
+	values (1),(2),(3),(4)
+) t(num)
+
+/*
+	num 
+	 1
+	 2
+	 3
+	 4
+*/
+
+---
+
+select t.* from (
+	values (1, 'A'),
+		   (2, 'B'),
+		   (3, 'C'),
+		   (4, 'D')
+) t([key], [value])
+
+/*
+	key	  value
+	 1		A
+	 2		B
+	 3		C
+	 4		D
+*/
+
+---
+
+declare @k int = 3
+select t.value from (
+	values (1, 'A'),
+		   (2, 'B'),
+		   (3, 'C'),
+		   (4, 'D')
+) t([key], [value])
+where [key] = @k 
+
+-- returns 'C' 
