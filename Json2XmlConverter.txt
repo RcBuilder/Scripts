@@ -1,0 +1,77 @@
+JToken is the base class for all the generic Newtonsoft objects, 
+use it to serialize a dynamic json content.
+
+JToken
+- JObject
+- JArray
+- JProperty
+- JValue 
+
+------------------
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+public class Json2XmlConverter
+    {
+        /*
+            parameters:
+            strJson - the json content in string representation
+            tagName - the tag name of each element
+
+            sample:
+
+            var strJson = "[
+                { id: 1, name: 'itemA' }
+                { id: 2, name: 'itemB' }
+                { id: 3, name: 'itemC' }
+            ]";
+
+            ConvertArray(strJson, "Item")
+
+            <Items>
+                <Item>
+                    <id>1</id>
+                    <name>itemA</name>
+                </Item>
+                <Item>
+                    <id>2</id>
+                    <name>itemB</name>
+                </Item>
+                <Item>
+                    <id>3</id>
+                    <name>itemC</name>
+                </Item>
+            </Items>
+        */
+        public static string ConvertArray(string strJson, string tagName = "Item") {            
+            var sb = new StringBuilder();
+
+            try {
+                sb.AppendFormat("<{0}s>", tagName);
+
+                var data = JsonConvert.DeserializeObject<JArray>(strJson);
+                foreach (JObject content in data.Children<JObject>())
+                {
+                    sb.AppendFormat("<{0}>", tagName);
+                    foreach (JProperty prop in content.Properties())
+                    {
+                        /// Console.WriteLine(prop.Name);
+
+                        sb.AppendFormat("<{0}>", prop.Name);
+                        sb.AppendFormat("<![CDATA[{0}]]>", prop.Value);
+                        sb.AppendFormat("</{0}>", prop.Name);
+                    }
+                    sb.AppendFormat("</{0}>", tagName);
+                }
+                sb.AppendFormat("</{0}s>", tagName);
+            }
+            catch { }
+
+            return sb.ToString();
+        }
+    }

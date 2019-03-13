@@ -1,0 +1,8 @@
+declare @defaultCurrency varchar(5) = 'USD';
+declare @Currency1 varchar(5) = 'EUR'
+declare @Currency2 varchar(5)
+
+set @Currency1 = ISNULL(@Currency1, @defaultCurrency);
+set @Currency2 = ISNULL(@Currency2, @defaultCurrency);
+print(@Currency1) -- EUR
+print(@Currency2) -- USD

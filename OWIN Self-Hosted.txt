@@ -1,0 +1,103 @@
+OWIN Self-Hosted
+----------------
+
+Nuget:
+Install-Package Microsoft.AspNet.WebApi.OwinSelfHost
+
+--
+
+using Middlewares:
+
+public class Startup
+    {
+        public void Configuration(IAppBuilder app) {
+            app.Use(typeof(Middleware1));
+            app.Use(typeof(Middleware2));
+            app.Use(typeof(Middleware3));
+        }
+    }
+
+    public class Middleware1 : OwinMiddleware
+    {
+        public Middleware1(OwinMiddleware next) : base(next) { }
+
+        public override async Task Invoke(IOwinContext context)
+        {
+            context.Response.Write("<div>Middleware1</div>");
+            Console.WriteLine("Middleware1");
+            await Next.Invoke(context);
+        }
+    }
+
+    public class Middleware2 : OwinMiddleware
+    {
+        public Middleware2(OwinMiddleware next) : base(next) { }
+
+        public override async Task Invoke(IOwinContext context)
+        {
+            context.Response.Write("<div>Middleware2</div>");
+            Console.WriteLine("Middleware2");
+            await Next.Invoke(context);
+        }
+    }
+
+    public class Middleware3 : OwinMiddleware
+    {
+        public Middleware3(OwinMiddleware next) : base(next) { }
+
+        public override async Task Invoke(IOwinContext context)
+        {
+            context.Response.Write("<div>Middleware3</div>");
+            Console.WriteLine("Middleware3");
+            await Next.Invoke(context);
+        }
+    }
+
+static string server = "http://localhost:1166";
+
+        static void Main(string[] args)
+        {
+            WebApp.Start<Startup>(server);
+            Console.WriteLine("Server is Running on port 1166 .... ");
+            Console.ReadKey();
+        }
+
+--
+
+using APIController:
+
+public class Startup
+    {
+        public void Configuration(IAppBuilder app) {
+            var config = new HttpConfiguration();            
+            config.MapHttpAttributeRoutes(); // attribute routing
+            app.UseWebApi(config); // add web api middleware
+        }
+    }
+
+static string server = "http://localhost:1166";
+
+        static void Main(string[] args)
+        {
+            WebApp.Start<Startup>(server);
+            Console.WriteLine("Server is Running on port 1166 .... ");
+            Console.ReadKey();
+        }
+
+public class DefaultController : ApiController
+    {
+        [HttpGet]
+        [Route("")]
+        public string Index() {
+            return "Index";
+        }
+        
+        [HttpGet]
+        [Route("Foo/{p1}")]
+        public HttpResponseMessage Foo(string p1) {
+            var response = new HttpResponseMessage();
+            response.Content = new StringContent("<html><body>Foo " + p1 + "</body></html>");
+            response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+            return response;
+        }
+    }

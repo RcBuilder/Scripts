@@ -1,0 +1,22 @@
+* intersect
+  A intersect B
+  exists in both A and B
+
+* except
+  A except B
+  exists in A and NOT exists in B
+
+---
+
+sample:
+
+var listA = new List<string> { "A", "B", "C", "D", "E", "F", "G" };
+var listB = new List<string> { "A", "F", "G", "H" };
+
+var onlyInA = listA.Except(listB); // B, C, D, E
+var onlyInB = listB.Except(listA); // H
+
+Console.WriteLine(onlyInA.Count()); // 4
+Console.WriteLine(onlyInB.Count()); // 1
+
+var shared = listA.Intersect(listB);  // A, F, G 

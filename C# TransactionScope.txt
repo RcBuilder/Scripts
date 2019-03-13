@@ -1,0 +1,17 @@
+using System.Data;
+using System.Data.SqlClient;
+using System.Transactions;
+
+using (TransactionScope transactionScope = new TransactionScope())
+      	    using (var conn = new SqlConnection(ConnStr))
+            {
+  		try {
+                    ...
+                    transactionScope.Complete();
+                }
+                catch (Exception e) {                    
+                    // Not needed any rollback, if you don't call Complete
+                    // a rollback is automatic exiting from the using block
+                    // conn.BeginTransaction().Rollback();
+                }
+	    }

@@ -15,3 +15,5 @@ Ctrl + .  // add missing reference
 Alt (press) + Shift (press) + F10  // add missing reference
 
 Shift + Alt + F  // format document
+
+Ctrl + Shift + L // delete a line

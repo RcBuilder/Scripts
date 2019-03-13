@@ -1,0 +1,23 @@
+* intersect
+  A intersect B
+  exists in both A and B
+
+* except
+  A except B
+  exists in A and NOT exists in B
+
+---
+
+sample:
+
+declare @tblA table(Num varchar(5)) 
+declare @tblB table(Num varchar(5))
+
+insert into @tblA
+values('A'), ('B'), ('C'), ('D'), ('E')
+
+insert into @tblB
+values('A'), ('B')
+
+select * from @tblA intersect select * from @tblB  -- A, B --
+select * from @tblA except select * from @tblB -- C, D, E --

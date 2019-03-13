@@ -1,0 +1,59 @@
+there's two different behaviors  when using a regex quantifier ('*', '+' etc.) -
+with question-mark or without it. 
+using a Q-mark convert the rule to act as lazy whereas, no use of the Q-mark act as greedy!
+
+lazy:
+with ? sign
+takes content till the first match!
+
+greedy:
+no ? sign
+takes content till the last match!
+
+-------------------------------
+
+input:
+<wrapper>
+   <tag1>A</tag1>
+   <tag1>B</tag1>
+   <tag2>C</tag2>
+   <tag2>D</tag2>
+</wrapper>
+
+pattern:
+<tag1>[\w\W]+?</tag1>
+
+match: 
+<tag1>A</tag1>
+
+note: till the first <tag1>
+
+--
+
+pattern:
+<tag1>[\w\W]+</tag1>
+
+match: 
+<tag1>A</tag1>
+<tag1>B</tag1>
+
+note: till the last <tag1>
+
+-------------------------------
+input:
+abcabc123
+
+pattern:
+[a-z]+c
+
+match: 
+abcabc
+
+-- 
+
+pattern:
+[a-z]+?c
+
+match: 
+abc
+abc

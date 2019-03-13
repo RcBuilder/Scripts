@@ -1,0 +1,29 @@
+// create table-based custom type
+CREATE TYPE MyTableType1 AS TABLE 
+(
+	C1 int,
+	C2 varchar(20) default '',
+	C3 decimal,     
+	C4 bit default 1
+)
+GO
+
+-----
+
+// get the custom type as parameter
+Create procedure Sp_Test
+	@tbl MyTableType1 READONLY
+as  
+
+select * from @tbl
+
+-----
+
+// using
+declare @tbl as MyTableType1 
+insert into @tbl
+	values 
+	(1, '1', 1.0, 0), 
+	(2, '2', 2.0, 1), 
+	(3, '3', 3.0, 0)
+exec Sp_Test @tbl

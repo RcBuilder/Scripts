@@ -1,0 +1,65 @@
+
+Syntax
+------
+MERGE <TargetTable> AS TARGET
+USING <SourceTable> AS SOURCE 
+ON (<Condition>) 
+
+WHEN MATCHED THEN 
+	UPDATE SET 
+	TARGET.<Column> = SOURCE.<Column>
+	...
+	...
+	
+WHEN NOT MATCHED BY TARGET THEN 
+	INSERT (<Column>, <Column> ...) 
+	VALUES (<Column>, <Column> ...)
+
+WHEN NOT MATCHED BY SOURCE THEN 
+	DELETE;
+
+note:
+can also set SOURCE from a select clause 
+USING (select ... ) AS SOURCE 
+
+Example
+-------
+declare @tblSource table(Id int, [Name] varchar(20))
+insert into @tblSource
+values 
+(1, 'A'), 
+(2, 'B'),
+(3, 'C'),
+(4, 'D'),
+(5, 'E')
+
+declare @tblUpdates table(Id int, [Name] varchar(20))
+insert into @tblUpdates
+values 
+(1, 'AA'), 
+(2, 'BB'), 
+(4, 'D'),
+(5, 'G')
+
+MERGE @tblSource AS TARGET
+USING @tblUpdates AS SOURCE 
+ON (TARGET.Id = SOURCE.Id) 
+
+WHEN MATCHED THEN 
+	UPDATE SET TARGET.[Name] = SOURCE.[Name]
+	
+WHEN NOT MATCHED BY TARGET THEN 
+	INSERT (Id, [Name]) 
+	VALUES (SOURCE.Id, SOURCE.[Name]);
+
+--WHEN NOT MATCHED BY SOURCE THEN 
+	--DELETE;
+
+select * from @tblSource
+/*
+	1	AA
+	2	BB
+	3	C
+	4	D
+	5	G
+*/

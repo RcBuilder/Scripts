@@ -1,3 +1,8 @@
+reference: 
+also see 'C# intersect and except.txt'
+
+---
+
 var products = new [] { 
     new { Id = 101, Name = "Product A", CategoryId = 2 },
     new { Id = 102, Name = "Product B", CategoryId = 1 },

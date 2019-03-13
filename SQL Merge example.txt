@@ -1,0 +1,52 @@
+MERGE [MACrawlerQA].[dbo].[Auctions] AS TARGET
+	USING [MACrawler_].[dbo].[Auctions] AS SOURCE 
+	ON (TARGET.Id = SOURCE.Id AND SOURCE.[Date] > '2019-01-01') 
+
+	WHEN MATCHED THEN 
+		UPDATE SET 	
+		TARGET.[SourceId] = SOURCE.[SourceId], 
+		TARGET.[Id] = SOURCE.[Id], 
+		TARGET.[MA_Id] = SOURCE.[MA_Id], 
+		TARGET.[UpdatedDate] = SOURCE.[UpdatedDate], 
+		TARGET.[Title] = SOURCE.[Title], 
+		TARGET.[DateRaw] = SOURCE.[DateRaw], 
+		TARGET.[Date] = SOURCE.[Date], 
+		TARGET.[DateUntilRaw] = SOURCE.[DateUntilRaw], 
+		TARGET.[DateUntil] = SOURCE.[DateUntil], 
+		TARGET.[URL] = SOURCE.[URL], 
+		TARGET.[PhotoRaw] = SOURCE.[PhotoRaw], 
+		TARGET.[Photo] = SOURCE.[Photo], 
+		TARGET.[IsCompleted] = SOURCE.[IsCompleted], 
+		TARGET.[Category] = SOURCE.[Category], 
+		TARGET.[Location] = SOURCE.[Location], 
+		TARGET.[SaleNumber] = SOURCE.[SaleNumber], 
+		TARGET.[ViewingTimes] = SOURCE.[ViewingTimes], 
+		TARGET.[PremiumRates] = SOURCE.[PremiumRates]
+	
+	WHEN NOT MATCHED BY TARGET THEN 
+		INSERT 
+		VALUES (
+			SOURCE.[SourceId], 
+			SOURCE.[Id], 
+			SOURCE.[MA_Id], 
+			SOURCE.[UpdatedDate], 
+			SOURCE.[Title], 
+			SOURCE.[DateRaw], 
+			SOURCE.[Date], 
+			SOURCE.[DateUntilRaw], 
+			SOURCE.[DateUntil], 
+			SOURCE.[URL], 
+			SOURCE.[PhotoRaw], 
+			SOURCE.[Photo], 
+			SOURCE.[IsCompleted], 
+			SOURCE.[Category], 
+			SOURCE.[Location], 
+			SOURCE.[SaleNumber], 
+			SOURCE.[ViewingTimes], 
+			SOURCE.[PremiumRates]
+		);
+
+	--WHEN NOT MATCHED BY SOURCE THEN 
+		--DELETE;
+
+	PRINT('MERGED MACrawler_ > MACrawlerQA')
