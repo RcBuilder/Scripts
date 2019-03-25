@@ -1,0 +1,8 @@
+run a process:
+Process.Start(<command>, <arguments>);
+
+wait:
+WaitForExit()
+
+e.g:
+Process.Start("netsh.exe", "netsh interface ipv4 set interface 13 metric=3").WaitForExit();

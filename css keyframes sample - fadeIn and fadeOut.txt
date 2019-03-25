@@ -1,0 +1,28 @@
+
+   <img ... class="radioItem selected" />             
+   <img ... class="radioItem" />             
+   <img ... class="radioItem" /> 
+
+ ---
+
+   .radioItem {
+		opacity: 0.2;
+		animation-name: fadeIn;
+		animation-duration: 0.7s;       
+	}
+
+	.radioItem.selected {
+		opacity: 1;
+		animation-name: fadeOut;
+		animation-duration: 0.7s;     
+	}
+
+	@keyframes fadeOut {
+		from { opacity: 0.2; }
+		to { opacity: 1; }
+	}
+
+	@keyframes fadeIn {
+		from { opacity: 1; }
+		to { opacity: 0.2; }
+	}

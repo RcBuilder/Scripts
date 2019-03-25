@@ -1,0 +1,37 @@
+[using indexOf]
+
+contains full phrase
+--------------------
+
+Array.prototype.contains = function (value) {
+            for (var i = 0; i < this.length; i++)
+                if (PrepareValue(this[i]).indexOf(PrepareValue(value)) > -1)
+                    return true;
+            return false;
+        };
+
+function PrepareValue(value) {
+            return '#' + value.trim().split(' ').join('#') + '#';
+        }
+
+----
+
+[using regex]
+Array.prototype.contains = function (value) {
+            var regex = new RegExp('\\b' + ToRegexPhrase(value) + '\\b', 'iu')
+            for (var i = 0; i < this.length; i++)               
+                if (regex.test(this[i]))
+                    return true;
+            return false;
+        };
+
+function ToRegexPhrase(value) {
+            return value.trim()
+                .split(' ').join('\\s+')
+                .split('.').join('\.')
+                .split('|').join('\|')
+                .split('?').join('\?');
+        }
+
+----
+

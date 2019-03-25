@@ -1,19 +1,40 @@
+A, CNAME, ALIAS, and URL records are all possible solutions to point a host name to your site. 
+A and CNAME records are standard DNS records.
+ALIAS and URL records are custom DNS records.
+
 CNAME Record
 ------------
 Canonical Name record.
 is a record that points to another domain address rather than an IP address. 
-For example, say you have an old domain, like www.myOldDomain.com and you want it to 
+should only be used when there are no other records on that name! (unique record)
+
+for example, say you have an old domain, like www.myOldDomain.com and you want it to 
 point to your new domain name mydomain.com.
+
+ALIAS Record
+------------
+the same as CNAME for non-unique records
 
 A Record
 --------
 Address Record.
 These records point your domain to the IP address of your website or hosting. 
 
-Differences
------------
-a record points to an IP whereas cname posints to a different name
+URL Record
+----------
+redirects the name to the target name using the HTTP 301 status code.
+
+A vs CNAME
+----------
+A record points to an IP whereas CNAME posints to a different name
 
 e.g:
 blog.dnsimple.com      A        185.31.17.133
 blog.dnsimple.com      CNAME    aetrion.github.io
+
+Which One To Use?
+-----------------
+A - to assign the domain to a specific machine by it's IP address.
+CNAME - to assign a new domain instead of the other (and you don't need the other)
+ALIAS - to assign other domains to point the same destination
+URL - to redirect (change address) instead of resolving to a destination

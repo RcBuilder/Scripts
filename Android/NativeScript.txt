@@ -29,6 +29,7 @@
 - Dialogs
 - Modals
 - Popups
+- visibility
 - Events/ Gestures
 - JS Modules
 - Ng Directives
@@ -1309,8 +1310,50 @@ FlexboxLayout
 		</ng-template>
 	</ListView>
 
+  - array binding
+    use $value to bind an array item
+
+  - nested ListView
+    not supported! use 'Repeater' instead
+
+	e.g:
+	viewModel.priceList = [
+        { 
+            title: 'עד 20 ק"מ', lines: [
+                'מחיר בסיס ימי חול: 23 ₪',
+                'מחיר בסיס סופי שבוע: 23 ₪',
+                'תוספת מרחק: 5 ₪ לכל ק"מ מעל 3',
+                'תוספת נתח: 0% מסך ההזמנה'
+            ] 
+        },
+        { title: 'מ-20 ק"מ עד 50 ק"מ', lines: [ 'מחיר: 100 ₪' ] 
+        },
+        { title: 'מ-50 ק"מ עד 80 ק"מ', lines: [ 'מחיר: 200 ₪' ] },
+        { title: 'מ-80 ק"מ עד 120 ק"מ', lines: [ 'מחיר: 350 ₪' ] },
+        { title: 'מ-120 ק"מ עד 150 ק"מ', lines: [ 'מחיר: 450 ₪' ] },
+        { title: 'מ-150 ק"מ עד 250 ק"מ', lines: [ 'מחיר: 550 ₪' ] },
+        { title: 'מעל 250 ק"מ', lines: [ 'מחיר: 700 ₪' ] }
+    ];
+
+	<ListView items="{{ priceList }}" class="list-group">
+        <ListView.itemTemplate>
+            <StackLayout class="list-group-item">
+                <Label text="{{ title }}" fontWeight="bold" />    
+				<Repeater items="{{ lines }}">
+					<Repeater.itemTemplate>
+						<Label text="{{ $value }}" />
+					</Repeater.itemTemplate>
+				</Repeater>
+            </StackLayout> 
+        </ListView.itemTemplate>            
+    </ListView>
+
   - events:
     itemTap
+
+  - listView properties:
+    rowHeight
+	items
 
   - sample:
     viewModel.countries = [
@@ -1347,7 +1390,24 @@ FlexboxLayout
             </ListView.itemTemplate>
         </ListView>
     </GridLayout>
-    
+ 
+- Repeater
+  
+  - reference:
+	https://docs.nativescript.org/ui/ns-ui-widgets/repeater
+  
+  - array binding
+    use $value to bind an array item
+
+  - sample:
+    <Repeater items="{{ items }}">
+        <Repeater.itemsLayout>
+            <StackLayout />
+        </Repeater.itemsLayout>
+        <Repeater.itemTemplate>
+            <Label text="{{ item }}" />
+        </Repeater.itemTemplate>
+    </Repeater>
 
 - TabView
 
@@ -2020,7 +2080,8 @@ implementation:
 5. (popup) create a popup view and register to the 'shownModally' event
 6. (popup) add a button to close the popup
 7. (popup) add a reference to the 'closeCallback' function received from the parent 
-8. (popup) execute the 'closeCallback' function once the user clicked on the close popup button from chapter 6
+8. (popup) get the passed context and expand it with local model
+9. (popup) execute the 'closeCallback' function once the user clicked on the close popup button from chapter 6
 
 using:
 
@@ -2046,19 +2107,22 @@ exports.openModal = function(args){
     </StackLayout>
 </Page>
 
-
+let PageViewModel = require("./popup-view-model");
 var observableModule = require("data/observable");
 var closeCallback;  // step 7 
 
 exports.onShownModally = function(args){
-	let context = args.context;
+	// step 8
+	let context = args.context;  // get the context from the opener 
+    context.model = new PageViewModel();  // expand the context with a local model  
+
     closeCallback = args.closeCallback;
 
     let page = args.object;
     page.bindingContext = observableModule.fromObject(context);
 };
 
-// step 8
+// step 9
 exports.onLoginButtonTap = function(args){
 	let page = args.object.page;
     let bindingContext = page.bindingContext;    
@@ -2077,6 +2141,44 @@ function onCloseModally(args){
 }
 exports.onCloseModally = onCloseModally;
 
+visibility
+----------
+use this attribute on any Nativescript control you want to set as visible/hidden. 
+supports context binding variables
+
+values:
+- collapse  // hidden and doesn't take place in the layout 
+- hidden
+- visible
+
+sample:
+
+<sd:RadSideDrawer.drawerContent>  
+	<StackLayout class="drawerContent">
+        
+		<StackLayout visibility="{{ type == 1 ? 'visible' : 'collapsed' }}">
+			Menu For Restaurant
+		</StackLayout>
+
+		<StackLayout visibility="{{ type == 4 ? 'visible' : 'collapsed' }}">
+			Menu For PackagesProvider
+		</StackLayout>
+
+		<!-- employee -->
+		<StackLayout visibility="{{ type == 2 ? 'visible' : 'collapsed' }}">
+			Menu For Employee  
+		</StackLayout>
+
+	</StackLayout>        
+</sd:RadSideDrawer.drawerContent>
+
+exports.onDrawerOpen = args => {
+    drawer = args.object;      
+        
+    drawer.bindingContext = { 
+        type: 2
+    };
+};
 
 Popups
 ------
@@ -2774,6 +2876,12 @@ JS Modules
   // GET as form data
   fetch("https://example.com")
   .then(response => response.formData())
+  .then(responseData => { ... })
+  .catch((e) => { });
+
+  // GET as image
+  fetch("https://example.com")
+  .then(response => response.blob())
   .then(responseData => { ... })
   .catch((e) => { });
 
@@ -3786,10 +3894,10 @@ Plugins
   minimum
   step
 
-
   PropertyEditor types:
   http://docs.telerik.com/devtools/nativescript-ui/Controls/NativeScript/DataForm/Editors/dataform-editors-list#complete-list
   https://docs.telerik.com/devtools/nativescript-ui/api/enums/editortype.html
+  https://docs.nativescript.org/ui/professional-ui-components/DataForm/Editors/dataform-editors-providers
 
   Text
   MultilineText
@@ -3801,7 +3909,7 @@ Plugins
   Switch
   Stepper				// choosing a number by tapping on buttons to increase or decrease it.
   Slider
-  Picker				// picking a value from a predefined list (drop-down list).
+  Picker				// picking a value from a predefined list (drop-down list). 
   SegmentedEditor		// picking a value from a predefined list (horizontal list).
   List					// picking a value from a predefined list (vertical list).
   DatePicker			// picking a date from a calendar.
@@ -3831,6 +3939,10 @@ Plugins
   Immediate
   OnLostFocus
   Manual
+
+  complex objects:
+  not supported in complex objects, we have to normalize inner objects 
+  { id, name, subItem: { id, name } } => { id, name, subItem_id, subItem_name }
 
   structure
   <df:EntityProperty name="[propertyName]" .....>
@@ -4006,6 +4118,27 @@ Plugins
 
         </df:RadDataForm.groups>
     </df:RadDataForm>
+
+	-- 
+
+	// with pickers
+	<df:EntityProperty name="expiryYear" displayName="תוקף (שנה)" index="1" valuesProvider="2019, 2020, 2021, 2022, 2023, 2024, 2025">
+        <df:EntityProperty.validators>
+            <df:NonEmptyValidator errorMessage="שדה חובה" />                                             
+        </df:EntityProperty.validators>
+        <df:EntityProperty.editor>
+            <df:PropertyEditor type="Picker" />
+        </df:EntityProperty.editor>
+    </df:EntityProperty>
+
+    <df:EntityProperty name="expiryMonth" displayName="תוקף (חודש)" index="2" valuesProvider="01, 02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12">
+        <df:EntityProperty.validators>
+            <df:NonEmptyValidator errorMessage="שדה חובה" />                     
+        </df:EntityProperty.validators>
+        <df:EntityProperty.editor>
+            <df:PropertyEditor type="Picker" />
+        </df:EntityProperty.editor>
+    </df:EntityProperty>
 
 - RadListView
  
@@ -4960,6 +5093,7 @@ Plugins
   https://www.npmjs.com/package/nativescript-google-maps-sdk
   https://developers.google.com/android/reference/com/google/android/gms/maps/GoogleMap
   https://developers.google.com/maps/documentation/
+  https://developers.google.com/maps/documentation/android-sdk/intro
 
   install:
   > tns plugin add nativescript-google-maps-sdk
@@ -5646,6 +5780,15 @@ Working With Nativescript
   - the 'exports' object allows us to expose ANY js function so it'll be accessible from the project files.   
   - syntax:
     exports.[Name] = [Function];
+	module.exports = [Class];
+
+   - export a class 
+	class <className> {
+		constructor() {
+			....
+		};
+	}
+	exports = <className>;
 
   - e.g: 
     <Button text="tapMe" tap="fun1" class="btn btn-primary" />
@@ -6734,6 +6877,46 @@ nativescript map the known css rules into native style.
 
 	// ui
 	<Page ... class="app-background">
+
+- bind css dynamically 
+    
+	// UI 
+   <Image ... class="{{ getSelectedUserClass(4) }}" />             
+   <Image ... class="{{ getSelectedUserClass(1) }}" />             
+   <Image ... class="{{ getSelectedUserClass(2) }}" /> 
+
+   // Code
+   viewModel.selectedUserType = 2;          
+   viewModel.getSelectedUserClass = type =>{        
+        return 'radioItem' + (viewModel.selectedUserType == type ? 'selected' : '');
+   }
+
+   // CSS
+   .radioItem {
+		opacity: 0.2;
+		animation-name: fadeIn;
+		animation-duration: 0.7s;     
+
+		text-align: center;  
+		horizontal-align:center;    
+	}
+
+	.radioItem.selected {
+		opacity: 1;
+		animation-name: fadeOut;
+		animation-duration: 0.7s;     
+	}
+
+	@keyframes fadeOut {
+		from { opacity: 0.2; }
+		to { opacity: 1; }
+	}
+
+	@keyframes fadeIn {
+		from { opacity: 1; }
+		to { opacity: 0.2; }
+	}
+
 
 Launch Process
 --------------

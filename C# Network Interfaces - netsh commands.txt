@@ -1,0 +1,122 @@
+Network Interfaces
+------------------
+
+How To set default network adapter when using multiple adapters? 
+
+in order to determine the active network adapter we need to set the adapters metric-value 
+the lower the value is - the higher the priority.
+
+change metric using windows UI:
+open network settings > adapters (network connections) > right click on the adapter > TCP/IPv4 > Advanced > Set the 'Interface metric' value.
+return on this action for each adapter you want to set!
+
+change metric using netsh command:
+netsh interface ipv4 set interface <id> metric=<value>
+
+---
+
+netsh (dos):
+stands-for "Network shell"
+
+commands:
+netsh interface ipv4 set interface <id> metric=<value>
+netsh interface ipv4 show interface <id>
+netsh interface ipv4 show config
+netsh interface ipv4 show config <id>
+netsh interface ipv4 show addresses
+netsh interface ipv4 show addresses <id>
+
+samples:
+// change the metric value for the specified interface 
+SET popInterface=13
+SET popValue=20
+netsh interface ipv4 set interface %popInterface% metric=%popValue%
+
+// interfaces list
+netsh interface ipv4 show interfaces
+
+// interface IPv4 details
+netsh interface ipv4 show route
+
+// IPv4 routes
+Route Print -4
+
+---
+
+c# code:
+
+// namespace (required)
+using System.Net.NetworkInformation;
+
+// get all network interfaces 
+NetworkInterface.GetAllNetworkInterfaces();
+
+// get interface properties
+netInterface.GetIPProperties()
+
+// get interface ipv4 properties
+netInterface.GetIPProperties().GetIPv4Properties();
+
+// get interface idx (id-index)
+netInterface.GetIPProperties().GetIPv4Properties().Index
+
+// get interface id (guid) and name
+netInterface.Name
+netInterface.Id
+
+---
+
+// get interface parameters 
+read registry to get the interface defined parameters (such as metric value) 
+key: SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\<interfaceGuid>
+
+e.g:
+string subKey = "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + netInterface.Id;
+var key = Registry.LocalMachine.OpenSubKey(subKey);
+if (key != null)
+	var metric = Convert.ToInt32(key.GetValue("InterfaceMetric"));
+
+---
+
+sample:
+var interfacesMap = new List<NetworkInterfaceData>();
+
+var netInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+foreach (var netInterface in netInterfaces) {
+    try {
+        if (netInterface.Name.StartsWith("Loopback"))
+            continue;
+
+        var ipv4 = netInterface.GetIPProperties().GetIPv4Properties();
+
+        var metric = 0;
+        string subKey = "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + netInterface.Id;
+        var key = Registry.LocalMachine.OpenSubKey(subKey);
+        if (key != null)
+            metric = Convert.ToInt32(key.GetValue("InterfaceMetric"));
+
+        interfacesMap.Add(new NetworkInterfaceData(ipv4.Index, netInterface.Name, metric));
+    }
+    catch { }
+}
+
+Console.WriteLine("interfacesMap:");
+foreach (var item in interfacesMap)
+    Console.WriteLine(item);
+
+var maxMetric = interfacesMap.Max(x => x.Metric);
+var popInterface = interfacesMap.OrderBy(x => x.Metric).First();
+
+if (maxMetric > 10) {
+    Console.WriteLine("Reseting all interfaces...");
+    interfacesMap.ForEach(x => {
+        Process.Start("netsh.exe", string.Format("interface ipv4 set interface {0} metric=0", x.Idx)).WaitForExit();
+        x.Metric = 0;
+    });
+    maxMetric = 0;
+}
+
+Console.WriteLine("set interface \"{0}\" to be active", popInterface.Name);
+Process.Start("netsh.exe", string.Format("interface ipv4 set interface {0} metric={1}", popInterface.Idx, maxMetric + 1)).WaitForExit();
+                
+

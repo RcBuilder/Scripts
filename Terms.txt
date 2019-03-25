@@ -32,6 +32,7 @@
 * DTO = Data Transfer Object
 * CI/CD =  Continuous Integration and Continuous Delivery
 * TDD = Test Driven Development
+* BDD = Behavior-Driven Development
 * CLI = Command Line Interface (cmd etc.)
 
 * TLS = Transport Layer Security
@@ -81,5 +82,8 @@
 * CPA = Cost per Acquisition (aka: Cost per Conversion)
 * CR = Conversion Rate
 * ROI = Return on Investment
+* SKAG = Single Keyword Ad Groups
+* SQR = Search Query Report
+* ROAS - Return On Advertising Spend
 
 * devOps - developer operations 

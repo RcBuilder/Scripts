@@ -29,6 +29,7 @@ ES6 refers to version 6 of the ECMA Script programming language (aka JavaScript)
 - Destructuring assignment
 - Generators
 - Enums
+- Template Literals
 -----------------------------------------
 
 
@@ -615,9 +616,179 @@ let obj = {
 
 Enums
 -----
-// TODO
-const eColor = {
-    RED: 0,
-    GREEN: 1,
-    BLUE: 2
+const eColor1 = {
+    RED: 10,
+    GREEN: 11,
+    BLUE: 12
 }
+
+const eColor2 = {
+    RED: 'RED',
+    GREEN: 'GREEN',
+    BLUE: 'BLUE'
+}
+
+let color1 = eColor1.RED;
+let color2 = eColor2.RED;
+
+console.log(color1);  // 10 
+console.log(color2);  // RED
+
+Template Literals
+-----------------
+create dynamin string using placeholders 
+
+syntax:
+`...${<variable>}...` 
+
+note: 
+the ` sign located to the left of the number '1' key and above the 'Tab' key in your keyboard
+
+multilines:
+we can use the \n as before OR we can just use the enter key for each new line! 
+
+---
+
+// regular string 
+var s = `A string`;
+
+// multiline string (using 'enter' key)
+var sMultiLines = `LineOne
+Line Two
+Line Three
+`
+
+// basic expression
+console.log(`my name is ${'Roby'}`); // my name is Roby 
+
+// expression with variables
+let name = 'Roby'; // some variable
+console.log(`my name is ${name}`); // my name is Roby
+
+let price = 30;
+let quantity = 3;
+console.log(`total items purchased is ${price*quantity}`); // total items purchased is 90
+
+// within an object
+let product = {
+	id: 1,
+	name: 'some product',
+	print(){
+		console.log(`product name "${this.name}" with id ${this.id}`);
+	}
+}
+
+---
+
+// html templates
+// with a combination of multiline feature with the template expressions, we can create an html templates easily 
+
+data = {
+	id: 1, 
+	name: 'Some Product',
+	unitsInStock: 400,
+	unitPrice: 30.99,
+	madeIn: 'Israel'
+}
+
+var html = 
+`<div>
+	<h3>${data.name}</h3>	
+	<h5>id #${data.id}</h5>
+	<p>this product made in ${data.madeIn}, it cost ${data.unitPrice} nis and has left only ${unitsInStock} in stock. BUY NOW!</p>
+</div>`;
+
+---
+
+// tagged templates
+first parameter gets list of pure strings till a variable
+other parameters represent the literral template variables (${<variable>}) 
+
+syntax:
+function <name>(<[string]>, <value>, <value>...) { ... }
+
+using: 
+function tag1(strings, value1, value2) {
+    console.log(strings);   // [ 'ABC ', ' - ', ' DEF' ]
+    console.log(value1);	// V1
+    console.log(value2);    // V2
+}
+
+tag1`ABC ${'V1'} - ${'V2'} DEF`; 
+
+note:
+'strings' gets all pure strings in the template whereas variables send as params correspondingly.
+each line in 'strings' array represents the string value till a variable!
+
+so 'ABC' and 'DEF' will populate the 'strings' param.
+and ${'V1'} and ${'V2'} will pass as 'value1' and 'value2' parameters
+
+1st item -> 'ABC ' (till it reaches the ${'V1'} variable)
+2nd item -> ' - '  (till it reaches the ${'V2'} variable)
+3rd item -> ' DEF' (the rest of the string)
+
+tip:
+we can use ...keys syntax to get the template variables as dynamic array
+function myTaggedLiteral(strings, ...keys) {
+    console.log(strings); // [ 'ABC ', ' - ', ' DEF' ]
+    console.log(keys);    // [ 'V1', 'V2' ]
+}
+
+---
+
+// reusable templates
+
+syntax:
+function <tagName>(strings, ...keys) {
+    return function(data){
+		...
+	}
+}
+
+const <templateName> = <tagName>`..${'<key>'}.. `;
+let <data> = {
+	...
+	...
+}
+
+let result = <templateName>(<data>);
+
+steps:
+1. create a tagged template which returns a new function which gets a data object to bind 
+2. create a template function which based on the tagged template from chapter 1. 
+   it creates the template content. it sends placeholders corresponding the data object properties. 
+   note that it sends a constant values (which represent the data object properties) as variables! 
+3. execute the template function from chapter 2 and pass on the data object (bind the data into the template!)
+
+sample:
+// step 1
+function studentTag(strings, ...keys) {
+    return function(student){
+		let temp = strings.slice();
+		keys.forEach((key, i) => {
+            temp[i] = temp[i] + student[key];
+        });
+		return temp.join('');
+	}
+}
+
+// step 2
+const studentTemplate = studentTag`
+	<h3>${'name'}</h3>
+	<p>a ${'field'} student at ${'collegeName'}</p>`;
+
+// step 3
+let student1 = { 
+	name: 'roby', 
+	field: 'computer science', 
+	collegeName: 'ruppin' 
+};
+
+let student2 = {
+	name: 'avi', 
+	field: 'communication', 
+	collegeName: 'ort' 
+};
+
+console.log(studentTemplate(student1));
+console.log(studentTemplate(student2));

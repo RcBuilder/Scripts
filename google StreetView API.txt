@@ -1,0 +1,19 @@
+google StreetView API
+---------------------
+
+- via http GET
+
+  server:
+  http://maps.googleapis.com/maps/api/streetview
+
+  params:
+  size=<WxH>  // e.g: 1000x1000
+  sensor=<bool>
+  key=<api_key>
+  location=<address>
+
+  e.g:
+  http://maps.googleapis.com/maps/api/streetview?size=1000x1000&sensor=false&key=AIzaSy...&location=some address
+
+
+  // TODO...

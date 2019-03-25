@@ -37,6 +37,11 @@ METRICS
   [(Revenue - Cost) / Investment Cost X 100(%)]
   how much benefit a business is getting from a specific ad campaign.
 
+* TERMS:
+  SKAG = Single Keyword Ad Groups
+  SQR = Search Query Report
+  ROAS - Return On Advertising Spend
+
 
 NEW SCRIPT
 ----------

@@ -1,0 +1,9 @@
+Read Registry Key:
+Registry.LocalMachine.OpenSubKey(<key>);
+
+e.g:
+string subKey = "SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\Interfaces\\" + netInterface.Id;
+var result = Registry.LocalMachine.OpenSubKey(subKey);
+if ( result != null)
+	metric = Convert.ToInt32(result.GetValue("InterfaceMetric"));
+
