@@ -1,0 +1,100 @@
+JToken is the base class for all the generic Newtonsoft objects, 
+use it to serialize a dynamic json content.
+
+JToken
+- JObject
+- JArray
+- JProperty
+- JValue 
+
+------------------
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+public class Json2XmlConverter
+{
+    /*
+        parameters:
+        strJson - the json content in string representation            
+
+        sample:
+
+        var strJson = "[
+            { id: 1, name: 'itemA' }
+            { id: 2, name: 'itemB' }
+            { id: 3, name: 'itemC' }
+        ]";
+
+        ConvertArrayAsHTML(strJson)
+            
+        <div>
+            <p class="id">1</p>
+            <p class="name">itemA</p>
+        </div>
+        <div>
+            <p class="id">2</p>
+            <p class="name">itemB</p>
+        </div>
+        <div>
+            <p class="id">3</p>
+            <p class="name">itemC</p>
+        </div>            
+    */
+    public static string ConvertArrayAsHTML(string strJson)
+    {
+        var sb = new StringBuilder();
+
+        try
+        {                
+            var data = JsonConvert.DeserializeObject<JArray>(strJson);
+            foreach (JObject content in data.Children<JObject>())                
+                sb.Append(ConvertAsHTML(content.ToString()));                                
+        }
+        catch { }
+
+        return sb.ToString();
+    }
+
+    public static string ConvertAsHTML(string strJson)
+    {
+        var sb = new StringBuilder();
+
+        try
+        {
+            var content = JsonConvert.DeserializeObject<JObject>(strJson);
+                
+            sb.Append("<div>");
+            foreach (JProperty prop in content.Properties()) {
+                /// Console.WriteLine(prop.Name);
+
+                sb.AppendFormat("<p class='{0}'>", prop.Name);
+                sb.AppendFormat("<p class='{0}'>", prop.Name);
+                    switch (prop.Value.Type) {
+                        case JTokenType.Array:
+                            sb.Append(ConvertArrayAsHTML(prop.Value.ToString()));
+                            break;
+                        case JTokenType.Integer:
+                        case JTokenType.Boolean:
+                        case JTokenType.Float:                        
+                            sb.AppendFormat("{0}", prop.Value);
+                            break;
+                        default:
+                            decoder.Parse(prop.Value.ToString());
+                            sb.AppendFormat("{0}", decoder.Value);
+                            ///sb.AppendFormat("<![CDATA[{0}]]>", prop.Value);
+                            break;
+                    }                                 
+                sb.AppendFormat("</p>", prop.Name);
+            }
+            sb.Append("</div>");                
+        }
+        catch { }
+
+        return sb.ToString();
+    }
+}

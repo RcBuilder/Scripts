@@ -47,19 +47,31 @@ namespace BLL
             var c1 = new Class1();
             var result = c1.GetProperties();
         */
-        public static Dictionary<string, object> GetProperties<T>(this T value) where T : class
+        public static Dictionary<string, object> GetProperties<T>(this T me) where T : class
         {
             try
             {
                 var properties = new Dictionary<string, object>();
                 var type = typeof(T);
                 foreach (var p in type.GetProperties())
-                    properties.Add(p.Name, p.GetValue(value));
+                    properties.Add(p.Name, p.GetValue(me));
                 return properties;
             }
             catch
             {
                 return null;
+            }
+        }
+
+        public static void EmptyNullStrings<T>(this T me) where T : class
+        {
+            if (me == null) return;
+
+            var type = typeof(T);
+            var properties = type.GetProperties().Where(p => p.PropertyType == typeof(String));
+            foreach (var p in properties) {
+                if (p.GetValue(me) != null) continue;
+                p.SetValue(me, "");                
             }
         }
     }

@@ -1,0 +1,8 @@
+// Install-Package Selenium.WebDriver
+// Install-Package Selenium.Firefox.WebDriver
+
+// note:
+// we MUST have Chrome browser installed - this is the engine which the chromeDriver depends on
+
+also see 'Selenium - ChromeDriver.txt'
+implementation can be found in 'MACrawler' project

@@ -1,4 +1,5 @@
-﻿using Entities;
+﻿using Common;
+using Entities;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -36,20 +37,30 @@ namespace BLL
             if (!Directory.Exists(FolderPath))
                 Directory.CreateDirectory(FolderPath);
 
+            var decoder = new HtmlDecodeParser();
+            decoder.Parse(FileURL);
+            FileURL = decoder.Value;
+
             var FileName = ClearFileName(Path.GetFileName(FileURL));
             var FileExtension = Path.GetExtension(FileName);
 
             /// var LocalFileName = string.Concat(Guid.NewGuid().ToString().Replace("-", string.Empty), Extension);
-            var LocalFileName = string.Concat(Math.Abs(FileName.GetHashCode()), FileExtension);
+            var LocalFileName = string.Concat(Math.Abs(FileURL.GetHashCode()), FileExtension);
             var LocalFilePath = string.Concat(FolderPath, "\\", LocalFileName);
 
             if (!Override && File.Exists(LocalFilePath))
                 return LocalFileName;
 
-            try {                                
-                client.DownloadFile(FileURL, LocalFilePath);
+            try {
+                // note! 
+                // this is an async without await action, so it doesn't block the service 
+                // but the loading and saving of the images work in the background in parallel
+                // TODO ->> Temporary: change to HttpClient!  
+                client.DownloadFileAsync(new Uri(FileURL), LocalFilePath);
             }
-            catch {
+            catch(Exception ex) {
+                ex.Data.Add("FileURL", FileURL);
+                Logger.Instance.Error(ex);
                 return string.Empty;
             }
 
@@ -58,7 +69,9 @@ namespace BLL
 
         private string ClearFileName(string FileName) {
             // remove querystring
-            FileName = FileName.Split('?')[0]; 
+            FileName = FileName.Split('?')[0];
+            FileName = FileName.Split('&')[0];
+            FileName = FileName.Split(';')[0];
 
             // replace special characters (windows limitation)
             foreach (var c in this.FileNameSpecialCharacters)

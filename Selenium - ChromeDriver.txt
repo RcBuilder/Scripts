@@ -4,6 +4,8 @@
 // note:
 // we MUST have Chrome browser installed - this is the engine which the chromeDriver depends on
 
+implementation can be found in 'MACrawler' project
+
 // flags
 // https://peter.sh/experiments/chromium-command-line-switches/
 
