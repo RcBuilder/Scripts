@@ -1,0 +1,12 @@
+javascript rest operator
+------------------------
+aka 'rest properties' or 'spread properties'
+
+syntax:
+...n (3 dots)
+
+sample:
+const values = { a: 1, b: 2, c: 3, d: 4 };
+const { a, ...n } = values;
+console.log(a);  // 1
+console.log(n);  // {b: 2, c: 3, d: 4}

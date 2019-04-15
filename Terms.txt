@@ -34,6 +34,12 @@
 * TDD = Test Driven Development
 * BDD = Behavior-Driven Development
 * CLI = Command Line Interface (cmd etc.)
+* SSR = Server-side rendering
+* SAP = Systems, Applications and Products
+        also: A German software company, well-known for its ERP and data management programs.
+* ERP = Enterprise Resource Planning
+* CMS = Content Management System
+* CRM = Customer-Relationship Management
 
 * TLS = Transport Layer Security
 * SSL = Secure Sockets Layer
@@ -87,3 +93,5 @@
 * ROAS - Return On Advertising Spend
 
 * devOps - developer operations 
+
+* TIL = Today I Learned

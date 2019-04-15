@@ -1,0 +1,74 @@
+function main() {
+ /*
+    var campaign = AdsApp.campaigns().withCondition('Name = "Test-Campaign-101"').get().next();
+    var negativeKeywords = campaign.negativeKeywords()
+    .withCondition("Text CONTAINS_IGNORE_CASE 'KW'")
+    .withCondition("KeywordMatchType = EXACT")
+    .get();
+
+    while(negativeKeywords.hasNext()){
+      var negativeKeyword = negativeKeywords.next();
+      Logger.log(negativeKeyword.getText());
+    }
+    return;
+  */
+   
+  var from = "Test-Campaign-100";
+  var to = "Test-Campaign-101"; 
+
+  function addnegative(fromCampaignName, toCampaignName) {
+    var fromCampaign = AdWordsApp
+      .campaigns()
+      .withCondition("Name = '" + fromCampaignName + "'")
+      .withCondition("Status = ENABLED")
+      .get().next();
+    
+    var toCampaign = AdWordsApp
+      .campaigns()
+      .withCondition("Name = '" + toCampaignName + "'")
+      .withCondition("Status = ENABLED")
+      .get().next();
+
+    Logger.log('from "%s" to "%s"', fromCampaign.getName(), toCampaign.getName());
+    
+    var keywords = fromCampaign
+        .keywords()
+        .withCondition("AdGroupStatus = ENABLED")
+        .withCondition("Status = ENABLED")
+        .get();
+             
+               
+    while (keywords.hasNext()) {
+      var keyword = keywords.next();
+      var negativeKeyword = keyword.getText();
+      negativeKeyword = negativeKeyword.split('+').join('');        
+
+      
+
+      var negativeKeywordWithoutMatchType = negativeKeyword;
+      var KeywordMatchType = 'BROAD';
+      if(negativeKeyword.indexOf('[') == 0){
+        negativeKeywordWithoutMatchType = negativeKeyword.split('[').join('').split(']').join('');
+        KeywordMatchType = 'EXACT';
+      }
+      else if(negativeKeyword.indexOf('"') == 0){
+        negativeKeywordWithoutMatchType = negativeKeyword.split('"').join('');
+        KeywordMatchType = 'PHRASE';
+      };
+
+      var checkNegative = toCampaign.negativeKeywords()
+      .withCondition("Text CONTAINS_IGNORE_CASE '"+ negativeKeywordWithoutMatchType + "'")
+      .withCondition("KeywordMatchType = " + KeywordMatchType)
+      .get();
+
+
+      Logger.log('kewyword: %s', negativeKeyword);
+      if (checkNegative.totalNumEntities() == 0) {            
+        toCampaign.createNegativeKeyword(negativeKeyword);
+        Logger.log("adding negative " + negativeKeyword + " to " + toCampaign.getName());
+      }        
+    }
+  }
+  
+  addnegative(from, to);
+}

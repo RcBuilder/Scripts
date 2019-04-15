@@ -39,10 +39,13 @@
 - Other Services
 - Working With Nativescript
 - Passing Context
+- Request Parameteres
+- Request Context
 - Navigation
 - Notifications
 - Debugging
 - Storage
+- Techniques
 - Multiple Views
 - Icons
 - App Resources 
@@ -6064,6 +6067,28 @@ Working With Nativescript
 
 Passing Context
 ---------------
+see 'Request Context'
+
+Request Parameteres
+-------------------
+also see 'Request Context'
+
+// PageA  
+frame.navigate({
+    moduleName: 'Pages/Delivery/delivery-page',
+    context: { id: 1234 }
+});
+
+// PageB
+function onNavigatingTo(args) {
+    let page = args.object;    
+    let requestContext = page.navigationContext;
+	let id = requestContext.id;
+    ...
+}
+
+Request Context
+---------------
 we can pass a custom context between pages using the navigationContext.
 
 steps: 
@@ -6091,6 +6116,7 @@ function onNavigatingTo(args) {
     page.bindingContext = context;
 }
 exports.onNavigatingTo = onNavigatingTo; 
+
 
 Navigation
 ----------
@@ -6264,6 +6290,49 @@ let localStorage = require('nativescript-localstorage');
 localStorage.clear();
 localStorage.setItemObject("test", {a: 1, b: 2});
 ]jkj .;lxssdkjm64localStorage.setItem('counter', 33);945ikl['p7p[;0-var counter = localStorage.getItem('counter');
+
+Techniques
+----------
+- BaseViewModel
+  
+  let Observable = require("data/observable").Observable;
+  let ObservableArray  = require("data/observable-array").ObservableArray;
+
+  function BaseViewModel() {
+    var viewModel = new Observable();   
+	...
+	...
+    return viewModel;
+  }
+
+  function EmployeePageViewModel() {
+    var viewModel = new BaseViewModel();   
+	...
+	...
+    return viewModel;
+  }
+  exports.EmployeePageViewModel = EmployeePageViewModel;
+
+  function RestaurantPageViewModel() {
+    var viewModel = new BaseViewModel();   
+	...
+	...
+    return viewModel;
+  }
+  exports.RestaurantPageViewModel = RestaurantPageViewModel;
+  
+  ---
+
+  // using (Employee)
+  function onNavigatingTo(args) {
+    let page = args.object;    
+    page.bindingContext = new PageViewModel.EmployeePageViewModel();;
+  }
+
+- passing parameters/ context:
+  see 'Passing Context'
+  see 'Request Parameteres'
+  see 'Request Context'
 
 
 Multiple Views

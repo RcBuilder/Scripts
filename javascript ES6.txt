@@ -23,7 +23,7 @@ ES6 refers to version 6 of the ECMA Script programming language (aka JavaScript)
 - Math trunc
 - Math sign
 - Promise
-- Params
+- Params (rest operator)
 - Reflection
 - Localization
 - Destructuring assignment
@@ -405,8 +405,8 @@ console.log(0o10);  // 8
 console.log(parseInt('00000111', 2));
 console.log(parseInt('10', 8));
 
-Params
-------
+Params (rest operator)
+----------------------
 use the 3 dots to set a function params (unknown number of sequential parameters)
 
 syntax:

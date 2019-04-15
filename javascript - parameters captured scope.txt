@@ -1,0 +1,12 @@
+parameters captured scope
+
+var fun1 = (a, b = () => { 
+		console.log(a); // in b scope - a is 12 
+		return a;
+	}) => { 
+		// in this scope a is 2, it doesn't affect the scope of b!
+		var a = 2; 
+		return [a, b()];
+	};
+
+fun1(12); // [2, 12]

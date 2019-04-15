@@ -1,0 +1,144 @@
+javaScript Closure
+------------------
+every function forms a closure on creation. each fucntion can access its variables and the variables above it.
+a closure is a function to which the variables of the surrounding context are bound by reference.
+ 
+so, when we return an inner function from an outer function, the scope of it will include the outer variables! 
+but it would be accessible ONLY from within the inner function and NOT directly. 
+
+scope:
+
+- var x = 'global';
+  function outer(){
+     var a = 'outer';
+     function inner(){
+        var b = 'inner';
+     } 
+  }  
+
+- scope of outer: 
+  x and a 
+
+- scope of inner: 
+  x, a and b
+
+----
+
+working with functions: 
+
+function funA(){
+    var a = 'A';
+    function funB(){
+      var b = 'B';
+      console.log(a + ' ' + b); 
+    }
+    return funB;
+}
+
+var f1 = funA();
+f1(); // A B
+
+----
+
+working with functions (shortcut):
+
+function funA(){
+    var a = 'A';
+    return function(){
+      var b = 'B';
+      console.log(a + ' ' + b); 
+    }
+}
+
+var f1 = funA();
+f1(); // A B
+
+----
+
+working with objects: 
+
+function circle(){
+    var pi = 3.14;
+    return {
+	// formula: 2 * PI * RADIUS
+        calculateDiameter: function(radius){
+            return 2 * pi * radius;
+	}
+    }
+}
+var c1 = circle();
+c1.calculateDiameter(6);  // 37.68 
+
+----
+
+make a factory which generates functions:
+
+function factory(_base){
+   return function(number){
+	return number * _base;
+   }
+}
+
+var mulBy2func = factory(2);
+var mulBy5func = factory(5);
+var mulBy10func = factory(10);
+
+var n = 4;
+console.log(mulBy2func(n)); // 8
+console.log(mulBy5func(n)); // 20
+console.log(mulBy10func(n)); // 40
+
+----
+
+private scope:
+
+function fun1(){
+   // private member
+   var sum = 0; 
+
+   // private function
+   function updateSum(value){ 
+     sum += value;
+   }	
+
+   return {  
+       increse: function(){
+  	  updateSum(1);
+       },
+       decrese: function(){
+  	  updateSum(-1);
+       },
+       increse5: function(){
+  	  updateSum(5);
+       },
+       decrese5: function(){
+  	  updateSum(-5);
+       },
+       getSum: function(){
+          return sum;
+       }
+   };
+}
+
+var f1 = fun1();
+f1.increse5();
+f1.decrese();
+f1.decrese();
+console.log(f1.getSum()); // 3
+
+----
+
+scope chaining:
+
+function addChain(n1){
+    return function(n2){
+	return function(n3){
+	     return function(n4){
+		   return n1 + n2 +  n3 + n4;
+    	     }
+        }
+    }
+}
+
+var sum = addChain(10)(20)(30)(40);
+console.log(sum);  // 100

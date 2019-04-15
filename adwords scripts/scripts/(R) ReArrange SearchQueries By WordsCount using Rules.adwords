@@ -1,0 +1,513 @@
+/* 
+	rule properties:
+	{ fromTier, fromMatchType, toMatchType }
+    
+    match-types:
+    BROAD
+    EXACT
+    EXPANDED
+    PHRASE
+    NEAR_EXACT    
+    NEAR_PHRASE
+    
+    built-in time-frames
+    LAST_30_DAYS
+    LAST_7_DAYS 
+    20190101,20190301
+    ...
+    ...
+    
+    rule:
+    { 
+    	includeSource: bool, 
+        fromTier: string, 
+        toTier: string, 
+        toMatchType: match-type (string),
+        fromMatchType: match-type (string), // use comma seperator for multiple match types
+        maxWordsLength: int, 
+        timeFrame: built-in time-frame (string),
+        label: string,
+        sConditions: string // [SEARCH_QUERY_PERFORMANCE_REPORT] use comma seperator for multiple conditions
+	}
+    
+    report:
+    [SEARCH_QUERY_PERFORMANCE_REPORT]
+    https://developers.google.com/adwords/api/docs/appendix/reports/search-query-performance-report
+*/
+
+/*	
+	[rule] { 
+    	includeSource: false, 
+        fromTier: '-AAA', 
+        toTier: '-BBB', 
+        toMatchType: 'PHRASE', 
+        fromMatchType: 'NEAR_EXACT,BROAD', 
+        maxWordsLength: 9, 
+        timeFrame: 'LAST_7_DAYS',
+        label: 'Label1',
+        sConditions: ''
+    }
+    ... 
+    ...
+*/
+
+var rules = [
+  { includeSource: false, fromTier: 'Test-Campaign-BBB Tier (1)', toTier: 'Test-Campaign-BBB Tier', fromMatchType: 'PHRASE', toMatchType: 'EXACT', maxWordsLength: 9, label: 'LLL1', timeFrame: 'LAST_7_DAYS', sConditions: 'Clicks > 2,Impressions > 10,ROAS > 1' }  
+];
+
+var DEBUG = true;
+
+function main() {   
+  for(i in rules) {
+    processRule(rules[i]);
+    Logger.log('-------------------------');
+  }
+}
+
+function processRule(rule){
+  Logger.log('[rule] %s', rule);
+  
+  var fromTierCampaigns = loadCampaignsByName(rule.fromTier);      
+  
+  for(i in fromTierCampaigns){
+  	var fromTierCampaign = fromTierCampaigns[i];
+    
+    var fromTierCampaignName = fromTierCampaign.getName();
+    var fromTierCampaignId = fromTierCampaign.getId();
+    
+    Logger.log('from "%s" with types %s', fromTierCampaignName, rule.fromMatchType);
+    
+    // [query, cpc]
+    var searchQueries = GetSearchQueries(fromTierCampaignId, rule.fromMatchType.split(','), rule.timeFrame, rule.sConditions);    
+    Logger.log('%s search queries found', searchQueries.length);
+    
+    if(searchQueries.length == 0) 
+      continue;
+    
+    for(var i=0;i<searchQueries.length;i++){
+      var searchQuery = searchQueries[i].query;     
+      var averageCpc = parseFloat(searchQueries[i].cpc);  
+      var sourceAdGroupId = parseInt(searchQueries[i].adGroupId);  
+      Logger.log('searchQuery: %s', searchQuery);
+
+      var words = spitToWords(searchQuery);      
+      if(words.length > rule.maxWordsLength) 
+        continue;
+            
+      var campaignsToFind = fromTierCampaignName.replace(rule.fromTier, rule.toTier);
+      campaignsToFind = campaignsToFind.replace(/\(\d+\)/i, '(' + words.length + ')');
+      Logger.log('Destination Search: %s', campaignsToFind);
+      
+      var toTierCampaigns = loadCampaignsByName(campaignsToFind);   
+      Logger.log('%s destinations found', toTierCampaigns.length);
+      if(toTierCampaigns.length == 0) continue;
+       
+      for(var j=0;j<toTierCampaigns.length;j++){
+        var toTierCampaign = toTierCampaigns[j];
+        var toTierCampaignName = toTierCampaign.getName();
+        var toTierCampaignId = toTierCampaign.getId();
+
+        if(!rule.includeSource && toTierCampaignName == fromTierCampaignName)
+          continue;
+
+        Logger.log('to "%s" with type %s', toTierCampaignName, rule.toMatchType);
+
+        ProcessAdGroup(toTierCampaign, words, rule.toMatchType, averageCpc, rule.label, sourceAdGroupId);
+      }
+    } 
+  }
+}
+
+function countWords(phrase){
+  /// return phrase.split(' ').filter(x => x.trim() != '').length;  
+  
+  /*
+  var counter = 0;
+  var arr = phrase.split(' ');
+  for(i in arr)
+    if(arr[i].trim() == '') continue;
+    else counter++;
+  return counter;  
+  */
+  
+  return spitToWords(phrase).length;
+}
+
+function spitToWords(phrase){
+  /// return phrase.split(' ').filter(x => x.trim() != '');  
+    
+  var arr = [];
+  var temp = phrase.split(' ');
+  for(i in temp)
+    if(temp[i].trim() == '') continue;
+    else arr.push(temp[i])
+  return arr;  
+}
+
+function ProcessAdGroup(campaign, words, matchType, averageCpc, labelName, sourceAdGroupId) {
+  var phrase = words.join(' ');
+  
+  var keywordToAdd;
+  switch (matchType){
+    default:
+    case 'EXPANDED': keywordToAdd = '+' + words.join(' +'); 
+      break;
+    case 'BROAD': keywordToAdd = words.join(' ');        
+      break;
+    case 'NEAR_EXACT': 
+    case 'EXACT': keywordToAdd = '[' + phrase + ']';
+      break;
+    case 'NEAR_PHRASE':          
+    case 'PHRASE': keywordToAdd = '"' + phrase + '"';
+  }  
+
+  if(isKeywordExists(campaign, keywordToAdd, matchType))
+  	return;
+  
+  var adGroupName = phrase.toLowerCase();
+  var adGroup = getAdGroupByName(campaign, adGroupName);
+  
+  // create new
+  if(!adGroup) {    
+    var defaultBid = averageCpc;
+
+    Logger.log('create %s adGroup with defaultBid %s', adGroupName, defaultBid);
+    adGroup = createAdGroup(campaign, adGroupName, defaultBid);
+    if(!adGroup){
+      Logger.log('[ERROR] adGroup not created!');
+      return;
+    }
+    
+    createLabel(labelName);
+    adGroup.applyLabel(labelName);
+    
+    try{
+    	var sourceAdGroup = AdWordsApp.adGroups().withIds([sourceAdGroupId]).get().next();
+    	copyAds(sourceAdGroup, adGroup);
+    }
+    catch(e){ 
+    	Logger.log('[ERROR] %s', e.message);
+    }
+  }
+  
+  Logger.log('create %s keyword', keywordToAdd);
+  if(DEBUG == false)
+  	createKeyword(adGroup, keywordToAdd);
+}
+
+function isKeywordExists(campaign, keywordText, keywordMatchType){
+  	if(keywordMatchType == 'EXPANDED')
+      keywordMatchType = 'BROAD';
+	
+  	///var temp = keywordMatchType == 'PHRASE' ? keywordText : ('"' + keywordText + '"');
+  
+  	var keywordWithoutMatchType = keywordText;    
+    if(keywordText.indexOf('[') == 0)
+      keywordWithoutMatchType = keywordText.split('[').join('').split(']').join('');          
+    else if(keywordText.indexOf('"') == 0)
+      keywordWithoutMatchType = keywordText.split('"').join('');      
+  
+	return campaign.keywords()
+      .withCondition('Text = "' + keywordWithoutMatchType + '"')
+      .withCondition('KeywordMatchType = ' + keywordMatchType)
+      .withCondition("AdGroupStatus IN [ENABLED,PAUSED]")
+  	  .withCondition("Status IN [ENABLED,PAUSED]")
+      .get()
+      .hasNext();
+}
+
+function isLabelExists(labelName){
+	return AdWordsApp.labels()
+      .withCondition('Name = "' + labelName + '"')      
+      .get()
+      .hasNext();
+}
+
+function getAdGroupByName(campaign, adGroupName){
+  var adgroups = campaign.adGroups()
+      .withCondition('Name = "' + adGroupName + '"')      
+      .get();
+  
+  if(adgroups.hasNext())
+    return adgroups.next();
+  return null;
+}
+
+function createKeyword(adGroup, text, maxcpc){
+  var operation = adGroup.newKeywordBuilder()
+  .withText(text)
+  //.withCpc(maxcpc)
+  .build();
+  
+  if(!operation.isSuccessful())
+    return null;
+  return operation.getResult();
+}
+
+function createAdGroup(campaign, adGroupName, defaultBid){
+  var adGroupBuilder = campaign.newAdGroupBuilder();
+  var operation = adGroupBuilder
+  .withName(adGroupName)
+  .withCpc(defaultBid)
+  //.withStatus('ENABLED')
+  .build();
+
+  if(!operation.isSuccessful())
+    return null;
+  return operation.getResult();
+}
+
+function createLabel(labelName){
+  if(isLabelExists(labelName)) 
+    return;
+  
+  // createLabel(<name>, <description>, <backgroundColor>);
+  AdWordsApp.createLabel(labelName);
+}
+
+function createAd(adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2){
+
+  //if(header1.length > 30)
+   // header1 = header1.substr(0, 29);
+ // if(header2.length > 30)
+  //  header2 = header2.substr(0, 29);
+  //if(description1.length > 90)
+  //  description1 = description1.substr(0, 89);
+
+  var builder = adGroup.newAd().expandedTextAdBuilder()
+      .withHeadlinePart1(header1)
+      .withHeadlinePart2(header2)
+      .withHeadlinePart3(header3)
+      .withPath1(pathURL1)
+      .withPath2(pathURL2)
+      .withDescription1(description1)
+      .withDescription2(description2)
+      .withFinalUrl(destinationURL) // 255 characters    
+      .withMobileFinalUrl(destinationURL);
+      //.withFinalUrl(header1)//get the URL from the query, not the ad, just incase the final URL was at keyword level
+      
+
+ // if(pathURL1 && pathURL1.length <= 15)     
+   // builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/pathURL1/pathURL2      
+
+  //if(pathURL2 && pathURL2.length <= 15)
+   // builder.withPath2(pathURL2); // 15 characters (the second part after the siteURL)
+
+ // if(header3){
+    //if(header3.length > 30)
+     // header3 = header3.substr(0, 29);
+
+  //  builder.withHeadlinePart3(header3) // 30 characters
+ // }
+
+  //if(description2){
+   // if(description2.length > 90)
+      //description2 = description2.substr(0, 89);
+
+  //  builder.withDescription2(description2) // 90 characters  
+ // }
+
+  var operation = builder.build();
+
+  if(!operation.isSuccessful())
+    return null;
+  return operation.getResult();
+}
+
+function copyAds(sourceAdGroup, destAdGroup){   
+  var ads = sourceAdGroup.ads()
+  .withCondition("Status = ENABLED")
+  .withCondition("Type = EXPANDED_TEXT_AD")
+  .get()
+    
+  while(ads.hasNext()){    
+    var ad = ads.next();
+    Logger.log('copy ad "%s"', ad.getHeadlinePart1());
+    
+    // adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2
+    createAd(
+      destAdGroup, 
+      ad.getHeadlinePart1(), 
+      ad.getHeadlinePart2(), 
+      ad.getHeadlinePart3(),
+      ad.getDescription1(),
+      ad.getDescription2(),
+      ad.urls().getFinalUrl(),
+      ad.getPath1() || '',
+      ad.getPath2() || ''
+    );       
+  }
+}
+
+function isCampaignExists(campaignName){
+	return AdWordsApp.campaigns()
+      .withCondition('Name = "' + campaignName + '"')        	  
+      .get()
+      .hasNext();
+}
+
+function loadCampaignsByName(containsName){  
+  var campaigns = [];
+  
+  var campaignsIter = AdWordsApp.campaigns()
+      //.withCondition('LabelNames CONTAINS_ANY ["' + labelName + '"]')  	  
+      .withCondition('Status = ENABLED');
+  
+  if(containsName)
+  	campaignsIter.withCondition('Name CONTAINS_IGNORE_CASE "' + containsName + '"')
+  campaignsIter = campaignsIter.get();
+  
+  while(campaignsIter.hasNext()) 
+    campaigns.push(campaignsIter.next());  
+  return campaigns;
+}
+
+// [query, cpc]
+function GetSearchQueries(campaignId, matchTypes, timeFrame, sConditions){
+  var searchQueries = [];
+  searchQueries.exists = function(value){    
+  	for(i in this)
+      if(this[i].query == value)
+        return true;
+    return false;
+  }
+  
+  var matchTypeMappingTable = {};
+  matchTypeMappingTable['BROAD'] = 'broad';
+  matchTypeMappingTable['EXACT'] = 'exact';
+  matchTypeMappingTable['EXPANDED'] = 'broad';
+  matchTypeMappingTable['PHRASE'] = 'phrase';
+  matchTypeMappingTable['NEAR_EXACT'] = 'exact (close variant)';
+  matchTypeMappingTable['NEAR_PHRASE'] = 'phrase (close variant)';
+  matchTypeMappingTable.find = function(displayName){
+    displayName = displayName.toLowerCase();
+  	for(key in this)
+      if(this[key].toLowerCase() == displayName)
+        return key;
+    return null;
+  }
+
+  var reportConfig = {
+    includeZeroImpressions: true
+  };  
+  
+  var select = 'SELECT Query, CampaignId, QueryMatchTypeWithVariant, KeywordId, AdGroupId, AverageCpc, ConversionValue, Cost ';
+  var from = 'FROM SEARCH_QUERY_PERFORMANCE_REPORT ';
+  var where = 'WHERE CampaignId = ' + campaignId + ' '+
+      'AND CampaignStatus = ENABLED ' +
+      'AND AdGroupStatus = ENABLED ';
+  var during = 'DURING ' + timeFrame;
+  
+  var roasCondition = '';
+  if(sConditions){    
+  	var template = 'AND {0} ';
+    
+    var arrConditions = sConditions.split(',');
+  	for(i in arrConditions) {
+      if(arrConditions[i].indexOf('ROAS') >= 0){
+        roasCondition = arrConditions[i];
+        continue;
+      }
+      where += template.replace('{0}', arrConditions[i]);    
+    }
+  }
+  
+  var query = select.concat(from, where, during); 
+  Logger.log('[QUERY] %s', query);
+  
+  
+  var report = DEBUG == true ? new SearchQueryReportMock() : AdWordsApp.report(query, reportConfig); 
+  var rows = report.rows();
+	
+  while (rows.hasNext()) {
+    var row = rows.next();
+            
+    var searchQuery = row['Query'].toLowerCase();
+   	    
+	// see 'matchTypeMappingTable' for available values
+    var matchTypeDisplayName = row['QueryMatchTypeWithVariant'];
+    var matchType = matchTypeMappingTable.find(matchTypeDisplayName);
+    
+    if(!matchType || matchTypes.indexOf(matchType) == -1) 
+      continue;
+    
+    // ROAS Condition
+    if(roasCondition){
+      var roasValue = parseFloat(row['ConversionValue'] || 0) / parseFloat(row['Cost'] || 0) || 0;
+      
+      var operator = '=';
+      if(roasCondition.indexOf('<') >= 0)
+        operator = '<';
+      else if(roasCondition.indexOf('>') >= 0)
+        operator = '>';
+      
+      var expectedValue = parseFloat(roasCondition.substr(roasCondition.indexOf(operator) + 1).trim());
+      Logger.log('ROAS -> roasValue: %s, operator: %s, expectedValue: %s', roasValue, operator, expectedValue);
+      
+      var conditionResult = true;
+      switch(operator){
+        case '<': conditionResult = roasValue < expectedValue;
+          break; 
+        case '>': conditionResult = roasValue > expectedValue;
+          break;
+        case '=': conditionResult = roasValue = expectedValue;
+          break;
+      }
+      
+      if(!conditionResult)
+        continue;
+    }
+    
+    var keywordId = row['KeywordId'];
+    var adGroupId = row['AdGroupId'];
+    
+    var isEnabled = true;
+    if(keywordId){
+      var keyword = AdWordsApp.keywords().withIds([[adGroupId, keywordId]]).get();      
+      isEnabled = keyword.hasNext() ? keyword.next().isEnabled() : true;      
+    }
+    
+    if(!isEnabled) continue;
+           
+    ///Logger.log('searchQuery: %s', searchQuery);
+    if(!searchQueries.exists(searchQuery))
+    	searchQueries.push({ 
+          query: searchQuery, 
+          cpc: row['AverageCpc'],
+          adGroupId: row['AdGroupId']
+        });
+  }
+  
+  return searchQueries;
+}
+
+//-------------------------------------------------------------------------------
+
+/* MOCK*/
+
+function SearchQueryReportMock(){
+	this.rows = function(){
+    	return new SearchQueryReportRowsMock();
+    }
+}
+
+function SearchQueryReportRowsMock() {
+  var i = 0;
+  
+  // item: { Query, KeywordTextMatchingQuery, QueryMatchTypeWithVariant}
+  var arr = [
+    { Query: 'word', KeywordTextMatchingQuery: 'word', QueryMatchTypeWithVariant: 'phrase', KeywordId: '', AdGroupId: '67492089099', AverageCpc: '0.52', ConversionValue: '4000', Cost: '2000' },
+    { Query: 'word word', KeywordTextMatchingQuery: 'word word', QueryMatchTypeWithVariant: 'phrase', KeywordId: '', AdGroupId: '2', AverageCpc: '0.811' },
+    { Query: 'word word', KeywordTextMatchingQuery: 'word word', QueryMatchTypeWithVariant: 'exact (close variant)', KeywordId: '', AdGroupId: '3', AverageCpc: '0.214' },
+    { Query: 'word', KeywordTextMatchingQuery: 'word', QueryMatchTypeWithVariant: 'exact', KeywordId: '', AdGroupId: '4', AverageCpc: '0.53' },
+    { Query: 'word word word', KeywordTextMatchingQuery: 'word word word', QueryMatchTypeWithVariant: 'phrase', KeywordId: '', AdGroupId: '5', AverageCpc: '1.04' }
+  ];
+
+  this.next = function(){
+    return arr[i++];      
+  }
+
+  this.hasNext = function(){
+    return arr.length > i;
+  }
+} 

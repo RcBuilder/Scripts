@@ -1,0 +1,100 @@
+/**
+*
+* Adwords Script to add 'funneling' negative keywords based on campaign hierarchy (broad/generic --> specific)
+* This script will add all keywords from specific campaigns as negative into the corresponding generic campaign 
+* to avoid cross triggering.
+* 
+* By Thao Pham, Sephora SEA Performance Marketing team (https://www.linkedin.com/company/sephora-sea/).
+* 
+**/
+
+function main() {
+ /*
+  var campaign = AdsApp.campaigns().withCondition('Name = "Test-Campaign-101"').get().next();
+  var negativeKeywords = campaign.negativeKeywords()
+  .withCondition("Text CONTAINS_IGNORE_CASE 'KW'")
+  .withCondition("KeywordMatchType = EXACT")
+  .get();
+  
+  while(negativeKeywords.hasNext()){
+    var negativeKeyword = negativeKeywords.next();
+    Logger.log(negativeKeyword.getText());
+  }
+  return;
+  */
+  
+  //UPDATE THIS: edit your text for each "level", lvl 1 being the most generic campaign type. You can add more levels if needed.
+  var lvl1 = "most_generic_";
+  var lvl2 = "specific_";
+  var lvl3 = "most_specific_";
+
+  function addnegative(SpecificCampaignType, GenericCampaignType) {
+    var SpecificCampaignIterator = AdWordsApp
+      .campaigns()
+      .withCondition("Name CONTAINS_IGNORE_CASE '" + SpecificCampaignType + "'") //add more conditions if you need to filter campaigns further
+      .withCondition("Status = ENABLED")
+      .get();
+
+    while (SpecificCampaignIterator.hasNext()) {
+      var SpecificCampaign = SpecificCampaignIterator.next();
+      Logger.log(SpecificCampaign.getName());
+
+      var keywordIterator = SpecificCampaign
+        .keywords()
+        .withCondition("AdGroupStatus = ENABLED")
+        .withCondition("Status = ENABLED")
+        .get();
+      
+       //get generic campaign names based on specific campaign names
+      var GenericCampaignName = SpecificCampaign.getName().replace(SpecificCampaignType, GenericCampaignType) 
+      Logger.log(GenericCampaignName);
+      
+      //add keywords in the specific campaign as negative in the generic campaign
+      while (keywordIterator.hasNext()) {
+        var keyword = keywordIterator.next();
+        var negativeKeyword = keyword.getText();
+        negativeKeyword = negativeKeyword.split('+').join('');        
+        
+        var genericCampaignIterator = AdWordsApp
+          .campaigns()
+          .withCondition("Name CONTAINS_IGNORE_CASE '" + GenericCampaignName + "'")
+          .withCondition("Status = ENABLED")
+          .get();
+
+        var negativeKeywordWithoutMatchType = negativeKeyword;
+        var KeywordMatchType = 'BROAD';
+        if(negativeKeyword.indexOf('[') == 0){
+          negativeKeywordWithoutMatchType = negativeKeyword.split('[').join('').split(']').join('');
+          KeywordMatchType = 'EXACT';
+        }
+        else if(negativeKeyword.indexOf('"') == 0){
+          negativeKeywordWithoutMatchType = negativeKeyword.split('"').join('');
+          KeywordMatchType = 'PHRASE';
+        };
+        
+        while (genericCampaignIterator.hasNext()) {
+          var genericCampaign = genericCampaignIterator.next();
+          var checkNegative = genericCampaign.negativeKeywords()
+            ///.withCondition("Text CONTAINS_IGNORE_CASE '"+ negativeKeywordWithoutMatchType + "'")
+          	.withCondition("Text = '"+ negativeKeywordWithoutMatchType + "'")
+          	.withCondition("KeywordMatchType = " + KeywordMatchType)
+            .get();
+          
+          if (checkNegative.totalNumEntities() == 0) {            
+          	genericCampaign.createNegativeKeyword(negativeKeyword);
+          	Logger.log("adding negative " + negativeKeyword + " to " + genericCampaign.getName());
+          }
+        }
+      }
+    }
+  }
+  
+  ///addnegative('Test-Campaign-100', 'Test-Campaign-101');
+  ///return;
+  
+  //if necessary edit the below to suit your account's hierarchy of campaigns, 
+  //following the hierarchy: "addnegative (specific campaign, generic campaign)"
+  addnegative(lvl2, lvl1);
+  addnegative(lvl3, lvl1);
+  addnegative(lvl3, lvl2);
+}

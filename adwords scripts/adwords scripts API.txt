@@ -40,8 +40,8 @@ METRICS
 * TERMS:
   SKAG = Single Keyword Ad Groups
   SQR = Search Query Report
-  ROAS - Return On Advertising Spend
-
+  ROAS - Return On Advertising Spend (ConversionValue/Cost)
+         e.g: you invested 2000$ and earned 4000% - roas is 2 
 
 NEW SCRIPT
 ----------
@@ -1317,7 +1317,7 @@ Ad
 * Ctr double
 * Impressions long
 * Status enum (see 'STATUS (enum)')
-* ApprovalStatus enum (see 'STATUS (enum)')
+* ApprovalStatus enum (see 'APPROVAL STATUS (enum)')
 * Type enum (see 'AD TYPE (enum)')
 * Headline string
 * Description1 string
@@ -1325,7 +1325,7 @@ Ad
 * DisplayUrl string
 * DestinationUrl string
 * AdGroupName string
-* AdGroupStatus enum (see 'APPROVAL STATUS (enum)')
+* AdGroupStatus enum (see 'STATUS (enum)')
 * CampaignName string
 * CampaignStatus enum (see 'STATUS (enum)')
 * LabelNames string[]
@@ -2274,6 +2274,22 @@ https://developers.google.com/adwords/scripts/docs/reference/adwordsapp/adwordsa
 		var keyword = keywords.next();
 		Logger.log('%s', keyword.getText());
   }
+
+
+function createLabel(labelName){
+  if(isLabelExists(labelName)) 
+    return;
+  
+  // createLabel(<name>, <description>, <backgroundColor>);
+  AdWordsApp.createLabel(labelName);
+}
+
+function isLabelExists(labelName){
+	return campaign.labels()
+      .withCondition('Name = "' + labelName + '"')      
+      .get()
+      .hasNext();
+}
 
 ======== STATISTICS =================================================================
 
@@ -5119,6 +5135,33 @@ while (rows.hasNext()) {
 	var matchTypeDisplayName = row['QueryMatchTypeWithVariant'];	
 }
 
+Mock<Stats>
+-----------
+
+function statsMock(){
+  return {
+    getAverageCpc: function() { return 0; },
+    getAverageCpm: function() { return 0; },
+    getAverageCpv: function() { return 0; },
+    getAveragePageviews: function() { return 0; },
+    getAveragePosition: function() { return 0; },
+    getAverageTimeOnSite: function() { return 0; },
+    getBounceRate: function() { return 0; },
+    getClicks: function() { return 0; },
+    getConversionRate: function() { return 0; },
+    getConversions: function() { return 0; },
+    getCost: function() { return 15; },
+    getCtr: function() { return 0; },
+    getImpressions: function() { return 0; },
+    getViewRate: function() { return 0; },
+    getViews: function() { return 0; }
+  }
+}
+
+using:
+var stats = DEBUG ? new statsMock() : campaign.getStatsFor("ALL_TIME");  
+var cost = stats.getCost();
+
 ======== EXAMPLES ===================================================================
 
 // ads spell checker (bing api)
@@ -6347,6 +6390,37 @@ function main() {
   var pdfBlob = blob.getAs(MimeType.PDF);
   MailApp.sendEmail(EMAIL, 'HELLO FROM ADWORDS SCRIPTS', 'ATTACHED PDF FILE', {name: 'report', attachments: [pdfBlob]});
 }
+
+--------------------
+var ads = AdWordsApp.ads()
+    .withCondition('CampaignStatus = ENABLED')
+    .withCondition('AdGroupStatus = ENABLED')
+    .withCondition('Status = ENABLED')
+    .get();
+
+while(ads.hasNext()){
+    var ad = ads.next();
+    Logger.log('policy approval status: %s', ad.getPolicyApprovalStatus());
+    Logger.log('approval status: %s', ad.getApprovalStatus());
+}
+--------------------
+
+// DISAPPROVED ads
+var ads = AdWordsApp.ads()
+    .withCondition('CampaignStatus = ENABLED')
+    .withCondition('AdGroupStatus = ENABLED')
+    .withCondition('Status = ENABLED')
+    .withCondition('ApprovalStatus = DISAPPROVED')
+    .get();
+  
+  while(ads.hasNext()){
+    var ad = ads.next();
+    
+    Logger.log('ad #%s (of type %s)', ad.getId().toString(), ad.getType())  // EXPANDED_TEXT_AD
+    ... 
+    ...
+    Logger.log('%s', ad.asType().expandedTextAd().getHeadlinePart1());
+  }
 
 --------------------
 
