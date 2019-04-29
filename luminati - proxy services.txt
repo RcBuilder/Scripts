@@ -1,0 +1,61 @@
+luminati
+--------
+proxy services
+
+website:
+https://luminati.io/
+
+what is proxy maneger:
+aka super Proxy.
+a proxy of a proxy. 
+a single proxy which manages the the outboand traffic. 
+it uses the api to connect to the proxy list, zone etc. and switch between them so we'll not be detected.
+it also contains a network profiler so we can see the traffic being sent through it!
+
+install the proxy manager:
+download the setup file 'luminati-proxy-manager-v1.128.768-setup' and install it.
+
+use the proxy manager:
+after installation, click on the 'luminati proxy manager' icon.. 
+a new listener (console app) will be created (usually on port 22999)..  
+to reach the manager UI, go to the 127.0.0.1 with the genetated port (usually 24000)  
+note that port 22999 is for the manager UI whereas port 24000 is the one needed to use as our proxy.
+
+code sample:
+while the proxy manager is running... 
+
+using(var client = new WebClient()){
+	client.Proxy = new WebProxy("127.0.0.1:24000");
+ 	client.DownloadString("http://lumtest.com/myip.json");
+}
+
+proxy maneger:
+http://127.0.0.1:22999/
+http://127.0.0.1:22999/config
+http://127.0.0.1:22999/settings
+
+proxy configuration:  
+overview > choose a proxy from the list > choose custom mode from the DDL 
+- (tab) logs  // proxy logs
+- (tab) targeting  // allows us to choose location (country, state, city etc.)       
+- (tab) IP control  
+  - max requests  // number of request before changing the ip    
+  - session duration 
+  - pool type 
+- (tab) Request speed  // allows us to control the request speed
+- (tab) Rules
+- (tab) Headers   
+- (tab) General
+  - Proxy port  // set the proxy port number
+  - Whitelist IP access
+
+benefits of using the proxy manager:
+when using a proxy manager we always use a single endpoint (proxy). 
+
+proxy manager api (swagger):
+http://127.0.0.1:22999/api
+http://petstore.swagger.io/?url=https://raw.githubusercontent.com/luminati-io/luminati-proxy/master/lib/swagger.json
+
+luminati api:
+https://luminati.io/faq#api_doc
+

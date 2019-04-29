@@ -1,0 +1,16 @@
+using System.Text.RegularExpressions;
+
+var match = Regex.Match("arr: ['A','B','C','D']", @"\[ ('(?<G1>[A-Za-z]+)',?){1,} \]", RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
+if (match == null || !match.Success) return;
+var groupValues = match.Groups["G1"].Captures;
+foreach (Capture c in groupValues)
+     Console.WriteLine(c.Value.Trim());
+
+-------
+
+match = ['A','B','C','D']
+
+group 
+G1.Value = 'D'
+G1.Captures = (collection) 'A' 'B' 'C' 'D'
+G1.Captures[0] = 'A'

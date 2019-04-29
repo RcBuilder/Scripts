@@ -1,0 +1,72 @@
+SQL Collation
+-------------
+
+what is collation:
+a set of predefined rules that determine how the data in SQL Server are stored
+
+---
+
+structure:	
+[Lang]_[CaseSensitivity]_[AccentSensitivity]_[WidthSensitivity]
+[Lang]_[CaseSensitivity]_[AccentSensitivity]
+	
+CaseSensitivity:
+- CI = Case Insensitive
+- CS = Case Sensitive
+
+AccentSensitivity:
+- AI = Accent Insensitive
+- AS = Accent Sensitive
+
+WidthSensitivity
+- WI = Width Insensitive
+- WS = Width Sensitive
+	
+default:
+Database_Default  // db default
+
+list:
+sys.fn_helpcollations()
+
+samples:	
+Latin1_General_CI_AS  // Latin charset with Case Insensitive (IS) and Accent Sensitive (AS)
+Latin1_General_CS_AS  // Latin charset with Case Sensitive (CS) and Accent Sensitive (AS)	
+
+---
+
+COLLATE
+use this keyword to apply/ set a specific collation. 
+can be applied to db, table, column etc.
+
+note! 
+can be used within a query (e.g: join tables with collation)
+
+---
+
+get collation list:
+SELECT name, description FROM sys.fn_helpcollations()
+
+get defined collation (db level and server level): 
+SELECT	SERVERPROPERTY('collation') SQLServerCollation,  
+  	DATABASEPROPERTYEX('master', 'Collation') AS MasterDBCollation
+
+create a new db with collation: 
+CREATE DATABASE [CaseSensitiveDB] 
+COLLATE SQL_Latin1_General_CP1_CS_AS
+
+---
+
+declare @tNames table([name] varchar(50))  
+insert into @tNames 
+values 
+('lorem ipsum'), -- lowercase
+('LOREM IPSUM'), -- uppercase 
+('Lorem Ipsum'), -- camelcase
+('lorém ipsùm')  -- special characters
+
+
+-- select clause with specific collation
+select * from @tNames where [name] = 'lorem ipsum' COLLATE Database_Default 
+select * from @tNames where [name] = 'lorem ipsum' COLLATE Latin1_General_CI_AS -- 3 matches (rows 1-3)
+select * from @tNames where [name] = 'lorem ipsum' COLLATE Latin1_General_CS_AS -- 1 match (row 1)
+select * from @tNames where [name] = 'lorem ipsum' COLLATE Latin1_General_CI_AI -- all

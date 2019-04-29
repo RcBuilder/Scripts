@@ -1,0 +1,2 @@
+int num = 1000;
+Console.WriteLine(Convert.ToString(num, 2).PadLeft(32, '0')); // 00000000000000000000001111101000

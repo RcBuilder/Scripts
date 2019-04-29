@@ -1,0 +1,27 @@
+WebClient DownloadFileAsync
+---------------------------
+
+using (var client = new WebClient()){
+    client.DownloadFileCompleted += (sender, args) => {
+         var ex = args.Error;
+
+         if (ex != null) {                    
+              ex.Data.Add("FileURL", FileURL);
+              Logger.Instance.Error(ex);
+            }
+         };
+
+         client.DownloadFileAsync(new Uri(FileURL), LocalFilePath);
+    }
+}
+
+---
+
+reminder: (sync mode)
+try {
+    client.DownloadFile(new Uri(FileURL), LocalFilePath);
+}
+catch (Exception ex) {
+    ex.Data.Add("FileURL", FileURL);
+    Logger.Instance.Error(ex);                
+}

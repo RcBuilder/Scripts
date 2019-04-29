@@ -1,6 +1,9 @@
 // Install-Package Selenium.WebDriver
 // Install-Package Selenium.Chrome.WebDriver
 
+Selenium API:
+https://seleniumhq.github.io/selenium/docs/api/dotnet/
+
 // note:
 // we MUST have Chrome browser installed - this is the engine which the chromeDriver depends on
 
@@ -8,7 +11,16 @@ implementation can be found in 'MACrawler' project
 
 // flags
 // https://peter.sh/experiments/chromium-command-line-switches/
-
+"--blink-settings=imagesEnabled=false", // disable images download
+"start-maximized" // full screen
+"disable-popup-blocking" // disable pop-ups
+"incognito"  // incognito mode
+"headless" // headless mode (no UI)
+"disable-infobars"
+"proxy-server='direct://'"  // disable proxy (performance purposes)
+"proxy-bypass-list=*"
+"disable-logging" // disable logging      
+"disable-extensions" // disable chrome extensions 
 
 var chromeOptions = new ChromeOptions();
 chromeOptions.AddArguments("headless"); // no UI
@@ -20,6 +32,19 @@ browser.Navigate().GoToUrl("http://rcb.co.il");
 var content = browser.PageSource;          
 browser.Close();
 browser.Dispose();
+
+// extensions
+browserOptions.AddExtension
+
+// preferences
+browserOptions.AddUserProfilePreference
+
+// proxy
+// note! must remove the proxy-server=direct flag!
+browserOptions.Proxy = new Proxy {
+                    HttpProxy = "127.0.0.1:24000",
+                    SslProxy = "127.0.0.1:24000"
+                };
 
 // performance
 // when using the 'using' clause, the browser is closed so new instance will be opened each call - this costs a lot!

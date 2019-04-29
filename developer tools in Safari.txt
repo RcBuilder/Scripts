@@ -1,0 +1,3 @@
+developer tools in Safari
+-------------------------
+Config > Preferences > Advanced > enable 'Show Develop menu in menu bar'

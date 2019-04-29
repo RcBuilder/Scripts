@@ -1,8 +1,31 @@
 // Install-Package Selenium.WebDriver
 // Install-Package Selenium.Firefox.WebDriver
 
+Selenium API:
+https://seleniumhq.github.io/selenium/docs/api/dotnet/
+
 // note:
 // we MUST have Chrome browser installed - this is the engine which the chromeDriver depends on
 
 also see 'Selenium - ChromeDriver.txt'
 implementation can be found in 'MACrawler' project
+
+// flags
+"--headless"  // headless mode (no UI)
+
+// preferences
+/*  permissions.default.image:
+     # 1 - Allow all images
+     # 2 - Block all images
+     # 3 - Block 3rd party images 
+*/
+browserOptions.SetPreference("permissions.default.image", 2); // disable images download
+
+// proxy
+browserOptions.Proxy = new Proxy {
+                    HttpProxy = "127.0.0.1:24000",
+                    SslProxy = "127.0.0.1:24000"
+                };
+
+github:
+https://github.com/mozilla/geckodriver

@@ -1,31 +1,28 @@
-HttpRequest using Socket
-------------------------
-also see 'SocketFileDownloader.cs'
 
-low level call using pure text
+also see 'SocketFileDownloader.cs'
 
 ---
 
-Uri url = new Uri("http://www.sothebys.com/en.html");
-var requestHeaders = 
-		string.Format("GET {0} HTTP/1.1\r\n", url.ToString()) +
+var url = new Uri(ImageURL);
+var requestHeaders =
+        string.Format("GET {0} HTTP/1.1\r\n", url.ToString()) +
         string.Format("Host: {0}\r\n", url.Host) +
         "Connection: keep-alive\r\n" +
         "Accept: */*\r\n" +
         "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3396.99 Safari/537.36\r\n" +
-        "Accept-Encoding: gzip, deflate\r\n" +
+        "Accept-Encoding: gzip, deflate, sdch\r\n" +
         "Accept-Language: en-US,en;q=0.9\r\n" +
+        "Cache-Control: no-cache\r\n" +
         "\r\n"; // important! empty row - spacer
 
+client.Connect(url.Host, 80);
 
-var sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-sock.Connect(url.Host, 80);
-byte[] writeBytes = Encoding.Default.GetBytes(requestTXT);
-sock.Send(writeBytes);
+byte[] writeBytes = Encoding.Default.GetBytes(requestHeaders);
+client.Send(writeBytes);
 
 var readBytes = new byte[10000000];
-var bytesReceived = sock.Receive(readBytes, readBytes.Length, SocketFlags.None);
-response = Encoding.Default.GetString(readBytes, 0, bytesReceived);
+var bytesReceived = client.Receive(readBytes, readBytes.Length, SocketFlags.None);
+var response = Encoding.Default.GetString(readBytes, 0, bytesReceived);
 
 var dataIndex = response.IndexOf("\r\n\r\n") + 4;
 var data = response.Substring(dataIndex);
@@ -41,23 +38,20 @@ if (match != null && match.Success)
     isGZip = encoding.Contains("gzip");
 }
 
-// gzip
 Stream dataStream = new MemoryStream(dataBytes);
 
 if (isGZip)
-    dataStream = new GZipStream(dataStream, CompressionMode.Decompress);
+	dataStream = new GZipStream(dataStream, CompressionMode.Decompress);
 
-/*
-     var bitmap = new Bitmap(dataStream);
-     bitmap.Save("D:\\1234.jpg");
- */
-
-/*
-     using (var fs = new FileStream("D:\\1234.jpg", FileMode.Create, FileAccess.Write))
-     dataStream.CopyTo(fs);         
+/*            
+using (var content = new StreamReader(dataStream, Encoding.Default))
+    response = content.ReadToEnd();
 */
 
-using (var content = new StreamReader(dataStream, Encoding.Default))
-    response = content.ReadToEnd();  
+using (var fs = new FileStream("D:\\1.jpg", FileMode.Create, FileAccess.Write))
+dataStream.CopyTo(fs);         
 
-sock.Close();
+-- OR --
+                
+var bitmap = new Bitmap(dataStream);
+bitmap.Save("D:\\1.jpg");

@@ -1,0 +1,19 @@
+regex grouping within a square brackets issue
+-------------------- ------------------------
+
+input:
+Description
+lorem ipsum 1986 some content
+
+pattern:
+\d{4} (?! \s+ [x(abs)])
+
+result:
+no match!!
+
+reason:
+grouping not supported within a square brackets! being referred as characters 
+
+the rule-part [x(abs)] is translated into [xabs]
+so the actual meaning of the rule is as follow:
+four digis, then a space and then any sequential character which is NOT x, a, b or s!

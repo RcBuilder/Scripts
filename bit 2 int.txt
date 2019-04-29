@@ -1,0 +1,1 @@
+Console.WriteLine(Convert.ToInt32("11101000", 2)); // 232

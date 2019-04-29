@@ -1,0 +1,6 @@
+Convert.To..(<value>, <base>)
+
+--
+
+Console.WriteLine(Convert.ToString(232, 2).PadLeft(32, '0'));  // 11101000
+Console.WriteLine(Convert.ToInt32("11101000", 2));  // 232

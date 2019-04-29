@@ -1,0 +1,25 @@
+atomic group regex
+------------------
+
+syntax: (?> ... )
+
+---
+
+aaa 2000$ bbb
+(?>\d+)(?!\$)
+no match!
+
+aaa 2000$ bbb
+(\d+)(?!\$)
+match: 200
+
+---
+
+abcdefghijk
+(\w+)k
+match: abcdefghijk
+g1: abcdefghij
+
+abcdefghijk
+(?>\w+)k
+no match!

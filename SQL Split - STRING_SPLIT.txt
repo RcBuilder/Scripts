@@ -1,0 +1,48 @@
+SQL Split
+---------
+function: 
+STRING_SPLIT
+
+--
+
+query:
+select value from STRING_SPLIT('a b c d', ' ')
+
+result:
+a
+b
+c
+d
+
+--
+
+query:
+select value from STRING_SPLIT('10-20-30-40', '-') 
+
+result:
+10
+20
+30
+40
+
+--
+
+query:
+declare @tWords table(word varchar(50))  
+insert into @tWords 
+values 
+('word1'), 
+('word1 word1'), 
+('word2'), 
+('word3'), 
+(''), 
+('word3 word3 word3')
+
+select * from @tWords 
+where (select count(value) from STRING_SPLIT(word, ' ')) = 1
+and word <> ''
+ 
+result:
+word1
+word2
+word3
