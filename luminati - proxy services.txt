@@ -22,8 +22,7 @@ to reach the manager UI, go to the 127.0.0.1 with the genetated port (usually 24
 note that port 22999 is for the manager UI whereas port 24000 is the one needed to use as our proxy.
 
 code sample:
-while the proxy manager is running... 
-
+- while the proxy manager is running... 
 using(var client = new WebClient()){
 	client.Proxy = new WebProxy("127.0.0.1:24000");
  	client.DownloadString("http://lumtest.com/myip.json");
@@ -33,6 +32,9 @@ proxy maneger:
 http://127.0.0.1:22999/
 http://127.0.0.1:22999/config
 http://127.0.0.1:22999/settings
+
+defined proxies (list):
+http://127.0.0.1:22999/overview 
 
 proxy configuration:  
 overview > choose a proxy from the list > choose custom mode from the DDL 
