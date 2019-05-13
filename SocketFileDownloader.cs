@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace Common
 {
-    public class SocketFileDownloader : IFileDownloader, IFileDownloaderAsync
+    public class SocketFileDownloader : IFileDownloader, IFileDownloaderAsync, IProxy
     {
         private string REQUEST_HEADERS(Uri url) {
             return
@@ -32,11 +32,27 @@ namespace Common
 
         public event EventHandler<FileDownloadEventArgs> OnDownloadToDiskAsyncCompleted;
 
+        public string ProxyURL { get; set; }
+
+        public SocketFileDownloader() { }
+        public SocketFileDownloader(string ProxyURL) {
+            if (!ProxyURL.StartsWith("http"))
+                ProxyURL = "http://" + ProxyURL;
+
+            this.ProxyURL = ProxyURL;            
+        }
+
         private string ReadStream(Socket client, string FileURL) {
             var url = new Uri(FileURL);
-            client.Connect(url.Host, 80);
-            client.ReceiveTimeout = 10000;            
+            var connectionUrl = url;            
 
+            // override connection details - use the proxy
+            if (!string.IsNullOrEmpty(ProxyURL))
+                connectionUrl = new Uri(ProxyURL);                          
+
+            client.Connect(connectionUrl.Host, connectionUrl.Port);
+            client.ReceiveTimeout = 10000;
+            
             byte[] writeBytes = Encoding.Default.GetBytes(REQUEST_HEADERS(url));
             client.Send(writeBytes);
 
@@ -121,6 +137,7 @@ namespace Common
             string packet_str = System.Text.Encoding.Default.GetString(bytesReceived, 0, n_bytes_received);
             int start_of_data_i = packet_str.IndexOf("\r\n\r\n") + 4;
             int content_length = int.Parse(Regex.Match(packet_str, @"^Content-Length:\s+(?<len>\d+)\s*$", RegexOptions.Multiline).Groups["len"].Value);
+            Console.WriteLine("content_length {0}", content_length);
             bool is_gzip = Regex.IsMatch(packet_str, @"Content-Encoding:.*\bgzip\b", RegexOptions.Multiline);
             int retries = 0;
             while (content_length == 0 || n_bytes_received - start_of_data_i < content_length)
@@ -168,18 +185,37 @@ namespace Common
 
             var dataIndex = response.IndexOf("\r\n\r\n") + 4;
             var data = response.Substring(dataIndex);
+
+            /*
+                HTTP/1.1 200 OK
+                Accept-Ranges: bytes
+                Content-Type: image/jpeg
+                ETag: "f207e7-9c728-587f85825cd52"
+                Last-Modified: Fri, 03 May 2019 09:26:24 GMT
+                MyHeader: D=425 t=1556995161421281
+                Server: Apache
+                Content-Length: 640808
+                Date: Tue, 07 May 2019 13:04:10 GMT
+                Connection: keep-alive 
+            */
             var headers = response.Substring(0, dataIndex);
-            
-            var dataBytes = Encoding.Default.GetBytes(data);
+
+            Match match = null;
+            match = Regex.Match(headers, @"^HTTPs?/[0-9\.]+ \s+ (?<code>\d+) \s+ (?<text>.*?)$", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            if (match != null && match.Success) {
+                var statusCode = match.Groups["code"].Value.Trim();
+                if (statusCode != "200")
+                    throw new Exception(string.Format("Request Error! {0} ({1})", match.Groups["text"].Value.Trim().Trim('\r'), statusCode));
+            }
 
             var isGZip = false;
-            var match = Regex.Match(headers, @"^Content-Encoding: \s+ (?<enc>.*?)$", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.IgnoreCase);
-            if (match != null && match.Success)
-            {
+            match = Regex.Match(headers, @"^Content-Encoding: \s+ (?<enc>.*?)$", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+            if (match != null && match.Success) {
                 var encoding = match.Groups["enc"].Value;
                 isGZip = encoding.Contains("gzip");
             }
 
+            var dataBytes = Encoding.Default.GetBytes(data);
             Stream dataStream = new MemoryStream(dataBytes);
 
             if (isGZip)

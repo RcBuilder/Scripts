@@ -1,0 +1,51 @@
+STRING_SPLIT
+------------
+table<value> STRING_SPLIT(<input>, <delimiter>) 
+
+---
+
+select * from  STRING_SPLIT('a b c d', ' ')
+
+select ROW_NUMBER() over(order by value) as rowNum, value 
+from  STRING_SPLIT('a b c d', ' ') 
+
+select * from 
+(
+	select ROW_NUMBER() over(order by value) as rowNum, [value] from  STRING_SPLIT('a b c d', ' ')
+) res 
+where rowNum = 2
+
+CHARINDEX
+---------
+<int> CHARINDEX(<valueToSearch>, <input>)
+
+note: 1 based, 0 = not found
+
+---
+
+select CHARINDEX('o', 'abcdefghigk') -- 0
+select CHARINDEX('a', 'abcdefghigk') -- 1
+select CHARINDEX('b', 'abcdefghigk') -- 2
+select CHARINDEX('cde', 'abcdefghigk') -- 3
+select CHARINDEX('cdk', 'abcdefghigk') -- 0
+
+SUBSTRING
+---------
+<string> SUBSTRING(<input>, <index>, <length>)
+
+note: 1 based
+
+---
+
+select SUBSTRING('abcdefghigk', 1, 3) -- abc
+select SUBSTRING('abcdefghigk', 3, 1) -- c
+select SUBSTRING('abcdefghigk', 200, 1) -- empty
+select SUBSTRING('abcdefghigk', 1, 1000) -- abcdefghigk
+
+declare @v varchar(20) = 'abcdefghigk'
+select SUBSTRING(@v, 1, 3) -- abc
+select SUBSTRING(@v, 1, LEN(@v)) -- abcdefghigk
+
+STUFF
+-----
+

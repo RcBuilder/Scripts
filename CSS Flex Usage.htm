@@ -1,0 +1,264 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style type="text/css">
+        h3, h5 {
+            margin: 0;
+            padding: 0;
+        }
+
+        h5 {
+            color:#808080;
+        }
+
+        div.wrapper {
+            width: 500px;
+            margin: auto;
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+            border: dotted 1px #ddd;
+        }
+
+        /* CONTAINERS */
+
+        ul.flex-container-1 {
+            display: flex;
+            height: 100px;
+        }
+
+        ul.flex-container-2 {
+            display: flex;
+            height: 100px;
+            /*
+                flex-direction: row;
+                flex-wrap: wrap;
+            */
+            flex-flow: row nowrap;
+            justify-content: space-around;
+        }
+
+        ul.flex-container-3 {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: flex-end;
+        }
+
+        ul.flex-container-4 {
+            display: flex;  
+            height: 200px;
+            flex-flow: column nowrap;
+            justify-content: space-around;
+        }
+
+        ul.flex-container-5 {
+            display: flex;              
+            flex-flow: row wrap;
+            justify-content: space-around;
+        }
+
+        ul.flex-container-6 {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-start;
+        }
+
+        ul.flex-container-7 {
+            display: flex;
+            flex-wrap: nowrap;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        ul.flex-container-8 {
+            display: flex;
+            flex-flow: row wrap;
+        }
+
+        /* ITEMS */
+        li.flex-item {
+            width: 60px;
+            height: 60px;
+            background-color: aquamarine;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        li.flex-item-auto-margin {
+            margin: auto;            
+        }
+
+        li.flex-item-border {
+            outline: solid 1px #fff;
+        }
+
+        li.flex-item-margin {
+            margin: 8px;
+        }
+
+        @media all and (max-width: 600px) {
+            ul.flex-container-7 {
+                flex-direction: column;
+            }
+
+            ul.flex-container-7 > li.flex-item {
+                border-bottom: solid 1px #ff0000;
+                width: 100%;
+            }
+        }
+
+        .header {
+            flex: 1 100%;
+            background-color: #ff0000 !important;
+        }
+        .footer {
+            flex: 1 100%;
+            background-color: #ff6a00 !important;
+        }
+        .content {
+            flex: 2 auto;
+            background-color: #0094ff !important;
+        }
+        .aside {
+            flex: 1 auto;
+            background-color: #ffd800 !important;
+        }
+        
+
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <h3>items margin auto</h3>
+        <h5>center the items on both axis</h5>
+        <ul class="flex-container-1">
+            <li class="flex-item flex-item-auto-margin">1</li>
+            <li class="flex-item flex-item-auto-margin">2</li>
+            <li class="flex-item flex-item-auto-margin">3</li>
+            <li class="flex-item flex-item-auto-margin">4</li>
+            <li class="flex-item flex-item-auto-margin">5</li>
+            <li class="flex-item flex-item-auto-margin">6</li>
+        </ul>
+
+        <br /><br />
+
+        <h3>row flow</h3>
+        <h5>nowrap items with space-around</h5>
+        <ul class="flex-container-2">
+            <li class="flex-item">1</li>
+            <li class="flex-item">2</li>
+            <li class="flex-item">3</li>
+            <li class="flex-item">4</li>
+            <li class="flex-item">5</li>
+            <li class="flex-item">6</li>
+        </ul>
+
+        <br /><br />
+
+        <h3>row-reverse flow</h3>
+        <h5>nowrap items with flex-end</h5>
+        <ul class="flex-container-3">
+            <li class="flex-item">1</li>
+            <li class="flex-item">2</li>
+            <li class="flex-item">3</li>
+            <li class="flex-item">4</li>
+            <li class="flex-item">5</li>
+            <li class="flex-item">6</li>
+        </ul>
+
+        <br /><br />
+
+        <h3>column flow</h3>
+        <h5>nowrap items with space-around</h5>
+        <ul class="flex-container-4">
+            <li class="flex-item">1</li>
+            <li class="flex-item">2</li>
+            <li class="flex-item">3</li>
+        </ul>
+
+        <br /><br />
+
+        <h3>row flow</h3>
+        <h5>wrap items with space-around</h5>
+        <ul class="flex-container-5">
+            <li class="flex-item">1</li>
+            <li class="flex-item">2</li>
+            <li class="flex-item">3</li>
+            <li class="flex-item">4</li>
+            <li class="flex-item">5</li>
+            <li class="flex-item">6</li>
+            <li class="flex-item">7</li>
+            <li class="flex-item">8</li>
+            <li class="flex-item">9</li>
+            <li class="flex-item">10</li>
+        </ul>
+
+        <br /><br />
+
+        <h3>row flow</h3>
+        <h5>specific order</h5>
+        <ul class="flex-container-5">
+            <li class="flex-item" style="order: 3;">1</li>
+            <li class="flex-item" style="order: 2;">2</li>
+            <li class="flex-item" style="order: 4;">3</li>
+            <li class="flex-item" style="order: 1;">4</li>
+        </ul>
+
+        <br /><br />
+
+        <h3>row flow</h3>
+        <h5>flex-grow</h5>
+        <ul class="flex-container-5">
+            <li class="flex-item flex-item-border" style="flex-grow: 1;">1</li>
+            <li class="flex-item flex-item-border" style="flex-grow: 4;">2</li>
+            <li class="flex-item flex-item-border" style="flex-grow: 4;">3</li>
+            <li class="flex-item flex-item-border" style="flex-grow: 1;">4</li>
+        </ul>
+
+        <br /><br />
+
+        <h3>multiple rows</h3>
+        <h5>item margin</h5>
+        <ul class="flex-container-6">
+            <li class="flex-item flex-item-margin">1</li>
+            <li class="flex-item flex-item-margin">2</li>
+            <li class="flex-item flex-item-margin">3</li>
+            <li class="flex-item flex-item-margin">4</li>
+            <li class="flex-item flex-item-margin">5</li>
+            <li class="flex-item flex-item-margin">6</li>
+            <li class="flex-item flex-item-margin">7</li>
+            <li class="flex-item flex-item-margin">8</li>
+            <li class="flex-item flex-item-margin">9</li>
+            <li class="flex-item flex-item-margin">10</li>
+        </ul>
+
+        <br /><br />
+
+        <h3>mobile/ desktop views</h3>
+        <h5>switch flex flow based on the screen size</h5>
+        <ul class="flex-container-7">
+            <li class="flex-item">Link</li>
+            <li class="flex-item">Link</li>
+            <li class="flex-item">Link</li>
+            <li class="flex-item">Link</li>
+            <li class="flex-item">Link</li>
+            <li class="flex-item">Link</li>
+        </ul>
+
+        <br /><br />
+
+        <h3>page layout</h3>
+        <h5>define your custom structure</h5>
+        <ul class="flex-container-8">
+            <li class="flex-item header">Header</li>
+            <li class="flex-item aside">Aside</li>
+            <li class="flex-item content">Content</li>
+            <li class="flex-item aside">Aside</li>
+            <li class="flex-item footer">Footer</li>
+        </ul>
+    </div>
+</body>
+</html>

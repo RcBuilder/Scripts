@@ -1,0 +1,62 @@
+select * from 
+(
+	values (1), (2), (3), (4), (5)	
+) t(num)
+
+/*
+	num
+	1
+	2
+	3
+	4
+	5
+*/
+
+------------
+
+select * from 
+(
+	select [value] from  STRING_SPLIT('a b c d', ' ')
+) t
+
+/*
+	val
+	a
+	b
+	c
+	d
+*/
+
+------------
+
+declare @t table(id int, val varchar) 
+insert into @t
+values(1, 'A'), (2, 'B'), (3, 'C'), (4, 'D'), (5, 'E')
+
+select * from 
+(
+	select id, val from  @t
+) t
+
+/*
+	id  val
+	1	 A
+	2	 B
+	3	 C
+	4	 D 
+	5	 E
+*/
+
+------------
+
+select * from 
+(
+	select id, val from  @t
+) t
+where id < 3
+
+/*
+	id  val
+	1	 A
+	2	 B
+*/

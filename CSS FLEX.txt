@@ -1,0 +1,368 @@
+CSS FLEX
+========
+
+source:
+https://css-tricks.com/snippets/css/a-guide-to-flexbox/
+
+examples:
+CSS Flex Usage.htm
+
+terms:
+- flex container - the wrapper container (the element uses the display flex property)
+- flex items - items within the flex container
+- main axis - horizontal (x) axis
+- cross axis - vertical (y) axis
+- main size - the total size of the flex container 
+
+---
+
+container properties:
+- display: flex, inline-flex
+
+- flex-direction: row, row-reverse, column, column-reverse 
+
+- flex-wrap: nowrap, wrap, wrap-reverse 
+	use 'nowrap' for all flex items to be on one line
+  	use 'wrap' for multiple lines
+
+- flex-flow
+	shorthand for flex-direction and flex-wrap properties
+
+- justify-content: flex-start, flex-end, center, space-between, space-around, space-evenly
+	items alignment along the main-axis (usually horizontal)
+
+- align-content: flex-start, flex-end, center, space-between, space-around, stretch
+	items alignment along the cross-axis (usually vertical)
+
+- align-items: stretch, flex-start, flex-end, center, baseline
+	items laid-out behaviour along the cross-axis on the current line
+
+---
+
+item properties:
+- order: <int> 
+	item order value
+	default: 0
+
+- flex-grow: <int>
+	how to distribute the remaining space! 
+	note! extending the item content
+	default: 0	
+
+- flex-shrink: <int>
+	item shrink value (only if needed)
+	default: 1
+
+- flex-basis: <int> or auto
+	default size of the item before the remaining space is distributed
+	when apply flex-basis to an element, the defined value will be served as the width for the flex remaining-space calculation
+	if set to auto - it'll based on the flex-grow property
+
+- flex: none or flex-grow + flex-shrink + flex-basis
+	shorthand for flex-grow, flex-shrink and flex-basis
+	default: 0 1 auto
+
+align-self: auto, flex-start, flex-end, center, baseline, stretch
+	allows an item to override the alignment specified by align-items
+
+---
+
+flex-grow - how it actually works?
+
+ul.flex-container {
+    display: flex;
+    border: dotted 1px #ddd; 
+	flex-flow: row wrap;
+    justify-content: space-around;
+    width: 500px;
+}
+
+li.flex-item {
+    width: 100px;
+    height: 100px;    
+}
+
+<ul class="flex-container">
+    <li class="flex-item" style="flex-grow: 1;">1</li>
+    <li class="flex-item" style="flex-grow: 4;">2</li>
+    <li class="flex-item" style="flex-grow: 4;">3</li>
+    <li class="flex-item" style="flex-grow: 1;">4</li>
+</ul>
+
+the container width is 500px whereas each flex item is 100px width. 
+hence, the remaining space is 500 - (4*100) = 100px.
+
+items '1' and '4' takes flex grow of '1' whereas items '2' and '3' takes flex grow of '4'.
+to get the value of each unit, sum the total units and divide by the the remaining space - 100px
+100 / (1 + 4 + 4 + 1) = 10px (unit value) 
+hence, items '1' and '4' gets extra width of 10px (units * unit value) and items '2' and '3' gets extra width of 40px (4 units each)
+
+result:
+item 1 > width 110px
+item 2 > width 140px
+item 3 > width 140px
+item 4 > width 110px
+
+---
+
+[using]
+
+text/css:
+
+h3, h5 {
+    margin: 0;
+    padding: 0;
+}
+
+h5 {
+    color:#808080;
+}
+
+div.wrapper {
+    width: 500px;
+    margin: auto;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+    border: dotted 1px #ddd;
+}
+
+/* CONTAINERS */
+ul.flex-container-1 {
+    display: flex;
+    height: 100px;
+}
+
+ul.flex-container-2 {
+    display: flex;
+    height: 100px;
+    /*
+        flex-direction: row;
+        flex-wrap: wrap;
+    */
+    flex-flow: row nowrap;
+    justify-content: space-around;
+}
+
+ul.flex-container-3 {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+}
+
+ul.flex-container-4 {
+    display: flex;  
+    height: 200px;
+    flex-flow: column nowrap;
+    justify-content: space-around;
+}
+
+ul.flex-container-5 {
+    display: flex;              
+    flex-flow: row wrap;
+    justify-content: space-around;
+}
+
+ul.flex-container-6 {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+}
+
+ul.flex-container-7 {
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+ul.flex-container-8 {
+    display: flex;
+    flex-flow: row wrap;
+}
+
+/* ITEMS */
+li.flex-item {
+    width: 60px;
+    height: 60px;
+    background-color: aquamarine;
+    text-align: center;
+    vertical-align: middle;
+}
+
+li.flex-item-auto-margin {
+    margin: auto;            
+}
+
+li.flex-item-border {
+    outline: solid 1px #fff;
+}
+
+li.flex-item-margin {
+    margin: 8px;
+}
+
+@media all and (max-width: 600px) {
+    ul.flex-container-7 {
+        flex-direction: column;
+    }
+
+    ul.flex-container-7 > li.flex-item {
+        border-bottom: solid 1px #ff0000;
+        width: 100%;
+    }
+}
+
+.header {
+    flex: 1 100%;
+    background-color: #ff0000 !important;
+}
+.footer {
+    flex: 1 100%;
+    background-color: #ff6a00 !important;
+}
+.content {
+    flex: 2 auto;
+    background-color: #0094ff !important;
+}
+.aside {
+    flex: 1 auto;
+    background-color: #ffd800 !important;
+}
+
+---
+
+html:
+
+<div class="wrapper">
+    <h3>items margin auto</h3>
+    <h5>center the items on both axis</h5>
+    <ul class="flex-container-1">
+        <li class="flex-item flex-item-auto-margin">1</li>
+        <li class="flex-item flex-item-auto-margin">2</li>
+        <li class="flex-item flex-item-auto-margin">3</li>
+        <li class="flex-item flex-item-auto-margin">4</li>
+        <li class="flex-item flex-item-auto-margin">5</li>
+        <li class="flex-item flex-item-auto-margin">6</li>
+    </ul>
+
+    <br /><br />
+
+    <h3>row flow</h3>
+    <h5>nowrap items with space-around</h5>
+    <ul class="flex-container-2">
+        <li class="flex-item">1</li>
+        <li class="flex-item">2</li>
+        <li class="flex-item">3</li>
+        <li class="flex-item">4</li>
+        <li class="flex-item">5</li>
+        <li class="flex-item">6</li>
+    </ul>
+
+    <br /><br />
+
+    <h3>row-reverse flow</h3>
+    <h5>nowrap items with flex-end</h5>
+    <ul class="flex-container-3">
+        <li class="flex-item">1</li>
+        <li class="flex-item">2</li>
+        <li class="flex-item">3</li>
+        <li class="flex-item">4</li>
+        <li class="flex-item">5</li>
+        <li class="flex-item">6</li>
+    </ul>
+
+    <br /><br />
+
+    <h3>column flow</h3>
+    <h5>nowrap items with space-around</h5>
+    <ul class="flex-container-4">
+        <li class="flex-item">1</li>
+        <li class="flex-item">2</li>
+        <li class="flex-item">3</li>
+    </ul>
+
+    <br /><br />
+
+    <h3>row flow</h3>
+    <h5>wrap items with space-around</h5>
+    <ul class="flex-container-5">
+        <li class="flex-item">1</li>
+        <li class="flex-item">2</li>
+        <li class="flex-item">3</li>
+        <li class="flex-item">4</li>
+        <li class="flex-item">5</li>
+        <li class="flex-item">6</li>
+        <li class="flex-item">7</li>
+        <li class="flex-item">8</li>
+        <li class="flex-item">9</li>
+        <li class="flex-item">10</li>
+    </ul>
+
+    <br /><br />
+
+    <h3>row flow</h3>
+    <h5>specific order</h5>
+    <ul class="flex-container-5">
+        <li class="flex-item" style="order: 3;">1</li>
+        <li class="flex-item" style="order: 2;">2</li>
+        <li class="flex-item" style="order: 4;">3</li>
+        <li class="flex-item" style="order: 1;">4</li>
+    </ul>
+
+    <br /><br />
+
+    <h3>row flow</h3>
+    <h5>flex-grow</h5>
+    <ul class="flex-container-5">
+        <li class="flex-item flex-item-border" style="flex-grow: 1;">1</li>
+        <li class="flex-item flex-item-border" style="flex-grow: 4;">2</li>
+        <li class="flex-item flex-item-border" style="flex-grow: 4;">3</li>
+        <li class="flex-item flex-item-border" style="flex-grow: 1;">4</li>
+    </ul>
+
+    <br /><br />
+
+    <h3>multiple rows</h3>
+    <h5>item margin</h5>
+    <ul class="flex-container-6">
+        <li class="flex-item flex-item-margin">1</li>
+        <li class="flex-item flex-item-margin">2</li>
+        <li class="flex-item flex-item-margin">3</li>
+        <li class="flex-item flex-item-margin">4</li>
+        <li class="flex-item flex-item-margin">5</li>
+        <li class="flex-item flex-item-margin">6</li>
+        <li class="flex-item flex-item-margin">7</li>
+        <li class="flex-item flex-item-margin">8</li>
+        <li class="flex-item flex-item-margin">9</li>
+        <li class="flex-item flex-item-margin">10</li>
+    </ul>
+
+    <br /><br />
+
+    <h3>mobile/ desktop views</h3>
+    <h5>switch flex flow based on the screen size</h5>
+    <ul class="flex-container-7">
+        <li class="flex-item">Link</li>
+        <li class="flex-item">Link</li>
+        <li class="flex-item">Link</li>
+        <li class="flex-item">Link</li>
+        <li class="flex-item">Link</li>
+        <li class="flex-item">Link</li>
+    </ul>
+
+    <br /><br />
+
+    <h3>page layout</h3>
+    <h5>define your custom structure</h5>
+    <ul class="flex-container-8">
+        <li class="flex-item header">Header</li>
+        <li class="flex-item aside">Aside</li>
+        <li class="flex-item content">Content</li>
+        <li class="flex-item aside">Aside</li>
+        <li class="flex-item footer">Footer</li>
+    </ul>
+</div>

@@ -1,0 +1,231 @@
+SQL FOR XML
+===========
+
+1. AUTO
+2. RAW
+3. PATH
+4. EXPLICIT
+
+---
+
+declare @t table(id int, val varchar) 
+insert into @t
+	values(1, 'A'), (2, 'B'), (3, 'C')
+
+
+AUTO
+----
+auto xml generation.
+
+select * from @t for XML AUTO
+/*
+	<_x0040_t id="1" val="A" />
+	<_x0040_t id="2" val="B" />
+	<_x0040_t id="3" val="C" />
+*/
+
+-- with row alias
+select * from @t as T for XML AUTO
+/*
+	<T id="1" val="A" />
+	<T id="2" val="B" />
+	<T id="3" val="C" />
+*/
+
+-- with root
+select * from @t for XML AUTO, ROOT('root')
+/*
+	<root>
+	  <_x0040_t id="1" val="A" />
+	  <_x0040_t id="2" val="B" />
+	  <_x0040_t id="3" val="C" />
+	</root>
+*/
+
+-- with elements instead of attributes
+select * from @t for XML AUTO, ROOT('root'), ELEMENTS  
+/*
+	<root>
+	  <_x0040_t>
+		<id>1</id>
+		<val>A</val>
+	  </_x0040_t>
+	  <_x0040_t>
+		<id>2</id>
+		<val>B</val>
+	  </_x0040_t>
+	  <_x0040_t>
+		<id>3</id>
+		<val>C</val>
+	  </_x0040_t>
+	</root>
+*/
+
+
+RAW
+---
+xml element per row generation. 
+
+-- default alias: 'row'
+select * from @t for XML RAW
+/*
+	<row id="1" val="A" />
+	<row id="2" val="B" />
+	<row id="3" val="C" />
+*/
+
+-- with row alias
+select * from @t for XML RAW('product')
+/*
+	<product id="1" val="A" />
+	<product id="2" val="B" />
+	<product id="3" val="C" />
+*/
+
+-- with root
+select * from @t for XML RAW('product'), ROOT('products')
+/*
+	<products>
+	  <product id="1" val="A" />
+	  <product id="2" val="B" />
+	  <product id="3" val="C" />
+	</products>
+*/
+
+-- with elements instead of attributes
+select * from @t for XML RAW('product'), ROOT('products'), ELEMENTS  
+/*
+	<products>
+	  <product>
+		<id>1</id>
+		<val>A</val>
+	  </product>
+	  <product>
+		<id>2</id>
+		<val>B</val>
+	  </product>
+	  <product>
+		<id>3</id>
+		<val>C</val>
+	  </product>
+	</products>
+*/
+
+PATH
+----
+
+notes: 
+- elements mode
+- allow ANY item alias including empty!
+- used for concatenation 
+
+-- default alias: 'row'
+select * from @t for XML PATH
+/*
+	<row>
+	  <id>1</id>
+	  <val>A</val>
+	</row>
+	<row>
+	  <id>2</id>
+	  <val>B</val>
+	</row>
+	<row>
+	  <id>3</id>
+	  <val>C</val>
+	</row>
+*/
+
+-- with row alias
+select * from @t for XML PATH('product')
+/*
+	<product>
+	  <id>1</id>
+	  <val>A</val>
+	</product>
+	<product>
+	  <id>2</id>
+	  <val>B</val>
+	</product>
+	<product>
+	  <id>3</id>
+	  <val>C</val>
+	</product>
+*/
+
+-- with empty row alias
+select * from @t for XML PATH('')
+/*
+	<id>1</id>
+	<val>A</val>
+	<id>2</id>
+	<val>B</val>
+	<id>3</id>
+	<val>C</val>
+*/
+
+-- with empty row alias - specific column
+select val from @t for XML PATH('')
+/*
+	<val>A</val>
+	<val>B</val>
+	<val>C</val>
+*/
+
+-- use it to concatenate values
+select ',' + val from @t for XML PATH('')
+/*
+	,A,B,C
+*/
+
+-- value concatenation - refinement
+select STUFF((select ',' + val from @t for XML PATH('')), 1, 1, '')
+/*
+	A,B,C
+*/
+
+EXPLICIT
+--------
+allow full control on the created xml.
+
+notes:
+- depends on the ORDER BY clause to define to hierarchy
+
+select 
+	1 as tag, 
+	null as parent, 
+	null as [categories!1],
+	null as [category!2!name],
+	null as [subCategory!3!name]
+
+UNION ALL
+
+select 
+	2 as tag, 
+	1 as parent,
+	null,		-- level 1
+	'CAT-1',	-- level 2
+	null		-- level 3
+
+UNION ALL
+
+select 
+	3 as tag, 
+	2 as parent,
+	null,		-- level 1
+	'CAT-1',	-- level 2
+	subCatName	-- level 3
+
+	from (values('SUB-CAT-1'), ('SUB-CAT-2')) t(subCatName)
+
+ORDER BY tag
+FOR XML EXPLICIT
+
+/*
+	<categories>
+	  <category name="CAT-1">
+		<subCategory name="SUB-CAT-1" />
+		<subCategory name="SUB-CAT-2" />
+	  </category>
+	</categories>
+*/

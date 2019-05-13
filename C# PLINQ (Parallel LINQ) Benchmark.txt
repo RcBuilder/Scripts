@@ -1,0 +1,139 @@
+C# PLINQ (Parallel LINQ) Benchmark
+----------------------------------
+
+AsParallel()  // convert a list to be executed in parallel
+AsOrdered()
+WithDegreeOfParallelism(X)  // define the number of processors to use, default: 64 
+
+note! using LINQ:
+var query = from x in list select x;
+var queryParallel = from x in list.AsParallel() select x;
+
+-------
+
+configuration:
+
+var stopwatch = new Stopwatch();
+var list = new List<string>{ 
+	"Roby", 
+	"Avi", 
+	"Ronen", 
+	"Ron", 
+	"Shirly",
+	"Haim", 
+	"Shimi"
+};
+
+Action<string> a1 = x => {
+	Console.WriteLine(x);
+};
+
+Action<string> a2 = x => {
+	Thread.Sleep(500);
+	Console.WriteLine(x);
+};
+
+Action<int> a3 = x => {	
+	Thread.Sleep(10);
+};
+
+-------
+
+test:
+stopwatch.Start();
+list.ForEach(a1);
+stopwatch.Stop();
+Console.WriteLine("time: {0}\n", stopwatch.Elapsed.TotalMilliseconds); // 0.0742
+stopwatch.Reset();
+
+stopwatch.Start();
+list.AsParallel().ForAll(a1);
+stopwatch.Stop();
+Console.WriteLine("time: {0}\n", stopwatch.Elapsed.TotalMilliseconds); // 0.1814
+stopwatch.Reset();
+
+findings:
+sync > 0.0742 milliseconds
+async > 0.1814 milliseconds
+the parallel takes longer to perform and it costs more in this case!! 
+this is due to the overhead of the parallel initialization. 
+DO NOT use parallel mode only for easy work.
+
+-------
+
+test:
+stopwatch.Start();
+list.ForEach(a2);
+stopwatch.Stop();
+Console.WriteLine("time: {0}\n", stopwatch.Elapsed.TotalMilliseconds); // 3503.1319
+stopwatch.Reset();
+
+stopwatch.Start();
+list.AsParallel().ForAll(a2);
+stopwatch.Stop();
+Console.WriteLine("time: {0}\n", stopwatch.Elapsed.TotalMilliseconds); // 501.965
+stopwatch.Reset();
+
+findings:
+sync > 3503.1319 milliseconds
+async > 501.965 milliseconds
+we added a 500 ms delay for the action. 
+in sync mode the total time taken was the number of items multiply 500 ms
+in async mode the total is equal to the longest process, which in our case is 500 ms (as all the others).
+
+-------
+
+stopwatch.Start();
+list.AsParallel().WithDegreeOfParallelism(2).ForAll(a2);
+stopwatch.Stop();
+Console.WriteLine("time: {0}\n", stopwatch.Elapsed.TotalMilliseconds); // 2003.4656
+stopwatch.Reset();
+
+findings:
+async > 2003.4656 milliseconds
+due to the reason that we've limited the number of process to be 2, other processes will have to wait till 
+the previous item will be completed. that waiting caused it to take 2003 ms instead of 500 ms. 
+if we want all items to be processed in parallel, we have to allocate same quantity of 
+processors using the WithDegreeOfParallelism with larger allocation or using the default (which is 64).
+
+-------
+
+stopwatch.Start();
+list.Where(x => x.StartsWith("R")).ToList().ForEach(a2);
+stopwatch.Stop();
+Console.WriteLine("time: {0}\n", stopwatch.Elapsed.TotalMilliseconds); // 1506.0599
+stopwatch.Reset();
+
+stopwatch.Start();
+list.AsParallel().Where(x => x.StartsWith("R")).ForAll(a2);
+stopwatch.Stop();
+Console.WriteLine("time: {0}\n", stopwatch.Elapsed.TotalMilliseconds); // 503.3605
+stopwatch.Reset();
+
+findings:
+sync > 1506.0599 milliseconds
+async > 503.3605 milliseconds
+after filtering only those items starting with the letter R, we've left with 3 items. 
+in sync mode 500 ms multiply 3 items is apprx. 1500 ms.
+in async it equals to a single action (all are working in parallel) 
+
+-------
+
+var ITEM_COUNT = 1000;
+
+stopwatch.Start();
+Enumerable.Range(1, ITEM_COUNT).ToList().ForEach(a3);
+stopwatch.Stop();
+Console.WriteLine("time: {0}\n", stopwatch.Elapsed.TotalMilliseconds); // 10453.1978
+stopwatch.Reset();
+
+stopwatch.Start();
+Enumerable.Range(1, ITEM_COUNT).AsParallel().ForAll(a3);
+stopwatch.Stop();
+Console.WriteLine("time: {0}\n", stopwatch.Elapsed.TotalMilliseconds); // 929.7379
+stopwatch.Reset();
+
+findings:
+sync > 10453.1978 milliseconds
+async > 929.7379 milliseconds
+running a 10 ms action against 1000 rows.

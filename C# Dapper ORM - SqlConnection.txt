@@ -1,10 +1,134 @@
+Dapper
+------
+Dapper is an open source, fast and lightweight ORM developed by the Stack Overflow team.
+supports static and dynamic object binding using transactions, stored procedures, or bulk inserts of data.
 
-Query<T>  // returns IEnumerable<T> 
-Execute // void
+-------
 
----
+nuget:
+Install-Package Dapper
 
-// Install-Package Dapper
+-------
+
+extension:
+Query<T>
+
+signature:
+IEnumerable<T> conn.Query<T>(<query>, <param>, <transaction>, <buffered>, <commandTimeout>, <commandType>);
+
+params:
+query: string  // the query/ sp to execute
+param: object  // parameters to pass to the SQL (anonymous object)
+transaction: IDbTransaction  // transaction to use
+buffered: bool  // whether to buffer the results in memory
+commandTimeout: int  // timeout in seconds
+commandType: commandType  // the type of the query (Text, Stored Procedure etc.) 
+
+note:
+all other then 'query' are optional!
+use named-parameters syntax to apply only the parameters you need. 
+
+--
+
+extension:
+Execute
+
+signature:
+int conn.Execute(<query>, <param>, <transaction>, <commandTimeout>, <commandType>);
+
+returns:
+number of rows updated. 0 for none.
+
+params:
+see above.
+
+-------
+
+using:
+
+public class TestDapper {
+    const string connStr = "Data Source=matestdb;Initial Catalog=MACrawler_;User ID=xxxxx;Password=xxxxxxxx;MultipleActiveResultSets=true;";
+
+	// execute reader and get list 
+    public static void TestRun1() {
+        using (var conn = new SqlConnection(connStr)) {
+            var query = @"select top 10 Id, Title from Artworks where SourceId = @SourceId";
+            var res = conn.Query<Artwork>(query, param: new { SourceId = "1030" });
+            foreach (var item in res) 
+                Console.WriteLine(item.Title);
+        }
+    }
+
+	// execute non-query update clause
+    public static void TestRun2()
+    {
+        using (var conn = new SqlConnection(connStr))
+        {
+            var query = @"update Artworks set Title = 'TEST' where Id = @Id";
+            var rowsUpdated = conn.Execute(query, param: new { Id = "1234" });
+            Console.WriteLine(rowsUpdated);
+        }
+    }
+
+	// multiple commands
+    public static void TestRun3()
+    {
+        var query = "";
+        using (var conn = new SqlConnection(connStr)) {
+            query = @"create table t1(Id int); 
+                    insert into t1 values(1);";
+            conn.Execute(query);
+
+            query = "update t1 set Id = (Id * 10)";
+            conn.Execute(query);
+
+            query = "select top 1 Id from t1";
+            var res = conn.Query<int>(query).FirstOrDefault();
+            Console.WriteLine(res);
+
+            query = "drop table t1";
+            conn.Execute(query);
+        }
+    }
+
+	// using Transaction
+    public static void TestRun4()
+    {
+        var query = "";
+        using (var conn = new SqlConnection(connStr)) {
+            conn.Open();
+            using (var tran = conn.BeginTransaction()) {
+                try {
+                    query = @"create table t1(Id int); 
+                            insert into t1 values(1);";
+                    conn.Execute(query, transaction: tran);
+                        
+                    query = "update t1 set Id = (Id * 10)";
+                    conn.Execute(query, transaction: tran);
+
+                    throw new Exception("some error....");
+
+                    query = "select top 1 Id from t1";
+                    var res = conn.Query<int>(query, transaction: tran).FirstOrDefault();
+                    Console.WriteLine(res);
+
+                    query = "drop table t1";
+                    conn.Execute(query, transaction: tran);
+                }
+                catch(Exception ex) {
+                    Console.WriteLine("[ERROR] {0}", ex.Message);
+                    tran.Rollback();                        
+                }
+            }
+        }
+    }
+}
+
+
+-------
+
+more samples:
+
 using Dapper;
 
 public class Data {
@@ -34,7 +158,7 @@ using (var conn = new SqlConnection(ConnectionString)) {
 	}
 }
 
------------------------------------------------------
+--
 
 // return @@Identity
 var id = conn.Query<int>(@"

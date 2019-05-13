@@ -29,17 +29,38 @@ response = Encoding.Default.GetString(readBytes, 0, bytesReceived);
 
 var dataIndex = response.IndexOf("\r\n\r\n") + 4;
 var data = response.Substring(dataIndex);
+
+/*
+    HTTP/1.1 200 OK
+    Accept-Ranges: bytes
+    Content-Type: image/jpeg
+    ETag: "f207e7-9c728-587f85825cd52"
+    Last-Modified: Fri, 03 May 2019 09:26:24 GMT
+    MyHeader: D=425 t=1556995161421281
+    Server: Apache
+    Content-Length: 640808
+    Date: Tue, 07 May 2019 13:04:10 GMT
+    Connection: keep-alive 
+*/
 var headers = response.Substring(0, dataIndex);
 
-var dataBytes = Encoding.Default.GetBytes(data);
+Match match = null;
+match = Regex.Match(headers, @"^HTTPs?/[0-9\.]+ \s+ (?<code>\d+) \s+ (?<text>.*?)$", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+if (match != null && match.Success) {
+    var statusCode = match.Groups["code"].Value.Trim();
+    if (statusCode != "200")
+        throw new Exception(string.Format("Request Error! {0} ({1})", match.Groups["text"].Value.Trim(), statusCode));
+}
 
 var isGZip = false;
-var match = Regex.Match(headers, @"^Content-Encoding: \s+ (?<enc>.*?)$", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.IgnoreCase);
-if (match != null && match.Success)
-{
+match = Regex.Match(headers, @"^Content-Encoding: \s+ (?<enc>.*?)$", RegexOptions.IgnorePatternWhitespace | RegexOptions.Multiline | RegexOptions.IgnoreCase);
+if (match != null && match.Success) {
     var encoding = match.Groups["enc"].Value;
     isGZip = encoding.Contains("gzip");
 }
+
+var dataBytes = Encoding.Default.GetBytes(data);
+Stream dataStream = new MemoryStream(dataBytes);
 
 // gzip
 Stream dataStream = new MemoryStream(dataBytes);

@@ -28,6 +28,7 @@ namespace Common
 
             AddDownloader(new WebClientFileDownloader());            
             AddDownloader(new SocketFileDownloader());
+            AddDownloader(new SocketFileDownloader("127.0.0.1:24000"));
             AddDownloader(new WebClientFileDownloader("127.0.0.1:24000"));
         }
 

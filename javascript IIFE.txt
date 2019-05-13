@@ -1,0 +1,46 @@
+IIFE
+----
+Immediately-Invoked Function Expression
+pronounced "iffy"
+
+syntax:
+(function (){ ... })();
+(function (p1, p2){ ... })(v1, v2);
+
+the wrapper parenthesis signal the js engine to refer this function as expression and Not declaration. 
+the extra parenthesis is used for invoking it (with or without parameters).
+
+reminder:
+see 'javascript function declaration vs function expression'
+
+note:
+1. can be generated using arrow functions (for es6 and up)
+2. can use the NOT (exclamation mark) instead of the wrapper parenthesis.
+
+why?
+to enforce a single (and immediate) execution of the function. after the invokation it'll become unreachable! 
+in addition, it creates a scope and prevent global namespace polution.
+
+(function fun (){ ... })();
+// fun is unreachable here (undefined) 
+
+(function (){ 
+    var foo = function() {};
+    window.onload = foo;	
+})();
+// foo is unreachable here (undefined) 
+
+sample:
+(function (){
+    console.log('hello');
+})();
+
+// using arrow function (es6+)
+(function (){
+    console.log('hello');
+})();
+
+// using NOT sign
+!function (){
+    console.log('hello');
+}();
