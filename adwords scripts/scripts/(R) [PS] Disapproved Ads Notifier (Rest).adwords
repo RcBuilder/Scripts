@@ -1,0 +1,95 @@
+var MIDDLEWARE = 'http://ec2-52-62-203-30.ap-southeast-2.compute.amazonaws.com/api';
+
+function main() {
+  var accounts = MccApp.accounts().get();  
+  
+  while (accounts.hasNext()) {
+    var account = accounts.next();
+    MccApp.select(account);
+    Logger.log('[#%s] %s', account.getCustomerId(), account.getName());  
+    ProcessAccount();
+   	Logger.log('---------------------'); 
+  }    
+}
+
+function ProcessAccount(){
+  var ads = AdWordsApp.ads()
+  .withCondition('Status = ENABLED')
+  .withCondition('AdGroupStatus = ENABLED')
+  .withCondition('CampaignStatus = ENABLED')
+  .withCondition('CombinedApprovalStatus IN [DISAPPROVED, SITE_SUSPENDED, APPROVED_LIMITED]')  // UNKNOWN, APPROVED, APPROVED_LIMITED, ELIGIBLE, UNDER_REVIEW, DISAPPROVED, SITE_SUSPENDED
+  //.withLimit(5)
+  .get();
+  
+  while(ads.hasNext()){
+  	var ad = ads.next();
+    var campaignName = ad.getCampaign().getName();
+    var adId = ad.getId().toString();
+    var approvalStatus = ad.getPolicyApprovalStatus();
+    var reason = ad.getDisapprovalReasons()[0];   
+
+    ///Logger.log(ad.asType().html5Ad().getMediaBundle().getDimensions());    
+    ///continue;
+    
+    Logger.log('%s(%s) > %s', adId, ad.getType(), approvalStatus);    
+    Logger.log('reason: %s', reason);
+    
+    var callbackURL = GetCallbackURL(campaignName);
+    Logger.log('campaign: %s > callbackURL: %s', campaignName, callbackURL);
+    
+    if(!callbackURL){
+      Logger.log('No callbackURL!!');
+      continue;
+    }
+    
+    NotifyPS(callbackURL, 'ad', adId, approvalStatus, reason, '');    
+  }    
+}
+
+function NotifyPS(callbackURL, entityName, entityId, approvalStatus, reason, notes){
+  var payload = {
+    'id': entityId,
+    'entity': entityName,
+    'status': approvalStatus,
+    'message': reason,
+    'notes': notes
+  };
+  
+  /// callbackURL = 'https://webhook.site/f97dceb3-9133-496a-a69a-390a7dde68eb';
+  
+  var response = MakeRequest(callbackURL, 'post', 'application/json', payload);
+  if(!response) return null;
+  
+  response = Utilities.jsonParse(response);
+  Logger.log('status: %s', response.status);
+  if(response.status = 'FAIL')   
+  	Logger.log('%s', response);
+}
+
+function GetCallbackURL(campaignName){    
+  try{
+    var response = MakeRequest(MIDDLEWARE.concat('/properties/list/', campaignName), 'get', 'application/json');    
+    if(!response) return null;  
+    
+    response = Utilities.jsonParse(response);
+    return response.callbackUrl;
+  }
+  catch(e){ return null; }
+}
+
+function MakeRequest(url, method, contentType, payload){
+  if(!url) return null;
+  
+  var options = {
+    'method' : method,
+    'contentType': contentType,
+    'payload' : payload || null
+  };
+    
+  var response = UrlFetchApp.fetch(url, options);
+  var status_code = response.getResponseCode();
+  Logger.log('%s %s > status code: %s', method, url, status_code);
+  if(payload) Logger.log('%s', payload);
+  
+  return response;
+}

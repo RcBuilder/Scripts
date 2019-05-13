@@ -1,0 +1,26 @@
+JIT (Just In Time) Compiler
+---------------------------
+the engine converts managed code into a machine code at run-time.
+executed by the CLR.
+
+process:
+Source-Code > (Compiler) > MSIL/ CIL Code + MetaData > JIT Compiler > Machine-Code
+
+compilation types:
+- Normal JIT Compilation
+  code is compiled at run-time when called and the compiled code is stored in memory cache, 
+  other requests to the same code will be fetched directly from memory. 
+  the cached compiled-code commonly referred as 'jitted'.
+
+- Econo JIT Compilation
+  no cache layer, every call complies the CIL code at run-time and return the complied code.
+
+- Pre-JIT Compilation
+  pre-compile ALL CIL code and store it in memory cache before startup. 
+  no run-time compilation.
+
+---
+
+also see:
+CLR (Common Language Runtime)
+Managed vs Unmanaged code

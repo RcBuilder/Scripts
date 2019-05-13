@@ -42,6 +42,7 @@
 - Request Parameteres
 - Request Context
 - Navigation
+- Fixed bottom Strip
 - Notifications
 - Debugging
 - Storage
@@ -876,7 +877,7 @@ FlexboxLayout
 		</ActionBar>
 	</Page.actionBar>	
 	
-  - NavigationButton
+  - NavigationButton (back button)
     <ActionBar title="My App" icon="" class="action-bar">
         <NavigationButton tap="{{ onBackButton }}" android.systemIcon="ic_menu_back" />
     </ActionBar>
@@ -985,6 +986,8 @@ FlexboxLayout
   - about:
     a kind-of TextArea, a TextField with multiple lines.
     usually used for read-only large text.
+
+	note that we can use labels with textWrap instead for better UI flexibility.
 
   - editable property:
     determines whether the content is editable or not.
@@ -1596,6 +1599,11 @@ exports.onMenuLoaded = onMenuLoaded;
 
 ---
 
+get parent context:
+args.object.page.bindingContext
+
+---
+
 samples:
 
 // app/Pages/History/history-page.xml
@@ -2143,6 +2151,56 @@ function onCloseModally(args){
     page.closeModal();
 }
 exports.onCloseModally = onCloseModally;
+
+--
+
+example:
+// popup.js
+let observableModule = require("data/observable");
+
+function onShownModally(args) {
+    let context = args.context;  // get the context
+
+    let page = args.object;
+    page.bindingContext = observableModule.fromObject(context);
+}
+exports.onShownModally = onShownModally;
+
+function onCloseModally(args){
+    let page = args.object.page;
+    page.closeModal();
+}
+exports.onCloseModally = onCloseModally;
+
+// popup.xml
+<Page class="popup"
+    shownModally="onShownModally"
+    xmlns="http://schemas.nativescript.org/tns.xsd"
+    actionBarHidden="false">
+
+    <StackLayout>        
+        <GridLayout columns="40,*,40" rows="auto" class="header header-blue">
+            <Label row="0" col="1" text="אודותינו" class="center" />       
+            <Image row="0" col="2" src="~/Images/x2.jpg" class="center" width="20" tap="onCloseModally" />
+        </GridLayout>    
+
+        <ScrollView orientation="vertical">
+            <StackLayout class="small-text mh-10">            
+                <Label text="מי אנחנו – הדילברים" class="popupTitle mt-10" />
+                <Label textWrap="true" text="אפליקציה חברתית של משלוחים עד הבית." />                
+
+                <Label text="החזון" class="popupTitle mt-10" />
+                <Label textWrap="true" textAlignment="left" text="...." />            
+                <Label textWrap="true" textAlignment="left" text="...." />
+
+                <Label text="המוצר שלנו" class="popupTitle mt-10" />   
+                <Label textWrap="true" textAlignment="left" text="...." />
+                <Label textWrap="true" textAlignment="left" text="...." />                                    
+                <Label textWrap="true" textAlignment="left" class="mt-10 mb-10" text="...." />                            
+            </StackLayout>         
+        </ScrollView>
+    </StackLayout>
+</Page>
 
 visibility
 ----------
@@ -4160,11 +4218,13 @@ Plugins
   structure:
   - RadListView 
 	  - listViewLayout
-		- ListViewGridLayout
+		- ListViewGridLayoutitemTemplate
 		- ListViewStaggeredLayout
 		- ListViewLinearLayout
 	  - itemTemplate
 	  - itemSwipeTemplate
+	  - headerItemTemplate
+	  - footerItemTemplate
 
   options (ListViewLayout):
   scrollDirection: string // Vertical or Horizontal 
@@ -5453,6 +5513,9 @@ Other Services
   // address: Alenbi 40 Tel Aviv, Israel
   utils.openUrl("https://www.google.com/maps/search/?api=1&query=Alenbi+40+Tel+Aviv%2C+Israel");
 
+  // coordinates: 32.34058,34.86032
+  utils.openUrl("https://www.google.com/maps/search/?api=1&query=Alenbi+40+Tel+Aviv%2C+Israel");
+
 - open waze maps 
   
   source:
@@ -6125,6 +6188,20 @@ see 'Page Component/page frame'
 see 'TabView'
 see 'RadSideDrawer'
 see 'Modals'
+see 'Fixed bottom Strip'
+
+Fixed bottom Strip
+------------------
+structure:
+<ActionBar title="Some Title"></ActionBar>
+<GridLayout rows="*,60">
+    <ScrollView row="0">
+        ....
+    </ScrollView>
+    <StackLayout row="1" orientation="horizontal">
+        ....
+    </StackLayout>
+</GridLayout>
 
 Notifications
 -------------
@@ -6329,6 +6406,42 @@ Techniques
     page.bindingContext = new PageViewModel.EmployeePageViewModel();;
   }
 
+- abstract methods
+
+  let Observable = require("data/observable").Observable;
+  
+  function BaseViewModel() {
+    var viewModel = new Observable();   
+	
+	viewModel.fun1 = args => {    
+        viewModel.doSomething();  // abstract        
+    };
+
+    return viewModel;
+  }
+
+  function PageViewModel1() {
+    var viewModel = new BaseViewModel();   
+
+	viewModel.doSomething = args => { 
+		console.log('in Model 1');
+	};
+
+    return viewModel;
+  }
+  exports.PageViewModel1 = PageViewModel1;
+
+  function PageViewModel2() {
+    var viewModel = new BaseViewModel();   
+	
+	viewModel.doSomething = args => { 
+		console.log('in Model 2');
+	};
+
+    return viewModel;
+  }
+  exports.PageViewModel2 = PageViewModel2;
+
 - passing parameters/ context:
   see 'Passing Context'
   see 'Request Parameteres'
@@ -6380,7 +6493,7 @@ App Resources
 - auto choose:
   the engine loads the best image for the current device screen density
 
-- support formats:
+- supported formats:
   PNG
   JPG
 

@@ -1,0 +1,54 @@
+Unsafe Code in C#
+-----------------
+
+unsafe keyword:
+use the unsafe keyword to define a block which uses pointers etc
+and that is not managed by the CLR - an unmanaged code.
+in order to use this keyword we MUST define the program mode as 'Unsafe mode'.
+
+Safe and Unsafe modes:
+by default, any .NET app is defined as 'Safe mode'. 
+Safe mode doesn't allow any use of pointers etc. and any attempt to do so will throw an exception.  
+Unsafe mode allows the use of unmanaged code.
+
+to change mode, go to the project properties > (tab) Build > check/ uncheck 'Allow unsafe code'.
+
+---
+
+error:
+static void Main(string[] args) {
+	int ab = 32;
+	int* p = &ab;  // Exception!!!
+}
+
+exception:
+Pointers and fixed size buffers may only be used in an unsafe context.
+
+solution:
+use the unsafe keyword
+
+---
+
+error:
+unsafe static void Main(string[] args) {
+	int ab = 32;
+	int* p = &ab;  // Exception!!!
+}
+
+exception:
+Unsafe code may only appear if compiling with /unsafe
+
+solution:
+set app as 'Unsafe mode'
+
+
+---
+
+sample:
+unsafe static void Main(string[] args) {
+	int ab = 32;
+	int* p = &ab;  // Pointers and fixed size buffers may only be used in an unsafe context
+	Console.WriteLine("value of ab is {0}", *p);
+	Console.WriteLine("address of ab is {0}", (int)p);
+	Console.WriteLine("value of ab is {0}", p -> ToString());
+}

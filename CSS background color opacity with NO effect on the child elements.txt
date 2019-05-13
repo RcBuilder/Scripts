@@ -1,0 +1,14 @@
+CSS background color opacity with NO effect on the child elements
+
+using the following css rule will create a grey-kind background color with 50% opacity.
+
+using opacity:
+background-color: #b8b4b4;
+opacity: 0.5;
+
+there's only one problem here > the opacity auto applied to the child elements of the control using it!
+to change this Behaviour, we need to use rgba instead. using rgba with opacity will affect ONLY the background color
+and NOT any of the elements within the wrapper element.  
+
+using rgba:
+background-color: rgba(184,180,180,0.5);

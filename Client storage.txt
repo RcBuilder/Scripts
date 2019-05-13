@@ -1,0 +1,120 @@
+Client storage
+--------------
+
+types:
+1. localStorage
+2. sessionStorage
+3. webSQL
+4. indexedDB
+
+devTools:
+we can see the content of the storage (all types) using the devTools (F12)
+F12 > Application (tab) > Storage (left pane)
+
+access data:
+the storage is unique per origin which defined as protocol://host:port combination! 
+all data is saved per origin and share the same segregation rules as the 'same origin policy'.
+note that http and https have different storage!
+
+---
+
+1. localStorage:
+   client db based on key-value pairs.
+   it stores the data with no expiration date.
+   limited to apprx. 5MB.
+   localstorage is sync.
+
+   methods:
+   setItem(<key: string>, <value: any>);
+   getItem(<key>);
+   removeItem(<key>);
+   clear();
+   key(<index>);  // get key by index
+
+   store objects:
+   in order to store objects we must use the JSON.stringify() to serialize the object as string. 
+   an attempt to store an object without stringify it - will save the string "[object Object]" 
+   due to an auto-call to the toString method.
+   use JSON.parse() to deserialize the string format back as an object!
+
+   setItem(<key>, JSON.stringify(<object>));
+   JSON.parse(getItem(<key>));
+
+   sample: 
+   localStorage.setItem("name", "roby");
+   var name = localStorage.getItem("name");   
+ 
+   localStorage.setItem("user", JSON.stringify({ id: 1, name: 'roby' }));
+   var user = JSON.parse(localStorage.getItem("user"));     
+
+   var keyName = localStorage.key(1);
+  
+---
+
+2. sessionStorage:
+   same as localstorage but only for one session. 
+   data is lost when the browser tab is closed.
+
+---
+
+3. webSQL:
+   client RDBMS which uses a common SQL syntax!
+   // TODO ...
+
+   methods:
+   database openDatabase(<name: string>, <version: int>, <description: string>, <size (bytes): int>);  // create/ open a database
+   <database>.transaction(tx => { }) // open transaction
+   <transaction>.executeSql(<query: string>, <params: [string]>, (tx, results) => {}) // execute an sql query 
+
+   using:
+   var db = openDatabase(....);
+   db.transaction(tx => { 
+	tx.executeSql(....); 
+	....
+	....
+   });
+
+   sample: 
+   var db = openDatabase('users', 1, '', 1024 * 1024 * 2); // create users db of 2mb
+   
+   // create a table and add some rows
+   db.transaction(tx => { 
+	tx.executeSql('CREATE TABLE USERS (id unique, name)'); 
+        tx.executeSql('INSERT INTO USERS (id, name) VALUES (1, "roby")'); 
+        tx.executeSql('INSERT INTO USERS (id, name) VALUES (2, "avi")'); 
+   });
+
+   // update 
+   db.transaction(tx => { 	        
+        tx.executeSql('UPDATE USERS SET name = "avi-c" WHERE id = 2'); 
+   });   
+
+   // update using params
+   db.transaction(tx => { 	        
+        tx.executeSql('UPDATE USERS SET name = ? WHERE id = ?', ["avi-c", 2]); 
+   });  
+
+   // read 
+   db.transaction(tx => { 	        
+        tx.executeSql('SELECT * FROM USERS', [], (tx, results) => {
+	    console.log(results.rows.length + ' rows');  // rowcount
+
+	    for(var i=0; i < results.rows.length; i++)  // read received rows
+		console.log(results.rows.item(i));  // user
+	}); 
+   });    
+
+---
+
+4. indexedDB:
+   a low-level API for client-side storage.
+   it uses indexes to enable high-performance searches of this data.
+   indexedDB is async.
+
+   methods:
+   open(<name: string>, <version: int>);  // create a database
+
+   sample: 
+   indexedDB.open('users', 1);
+
+   // TODO .... 

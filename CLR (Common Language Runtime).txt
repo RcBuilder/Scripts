@@ -1,0 +1,26 @@
+CLR (Common Language Runtime)
+-----------------------------
+the virtual machine component of Microsoft's .NET framework.
+a run-time environment that manages the code by providing several services (listed below).
+all code handled by the CLR termed as Managed-code.
+
+the CLR also contains the GC component (Garbage Collector) which managing the memory automatically.
+the CLR uses JIT to convert the managed code into a machine code at run-time.
+
+included services:
+memory management
+type safety
+exception handling
+garbage collection
+security
+thread management
+
+process:
+Source-Code > (Compiler) > MSIL/ CIL Code + MetaData > JIT Compiler > Machine-Code
+
+---
+
+also see:
+Managed vs Unmanaged code
+JIT (Just In Time) Compiler
+NET GC (Garbage Collector)

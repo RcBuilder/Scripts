@@ -33,6 +33,7 @@
 * CI/CD =  Continuous Integration and Continuous Delivery
 * TDD = Test Driven Development
 * BDD = Behavior-Driven Development
+* AMP = Accelerated Mobile Pages
 * CLI = Command Line Interface (cmd etc.)
 * SSR = Server-side rendering
 * SAP = Systems, Applications and Products
@@ -40,6 +41,12 @@
 * ERP = Enterprise Resource Planning
 * CMS = Content Management System
 * CRM = Customer-Relationship Management
+
+* CIL = Common Intermediate Language
+* MSIL = Microsoft Intermediate Language // same as CIL
+* CLR = Common Language Runtime
+* GC = Garbage Collector
+* JIT = Just In Time  // JIT Compiler
 
 * TLS = Transport Layer Security
 * SSL = Secure Sockets Layer
@@ -50,6 +57,8 @@
 * DBA – db administrator
 * CTO - Chief Technology Officer 
 * CEO - Chief Executive Officer
+
+* GPU - Graphics Processing Unit
 
 * XML - Extensible Markup Language
 * JSON - Javascript Object Notation
@@ -92,6 +101,14 @@
 * SQR = Search Query Report
 * ROAS - Return On Advertising Spend
 
-* devOps - developer operations 
+* devOps - Developer Operations 
 
 * TIL = Today I Learned
+* AOT = Ahead of time
+* OOO  = Out Of Office 
+
+* Podcast = iPod (apple player) + Broadcast
+* אמל"ק = ארוך מדיי לא קראתי
+
+* LINQ = Language Integrated Query
+* PLINQ = Parallel LINQ
