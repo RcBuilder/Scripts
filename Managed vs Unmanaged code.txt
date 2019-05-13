@@ -1,0 +1,27 @@
+Managed vs Unmanaged code
+-------------------------
+
+Managed code:
+a code managed by the CLR (Common Language Runtime). 
+the CLR also contains the GC component (Garbage Collector) which managing the memory automatically.
+the CLR uses JIT to convert the managed code into a machine code at run-time.
+ANY code written in .NET is managed-code.
+
+compile to CIL (Common Intermediate Language), aka MSIL(Microsoft Intermediate Language), and execute under the management of the CLR. 
+C#, F#, VB etc.
+
+---
+
+Unmanaged code:
+a code that is not under .NET that compiles to direct machine code.
+Memory MUST be handled by the developer.
+
+compile directly to machine code and executed by OS. 
+C++, Win32 etc.
+
+---
+
+also see:
+CLR (Common Language Runtime)
+JIT (Just In Time) Compiler
+NET GC (Garbage Collector)

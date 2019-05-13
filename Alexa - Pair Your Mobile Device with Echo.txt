@@ -1,0 +1,5 @@
+1. Alexa, Pair a Bluetooth Device
+2. Search your device and find your echo.dot 
+
+once paired: 
+3. Alexa, Connect my phone

@@ -1,0 +1,109 @@
+var MIDDLEWARE = 'http://ec2-52-62-203-30.ap-southeast-2.compute.amazonaws.com/api';
+
+function main() {
+  var accounts = MccApp.accounts().get();  
+  
+  while (accounts.hasNext()) {
+    var account = accounts.next();
+    MccApp.select(account);
+    Logger.log('[#%s] %s', account.getCustomerId(), account.getName());  
+    ProcessAccount();
+   	Logger.log('---------------------'); 
+  }    
+}
+
+function ProcessAccount(){  
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition('Status = ENABLED') 
+  .withCondition('ServingStatus = ENDED')  // SERVING, NONE, ENDED, PENDING, SUSPENDED  
+  //.withLimit(2)
+  .get();
+  
+  while(campaigns.hasNext()){
+  	var campaign = campaigns.next();
+    var campaignName = campaign.getName();
+    var endDate = campaign.getEndDate(); // {year, month, day}
+    if(!endDate) {
+      Logger.log('%s', 'NO END DATE! skip...');
+      continue;
+    }        
+    
+    var sEndDate = date2string(endDate);
+	var tsDays = dateDiffInDays(new Date(), sEndDate);     
+    Logger.log('%s > %s (%s days ago)', campaignName, sEndDate, tsDays); 
+    
+    if(tsDays != 1) continue;  // only campaigns ended in the last 24 hours!          
+	
+    var stats = campaign.getStatsFor('ALL_TIME');
+    
+    var callbackURL = GetCallbackURL(campaignName);
+    Logger.log('campaign: %s > callbackURL: %s', campaignName, callbackURL);
+    
+    if(!callbackURL){
+      Logger.log('No callbackURL!!');
+      continue;
+    }
+    
+    NotifyPS(callbackURL, 'campaign', campaign.getId().toString(), 'Completed', '', 'Total Cost ' + stats.getCost(), sEndDate);    
+  }
+}
+
+function date2string(dt){
+  if(!dt) return '';
+  return dt.year + '-' + (dt.month < 10 ? ('0'+ dt.month) : dt.month) + '-' + (dt.day < 10 ? ('0'+ dt.day) : dt.day);	
+}
+
+function dateDiffInDays(dt1, dt2){  
+  var ts = new Date(dt1).getTime() - new Date(dt2).getTime(); 
+  return parseInt(ts / (24*60*60*1000));
+}
+
+function NotifyPS(callbackURL, entityName, entityId, approvalStatus, reason, notes, completedDate){
+  var payload = {
+    'id': entityId,
+    'entity': entityName,
+    'status': approvalStatus,
+    'message': reason,
+    'completed_date': completedDate,
+    'notes': notes
+  };
+  
+  /// Logger.log(payload);
+  /// callbackURL = 'https://webhook.site/f97dceb3-9133-496a-a69a-390a7dde68eb';
+  
+  var response = MakeRequest(callbackURL, 'post', 'application/json', payload);
+  if(!response) return null;
+  
+  response = Utilities.jsonParse(response);
+  Logger.log('status: %s', response.status);
+  if(response.status = 'FAIL')   
+  	Logger.log('%s', response);
+}
+
+function GetCallbackURL(campaignName){    
+  try{
+    var response = MakeRequest(MIDDLEWARE.concat('/properties/list/', campaignName), 'get', 'application/json');    
+    if(!response) return null;  
+    
+    response = Utilities.jsonParse(response);
+    return response.callbackUrl;
+  }
+  catch(e){ return null; }
+}
+
+function MakeRequest(url, method, contentType, payload){
+  if(!url) return null;
+  
+  var options = {
+    'method' : method,
+    'contentType': contentType,
+    'payload' : payload || null
+  };
+    
+  var response = UrlFetchApp.fetch(url, options);
+  var status_code = response.getResponseCode();
+  Logger.log('%s %s > status code: %s', method, url, status_code);
+  if(payload) Logger.log('%s', payload);
+  
+  return response;
+}

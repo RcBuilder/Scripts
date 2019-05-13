@@ -1,0 +1,9 @@
+What is A/B Testing? 
+
+A represents segment-A - a visitor segment  
+B represents segment-B - other visitor segment
+A/B test represents a competition between segments A and B.
+
+showing two variants of the same webpage to different visitor segments.
+the test takes place at the very same time in order to create a contest with identical resources for both the testing segments.
+a metrics/ performance comparison is made between those two webpages to decide which instance is better.

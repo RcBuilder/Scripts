@@ -1,0 +1,59 @@
+IEnumerable and IEnumerator
+===========================
+both are used to iterate through a collection. 
+IEnumerable loops through the full list without a pause point which you can return to. 
+IEnumerator also loops through the list but provides you an option to pause at any given item and return to it later.
+
+A collection that implements IEnumerable can be used with a foreach statement.
+A collection that implements IEnumerator can be used witht the while-MoveNext technique.
+
+both interfaces:
+IEnumerable has a single method 'GetEnumerator'.
+IEnumerator has 'MoveNext' and 'Reset' methods and also has 'Current' property.
+
+note that IEnumerable interface uses IEnumerator internally.
+
+---
+
+var years = new List<int>{
+	2000, 2001, 2002, 2003, 2004, 2005, 2006
+};
+
+
+IEnumerable
+-----------
+IEnumerable<int> e1 = years;
+foreach(var year in e1)
+	Console.WriteLine(year);
+
+
+IEnumerator
+-----------
+
+// loop all using while loop
+IEnumerator<int> e2 = years.GetEnumerator();
+while(e2.MoveNext())
+	Console.WriteLine(e2.Current);
+
+---
+
+// loop one 
+IEnumerator<int> e2 = years.GetEnumerator();
+e2.MoveNext();
+Console.WriteLine(e2.Current);  // 2000
+
+// some code ....
+
+e2.MoveNext();
+Console.WriteLine(e2.Current);  // 2001
+
+// some code ....
+
+e2.MoveNext();
+Console.WriteLine(e2.Current);  // 2002
+
+note! 
+the cursor now points to item 2002, the next 'MoveNext' call will cause it to point to 2003. 
+
+---
+

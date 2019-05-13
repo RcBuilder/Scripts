@@ -1,0 +1,167 @@
+SQL CROSS APPLY and OUTER APPLY
+-------------------------------
+
+APPLY operator is like the JOIN clause, allows us to join tables. 
+commonly used when there's a need of evaluating each row from one table against the other instead of join them. 
+when using the APPLY operator, the right table is processed against each row in the left table. 
+
+there are two options to use with the APPLY operator:
+- CROSS APPLY - which is the equivalent to INNER JOIN
+- OUTER APPLY - which is the equivalent to LEFT JOIN
+
+APPLY vs JOIN:
+the main difference between those two is the process itself. 
+APPLY apply each row from the tableA against the tableB whereas JOIN joins tableA with tableB!
+use APPLY for cases of aggregation tableB per row in tableA or when need to use a function per row.
+
+-----------------------
+
+/*
+	CREATE FUNCTION dbo.fnGetCategoryTitle(@CategoryId AS INT)  
+	RETURNS VARCHAR(20) 
+	AS 
+	BEGIN 
+		RETURN 'category #' + cast(@CategoryId as varchar(10))
+	END 
+	GO 
+
+	---
+
+	CREATE FUNCTION dbo.fnGetProductsByCategory(@CategoryId AS INT)  
+	RETURNS TABLE
+	AS 
+	RETURN
+	(
+		 select * from 
+		 (values 
+			(11, 'prd-1', 1),
+			(12, 'prd-2', 1), 
+			(13, 'prd-3', 1),
+			(14, 'prd-4', 2),
+			(15, 'prd-5', 2),
+			(16, 'prd-6', 3),
+			(17, 'prd-7', 3),
+			(18, 'prd-8', 3)
+		  ) p(Id, [Name], CategoryId)
+		  where CategoryId = @CategoryId )
+	GO 
+*/
+ 
+declare @categories table(Id int, [Name] varchar(10))
+insert into @categories
+values 
+(1, 'cat-A'),
+(2, 'cat-B'), 
+(3, 'cat-C'),
+(4, 'cat-Z')
+
+declare @products table(Id int, [Name] varchar(10), CategoryId int) 
+insert into @products
+values 
+(11, 'prd-1', 1),
+(12, 'prd-2', 1), 
+(13, 'prd-3', 1),
+(14, 'prd-4', 2),
+(15, 'prd-5', 2),
+(16, 'prd-6', 3),
+(17, 'prd-7', 3),
+(18, 'prd-8', 3)
+
+-------------
+
+select C.*, P.Id, P.Name
+from @categories C CROSS APPLY @products P where P.CategoryId = C.Id
+
+note: 
+same as (select * from @products where CategoryId = C.Id) P
+
+/*
+	Id	Name	Id	Name
+	1	cat-A	11	prd-1
+	1	cat-A	12	prd-2
+	1	cat-A	13	prd-3
+	2	cat-B	14	prd-4
+	2	cat-B	15	prd-5
+	3	cat-C	16	prd-6
+	3	cat-C	17	prd-7
+	3	cat-C	18	prd-8
+*/
+
+---
+
+// aggregation 
+select C.*, P_CNT.*
+from @categories C CROSS APPLY 
+	(
+		select COUNT(*) as CNT from @products where CategoryId = C.Id
+	) P_CNT
+
+/*
+	Id	Name	CNT
+	1	cat-A	3
+	2	cat-B	2
+	3	cat-C	3
+	4	cat-Z	0
+*/
+
+---
+
+// outer apply
+select C.*, P.Id, P.Name
+from @categories C OUTER APPLY (select * from @products where CategoryId = C.Id) P
+
+/*
+	Id	Name	Id		Name
+	1	cat-A	11		prd-1
+	1	cat-A	12		prd-2
+	1	cat-A	13		prd-3
+	2	cat-B	14		prd-4
+	2	cat-B	15		prd-5
+	3	cat-C	16		prd-6
+	3	cat-C	17		prd-7
+	3	cat-C	18		prd-8
+	4	cat-Z	NULL	NULL
+*/
+
+---
+
+// with Scalar Function
+select *
+from @categories C OUTER APPLY (select dbo.fnGetCategoryTitle(C.Id) as funValue) F
+
+note: 
+cannot be achieved with JOIN!
+
+/*
+	Id	Name	funValue
+	1	cat-A	category #1
+	2	cat-B	category #2
+	3	cat-C	category #3
+	4	cat-Z	category #4
+*/
+
+---
+
+// with Table Function
+select *
+from @categories C CROSS APPLY (select * from dbo.fnGetProductsByCategory(C.Id)) P
+
+note: 
+cannot be achieved with JOIN!
+
+/*
+	Id	Name	Id	Name	CategoryId
+	1	cat-A	11	prd-1	1
+	1	cat-A	12	prd-2	1
+	1	cat-A	13	prd-3	1
+	2	cat-B	14	prd-4	2
+	2	cat-B	15	prd-5	2
+	3	cat-C	16	prd-6	3
+	3	cat-C	17	prd-7	3
+	3	cat-C	18	prd-8	3
+*/
+
+---
+
+TIP: 
+compare APPLY vs JOIN using the execution plan to determine which one is better in your case.

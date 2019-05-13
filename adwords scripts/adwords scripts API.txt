@@ -319,6 +319,17 @@ UNDER_REVIEW
 DISAPPROVED	
 SITE_SUSPENDED
 
+ServingStatus
+-------------
+campaign serving status:
+AdWordsApp.campaigns().withCondition('ServingStatus = ENDED').get();
+
+SERVING
+NONE 
+ENDED
+PENDING
+SUSPENDED
+
 ======== AdWordsApp ===================================================================
 
 * adGroups(); 
@@ -5696,7 +5707,6 @@ totals.impressionALL += stats.getImpressions() / extendedData.impressionShare;
 totals.impressions / totals.impressionALL will give us the average share 
 totals.impressionShare = totals.impressionALL == 0 ? 0 : (totals.impressions / totals.impressionALL).toFixed(2);  
 
-
 --------------------
 
 Type: 
@@ -6403,6 +6413,27 @@ while(ads.hasNext()){
     Logger.log('policy approval status: %s', ad.getPolicyApprovalStatus());
     Logger.log('approval status: %s', ad.getApprovalStatus());
 }
+
+--------------------
+
+// campaign Impressions Share
+var report = AdWordsApp.report(
+ 	"SELECT CampaignName, SearchImpressionShare " +
+ 	"FROM CAMPAIGN_PERFORMANCE_REPORT " +
+ 	"WHERE AdvertisingChannelType IN [SEARCH] " +
+ 	"DURING THIS_MONTH", {
+ 		includeZeroImpressions: false
+ 	});
+  
+  var rows = report.rows();
+ 	while (rows.hasNext()) {
+      var row = rows.next();
+      var cName = row['CampaignName'];
+      var iShare = row['SearchImpressionShare'];
+      
+      Logger.log('campaign %s has Impressions Share of %s', cName, iShare);
+   }
+
 --------------------
 
 // DISAPPROVED ads
@@ -6420,6 +6451,39 @@ var ads = AdWordsApp.ads()
     ... 
     ...
     Logger.log('%s', ad.asType().expandedTextAd().getHeadlinePart1());
+  }
+
+--------------------
+// DISAPPROVED ads with reason 
+  var ads = AdWordsApp.ads()
+  .withCondition('Status = ENABLED')
+  .withCondition('CombinedApprovalStatus IN [DISAPPROVED, SITE_SUSPENDED, APPROVED_LIMITED]')
+  .withLimit(10)
+  .get();
+  
+  while(ads.hasNext()){
+  	var ad = ads.next();
+    var approvalStatus = ad.getPolicyApprovalStatus();
+    var reason = ad.getDisapprovalReasons();
+    Logger.log('%s(%s) > %s', ad.getId().toString(), ad.getType(), approvalStatus);    
+    Logger.log('reason: %s', reason);
+  }
+
+--------------------
+
+// campaigns by serving status - ended camapigns
+var campaigns = AdWordsApp.campaigns()
+  .withCondition('Status = ENABLED') 
+  .withCondition('ServingStatus = ENDED')  // SERVING, NONE, ENDED, PENDING, SUSPENDED
+  .withLimit(10)
+  .get();
+  
+  while(campaigns.hasNext()){
+  	var campaign = campaigns.next();
+    ///var endDate = campaign.getEndDate();
+    ///var sEndDate = endDate ? (endDate.year + '-' + endDate.month + '-' + endDate.day) : '';
+    
+    Logger.log('%s > ENDED', campaign.getName());        
   }
 
 --------------------
@@ -6443,6 +6507,17 @@ function main() {
     for(c in values[r])
       Logger.log(values[r][c]);
 }
+
+--------------------
+
+// get all placements and their stats
+var placements = AdWordsApp.display().placements().withLimit(20).get();
+  while(placements.hasNext()){
+  	var placement = placements.next();
+    var stats = placement.getStatsFor('ALL_TIME');    
+    Logger.log('%s > %s impressions', placement.getUrl(), stats.getImpressions())
+  }
+
 --------------------
 
 // Pause Display keyword with 100 Clicks and no Conversions
