@@ -1,3 +1,37 @@
+﻿===============================
+STRING_SPLIT
+SUBSTRING
+STUFF
+REPLACE
+REPLICATE
+CONCAT
+LEFT
+RIGHT
+LOWER
+UPPER
+LTRIM
+RTRIM
+REVERSE
+QUOTENAME
+CHARINDEX
+PATINDEX
+ASCII
+CHAR
+NCHAR
+DATALENGTH
+LEN
+FORMAT
+SPACE
+ABS
+AVG
+CEILING
+FLOOR
+COUNT
+MAX
+MIN
+POWER
+===============================
+
 STRING_SPLIT
 ------------
 table<value> STRING_SPLIT(<input>, <delimiter>) 
@@ -15,24 +49,11 @@ select * from
 ) res 
 where rowNum = 2
 
-CHARINDEX
----------
-<int> CHARINDEX(<valueToSearch>, <input>)
-
-note: 1 based, 0 = not found
-
----
-
-select CHARINDEX('o', 'abcdefghigk') -- 0
-select CHARINDEX('a', 'abcdefghigk') -- 1
-select CHARINDEX('b', 'abcdefghigk') -- 2
-select CHARINDEX('cde', 'abcdefghigk') -- 3
-select CHARINDEX('cdk', 'abcdefghigk') -- 0
-
 SUBSTRING
 ---------
 <string> SUBSTRING(<input>, <index>, <length>)
 
+create a sub-string from the <input> starting from <index> and of <length> characters
 note: 1 based
 
 ---
@@ -48,4 +69,390 @@ select SUBSTRING(@v, 1, LEN(@v)) -- abcdefghigk
 
 STUFF
 -----
+<string> STUFF(<input>, <start>, <length>, <value>)
 
+starting from position <start>, delete <length> characters from the <input> and insert <value> instead 
+note: 1 based
+
+---
+
+// delete string from position 7 till 12 ('World') and insert the value 'Roby' from index 7
+select STUFF('Hello World', 7, 5, 'Roby') -- Hello Roby
+
+select STUFF('Hi Roby', 1, 2, 'Bye') -- Bye Roby
+select STUFF('Hi Roby', 4, 0, 'Mr. ') -- Hi Mr. Roby
+
+REPLACE
+-------
+<string> REPLACE(<input>, <oldValue>, <newValue>)
+
+replace <oldValue> with <newValue> in the provided <input>.
+replace all matches!
+
+---
+
+SELECT REPLACE('abcd', 'bc', '');  -- ad
+SELECT REPLACE('abcd', 'bc', 'XX');  -- aXXd
+SELECT REPLACE('abcd abcd', 'ab', '**');  -- **cd **cd
+
+REPLICATE
+---------
+<string> REPLACE(<input>, <count>)
+
+repeat a string. 
+repeat <count> times the value <input>
+
+--- 
+
+SELECT REPLICATE('abcd,', 2);  -- abcd,abcd,
+SELECT REPLICATE('X', 6);  -- XXXXXX
+
+CONCAT
+------
+<string> SELECT CONCAT(<string>, <string>, .... <string>);
+
+---
+
+SELECT CONCAT('AB', 'CD', 'EF') -- ABCDEF
+SELECT CONCAT('Hello', ' ', 'World') -- Hello World
+
+LEFT
+----
+<string> LEFT(<input>, <length>)
+
+take <length> characters from the left side of the <input>
+note: 1 based
+
+---
+
+SELECT LEFT('SQL LEFT FUNCTION', 3) -- SQL
+SELECT LEFT('ABCDEF', 2) -- AB
+SELECT LEFT('#102030', 1) -- #
+
+RIGHT
+-----
+<string> RIGHT(<input>, <length>)
+
+take <length> characters from the right side of the <input>
+note: 1 based
+
+---
+
+SELECT RIGHT('SQL RIGHT FUNCTION', 14) -- RIGHT FUNCTION
+SELECT RIGHT('ABCDEF', 2) -- EF
+SELECT RIGHT('102030#', 1) -- #
+
+LOWER
+-----
+<string> LOWER(<input>)
+
+converts a string to lower-case
+
+SELECT LOWER('ABC 123') -- abc 123
+
+UPPER
+-----
+<string> UPPER(<input>)
+
+converts a string to upper-case
+
+SELECT UPPER('abc 123') -- ABC 123
+
+LTRIM
+-----
+<string> LTRIM(<input>)
+
+left-trim
+removes leading spaces from a string. 
+
+SELECT LTRIM('   abc   ') -- abc   . 
+
+RTRIM
+-----
+<string> RTRIM(<input>)
+
+right-trim
+removes trailing spaces from a string.
+
+SELECT RTRIM('   abc   ') -- .   abc 
+
+REVERSE
+-------
+<string> REVERSE(<input>)
+
+reverese an <input>
+
+---
+
+SELECT REVERSE('abcd');  -- dcba
+SELECT REVERSE('12345');  -- 54321
+
+QUOTENAME
+-----
+<string> QUOTENAME(<input>, <quote-type>)
+
+wrap the <input> with the <quote-type>
+
+--- 
+
+quote-type:
+'
+[]
+"
+()
+><
+{}
+`
+
+---
+
+SELECT QUOTENAME('abc');  -- [abc]
+SELECT QUOTENAME('abc', '[]');  -- [abc]
+SELECT QUOTENAME('abc', '()');  -- (abc)
+SELECT QUOTENAME('abc', '{}');  -- {abc}
+SELECT QUOTENAME('abc', '"');  -- "abc"
+SELECT QUOTENAME('abc', '<>');  -- <abc>
+
+
+CHARINDEX
+---------
+<int> CHARINDEX(<valueToSearch>, <input>)
+
+note: 1 based, 0 = not found
+
+---
+
+select CHARINDEX('o', 'abcdefghigk') -- 0
+select CHARINDEX('a', 'abcdefghigk') -- 1
+select CHARINDEX('b', 'abcdefghigk') -- 2
+select CHARINDEX('cde', 'abcdefghigk') -- 3
+select CHARINDEX('cdk', 'abcdefghigk') -- 0
+
+PATINDEX
+--------
+<int> PATINDEX(<pattern>, <input>)
+
+find the index of the provided pattern.
+note: 1 based, 0 = not found
+
+---
+
+%    // any 
+_    // single character
+[]   // any character in the group, e.g: [xyz]
+[^]  // any character NOT in the group, e.g: [^xyz]
+
+---
+
+SELECT PATINDEX('%#_%', 'abc #1 def') -- 5
+SELECT PATINDEX('%[0-9]%', 'text 567 text') -- 6
+SELECT PATINDEX('%[^0-9]%', '12345 text') -- 6
+
+ASCII
+-----
+<int> ASCII(<char>)
+
+char-2-ascii
+return the ascii value of the char (or the first char in case of a string)
+
+---
+
+SELECT ASCII('1') -- 49
+SELECT ASCII('2') -- 50
+SELECT ASCII('A') -- 65
+SELECT ASCII('ABC') -- 65 
+
+CHAR
+----
+<char> CHAR(<int>)
+
+ascii-2-char
+return the char by the ascii value
+
+---
+
+SELECT CHAR(49) -- '1'
+SELECT CHAR(65) -- 'A'
+
+NCHAR
+-----
+same as CHAR for unicode characters.
+
+DATALENGTH
+----------
+<int> DATALENGTH(<string>)
+
+returns the number of bytes. (not the number of chars!).
+
+reminder: 
+each nchar is represented by 2 bytes! 
+hence, 1 nchar takes 2 bytes whereas 1 char takes only 1 byte. 
+
+---
+
+declare @value1 char(10) = 'ABCD';  // char
+declare @value2 nchar(10) = 'ABCD';  // nchar
+declare @value3 varchar(10) = 'ABCD';  // varchar
+declare @value4 nvarchar(10) = 'ABCD';  // nvarchar
+
+SELECT DATALENGTH(@value1);  -- 10
+SELECT DATALENGTH(@value2);  -- 20
+SELECT DATALENGTH(@value3);  -- 4
+SELECT DATALENGTH(@value4);  -- 8
+SELECT DATALENGTH('ABCD ');  -- 5
+SELECT DATALENGTH(' ABCD ');  -- 6
+
+LEN
+---
+<int> LEN(<string>)
+
+returns the number of characters (string length).
+
+note:
+counts leading spaces but not trailing spaces.
+
+---
+
+declare @value char(10) = 'ABCD';
+SELECT LEN(@value);  -- 4
+SELECT LEN('ABCD ');  -- 4
+SELECT LEN('ABCD    ');  -- 4
+SELECT LEN(' ABCD ');  -- 5
+SELECT LEN(' ABCD');  -- 5
+
+FORMAT
+------
+<string> FORMAT(<value>, <format>, <culture>)
+<string> FORMAT(<value>, <format>)
+
+supports dates and numbers 
+
+---
+
+P = Percent
+C = Currency
+N = Decimal Places
+X = Hex
+0 = Leading Zeros
+# = Custom (use # as placeholders)
+
+d = date
+D = date (long)
+also supports common date formats (yyyy, mmm, hh etc.)
+
+---
+
+declare @dt datetime = '12/03/2019';
+SELECT FORMAT (@dt, 'd', 'en-US')  -- 12/3/2019
+SELECT FORMAT (@dt, 'd', 'he-IL')  -- 03/12/2019
+SELECT FORMAT (@dt, 'D', 'en-US')  -- Tuesday, December 3, 2019
+SELECT FORMAT (@dt, 'D', 'he-IL')  -- יום שלישי 03 דצמבר 2019
+
+SELECT FORMAT(getdate(), 'yyyy', 'en-US')  -- 2019
+SELECT FORMAT(123456789, '##-##-#####')  -- 12-34-56789
+SELECT FORMAT(2025, '##/##')  -- 20/25
+SELECT FORMAT(1, 'N1') -- 1.0
+SELECT FORMAT(1, 'N3') -- 1.000
+SELECT FORMAT(1, 'P') -- 100.00 %
+SELECT FORMAT(0.35, 'P') -- 35.00 %
+SELECT FORMAT(1, 'C', 'en-US')  -- $1.00
+SELECT FORMAT(1, 'C', 'he-IL')  -- ₪ 1.00
+SELECT FORMAT(10, 'X') -- A
+SELECT FORMAT(7, '000') -- 007
+SELECT FORMAT(71, '000') -- 071
+SELECT FORMAT(712, '000') -- 712
+SELECT FORMAT(712, '0000') -- 0712
+
+SPACE
+-----
+<string >SPACE(<count>)
+
+create <count> spaces 
+
+SELECT '#' + SPACE(4) + '#' -- #    #
+
+ABS
+---
+<number> ABS(<number>)
+
+return absolute number (no negatives)
+
+---
+
+SELECT ABS(20);
+SELECT ABS(-20);
+
+AVG
+---
+<number> AVG(<column>) FROM <table>
+
+return the average of the <column> in the provided table
+
+---
+
+SELECT AVG(Price) from Products 
+SELECT AVG(Grade) from (values(70),(50),(65),(85)) Tmp(Grade);  -- 67
+
+SELECT * FROM Products 
+WHERE Price > (SELECT AVG(Price) FROM Products); -- all products with price over the average 
+
+CEILING
+-------
+<int> CEILING(<number>)
+
+smallest top integer 
+
+---
+
+SELECT CEILING(12.8)  -- 13
+SELECT CEILING(12.5)  -- 13
+SELECT CEILING(12.4)  -- 13
+
+FLOOR
+-----
+<int> FLOOR(<number>)
+
+smallest bottom integer 
+
+---
+
+SELECT FLOOR(12.8)  -- 12
+SELECT FLOOR(12.5)  -- 12
+SELECT FLOOR(12.4)  -- 12
+
+COUNT
+-----
+<int> COUNT(*) FROM <table>
+
+return the number of rows in the provided table
+
+---
+
+SELECT COUNT(*) from Products 
+SELECT COUNT(*) from (values(1),(2),(3),(4)) Tmp(Num);  -- 4
+
+MAX
+---
+<number> MAX(<column>) FROM <table>
+
+returns the maximum value in a set of values
+
+---
+
+SELECT MAX(Price) from Products 
+SELECT MAX(Grade) from (values(70),(50),(65),(85)) Tmp(Grade);  -- 85
+
+MIN
+---
+<number> MIN(<column>) FROM <table>
+
+returns the minimum value in a set of values
+
+---
+
+SELECT MIN(Price) from Products 
+SELECT MIN(Grade) from (values(70),(50),(65),(85)) Tmp(Grade);  -- 50
+
+POWER
+-----
+// TODO

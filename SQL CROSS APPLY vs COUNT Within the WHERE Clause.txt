@@ -1,0 +1,33 @@
+SQL CROSS APPLY vs COUNT Within the WHERE Clause
+------------------------------------------------
+important! 
+the result's performance depends on lots of factors so any case should be checked individually in order to find the best approach. 
+use the client-statistics feature to find out which approach is better!
+
+--------
+
+test:
+using select within the where clause
+
+query:
+select	Medium, URL 
+from	Artworks 
+where (select count(value) from STRING_SPLIT(Medium, ' ')) = 1
+
+result:
+1st execution = 20 ms
+2nd execution = 7 ms
+
+---
+
+test:
+using cross-apply
+
+query:
+select	Medium, URL, t.cnt 
+from	Artworks A CROSS APPLY (select count(value) as cnt from STRING_SPLIT(A.Medium, ' ')) t
+where	t.cnt = 1
+
+result:
+1st execution = 16 ms
+2nd execution = 6 ms

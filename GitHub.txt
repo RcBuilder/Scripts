@@ -222,7 +222,8 @@ note that we can use ANY of the known cmd command using the Git CMD dialog
 > git stash list // stashes list 
 > git stash show [stashName] // show stash content (summary)
 > git stash show -p [stashName] // show stash content (changes)
-> git stash pop [stashName] // open stash (pop it out and remove it from the stash)
+> git stash pop // open stash (pop top one out, DOES NOT remove it from the stash)
+> git stash pop [stashName] // open specific stash (pop top one out, DOES NOT remove it from the stash)
 > git stash apply [stashName] // open stash (live a copy in the stash)
 > git stash drop [stashName] // delete a stash
 > git stash clear // drop ALL stashes!

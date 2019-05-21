@@ -1,0 +1,69 @@
+XPATH Tricks 
+------------
+<div class="table-head">
+	<div>Col1</div>
+	<div>Col2</div>
+	<div>Col3</div>
+	<div>Col4</div>
+</div>
+
+<div class="table-row">
+	<div>A</div>
+	<div>B</div>
+	<div>C</div>
+	<div>D</div>
+</div>
+<div class="table-row">
+	<div>E</div>
+	<div>F</div>
+	<div>G</div>
+	<div>H</div>
+</div>
+
+expression:
+//div[@class="table-row"]/div[count(//div[@class="table-head"]/div[.='Col3']/preceding-sibling::div)+1]
+
+result:
+C and G
+
+info:
+//TODO ...
+
+---
+
+<div class="table-row">
+	<div>A</div>
+	<div>B</div>
+	<div>C</div>
+	<div><a>download</a></div>
+</div>
+<div class="table-row">
+	<div>E</div>
+	<div>F</div>
+	<div>G</div>
+	<div><a>download</a></div>
+</div>
+
+expression:
+//div[@class="table-row"]/div[not(a[1][.="download"])][last()]
+
+result:
+C and G
+
+info:
+//TODO ...
+
+---
+
+<a>A1</a>
+<a>A2</a>
+<a><img src="" /></a>
+<a>A3</a>
+<a><img src="" /></a>
+<a>A4</a>
+
+expression:
+//a[not(img)]
+
+result:
+A1, A2, A3 and A4

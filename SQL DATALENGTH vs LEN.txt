@@ -1,0 +1,20 @@
+SQL DATALENGTH vs LEN
+---------------------
+
+DATALENGTH returns the number of bytes.
+LEN returns the number of characters (string length).
+
+reminder: 
+each nchar is represented by 2 bytes! 
+hence, 1 nchar takes 2 bytes whereas 1 char takes only 1 byte. 
+
+declare @value1 char(10) = 'ABCD'; // char
+SELECT DATALENGTH(@value1);  -- 10
+SELECT LEN(@value1);  -- 4
+
+declare @value2 nchar(10) = 'ABCD'; // nchar
+SELECT DATALENGTH(@value2);  -- 20
+SELECT LEN(@value2);  -- 4
+
+SELECT DATALENGTH('ABCD ');  -- 5
+SELECT LEN('ABCD ');  -- 4
