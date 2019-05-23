@@ -27,7 +27,9 @@ result:
 C and G
 
 info:
-//TODO ...
+take specific column value!
+by applying the 'count' function on the header we'll find the column index (by find the colum and count the preceding columns) 
+once we have the column index, we use it for each row to fetch the row value in the specified column.
 
 ---
 
@@ -51,7 +53,8 @@ result:
 C and G
 
 info:
-//TODO ...
+take last node with a group after a removal of unneeded nodes!
+we use the 'not' function to filter out unwanted items, once we've cleaned them, we take the last anchor of each group.
 
 ---
 
@@ -67,3 +70,23 @@ expression:
 
 result:
 A1, A2, A3 and A4
+
+---
+
+<a>A1</a>
+<a>A2</a>
+<a>A3</a>
+<a>A4</a>
+
+expression:
+count(//a[.="A3"]/preceding::a) + 1 
+
+result:
+3
+
+get by index 
+//a[position() = 3]
+
+info:
+get node index!
+find node position by xpath 
