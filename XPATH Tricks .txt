@@ -1,0 +1,92 @@
+XPATH Tricks 
+------------
+<div class="table-head">
+	<div>Col1</div>
+	<div>Col2</div>
+	<div>Col3</div>
+	<div>Col4</div>
+</div>
+
+<div class="table-row">
+	<div>A</div>
+	<div>B</div>
+	<div>C</div>
+	<div>D</div>
+</div>
+<div class="table-row">
+	<div>E</div>
+	<div>F</div>
+	<div>G</div>
+	<div>H</div>
+</div>
+
+expression:
+//div[@class="table-row"]/div[count(//div[@class="table-head"]/div[.='Col3']/preceding-sibling::div)+1]
+
+result:
+C and G
+
+info:
+take specific column value!
+by applying the 'count' function on the header we'll find the column index (by find the colum and count the preceding columns) 
+once we have the column index, we use it for each row to fetch the row value in the specified column.
+
+---
+
+<div class="table-row">
+	<div>A</div>
+	<div>B</div>
+	<div>C</div>
+	<div><a>download</a></div>
+</div>
+<div class="table-row">
+	<div>E</div>
+	<div>F</div>
+	<div>G</div>
+	<div><a>download</a></div>
+</div>
+
+expression:
+//div[@class="table-row"]/div[not(a[1][.="download"])][last()]
+
+result:
+C and G
+
+info:
+take last node with a group after a removal of unneeded nodes!
+we use the 'not' function to filter out unwanted items, once we've cleaned them, we take the last anchor of each group.
+
+---
+
+<a>A1</a>
+<a>A2</a>
+<a><img src="" /></a>
+<a>A3</a>
+<a><img src="" /></a>
+<a>A4</a>
+
+expression:
+//a[not(img)]
+
+result:
+A1, A2, A3 and A4
+
+---
+
+<a>A1</a>
+<a>A2</a>
+<a>A3</a>
+<a>A4</a>
+
+expression:
+count(//a[.="A3"]/preceding::a) + 1 
+
+result:
+3
+
+get by index 
+//a[position() = 3]
+
+info:
+get node index!
+find node position by xpath 
