@@ -1,0 +1,27 @@
+-- using Regex --
+
+clearSpecialCharacters: function(input){      
+      // replace to empty (remove) all characters NOT within the pattern group
+
+      // any letter in the ASCII range 
+      // \u0080-\uFFFF
+      var specialCharactersPattern = /[^\.,&\/\-_'!\?\w\d\s{}:\u0080-\uFFFF]+/g;      
+      return input.replace(specialCharactersPattern, ' ');
+}
+
+-----
+
+-- using Replace each --
+clearSpecialCharacters: function(input){
+        var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']', '|', '>', '/'];
+
+        // non allowed characters
+        for(i in specialCharacters){
+          var c = specialCharacters[i];
+          if(input.indexOf(c) == -1) continue;
+          input = input.split(c).join(''); // replace all
+        } 
+
+	return input;
+} 
+      

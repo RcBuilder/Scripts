@@ -59,12 +59,18 @@ note that http and https have different storage!
 
 3. webSQL:
    client RDBMS which uses a common SQL syntax!
-   // TODO ...
+   it is NOT part of the HTML5 specification.
+   webSQL is async.
 
    methods:
    database openDatabase(<name: string>, <version: int>, <description: string>, <size (bytes): int>);  // create/ open a database
    <database>.transaction(tx => { }) // open transaction
    <transaction>.executeSql(<query: string>, <params: [string]>, (tx, results) => {}) // execute an sql query 
+
+   parameters:
+   to pass parameters to the query, just use '?' within the query-text and add an array of variables in the 'params' argument of the 'executeSql' method. 
+   the webSQL engine replaces the params array with the corresponding '?' sign.
+   e.g: tx.executeSql('UPDATE USERS SET name = ? WHERE id = ?', ["avi-c", 2]); 
 
    using:
    var db = openDatabase(....);
@@ -73,6 +79,10 @@ note that http and https have different storage!
 	....
 	....
    });
+
+   browser support:
+   check if the object is not null to confirm that the browser supports webSQL: 
+   if(!openDatabase) return; // or window.openDatabase
 
    sample: 
    var db = openDatabase('users', 1, '', 1024 * 1024 * 2); // create users db of 2mb
@@ -112,9 +122,114 @@ note that http and https have different storage!
    indexedDB is async.
 
    methods:
-   open(<name: string>, <version: int>);  // create a database
+   database open(<name: string>, <version: int>, <upgradeDB: function>);  // open or create a database
+   <database>.createObjectStore(<table: string>, <options: storeOptions>); // create a table
+   <database>.deleteObjectStore(<table: string>); // delete a table
+   <database>.transaction(<tables: [string]>, <permissions: string>); // open transaction   
+   <transaction>.objectStore(<table: string>); // get table (objectStore)
+   <transaction>.objectStoreNames; // get table list
+   <transaction>.objectStoreNames.contains(<table: string>); // check if table exists
+   <objectStore>.<action>
+   deleteDatabase(<name: string>);
 
-   sample: 
-   indexedDB.open('users', 1);
+   init:
+   var db = null;
+   var request = window.indexedDB.open(<databaseName>, <version>);
+   request.onerror = function(event) { };         
+   request.onsuccess = function(event) { db = request.result; };         
+   request.onupgradeneeded = function(event) { 
+		var db = event.target.result;
+		// create your tables here ... 
+   }
 
-   // TODO .... 
+   storeOptions:
+   keyPath: <key: string>
+   autoIncrement: <bool>
+
+   actions:
+   CRUD (add, get, put, delete)
+   getAll
+   index
+   createIndex
+
+   permissions:
+   readonly   
+   readwrite
+
+   create tables (schema):
+   we cannot create tables after the initialization of the database! 
+   we MUST create them on the 'onupgradeneeded' function.
+
+   using:
+   1. init   
+   2. do some actions
+      var table = db.transaction(<tables>, <permissions>).objectStore(<table>);      
+      table.<action>  // see 'actions'
+
+   browser compatibility:   
+   window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+   window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+   window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+
+   browser support:
+   check if the object is not null to confirm that the browser supports indexedDB   
+   if(!indexedDB) return; // or window.indexedDB
+
+   version:
+   for any version change, the upgradeDB callback will be called.
+   indexedDB.open('testDB', 2, function(upgradeDB){ ... });
+
+   sample:    
+   // browser compatibility 
+   window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
+   window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
+   window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+
+   // open or create a database
+   var db = null;
+   var request = indexedDB.open('TestDB', 1);
+   
+   // register events 
+   request.onerror = function(event) { console.log('could not open indexDB. error: ' + this.errorCode); };         
+   request.onsuccess = function(event) { db = request.result; };         
+   request.onupgradeneeded = function(event) {
+		var db = event.target.result; 		
+		db.createObjectStore('USERS', { keyPath: 'id' }); // create a table 
+   }
+
+   // get table list
+   var tableList = db.transaction(['USERS'], "readonly").objectStoreNames;
+   console.log(tableList); // {0: "USERS", length: 1}
+
+   // add    
+   var users = db.transaction(['USERS'], "readwrite").objectStore('USERS');
+   users.add({ id: 10, name: 'Roby' }); 
+   users.add({ id: 11, name: 'Avi' }); 
+   
+   // get
+   var users = db.transaction(['USERS'], "readonly").objectStore('USERS');
+   var request = users.get(11);
+   request.onsuccess = function(event){
+		var user = request.result;
+		console.log(user);  // {id: 11, name: "Avi"}
+   }
+
+   // delete
+   var users = db.transaction(['USERS'], "readwrite").objectStore('USERS');
+   var request = users.delete(11);
+   request.onsuccess = function(event){}
+
+   // update 
+   var users = db.transaction(['USERS'], "readwrite").objectStore('USERS');
+   users.put({ id: 10, name: 'Roby-updated' });    
+
+   // get all
+   var users = db.transaction(['USERS'], "readwrite").objectStore('USERS');
+   var request = users.openCursor();
+   request.onsuccess = function(event){
+		var dr = event.target.result;
+		if(dr){
+			console.log(dr.value);  // print current user
+			dr.continue();
+		}
+   }

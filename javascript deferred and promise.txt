@@ -1,11 +1,16 @@
 deferred and promise
 --------------------
+also see 'javascript Promise object'
+
+---
+note: using jQuery
+
 $.Deferred() creates a new deferred object. 
 deferred.promise() returns a promise object. 
 deferred.resolve(data) executes the processing.
 $.when(promises) waits for ALL the promises list to complete.
-
--------
+ 
+---
 
 // p1, p2 and p3 create deferred object and return a promise
 function p1() {

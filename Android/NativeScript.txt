@@ -3768,12 +3768,13 @@ Plugins
   note!
   * array-type object, use push to add items, use length to get the items quantity.
   * use getIndex([value]) or getValue([index]) or getItem([index]) to pull data from it.
+  * use selectedIndex = null for reset.
 	
   using:
   <DDL:DropDown class="m-20"                 
 		items="{{ colors }}" 
 		selectedIndexChanged="{{ onColorSelected }}"
-		selectedIndex="0" 
+		selectedIndex="{{ selectedIndex }}"
    />
 
    viewModel.colors = ['blue', 'red', 'purple', 'green', 'brown', 'black', 'yellow', 'pink'];

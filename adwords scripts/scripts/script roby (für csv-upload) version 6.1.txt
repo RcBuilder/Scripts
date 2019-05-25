@@ -1,0 +1,1050 @@
+﻿/*
+    About
+    -----
+	this script creates a fully functioning campaign (adgroup, ad, keywords etc.) based on a feed (csv) 
+    
+    feed Columns
+    ------------
+    [index 47] c:Title_TM_Safe_Max_25  				// Ad Group 
+    [index 47] c:Title_TM_Safe_Max_25  				// header line1 
+    [index 01] title 				   				// description line1
+    [index 52] c:subtitel 			   				// description line2 (partial)
+    [index 07] link 			   	   				// url path
+    [index 35] c:Category_Last_Level_FirstWord		// url path
+    [index 36] c:Category_Last_Level_LastWord 		// url path
+    [index 47] c:Title_TM_Safe_Max_25				// sitelink text
+    [index 07] link 			   	   				// sitelink url
+    [index 03] Price								// price 
+    [index 09] availability							// in stock / out of stock     
+    [index 37] c:Title_TM_Safe						// KW
+    [index 48] c:Title_ohne_Marke					// KW
+    [index 14] gtin									// KW
+    [index 15] mpn									// KW
+    
+            
+    process steps
+    -------------
+	STEP 1: load campaign by Id
+    STEP 2: create adgroup
+    STEP 3: create a text ad
+    STEP 4: create keywords (positive)
+    STEP 5: create siteLinks
+*/
+
+var FEED_URI ='http://transport.productsup.io/477ea0c7540f340cf614/channel/5261/masterfeed-shopping-de.csv'
+var TEST_MODE = false;
+var CAMPAIGN_ID = '1777027083'; // 1622936850
+
+///[Obsolete] moved to an auto process using config sheet
+///var ProductsRange = '0-13000'; 
+
+var CONFIG_SHEET_NAME = 'MasterFeedShoppingConfig';
+var RANGE_INCREMENT_VALUE = 3;
+
+var counter_success = 0;
+var counter_failures = 0;
+
+function main() {
+  if(TEST_MODE)
+    Logger.log('[TEST MODE]');
+  
+  var adManagerService = AdManagerService(); 
+    
+  var products = LoadProducts();
+  Logger.log('%s products found', products.length);
+  
+  for(i in products)     
+  {
+    counter_success++;
+    ///Logger.log('---------------------');
+    ProcessProduct(products[i], adManagerService);          
+  }
+   
+  Logger.log('success: [%s], failures: [%s]', counter_success, counter_failures);
+}
+
+function LoadProducts(){
+  if(TEST_MODE){
+  	var dataReaderService = new DataReaderServiceMock();
+    return dataReaderService.getProducts();
+  }
+  
+  // read products from feed
+  var csvService = CSVService(FEED_URI, '|');
+  var dataReaderService = DataReaderService(csvService);  
+  
+  var products = dataReaderService.getProducts();
+  
+  // ---
+  
+  // get next bulk (config based)
+  var configSheet = SpreadsheetLoader.loadSheetService(CONFIG_SHEET_NAME); // load     
+  if(!configSheet)
+    configSheet = SpreadsheetLoader.createSheetService(CONFIG_SHEET_NAME); // create
+  
+  var ProductsRange = configSheet.getValueByRange('A1');
+  var firstRange = '0 -> '.concat(RANGE_INCREMENT_VALUE);
+  ProductsRange = ProductsRange || firstRange;
+  
+  var range = ProductsRange.split(' -> ');
+  var from = parseInt(range[0]);
+  var to = range[1] != '' ? parseInt(range[1]) : products.length;
+    
+  var isLastRange = to > products.length; // last range!
+  
+  if(isLastRange) // to prevent 'out of bounds' exception 
+    to = products.length;  
+  
+  Logger.log('loading range: %s > %s', from, to);
+  products = products.slice(from, to);
+  
+  var nextProductsRange = to.toString() + ' -> ' + (to + RANGE_INCREMENT_VALUE).toString();
+  if(isLastRange) // last range! reset 
+    nextProductsRange = firstRange;
+  
+  configSheet.setRangeValue('A1', nextProductsRange);
+  Logger.log('new range: %s', nextProductsRange);
+
+  return products;
+}
+
+function ProcessProduct(product, adManagerService){
+  try{
+    if(!product){
+      ///Logger.log('NULL row -> skip');
+      return;
+    }
+
+    ///Logger.log('campaign: #%s, adGroup: %s, product: %s', product.campaignId, product.adGroupName, product);       
+	///Logger.log(product.description.line2); // TO DELETE
+    
+    // STEP 1: load campaign by Id
+  	var campaign = null;
+  	try{
+    	campaign = AdWordsApp.campaigns().withIds([product.campaignId]).get().next();
+    }
+  	catch(ex){ 
+    	Logger.log('campaign %s does not exists!', product.campaignId);
+    }
+  
+    if(!campaign){
+      ///Logger.log('campaign was NOT found -> skip');
+      return;
+    }
+
+  	var adGroupExists = adManagerService.checkIfAdGroupExistsByName(campaign, product.adGroupName);
+  	if(!adGroupExists)	  
+    	CreateProduct(adManagerService, campaign, product);
+  	else 
+    	UpdateProduct(adManagerService, campaign, product);
+  }
+  catch(e){    
+  	Logger.log('[ERROR] ProcessProduct: %s', e.message);
+    counter_failures++;
+  }
+}
+
+function CreateProduct(adManagerService, campaign, product){
+  // STEP 2: create adgroup
+  var adGroup = adManagerService.createAdGroup(campaign, product.adGroupName, product.defaultBid);
+  if(!adGroup){
+    ///Logger.log('exception: create adGroup');
+    return;
+  }             
+  ///Logger.log('adGroup created successfully');
+
+  // STEP 3: create a text ad 
+  // { adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2 }
+    
+  var textAd = CreateAd(adManagerService, adGroup, product);
+
+  if(!textAd){
+    Logger.log('exception: create ad');
+    return;
+  }
+  ///Logger.log('ad created successfully');
+
+  Logger.log(product.keywords);
+
+  // STEP 4: create keywords (positive)    	  	
+  var keywordsClear = product.keywords.map(function(x) { return adManagerService.clearKeyword(x)});  	  	
+  adManagerService.createKeywords(adGroup, keywordsClear); 
+  ///Logger.log('keywords created successfully');
+
+  // STEP 5: create siteLinks
+  var sitelinkTitle = product.sitelink.title;
+  if(sitelinkTitle.length > 25) sitelinkTitle = 'Top Produkte'; // default 
+  var sitelink = adManagerService.createSiteLink(sitelinkTitle, product.sitelink.url, product.sitelink.text1, product.sitelink.text2);  
+  adGroup.addSitelink(sitelink); 
+  ///Logger.log('sitelink created successfully');  
+}
+
+function UpdateProduct(adManagerService, campaign, product){  
+  var adGroup = adManagerService.getAdGroupByName(campaign, product.adGroupName);
+  
+  // update price param
+  var keywords = adGroup.keywords().get();
+  while(keywords.hasNext())
+  {        
+    var keyword = keywords.next();
+    var params = adManagerService.getKeywordParams(keyword);
+    ///Logger.log('price update: %s > %s', params.length == 0 ? 'NULL' : params[0].text, product.price);
+
+    adManagerService.setKeywordParams(keyword, product.price);    	
+  }
+  	
+  // update ad url (if needed)
+  var ads = adManagerService.getAdsByAdgroup(adGroup);
+  for(i in ads){
+    var ad = ads[i];
+    var adDestination = ad.urls().getFinalUrl();
+    
+    ///Logger.log(adDestination);
+    ///Logger.log(product.url.path);
+    
+    if(adDestination == product.url.path) continue;
+    
+    Logger.log('re-create ad "' + ad.getHeadlinePart1() + '"');      
+    
+    ad.remove();
+    CreateAd(adManagerService, adGroup, product)
+  }
+}
+
+function CreateAd(adManagerService, adGroup, product){
+  	var param1Value = '{param1:' + product.price + '}';
+  
+	adManagerService.createAd(
+    adGroup, 
+    adManagerService.clearSpecialCharacters(product.header.line1), 
+    adManagerService.clearSpecialCharacters(product.header.line2) + ' ' + param1Value, 
+    adManagerService.clearSpecialCharacters(product.header.line3), 
+    adManagerService.clearSpecialCharacters(product.description.line1), 
+    adManagerService.clearSpecialCharacters(product.description.line2), 
+    product.url.path, 
+    product.url.segment1, 
+    product.url.segment2
+  );
+}
+
+// ----------------------------------------------
+
+function DataReaderServiceMock(){
+	this.getProducts = function(){
+    	var result = [];
+    	result.push({ 
+            campaignId: CAMPAIGN_ID, 
+            adGroupName: 'demo' + Math.ceil(Math.random() * 1000), 
+            defaultBid: 0.1, 
+            header: {
+              line1: 'Lorem Ipsum',
+              line2: 'What is Lorem Ipsum?',
+              line3: 'dummy text'
+            },
+            description: {
+              line1: 'a simply dummy text', 
+              line2: 'since the 1500s'
+            }, 
+            url: { 
+              path: 'http://example.com', 
+              segment1: 'page', 
+              segment2: 'sub-page' 
+            }, 
+            keywords: ['keyword1', 'keyword2', 'keyword3', 'keyword4'], 
+            sitelink: { 
+              title: 'Lorem Ipsum', 
+              url: 'http://example.com',
+              text1 : 'Top Auswahl - Top Preise.',	
+              text2 : 'Top Aktionen - Top Service.'
+            },
+            price: 300,
+            stock: 30
+          });
+      
+      return result;      
+    }
+}
+
+// ----------------------------------------------
+
+/* DATA READER SERVICE */
+var DataReaderService = function(csvService) { 
+  return {  
+     /*
+      { 
+          campaignId: string, 
+          adGroupName, 
+          defaultBid, 
+          header: {
+          	line1,
+			line2,
+			line3
+          }
+          description: {
+          	line1, 
+            line2
+          }, 
+          url: { 
+              path, 
+              segment1, 
+              segment2 
+          }, 
+          keywords: string[], 
+          sitelink: { 
+              title, 
+              url,
+              text1,
+              text2
+          },
+          price,
+          stock
+      }
+    */    
+    getProducts: function(){
+      var result = [];
+      
+      // slice(1) - remove the header row;
+      var rows = csvService.getRows().slice(1); 
+      
+      for(i in rows){        
+      	result.push({ 
+          campaignId: CAMPAIGN_ID, 
+          adGroupName: rows[i][47], 
+          defaultBid: 0.1, 
+          header: {
+          	line1: rows[i][47], 
+			line2: 'Für nur CHF',
+			line3: 'Jetzt bei Fust online kaufen'
+          },
+          description: {
+          	line1: rows[i][1] + '.', 
+            line2: rows[i][52] + '. Grosse Auswahl bei Fust.ch  günstige Preise.'
+          }, 
+          url: { 
+              path: rows[i][7].replace('http://', 'https://'),  
+              segment1: rows[i][35], 
+              segment2: rows[i][36], 
+          }, 
+          keywords: [
+            rows[i][1],
+            rows[i][14] + ' ' + rows[i][15],
+            rows[i][37],
+            rows[i][48]
+          ], 
+          sitelink: { 
+              title: rows[i][47],  
+              url: rows[i][7].replace('http://', 'https://'),  
+              text1 : 'Top Auswahl - Top Preise.',	
+              text2 : 'Top Aktionen - Top Service.'            
+          },
+          price: rows[i][3].replace('CHF', '').trim(), 
+          stock: rows[i][9] 
+      	});
+      }
+      
+      return result;
+    }
+  }
+}
+
+// ----------------------------------------------
+
+/* CSV SERVICE */
+var CSVService = function(uri, delimiter) { 
+  var _document = null;
+  var _delimiter = delimiter || ',';
+  var _charset = 'UTF-8';
+  
+  (function(){
+    var response = UrlFetchApp.fetch(uri);
+    var status_code = response.getResponseCode();
+    
+    if(status_code != 200) // 200 = OK
+    {
+      Logger.log('status code %s', status_code);
+      return;
+    }
+    
+    Logger.log('%s was loaded', uri);            
+    _document = Utilities.parseCsv(response.getContentText(_charset), _delimiter);    
+   })();  
+  
+   return { 
+     document: _document,
+     count: function(){
+       if(!_document) 
+         return 0;
+       
+       if(_document.length)
+         return _document.length;         
+       return 1;
+     },
+     getRows: function(){
+       var rows = [];
+    
+      for(i in _document){
+        var row = _document[i];
+        if(row[0].length == 1) 
+          continue;      
+        rows.push(row);
+      }
+      return rows;
+     }
+   }; 
+}
+
+// ----------------------------------------------
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  // e.g: setFormat('A1'); // set cell
+  // e.g: setFormat('A1:A10'); // set range
+  var setFormat = function(strRange, format){
+    var range = _sheet.getRange(strRange);
+    range.setNumberFormat(format);  
+  }
+  
+  var getBorderStyle = function(value){
+    value = value.toLowerCase();
+    switch(value){
+      case 'dotted': return SpreadsheetApp.BorderStyle.DOTTED;
+      case 'dashed': return SpreadsheetApp.BorderStyle.DASHED;
+      default:
+      case 'solid': return SpreadsheetApp.BorderStyle.SOLID;
+    }
+  }
+  
+  return {   
+    sheet: _sheet,
+    hasSheet: _sheet != null,
+    sheetName: _sheet ? _sheet.getName() : '',
+    spreadSheet: _sheet.getParent(),
+    getLastRowIndex: function() { 
+      return _sheet.getLastRow();  
+    }, 
+    getLastColumnIndex: function(){ 
+      return _sheet.getLastColumn();
+    }, 
+    getValue: function(rowPosition, columnPosition){ 
+      return _sheet.getRange(rowPosition, columnPosition).getValue();
+    }, 
+    getValueByRange: function(strRange){ /* A3, B1 etc.*/       
+      return _sheet.getRange(strRange).getValue();
+    },  
+    getValues: function(){
+      return _sheet.getDataRange().getValues();
+    },
+    getValuesByRange: function(strRange){ /* A3:B3, C1:C5 etc.*/       
+      return _sheet.getRange(strRange).getValues();
+    }, 
+    getRowValues:function(rowPosition){       
+      return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
+    },      
+    getRowIndex: function(columnPosition, key){
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnPosition - 1] == key)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+    getRowIndexBy2Columns: function(columnAPosition, keyA, columnBPosition, keyB){ 
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnAPosition - 1] == keyA && rows[row][columnBPosition - 1] == keyB)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+      getColumnValues: function(startRowPosition, columnPosition){
+        // getRange(row, column, numRows, numColumns)
+        return _sheet.getRange(startRowPosition, columnPosition, _sheet.getLastRow() - 1, 1).getValues();
+      }, 
+      addRow: function(arrValues){ 
+        //_sheet.appendRow(arrValues);
+        this.addRowAtIndex(arrValues, _sheet.getLastRow() + 1);
+      },
+      addRowAtIndex: function(arrValues, rowPosition){               
+        rowPosition = rowPosition || _sheet.getLastRow() + 1;
+        var range = _sheet.getRange(rowPosition, 1, 1, arrValues.length);
+        range.setValues([arrValues]);
+      },
+      addImageFromURL: function(url, rowPosition, columnPosition, left, top){ 
+        top = top || 0;
+        left = left || 0;
+        
+        _sheet.insertImage(url, rowPosition, columnPosition, left, top);
+      },   
+      addImage: function(blob, rowPosition, columnPosition, left, top){ 
+        top = top || 0;
+        left = left || 0;
+        
+        _sheet.insertImage(blob, rowPosition, columnPosition, left, top);
+      },   
+      deleteRow: function(rowPosition){
+        _sheet.deleteRow(rowPosition);
+      }, 
+	  copyRange: function(fromRange, toRange){
+        Logger.log('copy range from %s to %s', fromRange, toRange);
+        var valuesToCopy = this.getValuesByRange(fromRange);      
+        this.setRangeValues(toRange, valuesToCopy);           
+      },   
+      sort: function(columnPosition){
+        _sheet.sort(columnPosition);
+      },
+      hasCharts:  _sheet.getCharts().length > 0,
+      findColumnValuesByFilter: function(columnPosition, filterValue, filterColumnPosition){
+        /* 
+        get column values filtered by other column
+        
+        e.g: findColumnValuesByFilter(2, '100', 1)          
+        all B column values that the value in A column equals to '100'
+        */
+        
+        var result = [];       
+        var rows = _sheet.getDataRange().getValues();
+        
+        for(row in rows)
+          if(rows[row][filterColumnPosition - 1] == filterValue)
+            result.push(rows[row][columnPosition]);
+        return result;  
+      }, 
+	  freezeHeader: function(){
+          _sheet.setFrozenRows(1);
+      },
+      merge: function(strRange){
+        _sheet.getRange(strRange).merge();
+      },  
+      clear: function(charts, format, contents){
+        charts = charts || false;
+        format = format || false;
+        contents = contents || true;
+        
+        _sheet.clear({ formatOnly: format, contentsOnly: contents });    
+        
+        // clear all notes
+        _sheet.clearNotes();        
+        
+        // clear all charts
+        var charts = _sheet.getCharts();
+        for (var i in charts)
+          _sheet.removeChart(charts[i]);
+      },          
+      setValue: function(rowPosition, columnPosition, value){ 
+        _sheet.getRange(rowPosition, columnPosition).setValue(value);
+      },     
+      setRangeValue: function(strRange, value){ 
+        // e.g: setCurrencyFormat('A1'); // set cell
+        _sheet.getRange(strRange).setValue(value);
+      },
+	  setRangeValues: function(strRange, values){         
+        _sheet.getRange(strRange).setValues(values);
+      },
+      setColumnWidth: function(columnPosition, width){
+        _sheet.setColumnWidth(columnPosition, width);
+      },  
+      setRowHeight: function(rowPosition, height){
+        _sheet.setRowHeight(rowPosition, height);
+      },  
+      setName: function(newName){
+        _sheet.setName(newName);
+      }, 
+      setNote: function(strRange, note){
+         var range = _sheet.getRange(strRange);
+        range.setNote(note);
+      },         
+      setDataUI: function(strRange, backgroundColor, foreColor, fontSize, hAlign, fontWeight, border /* { color, style } */, vAlign){
+        var range = _sheet.getRange(strRange);
+        if(backgroundColor)
+          range.setBackground(backgroundColor);
+        if(foreColor)
+          range.setFontColor(foreColor);
+        if(fontSize)
+          range.setFontSize(fontSize);
+        if(hAlign)
+          range.setHorizontalAlignment(hAlign);
+        if(vAlign)
+          range.setVerticalAlignment(vAlign)
+          if(fontWeight)
+            range.setFontWeight(fontWeight);
+        if(border)
+          range.setBorder(true, true, true, true, true, true, border.color, getBorderStyle(border.style))
+      }, 
+      setNumberFormat: function(strRange){
+        setFormat(strRange, '0');       
+      },
+      setDecimalFormat: function(strRange){
+        setFormat(strRange, '0.00');
+      },
+      setCurrencyFormat: function(strRange){
+        setFormat(strRange, '$0.00');
+      },
+      setPercentageFormat: function(strRange){
+        // e.g: setPercentageFormat('A1'); // set cell
+        // e.g: setPercentageFormat('A1:A10'); // set range
+        
+        setFormat(strRange, '0.00%');
+      },
+      setWeekFormat: function(strRange){
+        setFormat(strRange, 'MMM dd');
+      },
+      setMonthFormat: function(strRange){
+        setFormat(strRange, 'MMM');
+      },
+      setCellSumFormula: function(strRange, strCell){
+        // e.g: setCellSumFormula('A1:A10', 'B1'); 
+        // set SUM value of cells A1 to A10 to cell B1
+        
+        var cell = _sheet.getRange(strCell);
+        cell.setFormula('=SUM(' + strRange + ')');
+      },
+      setCellAvgFormula: function(strRange, strCell){
+        // e.g: setCellSumFormula('A1:A10', 'B1'); 
+        // set AVG value of cells A1 to A10 to cell B1
+        
+        var cell = _sheet.getRange(strCell);
+        cell.setFormula('=AVERAGE(' + strRange + ')');
+      },
+      setCellFormula: function(formula, strCell){
+        // e.g: setCellFormula('=B3-C3', 'D3');         
+		// e.g: setCellFormula('=$B3-$C3', 'D3:D9');   
+        
+        var cell = _sheet.getRange(strCell);
+        cell.setFormula(formula);
+      }        
+  }; 
+}
+
+// ----------------------------------------------
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  
+  // ---  spreadSheets
+  
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+	if(spreadSheetName == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheetId){
+    if(spreadSheetId == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var file = DriveApp.getFileById(spreadSheetId);
+    if(!file || file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheetId);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetId);
+    return SpreadsheetApp.openById(file.getId());    
+  },  
+  loadSpreadSheetByURL: function(spreadSheetUrl){
+    if(spreadSheetUrl == '') {
+      Logger.log('EMPTY URL!');
+      return null;
+    }
+    
+    Logger.log('LOADING %s ... ', spreadSheetUrl);
+    var spreadSheet = SpreadsheetApp.openByUrl(spreadSheetUrl);    
+    
+    if(!spreadSheet){
+      Logger.log('%s NOT EXISTS!', spreadSheetUrl);
+      return null;
+    }
+    
+    return spreadSheet;
+  }, 
+  
+  // ---  sheet Services
+  
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheetId){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheetId);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSheetServiceByURL: function(spreadSheetUrl){
+    var spreadsheet = this.loadSpreadSheetByURL(spreadSheetUrl);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },
+  
+  // ---  spreadSheet Services
+  
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  loadSpreadSheetServiceById: function(spreadSheetId){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheetId);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },  
+  loadSpreadSheetServiceByURL: function(spreadSheetUrl){
+    var spreadsheet = this.loadSpreadSheetByURL(spreadSheetUrl);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet);
+  },  
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  }
+}
+
+// ----------------------------------------------
+
+// AD MANAGER SERVICE
+var AdManagerService = function() { 
+  return{
+    createAdGroup: function(campaign, adGroupName, defaultBid){
+      var adGroupBuilder = campaign.newAdGroupBuilder();
+      var operation = adGroupBuilder
+      .withName(adGroupName)
+      .withCpc(defaultBid)
+      // .withStatus('ENABLED')
+      .build();
+      
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },
+    // createAd: function(adGroup, header1, header2, description, destinationURL, pathURL1, pathURL2)
+    createAd: function(adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2){     
+      if(header1.length > 30)
+        header1 = header1.substr(0, 29);
+      if(header2.length > 30)
+        header2 = header2.substr(0, 29);
+      if(description1.length > 90)
+        description1 = description1.substr(0, 89);
+     
+      var builder = adGroup.newAd().expandedTextAdBuilder()
+      .withHeadlinePart1(header1) // 30 characters      
+      .withHeadlinePart2(header2) // 30 characters
+      .withDescription1(description1) // 90 characters      
+      .withFinalUrl(destinationURL) // 255 characters    
+      .withMobileFinalUrl(destinationURL);
+      
+      /* parameters:
+      
+         syntax:
+         {param<num>:<default value>}
+         
+         e.g: 
+         product {param1: 'some product'} for only {param2: 0} $ - buy now!
+      */
+
+      if(pathURL1 && pathURL1.length <= 15)     
+        builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/pathURL1/pathURL2      
+      
+      if(pathURL2 && pathURL2.length <= 15)
+        builder.withPath2(pathURL2); // 15 characters (the second part after the siteURL)
+
+      if(header3){
+      	if(header3.length > 30)
+        	header3 = header3.substr(0, 29);
+        
+        builder.withHeadlinePart3(header3) // 30 characters
+      }
+      
+      if(description2){
+      	if(description2.length > 90)
+        description2 = description2.substr(0, 89);
+        
+        builder.withDescription2(description2) // 90 characters  
+      }
+      
+      var operation = builder.build();
+      
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },   
+    createKeywords: function(adGroup, arrKeywods){
+      // arrKeywods: [string]
+      // match type: see 'Match Types'      
+      for(i in arrKeywods){
+        var keyword = arrKeywods[i];                                
+        var operation = adGroup.newKeywordBuilder()        
+        .withText(keyword)       
+        // .withCpc(1.0)
+        .build();        
+      }
+    },
+    createNegativeKeywords: function(adGroup, arrKeywods){
+      for(i in arrKeywods){
+        var keyword = arrKeywods[i];
+        adGroup.createNegativeKeyword(keyword);
+      }
+    },   
+    
+    createSiteLink: function(title, url, text1, text2){   
+      if(title.length > 25)
+        title = title.substr(0, 24);
+      
+      var operation = AdWordsApp.extensions().newSitelinkBuilder()
+        .withLinkText(title)  // 25 characters  
+        .withFinalUrl(url)
+      	.withDescription1(text1 || '')
+      	.withDescription2(text2 || '')
+        .build();
+
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },
+
+    /*
+	   important! 
+	   use it before you add your match type signs! (calling the createKeywords method)
+	   in order to prevent a deletion of those legitimate chars which add to represent the keyword match type ("keyword", [keyword], +keyword)
+
+       Logger.log(adManagerService.clearKeyword('A!@%,*B'));
+       Logger.log(adManagerService.clearKeyword('12%34'));
+       Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K L M N O P'));
+       Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K    L M N      O       P', true));
+    */
+    clearKeyword: function(keyword, clearSpacers){      
+      // --- [validation] special characters ------//
+      keyword = this.clearSpecialCharacters(keyword);      
+      
+      // --- [validation] words quantity ----------//
+      var maxWordsAllowed = 10;
+      
+      // two many words
+      // [error] Keywords cannot contain more than 10 words
+      if(keyword.split(' ').length > maxWordsAllowed)
+        keyword = keyword.split(' ').slice(0, 9).join(' '); // remove words
+        
+      // --- clear spacers -----------------------//
+      if(clearSpacers == true)
+        keyword = this.clearKeywordSpacers(keyword);
+      
+      return keyword;
+    },
+    clearSpecialCharacters: function(input){
+      /* OLD VERSION
+        var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']', '|', '>', '/'];
+
+        // non allowed characters
+        // [error] Keywords cannot contain non-standard characters like: ! @ % , *
+        for(i in specialCharacters)
+        {
+          var c = specialCharacters[i];
+          if(keyword.indexOf(c) == -1) continue;
+          keyword = keyword.split(c).join(''); // replace all
+        } 
+      */   
+      
+      // any letter in the ASCII range 
+      // \u0080-\uFFFF
+      var specialCharactersPattern = /[^\.,&\/\-_'!\?\w\d\s{}:\u0080-\uFFFF]+/g;      
+      return input.replace(specialCharactersPattern, ' ');
+    },
+    clearKeywordSpacers : function (input){
+		var arrWords = input.split(' ');
+		if(arrWords.length == 1) {
+		// Logger.log('single word: /%s/', input);
+		return input;
+		}
+
+		// clear extra middle spaces ('A B C' -> 'A B C')
+		var temp = [];
+		for(i in arrWords){ 
+		var word = arrWords[i].trim();
+		if(word == '' || word.length == 1) continue; 
+		// Logger.log('word: /%s/', word);
+		temp.push(word); 
+		} 
+
+		var output = temp.join(' ');
+		// Logger.log('input: /%s/', input);
+		// Logger.log('output: /%s/', output);
+		return output; 
+	},
+    setKeywordParams: function(keyword, param1Value, param2Value, param3Value){      
+      if(param1Value)
+        keyword.setAdParam(1, param1Value);
+      
+      if(param2Value)
+        keyword.setAdParam(2, param2Value);
+      
+      if(param3Value)
+        keyword.setAdParam(3, param3Value);
+    },
+    getAds: function(campaign){
+      var ads = [];
+      
+      var adsIter = campaign.ads()
+      .withCondition('Type = EXPANDED_TEXT_AD')
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .get();
+      
+      while(adsIter.hasNext())      
+        ads.push(adsIter.next().asType().expandedTextAd());
+      
+      return ads;      
+    },  
+    getAdsByAdgroup: function(adgroup){
+      var ads = [];
+      
+      var adsIter = adgroup.ads()      
+      .withCondition('Type = EXPANDED_TEXT_AD')
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .get();
+      
+      while(adsIter.hasNext())      
+        ads.push(adsIter.next().asType().expandedTextAd());
+      
+      return ads;      
+    },      
+    getAdGroupByName: function(campaign, adGroupName){
+      adGroupName = adGroupName.toLowerCase();
+      
+      var adgroups = campaign.adGroups()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withCondition('Name STARTS_WITH_IGNORE_CASE "' + adGroupName + '"')
+      .get()
+      
+      while(adgroups.hasNext())
+      { 
+        var adgroup = adgroups.next();
+        if(adgroup.getName().toLowerCase() == adGroupName)
+          return adgroup;
+      }
+      return null;
+    },
+    getAdGroupById: function(adGroupId){            
+      var adgroup = AdWordsApp.adGroups()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withIds([adGroupId])
+      .get()
+      
+      if(adgroup.hasNext())
+        return adgroup.next();
+      return null;
+    },
+    getCampaignById: function(campaignId){            
+      var campaign = AdWordsApp.campaigns()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withIds([campaignId])
+      .get()
+      
+      if(campaign.hasNext())
+        return campaign.next();
+      return null;
+    },
+    getKeywordParams: function(keyword){
+      // [{index, text}]
+      var result = [];
+      
+      var adParams = keyword.adParams().get();
+      while (adParams.hasNext()) {
+        var adParam = adParams.next();
+        result.push({ 
+          index: adParam.getIndex(),
+          text: adParam.getInsertionText()
+      	});
+      }
+      
+      return result;
+    },
+    checkIfAdExistsByTitle: function(campaign, adTitle){
+      var ads = this.getAds(campaign);
+      for(i in ads)
+        if(ads[i].getHeadlinePart1() == adTitle)
+          return true;
+      return false;
+    },
+    checkIfAdGroupExistsByName: function(campaign, adGroupName){
+      return this.getAdGroupByName(campaign, adGroupName) != null;
+    },
+    checkIfKeywordExists: function(campaign, keywordText){
+      return campaign.keywords()
+      .withCondition('Text = \'' + keywordText + '\'')
+      .get()
+      .hasNext();
+    },
+    checkIfKeywordExistsInAdGroup: function(adgroup, keywordText){
+      return adgroup.keywords()
+      .withCondition('Text = \'' + keywordText + '\'')
+      .get()
+      .hasNext();
+    }      
+  };
+}

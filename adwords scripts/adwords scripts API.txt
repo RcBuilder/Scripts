@@ -9052,6 +9052,7 @@ var SheetService = function(sheet) {
 }
 
 --------------------
+
 /* SPREADSHEET LOADER */
 var SpreadsheetLoader = {
   
@@ -9538,8 +9539,7 @@ var AdManagerService = function() {
       return operation.getResult();
     },
     // createAd: function(adGroup, header1, header2, description, destinationURL, pathURL1, pathURL2)
-    createAd: function(adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2){
-      
+    createAd: function(adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2){     
       if(header1.length > 30)
         header1 = header1.substr(0, 29);
       if(header2.length > 30)
@@ -9592,10 +9592,9 @@ var AdManagerService = function() {
         
     createKeywords: function(adGroup, arrKeywods){
       // arrKeywods: [string]
-      // match type: see 'Match Types'
-      
+      // match type: see 'Match Types'      
       for(i in arrKeywods){
-        var keyword = arrKeywods[i];                        
+        var keyword = arrKeywods[i];                                
         var operation = adGroup.newKeywordBuilder()        
         .withText(keyword)       
         // .withCpc(1.0)
@@ -9630,28 +9629,42 @@ var AdManagerService = function() {
        Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K L M N O P'));
        Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K    L M N      O       P', true));
     */
-    clearKeyword: function(keyword, clearSpacers){
-      var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']', '|', '>', '/'];
-      var maxWordsAllowed = 10;
+    clearKeyword: function(keyword, clearSpacers){      
+      // --- [validation] special characters ------//
+      keyword = this.clearSpecialCharacters(keyword);      
       
-      // non allowed characters
-      // [error] Keywords cannot contain non-standard characters like: ! @ % , *
-      for(i in specialCharacters)
-      {
-        var c = specialCharacters[i];
-        if(keyword.indexOf(c) == -1) continue;
-        keyword = keyword.split(c).join(''); // replace all
-      }      
+      // --- [validation] words quantity ----------//
+      var maxWordsAllowed = 10;
       
       // two many words
       // [error] Keywords cannot contain more than 10 words
       if(keyword.split(' ').length > maxWordsAllowed)
         keyword = keyword.split(' ').slice(0, 9).join(' '); // remove words
         
+      // --- clear spacers -----------------------//
       if(clearSpacers == true)
         keyword = this.clearKeywordSpacers(keyword);
       
       return keyword;
+    },
+    clearSpecialCharacters: function(input){
+      /* OLD VERSION
+        var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']', '|', '>', '/'];
+
+        // non allowed characters
+        // [error] Keywords cannot contain non-standard characters like: ! @ % , *
+        for(i in specialCharacters)
+        {
+          var c = specialCharacters[i];
+          if(keyword.indexOf(c) == -1) continue;
+          keyword = keyword.split(c).join(''); // replace all
+        } 
+      */   
+      
+      // any letter in the ASCII range 
+      // \u0080-\uFFFF
+      var specialCharactersPattern = /[^\.,&\/\-_'!\?\w\d\s{}:\u0080-\uFFFF]+/g;      
+      return input.replace(specialCharactersPattern, ' ');
     },
     clearKeywordSpacers : function (input){
 		var arrWords = input.split(' ');

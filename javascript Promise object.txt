@@ -1,0 +1,146 @@
+javascript Promise object
+-------------------------
+also see 'javascript deferred and promise'
+
+syntax:
+
+// create a promise
+<promise> Promise( (<resolve>, <reject>) => {});
+<promise>.then(<result> => {}).catch(<error> => {});
+
+// waitAll 
+// wait for all promises to be completed 
+<promise> Promise.all([<promise>])
+<promise>.then([<result>] => {}).catch(<error> => {});
+
+// waitAny
+// wait for the first promise to be completed
+<promise> Promise.race([<promise>])
+<promise>.then([<result>] => {}).catch(<error> => {});
+
+note:
+the <result> value is the param/s sent using the 'resolve' function.
+the <error> value is the param/s sent using the 'reject' function.
+
+pass parameters:
+in order to pass parameters to a promise (which only gets resolve and reject), we'll have to create 
+a custom function which returns a promise! we'll send the parameters through our custom function. 
+(see example below) 
+
+---------------
+
+// basic promise usage
+// success (resolve)
+let p1 = new Promise((resolve, reject) => {
+	try{		
+		resolve('SUCCESS');
+	}
+	catch(e){
+		reject('FAILED');
+	}
+});
+
+p1.then(result => {
+	console.log(result);
+}).catch(error => {
+	console.log('[ERROR] ' + error);
+});
+
+---
+
+// failure (reject)
+let p2 = new Promise((resolve, reject) => {
+	try{		
+		throw 'some error!';
+		resolve('SUCCESS');
+	}
+	catch(e){
+		reject('FAILED');
+	}
+});
+
+p2.then(result => {
+	console.log(result);
+}).catch(error => {
+	console.log('[ERROR] ' + error);
+});
+
+--- 
+
+// wait all promises 
+const recordVideo1 = new Promise( (resolve, reject) => {
+	setTimeout(() => {
+        console.log('video 1 recorded');
+        resolve('video1');                
+    }, 2000);	
+});
+
+const recordVideo2 = new Promise( (resolve, reject) => {
+	setTimeout(() => {
+        console.log('video 2 recorded');
+        resolve('video2');                
+    }, 150);
+});
+
+const recordVideo3 = new Promise( (resolve, reject) => {
+	setTimeout(() => {
+        console.log('video 3 recorded');
+        resolve('video3');                
+    }, 350);
+});
+
+console.log('start recording ...');
+var all = Promise.all([recordVideo1, recordVideo2, recordVideo3]);
+all.then(result => {
+	console.log('all videos have recorded!');
+	console.log(result);
+});
+console.log('do some other work.....');
+
+/*	
+	start recording ...
+	do some other work.....	
+	video 2 recorded
+	video 3 recorded
+	video 1 recorded
+	all videos have recorded!
+	(3) ["video1", "video2", "video3"]
+*/
+
+---
+
+// wait any promise
+console.log('start recording ...');
+var all = Promise.race([recordVideo1, recordVideo2, recordVideo3]);
+all.then(result => {
+	console.log('first video has recorded!');
+	console.log(result);
+});
+console.log('do some other work.....');
+
+/*
+	start recording ...
+	do some other work.....
+	video 2 recorded
+	first video has recorded!
+	video2	
+	video 3 recorded
+	video 1 recorded
+*/
+
+---
+
+// pass parameters to a promise 
+const areEquals = (p1, p2) => {
+  return new Promise( (resolve, reject) => {        
+    if(p1 === p2) resolve(`${p1} is equal to ${p2}`);	
+	else reject(`${p1} is NOT equal to ${p2}`);	
+  });
+};
+
+const onSuccess = result => { console.log(result); };
+const onError = error => { console.log(error); };
+
+areEquals(3, 4).then(onSuccess).catch(onError);  // 3 is equal to 3
+areEquals(3, 3).then(onSuccess).catch(onError);  // 3 is NOT equal to 4
+areEquals(3, '3').then(onSuccess).catch(onError);  // 3 is NOT equal to 3

@@ -1,0 +1,16 @@
+Supermetrics API
+----------------
+
+site:
+https://supermetrics.com/
+
+integrations:
+https://supermetrics.com/integrations
+
+query builder:
+https://supermetrics.com/tools/#
+
+---
+
+// TODO how to use the api + query builder
+// TODO sso for each provider 

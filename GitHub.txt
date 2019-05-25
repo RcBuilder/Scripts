@@ -27,11 +27,12 @@ Coparing Branches
 Staging Index
 Clone
 Commit
+Rebase
 Diff view
 Files
 GitHub Desktop
 GitHub
-Visual Sudio
+Visual Studio
 Issues
 =====================
 
@@ -824,6 +825,43 @@ the HEAD and the server pointers points to [F]
 server [A]-[B]-[C]-[D]-[E]-[F]
 local [A]-[B]-[C]-[D]-[E]-[F]
 
+Rebase
+------
+rewrite branch history by changing it's base commit!  
+'rebase' takes all changes made on your feature branch and rewrites its history by changing it's base commit (the one which the branch forked from) with the destination version!
+the commit history of the current branch will be rewritten so that it starts from the destination commit instead of the original base.
+
+never use 'rebase' on commits that have been pushed and shared with others!!
+most common use for 'rebase' is when working on a long-running feature and need to test it against the latest version of the master.
+
+note!
+if the feature branch has already been pushed then 'rebase' requires a force push to rewrite the branch history.
+
+---
+
+how to rebase? (steps)
+1. get master latest version 
+   > git pull
+2. switch to the feature branch
+   > git checkout feature
+3. rebase to the master
+   > git rebase master
+
+if the feature branch has already been pushed, use force push to update the remote branch
+> git push -f origin feature 
+
+---
+
+before rebase:
+master -> [A]-[B]-[C]-[D]
+feature ->    [B1]-[B2]-[B3]
+
+after rebase:
+master -> [A]-[B]-[C]-[D]
+feature ->	  		  [D1]-[D2]-[D3]
+
+the base of our feature branch was from commit [B] but after a rebase with the latest version, the base was changed into commit [D]!
+
 Diff view
 ---------
 diff line number:
@@ -981,10 +1019,10 @@ e.g:
 :hourglass:
 :white_check_mark:
 
-Visual Sudio 
-------------
+Visual Studio
+-------------
 Get a specific version:
-- Team Explorer > Actions > View History
+- Team Explorer > Sync > Actions > View History
    (the commits list will be presented)
 
 - right click on the choosen commit > New Branch
@@ -994,11 +1032,17 @@ Reset (--mixed):
 move the pointer to a specific version, all changes since that point
 will be shown as pending chnages
  
-- Team Explorer > Actions > View History
+- Team Explorer > Sync > Actions > View History
    (the commits list will be presented)
 
 - right click on the choosen commit > Reset
 - choose 'Reset and Keep Changes (--mixed)' 
+
+Rebase:
+- Team Explorer > Branches > Rebase
+- verify that the source branch is the correct one (usually the feature branch)
+- (onto branch) choose the destination branch 
+- click on rebase
 
 
 Issues
