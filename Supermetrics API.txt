@@ -12,5 +12,27 @@ https://supermetrics.com/tools/#
 
 ---
 
-// TODO how to use the api + query builder
-// TODO sso for each provider 
+SSO process:
+an SSO request is created for each provider you want to add. 
+once you create the SSO request and give the required permissions, supermetrics saves the returned token 
+and attached it to your supermetrics-account.
+
+how to use?
+- go to the query builder (menu-tab)
+- (tab) data source > confirm permissions window on the SSO 
+  note: repeat this step for each source you want to add
+- (tab) select views/ accounts 
+- (tab) select date range
+- complete your query using the rest of the listed tabs (split by, segment, filter, metrics, options etc.)
+  note: the listed tabs vary based on the selected data source 
+
+- a completed GET request will be generated based on the properties provided above, 
+  copy it and use it in your app.
+
+  tip:
+  note that the api key exists as part as the query, you can create a shortened URL 
+  to genetate an unique code which represents the query without exposing the key. it is also a URL-friendly.
+
+api response format:
+to specify the returned format, add the query parameter targetAppFormat and set the desired format. (e.g: &targetAppFormat=tableau)
+formats > Supermatrics (json), tableau, qlik (csv), powerbi. (default: Supermatrics)

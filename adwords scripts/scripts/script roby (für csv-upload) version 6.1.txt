@@ -7,7 +7,9 @@
     ------------
     [index 47] c:Title_TM_Safe_Max_25  				// Ad Group 
     [index 47] c:Title_TM_Safe_Max_25  				// header line1 
+    [index 49] c:title_ohne_Marke_Max25 			// header line1 
     [index 01] title 				   				// description line1
+    [index 48] c:Title_ohne_Marke 				   	// description line1
     [index 52] c:subtitel 			   				// description line2 (partial)
     [index 07] link 			   	   				// url path
     [index 35] c:Category_Last_Level_FirstWord		// url path
@@ -32,7 +34,7 @@
 */
 
 var FEED_URI ='http://transport.productsup.io/477ea0c7540f340cf614/channel/5261/masterfeed-shopping-de.csv'
-var TEST_MODE = false;
+var TEST_MODE = true;
 var CAMPAIGN_ID = '1777027083'; // 1622936850
 
 ///[Obsolete] moved to an auto process using config sheet
@@ -71,8 +73,7 @@ function LoadProducts(){
   
   // read products from feed
   var csvService = CSVService(FEED_URI, '|');
-  var dataReaderService = DataReaderService(csvService);  
-  
+  var dataReaderService = DataReaderService(csvService);    
   var products = dataReaderService.getProducts();
   
   // ---
@@ -115,6 +116,15 @@ function ProcessProduct(product, adManagerService){
       return;
     }
 
+    ///Logger.log(product);
+    product.existsByURL = function(adDestination){
+      for(i in this.ads){        
+          if(adDestination == this.ads[i].url.path)
+            return true;
+      }
+      return false;
+    }   
+    
     ///Logger.log('campaign: #%s, adGroup: %s, product: %s', product.campaignId, product.adGroupName, product);       
 	///Logger.log(product.description.line2); // TO DELETE
     
@@ -153,17 +163,13 @@ function CreateProduct(adManagerService, campaign, product){
   }             
   ///Logger.log('adGroup created successfully');
 
-  // STEP 3: create a text ad 
+  // STEP 3: create text ads 
   // { adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2 }
-    
-  var textAd = CreateAd(adManagerService, adGroup, product);
-
-  if(!textAd){
-    Logger.log('exception: create ad');
+  
+  var failures = CreateAds(adManagerService, adGroup, product);  
+  if(failures == product.ads.length) // all ads failed
     return;
-  }
-  ///Logger.log('ad created successfully');
-
+  
   Logger.log(product.keywords);
 
   // STEP 4: create keywords (positive)    	  	
@@ -194,36 +200,62 @@ function UpdateProduct(adManagerService, campaign, product){
   }
   	
   // update ad url (if needed)
-  var ads = adManagerService.getAdsByAdgroup(adGroup);
+  var needTorRecreateAds = false;
+  var ads = adManagerService.getAdsByAdgroup(adGroup);  
   for(i in ads){
     var ad = ads[i];
     var adDestination = ad.urls().getFinalUrl();
     
     ///Logger.log(adDestination);
     ///Logger.log(product.url.path);
+          
+    if(product.existsByURL(adDestination)) continue;           
+    needTorRecreateAds = true;
+    break;
+  }
+  
+  if(needTorRecreateAds){
     
-    if(adDestination == product.url.path) continue;
+    Logger.log('re-create ads');      
     
-    Logger.log('re-create ad "' + ad.getHeadlinePart1() + '"');      
+    for(i in ads)
+    	ads[i].remove();
+    CreateAds(adManagerService, adGroup, product);  
     
-    ad.remove();
-    CreateAd(adManagerService, adGroup, product)
+  	///var failures = CreateAds(adManagerService, adGroup, product);  
+  	///if(failures == product.ads.length) // all ads failed    	
   }
 }
 
-function CreateAd(adManagerService, adGroup, product){
-  	var param1Value = '{param1:' + product.price + '}';
+function CreateAds(adManagerService, adGroup, product){
+  var failures = 0;
+  for(i in product.ads){
+    var textAd = CreateAd(adManagerService, adGroup, product.ads[i], product.price);
+
+    if(!textAd){
+      Logger.log('exception: create ad');
+      failures++;
+      continue;
+    }
+    Logger.log('ad created successfully');
+  }   
+  return failures;
+}
+
+
+function CreateAd(adManagerService, adGroup, adData, price){
+  	var param1Value = '{param1:' + price + '}';
   
-	adManagerService.createAd(
+	return adManagerService.createAd(
     adGroup, 
-    adManagerService.clearSpecialCharacters(product.header.line1), 
-    adManagerService.clearSpecialCharacters(product.header.line2) + ' ' + param1Value, 
-    adManagerService.clearSpecialCharacters(product.header.line3), 
-    adManagerService.clearSpecialCharacters(product.description.line1), 
-    adManagerService.clearSpecialCharacters(product.description.line2), 
-    product.url.path, 
-    product.url.segment1, 
-    product.url.segment2
+    adManagerService.clearSpecialCharacters(adData.header.line1), 
+    adManagerService.clearSpecialCharacters(adData.header.line2) + ' ' + param1Value, 
+    adManagerService.clearSpecialCharacters(adData.header.line3), 
+    adManagerService.clearSpecialCharacters(adData.description.line1), 
+    adManagerService.clearSpecialCharacters(adData.description.line2), 
+    adData.url.path, 
+    adData.url.segment1, 
+    adData.url.segment2
   );
 }
 
@@ -231,32 +263,53 @@ function CreateAd(adManagerService, adGroup, product){
 
 function DataReaderServiceMock(){
 	this.getProducts = function(){
+      	var randId = Math.ceil(Math.random() * 1000);
     	var result = [];
     	result.push({ 
             campaignId: CAMPAIGN_ID, 
-            adGroupName: 'demo' + Math.ceil(Math.random() * 1000), 
+            adGroupName: 'demo' + randId, 
             defaultBid: 0.1, 
-            header: {
-              line1: 'Lorem Ipsum',
-              line2: 'What is Lorem Ipsum?',
-              line3: 'dummy text'
-            },
-            description: {
-              line1: 'a simply dummy text', 
-              line2: 'since the 1500s'
-            }, 
-            url: { 
-              path: 'http://example.com', 
-              segment1: 'page', 
-              segment2: 'sub-page' 
-            }, 
-            keywords: ['keyword1', 'keyword2', 'keyword3', 'keyword4'], 
+            ads: [
+              {
+            	header: {
+                  line1: 'Lorem Ipsum 1',
+                  line2: 'What is Lorem Ipsum?',
+                  line3: 'dummy text'
+                },
+                description: {
+                  line1: 'a simply dummy text', 
+                  line2: 'since the 1500s'
+                }, 
+                url: { 
+                  path: 'http://example.com', 
+                  segment1: 'page', 
+                  segment2: 'sub-page' 
+                }
+              },
+              {
+            	header: {
+                  line1: 'Lorem Ipsum 2',
+                  line2: 'What is Lorem Ipsum?',
+                  line3: 'dummy text'
+                },
+                description: {
+                  line1: 'a simply dummy text', 
+                  line2: 'since the 1500s'
+                }, 
+                url: { 
+                  path: 'http://example.com', 
+                  segment1: 'page', 
+                  segment2: 'sub-page' 
+                }
+              }
+            ],             
             sitelink: { 
               title: 'Lorem Ipsum', 
               url: 'http://example.com',
               text1 : 'Top Auswahl - Top Preise.',	
               text2 : 'Top Aktionen - Top Service.'
             },
+          	keywords: ['keyword1', 'keyword2', 'keyword3', 'keyword4'], 
             price: 300,
             stock: 30
           });
@@ -274,28 +327,31 @@ var DataReaderService = function(csvService) {
       { 
           campaignId: string, 
           adGroupName, 
-          defaultBid, 
-          header: {
-          	line1,
-			line2,
-			line3
-          }
-          description: {
-          	line1, 
-            line2
-          }, 
-          url: { 
+          defaultBid,           
+          ads: [
+          { 
+          	header: {
+              line1,
+              line2,
+              line3
+            }
+            description: {
+              line1, 
+              line2
+            }, 
+            url: { 
               path, 
               segment1, 
               segment2 
-          }, 
-          keywords: string[], 
+            }            
+          }],
           sitelink: { 
-              title, 
-              url,
-              text1,
-              text2
+          	title, 
+            url,
+            text1,
+            text2
           },
+          keywords: string[], 
           price,
           stock
       }
@@ -311,32 +367,68 @@ var DataReaderService = function(csvService) {
           campaignId: CAMPAIGN_ID, 
           adGroupName: rows[i][47], 
           defaultBid: 0.1, 
-          header: {
-          	line1: rows[i][47], 
-			line2: 'Für nur CHF',
-			line3: 'Jetzt bei Fust online kaufen'
-          },
-          description: {
-          	line1: rows[i][1] + '.', 
-            line2: rows[i][52] + '. Grosse Auswahl bei Fust.ch  günstige Preise.'
-          }, 
-          url: { 
-              path: rows[i][7].replace('http://', 'https://'),  
-              segment1: rows[i][35], 
-              segment2: rows[i][36], 
-          }, 
-          keywords: [
-            rows[i][1],
-            rows[i][14] + ' ' + rows[i][15],
-            rows[i][37],
-            rows[i][48]
-          ], 
+          ads: [
+          	{ /* AD-1 */
+              header: {
+                line1: rows[i][47], 
+                line2: 'Für nur CHF',
+                line3: 'Jetzt bei Fust online kaufen'
+              },
+              description: {
+                line1: rows[i][1] + '.', 
+                line2: rows[i][52] + '. Grosse Auswahl bei Fust.ch  günstige Preise.'
+              }, 
+              url: { 
+                path: rows[i][7].replace('http://', 'https://'),  
+                segment1: rows[i][35], 
+                segment2: rows[i][36], 
+              }
+            },
+            { /* AD-2 */
+              header: {
+                line1: rows[i][47], 
+                line2: 'Für nur CHF',
+                line3: 'Sensationelle Preise'
+              },
+              description: {
+                line1: rows[i][1] + '.', 
+                line2: rows[i][52] + '. Mit Tiefpreisgarantie - Schnelle Lieferung!'
+              }, 
+              url: { 
+                path: rows[i][7].replace('http://', 'https://'),  
+                segment1: rows[i][35], 
+                segment2: rows[i][36], 
+              }
+            },
+            { /* AD-3 */
+              header: {
+                line1: rows[i][49], 
+                line2: 'Für nur CHF',
+                line3: 'Jetzt mit Tiefpreisgarantie'
+              },
+              description: {
+                line1: rows[i][48] + '.', 
+                line2: '60’000 Elektronik Produkte bei Fust – Rasche Lieferung – Kauf auf Rechnung – Top Preise!'
+              }, 
+              url: { 
+                path: rows[i][7].replace('http://', 'https://'),  
+                segment1: rows[i][35], 
+                segment2: rows[i][36], 
+              }
+            }
+          ],           
           sitelink: { 
               title: rows[i][47],  
               url: rows[i][7].replace('http://', 'https://'),  
               text1 : 'Top Auswahl - Top Preise.',	
               text2 : 'Top Aktionen - Top Service.'            
           },
+          keywords: [
+            rows[i][1],
+            rows[i][14] + ' ' + rows[i][15],
+            rows[i][37],
+            rows[i][48]
+          ], 
           price: rows[i][3].replace('CHF', '').trim(), 
           stock: rows[i][9] 
       	});

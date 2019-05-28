@@ -1,0 +1,19 @@
+NaN
+---
+Not-A-Number
+represents a non-numeric value.
+
+---
+
+// using
+if (isNaN(value)) return NaN;
+else return value;
+
+---
+
+// comparison behaviour
+String == String  // true
+Number == Number  // true
+NaN == NaN    // false!
+
+isNaN(NaN)    // true

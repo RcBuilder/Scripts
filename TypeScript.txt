@@ -1,0 +1,515 @@
+
+******** TypeScript ********
+****************************
+a strongly typed, object oriented, compiled language. 
+a layer on top of javascript designed by Microsoft.
+a typeScript code is converted into its JavaScript equivalent for the purpose of execution.
+
+-----------------------------------------
+- install
+- file extension
+- compile .ts file
+- visual studio
+- type annotations
+- type assertion
+- optional parameters
+- enums
+- tuples
+- interfaces
+- classes
+-----------------------------------------
+
+
+install:
+1. via npm 
+   > npm install -g typescript
+  
+2. vs plugin
+   https://www.typescriptlang.org/#download-links
+   note: Visual Studio 2015 update3 and up include it by default.
+   
+---
+
+file extension:
+typeScript files use .ts extension.
+we can write either typeScript code or pure javascript code in those files. 
+browsers can't interpret .ts files so we need to compile them into .js files. (see 'compile .ts file')
+
+---
+
+compile .ts file:
+> tsc <fileName>.ts
+> tsc <fileName-1>.ts, <fileName-2>.ts ... <fileName-N>.ts
+
+when compiling a .ts file, it is translated into a pure javascript code and saved as .js file (with the same name). 
+ANY pure javascript code within the .ts file is copied as is whereas ANY typeScript code is converted to javascript code!
+
+flags:
+--help
+--module				// load external modules
+--target				// set the target ECMA version
+--declaration			// generates an additional .d.ts file
+--removeComments		// removes all comments from the output file
+--out					// compile multiple files into a single output file
+--sourcemap				// generate a sourcemap (.map) files
+--module noImplicitAny  // disallows the compiler from inferring the any type
+--watch					// watch for file changes and recompile them on the fly
+
+---
+
+a reminder:
+run .js file using the terminal 
+> node <fileName>.js
+
+---
+
+visual studio:
+vs supports an auto-compilation of .ts files  
+it uses Build Action of type TypeScriptCompile (properties window - F4).
+in the html page, we need to reference the file using a .js extension instead of .ts! 
+each build the vs auto-compilation process will create a pure javascript version of the typeScript code.
+
+open a typeScript app:
+Add > New Project > Other Languages > TypeScript > HTML application with TypeScript
+
+
+using:
+// index.html
+<script src="app.js"></script>
+
+// app.ts
+class SomeClass { ...}
+window.onload = () => {    
+    var someClass = new SomeClass();
+	...    
+};
+
+---
+
+visual studio code:
+we can use vs-code to open .ts files and compile them manually using the terminal. 
+    
+------------------------------------------
+
+[type annotations]
+
+syntax:
+<name>:<data type>
+
+note:
+can be applied on properties, functions, variables etc.
+
+---
+
+data types:
+number
+boolean
+string
+any
+null
+undefined
+void    // for functions
+ 
+tuple   // see 'tuples'
+array   
+custom  // custom can be interface, enum, class etc.
+
+---
+
+use OR operator:
+we can set multiple data-types using the '|' sign (pipeline) which represensts OR operator!
+
+let k: boolean|number; // can be of type bool or number
+k = 12;			// OK	
+k = true;		// OK
+k = 'string';   // error: Type '"string"' is not assignable to type 'number | boolean'
+
+---
+
+use arrow function as type:
+we can set an arrow function as data-type. 
+
+let m1:()=>string;
+m1 = () => 'hello world';
+
+let m2:(x:number)=>number;
+m2 = (x) => x*10;
+
+---
+
+let a:null = null;
+let b:undefined = undefined;
+let c:number = 1;
+let d:boolean = true;
+let e:string = 'string';
+
+let f1:any = 1;
+let f2:any = 'string';
+let f3:any = true;
+
+let g = 'string'; // the type inferred from the value
+
+note!
+data type 'any' can take any type.
+
+---
+
+// function signature
+function fun(p1:number, p2:string, p3:boolean, p4:any, p5:string[]){
+	...	
+}
+
+// using 
+fun(1, 'str', false, {}, ['A', 'B', 'C']); 
+
+note!
+can also be used with arrow functions
+e.g: (x:number) => x*10;
+
+---
+
+// .ts
+let str:string = 'hi';
+let i:number = 4;
+
+let j:number
+j = 'aa'; // error: Type '"aa"' is not assignable to type 'number'
+
+let str2 = 'string';
+str2 = 1; // error: Type 1 is not assignable to type 'string'
+
+function fun(p1:number, p2:string, p3:boolean, p4:any, p5:string[]){ }
+fun(1, 'str', false, {}, ['A', 'B', 'C']);
+
+let m1:()=>string;
+m1 = () => 'hello world';
+
+let m2:(x:number)=>number;
+m2 = (x) => x*10;
+
+// .js
+var str = 'hi';
+var i;
+i = 4;
+
+var j;
+j = 'aa';
+
+var str2 = 'string';
+str2 = 1;
+
+function fun(p1, p2, p3, p4, p5) { }
+fun(1, 'str', false, {}, ['A', 'B', 'C']);
+
+var m1;
+m1 = function () { return 'hello world'; };
+var m2;
+m2 = function (x) { return x * 10; };
+
+note! 
+when compiling the .ts file, we get an indication of an error but the compiler still translate the code to javascript.
+
+------------------------------------------
+
+[type assertion]
+
+allows us to switch a variable type. works 
+
+syntax:
+<new data type> <value>
+
+---
+
+let abc:any = 10;
+let bcd: string = <string>abc;  // bcd is a string 
+
+---
+
+// .ts
+let abc:any = 10;
+let bcd: string = <string>abc;
+
+// .js
+var abc = 10;
+var bcd = abc;
+
+------------------------------------------
+
+[optional parameters]
+
+syntax:
+(<paramName>?:<data type>)
+
+use the '?' sign to define a parameter as optional. 
+all optional parameters MUST come after the required parameters.
+if a parameter is optional and it wasn't provided to the function - no error will be thrown.
+
+---
+
+// compilation error
+function fun(p1:number, p2:string, p3:boolean, p4:any){}
+fun(1, 'str', false); // An argument for 'p4' was not provided
+
+// no errors 
+// p4 is optional
+function fun(p1:number, p2:string, p3:boolean, p4?:any){}
+fun(1, 'str', false); // ok
+
+---
+
+a reminder:
+the compiler still translates the code to a pure js code but it also indicates of an error.
+
+------------------------------------------
+
+[enums]
+
+syntax:
+enum <name> {
+	<keys>
+}
+
+---
+
+enum eColor{
+    red, 
+	green, 
+	blue
+}
+
+enum eColor{
+    red = 20, 
+	green = 30, 
+	blue = 40
+}
+
+enum eColor{
+    red = 20, 
+	green,		// 21 
+	blue		// 22
+}
+
+
+note!
+default value starts with 0.
+default increament value is 1.
+
+---
+
+// .ts
+enum eColor{
+    red, green, blue
+}
+
+let red = eColor.red;
+console.log(red);  // 0
+console.log(red === eColor.red);  // true
+
+// .js
+var eColor;
+(function (eColor) {
+    eColor[eColor["red"] = 0] = "red";
+    eColor[eColor["green"] = 1] = "green";
+    eColor[eColor["blue"] = 2] = "blue";
+})(eColor || (eColor = {}));
+
+var red = eColor.red;
+console.log(red);  
+console.log(red === eColor.red);  
+
+------------------------------------------
+
+[tuples]
+an array-kind with some restrictions. 
+the length is fixed and each item is of a predefined strong-type. 
+
+syntax:
+[<data type-1>,<data type-2>.... <data type-N>]
+
+---
+
+let tuple: [string, number];
+tuple = ['A', 65];
+
+---
+
+// .ts
+let tuple: [string, number];
+tuple = ['A', 65];
+console.log(tuple); // ['A', 65] 
+
+// .js
+var tuple;
+tuple = ['A', 65];
+console.log(tuple); 
+
+------------------------------------------
+
+[interfaces]
+
+syntax:
+interface <name> {
+	<properties>
+}
+
+---
+
+interface iUser{
+    id: number,
+    name:string
+}
+
+---
+
+inheritance:
+an interface can inherit from other interface.
+use the 'implements' keyword to implement an interface by a class. 
+
+interface iReadable{
+    read: () => string;
+}
+
+interface iWritable{
+    write: (content:string) => void;
+}
+
+interface iFile extends iReadable, iWritable{
+    open: (path:string) => boolean;
+}
+
+class MyFile implements iFile{
+    read: () => '';
+    write: (content:string) => {};
+    open: (path:string) => true;
+}
+
+let file:iFile = new MyFile();
+file.read();
+
+---
+
+// .ts
+interface iUser{
+    id: number,
+    name:string
+}
+
+function classB(user:iUser){
+    return `the user ${user.name} has the identity ${user.id}`; // note: using es6 ` sign
+}
+
+let roby: iUser = { name: 'Roby', id: 100 };
+console.log(classB(roby)); 
+
+// .js
+function classB(user) {
+    return "the user " + user.name + " has the identity " + user.id;
+}
+var roby = { name: 'Roby', id: 100 };
+console.log(classB(roby));
+
+------------------------------------------
+ 
+[classes]
+
+syntax:
+class <name> extends <name> {
+	<properties>
+	constructor(<params>){ ... }constructor
+	<functions>
+}
+
+---
+
+inheritance: 
+use the keyword 'extends' for inheritance.
+use 'super' within the constructor to call the base class.
+
+constructor:
+use 'public' keyword as a shorthand to create and populate the property automatically.
+
+---
+
+class User {    
+    constructor(public id:number, public name:string){}
+}
+
+class Employee extends User // Employee inherit from User
+{    
+    salary:number;
+    constructor(id:number, name:string, salary:number){   
+        super(id, name);  // call base constructor   
+        this.salary = salary;  
+    }
+
+    sayHi() {
+        return `hi, my name is ${this.name} and i earn ${this.salary} a month`;
+    }
+}
+
+---
+
+// .ts
+class User {    
+    constructor(public id:number, public name:string){}
+
+    sayHi() {
+        return `hi, my name is ${this.name}`;
+    }
+}
+
+class Employee extends User // Employee inherit from User
+{    
+    salary:number;
+    constructor(id:number, name:string, salary:number){   
+        super(id, name);  // call base constructor   
+        this.salary = salary;  
+    }
+
+    sayHi() {
+        return `hi, my name is ${this.name} and i earn ${this.salary} a month`;
+    }
+}
+
+let employee = new Employee(100, 'Roby', 30000);
+console.log(employee.sayHi());
+
+// .js
+var User = (function () {
+    function User(id, name) {
+        this.id = id;
+        this.name = name;        
+    }
+    User.prototype.sayHi = function () {
+        return "hi, my name is " + this.name;
+    };
+    return User;
+}());
+
+var Employee = (function (_super) {
+    __extends(Employee, _super);
+    function Employee(id, name, salary) {
+        var _this = _super.call(this, id, name) || this;
+        _this.salary = salary;
+        return _this;
+    }
+    Employee.prototype.sayHi = function () {
+        return "hi, my name is " + this.name + " and i earn " + this.salary + " a month";
+    };
+    return Employee;
+}(User));
+
+var employee = new Employee(100, 'Roby', 30000);
+console.log(employee.sayHi());
+
+------------------------------------------
+
+
+
+
+
+
+
+
+// TODO
+Declaration Files
