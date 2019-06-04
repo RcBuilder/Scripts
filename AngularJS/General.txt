@@ -40,7 +40,7 @@ those are all functions you declare and attach to the app module (ng-app).
 there's some options regarding to the declaration of the objects assemble an angular application.
 
 notice! 
-it's the best practice to declare the application objects on the module and not in the globally!
+it's the best practice to declare the application objects in the module and not in the global scope!
 
 [option1]
 // modules dependency (best practice!) 

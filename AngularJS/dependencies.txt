@@ -167,7 +167,7 @@ e.g:
 app.controller('HomeController', function($scope, myFactory) { ... });
 app.factory('myFactory', function() { ... });
 
-notice that you can change the order of the passed parameters and its not affect the app
+notice that you can change the order of the passed parameters and it doesn't affect the app
 
 --
 
@@ -187,7 +187,7 @@ function(a, b) { return a + ' ' + b; }
 
 as you can see in the above example - the code will still be working the same way as before
 but when you inject some dependencies and the angular engine seek for the actual object by its name - the name matters!!
-therefore, if the minify will change the injections names - the app will be break!
+therefore, if the minify will change the injections names - the app will break!
 
 e.g: 
 // original

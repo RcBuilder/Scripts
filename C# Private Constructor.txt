@@ -1,0 +1,36 @@
+C# Private Constructor
+----------------------
+1. a class with a private constructor can not be inheritad!
+2. can not create an instance of class which has a private constructor!
+
+---
+
+when trying to create an instance or inherit such class, we get the following compilation error:
+"xxxx is inaccessible due to its protection level"
+
+--- 
+
+// sample:
+public class ClassA{	
+	private ClassA() { }
+}
+
+public class ClassB : ClassA { } // compilation error
+
+var a = new ClassA();  // compilation error
+
+---
+
+What it is used for?
+for cases of having a class with static methods (utility, helper etc.) and we want to make sure no-one 
+will try to create an instance of that class or inherit it. 
+
+commonly used in Singleton design pattern:
+public sealed class Singleton
+{
+    private Singleton() { }
+    private static readonly Singleton _instance = new Singleton();
+    public static Singleton Instance() {
+        return _instance;
+    }
+}

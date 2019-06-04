@@ -8188,6 +8188,9 @@ var CSVService = function(uri, delimiter) {
         rows.push(row);
       }
       return rows;
+     },
+     getHeader: function(){
+       return _document[0];
      }
    }; 
 }

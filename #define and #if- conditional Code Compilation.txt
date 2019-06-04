@@ -14,4 +14,4 @@ string e =string.Empty;
       e = dt.Rows[i]["Email"].ToString();
 #endif
 
-// only the code matches to the condition will compile !!!
+// only the code matches to the condition will be compiled !!!

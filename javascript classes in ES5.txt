@@ -1,0 +1,23 @@
+classes in ES5
+--------------
+(convention)
+
+var ClassA = /** @class */ (function () {
+    function classA() { }
+    classA.prototype.sayName = function() { return 'ClassA' }; 
+    return classA;
+}());
+
+var ClassB = /** @class */ (function () {
+    function classB() { }
+    classB.prototype.sayName = function() { return 'ClassB' }; 
+    return classB;
+}());
+
+var a = new ClassA();
+var b = new ClassB();
+
+---
+
+inheritance:
+see 'javascript __extends'

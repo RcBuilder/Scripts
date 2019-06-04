@@ -1,0 +1,153 @@
+SQL Execution Plan
+------------------
+the execution Plan shows us how the SQL engine executes each query!
+it presents all the steps taken to complete the query including the order of the Join clauses, the use of indexes, etc.
+the 1st execution of a query absorbs the penalty of creating the plan. 
+the plans are compiled code so once they've compiled, they run faster. //TODO ->> ??????
+
+types:
+1. Estimated Plan
+2. Actual Plan
+
+Estimated Plan:
+- append: 
+  Query > Display Estimated Execution Plan (CTRL + L)
+  or check the icon at the top strip
+
+- note: 
+  does NOT run the query, just shows us the plan!
+
+Actual Plan:
+- append: 
+  Query > Include Actual Execution Plan (CTRL + M)
+  or check the icon at the top strip
+
+Read the plan:
+- direction: right to left
+- commands under the same column represent a parallel work
+- for each query (aka batch) has its cost (in percentage)  
+  a single query will always be equal to 100%.
+- for each command within a batch has its cost (in percentage)
+- click on any command to see an extended view of the command metrics (number of rows, IO cost, CPU cost etc.)
+  note that the metric 'SubTree' represents the current node plus the nodes leading to it!
+- common command metrics:
+  Estimated Number of rows
+  Actual Number of rows
+  Number Of Executions
+  Row Size
+  Physical Operation
+  Logical Operation
+  Operator cost
+  SubTree  cost
+  IO cost
+  CPU cost
+  etc.
+
+Save a plan:
+we can save any execution plan for later review, share it with others or backup.
+file type - *.sqlplan
+- right click on the plan area
+- save execution plan > save 
+
+we can also show the plan as xml
+- right click on the plan area
+- show execution plan XML
+
+Tip:
+a great way to compare queries performance is by executing them together and check each cost in the execution plan!
+each select, delete, update, etc clause creates a new batch in the execution plan so we can compare their cost.
+see 2nd example. 
+
+------
+
+[query]
+
+declare @dt datetime = '2019-05-01';
+select	D.Id, D.CreatedDate, D.Amount, D.ToAddress, F.RestaurantId, R.Name 
+from	Deliveries D 
+		inner join 
+		Food F on (D.Id = F.DeliveryId)
+		inner join 
+		Restaurants R on (R.Id = F.RestaurantId)
+where	D.CreatedDate > @dt
+order by D.Amount desc
+
+[plan]
+
+** Query 1 > 100% **
+
+Clustered Index Scan - Food - PK_Food > 6%
+Clustered Index Scan - Deliveries - IX_Id > 61%
+-
+Inner Join > 6%  // Food & Deliveries
+Clustered Index Scan - Restaurants - PK_Restaurants > 0%
+-
+Inner Join > 6%  // Result & Restaurants
+-
+Sort > 21%
+-
+Select > 0%
+
+------
+
+[query]
+
+declare @dt datetime = '2019-05-01';
+
+// batch 1 
+select	D.Id, D.CreatedDate, D.Amount, D.ToAddress, F.RestaurantId, R.Name 
+from	Deliveries D 
+		inner join 
+		Food F on (D.Id = F.DeliveryId)
+		inner join 
+		Restaurants R on (R.Id = F.RestaurantId)
+where	D.CreatedDate > @dt
+order by D.Amount desc
+
+// batch 2
+// note: the 'where' clause was removed
+select	D.Id, D.CreatedDate, D.Amount, D.ToAddress, F.RestaurantId, R.Name 
+from	Deliveries D 
+		inner join 
+		Food F on (D.Id = F.DeliveryId)
+		inner join 
+		Restaurants R on (R.Id = F.RestaurantId)
+order by D.Amount desc
+
+[plan]
+
+** Query 1 > 34% **
+
+Clustered Index Scan - Food - PK_Food > 6%
+Clustered Index Scan - Deliveries - IX_Id > 61%
+-
+Inner Join > 6%  // Food & Deliveries
+Clustered Index Scan - Restaurants - PK_Restaurants > 0%
+-
+Inner Join > 6%  // Result & Restaurants
+-
+Sort > 21%
+-
+Select > 0%
+
+-
+
+** Query 2 > 66% **
+
+Clustered Index Scan - Food - PK_Food > 3%
+Clustered Index Scan - Deliveries - IX_Id > 31%
+-
+Inner Join > 4%  // Food & Deliveries
+Clustered Index Scan - Restaurants - PK_Restaurants > 0%
+-
+Inner Join > 7%  // Result & Restaurants
+-
+Sort > 55%
+-
+Select > 0%
+
+[info]
+
+we can clearly see a great increase at the 'Sort' command due to the returned rows count. 
+there's no filter by date so the number of rows returned in 'query 2' was apprx. 26000 whereas only 747 returned in the 'query 1'! 
+we can find this metric by clicking the relevant command in the execution plan.

@@ -16,6 +16,7 @@ see 'javascript function declaration vs function expression'
 note:
 1. can be generated using arrow functions (for es6 and up)
 2. can use the NOT (exclamation mark) instead of the wrapper parenthesis.
+3. can use it to return an instance of an object.
 
 why?
 to enforce a single (and immediate) execution of the function. after the invokation it'll become unreachable! 

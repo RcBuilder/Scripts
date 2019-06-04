@@ -5,23 +5,23 @@
     
     feed Columns
     ------------
-    [index 47] c:Title_TM_Safe_Max_25  				// Ad Group 
-    [index 47] c:Title_TM_Safe_Max_25  				// header line1 
-    [index 49] c:title_ohne_Marke_Max25 			// header line1 
-    [index 01] title 				   				// description line1
-    [index 48] c:Title_ohne_Marke 				   	// description line1
-    [index 52] c:subtitel 			   				// description line2 (partial)
-    [index 07] link 			   	   				// url path
-    [index 35] c:Category_Last_Level_FirstWord		// url path
-    [index 36] c:Category_Last_Level_LastWord 		// url path
-    [index 47] c:Title_TM_Safe_Max_25				// sitelink text
-    [index 07] link 			   	   				// sitelink url
-    [index 03] Price								// price 
-    [index 09] availability							// in stock / out of stock     
-    [index 37] c:Title_TM_Safe						// KW
-    [index 48] c:Title_ohne_Marke					// KW
-    [index 14] gtin									// KW
-    [index 15] mpn									// KW
+    c:Title_TM_Safe_Max_25  			// Ad Group 
+    c:Title_TM_Safe_Max_25  			// header line1 
+    c:title_ohne_Marke_Max25 			// header line1 
+    title 				   				// description line1
+    c:Title_ohne_Marke 				   	// description line1
+    c:subtitel 			   				// description line2 (partial)
+    link 			   	   				// url path
+    c:Category_Last_Level_FirstWord		// url path
+    c:Category_Last_Level_LastWord 		// url path
+    c:Title_TM_Safe_Max_25				// sitelink text
+    link 			   	   				// sitelink url
+    Price								// price 
+    availability						// in stock / out of stock     
+    c:Title_TM_Safe						// KW
+    c:Title_ohne_Marke					// KW
+    brand								// KW
+    mpn									// KW
     
             
     process steps
@@ -34,7 +34,7 @@
 */
 
 var FEED_URI ='http://transport.productsup.io/477ea0c7540f340cf614/channel/5261/masterfeed-shopping-de.csv'
-var TEST_MODE = true;
+var TEST_MODE = false;
 var CAMPAIGN_ID = '1777027083'; // 1622936850
 
 ///[Obsolete] moved to an auto process using config sheet
@@ -42,6 +42,8 @@ var CAMPAIGN_ID = '1777027083'; // 1622936850
 
 var CONFIG_SHEET_NAME = 'MasterFeedShoppingConfig';
 var RANGE_INCREMENT_VALUE = 3;
+var RANGE_MIN_VALUE = 10;
+var RANGE_MAX_VALUE = 20;
 
 var counter_success = 0;
 var counter_failures = 0;
@@ -50,8 +52,8 @@ function main() {
   if(TEST_MODE)
     Logger.log('[TEST MODE]');
   
-  var adManagerService = AdManagerService(); 
-    
+  var adManagerService = AdManagerService();   
+  
   var products = LoadProducts();
   Logger.log('%s products found', products.length);
   
@@ -73,7 +75,7 @@ function LoadProducts(){
   
   // read products from feed
   var csvService = CSVService(FEED_URI, '|');
-  var dataReaderService = DataReaderService(csvService);    
+  var dataReaderService = DataReaderService(csvService);      
   var products = dataReaderService.getProducts();
   
   // ---
@@ -84,17 +86,17 @@ function LoadProducts(){
     configSheet = SpreadsheetLoader.createSheetService(CONFIG_SHEET_NAME); // create
   
   var ProductsRange = configSheet.getValueByRange('A1');
-  var firstRange = '0 -> '.concat(RANGE_INCREMENT_VALUE);
+  var firstRange = RANGE_MIN_VALUE.toString().concat(' -> ', RANGE_MIN_VALUE + RANGE_INCREMENT_VALUE);
   ProductsRange = ProductsRange || firstRange;
   
   var range = ProductsRange.split(' -> ');
   var from = parseInt(range[0]);
-  var to = range[1] != '' ? parseInt(range[1]) : products.length;
+  var to = parseInt(range[1]); 
     
-  var isLastRange = to > products.length; // last range!
+  var isLastRange = to > RANGE_MAX_VALUE; // last range!
   
   if(isLastRange) // to prevent 'out of bounds' exception 
-    to = products.length;  
+    to = Math.min(products.length, RANGE_MAX_VALUE);  
   
   Logger.log('loading range: %s > %s', from, to);
   products = products.slice(from, to);
@@ -173,7 +175,7 @@ function CreateProduct(adManagerService, campaign, product){
   Logger.log(product.keywords);
 
   // STEP 4: create keywords (positive)    	  	
-  var keywordsClear = product.keywords.map(function(x) { return adManagerService.clearKeyword(x)});  	  	
+  var keywordsClear = product.keywords.map(function(x) { return adManagerService.clearKeyword(x); });  	  	  
   adManagerService.createKeywords(adGroup, keywordsClear); 
   ///Logger.log('keywords created successfully');
 
@@ -359,83 +361,105 @@ var DataReaderService = function(csvService) {
     getProducts: function(){
       var result = [];
       
-      // slice(1) - remove the header row;
-      var rows = csvService.getRows().slice(1); 
+      var map = {};
+      map['c:Title_TM_Safe_Max_25'] = this.getColumnIndex('c:Title_TM_Safe_Max_25');      
+      map['c:title_ohne_Marke_Max25'] = this.getColumnIndex('c:title_ohne_Marke_Max25');
+      map['title'] = this.getColumnIndex('title');
+      map['c:Title_ohne_Marke'] = this.getColumnIndex('c:Title_ohne_Marke');
+      map['c:subtitel'] = this.getColumnIndex('c:subtitel');
+      map['link'] = this.getColumnIndex('link');
+      map['c:Category_Last_Level_FirstWord'] = this.getColumnIndex('c:Category_Last_Level_FirstWord');
+      map['c:Category_Last_Level_LastWord'] = this.getColumnIndex('c:Category_Last_Level_LastWord');
+      map['price'] = this.getColumnIndex('price');
+      map['availability'] = this.getColumnIndex('availability');
+      map['c:Title_TM_Safe'] = this.getColumnIndex('c:Title_TM_Safe');
+      map['brand'] = this.getColumnIndex('brand');
+      map['mpn'] = this.getColumnIndex('mpn');      
       
-      for(i in rows){        
+      // slice(1) - remove the header row;
+      var rows = csvService.getRows().slice(1);      
+      
+      ///Logger.log('map %s', rows[1][map['price']]);
+      ///return;      
+      
+      for(i in rows){             
       	result.push({ 
           campaignId: CAMPAIGN_ID, 
-          adGroupName: rows[i][47], 
+          adGroupName: rows[i][map['c:Title_TM_Safe_Max_25']], 
           defaultBid: 0.1, 
           ads: [
           	{ /* AD-1 */
               header: {
-                line1: rows[i][47], 
+                line1: rows[i][map['c:Title_TM_Safe_Max_25']], 
                 line2: 'Für nur CHF',
                 line3: 'Jetzt bei Fust online kaufen'
               },
               description: {
-                line1: rows[i][1] + '.', 
-                line2: rows[i][52] + '. Grosse Auswahl bei Fust.ch  günstige Preise.'
+                line1: rows[i][map['title']] + '.', 
+                line2: rows[i][map['c:subtitel']] + '. Grosse Auswahl bei Fust.ch  günstige Preise.'
               }, 
               url: { 
-                path: rows[i][7].replace('http://', 'https://'),  
-                segment1: rows[i][35], 
-                segment2: rows[i][36], 
+                path: rows[i][map['link']].replace('http://', 'https://'),  
+                segment1: rows[i][map['c:Category_Last_Level_FirstWord']], 
+                segment2: rows[i][map['c:Category_Last_Level_LastWord']], 
               }
             },
             { /* AD-2 */
               header: {
-                line1: rows[i][47], 
+                line1: rows[i][map['c:Title_TM_Safe_Max_25']], 
                 line2: 'Für nur CHF',
-                line3: 'Sensationelle Preise'
+                line3: '%Sensationelle Preise%'
               },
               description: {
-                line1: rows[i][1] + '.', 
-                line2: rows[i][52] + '. Mit Tiefpreisgarantie - Schnelle Lieferung!'
+                line1: rows[i][map['title']] + '.', 
+                line2: rows[i][map['c:subtitel']] + '. Mit Tiefpreisgarantie - Schnelle Lieferung!'
               }, 
               url: { 
-                path: rows[i][7].replace('http://', 'https://'),  
-                segment1: rows[i][35], 
-                segment2: rows[i][36], 
+                path: rows[i][map['link']].replace('http://', 'https://'),  
+                segment1: rows[i][map['c:Category_Last_Level_FirstWord']], 
+                segment2: rows[i][map['c:Category_Last_Level_LastWord']], 
               }
             },
             { /* AD-3 */
               header: {
-                line1: rows[i][49], 
+                line1: rows[i][map['c:title_ohne_Marke_Max25']], 
                 line2: 'Für nur CHF',
                 line3: 'Jetzt mit Tiefpreisgarantie'
               },
               description: {
-                line1: rows[i][48] + '.', 
+                line1: rows[i][map['c:Title_ohne_Marke']] + '.', 
                 line2: '60’000 Elektronik Produkte bei Fust – Rasche Lieferung – Kauf auf Rechnung – Top Preise!'
               }, 
               url: { 
-                path: rows[i][7].replace('http://', 'https://'),  
-                segment1: rows[i][35], 
-                segment2: rows[i][36], 
+                path: rows[i][map['link']].replace('http://', 'https://'),  
+                segment1: rows[i][map['c:Category_Last_Level_FirstWord']], 
+                segment2: rows[i][map['c:Category_Last_Level_LastWord']], 
               }
             }
           ],           
           sitelink: { 
-              title: rows[i][47],  
-              url: rows[i][7].replace('http://', 'https://'),  
+              title: rows[i][map['c:Title_TM_Safe_Max_25']],  
+              url: rows[i][map['link']].replace('http://', 'https://'),  
               text1 : 'Top Auswahl - Top Preise.',	
               text2 : 'Top Aktionen - Top Service.'            
           },
           keywords: [
-            rows[i][1],
-            rows[i][14] + ' ' + rows[i][15],
-            rows[i][37],
-            rows[i][48]
+            rows[i][map['title']],
+            rows[i][map['brand']] + ' ' + rows[i][map['mpn']],
+            rows[i][map['c:Title_TM_Safe']],
+            rows[i][map['c:Title_ohne_Marke']]
           ], 
-          price: rows[i][3].replace('CHF', '').trim(), 
-          stock: rows[i][9] 
+          price: rows[i][map['price']].replace('CHF', '').trim(), 
+          stock: rows[i][map['availability']] 
       	});
       }
       
       return result;
-    }
+    },
+    getColumnIndex: function(columnName){
+      var columns = csvService.getHeader();
+      return parseInt(columns.indexOf(columnName));
+    } 
   }
 }
 
@@ -481,6 +505,9 @@ var CSVService = function(uri, delimiter) {
         rows.push(row);
       }
       return rows;
+     },
+     getHeader: function(){
+       return _document[0];
      }
    }; 
 }
@@ -1003,9 +1030,11 @@ var AdManagerService = function() {
         } 
       */   
       
+      input = input.split('').join(' ');
+      
       // any letter in the ASCII range 
       // \u0080-\uFFFF
-      var specialCharactersPattern = /[^\.,&\/\-_'!\?\w\d\s{}:\u0080-\uFFFF]+/g;      
+      var specialCharactersPattern = /[^\.!\-%_'\?\w\d\s{}:\u0080-\uFFFF]+/g;      
       return input.replace(specialCharactersPattern, ' ');
     },
     clearKeywordSpacers : function (input){

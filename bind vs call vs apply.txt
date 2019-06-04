@@ -1,0 +1,38 @@
+bind vs call vs apply
+---------------------
+all of them work on the specified object (1st argument) and refered to it using the 'this' keyword.
+
+call:
+immediate invoke of a function on the specified object.(using comma-seperated arguments)
+<void> call(<caller>, <param-1>, <param-2>.... <param-N>);
+
+apply:
+immediate invoke of a function on the specified object.(using arguments as an array)
+<void> apply(<caller>, <[params]>)
+
+bind:
+deferred execution. returns a function for later use.(using comma-seperated arguments) 
+<function> bind(<caller>, <param-1>, <param-2>.... <param-N>);
+
+---
+
+call/ apply are immediate execution whereas bind is deferred execution.
+call and apply are executed immediately, bind returns a function, which can be called multiple times, for later execution.
+
+sample:
+let user = {
+	id: 1,
+  	name: 'roby'
+};
+
+function printUser(p1, p2){
+	console.log('#'.concat(this.id, ' ', this.name));
+}
+
+printUser.call(user, 'v1', 'v2'); // immediate execution
+printUser.call(user, ['v1', 'v2']); // immediate execution
+
+let printRoby = printUser.bind(user, 'v1', 'v2'); // deferred execution
+...
+...
+printRoby();  // execute

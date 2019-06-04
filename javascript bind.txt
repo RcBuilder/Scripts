@@ -1,0 +1,39 @@
+javascript bind
+---------------
+1. bind an object to a function 
+2. reference it using 'this' keyword
+
+---
+
+note:
+an attempt to call the printUser function directly without binding a user will ends-up in 'undefined'
+because 'this' by default refers to the 'window' object! and it doesn't have the id and name properties defined.
+
+---
+
+bind vs call: 
+call (and apply) are executed immediately whereas bind returns a function for later execution.
+
+function fun() { } 
+fun.call(obj1); // immediate execution
+var obj1_func = fun.bind(obj1); // return a function for later use
+...
+...
+obj1_func(); // execute
+
+---
+
+sample:
+
+let user = {
+	id: 1,
+  	name: 'roby'
+};
+
+function printUser(){
+	console.log('#'.concat(this.id, ' ', this.name));
+}
+
+let printRoby = printUser.bind(user);
+printRoby();  // #1 roby
+

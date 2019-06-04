@@ -131,6 +131,7 @@ console.log('do some other work.....');
 ---
 
 // pass parameters to a promise 
+// using closure 
 const areEquals = (p1, p2) => {
   return new Promise( (resolve, reject) => {        
     if(p1 === p2) resolve(`${p1} is equal to ${p2}`);	

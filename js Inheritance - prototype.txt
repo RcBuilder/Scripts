@@ -1,6 +1,7 @@
 Inheritance - prototype
 -----------------------
 // also see 'js Object.prototype.txt'
+// also see 'javascript __extends.txt'
 
 
 [option1]

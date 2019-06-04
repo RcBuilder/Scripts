@@ -30,6 +30,7 @@ ES6 refers to version 6 of the ECMA Script programming language (aka JavaScript)
 - Generators
 - Enums
 - Template Literals
+- Modules
 -----------------------------------------
 
 
@@ -792,3 +793,8 @@ let student2 = {
 
 console.log(studentTemplate(student1));
 console.log(studentTemplate(student2));
+
+Modules
+-------
+// TODO ->> ES6 Module syntax
+// note: NodeJS uses CommonJS Module syntax (module.exports) not ES6 module syntax (export keyword).

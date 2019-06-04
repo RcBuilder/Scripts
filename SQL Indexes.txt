@@ -1,0 +1,112 @@
+*****************************
+******** SQL Indexes ********
+*****************************
+
+indexes help us to evade table-scans which are a heavy task and by doing so, improve performance. 
+a table-scan is a process taken to loop through ALL rows of a table.
+a table with no index has to do a table-scan for almost any query!
+
+
+Clustered Index
+---------------
+- works on the actual data (the table itself)
+- the data is stored in the order of the clustered index.
+- can only be 1 clustered index per table! 
+- commonly used for the primary key but it's NOT a requirement! we can define ANY index to be our clustered index.
+  note that a primary key creates a clustered index automatically. (if there's no cluseted index defined)
+- we don't have to specify a clustered index, we can create a table with no indexes at all. 
+- if a table does NOT have a clustered index defined, the data is being stored in NO particular order! as it comes in.
+
+Non Clustered Index
+-------------------
+- creates a ..... TODO
+- can be multiple non-clustered indexes per table (up to 999)
+- 
+
+Tips
+----
+1. use SQL Execution plan to find out where the engine works hard and try to solve it using indexes (see 'SQL Execution Plan')
+2. use SQL Profiler to find long-taking stored procedures and try to analyze them.
+3. keep in mind that indexed improves SELECT data but it also impacts the INSERT and UPDATE actions due to maintenance work that needed to be taken.
+
+Create An Index
+---------------
+1. using the designer
+   - expand the table properties > Indexes > New Index
+   - set index name. 
+   - choose the index type: 'clustered', 'non-clustered' etc.
+   - choose whether the index is Unique or not.
+   - add > choose the column/s for the index > ok.
+
+2. using code 
+   CREATE Index <name> ON <table> (<columns> <sort>);
+
+   e.g: 
+   CREATE Index IX_Salary ON Employees (Salary ASC) 
+
+Using Example
+-------------
+
+** No Index **
+
+[table] 
+Employees(Id, Name, Salary)
+
+1 | Emp1 | 5100
+2 | Emp2 | 4100
+3 | Emp3 | 2200
+4 | Emp4 | 3700
+5 | Emp5 | 2900
+6 | Emp6 | 4500
+7 | Emp7 | 3300
+
+[query]
+
+SELECT * from Employees where Salary between 3000 and 5000
+
+[process]
+a table-scan will be performed! the SQL engine will be looping-through ALL rows and check each one against the Salary range criteria. 
+
+---
+
+** With IX_Salary Index **
+
+now, lets add a Non-Clustered index on 'Salary' column:
+CREATE INDEX IX_Salary ON Employees(Salary ASC)
+
+[index]
+IX_Salary
+
+note: 
+this is a B-Tree structure in the real world.
+
+2200 | 3
+2900 | 5
+3300 | 7
+3700 | 4
+4100 | 2
+4500 | 6
+5100 | 1
+
+[process]
+the engine will now use the IX_Salary index to find only the rows matches the criteria, 
+from that index, it'll take the identities (or addresses) of the matched rows,
+with those ids, it'll fetch the actual rows from the data table. 
+NO table-scan occurred this time!  
+
+
+
+
+
+
+
+//TODO
+
+indexes in B-Tree
+
+Page node ???
+Leaf ???
+
+each update or remove query must maintains all the defined indexes 
+meaning, as many as indexes we have - the slower those actions would be.
+an update of a row requires going through all the indexes and update them accordingly! 

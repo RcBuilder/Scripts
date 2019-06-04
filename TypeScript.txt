@@ -17,6 +17,10 @@ a typeScript code is converted into its JavaScript equivalent for the purpose of
 - tuples
 - interfaces
 - classes
+- namespaces 
+- modules
+- ambient declarations
+- import
 -----------------------------------------
 
 
@@ -54,6 +58,27 @@ flags:
 --sourcemap				// generate a sourcemap (.map) files
 --module noImplicitAny  // disallows the compiler from inferring the any type
 --watch					// watch for file changes and recompile them on the fly
+
+online compilation:
+https://www.typescriptlang.org/play/
+
+compile .ts files ON-THE-FLY:
+https://github.com/niutech/typescript-compile/blob/gh-pages/README.md
+
+1. add those .js files before the 'body' closing tag
+   <script type="text/javascript" src="typescript.min.js"></script>
+   <script type="text/javascript" src="typescript.compile.min.js"></script>
+2. add a 'script' tag with type 'text/typescript'
+   <script type="text/typescript"></script>
+3. write your typeScript code.
+   <script type="text/typescript">
+        class classA {
+            constructor(public p1: number){}             
+        }
+
+        var a = new classA(12);
+        console.log(a.p1);
+    </script>	
 
 ---
 
@@ -102,17 +127,19 @@ can be applied on properties, functions, variables etc.
 ---
 
 data types:
-number
+number   
 boolean
 string
 any
 null
 undefined
+object  // for non-primitive type
 void    // for functions
  
 tuple   // see 'tuples'
 array   
 custom  // custom can be interface, enum, class etc.
+RegExp
 
 ---
 
@@ -123,6 +150,26 @@ let k: boolean|number; // can be of type bool or number
 k = 12;			// OK	
 k = true;		// OK
 k = 'string';   // error: Type '"string"' is not assignable to type 'number | boolean'
+
+---
+
+number bases:
+the 'number' data type supports different bases (oct, dec, hex and bin)
+use 0x prefix for hexadecimal (16 based)
+use 0b prefix for binary (2 based)
+use 0o prefix for octal (8 based)
+
+// .ts
+let decimal: number = 6;
+let hex: number = 0xf00d;
+let binary: number = 0b1010;
+let octal: number = 0o744;
+
+// .js
+var decimal = 6;
+var hex = 0xf00d;
+var binary = 10;
+var octal = 484;
 
 ---
 
@@ -159,8 +206,16 @@ function fun(p1:number, p2:string, p3:boolean, p4:any, p5:string[]){
 	...	
 }
 
+// with return value type
+function foo(p1:number, p2:string):boolean{
+	return true;	
+}
+
+note: can use 'this' as a return type
+
 // using 
 fun(1, 'str', false, {}, ['A', 'B', 'C']); 
+let success = foo(1, 'str');
 
 note!
 can also be used with arrow functions
@@ -350,6 +405,7 @@ console.log(tuple);
 syntax:
 interface <name> {
 	<properties>
+	<functions>
 }
 
 ---
@@ -361,26 +417,48 @@ interface iUser{
 
 ---
 
+implementation:
+see 'inheritance';
+
 inheritance:
 an interface can inherit from other interface.
 use the 'implements' keyword to implement an interface by a class. 
 
+---
+
+interface iPoint{
+    x: number;
+    y:number;
+}
+
+function append(p1:iPoint, p2:iPoint){
+    return {
+        x: p1.x + p2.x,
+        y: p1.y + p2.y
+    }
+}
+
+var res = append({x:3,y:6},{x:4,y:7});
+console.log(res);  // { x: 7, y: 13 }
+
+---
+
 interface iReadable{
-    read: () => string;
+    read():string;
 }
 
 interface iWritable{
-    write: (content:string) => void;
+    write(content:string):void;
 }
 
 interface iFile extends iReadable, iWritable{
-    open: (path:string) => boolean;
+    open(path:string):boolean;
 }
 
 class MyFile implements iFile{
-    read: () => '';
-    write: (content:string) => {};
-    open: (path:string) => true;
+    read():string{ return ''; };
+    write(content:string){};
+    open(path:string){ return true; };
 }
 
 let file:iFile = new MyFile();
@@ -425,6 +503,53 @@ inheritance:
 use the keyword 'extends' for inheritance.
 use 'super' within the constructor to call the base class.
 
+override:
+to override a method, define it in the derived class with the very same name and set the new code. 
+note that we can access the parent method using 'super'.
+
+class baseClass { 
+   print():void { } 
+} 
+class SomeClass extends baseClass { 
+   doPrint():void { 
+      super.print()   // call parent class
+      ...		
+   } 
+} 
+
+modifiers:
+1.public
+2.private
+3.protected
+
+class classC{
+     private p1:number;
+     public p2:number;
+     protected p3:number;
+     p4:number; // public
+}
+class classD extends classC{ 
+    fun(): void{ }
+}
+let c1 = new classC();  // c1 has access to p2 and p4
+let d1 = new classD();  // d1 has access to p2 and p4
+
+
+static:
+use static keyword to define a data-member as static (one instance for all).
+referenced by the class name. 
+
+class SomeClass{ 
+    static counts: number = 0;    
+    constructor(){        
+        SomeClass.counts++;
+    }
+} 
+let a = new SomeClass();
+let b = new SomeClass();
+let c = new SomeClass();
+console.log(SomeClass.counts);  // 3
+
 constructor:
 use 'public' keyword as a shorthand to create and populate the property automatically.
 
@@ -453,7 +578,7 @@ class Employee extends User // Employee inherit from User
 class User {    
     constructor(public id:number, public name:string){}
 
-    sayHi() {
+    sayHi():string {
         return `hi, my name is ${this.name}`;
     }
 }
@@ -504,12 +629,132 @@ console.log(employee.sayHi());
 
 ------------------------------------------
 
+[namespaces]
+to access classes and interfaces defined within a namespace from outside of it, use the 'export' keywork.
+a class which hasn't exported, will not be accessible outside of the namespace scope!
+can use nested namespaces.
+
+syntax:
+namespace <name>{
+	<classes>
+	<interfaces>
+}
+
+using:
+<name>.<className>
+<name>.<interfaceName>
+
+---
+
+namespace ns1{
+    export class c1 {}
+    export class c2 {}
+    class c3 {}	 // not accessible outside the namespace scope
+}
+
+namespace ns2{
+    export class c1 {}    
+}
+
+let ns1c1 = ns1.c1; // can access c1 and c2
+let ns2c1 = ns2.c1;
+
+---
+
+// .ts
+namespace ns1{
+    export class c1 {}
+    export class c2 {}
+    class c3 {}    
+}
+
+namespace ns2{
+    export class c1 {}    
+}
+
+let ns1c1 = ns1.c1;
+let ns2c1 = ns2.c1;
 
 
+// .js
+var ns1;
+(function (ns1) {
+    var c1 = (function () {
+        function c1() { }
+        return c1;
+    }());
+    ns1.c1 = c1;
 
+    var c2 = (function () {
+        function c2() { }
+        return c2;
+    }());
+    ns1.c2 = c2;
 
+    var c3 = (function () {
+        function c3() { }
+        return c3;
+    }());
+})(ns1 || (ns1 = {}));
 
+var ns2;
+(function (ns2) {
+    var c1 = (function () {
+        function c1() { }
+        return c1;
+    }());
+    ns2.c1 = c1;
+})(ns2 || (ns2 = {}));
 
+var ns1c1 = ns1.c1;
+var ns2c1 = ns2.c1;
 
-// TODO
-Declaration Files
+------------------------------------------
+
+[modules]
+obsolete > use namespaces instead. 
+
+------------------------------------------
+
+[ambient declarations]
+let you tell the compiler about existing code (variable, functions etc.) outside the scope of the typeScript code.
+whenever your typeScript code needs to use a library that was written in external plan JavaScript outside the scope -> use ambient declarations!
+
+it uses the keyword 'declare' to declare the external code (signature ONLY - not the implementation!).
+the most common way to define those scope-external code is through declaration files. the convension is to use '.d.ts' extension.
+
+---
+
+// TODO ->> document
+
+/// <reference path = ".d.ts" />  
+
+** the problem **
+
+** the solution **
+
+------------------------------------------
+
+[import]
+import code from other sources.
+can import .ts and .js files.
+
+// TODO ->> not working...
+
+// external.js
+function OnLoad(moduleName){
+    return `${moduleName} was loaded!`;
+}
+
+// externalTS.ts
+function OnLoadCompleted(moduleName: string): void{
+    console.log(`loading of ${moduleName} has completed`);
+}
+
+// .ts
+import './external.js';
+let message = OnLoad('module1');
+console.log(message);
+
+import './externalTS.js';
+OnLoadCompleted('module1');
