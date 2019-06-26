@@ -1,0 +1,4 @@
+var builder = new UriBuilder("http://www.doamin.com");
+builder.Scheme = "https";
+builder.Port = 1234;
+Console.WriteLine(builder.Uri); // https://www.doamin.com:1234/

@@ -1,0 +1,272 @@
+var sourceSheetName = 'Sheet1';
+var taboolaSettings = {
+  testMode: false,  
+  sheetName: 'Sheet4',
+  startingRow: 20,
+  credentials: {
+    clientId: '6021a583e54b4c3a9a40e22a40a7ea62',
+    clientSecret: 'b6aef684e90d4437a718ad36eba5f5e0'
+  },
+  server: 'https://backstage.taboola.com',
+  actions: {
+    tokenT: '/backstage/oauth/token?client_id={clientId}&client_secret={clientSecret}&grant_type=client_credentials',
+    campaignDataT: '/backstage/api/1.0/{accountId}/reports/campaign-summary/dimensions/week?start_date={dateFrom}&end_date={dateTo}&campaign={campaignId}',
+    campaignListT: '/backstage/api/1.0/{accountId}/campaigns',
+    accountList: '/backstage/api/1.0/users/current/allowed-accounts'
+  }
+}
+
+// ----------------------------------------------------------------
+
+function main(){
+  // find the last week
+  var sun = new Date();  
+  sun.setDate(sun.getDate() - sun.getDay());  // this sunday
+  sun.setDate(sun.getDate() - 7);  // last sunday
+  
+  var sat = new Date(sun.getTime());
+  sat.setDate(sat.getDate() + 6);
+  
+  processTaboola(dateFormat(sun), dateFormat(sat));
+  
+  var sheetName = dateFormat2(sun) + '-' + dateFormat2(sat);    
+  duplicateTab(sheetName);
+}
+
+function duplicateTab(sheetName){  
+  var spreadsheet = SpreadsheetApp.getActive();
+  var sheets = spreadsheet.getSheets();
+  
+  // sheet exists - stop processing 
+  var exists = getSheetByName(sheetName, spreadsheet) != null; 
+  if(exists) {
+    Logger.log('%s exists', sheetName);
+    return null;
+  }
+  
+  Logger.log('%s created', sheetName);
+  var createdSheet = spreadsheet.insertSheet(sheetName, sheets.length);  // create new 
+  
+  var source = getSheetByName(sourceSheetName);        
+  /// var sourceRange = source.getRange(1, 1, source.getLastRow(), source.getLastColumn());
+  /// sourceRange.copyTo(createdSheet.getRange(1, 1, source.getLastRow(), source.getLastColumn()), { formatOnly: true, contentsOnly: true });  
+  
+  var sourceDataRange = source.getDataRange();  
+  var A1Range = sourceDataRange.getA1Notation();      
+  var destDataRange = createdSheet.getRange(A1Range);
+
+  destDataRange.setValues(sourceDataRange.getValues());    
+  destDataRange.setFontColors(sourceDataRange.getFontColors());
+  destDataRange.setFontFamilies(sourceDataRange.getFontFamilies());
+  destDataRange.setFontLines(sourceDataRange.getFontLines());
+  destDataRange.setFontSizes(sourceDataRange.getFontSizes());
+  destDataRange.setFontStyles(sourceDataRange.getFontStyles());
+  destDataRange.setFontWeights(sourceDataRange.getFontWeights());
+  destDataRange.setHorizontalAlignments(sourceDataRange.getHorizontalAlignments());
+  destDataRange.setNumberFormats(sourceDataRange.getNumberFormats());
+  destDataRange.setTextStyles(sourceDataRange.getTextStyles());
+  destDataRange.setVerticalAlignments(sourceDataRange.getVerticalAlignments());  
+  
+  destDataRange.setDataValidations(sourceDataRange.getDataValidations());  
+  destDataRange.setNotes(sourceDataRange.getNotes());    
+  destDataRange.setWrapStrategies(sourceDataRange.getWrapStrategies());
+  destDataRange.setTextRotations(sourceDataRange.getTextRotations());  
+  destDataRange.setTextDirections(sourceDataRange.getTextDirections());
+
+  return createdSheet;
+}
+
+// ----------------------------------------------------------------
+
+function processTaboola(sDateFrom, sDateTo /* yyyy-MM-dd */){    
+  var accessToken = taboolaAPI.getAccessToken();
+  Logger.log('token: ' + accessToken);
+  
+  var context = {
+    totals: {},
+    accessToken: accessToken,
+    sDateFrom: sDateFrom, 
+    sDateTo: sDateTo    
+  }
+  
+  var accountIds = taboolaAPI.getAccounts(accessToken);
+  for(i in accountIds)    
+    processTaboolaAccount(accountIds[i], context);    
+  
+  // header 
+  var sheet = getSheetByName(taboolaSettings.sheetName);
+  sheet.getRange('A@:E@'.replace(/@/g, taboolaSettings.startingRow++)).setValues([['Country', 'Impressions', 'Clicks', 'Cost', 'Conversions']]);
+  
+  // data
+  for(i in context.totals){
+    var row = context.totals[i];
+    sheet.getRange('A@:E@'.replace(/@/g, taboolaSettings.startingRow++)).setValues([[i, row.impressions, row.clicks, row.cost, row.conversions]]);      
+  }
+}
+
+function processTaboolaAccount(accountId, context){
+  Logger.log('accountId: ' + accountId); 
+    
+  var data = taboolaAPI.getAccountCampaigns(context.accessToken, accountId);  
+  if(!data) {
+    Logger.log('NO campaigns found! skip account!');
+    return;
+  }
+  
+  var campaigns = data.results.map(function(cmp){ 
+    return { 
+      id: cmp.id,
+      name: cmp.name,
+      status: cmp.status,
+      end_date: cmp.end_date,
+      countryCode: cmp.country_targeting.value
+    }
+  });
+  
+  // TEST 
+  if(taboolaSettings.testMode)
+    campaigns = campaigns.slice(1,3);
+  
+  processTaboolaAccountCampaigns(accountId, campaigns, context);  
+}
+
+function processTaboolaAccountCampaigns(accountId, campaigns, context){
+  for(j in campaigns){
+    var campaign = campaigns[j];
+    Logger.log('campaign: ' + JSON.stringify(campaign));
+    
+    var data = taboolaAPI.getCampaignData(context.accessToken, accountId, campaign.id, context.sDateFrom, context.sDateTo);      
+    if(data.recordCount == 0)
+      continue;
+    
+    // { date, date_end_period, clicks, impressions, spent, ctr, cpm, cpc, campaigns_num, cpa, cpa_actions_num, cpa_conversion_rate, currency }
+    var metrics = data.results[0];
+    Logger.log('metrics: ' + JSON.stringify(metrics));
+    
+    var item = context.totals[campaign.countryCode] || { impressions: 0, clicks: 0, cost: 0, conversions: 0 };
+    item.impressions += metrics.impressions;
+    item.clicks += metrics.clicks;
+    item.cost += metrics.spent;
+    // item.conversions += metrics; // TODO ->> missing conversions 
+    
+    context.totals[campaign.countryCode] = item;
+  } 
+}
+
+// ----------------------------------------------------------------
+
+function getSheetByName(sheetName, spreadsheet){
+  spreadsheet = spreadsheet || SpreadsheetApp.getActive();
+  
+  var sheets = spreadsheet.getSheets();  
+  var matches = sheets.filter(function(s){ return s.getName() == sheetName; });    
+  return matches.length > 0 ? matches[0] : null;
+}
+
+// FORMAT: yyyy-MM-dd
+function dateFormat(date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + '-' + month + '-' + day;
+} 
+
+// FORMAT: dd/MM/yy
+function dateFormat2(date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return day + '/' + month + '/' + year.substring(2);
+}
+
+// ----------------------------------------------------------------
+
+var taboolaAPI = /** @class */ (function (settings) {
+  function temp() { }  
+  
+  temp.getAccessToken = function() { 
+    var query = settings.server + settings.actions.tokenT
+    .replace('{clientId}', settings.credentials.clientId)
+    .replace('{clientSecret}', settings.credentials.clientSecret);
+    
+    var response = UrlFetchApp.fetch(query, { 'method': 'POST' }); 
+    var statusCode = response.getResponseCode();
+    Logger.log('POST ' + query + ' [' + statusCode + ']');
+    
+    var accessToken = JSON.parse(response.getContentText()).access_token;
+    return accessToken;  
+  }
+ 
+  temp.getAccounts = function(accessToken) { 
+    var options = {
+      'method' : 'GET',  
+      'headers': {
+        'Authorization': 'Bearer ' + accessToken,
+      },
+      'muteHttpExceptions': true    
+    };
+    
+    var query = settings.server + settings.actions.accountList;
+    var response = UrlFetchApp.fetch(query, options);
+    var statusCode = response.getResponseCode();  
+    Logger.log('GET ' + query + ' [' + statusCode + ']');
+    
+    var data = JSON.parse(response.getContentText());
+    var accountIds = data.results.map(function(acc){ return acc.account_id });
+    return accountIds;
+  };
+  
+  temp.getCampaignData = function(accessToken, accountId, campaignId, sDateFrom, sDateTo) { 
+    var options = {
+      'method' : 'GET',  
+      'headers': {
+        'Authorization': 'Bearer ' + accessToken,
+      },
+      'muteHttpExceptions': true    
+    };
+    
+    var query = settings.server + settings.actions.campaignDataT
+    .replace('{accountId}', accountId)
+    .replace('{campaignId}', campaignId)
+    .replace('{dateFrom}', sDateFrom)
+    .replace('{dateTo}', sDateTo);
+    
+    var response = UrlFetchApp.fetch(query, options);
+    var statusCode = response.getResponseCode();  
+    Logger.log('GET ' + query + ' [' + statusCode + ']');
+    
+    var data = JSON.parse(response.getContentText()); 
+    return data;
+  }
+
+  temp.getAccountCampaigns = function(accessToken, accountId) {   
+    var options = {
+      'method' : 'GET',  
+      'headers': {
+        'Authorization': 'Bearer ' + accessToken,
+      },
+      'muteHttpExceptions': true    
+    };
+    
+    var query = settings.server + settings.actions.campaignListT
+    .replace('{accountId}', accountId);
+    
+    var response = UrlFetchApp.fetch(query, options);
+    var statusCode = response.getResponseCode();  
+    Logger.log('GET ' + query + ' [' + statusCode + ']');
+    
+    var data = JSON.parse(response.getContentText());    
+    if(!data || !data.results) return null;
+    return data;
+  }
+
+  return temp;
+}(taboolaSettings));

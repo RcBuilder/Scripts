@@ -12,6 +12,10 @@ Install-Package Dapper
 
 extension:
 Query<T>
+QueryFirst<T>
+QueryMultiple<T>
+QuerySingle<T>
+QueryFirstOrDefault<T>
 
 signature:
 IEnumerable<T> conn.Query<T>(<query>, <param>, <transaction>, <buffered>, <commandTimeout>, <commandType>);
@@ -44,7 +48,7 @@ see above.
 
 -------
 
-using:
+[using]
 
 public class TestDapper {
     const string connStr = "Data Source=matestdb;Initial Catalog=MACrawler_;User ID=xxxxx;Password=xxxxxxxx;MultipleActiveResultSets=true;";
@@ -127,7 +131,7 @@ public class TestDapper {
 
 -------
 
-more samples:
+[more samples]
 
 using Dapper;
 
@@ -210,3 +214,93 @@ var result = conn.Query<string>("sp_Names_ByLength_Get"
 	buffered: false
 ).ToList();
 
+-------
+
+[multiple result-sets]
+
+
+// sp_Lecturer_Get
+-- 1st result: lecturer details --
+select * from Lecturers where Id = @Id
+
+// code
+-- 2nd result: categories --
+exec sp_Categories_byLecturer_Get @Id
+
+using (var conn = new SqlConnection(connectionString)) {                
+    var reader = conn.QueryMultiple("sp_Lecturer_Get", param: new { Id }, commandType: CommandType.StoredProcedure);
+
+    var lecturer = reader.Read<Lecturer>().FirstOrDefault();
+    var categories = reader.Read<Category>().ToList();
+    lecturer.Categories = categories;
+    return lecturer;
+}
+
+--
+
+var reader = connection.QueryMultiple("select 1 select 2");
+reader.Read<int>().First();
+reader.Read<int>().First();
+
+-------
+
+[using stored-Procedure]
+
+private static readonly string connectionString = null;
+static Categories() {
+    connectionString = ConfigurationManager.ConnectionStrings["ConnectionString"].ConnectionString;
+}
+
+public static List<Category> Get() {
+    using (var conn = new SqlConnection(connectionString)) {                
+        var result = conn.Query<Category>("sp_Categories_Get", commandType: CommandType.StoredProcedure);
+        return result == null ? null : result.ToList();
+    }
+}
+
+public static Category Get(int Id)
+{
+    using (var conn = new SqlConnection(connectionString)) {
+        return conn.Query<Category>("sp_Category_Get", commandType: CommandType.StoredProcedure, param: new { Id }).FirstOrDefault();                
+    }
+}
+
+public static bool Delete(int Id)
+{
+    using (var conn = new SqlConnection(connectionString))
+    {
+        var rowsAffected = conn.Execute("sp_Category_Delete", param: new { Id }, commandType: CommandType.StoredProcedure);
+        return rowsAffected > 0;
+    }
+}
+
+public static int Save(Category Category)
+{
+    using (var conn = new SqlConnection(connectionString))
+        return conn.QueryFirst<int>("sp_Category_Save", param: new {
+            Id = Category.Id,
+            NameEN = Category.NameEN,
+            NameHE = Category.NameHE,
+            Notes = Category.Notes
+        } , commandType: CommandType.StoredProcedure);            
+}
+
+public static bool MapCategories(int Id, IEnumerable<int> CategoryIds) {
+            using (var conn = new SqlConnection(connectionString)) {
+                conn.Open();
+                using (var tran = conn.BeginTransaction()) {
+                    try {
+                        conn.Execute("sp_LecturerCategories_Delete", param: new { LecturerId = Id }, commandType: CommandType.StoredProcedure, transaction: tran);
+                        foreach (var cId in CategoryIds)
+                            conn.Execute("sp_LecturerCategory_Map", param: new { LecturerId = Id, CategoryId = cId }, commandType: CommandType.StoredProcedure, transaction: tran);
+
+                        tran.Commit();
+                        return true;
+                    }
+                    catch{                        
+                        tran.Rollback();
+                        return false;
+                    }
+                }
+            }            
+        }

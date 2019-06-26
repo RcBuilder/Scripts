@@ -6,6 +6,15 @@ indexes help us to evade table-scans which are a heavy task and by doing so, imp
 a table-scan is a process taken to loop through ALL rows of a table.
 a table with no index has to do a table-scan for almost any query!
 
+each Non-Clustered index takes extra disk space because it creates another mapping table.
+
+indexes improve our SELECT clauses to fetch the data faster but the trade off is the maintenance work required for UPDATE and DELETE clauses 
+in order to keep the indexes fully updated. as many as indexes we have - the slower those actions would be.
+an update of a row requires going through all the indexes and update them accordingly! 
+
+the indexes structure is B+Tree! the tree trunk is based on the index columns.
+reference: 'B-Tree vs B+Tree vs Binary Tree'
+
 
 Clustered Index
 ---------------
@@ -19,15 +28,17 @@ Clustered Index
 
 Non Clustered Index
 -------------------
-- creates a ..... TODO
+- creates a new side table which consists of the index columns, this table is sorted based on the index columns. 
+- in each row within the index-table we'll find a pointer to the actual row in the data-table. 
+- when an index is being used, the SQL engine collects the rows pointer from the matches and uses it to fetch the data from the actual data-table.  
 - can be multiple non-clustered indexes per table (up to 999)
-- 
 
 Tips
 ----
 1. use SQL Execution plan to find out where the engine works hard and try to solve it using indexes (see 'SQL Execution Plan')
 2. use SQL Profiler to find long-taking stored procedures and try to analyze them.
 3. keep in mind that indexed improves SELECT data but it also impacts the INSERT and UPDATE actions due to maintenance work that needed to be taken.
+4. (see 'Include Columns')
 
 Create An Index
 ---------------
@@ -43,6 +54,58 @@ Create An Index
 
    e.g: 
    CREATE Index IX_Salary ON Employees (Salary ASC) 
+
+Include Columns
+---------------
+we can include columns on an index which results in adding those columns data to the tree leaf. 
+that way we can save the call to the clustered index using the rows pointers. 
+if the data found on the leaf, it'll be returned directly from the index!
+
+for example, given a table of users: 
+Users(Id, UserName, Age, CityId....)
+
+1 | User1 | 30 | 3
+2 | User2 | 34 | 1
+3 | User3 | 25 | 1
+4 | User4 | 29 | 5
+5 | User5 | 53 | 3
+6 | User6 | 45 | 7
+7 | User7 | 19 | 2
+
+let take a look at the following statement:
+SELECT Id, UserName from Users Where CityId = 3
+
+lets assume that we have an index on CityId column:
+IX_CityId(CityId) 
+
+1 | pointer to #2
+1 | pointer to #3
+2 | pointer to #7
+3 | pointer to #1
+3 | pointer to #5
+5 | pointer to #4
+7 | pointer to #6
+
+in this case, the sql engine uses the index to find the rows which match the criteria CityId = 3, 
+once it finds them, it takes their pointers and uses them to fetch the data (Id and UserName) from the Users table. 
+
+--- 
+
+now, lets include columns 'Id' and 'UserName' in our index:
+IX_CityId(CityId) Include(Id, UserName)
+
+1 | 2 | User1 | pointer to #2
+1 | 3 | User1 | pointer to #3
+2 | 7 | User1 | pointer to #7
+3 | 1 | User1 | pointer to #1
+3 | 5 | User1 | pointer to #5
+5 | 4 | User1 | pointer to #4
+7 | 6 | User1 | pointer to #6
+
+in this case, the SQL engine finds the matching rows using the index (the same as in the previous example)
+but because we've only requested the column 'Id' and 'UserName' and they exist on the index leaves, the data will be returned directly from the index 
+and no extra call to the data-table will be made!
+
 
 Using Example
 -------------
@@ -75,18 +138,18 @@ now, lets add a Non-Clustered index on 'Salary' column:
 CREATE INDEX IX_Salary ON Employees(Salary ASC)
 
 [index]
-IX_Salary
+IX_Salary(Salary)
 
 note: 
-this is a B-Tree structure in the real world.
+this is a B+Tree structure in the real world.
 
-2200 | 3
-2900 | 5
-3300 | 7
-3700 | 4
-4100 | 2
-4500 | 6
-5100 | 1
+2200 | pointer to #3
+2900 | pointer to #5
+3300 | pointer to #7
+3700 | pointer to #4
+4100 | pointer to #2
+4500 | pointer to #6
+5100 | pointer to #1
 
 [process]
 the engine will now use the IX_Salary index to find only the rows matches the criteria, 
@@ -96,17 +159,7 @@ NO table-scan occurred this time!
 
 
 
-
-
-
-
-//TODO
-
-indexes in B-Tree
-
 Page node ???
 Leaf ???
 
-each update or remove query must maintains all the defined indexes 
-meaning, as many as indexes we have - the slower those actions would be.
-an update of a row requires going through all the indexes and update them accordingly! 
+index with bit type?

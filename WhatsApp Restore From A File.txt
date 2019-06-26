@@ -1,0 +1,11 @@
+WhatsApp Restore From A File
+----------------------------
+1. connect your device and copy the db to restore to the databases folder 
+   sdcard/WhatsApp/Databases  
+
+2. change the name to 'msgstore.db.crypt12'
+   note: you can get one of the automatic backups (e.g: msgstore-YYYY-MM-DD.1.db.crypt12)
+
+3. uninstall and reinstall WhatsApp.
+
+4. tap RESTORE when prompted.

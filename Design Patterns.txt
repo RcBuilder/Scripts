@@ -1,0 +1,13 @@
+Design Patterns
+---------------
+
+common:
+- Singleton
+- Builder
+
+// TODO
+
+references:
+- Singleton Design Pattern
+- Builder design pattern - sample
+- Fallback Design Pattern [Custom]

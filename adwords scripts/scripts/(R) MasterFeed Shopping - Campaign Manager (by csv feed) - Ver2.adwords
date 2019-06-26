@@ -5,6 +5,7 @@
     
     feed Columns
     ------------
+    id  								// Ad Group 
     c:Title_TM_Safe_Max_25  			// Ad Group 
     c:Title_TM_Safe_Max_25  			// header line1 
     c:title_ohne_Marke_Max25 			// header line1 
@@ -35,18 +36,33 @@
 
 var FEED_URI ='http://transport.productsup.io/477ea0c7540f340cf614/channel/5261/masterfeed-shopping-de.csv'
 var TEST_MODE = false;
-var CAMPAIGN_ID = '1777027083'; // 1622936850
+var CAMPAIGN_ID = '2017470650'; // 1622936850
+var BrandsToRemove = ['Fust', 'fust'];
 
 ///[Obsolete] moved to an auto process using config sheet
 ///var ProductsRange = '0-13000'; 
 
-var CONFIG_SHEET_NAME = 'MasterFeedShoppingConfig';
-var RANGE_INCREMENT_VALUE = 3;
-var RANGE_MIN_VALUE = 10;
-var RANGE_MAX_VALUE = 20;
+var CONFIG_SHEET_NAME = 'Fust_KontoXX_Range_5000-10000';
+var RANGE_INCREMENT_VALUE = 250;
+var RANGE_MIN_VALUE = 5000;
+var RANGE_MAX_VALUE = 10000;
 
 var counter_success = 0;
 var counter_failures = 0;
+
+/*
+	var csvService = CSVService('http://products.metalyzer.com/export.php?fid=105392a07fef86fa2cdf256ec01d336e', '\t');
+    var rows = csvService.getRows().slice(1); 
+    Logger.log(rows[0][0]);
+    return;
+    ---
+    Logger.log(adManagerService.countWithoutKeywordInsertion('{KeyWord:Top Preise}'));
+    Logger.log(adManagerService.countWithoutKeywordInsertion('Top Preise'));
+    Logger.log(adManagerService.countWithoutKeywordInsertion('KeyWord:Top Preise'));
+    Logger.log(adManagerService.countWithoutKeywordInsertion('KeyWord:Top Preise}'));
+    Logger.log(adManagerService.countWithoutKeywordInsertion('{KeyWord:Top Preise'));
+    return;     
+*/
 
 function main() {
   if(TEST_MODE)
@@ -55,7 +71,7 @@ function main() {
   var adManagerService = AdManagerService();   
   
   var products = LoadProducts();
-  Logger.log('%s products found', products.length);
+  Logger.log('%s products found', products.length); 
   
   for(i in products)     
   {
@@ -175,13 +191,19 @@ function CreateProduct(adManagerService, campaign, product){
   Logger.log(product.keywords);
 
   // STEP 4: create keywords (positive)    	  	
-  var keywordsClear = product.keywords.map(function(x) { return adManagerService.clearKeyword(x); });  	  	  
+  var keywordsClear = product.keywords.map(function(x) { 
+    x =  adManagerService.clearKeyword(x);
+    for(i in BrandsToRemove)
+      x = x.split(BrandsToRemove[i]).join('');
+    return x;
+  });  	  	      
+  
   adManagerService.createKeywords(adGroup, keywordsClear); 
   ///Logger.log('keywords created successfully');
 
   // STEP 5: create siteLinks
   var sitelinkTitle = product.sitelink.title;
-  if(sitelinkTitle.length > 25) sitelinkTitle = 'Top Produkte'; // default 
+  if(sitelinkTitle.length > 25) sitelinkTitle = 'Top Produkte'; // default   
   var sitelink = adManagerService.createSiteLink(sitelinkTitle, product.sitelink.url, product.sitelink.text1, product.sitelink.text2);  
   adGroup.addSitelink(sitelink); 
   ///Logger.log('sitelink created successfully');  
@@ -236,6 +258,7 @@ function CreateAds(adManagerService, adGroup, product){
 
     if(!textAd){
       Logger.log('exception: create ad');
+      /// Logger.log(product.ads[i]);
       failures++;
       continue;
     }
@@ -247,6 +270,9 @@ function CreateAds(adManagerService, adGroup, product){
 
 function CreateAd(adManagerService, adGroup, adData, price){
   	var param1Value = '{param1:' + price + '}';
+  
+  	if(adManagerService.countWithoutKeywordInsertion(adData.url.segment1) > 15) 
+    	adData.url.segment1 = '{KeyWord:Top Preise}'; // default  
   
 	return adManagerService.createAd(
     adGroup, 
@@ -311,7 +337,7 @@ function DataReaderServiceMock(){
               text1 : 'Top Auswahl - Top Preise.',	
               text2 : 'Top Aktionen - Top Service.'
             },
-          	keywords: ['keyword1', 'keyword2', 'keyword3', 'keyword4'], 
+          	keywords: ['keyword1', 'keyword2', 'keyword3', 'keyword4', 'keyword5 Fust abc'], 
             price: 300,
             stock: 30
           });
@@ -362,6 +388,7 @@ var DataReaderService = function(csvService) {
       var result = [];
       
       var map = {};
+      map['id'] = this.getColumnIndex('id');      
       map['c:Title_TM_Safe_Max_25'] = this.getColumnIndex('c:Title_TM_Safe_Max_25');      
       map['c:title_ohne_Marke_Max25'] = this.getColumnIndex('c:title_ohne_Marke_Max25');
       map['title'] = this.getColumnIndex('title');
@@ -385,22 +412,22 @@ var DataReaderService = function(csvService) {
       for(i in rows){             
       	result.push({ 
           campaignId: CAMPAIGN_ID, 
-          adGroupName: rows[i][map['c:Title_TM_Safe_Max_25']], 
+          adGroupName: rows[i][map['c:Title_TM_Safe_Max_25']] + ' - ' + rows[i][map['id']], 
           defaultBid: 0.1, 
           ads: [
           	{ /* AD-1 */
               header: {
                 line1: rows[i][map['c:Title_TM_Safe_Max_25']], 
                 line2: 'Für nur CHF',
-                line3: 'Jetzt bei Fust online kaufen'
+                line3: '{KeyWord:Jetzt bei Fust online kaufen}'
               },
               description: {
                 line1: rows[i][map['title']] + '.', 
-                line2: rows[i][map['c:subtitel']] + '. Grosse Auswahl bei Fust.ch  günstige Preise.'
+                line2: rows[i][map['c:subtitel']] + '. Grosse Auswahl bei Fust.ch - Günstige Preise.'
               }, 
               url: { 
                 path: rows[i][map['link']].replace('http://', 'https://'),  
-                segment1: rows[i][map['c:Category_Last_Level_FirstWord']], 
+                segment1: rows[i][map['c:Category_Last_Level_FirstWord']],
                 segment2: rows[i][map['c:Category_Last_Level_LastWord']], 
               }
             },
@@ -408,7 +435,7 @@ var DataReaderService = function(csvService) {
               header: {
                 line1: rows[i][map['c:Title_TM_Safe_Max_25']], 
                 line2: 'Für nur CHF',
-                line3: '%Sensationelle Preise%'
+                line3: 'Sensationelle Preise'
               },
               description: {
                 line1: rows[i][map['title']] + '.', 
@@ -416,7 +443,7 @@ var DataReaderService = function(csvService) {
               }, 
               url: { 
                 path: rows[i][map['link']].replace('http://', 'https://'),  
-                segment1: rows[i][map['c:Category_Last_Level_FirstWord']], 
+                segment1: '{KeyWord:' + rows[i][map['c:Category_Last_Level_FirstWord']] + '}',
                 segment2: rows[i][map['c:Category_Last_Level_LastWord']], 
               }
             },
@@ -435,7 +462,23 @@ var DataReaderService = function(csvService) {
                 segment1: rows[i][map['c:Category_Last_Level_FirstWord']], 
                 segment2: rows[i][map['c:Category_Last_Level_LastWord']], 
               }
-            }
+            },
+            { /* AD-4 */
+              header: {
+                line1: rows[i][map['c:title_ohne_Marke_Max25']], 
+                line2: 'Für nur CHF',
+                line3: rows[i][map['c:subtitel']]
+              },
+              description: {
+                line1: rows[i][map['c:Title_ohne_Marke']] + '. ' + rows[i][map['c:subtitel']] + '.', 
+                line2: 'Kauf auf Rechnung – Rasche Lieferung – Grosse Auswahl – Kleine Preise bei Fust.ch!'
+              }, 
+              url: { 
+                path: rows[i][map['link']].replace('http://', 'https://'),  
+                segment1: '{KeyWord:' + rows[i][map['c:Category_Last_Level_FirstWord']] + '}', 
+                segment2: rows[i][map['c:Category_Last_Level_LastWord']], 
+              }
+            }            
           ],           
           sitelink: { 
               title: rows[i][map['c:Title_TM_Safe_Max_25']],  
@@ -443,11 +486,15 @@ var DataReaderService = function(csvService) {
               text1 : 'Top Auswahl - Top Preise.',	
               text2 : 'Top Aktionen - Top Service.'            
           },
-          keywords: [
+          keywords: [            
             rows[i][map['title']],
             rows[i][map['brand']] + ' ' + rows[i][map['mpn']],
             rows[i][map['c:Title_TM_Safe']],
-            rows[i][map['c:Title_ohne_Marke']]
+            rows[i][map['c:Title_ohne_Marke']],
+            rows[i][map['brand']] + ' ' + rows[i][map['mpn']] + ' ' + rows[i][map['c:subtitel']],
+            rows[i][map['title']] + ' ' + rows[i][map['c:subtitel']],
+            rows[i][map['c:Title_TM_Safe']] + ' ' + rows[i][map['c:subtitel']],
+            rows[i][map['c:Title_ohne_Marke']] + ' ' + rows[i][map['c:subtitel']]
           ], 
           price: rows[i][map['price']].replace('CHF', '').trim(), 
           stock: rows[i][map['availability']] 
@@ -928,10 +975,10 @@ var AdManagerService = function() {
          product {param1: 'some product'} for only {param2: 0} $ - buy now!
       */
 
-      if(pathURL1 && pathURL1.length <= 15)     
+      if(pathURL1 && this.countWithoutKeywordInsertion(pathURL1) <= 15)     
         builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/pathURL1/pathURL2      
       
-      if(pathURL2 && pathURL2.length <= 15)
+      if(pathURL2 && this.countWithoutKeywordInsertion(pathURL2) <= 15)
         builder.withPath2(pathURL2); // 15 characters (the second part after the siteURL)
 
       if(header3){
@@ -951,14 +998,22 @@ var AdManagerService = function() {
       var operation = builder.build();
       
       if(!operation.isSuccessful())
+      {
+        Logger.log('createAd error: %s', operation.getErrors())
         return null;
+      }
+      
       return operation.getResult();
     },   
     createKeywords: function(adGroup, arrKeywods){
       // arrKeywods: [string]
       // match type: see 'Match Types'      
-      for(i in arrKeywods){
+      for(i in arrKeywods){        
         var keyword = arrKeywods[i];                                
+        
+        if(keyword.length > 80)
+        	keyword = keyword.substr(0, 79);
+        
         var operation = adGroup.newKeywordBuilder()        
         .withText(keyword)       
         // .withCpc(1.0)
@@ -987,7 +1042,22 @@ var AdManagerService = function() {
         return null;
       return operation.getResult();
     },
-
+    /*
+    	keyword insertion allows us to auto-inject the triggered keyword into the ad content (kind-of a placeholder). 
+        structure: '{KeyWord: Value}'         
+        the word 'KeyWord' plus the curly brackets are being ignored by the adwords engine so the actual length of such expression equals to the Value length alone
+        e.g: the length of '{KeyWord: Chocolate}' is 9! (counting only the Chocolate) 
+    */    
+	countWithoutKeywordInsertion: function(input){      
+      /*
+        // the value does not include a keyword insertion - return it as is 
+        if(input.indexOf('{') == -1 && input.indexOf('}') == -1) 
+          return input;
+      */
+      
+      var keywordInsertionPattern = /{\s*KeyWord\s*:(.*?)\s*}/ig;
+      return input.replace(keywordInsertionPattern, '$1').length;      	
+    },    
     /*
 	   important! 
 	   use it before you add your match type signs! (calling the createKeywords method)
@@ -1031,10 +1101,14 @@ var AdManagerService = function() {
       */   
       
       input = input.split('').join(' ');
+      input = input.split('°').join(' ');      
+      input = input.split('®').join(' ');
+      input = input.split('²').join(' ');
       
       // any letter in the ASCII range 
       // \u0080-\uFFFF
-      var specialCharactersPattern = /[^\.!\-%_'\?\w\d\s{}:\u0080-\uFFFF]+/g;      
+      // remove any character which is NOT in the provided list (^)
+      var specialCharactersPattern = /[^!\-%_\.'\?\w\d\s{}:\u0080-\uFFFF]+/g;      
       return input.replace(specialCharactersPattern, ' ');
     },
     clearKeywordSpacers : function (input){

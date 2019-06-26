@@ -55,7 +55,8 @@
 - Platform Specific Capabilities
 - CSS
 - Launch Process
-- iOS
+- Deploy(iOS)
+- Deploy(android)
 - Sidekick APP
 - MarketPlace
 - Playground
@@ -265,6 +266,10 @@ Root
 
 note!
 in NativeScript, a .js file with the same name as an XML file is known as a code-behind file.
+
+application Id:
+defined in package.json file (e.g: com.hadeliverim).
+in AndroidManifest.xml file there's _PACKAGE__ variable which is replaced by the application Id.
 
 sample:
 // main-page-view-model.js
@@ -1404,6 +1409,16 @@ FlexboxLayout
   
   - array binding
     use $value to bind an array item
+
+  - get the Page parent context
+    $parents['Page']
+    
+	e.g:
+	<Repeater items="{{ addresses }}">
+        <Repeater.itemTemplate>
+            <Button text="{{ address }}" tap="{{ $parents['Page'].OnAddressSelected }}" value="{{ coordinates }}" />
+        </Repeater.itemTemplate>
+    </Repeater>       
 
   - sample:
     <Repeater items="{{ items }}">
@@ -3906,6 +3921,12 @@ Plugins
   options:	
   source: object
 
+  events:
+  propertyCommit
+  propertyCommitted
+  propertyValidate
+  propertyValidated
+
   EntityProperty class:
   name: string			// the object property name
   displayName: string   // a new name to display
@@ -3913,7 +3934,8 @@ Plugins
   readOnly: bool	    // set the property readonly state
   hintText: string		// html5 placeholder
   required: bool		// validations, set the property is-required state
-  validators:
+  validators			// validators
+  hidden: bool			// hidden field
 
   PropertyEditor:
   optional
@@ -3959,7 +3981,10 @@ Plugins
   PropertyEditor types:
   http://docs.telerik.com/devtools/nativescript-ui/Controls/NativeScript/DataForm/Editors/dataform-editors-list#complete-list
   https://docs.telerik.com/devtools/nativescript-ui/api/enums/editortype.html
-  https://docs.nativescript.org/ui/professional-ui-components/DataForm/Editors/dataform-editors-providers
+  https://docs.nativescript.org/ui/professional-ui-components/DataForm/Editors/dataform-editors-list
+  https://docs.nativescript.org/ui/professional-ui-components/DataForm/Editors/dataform-editors-providers  
+  https://github.com/NativeScript/nativescript-ui-samples/tree/master/dataform/app/examples
+  https://github.com/NativeScript/nativescript-ui-samples/tree/master/dataform/app/examples/layouts
 
   Text
   MultilineText
@@ -3976,8 +4001,9 @@ Plugins
   List					// picking a value from a predefined list (vertical list).
   DatePicker			// picking a date from a calendar.
   TimePicker			// picking a time from a clock.
-  AutoCompleteInline	//picking single or multiple items from a suggestion list.
+  AutoCompleteInline	// picking single or multiple items from a suggestion list.
   Label
+  Custom				// use 'editorNeedsView', 'editorHasToApplyValue' and 'editorHasToApplyValue' events to create your own custom editor
 
   Validators:
   use this feature to validate the properties input, use the property required flag to mark it for validation
@@ -3987,7 +4013,7 @@ Plugins
   validationMode: string  // see 'validation modes'
 
   validator types:
-  NonEmptyValidator
+  NonEmptyValidatorco
   RangeValidator: { minimum, maximum ... }
   MinimumLengthValidator: { length ... }
   MaximumLengthValidator: { length ... }
@@ -3995,16 +4021,26 @@ Plugins
   PhoneValidator:
   IsTrueValidator:
   RegExValidator: { regEx ... }
-  Custom Validators
+  Custom
 
   validation modes:
   Immediate
   OnLostFocus
   Manual
 
+  form functions:
+  hasValidationErrors();
+  validateAll()
+  notifyValidated(<fieldName: string>, <state: bool>);
+  commitAll();
+
   complex objects:
   not supported in complex objects, we have to normalize inner objects 
   { id, name, subItem: { id, name } } => { id, name, subItem_id, subItem_name }
+
+  multiple forms trick:
+  // TODO ->> wrap with StackLayout and set visibility property
+
 
   structure
   <df:EntityProperty name="[propertyName]" .....>
@@ -4052,6 +4088,31 @@ Plugins
         ...
 		...
   </df:RadDataForm.groups>
+
+  Group Layouts
+  1. Stack (default)
+  2. Grid
+
+  Groups Sort
+  RadForm uses the elements 'index' property to locate them in the screen, use the 'EntityProperty' index property 
+  to define the elements order.
+  note that when using groups, we still have to set the elements index accordingly. 
+  tip - use bigger index per group (e.g: groupA will use indexes 1-10, groupB indexes 10-20 etc.)
+
+  update a model:
+  to update a rad-form model, we have to use the viewmodel.set method on the updated model and then reload the form. 
+  
+  //example
+  const temp = { ...viewModel.formModel, title: 'Hi there' };
+  viewModel.set('formModel', temp);
+  viewModel.dataForm.reload();
+
+  note
+  to get the edited-model we can use the 'editedObject' property of the rad-form
+
+  // example
+  let temp = JSON.parse(viewModel.formModel.editedObject);
+  viewModel.set('formModel', temp);
 
   using:
     
@@ -4201,6 +4262,84 @@ Plugins
             <df:PropertyEditor type="Picker" />
         </df:EntityProperty.editor>
     </df:EntityProperty>
+
+	--
+
+	// with vm provider
+	viewModel.citiesProvider = new Map([
+		[1121, "Shanghai"],
+		[3651, "Lagos"],
+		[5213, "Moscow"],		
+		[6985, "Sydney"]
+	]);
+
+	<df:EntityProperty name="expiryYear" displayName="עיר" valuesProvider="{{ citiesProvider }}">       
+        <df:EntityProperty.editor>
+            <df:PropertyEditor type="Picker" />
+        </df:EntityProperty.editor>
+    </df:EntityProperty>
+
+	--
+
+	// custom editor
+	viewModel.onGetEditorView = args => {
+        // fromClient, toClient
+        let target = console.log(args.object.target); 
+        const editorView = new android.widget.Button(args.context);
+        editorView.setText('מצא כתובת');
+        editorView.setOnClickListener(new android.view.View.OnClickListener({
+            onClick(view) { ... }
+        }));
+        args.view = editorView;
+    }
+
+	<df:EntityProperty name="fromClient_address" displayName="כתובת איסוף" index="2" columnIndex="1">
+        <df:EntityProperty.editor>
+            <df:CustomPropertyEditor editorNeedsView="{{ onGetEditorView }}" target="fromClient" />
+        </df:EntityProperty.editor>
+    </df:EntityProperty>
+
+	-- 
+
+	// group style 
+	<df:PropertyGroup collapsible="true" collapsed="false" name="פרטי נמען">
+        <df:PropertyGroup.titleStyle>
+            <df:GroupTitleStyle fillColor="#00695c" labelTextSize="15" ios:labelFontName="Times New Roman" android:labelFontName="sans-serif" labelFontStyle="Bold" labelTextColor="White"/>
+        </df:PropertyGroup.titleStyle>
+		...
+		...
+	</df:PropertyGroup>
+
+	--
+
+	// update form data
+	viewModel.onPropertyCommitted = args => {
+        /// console.log(args.propertyName);        
+		/// console.log(args.entityProperty.editor.type); 
+
+        ///viewModel.set('deliveryModel', JSON.parse(args.object.editedObject));        
+
+        let temp = JSON.parse(viewModel.deliveryForm.editedObject);
+        viewModel.set('deliveryModel', temp);
+    };
+
+	<df:RadDataForm id="deliveryForm" source="{{ deliveryModel }}" propertyCommitted="{{ onPropertyCommitted }}">
+		...
+		...
+	</df:RadDataForm>
+
+	important!
+	to update the form content from outside the form we need to follow those steps:
+	1. update the 'editedObject' form object 
+	2. update the source object using the updated 'editedObject' form object
+
+	e.g:
+	let deliveryForm = view.getViewById(page, 'deliveryForm');
+
+	let temp = JSON.parse(deliveryForm.editedObject);
+	temp.fromClient_address = result.address;
+	temp.fromClient_coordinates = result.coordinates;      
+    viewModel.set('deliveryModel', temp);  
 
 - RadListView
  
@@ -5348,6 +5487,13 @@ Plugins
   _mapView.myLocationEnabled = true; // enable my location
   _mapView.settings.myLocationButtonEnabled = true; // show my location buttton
 
+  add marker icon:
+  let imageModule = require('ui/image');
+  let imageSource = require('image-source');
+
+  let icon = new imageModule.Image();
+  icon.imageSource = imageSource.fromFile(iconURL);
+  marker.icon = icon;
 
   using:
   // basic 
@@ -5364,7 +5510,9 @@ Plugins
   </Page>
 
   // advanced 
-  var mapsModule = require("nativescript-google-maps-sdk");
+  let mapsModule = require("nativescript-google-maps-sdk");
+  let imageModule = require('ui/image');
+  let imageSource = require('image-source');
 
   viewModel.latitude = 32.0853;   
   viewModel.longitude = 34.7818;
@@ -5379,6 +5527,13 @@ Plugins
     marker.title = "some title";
     marker.snippet = "some description";
     marker.userData = { };
+
+	if(iconURL) {
+        let icon = new imageModule.Image();
+        icon.imageSource = imageSource.fromFile(iconURL);
+        marker.icon = icon;
+    }
+
     mapView.addMarker(marker);
           
 	_mapView.zoom = 12; // set the zoom level
@@ -5398,7 +5553,7 @@ Plugins
         <StackLayout>                 
             <maps:mapView latitude="{{ latitude }}" longitude="{{ longitude }}"  
                     mapReady="{{ onMapReady }}" 
-                    markerSelect="{{ onMarkerSelect }}" />
+                    markerInfoWindowTapped="{{ onMarkerSelect }}" />
         </StackLayout>
     </Page.actionBar>        
   </Page> 
@@ -5532,35 +5687,32 @@ Other Services
   // coordinates: 32.1093,34.8555
   utils.openUrl("https://waze.com/ul?ll=32.1093,34.8555&z=10");
 
-- google Directions API
+- google distance API
   
   about:
-  get the directions between 2 or more locations. 
-  supports coordinates or address
-  supports direction modes (driving etc.)
-
-  security tip:
-  proxying the web service via your server when you're using the API in a mobile app, to protect your API key!
+  get the distance between 2 locations
 
   source:
-  https://developers.google.com/maps/documentation/directions/start
+  https://developers.google.com/maps/documentation/distance-matrix/start
+  https://developers.google.com/maps/documentation/distance-matrix/intro#DistanceMatrixRequests
 
-  setup:
   1. go to the developer console 
   2. enable the direction api 
   3. create api-key
-
+  
   parameters:
-  - origin 
+  - units 
+    - metric
+	- imperial 
+  - origins // use | for multiple
     - address 
 	- coordinates (comma seperated)
 	- place (place_id:)
-  - destination
+  - destinations
     - see 'origin'
   - key // api key
   - mode
-    - see 'transportation modes'
-
+    - see 'transportation modes'  
 
   transportation modes:  
   - driving
@@ -5593,7 +5745,68 @@ Other Services
   - highways
   - ferries
   - indoor
+
+  query:
+  - origins: string
+  - destinations: string
+  - mode: string (see 'transportation modes')
+  - key: string
+  - alternatives: bool
+  - avoid: string (see 'avoid options')
+  - language: string (see 'supported languages')
+
+  syntax:  
+  fetch([server] + [query])
+  .then(response => response.json())
+  .then(response => { ... })
+  .catch(ex => { ... }); 
+
+  sample:
+  var params = [];
+  params.push('origin=' + fromAddress);
+  params.push('destination=' + toAddress);
+  params.push('mode=' + 'driving');
+  params.push('key=' + 'xxxxxxxxxxxxxxxx');
   
+  var query = '?' + params.join('&');
+  var endpoint = 'https://maps.googleapis.com/maps/api/distancematrix/json' + query;
+  
+  fetch(endpoint)
+  .then(response => response.json())
+  .then(response => {
+      console.log(response);
+  }).catch(ex => { 
+      console.log('ex: ' + ex.message);
+  });
+
+
+- google Directions API
+  
+  about:
+  get the directions between 2 or more locations. 
+  supports coordinates or address
+  supports direction modes (driving etc.)
+
+  security tip:
+  proxying the web service via your server when you're using the API in a mobile app, to protect your API key!
+
+  source:
+  https://developers.google.com/maps/documentation/directions/start
+
+  setup:
+  same as 'google distance API'
+
+  parameters:
+  - origin 
+    - address 
+	- coordinates (comma seperated)
+	- place (place_id:)
+  - destination
+    - see 'origin'
+  - key // api key
+  - mode
+    - see 'transportation modes'  
+
   how to encode a decoded polyline?
   > npm install polyline
   var polyline = require('polyline');
@@ -5677,6 +5890,28 @@ samples:
 
 Working With Nativescript
 -------------------------
+
+- get reference to the current page:
+    
+  1. passing the 'page' object using 'onNavigatingTo' event to the model
+  2. import it from 'ui/page' module    
+
+  using:
+
+  // page-js
+  function onNavigatingTo(args) { 
+    var page = args.object;
+    page.bindingContext = createViewModel(page);
+  }
+
+  // view-model-js
+  function createViewModel(page) { }
+
+  --
+
+  // import
+  const page = require("ui/page");
+  ...
 
 - passing Parameters:
   see 'Passing Context'
@@ -7140,14 +7375,163 @@ Launch Process
 
 3. create the main-page view
 
-iOS 
----
+Deploy(android)
+---------------
+https://docs.nativescript.org/tooling/publishing/publishing-android-apps
+
+sidekick:
+use Sidekick for easy publish (see 'Sidekick APP/publish to stores')
+
+Deploy (steps): 
+1. set app global configuration
+2. create a Keystore private key
+3. Build(Release)
+4. Submit the apk to the store
+
+Deploy Update:
+1. Build(Release) 
+   note: different version number (AndroidManifest.xml) and name (yyyyMMdd)
+2. choose the app you want to update 
+3. release managment -> app releases -> edit release
+4. upload apk -> save draft 
+5. save (button) -> Review (button) -> Start Roll-out (button) -> Create Release (button)
+
+Build(Release):
+- source:
+  https://docs.nativescript.org/tooling/docs-cli/project/testing/build-android
+- syntax:
+  > tns build android <options>
+- using: 
+  > tns build android --release --key-store-path "E:\Projects\DelivIT\Documents\Keystores\hadeliverim-app.keystore" --key-store-password "delivIt1234" --key-store-alias "hadeliverim-app" --key-store-alias-password "delivIt1234"
+- note:
+  attach the keystore to the build
+
+reminder:
+1. change the version number to be higher than the current one.
+2. chnage the version name to be the date in the following format yyyyMMdd 
+3. build the app in release mode.
+
+--
+
+Submit the apk to the store:
+- open the Google Play Developer Console:
+    https://play.google.com/apps/publish/
+- All applications -> Create application.
+- app information
+    set language and title
+
+- [app releases tab]
+    1. choose release mode (Production, Beta or Alpha)
+	2. create release (button)
+	3. upload the apk
+	4. set the release name
+
+	note: 
+	you can create a release from library (e.g: production from beta)
+
+- [store listing tab]
+    Title // app's name on Google Play (30 Characters)
+	Short description // app short description (80 Characters)
+	Full description // app description (4000 Characters)
+	Graphic Assets // screenshot, youTube video etc. (required! logo 512x512, at least 1 mobile screenshot, 7" and 10" tablet screenshot 2:1 ratio, app scrennshot 1024x500)
+	Categorisation // app type, category etc.
+
+- [content rating tab]
+    need to complete a rating questionnaire and apply a content rating.
+
+- [pricing & distribution tab]
+    set mode: PAID or FREE 
+	Countries // choose in which countries the app will be available
+
+- Publish     
+    open the release -> Review (button) -> Start Roll-out (button) -> Create Release (button)
+  
+note: 
+you need to have all the V icons at the left pane in green! 
+you have a small link 'Why can't I publish?' which lists the missing content.
+
+--
+
+set app global configuration:
+- open the app
+- open AndroidManifest file ('app/App_Resources/Android/AndroidManifest.xml')
+- [application] tag
+  android:name   // e.g: android:name="com.hadeliverim"
+  android:icon   // e.g: android:icon="@drawable/icon"
+  android:label  // e.g: android:label="@string/app_name"
+  android:theme  // e.g: android:theme="@style/AppTheme" 
+- [manifest] tag
+  package="__PACKAGE__"   // do not change! __PACKAGE__ is a variable replaced by the application id defined in the package.json file.
+  android:versionCode	  // e.g: android:versionCode="10000"
+  android:versionName     // e.g: android:versionName="1.0"  
+- note 
+  @string, @drawable and @style are references to resources files 
+  located in 'App_Resources/Android/src/main/res/' 
+
+--
+
+create a Keystore private key:
+about: keystore is a binary file which contains a set of private keys, it required in order to sign the app.
+- open CMD as administrator
+- nevigate the %JAVA_HOME%\bin folder 
+
+    e.g: 
+    C:\Program Files (x86)\Java\jdk1.7.0_55\bin
+    C:\Program Files\Java\jdk1.8.0_151\bin
+
+- command: 
+    keytool -genkey -v -keystore [keystore path] -alias [alias] -keyalg RSA -keysize 2048 -validity 10000
+
+    e.g:  
+    keytool -genkey -v -keystore "C:\Users\RcBuilder\Desktop\Hadeliverim Apps\certificates\Android\hadeliverim-app.keystore" -alias hadeliverim-app -keyalg RSA -keysize 2048 -validity 10000
+
+- set keystore information:
+    Enter keystore password: [password]
+	What is your first and last name? [name] e.g: Roby Cohen
+	What is the name of your organizational unit? [organisation unit] e.g: RcBuilder
+	What is the name of your organization? [organisation] e.g: RcBuilder
+	What is the name of your of your City or Locality? [city] e.g: Tel Aviv
+	What is the name of your State or Province? [province]
+	What is the two-letter country code for this unit? [county code] e.g: IL
+
+- confirm the information: 
+    y = yes (confirmed) 
+	n = no
+
+- enter extra password (alias password)
+    Enter key password for <alias> (optional) 
+	note: you can click on enter to use the same password as the keystore password
+
+-- 
+
+deploy tests:
+  for non-production releases you need to create a testing unit
+   there are few options available:
+   - open testing 
+     based on limited downloads from the store, at least 1000 users. 
+	 once it reaches the limitation - the app will no longer be available for download.
+
+   - closed testing 
+     based on specific pre-defined email list (gmails). you can add specific emails and the app will be available ONLY for them.
+	 note: you can also create custom users lists. 
+
+   - group/community testing
+     based on a group or a community users. only users in the specified group could download the app. 
+
+
+Deploy(iOS) 
+-----------
+https://docs.nativescript.org/tooling/publishing/publishing-ios-apps
+
 IPA file:
 iOS app store package.
 
 IOS on Windows:
 we can't build for iOS using windows due to a requirement of Xcode which is only available on MAC machines! 
 there's a cloud build option using nativescript Sidekick (see 'Sidekick APP')
+
+sidekick:
+use Sidekick for easy publish (see 'Sidekick APP/publish to stores')
 
 pre-requirements:
 - open an apple account
@@ -7176,11 +7560,12 @@ certificates:
 
   step1 - create an iOS Certificate Signing Request (CSR)
   step2 - create an iOS Certificate (CER)
-  step3 - create distribution provisioning
-  step4 - create a P12 file from iOS Certificate
-  step5 - connect a P!2 file to an app 
-  step6 - publish the app
-  step7 - add an App to the Store
+  step3 - create an App id
+  step4 - create distribution provisioning
+  step5 - create a P12 file from iOS Certificate
+  step6 - connect a P!2 file to an app 
+  step7 - publish the app
+  step8 - add an App to the Store
 
 - types:
   Certificate for Development
@@ -7358,6 +7743,18 @@ establish environment for iOS:
 3. see 'create an iOS Certificate (CER)'
 4. see 'create a P12 file from iOS Certificate'
 
+publish to stores:
+we can use Sidekick to easily publish our app to both android and ios app stores  
+[steps]
+1. run > publish
+2. choose platform (android or iOS)
+3. settings (cog-wheel icon) > set the required certificates (.keystore)
+   note: we need to do this only once
+4. choose the build type (local or clowd)
+   note: for windows - we'll have to choose cloud for iOS build
+5. next
+6. upload the service account key (json) 
+   note: we can create keys in 'google play console' 
 
 MarketPlace
 -----------
@@ -7434,7 +7831,7 @@ Could not create the Java Virtual Machine
 Invalid maximum heap size: -Xmx16384M
 
 solution:
-change the jvmargs value to -Xmx256M
+change the jvmargs value to -Xmx256M or -Xmx512M
 
 file "platforms/android/gradle.properties"
 org.gradle.jvmargs=-Xmx256M
@@ -7549,7 +7946,24 @@ solution:
 --
 
 issue:
-build error
+Violation of Usage of Android Advertising ID policy and section 4.8 of the Developer Distribution Agreement
+
+error:
+firebase collect data  about the user activity 
+
+solution:
+disable the data collection 
+
+// AndroidManifest.xml > within application tag
+<meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
+
+source:
+https://firebase.google.com/docs/analytics/configure-data-collection?platform=android#disable_data_collection
+
+--
+
+issue:
+
 
 error:
 The number of method references in a .dex file cannot exceed 64K.
@@ -7564,6 +7978,8 @@ android {
   }  
   ...    
 } 
+
+<meta-data android:name="firebase_analytics_collection_enabled" android:value="false" />
 
 --
 
@@ -7614,6 +8030,19 @@ cause:
 
 solution:
 use inner machine ip
+
+--
+
+issue:
+localhost network connection issue
+(usually for debug purposes)
+
+error:
+unable to resolve processService
+# tns .....
+
+solution:
+tns extension uninstall nativescript-cloud
 
 --
 

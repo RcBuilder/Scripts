@@ -1,5 +1,5 @@
 exceptional! 
-anonymous types Equals method refers as value type comparison! 
+anonymous types Equals method behaves as value type comparison! 
 the == operator still refers to the refernece 
 
 var anon1 = new { Id = 1, Name = "ItemA" };

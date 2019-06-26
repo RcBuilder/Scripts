@@ -6,7 +6,7 @@ describes the performance or complexity of an algorithm.
 O(1)
 execute in the same time regardless of the size of the array.
 
-tip: by index or hash Code
+usage: by index or hash Code
 
 e.g:
 bool IsFirstElementNull(IList<string> elements) {
@@ -19,7 +19,7 @@ O(N)
 performance will grow linearly based on the size of the array.
 note: refers the worst-case performance scenario. 
 
-tip: foreach loop
+usage: foreach loop
 
 bool ContainsValue(IList<string> elements, string value) {
     foreach (var element in elements)
@@ -30,12 +30,20 @@ bool ContainsValue(IList<string> elements, string value) {
 
 ---
 
+O(log N)
+takes the left or right side of a node each time and removes the other one.  
+any iteration will completely remove one side and focus on the other.
+
+usage: binary search
+
+---
+
 O(N^2), O(N^3), O(N^4) etc.
 performance is proportional to the square of the size of the array.
 the quantity of the nested loops determine the N size 
 e.g: for 2 loops totality, a single nested loop we'll get N^2
 
-tip: nested foreach loops
+usage: nested foreach loops
 
 bool ContainsDuplicates(IList<string> elements){
     for (var outer = 0; outer < elements.Count; outer++){

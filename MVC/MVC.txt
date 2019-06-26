@@ -256,6 +256,32 @@ see 'Authorization.txt'
   e.g:
   @using (@Html.BeginForm("Register", "Lecturer", FormMethod.Post, new { enctype = "multipart/form-data" })){ ... }
 
+* Html.RadioButtonFor
+  <p>
+		מגדר @Html.ValidationMessageFor(m => m.Gender)
+  </p>
+  <p>
+		@Html.RadioButtonFor(m => m.Gender, "1") זכר
+		@Html.RadioButtonFor(m => m.Gender, "2") נקבה
+  </p>
+
+  --
+  <p>
+		משלם @Html.ValidationMessageFor(m => m.IsPaying)
+  </p>    
+  <p>
+		@Html.RadioButtonFor(m => m.IsPaying, true) כן
+        @Html.RadioButtonFor(m => m.IsPaying, false) לא
+  </p>
+	
+* Html.TextBoxFor
+  <p>
+	<span class="required">*</span> שם @Html.ValidationMessageFor(m => m.Name)
+  </p>
+  <p>
+	@Html.TextBoxFor(m => m.Name, new { placeholder = "שם מלא", maxLength = 250, @class = "" })
+  </p>
+
 * Display attribute (data annotation)
   [Display(Name = "User name")] // placeholder
 
@@ -2231,6 +2257,8 @@ see 'Authorization.txt'
 
   - example:
 
+    using System.Web.Mvc;
+
     [HttpPost]
     public JsonResult UserJson([ModelBinder(typeof(CustomModelBinder))]Models.User user) {
         return Json(user);
@@ -2485,6 +2513,38 @@ see 'Authorization.txt'
 
   // using HtmlString(string) method
   <input type="radio" @(isExistsCustomer ? new HtmlString("checked=\"checked\"") : null) />
+
+* UI helpers
+
+  syntax:  
+  @helper <functionName>(<params>){ ... }
+
+  sample:
+  @helper RenderIfNotEmpty(string Value)
+  {
+    if (!string.IsNullOrEmpty(Value))
+    {
+        <p>@Value</p>
+    }
+  }
+
+  @helper RenderGender(byte Value)
+  {
+    switch (Value)
+    {
+        case 1:<text>זכר</text>;
+            break;
+        case 2: <text>נקבה</text>;
+            break;
+    }
+  }
+
+  <p>@Model.Id</p>
+  @RenderIfNotEmpty(Model.FirstNameHE)
+  @RenderIfNotEmpty(Model.LastNameHE)
+  <p>@Model.FirstNameEN</p>
+  <p>@Model.LastNameEN</p>
+  <p>@RenderGender(Model.Gender)</p>
 
 --------------------------------------------------------------
 // TODO Research

@@ -65,6 +65,7 @@
 * POX - Plain Old XML
 * P1 - Priority 1
 * WebRTC - Web Real-Time Communications
+* BSON - Binary JSON // MongoDB storing format
 
 * .SVC = file that expose a WCF service 
 * .ASMX = ASP.NET Web Service 

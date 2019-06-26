@@ -1,0 +1,26 @@
+atob and btoa
+-------------
+decode/encode base64
+
+toBase64
+<string> btoa(<input: string>);  
+
+fromBase64
+<string> atob(<input: string>);  
+
+--
+
+atob stands-for ASCII to binary
+btoa stands-for binary to ASCII
+
+note: part of the 'window' object
+
+--
+
+var input = 'user:password';
+var encoded = btoa(input);  
+var decoded = atob(encoded);
+
+console.log(encoded);  // dXNlcjpwYXNzd29yZA==
+console.log(decoded);  // user:password
+

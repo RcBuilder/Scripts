@@ -1,0 +1,19 @@
+/*
+    	keyword insertion allows us to auto-inject the triggered keyword into the ad content (kind-of a placeholder). 
+        structure: '{KeyWord: Value}'         
+        the word 'KeyWord' plus the curly brackets are being ignored by the adwords engine so the actual length of such expression equals to the Value length alone
+        e.g: the length of '{KeyWord: Chocolate}' is 9! (counting only the Chocolate) 
+*/    
+countWithoutKeywordInsertion: function(input){      
+      var keywordInsertionPattern = /{\s*KeyWord\s*:(.*?)\s*}/ig;
+      return input.replace(keywordInsertionPattern, '$1').length;      	
+}    
+
+-----
+
+clearSpecialCharacters: function(input){
+      // any letter in the ASCII range 
+      // \u0080-\uFFFF
+      var specialCharactersPattern = /[^\.!\-%_'\?\w\d\s{}:\u0080-\uFFFF]+/g;      
+      return input.replace(specialCharactersPattern, ' ');
+}

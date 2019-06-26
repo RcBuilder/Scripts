@@ -1,0 +1,12 @@
+declare @temp varchar(20) = '82796689', 
+	@result varchar(100) = '', 
+	@current char
+
+while(LEN(@temp) > 0)
+BEGIN
+	set @current = (select char(LEFT(@temp, 2)));
+	set @temp = (select RIGHT(@temp, LEN(@temp)- 2));
+	set @result = @result + @current	
+END 
+
+select @result  -- ROBY

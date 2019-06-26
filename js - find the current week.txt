@@ -1,0 +1,23 @@
+js - find the current week
+--------------------------
+
+var sun = new Date();  
+sun.setDate(sun.getDate() - sun.getDay());  
+  
+var sat = new Date(sun.getTime());
+sat.setDate(sat.getDate() + 6);
+  
+Logger.log(dateFormat(sun) + ' > ' + dateFormat(sat));
+
+---
+
+function dateFormat(date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + '-' + month + '-' + day;
+} 

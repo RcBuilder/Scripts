@@ -1,0 +1,5 @@
+ul.ul-horizontal::after {     
+    content: "";
+    clear: both;
+    display: table;
+}

@@ -1,0 +1,73 @@
+use ModelBinder sample
+----------------------
+get the selected categories (checkboxes).
+
+-------
+
+using System.Web.Mvc;
+using WEB.Models;
+
+namespace WEB.Binders
+{
+    public class SelectedCategoriesBinder : DefaultModelBinder
+    {
+        public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+        {
+            /// var request = controllerContext.HttpContext.Request;
+
+            var result = base.BindModel(controllerContext, bindingContext) as LecturerMapResultDTO;
+            result.selectedCategories.RemoveAll(x => x.ToString() == "false");             
+            return result;
+        }
+    }
+}
+
+-------
+
+namespace WEB.Models
+{
+    public class LecturerMapResultDTO
+    {
+        public int LecturerId { get; set; }
+        public List<string> selectedCategories { get; set; }
+    }
+}
+
+-------
+
+[HttpGet]
+public ActionResult MapCategories(int Id){
+     var lecturer = DAL.Lecturers.Get(Id);            
+     var categories = DAL.Categories.Get();
+     return View(new LecturerMapDTO(lecturer, categories));
+}
+
+[HttpPost]
+public ActionResult MapCategories([ModelBinder(typeof(SelectedCategoriesBinder))]LecturerMapResultDTO mapResult) { ... }
+
+-------
+
+@model WEB.Models.LecturerMapDTO
+
+@{
+    ViewBag.Title = "map categories";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<h2>map categories</h2>
+
+<h3>@Model.Lecturer.ToString()</h3>
+
+@using (@Html.BeginForm("MapCategories", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <ul class="ul-horizontal">
+    @foreach (var cat in Model.Categories) {
+        <li>@Html.CheckBox("selectedCategories", Model.Lecturer.Categories.Any(x => x.Id == cat.Id), new { value = cat.Id }) @cat.NameHE</li>
+    }
+    </ul>
+
+    @Html.Hidden("LecturerId", Model.Lecturer.Id)
+
+    <br />
+    <input type="submit" value="save" class="btn btn-info" />
+}

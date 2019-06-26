@@ -1,0 +1,73 @@
+C# Access Modifiers
+-------------------
+* public	
+* private	
+* protected
+* internal
+* protected internal
+* private protected
+
+---
+
+* public:   
+  can be accessed from anywhere. 
+  (public in all assemblies)
+
+* private:
+  can be accessed ONLY from within the class itself.
+  (private in all assemblies)
+
+* protected:
+  can be accessed from within the class itself or from within a derived class.
+  (protected in all assemblies)
+
+* internal:
+  can be accessed from anywhere within the same assembly. 
+  can NOT be reached outside of the assembly.
+  (public in the same assembly, unreachable outside of it)
+
+* protected internal
+  protected OR internal! (not protected AND internal)
+
+  can be accessed from anywhere within the same assembly (match the 'internal' criteria)
+  can be accessed from derived classes in other assemblies! (act as 'protected' in other assemblies)
+  can NOT be reached directly outside of the assembly (act as 'protected' in other assemblies)
+  (public in the same assembly, protected outside of it)
+
+  --
+
+  // Assembly1
+  public class ClassA {
+	protected internal int p1 { set; get; }
+  }
+
+  public class ClassB : ClassA {
+    public int p2 {
+            get { return this.p1 * 2; }
+    }
+  }
+
+  // Assembly2
+  // derived classes within other assembly have access to p1!
+  public class ClassC : Assembly1.ClassA {
+    public int p2 {
+            get { return this.p1 * 2; }
+    }
+  }
+
+  same assembly:
+  var classA = new DAL.ClassA();
+  classA.p1 = 1; // OK
+
+  other assembly:
+  // no direct access to p1!
+  var classA = new Assembly1.ClassA();
+  classA.p1 // exception: inaccessible due to its protection level
+
+
+* private protected:
+  protected in same assembly AND private in other assmbly!
+
+  can be accessed from within the class itself or from within a derived class.  
+  can NOT be reached (at all) outside of the assembly.
+  (protected in the same assembly, unreachable outside of it)

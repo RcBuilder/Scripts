@@ -1,0 +1,27 @@
+// find an item using binary search
+
+var itemToFind = 15;
+var temp = new int[] {3, 6, 8, 11, 15, 18, 20};
+--
+
+var count = 0;
+var found = false;
+
+while(temp.Length > 0){
+	count++;
+	var middle = (int)Math.Floor((double)temp.Length / 2);
+	Console.WriteLine("middle index: {0} > value: {1}", middle, temp[middle]);	
+	Console.WriteLine(temp);
+	
+	if(temp[middle] == itemToFind) {
+		found = true;
+		break;	
+	}
+	
+	temp = (itemToFind > temp[middle]) ? temp.Skip(middle + 1).ToArray() : temp.Take(middle).ToArray();		
+}
+
+if(found)
+	Console.WriteLine("item {0} found after {1} searches", itemToFind, count);
+else
+	Console.WriteLine("item not exists");

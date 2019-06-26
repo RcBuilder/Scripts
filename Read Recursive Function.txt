@@ -1,0 +1,71 @@
+Read Recursive Function
+-----------------------
+
+void Main() {
+	Console.WriteLine(Sum(5));  // 15
+}
+
+int Sum(int num){
+	if(num == 0) return 0;
+	return num + Sum(--num);
+}
+
+---
+
+[stack view]
+ ________
+|        |
+| Sum(0) | return 0
+| Sum(1) | return 1 + 0 => 1
+| Sum(2) | return 2 + 1 => 3
+| Sum(3) | return 3 + 3 => 6
+| Sum(4) | return 4 + 6 => 10
+| Sum(5) | return 5 + 10 => 15
+|________|
+
+---
+
+[tree view]
+can draw a tree with branches instead.
+ 
+ | 5 | (returns 5 + 10 => 15)
+      -> | 4 | (returns 4 + 6 => 10)
+	       -> | 3 | (returns 3 + 3 => 6)
+			-> | 2 | (returns 2 + 1 => 3)
+				 -> | 1 | (returns 1 + 0 => 1)
+					  -> | 0 | (returns 0)
+
+
+---
+
+note! 
+use the stack view for cases when there's no forks.
+use the tree view when there's forks
+
+// e.g: 
+return fun(num-1) + fun(num-2);
+
+---
+
+tip: 
+using a tree view with forks provides us the ability to see the return value of a node-value 
+and apply that of any instances of that node within the other forks. 
+
+// e.g
+fun(num)
+{
+    if(num <= 0) return 1;
+    return fun(num-1) + fun(num-2);	
+}
+fun(4); // 
+ 
+ | 4 |  (returns 3 + 5 => 8) 
+       -> | 3 | (returns 3 + 2 => 5) 
+		-> | 2 | ... we don't need to calculate it again because we know that 2 returns the value 3 (see below)
+   		-> | 1 | ... we know - 1 returns the value 2
+
+       -> | 2 | (returns 1 + 2 => 3) 
+		-> | 1 | (returns 1+1 => 2)
+			  -> | 0 | (returns 1) 
+			  -> | -1 | (returns 1) 
+		-> | 0 | (returns 1) 

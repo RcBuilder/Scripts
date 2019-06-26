@@ -536,7 +536,7 @@ let d1 = new classD();  // d1 has access to p2 and p4
 
 
 static:
-use static keyword to define a data-member as static (one instance for all).
+use static keyword to define a data-member or methods as static (one instance for all).
 referenced by the class name. 
 
 class SomeClass{ 
@@ -549,6 +549,27 @@ let a = new SomeClass();
 let b = new SomeClass();
 let c = new SomeClass();
 console.log(SomeClass.counts);  // 3
+
+// .ts
+class Circle{
+	static PI: number = 3.14;
+    
+    static calculateArea(radius:number) : number {
+        return this.PI * radius * radius;
+    }
+}
+Circle.calculateArea(5);  // 78.5
+
+// .js
+var Circle = /** @class */ (function () {
+    function Circle() { }
+    Circle.calculateArea = function (radius) {
+        return this.PI * radius * radius;
+    };
+    Circle.PI = 3.14;
+    return Circle;
+}());
+Circle.calculateArea(5); // 78.5
 
 constructor:
 use 'public' keyword as a shorthand to create and populate the property automatically.

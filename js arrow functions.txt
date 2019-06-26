@@ -1,0 +1,202 @@
+JS Arrow functions
+------------------
+a lambda-like syntax in javascript!  
+arrow functions are anonymous functions (functions with no name)
+
+its a shortcut for the known expression functions but it doesn't have its own 'this' nor 'arguments', 
+'this' refers to the surrounding context!
+
+can't use the NEW keyword to instantiate an arrow function - an error will be thrown.
+
+syntax
+------
+// no params 
+() => { code } 
+
+// single param 
+(p1) => { code }
+
+// multiple params
+(p1, p2 ..... pN) => { code } 
+
+// return a literal object
+() => ({ object })  
+
+note: 
+can omit the () for a single param
+p1 => { code }
+
+can omit the {} for a direct return value
+p1 => x  // equivalent to: p1 => { return x; }
+(p1, p2 ..... pN) => x
+
+---
+
+notice:
+1) due to the reason that theres no 'this' - when using call or apply, the 'this' is ignored!
+   e.g: see 'using call or apply' below
+
+2) in literals which are public objects, 
+   when using 'this' within a direct arrow function, it refers to the window object!
+   e.g: see 'literals with direct arrow function' below
+
+3) NEW keyword on an arrow function will throw an exception.
+   e.g: see 'arrow function with the NEW keyword' below
+
+4) arrow functions do NOT have prototype property
+   e.g: see 'arrow function prototype' below
+
+---
+
+arrays
+------
+we can use arrow functions with array methods 
+
+- map:
+  array.map([function]);
+  lambda select clause
+  see javascript map.txt''
+
+- filter:
+  array.filter([function]);
+  lambda where clause
+  see 'javascript filter.txt'
+
+--------------------------------------
+
+using
+-----
+
+var array1 = [1, 4, 9, 16];
+const map1 = array1.map(x => x * 2);
+console.log(map1); // [2, 8, 18, 32]
+
+
+var array2 = ['Roby', 'Avi', 'Shirly', 'Rafi'];
+var map2 = array2.map(name => name.length);
+console.log(map2); // [4, 3, 6, 4]
+
+---
+
+// basic
+var f1 = () => { console.log('f1'); };
+var f2 = (n) => { console.log('f2'); };
+var f3 = (n1, n2) => { return n1 * n2; };
+var f4 = x => x * 2;
+
+f1();  // log 'f1'
+f2(9); // log 'f2'
+
+var res_f3 = f3(5, 8); 
+console.log(res_f3); // 40 
+
+var res_f4 = f4(8);
+console.log(res_f4); // 16
+
+---
+
+// return a literal object 
+var f5 = () => ({ id:1, name: 'A' });
+var res_f5 = f5();
+console.log(res_f5); // {id: 1, name: "A"}
+
+var f6 = () => { return { id:1, name: 'A' }; };
+var res_f6 = f6();
+console.log(res_f6); // {id: 1, name: "A"}
+
+---
+
+// setInterval with 'this' instead of 'that'
+function User(){
+  this.age = 0;
+
+  setInterval(() => {
+    this.age++; // 'this' refers to the User object
+  }, 1000);
+}
+
+var u = new User();
+
+---
+
+// using call or apply
+// when using call or apply, the 'this' is ignored!
+var helper = {
+    base: 1,
+    foo1: function (num) {
+        var f = x => x + this.base; // 1 + 1
+        console.log(f(num));
+    },
+    foo2: function (num) {
+		// 'this' is being ignored! refers to the wrapper object - helper
+        var f = x => x + this.base; // 1 + 1
+        var b = { base: 3 };
+        console.log(f.call(b, num));
+    }
+}
+
+helper.foo1(1); // 2
+helper.foo2(1); // 2!! 
+
+--- 
+
+// literals with direct arrow function
+// reminder: literals are public objects under the window
+// see 'javascript literal and this keyword.txt'
+
+var services = {
+	p1: 10,
+
+	f1: () => { 
+		console.log(this.p1, this); // 'this' refers to the window  
+	},
+	f2: function(){ 
+		console.log(this.p1, this); // 'this' refers to the services 
+	},
+	f3: function(){ 
+		var f = () => { console.log(this.p1, this); }  // now, 'this' refers to the services 		
+		f();
+	}
+}
+
+services.f1(); // undefined, Window { ... }
+services.f2(); // 10, { p1: 10, f1: ƒ, f2: ƒ }
+services.f3(); // 10, { p1: 10, f1: ƒ, f2: ƒ }
+
+---
+
+// arrow function with the NEW keyword
+// using of the NEW kwyword on an arrow function will throw an exception.
+var A = () => { };
+var a = new A(); // TypeError: A is not a constructor!
+
+--- 
+
+// arrow function prototype 
+// arrow functions do NOT have prototype property
+var A = () => { };
+console.log(A.prototype); // undefined
+
+---
+
+// self invoke
+(() => 'blabla')();
+
+var res = (() => 'blabla')();
+console.log(res); // blabla
+
+---
+
+// conditional
+var f1 = x => x % 2 == 0 ? 'even' : 'odd';
+f1(8); // returns even
+f1(7); // returns odd 
+
+---
+
+// more samples 
+var arr = [5, 6, 13, 0, 1, 18, 23];
+
+var sum = arr.reduce((a, b) => a + b);  // 66
+var even = arr.filter(v => v % 2 == 0); // [6, 0, 18]
+var double = arr.map(v => v * 2); // [10, 12, 26, 0, 2, 36, 46]      

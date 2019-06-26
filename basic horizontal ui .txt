@@ -1,0 +1,19 @@
+basic horizontal ui 
+-------------------
+
+ul.ul-horizontal { 
+    list-style-type: none; 
+    margin:0;
+    padding:0;
+}
+ul.ul-horizontal::after {     
+    content: "";
+    clear: both;
+    display: table;
+}
+ul.ul-horizontal li { 
+    float: right;
+    padding-left:30px;  
+}
+
+----
