@@ -1,0 +1,31 @@
+Bug:
+JSON.NET and Serializable attribute Issue
+
+Error:
+once you decorate an object with Serializable attribute, it changes the names of the properties to some random names and therefore, the web API binder can't find a match to the fields and all of the fields are set to be null!
+
+Solution:
+add a JsonObject attribute along with the Serializable one.
+
+[JsonObject]
+[Serializable]
+
+e.g:
+[JsonObject]
+[Serializable]
+public class ContentItemElement {
+        [JsonProperty("@id")]
+        public string Id { get; set; }
+
+        [JsonProperty("@type")]
+        public string Type { get; set; }
+
+        [JsonProperty("mediaType")]
+        public string MediaType { get; set; }
+} 
+
+
+Sources:
+https://stackoverflow.com/questions/20914080/make-json-net-and-serializable-attribute-work-together
+http://james.newtonking.com/archive/2012/04/11/json-net-4-5-release-2-serializable-support-and-bug-fixes
+
