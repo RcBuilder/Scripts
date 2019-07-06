@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <ul id="customers"></ul>
+    
+    <script src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
+    <script type="text/javascript">
+        var server = 'https://www.w3schools.com/js/customers_mysql.php';
+
+        $.getJSON(server, function (data) {
+            $.each(data, function (key, value) {
+                $('<li>' + value.Name + '</li>').appendTo('ul#customers');
+            });
+        });
+    </script>
+</body>
+</html>

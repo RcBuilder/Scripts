@@ -73,6 +73,8 @@ function duplicateTab(sheetName){
   destDataRange.setTextRotations(sourceDataRange.getTextRotations());  
   destDataRange.setTextDirections(sourceDataRange.getTextDirections());
 
+  ///sourceDataRange.copyTo(destDataRange, SpreadsheetApp.CopyPasteType.PASTE_FORMAT, false);  
+
   return createdSheet;
 }
 

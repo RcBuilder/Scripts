@@ -42,6 +42,8 @@
 * CMS = Content Management System
 * CRM = Customer-Relationship Management
 
+* DBS = Database System
+
 * CIL = Common Intermediate Language
 * MSIL = Microsoft Intermediate Language // same as CIL
 * CLR = Common Language Runtime

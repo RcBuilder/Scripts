@@ -1,0 +1,124 @@
+[Controller]
+
+public class SitemapController : Controller {        
+    public SitemapResult Index() {
+        var items = new List<SitemapResultItem>();
+
+        var categories = DAL.Categories.Get();
+        var lecturers = DAL.Lecturers.Get();
+
+        items.AddRange(categories.Select(c => {
+            return new SitemapResultItem
+            {
+                loc = "/Category/" + c.RoutingValue,
+                priority = "0.4",
+                changefreq = "daily"
+            };
+        }));
+
+        items.AddRange(lecturers.Select(l => {
+            return new SitemapResultItem
+            {
+                loc = "/Lecturer/" + l.RoutingValue,
+                priority = "0.6",
+                changefreq = "daily"
+            };
+        }));
+
+        return new SitemapResult("https://lecturer.co.il", items);
+    }
+}
+
+---
+
+[SitemapResult]
+
+/*
+    loc: 
+    page url
+
+    priority
+    0.1, 0.2 .... 1.0 whereas 1.0 is the most important
+        
+    changefreq:
+    never, yearly, monthly, weekly, daily, hourly, always
+*/
+
+public class SitemapResultItem {
+    public string loc { get; set; }
+    public string priority { get; set; }
+    public string changefreq { get; set; }
+}
+
+public class SitemapResult : ActionResult {
+    private static readonly XNamespace NS = XNamespace.Get("http://www.sitemaps.org/schemas/sitemap/0.9");
+    private static readonly XDeclaration Declaration = new XDeclaration("1.0", "UTF-8", "yes");
+    private static readonly string BackupFile = AppDomain.CurrentDomain.BaseDirectory + "SiteMap.xml";
+
+    private string Domain { get; set; }
+    private List<SitemapResultItem> Items { get; set; }
+        
+    public SitemapResult(string Domain, List<SitemapResultItem> Items) {
+        this.Domain = Domain;
+        this.Items = Items;
+    }
+
+    public override void ExecuteResult(ControllerContext context) {
+        var xDoc = new XDocument();
+
+        try {
+            xDoc.Declaration = SitemapResult.Declaration;
+
+            var root = new XElement(SitemapResult.NS + "urlset");
+            xDoc.Add(root);
+
+            root.Add(
+                new XElement(SitemapResult.NS + "url",
+                    new XElement(SitemapResult.NS + "loc", this.Domain),
+                    new XElement(SitemapResult.NS + "priority", "1.0"),
+                    new XElement(SitemapResult.NS + "changefreq", "daily"),
+                    new XElement(SitemapResult.NS + "lastmod", DateTime.Now.ToString("yyyy-MM-dd"))
+                )
+            );
+
+            foreach (var item in this.Items)
+                root.Add(
+                        new XElement(SitemapResult.NS + "url",
+                            new XElement(SitemapResult.NS + "loc", this.Domain + item.loc),
+                            new XElement(SitemapResult.NS + "priority", item.priority),
+                            new XElement(SitemapResult.NS + "changefreq", item.changefreq),
+                            new XElement(SitemapResult.NS + "lastmod", DateTime.Now.ToString("yyyy-MM-dd"))
+                    )
+                );
+
+            // backup copy as file
+            try { xDoc.Save(BackupFile); }
+            catch { }
+        }
+        catch {
+            xDoc = XDocument.Load(BackupFile);  // load backup
+        }
+        finally {
+            context.HttpContext.Response.ContentType = "application/rss+xml";
+            context.HttpContext.Response.Write(xDoc.ToString(SaveOptions.None));
+        }            
+    }
+}
+
+---
+
+[RouteConfig]
+
+public class RouteConfig {
+    public static void RegisterRoutes(RouteCollection routes) {
+	
+        routes.MapRoute(
+            name: "Sitemap",
+            url: "Sitemap",
+            defaults: new { controller = "Sitemap", action = "Index" }
+        );
+
+		...
+		...
+    }
+}

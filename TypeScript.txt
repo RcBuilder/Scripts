@@ -94,9 +94,11 @@ it uses Build Action of type TypeScriptCompile (properties window - F4).
 in the html page, we need to reference the file using a .js extension instead of .ts! 
 each build the vs auto-compilation process will create a pure javascript version of the typeScript code.
 
+tip:
+to see the generated .js version, click on the 'Show All Files' top button in the solution explorer.
+
 open a typeScript app:
 Add > New Project > Other Languages > TypeScript > HTML application with TypeScript
-
 
 using:
 // index.html
@@ -108,6 +110,29 @@ window.onload = () => {
     var someClass = new SomeClass();
 	...    
 };
+
+---
+
+using in mvc:
+1. add .ts file to the scripts folder
+2. add reference to the .js version of that file 
+
+note:
+when we drag and drop a .ts file into a view - it automatically adds it as .js version!
+
+- 
+
+sample:
+// Scripts/file1.ts
+class c1{
+    constructor(public id: number, public name: string) { }
+    print(): void { console.log('#' + this.id + ' ' + this.name); } 
+}
+var c = new c1(100, 'Roby');
+c.print();
+
+// Layout.cshtml
+<script src="~/Scripts/file1.js"></script>
 
 ---
 

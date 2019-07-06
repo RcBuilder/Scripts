@@ -1,0 +1,35 @@
+js basic Promise and async-await 
+--------------------------------
+
+function doAjax() {
+    return $.ajax({ url: '/home/test', type: 'GET' });    
+}
+
+
+// -OR- 
+// p1 = $.ajax({ url: '/home/test', type: 'GET' });
+
+var p1 = doAjax();  
+console.log('start ajax call');
+p1.then(result => {
+    console.log('end ajax call');
+});
+
+console.log('main code ...');
+
+------
+
+async function doAjax() {
+    console.log('start ajax call');
+    var response = await $.ajax({ url: '/home/test', type: 'GET' });
+    console.log('end ajax call');
+}
+
+doAjax();
+console.log('main code ...');
+
+/*
+    start ajax call
+    main code ...
+    end ajax call
+*/

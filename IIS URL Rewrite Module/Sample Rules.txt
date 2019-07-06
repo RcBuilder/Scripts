@@ -1,0 +1,39 @@
+// canonical hostname
+<rule name="Canonical" stopProcessing="true">
+            <match url="(.*)" />
+            <conditions>
+                <add input="{HTTP_HOST}" negate="true" pattern="^www\.mysite\.com$" />
+            </conditions>
+            <action type="Redirect" url="http://www.mysite.com/{R:1}" redirectType="Permanent" />
+        </rule>
+
+---
+
+// forward an image to a dedicated server 
+<rule name="Forward to Images Server">
+            <match url="^.+\.(?:jpg|bmp|gif)$" />
+            <action type="Rewrite" url="http://static_file_server/{R:0}" />
+        </rule>
+
+---
+
+// rewrite to a new folder 
+<rule name="NewImages folder">
+            <match url="^Images/(.+)$" />
+            <action type="Rewrite" url="NewImages/{R:1}" />
+        </rule>
+
+---
+
+// block requests by agent or ip 
+<rule name="Block" stopProcessing="true">
+            <match url="^folder1/folder2" />
+            <conditions logicalGrouping="MatchAny">
+                <add input="{USER_AGENT}" pattern="SomeRobot" />
+                <add input="{REMOTE_ADDR}" pattern="201\.45\.33\.[0-5]" />
+            </conditions>
+            <action type="AbortRequest" />
+        </rule>
+
+---
+

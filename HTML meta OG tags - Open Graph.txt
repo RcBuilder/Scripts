@@ -1,0 +1,20 @@
+HTML meta OG tags
+-----------------
+OG stands for Open Graph. 
+allows us to control what content shows-up as preview when a page is shared on facebook.
+
+---
+
+using:
+
+<meta property="og:locale" content="he_IL" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="@ViewBag.Title" />
+<meta property="og:description" content="@ViewBag.MetaDescription" />
+<meta property="og:url" content="@Request.Url.AbsoluteUri" />
+<meta property="og:site_name" content="פורטל המרצים הישראלי" />
+<meta property="og:image" content="@ViewBag.PreviewImage" />
+<meta property="og:image:secure_url" content="@ViewBag.PreviewImage.Replace("http", "https")" />
+<meta property="og:image:width" content="500" />
+<meta property="og:image:height" content="500" />
+<meta property="og:image:alt" content="פורטל המרצים הישראלי" />

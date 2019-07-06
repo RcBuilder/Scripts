@@ -1,0 +1,163 @@
+URL Rewrite Rules
+-----------------
+
+{R:1} - regex group 1
+{R:2} - regex group 2
+
+---------------------------
+
+syntax:
+
+// Web.config
+<system.webServer>
+    <rewrite>
+      <rules configSource="RewriteRules.config" />
+    </rewrite>
+</system.webServer>
+
+// RewriteRules.config
+<rules>
+  <rule>
+  <rule>
+  <rule>
+  ...
+  ...
+</rules>  
+
+---------------------------
+
+// lecturers portal
+
+/* 
+	[SEO] redirect images with lecturer name to the actual image which uses only the id
+
+	e.g:
+	from: /Content/Images/Lecturers/1-Roby-Cohen.jpg
+	to: /Content/Images/Lecturers/1.jpg
+	image: 1.jpg
+*/
+
+<rules>
+  <rule name="LecturerProfileImage">
+    <match url="^Content/Images/Lecturers/(\d+)-(.*)\.jpg$" />
+    <action type="Redirect" url="Content/Images/Lecturers/{R:1}.jpg" />
+  </rule>
+</rules>  
+
+
+---------------------------
+
+// daytrade profit 
+
+<rules>
+        <!-- GENERAL -->
+        <rule name="IGNORE FILES" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{URL}" pattern="^.*\.(ashx|axd|css|gif|png|jpg|jpeg|js|flv|f4v|wav|avi|mpg)" />
+          </conditions>
+          <action type="None" />
+        </rule>
+        <!--
+        <rule name="Cannonical" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions>
+            <add input="{HTTP_HOST}" pattern="^www\.daytradeprofit\.com$" negate="true" />
+          </conditions>
+          <action type="Redirect" url="http://www.daytradeprofit.com/{R:1}" />
+        </rule>
+        -->
+        <!-- SITE PAGES -->
+        <rule name="Default" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="Home" />
+          </conditions>
+          <action type="Rewrite" url="Default.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="AboutUs" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="AboutUs" />
+          </conditions>
+          <action type="Rewrite" url="AboutUs.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="Knowledge" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="Knowledge" />
+          </conditions>
+          <action type="Rewrite" url="Knowledge.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="Performances" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="Performances" />
+          </conditions>
+          <action type="Rewrite" url="Performances.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="Solutions" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="Solutions" />
+          </conditions>
+          <action type="Rewrite" url="Solutions.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="ContactUs" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="ContactUs" />
+          </conditions>
+          <action type="Rewrite" url="ContactUs.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="SignUp" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="SignUp" />
+          </conditions>
+          <action type="Rewrite" url="SignUp.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="Calculator" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="Calculator" />
+          </conditions>
+          <action type="Rewrite" url="Calculator.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="FAQ" stopProcessing="true">
+          <match url=".*" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="FAQ" />
+          </conditions>
+          <action type="Rewrite" url="FAQ.aspx" appendQueryString="false" />
+        </rule>
+        <!-- ADMIN PAGES -->
+        <rule name="Admin_Users" stopProcessing="true">
+          <match url="Admin/" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="Users" />
+          </conditions>
+          <action type="Rewrite" url="Admin/Users.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="Admin_Transactions" stopProcessing="true">
+          <match url="Admin/" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="Transactions" />
+          </conditions>
+          <action type="Rewrite" url="Admin/Transactions.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="Admin_LogIn" stopProcessing="true">
+          <match url="Admin/" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="LogIn" />
+          </conditions>
+          <action type="Rewrite" url="Admin/LogIn.aspx" appendQueryString="false" />
+        </rule>
+        <rule name="Admin_Default" stopProcessing="true">
+          <match url="Admin/" />
+          <conditions>
+            <add input="{REQUEST_URI}" pattern="" />
+          </conditions>
+          <action type="Rewrite" url="Admin/Users.aspx" appendQueryString="false" />
+        </rule>
+      </rules>

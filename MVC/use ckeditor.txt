@@ -1,0 +1,29 @@
+use ckeditor
+------------
+
+steps:
+1. download library and copy it's content to your project.
+   e.g: ~/Content/ckeditor/
+
+2. in the editor view, add reference to the 'ckeditor.js' file
+
+   e.g:
+   // view1
+   @section scripts{
+    	<script>
+	    CKEDITOR.replace('Notes');
+    	</script>
+   }
+
+   @Html.TextAreaFor(m => m.Notes, new { placeholder = "הערות", @class = "form-control" })
+
+3. in the action which gets the content, set a ValidateInput attribute to false 
+
+   e.g:		
+   [HttpPost]
+   [ValidateInput(false)]
+   public ActionResult Save(...){ ... }
+
+4. in the site, render the content as HTML   
+   e.g: @Html.Raw(Model.Notes)
+

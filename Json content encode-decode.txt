@@ -1,0 +1,13 @@
+Json content encode/decode
+
+// SEND
+var data = "{ 'a':1, 'b':2}";            
+var dataBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(data));
+var dataEncoded = HttpUtility.UrlEncode(dataBase64);
+
+------------------------
+
+// RECIEVE
+var dataDecoded = HttpUtility.UrlDecode(dataEncoded);
+var dataBase64 = Encoding.UTF8.GetString(Convert.FromBase64String(dataDecoded));
+dynamic data = JsonConvert.DeserializeObject(dataBase64);

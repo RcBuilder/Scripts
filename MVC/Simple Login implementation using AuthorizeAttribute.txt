@@ -1,0 +1,67 @@
+public class LoginDTO{
+    public string UserName { get; set; }
+    public string Password { get; set; }
+}
+
+public class AdminAuthorizeAttribute : AuthorizeAttribute {
+    public override void OnAuthorization(AuthorizationContext filterContext) {
+        var context = System.Web.HttpContext.Current;
+       
+        var adminSession = context.Session["admin"];        
+        if (adminSession != null) {            
+            var identity = new GenericIdentity((string)adminSession, "admin");            
+            context.User = new GenericPrincipal(identity, new string[] { "admin" });
+        }
+      
+        base.OnAuthorization(filterContext);
+    }
+}
+
+----
+
+<system.web>
+   <authentication mode="Forms">
+      <forms loginUrl="~/Home/Login" />
+   </authentication>
+</system.web>
+
+----
+
+[AdminAuthorize(Roles = "admin")]
+public class AdminController : Controller{ 
+   ...
+}
+
+[HttpPost]
+public ActionResult Login(LoginDTO data) {
+    // TODO ->> move to db
+    if(data.UserName == "roby" && data.Password == "12345678")
+        HttpContext.Session["admin"] = data.UserName;
+    return RedirectToAction("", "Admin");
+}
+
+----
+
+@using (@Html.BeginForm("Login", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <fieldset>
+        <label>
+            שם משתמש
+        </label>
+        <span>
+            @Html.TextBox("UserName", "", new { placeholder = "שם משתמש", maxLength = 50, @class = "form-control" })
+        </span>
+    </fieldset>
+    <fieldset>
+        <label>
+            סיסמה
+        </label>
+        <span>
+            @Html.Password("Password", "", new { placeholder = "סיסמה", maxLength = 50, @class = "form-control" })
+        </span>
+    </fieldset>
+
+    <div>
+        <input type="submit" value="התחבר" class="btn btn-info" />
+    </div>
+}

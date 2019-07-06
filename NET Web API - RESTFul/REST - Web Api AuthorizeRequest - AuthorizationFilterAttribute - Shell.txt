@@ -1,0 +1,54 @@
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public class AuthorizeRequestAttribute : AuthorizationFilterAttribute //ActionFilterAttribute
+{
+    public override void OnAuthorization(HttpActionContext context) {
+        try {
+            // [AllowAnonymous]
+            if (context.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any()) {
+                base.OnAuthorization(context);
+                return;
+            }
+
+            var IsAuthrized = false;
+			...
+			...
+			...
+
+            if(!IsAuthrized)
+                throw new HttpException((int)HttpStatusCode.Unauthorized, "Unauthorized Access");
+
+            base.OnAuthorization(context);
+        }
+        catch (HttpException ex) {
+            context.Response = new HttpResponseMessage((HttpStatusCode)ex.GetHttpCode()) {
+                Content = new StringContent(ex.Message)
+            };
+        }
+        catch (Exception ex) {
+            context.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized) {
+                Content = new StringContent(ex.Message)
+            };
+        }
+    }
+}
+
+-------------------------
+
+[AuthorizeRequest]
+public class ContentItemController : ApiController {
+    [HttpGet]
+    [Route("api/contentItem/test1")]
+    public string Test1() {
+        return "Hello World";
+    }
+
+    [AllowAnonymous]
+    [HttpGet]
+    [Route("api/contentItem/test2")]        
+    public string Test2() {
+        return "Hello World";
+    }
+}
+
+
+

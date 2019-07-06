@@ -1,0 +1,83 @@
+AdWords Tracking Template
+-------------------------
+
+[Tracking Template]
+
+convention:
+utm_medium = adwords
+utm_campaign = campaign
+utm_source = adgroup
+utm_content = ad
+utm_term = keyword
+
+required:
+utm_medium
+utm_campaign
+utm_source
+
+available levels:
+account 
+campaign
+adgroup
+ad
+
+note: 
+if we have 'Tracking Templates' on multiple levels - the most specific one overrides the others.
+
+---
+
+[AdWords parameters]
+
+value-track parameters:
+lpurl  // represents the final url
+creative // represents the id of the ad
+keyword  // represents the keyword which triggered the ad 
+network
+placement
+etc.
+
+custome parameters:
+_campaign  // we need to define at campaign level
+_adgroup  // we need to define at adgroup level
+etc.
+
+important: 
+parameters are being represented using the curly brackets '{}'
+custom parameters have a prefixed underscore '_'
+value-track parameters are those with NO prefix '_'
+
+--- 
+
+[sample] 
+
+level:
+account
+
+template url:
+{lpurl}?utm_medium=adwords&utm_campaign={_campaign}&utm_source={_adgroup}&utm_content={creative}&utm_term={keyword}
+
+steps:
+
+// set the Tracking template
+1. Settings > Account Settings > Tracking template
+2. set the 'template url' (see above)
+
+// now we need to define the _campaign parameter for each campaign
+3. Campaign Settings > import 'Custom Parameter' column (can also import 'Tracking template' column)
+4. Set a '_campaign' paramter with a custom value for each campaign. 
+   note: this value replaces the _campaign parameter defined within the template. 
+
+// now we need to define the _adgroup parameter for each adgroup
+5. Adgroups > import 'Custom Parameter' column (can also import 'Tracking template' column)
+6. Set a '_adgroup' paramter with a custom value for each adgroup. 
+   note: this value replaces the _adgroup parameter defined within the template. 
+
+// test
+7. back to the 'Account Settings'
+8. click 'Test' to confirm it works properly
+   note: this button generates randomly x scenarios based on the account data
+
+--- 
+
+reminder:
+we can use the same logic to add custom parameters to the ads and keywords.

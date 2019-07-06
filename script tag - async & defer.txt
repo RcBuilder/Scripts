@@ -1,0 +1,30 @@
+==========================
+script tag - async & defer
+==========================
+
+none
+----
+sync download, sync execute.
+pause the html parsing when download a script and pause it again when execute it! 
+code: <script>
+illustration: 'script.png'
+
+async
+-----
+async download, sync execute.
+download the script in parallel to the html parsing.
+pause the html parsing once the script was donloaded to execute it. 
+code: <script async>
+illustration: 'script-async.png'
+
+defer
+-----
+async download, async execute.
+download the script in parallel to the html parsing.
+only execute it after the html parsing has completed!
+note that the execution will be occurred based on their appearance in the document.
+code: <script defer>
+illustration: 'script-defer.png'
+
+ 
+

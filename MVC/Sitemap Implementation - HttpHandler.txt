@@ -1,0 +1,127 @@
+----------------------------------------------
+---- Sitemap Implementation (HttpHandler) ----
+----------------------------------------------
+
+steps:
+1. create a custom 'ActionResult' named 'SitemapResult' which writes the sitemap content as XML to the response.
+2. create a new controller 'SitemapController' with 'Index' action which uses the 'SitemapResult' from chapter 1
+3. within the 'Index' action, generate a list of 'SitemapResultItem' based on your site data. 
+4. map new route in the 'RouteConfig' file to trigger the 'SitemapController'
+5. go to <your-domain>/Sitemap 
+
+note:
+- another way to achieve a dynamic sitemap is by using HttpHandler!
+  see 'Sitemap Implementation - HttpHandler' 
+
+---- Sample --------------------
+
+[Web.config]
+
+<system.webServer>
+	  <handlers>
+		...
+		<add name="siteMap" path="SiteMap.xml" verb="GET" type="BLL.HttpHandlers.SiteMap" preCondition="integratedMode,runtimeVersionv4.0" />
+    </handlers> 
+</system.webServer>
+
+---
+
+[BLL.HttpHandlers]
+
+public class SiteMap : IHttpHandler{
+    private readonly string filePath = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "SiteMap.xml");
+
+    public void ProcessRequest(HttpContext context) {
+		var items = new List<SitemapResultItem>();
+        
+		var pages = DAL.Pages.Get();               
+        items.AddRange(pages.Select(p => {
+            return new SitemapResultItem
+            {
+                loc = "/Page/" + p.RoutingValue,
+                priority = "0.6",
+                changefreq = "daily"
+            };
+        }));
+
+		var xDoc = new SitemapResult("https://openbook.co.il", items);
+
+        context.Response.Clear();
+        context.Response.ClearContent();
+        context.Response.ClearHeaders();
+
+        var strXml = string.Concat(xDoc.Declaration.ToString() + Environment.NewLine, xDoc.ToString());
+        context.Response.ContentType = "text/xml";
+        context.Response.Write(strXml);
+        context.Response.Flush();
+        context.Response.End();
+        
+    }
+
+    public bool IsReusable { get { return true; } }
+}
+
+---
+
+[SitemapResult]
+
+public class SitemapResultItem {
+    public string loc { get; set; }
+    public string priority { get; set; }
+    public string changefreq { get; set; }
+}
+
+public class SitemapResult {
+    private static readonly XNamespace NS = XNamespace.Get("http://www.sitemaps.org/schemas/sitemap/0.9");
+    private static readonly XDeclaration Declaration = new XDeclaration("1.0", "UTF-8", "yes");
+    private static readonly string BackupFile = AppDomain.CurrentDomain.BaseDirectory + "SiteMap.xml";
+
+    private string Domain { get; set; }
+    private List<SitemapResultItem> Items { get; set; }
+        
+    public SitemapResult(string Domain, List<SitemapResultItem> Items) {
+        this.Domain = Domain;
+        this.Items = Items;
+    }
+
+    public XDocument Generate() {
+        var xDoc = new XDocument();
+
+        try {
+            xDoc.Declaration = SitemapResult.Declaration;
+
+            var root = new XElement(SitemapResult.NS + "urlset");
+            xDoc.Add(root);
+
+            root.Add(
+                new XElement(SitemapResult.NS + "url",
+                    new XElement(SitemapResult.NS + "loc", this.Domain),
+                    new XElement(SitemapResult.NS + "priority", "1.0"),
+                    new XElement(SitemapResult.NS + "changefreq", "daily"),
+                    new XElement(SitemapResult.NS + "lastmod", DateTime.Now.ToString("yyyy-MM-dd"))
+                )
+            );
+
+            foreach (var item in this.Items)
+                root.Add(
+                        new XElement(SitemapResult.NS + "url",
+                            new XElement(SitemapResult.NS + "loc", this.Domain + item.loc),
+                            new XElement(SitemapResult.NS + "priority", item.priority),
+                            new XElement(SitemapResult.NS + "changefreq", item.changefreq),
+                            new XElement(SitemapResult.NS + "lastmod", DateTime.Now.ToString("yyyy-MM-dd"))
+                    )
+                );
+
+            // backup copy as file
+            try { xDoc.Save(BackupFile); }
+            catch { }
+        }
+        catch {
+            xDoc = XDocument.Load(BackupFile);  // load backup
+        }
+        finally {
+            return xDoc;
+        }            
+    }
+}
+

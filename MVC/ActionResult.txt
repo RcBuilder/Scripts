@@ -1,0 +1,126 @@
+*** ActionResult ***
+********************
+
+Built-in Types
+==============
+- ContentResult  
+- RedirectResult
+- ViewResult
+- JavaScriptResult
+- JsonResult
+- HttpStatusCodeResult
+- HttpUnauthorizedResult
+- HttpNotFoundResult
+- FilePathResult	
+
+---
+
+samples:
+
+// ContentResult
+public ContentResult Test() {
+	var result = new ContentResult();
+	result.Content = "<h1>Some Title</h1>";
+	result.ContentEncoding = Encoding.UTF8;
+	result.ContentType = "text/html";
+	return result;
+}
+
+// RedirectResult
+public RedirectResult Test() {            
+    return new RedirectResult("http://rcb.co.il", false);
+}
+
+// JsonResult - direct
+public JsonResult Test() {
+    var result = new JsonResult();
+    result.Data = new { id = 1, name = "roby", age = 38 };
+    result.JsonRequestBehavior = JsonRequestBehavior.AllowGet;
+    return result;
+}
+
+// JsonResult - via javascript
+@section scripts{
+    <script>
+        $.ajax({
+            url: '/Home/Test',
+            type: 'GET',
+            success: function (response) {
+                alert(JSON.stringify(response));
+            },
+            error: function (jxhr, msg, err) { }
+        });
+    </script>
+}
+
+// JsonResult - via javascript - async
+@section scripts{
+    <script>
+        async function doAjax() {
+            console.log('start ajax call');
+            var response = await $.ajax({ url: '/home/test', type: 'GET' });
+            console.log('end ajax call');
+        }
+
+        doAjax();
+        console.log('main code ...');
+    </script>
+}
+
+/*
+	start ajax call
+	main code ...
+	end ajax call
+*/
+
+// HttpStatusCodeResult
+public HttpStatusCodeResult Test() {            
+    return new HttpStatusCodeResult(HttpStatusCode.NotFound, "Action Not Found!");
+}
+
+// HttpStatusCodeResult
+public HttpStatusCodeResult Test() {            
+    return new HttpStatusCodeResult(HttpStatusCode.OK, "Great!!");
+}
+
+// HttpNotFoundResult
+public HttpStatusCodeResult Test() {            
+    return new HttpNotFoundResult("Action Not Found!");
+}
+
+// FilePathResult
+public FilePathResult Test() {
+    var result = new FilePathResult("~/Content/Images/header.jpg", "image/jpeg");
+    result.FileDownloadName = "download-header.jpg";            
+    return result;
+}
+
+------------------------------------------
+
+
+Custom Type
+===========
+
+syntax:
+public class <resultName> : ActionResult {        
+     public override void ExecuteResult(ControllerContext context){ 
+	... 
+	...
+	context.HttpContext.Response.ContentType = <contentType>;
+        context.HttpContext.Response.Write(<value>);
+     }
+}
+
+using:
+public <resultName> Index() {
+     return new <resultName>;
+}
+
+---
+
+samples:
+- see 'Custom ActionResult - SitemapResult'
+- see 'Custom ActionResult - XmlResult'
+
+
+

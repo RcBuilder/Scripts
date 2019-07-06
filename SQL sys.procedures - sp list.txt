@@ -1,0 +1,23 @@
+drop ALL stored procedures 
+--------------------------
+
+[sys table]
+sys.procedures
+
+[get sp list]
+SELECT 	name, 
+	[schema_id], 
+	SCHEMA_NAME([schema_id]) as 'schema', 
+	create_date, 
+	modify_date
+FROM   	sys.procedures
+
+[drop sp]
+DROP PROCEDURE [dbo].[sp_Shift_Employees_Get];
+
+[drop all]
+//  using dynamic execution
+DECLARE @query NVARCHAR(max)=''
+SELECT @query += 'DROP PROCEDURE [' + SCHEMA_NAME(schema_id) + '].[' + name + '];'
+FROM   sys.procedures 
+exec(@query)

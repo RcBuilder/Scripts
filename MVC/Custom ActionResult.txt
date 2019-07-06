@@ -1,0 +1,23 @@
+Custom ActionResult 
+-------------------
+
+syntax:
+public class <resultName> : ActionResult {        
+     public override void ExecuteResult(ControllerContext context){ 
+	... 
+	...
+	context.HttpContext.Response.ContentType = <contentType>;
+        context.HttpContext.Response.Write(<value>);
+     }
+}
+
+using:
+public <resultName> Index() {
+     return new <resultName>;
+}
+
+----------------------
+
+[sample]
+see 'Sitemap Implementation'
+

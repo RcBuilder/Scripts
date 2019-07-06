@@ -1,0 +1,54 @@
+[Controller]
+
+public class DataController : Controller {        
+    public XmlResult Index() {        
+		var data = new DataTable("tbl1");
+
+        data.Columns.AddRange(new DataColumn[] {
+            new DataColumn("Id"),
+            new DataColumn("Name")
+        });
+
+        var row1 = data.NewRow();
+        var row2 = data.NewRow();
+
+        row1["Id"] = 1;
+        row1["Name"] = "ItemA";
+
+        row2["Id"] = 2;
+        row2["Name"] = "ItemB";
+
+        data.Rows.Add(row1);
+        data.Rows.Add(row2);
+
+        return new XmlResult(data);
+    }
+}
+
+---
+
+[XmlResult]
+
+public class XmlResult : ActionResult {
+    private DataTable data { get; set; }
+
+    public XmlResult(DataTable data) {
+        this.data = data;
+    }
+
+    public override void ExecuteResult(ControllerContext context) {
+        var strXML = "";
+        try
+        {
+            DataSet ds = new DataSet();
+            ds.Tables.Add(this.data);
+            strXML = ds.GetXml();
+        }
+        catch { }
+        finally
+        {
+            context.HttpContext.Response.ContentType = "application/xml";
+            context.HttpContext.Response.Write(strXML);
+        }
+    }
+}

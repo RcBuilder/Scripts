@@ -1,0 +1,11 @@
+<rule name="Cannonical" stopProcessing="true">
+    <match url="(.*)" />
+    <conditions logicalGrouping="MatchAny">
+      <!-- HTTPS flag is Off -->
+      <add input="{HTTPS}" pattern="^OFF$" />
+      
+      <!-- prefixed WWW -->
+      <add input="{HTTP_HOST}" pattern="^www\.lecturer\.co\.il$"  />
+    </conditions>
+    <action type="Redirect" url="https://lecturer.co.il/{R:1}" redirectType="Permanent" />
+</rule>

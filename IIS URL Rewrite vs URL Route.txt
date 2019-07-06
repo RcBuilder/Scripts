@@ -1,0 +1,27 @@
+IIS URL Rewrite vs URL Route
+----------------------------
+
+URL Rewriting:
+- modifying the requested URL before the Web server decides which handler to use to process the request.
+- no changes to the orignal typed url. 
+- the rewrite module is a native code module that plugs into the request-pipeline. 
+- the rewrite module lives at the very early stage of the request-pipeline > the 'Begin Request' stage!
+- it uses pre-defined rewrite rules.
+- applied to ALL requests.
+- can be used with ANY web application.
+- has access to all the request-data (HTTP headers, server variables etc.)
+- can perform redirection, abort requests and issue a custom status codes. 
+
+URL Route: 
+- request-dispatching mechanism that lets developers associate a certain URL with the processing handler.
+- no url changes! it only reacts to the orignal typed url by finding the appropriate handler to process the request. 
+- the routing module is a managed-code module that plugs into the IIS request-pipeline.
+- the routing module lives at the middle stage of the request-pipeline > the 'Execute Handler' stage!
+- it uses pre-defined registered routes that define which handler to invoke for a particular URL path.
+- applied to ALL requests.
+- limited to .NET web applications!
+- has limited access to ONLY the URL path and HTTP-Method header!
+
+recap:
+the rewrite module manipulate URL paths before the request is handled by the Web server.
+the routing module maps a processing handler based on the provided URL path (handler-mapping mechanism).

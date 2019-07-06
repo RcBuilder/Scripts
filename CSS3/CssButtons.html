@@ -1,0 +1,294 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        pre {
+            margin: 0;            
+        }
+
+        .base-design  > a{
+            display:inline-block;
+            width: 250px;            
+            height: 50px;
+            line-height: 50px;
+            vertical-align: middle;
+            text-align: center;
+            border-radius: 4px;
+            color: #fff;
+        }
+
+        /* design1 */
+        .design1 > a {                                             
+            background-color: #189fda;
+        }
+
+        .design1 > a:hover {
+            text-decoration: none;
+            background-color: #000;
+            transition: background-color 0.7s ease;
+        }
+
+        /* design2 */
+        .design2 > a {            
+            color: #000;                        
+            border: solid 1px #000;                   
+            position: relative;                                    
+        }
+
+        .design2 > a:hover {
+            color: #fff;   
+        }
+
+        .design2 > a::before {
+            border-radius: 4px; 
+
+            content: '';
+            position: absolute;
+            top:100%;
+            bottom:0;
+            left:0;
+            right:0;
+            z-index: -1;                        
+        }
+
+        .design2 > a:hover::before {            
+            background-color: #189fda;
+            top:0;
+            transition: top 0.1s ease;
+        }
+
+        /* design3 */
+        .design3 > a {                        
+            background-color: #189fda;                                  
+            position: relative;          
+        }
+
+        .design3 > a::after {            
+            content: '→';
+            position: absolute;
+            top:0;            
+            right:20px;   
+            opacity: 0;                                 
+        }
+
+        .design3 > a:hover::after {    
+            opacity: 1;                   
+            transition: opacity 0.1s ease;
+        }
+
+        /* design4 */
+        .design4 > a {                        
+            background-color: #189fda;                                       
+            position: relative;          
+        }
+
+        .design4 > a::before {            
+            content: 'before';
+            position: absolute;
+            top:0;            
+            right:0;   
+            left:0;
+            bottom:0;   
+            opacity:1;         
+            transition: all 0.1s ease;
+        }
+
+        .design4 > a::after {            
+            content: 'after';
+            position: absolute;
+            top:0;            
+            right:-100%;   
+            left:0;
+            bottom:0;  
+            opacity:0;          
+            transition: all 0.1s ease;
+        }
+
+        .design4 > a:hover::before {            
+            left:-100%;
+            opacity:0;
+            transition: all 0.1s ease;
+        }
+
+        .design4 > a:hover::after {            
+            right:0;
+            opacity:1;
+            transition: all 0.1s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="base-design design1">
+        <pre>   
+            how to:  
+            1. set a background-color
+            2. on hover > use transition to change the background-color
+
+            css:
+            .design1 > a {                  
+                background-color: #189fda;
+            }
+            .design1 > a:hover {
+                background-color: #000;
+                transition: background-color 0.7s ease;            
+            }
+        </pre>
+        <a>ItemA</a>
+        <a>ItemB</a>
+        <a>ItemC</a>
+    </div>
+
+    <hr />
+    <div class="base-design design2">
+        <pre>   
+            how to:  
+            1. anchor
+               - set as relative in order to add absolute layouts before/ after it
+               - add border and color
+            2. anchor (hover) 
+               - change the color to fit the new layout background-color
+            3. before layout
+               - set empty content just to create a block 
+               - set the z-index to -1 in order Not to hide the anchor text
+               - stretch the bottom, right and left sides to fit the anchor size
+               - hide the top side at the bottom line by setting it to 100%
+            4. before layout (hover)
+               - stretch the top side (a reminder: all other already stretched so now the layout is fully stretched) 
+               - set the fill background-color              
+               - use transition on the top property
+
+            css:
+            .design2 > a {                  
+                position: relative;
+                color: #000;                            
+                border: solid 1px #000;                   
+            }
+            .design2 > a:hover {
+                color: #fff;             
+            }
+
+            .design2 > a::before {                
+                content: '';
+                position: absolute;
+                top:100%;
+                bottom:0;
+                left:0;
+                right:0;
+                z-index: -1;                        
+            }
+            .design2 > a:hover::before {            
+                background-color: #189fda;
+                top:0;
+                transition: top 0.1s ease;
+            }
+        </pre>
+        <a>ItemA</a>
+        <a>ItemB</a>
+        <a>ItemC</a>
+    </div>
+
+    <hr />
+    <div class="base-design design3">
+        <pre>   
+            how to:  
+            1. anchor
+               - set as relative in order to add absolute layouts before/ after it
+            2. after layout
+               - set the content to be an arrow '→'
+               - set the arrow position
+               - hide it using opacity (opacity: 0)
+            3. after layout (hover)
+               - show the arrow using opacity (opacity: 1)
+               - use transition on the opacity property
+
+            css:
+            .design3 > a {                            
+                position: relative;          
+            }
+            .design3 > a::after {            
+                content: '→';
+                position: absolute;
+                top:0;            
+                right:20px;   
+                opacity: 0;                                 
+            }
+            .design3 > a:hover::after {    
+                opacity: 1;                   
+                transition: opacity 0.1s ease;
+            }
+        </pre>
+        <a>ItemA</a>
+        <a>ItemB</a>
+        <a>ItemC</a>
+    </div>
+
+    <hr />
+    <div class="base-design design4">
+        <pre>   
+            how to:  
+            1. anchor
+               - set as relative in order to add absolute layouts before/ after it
+            2. before layout
+               - set the content to be the link text
+               - set as absolute and streach it to fit the anchor size
+               - show it using opacity (opacity: 1) 
+               - add transition on all properties (for the mouseOut effect)
+            3. after layout
+               - set the content to be the link text (on hover)
+               - set as absolute and streach the top, left and bottom sides to fit the anchor size
+               - pull it to the right by setting the right side to be -100% 
+               - hide it using opacity (opacity: 0) 
+               - add transition on all properties (for the mouseOut effect)
+            4. before layout (hover)
+               - pull it to the left by setting the left side to be -100% 
+               - hide it using opacity (opacity: 0) 
+               - add transition on all properties (for the mouseHover effect)
+            5. after layout (hover)
+               - pull it to the center (presented) by setting the right side to be 0
+               - show it using opacity (opacity: 1) 
+               - add transition on all properties (for the mouseHover effect)
+
+            css:
+            .design4 > a {                                        
+                position: relative;          
+            }
+            .design4 > a::before {            
+                content: 'before';
+                position: absolute;
+                top:0;            
+                right:0;   
+                left:0;
+                bottom:0;   
+                opacity:1;         
+                transition: all 0.1s ease;
+            }
+            .design4 > a::after {            
+                content: 'after';
+                position: absolute;
+                top:0;            
+                right:-100%;   
+                left:0;
+                bottom:0;  
+                opacity:0;          
+                transition: all 0.1s ease;
+            }
+            .design4 > a:hover::before {            
+                left:-100%;
+                opacity:0;
+                transition: all 0.1s ease;
+            }
+            .design4 > a:hover::after {            
+                right:0;
+                opacity:1;
+                transition: all 0.1s ease;
+            }
+        </pre>
+        <a></a>
+        <a></a>
+        <a></a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,9 @@
+<rule name="LecturerProfileImage">
+    <match url="^Images/(\d+)-(.*)\.jpg$" />
+    <action type="Redirect" url="Images/{R:1}.jpg" />
+</rule>
+
+using:
+from: /Images/1-Roby-Cohen.jpg
+to: /Images/1.jpg
+image: 1.jpg

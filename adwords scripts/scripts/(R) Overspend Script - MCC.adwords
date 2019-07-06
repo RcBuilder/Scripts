@@ -2,8 +2,13 @@ var LABEL = 'Overspend';
 var DEBUG = false;
 var Tollerance = -0.3; // in the campaign currency 
 var EMAIL = 'RcBuilder@walla.com';
+var AutoPause = true;  // set the flag to true in order to let the script auto-pause the campaigns 
 
-function main() {
+function main() {  
+  Logger.log('[CONFIG] LABEL: %s, DEBUG: %s, Tollerance: %s, AutoPause: %s', LABEL, DEBUG, Tollerance, AutoPause);  
+  
+  var overspendCampaigns = [];
+  
   var accounts = MccApp.accounts()
   .withCondition('LabelNames CONTAINS "' + LABEL + '"')
   .get();  
@@ -12,12 +17,48 @@ function main() {
     var account = accounts.next();
     MccApp.select(account);
     Logger.log('[#%s] %s', account.getCustomerId(), account.getName());  
-    ProcessAccount();
+    ProcessAccount(overspendCampaigns);
    	Logger.log('---------------------'); 
   }   
+  
+  if(overspendCampaigns.length > 0){    
+    Logger.log('found %s overspend campaigns! Sending email to %s...', overspendCampaigns.length, EMAIL);
+    
+    try{
+      MailApp.sendEmail(EMAIL, 'Overspend Campaigns', '', { 
+        htmlBody: toHTML(overspendCampaigns)
+      });
+    }
+    catch(e){
+      Logger.log('[ERROR] %s', e.message);	
+    }
+  }
 }
 
-function ProcessAccount(){
+function toHTML(overspendCampaigns){
+  var htmlTemplate = 
+      '<p>[#{0}] {4}</p>' +
+      '<p>cost: {1}</p>' +	
+      '<p>budget: {2}</p>' +
+      '<p>tollerance: {3}</p>' +
+      '<hr />';
+
+  var html = '';
+  for(i in overspendCampaigns){
+  	var overspendCampaign = overspendCampaigns[i];
+    
+    html += htmlTemplate
+    .replace('{0}', overspendCampaign.id)
+    .replace('{1}', overspendCampaign.cost)
+    .replace('{2}', overspendCampaign.budget)
+    .replace('{3}', Tollerance)
+    .replace('{4}', overspendCampaign.name);
+  }
+  
+  return html;
+}
+
+function ProcessAccount(overspendCampaigns){
   var campaigns = AdWordsApp.campaigns()
   .withCondition('Status = ENABLED')
   ///.withCondition('LabelNames CONTAINS_ANY ["' + LABEL + '"]')
@@ -26,11 +67,11 @@ function ProcessAccount(){
   while (campaigns.hasNext()) {
 	var campaign = campaigns.next();
 	Logger.log('campaign: ' + campaign.getName()); 
-    ProcessCampaign(campaign);
+    ProcessCampaign(campaign, overspendCampaigns);
   }
 }
 
-function ProcessCampaign(campaign){
+function ProcessCampaign(campaign, overspendCampaigns){
   var campaignName = campaign.getName();
   
   var startDate = campaign.getStartDate(); // {year, month, day}
@@ -57,27 +98,18 @@ function ProcessCampaign(campaign){
   if(!isOverspend) return;
   
   Logger.log('Overspend!');
+   
+  if(AutoPause) {
+    Logger.log('pausing the campaign');
+    campaign.pause();  
+  }
   
-  var htmlTemplate = 
-    '<p>[#{0}] {4}</p>' +
-  	'<p>cost: {1}</p>' +	
-  	'<p>budget: {2}</p>' +
-  	'<p>tollerance: {3}</p>'
-  ;
-  
-  var html = htmlTemplate
-  .replace('{0}', campaign.getId().toString())
-  .replace('{1}', cost)
-  .replace('{2}', budget)
-  .replace('{3}', Tollerance)
-  .replace('{4}', campaignName);
-  
-  Logger.log('pausing the campaign');
-  campaign.pause();
-  
-  Logger.log('Sending email to %s...', EMAIL);
-  MailApp.sendEmail(EMAIL, 'Overspend Campaign #' + campaignName, '', { 
-    htmlBody: html
+  // {id, name, cost, budget }
+  overspendCampaigns.push({ 
+    id: campaign.getId().toString(), 
+    name: campaignName, 
+    cost: cost, 
+    budget: budget 
   });
 }
 

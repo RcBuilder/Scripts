@@ -48,6 +48,22 @@ p1.then(result => {
 
 ---
 
+// use jquery ajax 
+var p1 = $.ajax({ url: '/home/test', type: 'GET' });
+
+p1.then(result => {
+    console.log('ajax response');
+});
+
+console.log('main ...');
+
+/*
+	main
+	ajax response
+*/
+
+---
+
 // failure (reject)
 let p2 = new Promise((resolve, reject) => {
 	try{		

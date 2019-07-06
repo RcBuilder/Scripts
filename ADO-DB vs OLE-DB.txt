@@ -1,0 +1,10 @@
+ADO-DB vs OLE-DB
+----------------
+ADO-DB stands-for ActiveX Data Objects DB
+an API layer on top of the OLE-DB for microsoft data-base services (MS-SQL etc.)
+
+--
+
+OLE-DB stands-for Object Linking and Embedding DB
+an API designed by Microsoft.
+allows data access from any source provides OleDB driver. 

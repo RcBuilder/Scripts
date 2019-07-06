@@ -1,0 +1,24 @@
+IIS Rewrite logical Grouping
+---------------------------- 
+
+tag:
+conditions
+
+property:
+logicalGrouping
+
+values:
+- MatchAll  // AND
+- MatchAny  // OR
+
+-----------
+
+example:
+<rule name="Cannonical" stopProcessing="true">
+   <match url="(.*)" />
+   <conditions logicalGrouping="MatchAny">      
+      <add input="{HTTPS}" pattern="^OFF$" />            
+      <add input="{HTTP_HOST}" pattern="^www\.rcb\.co\.il$"  />
+   </conditions>
+   <action type="Redirect" url="https://rcb.co.il/{R:1}" redirectType="Permanent" />
+</rule>

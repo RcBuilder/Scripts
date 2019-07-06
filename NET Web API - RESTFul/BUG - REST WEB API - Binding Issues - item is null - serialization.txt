@@ -1,0 +1,48 @@
+Bug:
+all properties are null even though the binder recognize the entity 
+
+Error:
+null properties
+
+Cause:
+when using the built-in .NET binder (web api mechanism), you shouldn't use the Serializable attribute! 
+it causes the binder to change the members names. 
+
+Example:
+
+// in the following example, the binder found the @context and @graph properties
+// but hasn't manage to bind the @id property foreach item (all @id properties are null)
+
+{
+  
+	"@context": "http://purl.imsglobal.org/ctx/lti/v1/ContentItem",  
+	"@graph": [{"@id":"1"},{"@id":"2"}]
+}
+
+-- 
+
+[HttpPost]
+[Route("api/contentItem/add/{toolId}")]
+public string Test3(string toolId, [FromBody]ContentItems ContentItems)
+{
+      return string.Format("[{0}] ADD ContentItems", toolId);
+}
+
+
+public class ContentItems : IEnumerable<ContentItemElement>
+{
+	[JsonProperty("@context")]
+	public string Context { get; set; }
+
+    [JsonProperty("@graph")]
+    public List<ContentItemElement> Items { get; set; }
+}
+ 
+[Serializable]
+public class ContentItemElement {
+    [JsonProperty("@id")]
+    public string Id { get; set; }
+}
+
+Solution:
+remove the [Serializable] attribute!

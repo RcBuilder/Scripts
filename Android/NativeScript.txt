@@ -7518,6 +7518,18 @@ deploy tests:
    - group/community testing
      based on a group or a community users. only users in the specified group could download the app. 
 
+publish the app:
+see 'publish the app (iphone)'
+see 'publish the app (android)'
+
+publish the app (android):
+- open 'Sidekick APP'
+- open the project 
+- click on publish button (top-right) 
+- choose 'Google Play' as a destination
+- settings (cogwheel icon) > set the certificate (keystore) file
+- choose build type (local or cloud)
+- Next
 
 Deploy(iOS) 
 -----------
@@ -7645,7 +7657,6 @@ build the app on a specific Phone/AVD:
 
 publish the app:
 see 'publish the app (iphone)'
-see 'publish the app (android)'
 
 publish the app (iphone):
 - open 'Sidekick APP'
@@ -7658,27 +7669,27 @@ publish the app (iphone):
 - once the build completed - an .IPA file will be created in [yourProject]\.cloud\ios\device 
   and a popup will be shown requesting your developer credentials - provide them and click 'Upload'
 
-publish the app (android):
-- open 'Sidekick APP'
-- open the project 
-- click on publish button (top-right) 
-- choose 'Google Play' as a destination
-- settings (cogwheel icon) > set the certificate (keystore) file
-- choose build type (local or cloud)
-- Next
+create an app strore build:
+// TODO 
+
+- tip
+  use sidekick to publish an app to the app-store
 
 add an App to the Store:
 - go to the 'dev Center'
 - (menu) App Store Connect > click on 'Go to ..' button
 - choose 'My Apps'
+- New App: platform 
+  choose 'iOS' 
+- New App: language  
 - App information: App Name 
-  app name as it will apear in the store)
+  app name as it will apear in the store
 - App information: Privacy Policy URL 
   provide a url to the app policy 
 - General information: Bundle ID 
   choose the created bundle
 - General information: SKU 
-  unique identifier 
+  unique identifier (package id)
   e.g: co.il.rcbuilder.sample
 - General information: Category 
   choose the app category 
@@ -7693,8 +7704,8 @@ add an App to the Store:
 - App Review Information: Contact Information
 - General App Information: App Store Icon
   app icon (1024x1024)
-  // TODO 
-
+- Build: choose a build 
+  see 'create an app strore build'.
 
 developer Program:
 https://developer.apple.com/programs/
@@ -7755,6 +7766,10 @@ we can use Sidekick to easily publish our app to both android and ios app stores
 5. next
 6. upload the service account key (json) 
    note: we can create keys in 'google play console' 
+
+iOS app-specific password:
+to generate an application-specific password go to the 'dev Center' > 'Security' tab
+this allows access to the app-store for services not provided by apple. 
 
 MarketPlace
 -----------

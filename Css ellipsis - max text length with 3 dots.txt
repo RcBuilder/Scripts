@@ -1,0 +1,2 @@
+reference:
+'CSS Tricks - max presented text'

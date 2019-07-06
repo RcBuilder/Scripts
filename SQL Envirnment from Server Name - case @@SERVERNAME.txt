@@ -1,0 +1,10 @@
+declare @server varchar(5)
+	
+	select @server = case @@SERVERNAME
+		when 'AMAZONA-D04906O' then 'DEV'
+		when 'EC2AMAZ-BN4HJ0L' then 'QA'
+		when 'EC2AMAZ-STRU5HP' then 'QALV'
+		when 'EC2AMAZ-E2BN387' then 'PROD'
+	end 
+
+	select @server

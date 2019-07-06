@@ -1,0 +1,47 @@
+https://github.com/taboola/Backstage-API#1-authentication-and-general-api-usage
+
+----------
+
+
+POST 
+https://backstage.taboola.com/backstage/oauth/token
+?client_id=<clientId>&client_secret=<secret>&grant_type=client_credentials
+
+---
+
+GET 
+https://backstage.taboola.com/backstage/api/1.0/lapam-tayarut-network/advertisers/
+H: Authorization: Bearer <token>
+
+---
+
+GET
+https://backstage.taboola.com/backstage/api/1.0/users/current/allowed-accounts
+H: Authorization: Bearer <token>
+
+---
+
+GET
+https://backstage.taboola.com/backstage/api/1.0/sepros-lapam-tayarut-sc/campaigns
+H: Authorization: Bearer <token>
+
+// accountId: sepros-lapam-tayarut-sc
+
+---
+
+GET
+https://backstage.taboola.com/backstage/api/1.0/sepros-lapam-tayarut-sc/reports/campaign-summary/dimensions/day
+?start_date=2017-11-12&end_date=2017-11-12
+H: Authorization: Bearer <token>
+
+---
+
+GET
+https://backstage.taboola.com/backstage/api/1.0/sepros-lapam-tayarut-sc/reports/campaign-summary/dimensions/day
+?campaign=<campaignId>&start_date=2017-11-12&end_date=2017-11-12
+H: Authorization: Bearer <token>
+
+-----------------------------------------------------
+
+reference:
+'Spreadsheet scripts' > '(R) update taboola metrics and duplicate tab.script'

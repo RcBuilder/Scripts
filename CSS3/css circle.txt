@@ -1,0 +1,19 @@
+ul.base-circles li {
+            text-align:center;
+            vertical-align:middle;
+            color: #fff;              
+
+            border-radius: 50%;
+            height: 50px;
+            line-height:50px;     
+            width: 50px;           
+	    margin: 8px; 
+}
+
+---
+
+<ul class="base-circles">
+            <li>1</li>
+            <li>2</li>
+            <li>3</li>
+        </ul>
