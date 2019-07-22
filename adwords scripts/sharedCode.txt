@@ -1,4 +1,4 @@
--- adwords script --
+[adwords script]
 
 var Import = {
   Init: function (namespace){
@@ -50,9 +50,9 @@ function main() {
   serviceC.funC('SERVICE C');
 }
 
-------------------------------------------------------------------
+-----
 
--- MyCodeA.code --
+[MyCodeA.code]
 
 // LOCATED IN GOOGLE DRIVE !! 
 
@@ -67,9 +67,9 @@ var serviceA = function(){
 	}	
 };
 
-------------------------------------------------------------------
+-----
 
--- MyCodeB.code --
+[MyCodeB.code]
 
 // LOCATED IN GOOGLE DRIVE !! 
 
@@ -80,9 +80,9 @@ function ServiceB(){
 	this.funC = function(p1){ Logger.log(p1); }
 }
 
-------------------------------------------------------------------
+-----
 
--- MyCodeC.code --
+[MyCodeC.code]
 
 // LOCATED IN GOOGLE DRIVE !! 
 
@@ -92,3 +92,88 @@ var serviceC = {
 	funB: function(){ Logger.log('FUN B'); },
 	funC: function(p1){ Logger.log(p1); }
 };
+
+
+------------------------------------------------------------------------------------
+
+[example]
+
+function main() {
+  var script = getFile('2.txt');
+  var sCode = script.getBlob().getDataAsString();
+  eval(sCode); 
+  scriptMain();
+  
+  Logger.log('-----------');
+  
+  f1();
+  f2('paramA');
+
+  Logger.log('rndValue: ' + rndValue);    
+  f3();
+  Logger.log('rndValue: ' + rndValue);    
+
+  var result = f4();
+  Logger.log('result: ' + result);    
+}
+
+function getFile(fileName) {
+  var root = DriveApp.getRootFolder();  
+  return root.getFilesByName(fileName).next();
+}
+
+
+/*
+  -- 2.txt --
+  var rndValue = null;
+  function main(){
+      Logger.log('executing main...');    
+      f1();
+      f2('paramA');
+
+      Logger.log('rndValue: ' + rndValue);    
+      f3();
+      Logger.log('rndValue: ' + rndValue);    
+
+      var result = f4();
+      Logger.log('result: ' + result);    
+  }
+
+  function f1(){
+      Logger.log('executing f1...');
+  }
+
+  function f2(p){
+      Logger.log('executing f2 with param "' + p + '"...');
+  }
+
+  function f3(){
+      Logger.log('executing f3...');
+      rndValue = Math.floor(Math.random() * 100);
+  }
+
+  function f4(){
+      Logger.log('executing f4...');
+      return 'hello world';
+  }
+*/
+
+/*
+  -- log --
+  executing main...
+  executing f1...
+  executing f2 with param "paramA"...
+  rndValue: null
+  executing f3...
+  rndValue: 33
+  executing f4...
+  result: hello world
+  -----------
+  executing f1...
+  executing f2 with param "paramA"...
+  rndValue: 33
+  executing f3...
+  rndValue: 56
+  executing f4...
+  result: hello world
+*/

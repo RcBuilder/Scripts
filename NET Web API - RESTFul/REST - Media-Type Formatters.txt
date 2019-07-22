@@ -1,0 +1,203 @@
+Media-Type Formatters
+---------------------
+
+Media type formatters are classes that serialize the incoming requests and outgoing responses content
+to fit the client needs. 
+
+built-in formatters uses the 'Content-Type' header to apply the corresponding formatter to interprets the request.
+built-in formatters uses the 'Accept' header to apply the corresponding formatter to serializes the response.
+
+all formatters inherit from the abstract 'MediaTypeFormatter' which exists in 'System.Net.Http.Formatting' namespace.
+
+the default formatter used when launching a request from the browser is XmlFormatter! 
+(due to the 'Accept' header added by the browser > 'text/html, text/xml')
+tip: we can change this behaviour by mapping the 'text/html' media type to a  differernt formatter (e.g: JsonFormatter)
+
+---
+
+e.g:
+// use 'JsonMediaTypeFormatter' for both the request and response.
+H: Content-Type: application/json
+H: Accept: application/json
+
+// use 'FormUrlEncodedMediaTypeFormatter' for the request and 'JsonMediaTypeFormatter' for the response.
+H: Content-Type: application/x-www-form-urlencoded
+H: Accept: application/json
+
+---
+
+[general]
+
+formatter list:
+GlobalConfiguration.Configuration.Formatters
+
+get built-in formatter reference:
+- config.Formatters.JsonFormatter
+- config.Formatters.XmlFormatter
+- config.Formatters.FormUrlEncodedFormatter
+
+clear formatters:
+// WebApiConfig/Register method 
+config.Formatters.Clear();
+
+add formatter:
+config.Formatters.Add(<formatter>);
+config.Formatters.Add(new CsvMediaTypeFormatter());
+config.Formatters.Add(config.Formatters.XmlFormatter);
+
+add formatter(global):
+// usually on 'Application_Start' event (Global.asax)
+GlobalConfiguration.Configuration.Formatters.Add(<formatter>);
+
+remove formatter:
+config.Formatters.Remove(<formatter>)
+config.Formatters.Remove(config.Formatters.XmlFormatter) // note: disabling XML support
+
+get formatter supported media types:
+<formatter>.SupportedMediaTypes
+config.Formatters.XmlFormatter.SupportedMediaTypes
+
+get formatter supported encodings:
+<formatter>.SupportedEncodings
+config.Formatters.XmlFormatter.SupportedEncodings
+
+get Json formatter settings:
+config.Formatters.JsonFormatter.SerializerSettings
+
+add supported media type to formatter:
+<formatter>.SupportedMediaTypes.Add(<string>);
+config.Formatters.JsonFormatter.SupportedMediaTypes.Add("text/html"); // note: will change the browser view to Json
+
+use formatter in a specific action:
+public HttpResponseMessage <Name>(){
+	return Request.CreateResponse(<httpStatusCode>, <value:T>, <formatter>);
+}
+
+---
+
+[built-in formatters]
+
+JsonMediaTypeFormatter:
+- aka 'JsonFormatter'
+- MIME Type > application/json, text/json
+
+XmlMediaTypeFormatter:
+- aka 'XmlFormatter'
+- MIME Type > application/xml, text/xml
+
+FormUrlEncodedMediaTypeFormatter:
+- aka 'FormUrlEncodedFormatter'
+- MIME Type > application/x-www-form-urlencoded
+  
+---
+
+[custom formatters]
+
+steps:
+1. create a new class which inherits from 'MediaTypeFormatter'. 
+   note: we can also extend an existing formatter by inheriting it instead of the base class.
+   e.g: class CustomJsonMediaTypeFormatter : JsonMediaTypeFormatter { ... }
+
+2. override the 'CanWriteType' method which determine, based on some conditions, whether or not to use this formatter. 
+3. override the 'CanReadType' method.
+4. override the 'WriteToStreamAsync' method which responsible of the rendering of the message.
+
+syntax:
+public class <formatterName> : MediaTypeFormatter{
+    public override bool CanWriteType(Type type) {}
+    public override bool CanReadType(Type type) {}
+    public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext, CancellationToken cancellationToken) {}
+}
+
+
+sample1:
+// extend an existing formatter
+public class CustomJsonMediaTypeFormatter : JsonMediaTypeFormatter {
+    public CsvMediaTypeFormatter() {
+        this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/html")); // to support browser as Json view
+    }
+
+    public override void SetDefaultContentHeaders(Type type, HttpContentHeaders headers, MediaTypeHeaderValue mediaType) {
+        base.SetDefaultContentHeaders(type, headers, mediaType);
+        headers.ContentType = new MediaTypeHeaderValue("application/json");
+    }
+}
+
+sample2:
+// reference: CsvMediaTypeFormatter.cs
+// create a new custom formatter
+public class CsvMediaTypeFormatter : MediaTypeFormatter {
+    private const string SEPERATOR = ",";
+
+    public CsvMediaTypeFormatter() {
+        this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/csv"));
+        this.SupportedMediaTypes.Add(new MediaTypeHeaderValue("text/tsv"));
+
+        this.SupportedEncodings.Add(Encoding.UTF8);
+    }
+
+	// validate that the API Response type is IEnumerable<T>
+    public override bool CanWriteType(Type type) {
+        if (type == null)
+            throw new ArgumentNullException("type");
+        return type.GetInterfaces().Any(x => x == typeof(IEnumerable));                        
+    }
+
+    public override bool CanReadType(Type type) {
+        return true; 
+    }
+
+    public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext, CancellationToken cancellationToken) {
+        var writer = new StringWriter();
+
+        return Task.Factory.StartNew(() => {
+            var collection = (IEnumerable<object>)value;
+
+            var itemType = collection.First().GetType();                
+            bool isPrimitiveType = itemType.IsPrimitive || itemType.IsValueType || (itemType == typeof(System.String));
+
+            if (isPrimitiveType) RenderPrimitiveCollection(writer, collection, itemType);
+            else RenderCollection(writer, collection, itemType);
+                
+            using(var sw = new StreamWriter(writeStream))
+                sw.Write(writer.ToString());
+        });
+    }
+
+    protected void RenderPrimitiveCollection(StringWriter writer, IEnumerable<object> collection, Type itemType) {
+        foreach (var obj in collection) {                
+            var objValue = (string)obj;
+
+            if (objValue != null) {
+                if (objValue.Contains(",")) objValue = string.Format("\"{0}\"", objValue);
+                objValue = objValue.Replace("\n", string.Empty).Replace("\r", string.Empty);
+            }
+
+            writer.WriteLine(objValue ?? string.Empty);
+        }
+    }
+
+    protected void RenderCollection(StringWriter writer, IEnumerable<object> collection, Type itemType) {
+        var titles = itemType.GetProperties().Select(x => x.Name);
+        writer.WriteLine("{0}", string.Join(SEPERATOR, titles));
+
+        foreach (var obj in collection) {
+            var line = new List<string>();
+            var objValues = obj.GetType().GetProperties().Select(x => new { Value = x.GetValue(obj, null) });
+
+            foreach (var objValue in objValues) {
+                if (objValue.Value == null) {
+                    line.Add(","); // empty
+                    continue;
+                }
+
+                var tempValue = objValue.Value.ToString();
+                if (tempValue.Contains(",")) tempValue = string.Format("\"{0}\"", tempValue);
+                tempValue = tempValue.Replace("\n", string.Empty).Replace("\r", string.Empty);
+                line.Add(tempValue);
+            }
+            writer.WriteLine("{0}", string.Join(SEPERATOR, line));
+        }
+    }
+}
+

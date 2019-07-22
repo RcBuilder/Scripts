@@ -1,0 +1,31 @@
+TPL - await ALL 
+---------------
+
+syntax:
+await Task.WhenAll(task-1, task-2.....task-N);
+
+
+sample:
+public async Task<FileResult> Test6()
+        {
+            var filePath1 = AppDomain.CurrentDomain.BaseDirectory + "Resources\\XMLFile1.xml";
+            var filePath2 = AppDomain.CurrentDomain.BaseDirectory + "Resources\\XMLFile2.xml";
+            var filePath3 = AppDomain.CurrentDomain.BaseDirectory + "Resources\\TextFile1.txt";
+
+            using (var workStream = new MemoryStream())
+            {
+                using (var fileStream1 = System.IO.File.Open(filePath1, FileMode.Open))
+                using (var fileStream2 = System.IO.File.Open(filePath2, FileMode.Open))
+                using (var fileStream3 = System.IO.File.Open(filePath3, FileMode.Open))
+
+                    await Task.WhenAll(
+                        fileStream1.CopyToAsync(workStream),
+                        fileStream2.CopyToAsync(workStream),
+                        fileStream3.CopyToAsync(workStream)
+                    );
+                
+                return new FileContentResult(workStream.ToArray(), MediaTypeNames.Text.Plain) {
+                    FileDownloadName = "all-downloaded.txt"
+                };
+            }
+        }

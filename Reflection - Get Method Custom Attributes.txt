@@ -1,0 +1,32 @@
+Reflection - Get Method Custom Attributes
+-----------------------------------------
+
+class TestAttribute : Attribute { }
+class Test2Attribute : Attribute { }
+
+class Program       
+{
+	[TestAttribute]
+    [Test2Attribute]
+    public bool MyMethod(int i) {
+        return false;
+    }
+
+    public void MyMethod2(){ }
+
+    static void Main(string[] args)
+    {
+        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        var all_types = assembly.GetTypes();
+        var all_methods = all_types.SelectMany(x => x.GetMethods());
+        // all_methods.ForEach(method => { Console.WriteLine(method); });
+
+        var myMethod = all_methods.SingleOrDefault(x => x.Name == "MyMethod"); 
+        Console.WriteLine(myMethod);
+
+		var myMethodAttributes = myMethod.GetCustomAttributes(false);
+		myMethodAttributes.ForEach(attr => { Console.WriteLine(attr); });
+
+        Console.ReadKey();
+	}
+}

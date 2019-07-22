@@ -15,6 +15,13 @@ public static Dictionary<string, string> Query2Dictionary(string query) {
 
 ---
 
+// sample1 
+var query = context.Request.QueryString.ToString();
+var result = Helper.Query2Dictionary(query);
+
+---
+
+// sample2
 var queryParams = Helper.Query2Dictionary(Request.RequestUri.Query);
 if (queryParams == null)
     return;
@@ -23,4 +30,4 @@ if (queryParams == null)
 // queryParams["[paramName]"]);
 
 // e.g: http://domain.com?a=1&b=2&name=Roby
-// var name = queryParams["name"]); // Roby
+var name = queryParams["name"]); // Roby

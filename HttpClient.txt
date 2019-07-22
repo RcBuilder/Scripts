@@ -1,0 +1,83 @@
+*** HttpClient ***
+******************
+
+Basic
+-----
+private static async Task<IEnumerable<Model>> FunAsync() {
+    using (var client = new HttpClient()){
+        var result = await client.GetStringAsync(Url);
+        return JsonConvert.DeserializeObject<IEnumerable<Model>>(result);
+    }
+}
+
+
+CancellationToken
+-----------------
+private static async Task<IEnumerable<Model>> FunAsync() {
+    var token = new CancellationToken());
+
+    using (var client = new HttpClient())
+	using (var message = new HttpRequestMessage(HttpMethod.Get, Url))
+  	    using (var response = await client.SendAsync(message, token)) {
+        	var result = await response.Content.ReadAsStringAsync();
+        	return JsonConvert.DeserializeObject<IEnumerable<Model>>(result);
+    	    }
+}
+
+
+EnsureSuccessStatusCode
+-----------------------
+... 
+using (var message = new HttpRequestMessage(HttpMethod.Get, Url))
+  	    using (var response = await client.SendAsync(message, token)) {
+		response.EnsureSuccessStatusCode();
+        	var result = await response.Content.ReadAsStringAsync();
+        	return JsonConvert.DeserializeObject<IEnumerable<Model>>(result);
+    	    }
+
+Stream
+------
+
+references:
+'HttpClient ReadAsStreamAsync'
+
+private static async Task<IEnumerable<Model>> FunAsync() {
+    var token = new CancellationToken());
+
+    using (var client = new HttpClient())
+	using (var message = new HttpRequestMessage(HttpMethod.Get, Url))
+  	    using (var response = await client.SendAsync(message, token)) {
+        	var stream = await response.Content.ReadAsStreamAsync();
+		
+		if (!response.IsSuccessStatusCode){
+		    using (var sr = new StreamReader(stream)) {
+               	        var error = await sr.ReadToEndAsync();
+			throw new HttpException((int)response.StatusCode, error);
+		    }
+		}
+
+		return <DeserializeFromStream>
+    	    }
+}
+
+HttpCompletionOption flag
+-------------------------
+// https://docs.microsoft.com/en-us/previous-versions/visualstudio/hh158990(v=vs.118)
+
+values:
+ResponseContentRead  // mark as completed after reading the entire response
+ResponseHeadersRead  // mark as completed as soos as a response is available and headers are read.
+
+... 
+using (var response = await client.SendAsync(message, HttpCompletionOption.ResponseHeadersRead, token)) {
+	
+}
+
+Instantiation
+-------------
+HttpClient is intended to be instantiated once and reused throughout the life of an application.
+
+// fastest approach
+static HttpClient client = new HttpClient();
+...
+...

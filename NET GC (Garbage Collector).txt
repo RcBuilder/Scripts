@@ -1,2 +1,15 @@
 .NET GC (Garbage Collector)
 ---------------------------
+
+
+
+
+
+
+
+
+// TODO
+
+Static in memory:
+Whenever a process is loaded in the RAM, we can say that the memory is roughly divided into three areas (within that process): Stack, Heap, and Static (which, in .NET, is actually a special area inside Heap only known as High Frequency Heap).
+The static part holds the “static” member variables and methods

@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace App_Code
+namespace LagojaMarketingServices
 {
     /*  USING:
-        
+               
+        Parse(string strCSV)
+        Load(string filePath)
+
+        ---------------------
+
         // source.csv
         Email,Domain,PH1,PH2,PH3
         a@a.com,http://a.com,a1,a2,a3
@@ -19,7 +25,7 @@ namespace App_Code
         ---
         
         var csvFile = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "\\", "source.csv");
-        var csvContent = App_Code.CsvParser.Parse(csvFile);
+        var csvContent = App_Code.CsvParser.Load(csvFile);
         if (csvContent == null)
             return; 
      
@@ -29,10 +35,9 @@ namespace App_Code
         }
     */
 
-    public class CsvParser
-    {
-        public class CsvContent
-        {
+    public class CsvParser {
+
+        public class CsvContent {
             public List<CsvRow> Rows { get; set; }
 
             public CsvContent() {
@@ -50,8 +55,7 @@ namespace App_Code
 
             public CsvColumn this[string Name]{
                 get{
-                    try
-                    {
+                    try {
                         return this.Columns.FirstOrDefault(x => x.Name.Equals(Name, StringComparison.OrdinalIgnoreCase));
                     }
                     catch { return null; }
@@ -71,14 +75,18 @@ namespace App_Code
             }
         }
 
-        public static CsvContent Parse(string filePath) {
-            try
-            {
-                var result = File.ReadAllText(filePath, Encoding.UTF8);
-                if (string.IsNullOrEmpty(result)) return null;
 
-                result = result.Replace("\"", string.Empty);
-                var rows = result.Replace("\r", string.Empty).Split('\n');
+        public static CsvContent Parse(string strCSV, char SEPERATOR = ',') {
+            try {                
+                if (string.IsNullOrEmpty(strCSV)) return null;
+
+                // special case, seperator as part of a content (which means that the content is wrapped with quotes "")
+                // replace it to a temporary placeholder to prevent split issues and later return it back
+                var pattern = string.Format("(?<= \".*?) {0} (?= .*?\")", SEPERATOR);
+                var tempPH = "#PH#";
+                strCSV = Regex.Replace(strCSV, pattern, tempPH, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+                
+                var rows = strCSV.Replace("\r", string.Empty).Split('\n');
                 if (rows.Length == 0) return null;
 
                 var csvContent = new CsvContent();
@@ -88,31 +96,34 @@ namespace App_Code
                     IsHeader = true,
                 };
 
-                foreach (var col in rows.First().Split(','))
-                    csvHeaderRow.Columns.Add(col.Trim());
+                foreach (var col in rows.First().Split(SEPERATOR))
+                    csvHeaderRow.Columns.Add(col.Trim().Replace(tempPH, SEPERATOR.ToString()));
                 csvContent.Rows.Add(csvHeaderRow);
 
                 // body
                 foreach (var row in rows.Skip(1)) {
                     var csvRow = new CsvRow();
-                    var cols = row.Split(',');
+                    var cols = row.Split(SEPERATOR);
 
                     // empty rows
                     if (cols.Length == 0 || (cols.Length == 1 && string.IsNullOrWhiteSpace(cols[0])))
                         continue;
 
-                    for (int i = 0; i < cols.Length; i++) {
+                    for (int i = 0; i < cols.Length; i++)
                         csvRow.Columns.Add(new CsvColumn {
                             Name = csvHeaderRow.Columns[i].Value, // set header name as the name of the column - for indexer row["Email"] etc.
-                            Value = cols[i].Trim()
-                        }); 
-                    }
+                            Value = cols[i].Trim().Replace(tempPH, SEPERATOR.ToString())
+                        });                    
 
                     csvContent.Rows.Add(csvRow);
                 }
                 return csvContent;
             }
             catch { return null; }
+        }
+
+        public static CsvContent Load(string filePath, char SEPERATOR = ',') {
+           return CsvParser.Parse(File.ReadAllText(filePath, Encoding.UTF8), SEPERATOR);
         }
     }
 }

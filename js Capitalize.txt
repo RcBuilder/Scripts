@@ -1,0 +1,17 @@
+Capitalize
+----------
+uppercase the 1st letter 
+
+---
+
+function Capitalize(value) {
+  if (!value || typeof(value) != 'string') return '';
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+---
+
+Capitalize('abcd'); // Abcd
+Capitalize('Abcd'); // Abcd
+Capitalize(1234); // <empty>
+Capitalize(1234.toString()); // '1234'

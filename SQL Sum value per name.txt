@@ -1,0 +1,14 @@
+Sum 'value' per 'name' 
+----------------------
+
+declare @tbl table(name varchar(10), value int)
+insert into @tbl
+values('n1', 3), ('n1', 5), ('n2', 1), ('n2', 2), ('n1', 2), ('n3', 19)
+
+select distinct a.name, b.total from @tbl a cross apply (select sum(value) from @tbl where name = a.name) b(total) 
+
+/*
+	n1	10
+	n2	3
+	n3	19
+*/

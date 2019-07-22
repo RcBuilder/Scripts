@@ -5,7 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width" />
     
-    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" />
+    <!--<link rel="stylesheet" href="http://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />-->
 
     <style type="text/css">
         div[class*="col-"] {
@@ -34,16 +35,20 @@
 </head>
 <body>
     <div class="container">
+        <h1>Bootstrap 3.3.6</h1>
+
         <h3>Containers</h3>
         <ul>
             <li>container class // fixed width container</li>
             <li>container-fluid class // full width container</li>
+            <li>col-sm-auto // auto column size</li>
         </ul>
 
         <h3>Grids</h3>
         <ul>
             <li>12 columns</li>
-            <li>col-[max size]-[columns number] // col-xs-4 etc.</li>
+            <li>breakpoints: col-[max size]-[columns number] // 'col-xs-4' etc.</li>
+            <li>can use any combination of breakpoints // 'col-sm-3 col-xs-6' etc.</li>
         </ul>                            
         <ul>
             <li>xs // phones</li>
@@ -63,6 +68,20 @@
             <div class="col-sm-2">.col-sm-2</div>
             <div class="col-sm-2">.col-sm-2</div>
             <div class="col-sm-2">.col-sm-2</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-1">.col-sm-1</div>
+            <div class="col-sm-1">.col-sm-1</div>
+            <div class="col-sm-1">.col-sm-1</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-2">.col-sm-2</div>
+            <div class="col-sm-2">.col-sm-2</div>
+            <div class="col-sm-auto">.col-sm-auto</div>            
+        </div>
+        <div class="row">
+            <div class="col-sm-3 col-xs-6">.col-sm-3 .col-xs-6</div>
+            <div class="col-sm-3 col-xs-6">.col-sm-3 .col-xs-6</div>            
         </div>
 
         <h3>H headers</h3>
@@ -1197,6 +1216,7 @@
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
     <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>   
+    <!--<script src="http://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>-->
     <script>
         $('[data-toggle="tooltip"]').tooltip(); // init tooltips                
         $('[data-toggle="popover"]').popover(); // init popovers  

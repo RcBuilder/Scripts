@@ -1,0 +1,35 @@
+FileStreamResult In MVC
+-----------------------
+stream a file.
+to download a file use 'FileResult' (see 'Download Files using MVC')
+
+---
+
+public class FileStreamController : Controller {
+        public FileStreamResult Test1() {
+            var filePath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\img1.jpg";
+            var fileStream = System.IO.File.Open(filePath, FileMode.Open);
+            
+            Response.AppendHeader("content-disposition", "attachment;filename=img1-downloaded.jpg");
+            return new FileStreamResult(fileStream, MediaTypeNames.Application.Octet);
+        }
+
+        public FileStreamResult Test2() {
+            var filePath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\img1.jpg";
+            var fileStream = System.IO.File.Open(filePath, FileMode.Open);
+
+            /// shortcut: return File(fileStream, MediaTypeNames.Application.Octet, "img1-downloaded.jpg");            
+            return new FileStreamResult(fileStream, MediaTypeNames.Application.Octet) {
+                FileDownloadName = "img1-stream.jpg"
+            };
+        }
+
+        public FileStreamResult Test3() {
+            var filePath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\img1.jpg";
+            var fileStream = System.IO.File.Open(filePath, FileMode.Open);
+                     
+            return new FileStreamResult(fileStream, MediaTypeNames.Image.Jpeg) {
+                FileDownloadName = "img1-stream.jpg"
+            };
+        }
+    }

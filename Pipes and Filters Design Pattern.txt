@@ -1,0 +1,109 @@
+Pipes and Filters Design Pattern
+--------------------------------
+
+aka 'Pipeline and Filters'
+
+'Pipes and Filters' is a Design Pattern that allows us to apply a set of filters (processing-steps) on an object to transform it into a correct state.
+each filter add a small piece of processing layer and usually responsible for a single task, a pipeline combines a set of filters to achieve a specific result, 
+a different set of filters will provide a different result. each filter MUST be independent and should NOT rely on other filters.  
+
+segregation of a complex task into smaller independent steps connected by a pipeline. the processing steps called filters. 
+we can change the filters order, add/ remove filters to/ from the pipeline.
+
+schema:
+					-- Pipleline --
+                    ------------------------------------------------------
+Original Object -> | [Filter-1] -> [Filter-2] -> [Filter-3] .. [Filter-N] | -> Updated Object
+				    ------------------------------------------------------
+	
+Components:
+1. Pipeline
+2. Filters
+
+references:
+MA Crawler Project > EntityPipelineProcess.cs
+
+-------------
+
+[Sample] Using
+
+// --- Filters ---
+
+public interface IFilter<T> {            
+    T Execute(T Input); 
+}
+
+public class HTMLEncodeMessageFilter : IFilter<Message> {
+    public Message Execute(Message input) {
+        input.Value = HttpUtility.HtmlEncode(input.Value);
+        return input;
+    }
+}
+
+public class UppercaseMessageFilter : IFilter<Message> {
+    public Message Execute(Message input){
+        input.Value = input.Value.ToUpper();
+        return input;
+    }
+}
+
+public class ReplaceMessageFilter : IFilter<Message>
+{
+    protected string OldValue { set; get; }
+    protected string NewValue { set; get; }
+
+    public ReplaceMessageFilter(string oldValue, string newValue) {
+        this.OldValue = oldValue;
+        this.NewValue = newValue;
+    }
+
+    public Message Execute(Message input) {
+        input.Value = input.Value.Replace(this.OldValue, this.NewValue);
+        return input;
+    }
+}
+
+---
+
+// --- Pipeline ---
+public abstract class Pipeline<T> {
+    protected List<IFilter<T>> Filters { set; get; } = new List<IFilter<T>>();
+
+    public void RegisterFilter(IFilter<T> filter) {
+        this.Filters.Add(filter);                
+    }
+
+    public abstract T Process(T input);
+}
+
+public class MessagePipeline : Pipeline<Message> {
+    public override Message Process(Message input) {
+        this.Filters.ForEach(f => input = f.Execute(input));
+        return input;
+    }
+}
+
+---
+
+public class Message {
+    public string Value { set; get; }
+}
+
+---
+
+Using:
+var message = new PipesAndFiltersDP.Message {
+    Value = "Some Message with {timeStamp} timestamp and HTML P tag encoded <p>"
+};
+
+var pipeline = new PipesAndFiltersDP.MessagePipeline();
+pipeline.RegisterFilter(new PipesAndFiltersDP.HTMLEncodeMessageFilter());            
+pipeline.RegisterFilter(new PipesAndFiltersDP.ReplaceMessageFilter("{timeStamp}", DateTime.Now.Ticks.ToString()));
+pipeline.RegisterFilter(new PipesAndFiltersDP.UppercaseMessageFilter());
+
+message = pipeline.Process(message);
+Console.WriteLine(message.Value);
+
+/*
+    SOME MESSAGE WITH 636982976513763215 TIMESTAMP AND HTML P TAG ENCODED &LT;P&GT;
+*/

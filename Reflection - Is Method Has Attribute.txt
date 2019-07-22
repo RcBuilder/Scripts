@@ -1,0 +1,28 @@
+Reflection - Is Method Has Attribute
+------------------------------------
+
+class TestAttribute : Attribute { }
+
+class Program  {
+	[TestAttribute]
+    public bool MyMethod(int i) {
+        return false;
+    }
+
+    public void MyMethod2() {}
+
+    static void Main(string[] args)
+    {
+        var assembly = System.Reflection.Assembly.GetExecutingAssembly();
+        var all_types = assembly.GetTypes();
+        var all_methods = all_types.SelectMany(x => x.GetMethods());        
+
+        var myMethod = all_methods.SingleOrDefault(x => x.Name == "MyMethod2"); 
+        Console.WriteLine(myMethod);
+
+        var hasAttribute = myMethod.GetCustomAttributes(typeof(TestAttribute), false).Length > 0;
+        Console.WriteLine(hasAttribute);
+
+        Console.ReadKey();
+	}
+}

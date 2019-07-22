@@ -1,0 +1,21 @@
+<system.net>
+    <mailSettings>
+      <smtp from="HaDeliverim@gmail.com">
+        <network host="smtp.gmail.com" password="*******" port="587" userName="HaDeliverim@gmail.com" enableSsl="true" defaultCredentials="false" />
+      </smtp>
+    </mailSettings>
+  </system.net>
+
+
+
+---
+
+var msg = new MailMessage();
+msg.To.Add(new MailAddress("RcBuilder@walla.com"));
+                
+msg.Subject = Message.Title;
+msg.Body = Message.Body;
+msg.IsBodyHtml = true;
+
+var smtp = new SmtpClient();
+smtp.Send(msg);

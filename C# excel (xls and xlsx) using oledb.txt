@@ -1,3 +1,8 @@
+Excel Using OLEDB
+=================
+
+Syntax
+------
 - connectionString:
   Provider=Microsoft.ACE.OLEDB.12.0;Data Source=<xlsx file path>;Extended Properties='Excel 12.0 Xml;HDR=YES;IMEX=1;MAXSCANROWS=0'
 
@@ -18,6 +23,10 @@
   dr["<column name>"].ToString()
 
 -------------------------------------------
+
+Sample
+------
+// using html template
 
 var filePath = ".....xlsx";
 var connectionString = string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties='Excel 12.0 Xml;HDR=YES;IMEX=1;MAXSCANROWS=0'", filePath);
@@ -64,3 +73,34 @@ using (var conn = new OleDbConnection(connectionString)) {
 // load template HTML file to string
 var basePath = AppDomain.CurrentDomain.BaseDirectory + "\\Templates\\";
 File.ReadAllText(basePath + TemplateName, Encoding.UTF8);
+
+-------------------------------------------
+
+Sample
+------
+// basic
+var filePath = ".....xlsx";
+var connectionString = string.Format("Provider=Microsoft.ACE.OLEDB.12.0;Data Source={0};Extended Properties='Excel 12.0 Xml;HDR=YES;IMEX=1;MAXSCANROWS=0'", filePath);
+var query = "Select * From [Sheet1$]";
+
+using (var conn = new OleDbConnection(connectionString)){
+    var cmd = new OleDbCommand(query, conn);
+    conn.Open();
+
+    var rawValues = new List<string>();                
+    using (var dr = cmd.ExecuteReader()){
+          while (dr.Read()){
+              rawValues.Add(string.Format("{0}|{1}|{2}|{3}|{4}",
+                    dr[0].ToString(),
+                    dr[1].ToString(),
+                    dr[2].ToString(),
+                    dr[3].ToString(),
+                    dr[4].ToString()
+               ));                        
+           }
+    }
+
+    rawValues.ForEach(value => Console.WriteLine(value));
+}
+
+Console.ReadKey();

@@ -1,0 +1,121 @@
+Main
+----
+var emailNotifier = new EmailNotifier();
+var addressees = ConfigurationManager.AppSettings["Addressee"].Trim().Split(',');
+foreach (var addressee in addressees)
+    emailNotifier.AddAddressee(addressee);            
+
+var notificationsManager = new NotificationsManager();
+notificationsManager.AddMessageGenerator(new YesterdayActivityMessageGenerator());
+notificationsManager.AddMessageGenerator(new CurrentMonthActivityMessageGenerator());
+notificationsManager.AddNotifier(emailNotifier);
+notificationsManager.Process();
+
+NotificationsManager
+--------------------
+public class NotificationsManager {
+    public List<IMessageGenerator> MessageGenerators { get; protected set; } = new List<IMessageGenerator>();
+    public List<INotifier> Notifiers { get; protected set; } = new List<INotifier>();
+
+    public void AddNotifier(INotifier Notifier) {
+        this.Notifiers.Add(Notifier);
+    }
+
+    public void AddMessageGenerator(IMessageGenerator MessageGenerator) {
+        this.MessageGenerators.Add(MessageGenerator);
+    }
+
+    public void Process() {
+        this.MessageGenerators.AsParallel().ForAll(generator => {
+            var message = generator.Generate();
+
+            string htmlView = null;
+            if (generator is IHtml)
+                htmlView = (generator as IHtml).AsHTML();
+
+            this.Notifiers.AsParallel().ForAll(notifier => {
+                if (notifier is IHtmlSupport && !string.IsNullOrEmpty(htmlView))
+                    message.Body = htmlView;
+                notifier.Notify(message);
+            });
+        });                
+    }
+}
+
+Interfaces
+----------
+public interface INotifier {
+    List<string> Addressees { get; }
+    void Notify(Message Message);
+}
+
+public interface IEmailNotifier : INotifier { }
+public interface ISMSNotifier : INotifier { }
+
+-
+
+public interface IHtmlSupport { }
+
+public interface IHtml {
+    string AsHTML();
+}
+
+-
+
+public interface IMessageGenerator<T> {        
+    T Generate();
+}
+
+public interface IMessageGenerator : IMessageGenerator<Message> {}
+
+Entities
+--------
+public class Message {
+    public string Title { get; set; }
+    public string Body { get; set; }
+}
+
+EmailNotifier
+-------------
+public class EmailNotifier : IEmailNotifier, IHtmlSupport {
+    public List<string> Addressees { get; protected set; } = new List<string>();
+
+    public void AddAddressee(string Addressee) {
+        this.Addressees.Add(Addressee);
+    }
+
+    public void Notify(Message Message) {
+        try {
+            var msg = new MailMessage();
+            Addressees.ForEach(a => msg.To.Add(new MailAddress(a)));                
+                
+            msg.Subject = Message.Title;
+            msg.Body = Message.Body;
+            msg.IsBodyHtml = true;
+
+            var smtp = new SmtpClient();
+            smtp.Send(msg);
+        }
+        catch (Exception ex) {
+            Console.WriteLine("[ERROR] > {0}", ex.Message);
+        }
+    }
+}
+
+public class SampleMessageGenerator : IMessageGenerator, IHtml {                        
+    public string AsHTML() {
+       return "<p>Sample Implementation</p>"
+    }
+
+    protected string AsText()
+    {
+        return "Sample Implementation";
+    }
+
+    public Message Generate() {
+        return new Message {
+            Title = "Some Title",
+            Body = this.AsText()
+        };
+    }
+}

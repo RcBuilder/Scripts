@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html ng-app="my-app" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div ng-controller="homeController">
+        <input ng-model="searchPhrase">
+        <input type="button" ng-click="doSearch()" value="Search" />
+
+        <ul>
+            <li ng-repeat="searchItem in searchResults track by $index">
+                {{ searchItem }}                
+            </li>
+        </ul>
+    </div>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

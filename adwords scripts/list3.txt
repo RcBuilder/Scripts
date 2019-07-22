@@ -1,0 +1,67 @@
+(R) Account Daily Stats + Charts - Current Month
+(R) Account Daily Stats + Charts - Yesterday
+(R) Ads Final URL Monitor - MCC
+(R) Automatic Placement with 100 Clicks with no Conversions (mail)
+(R) Campaigns With 100 Clicks and No Conversion (mail)
+(R) Increase Cost per Converted (Set + mail)
+(R) keyword with 100 Clicks with no Conversions(mail)
+(R) keywords 2 negative keywords (mail)
+(R) No Conversion Keywords with price over 5 and Max CPC higher then the top Page CPC (mail)
+(R) Quality Score
+(R) queries 2 keywords - mcc (Set)
+(R) queries 2 keywords (Set + mail)
+(R) queries 2 negative keywords (mail)
+(R) Set High Cost No Conversion Keywords To Minimum Top of Page (mail)
+(R) Topics with 100 Clicks and no Conversions (mail)
+(R) Automatic bids by position target +labels
+(R) Automatic bids by position target + labels + TopVsOther (Set)
+(R) Daily Cost Monitor - today vs 7 days ago
+(R) Account Daily Stats + Charts - Current Month - ver 2
+(R) Max Daily Budget
+(R) keywords 2 negative keywords (Set+Report)
+(R) Ads Final URL Monitor (Pause+Report)
+(R) Queries Report (mail)
+(R) Campaigns 30 days Report - Impressions filter (Sheet)
+(R) Campaigns Report (mail + Sheet)
+(R) Campaigns Weekly Report (mail + Sheet)
+(R) Keywords Performance PDF Report - By Campaign - MCC
+(R) Non-Performing Keywords - MCC (Label + Report)
+(R) Queries 2 Keywords - New adGroup (Set + Report)
+(R) Ads Report
+(R) Yesterday No Impressions Campaigns List - MCC
+(R) Quality Score per campaign
+(R) Calls Report - MCC
+(R) Account Daily Stats + Charts - Current Month
+(R) Non-Performing Ads (Pause + Report)
+(R) Non Converting keywords (Pause + Report)
+(R) Queries 2 Negative Keywords (Set + Report)
+(R) Non Converting Placements (Exclude + Report)
+(R) Adgroups Weekly Report (mail + Sheet)
+(R) Increase Cost per Converted - Display Keywords (mail)
+(R) Increase Cost per Converted - Display Keywords (Increase)
+(R) Placement with 1000 impressions with no Clicks (Exclude)
+(R) Placement with 1000 impressions with no Clicks (mail)
+(R) Placement with 100 Clicks with no Conversions (mail)
+(R) Placement with 100 Clicks with no Conversions (Exclude)
+(R) Display keyword with 100 Clicks and no Conversions (Pause)
+(R) Display keyword with 100 Clicks and no Conversions(mail)
+(R) Weekly Comparison Report Ver 2
+(R) Search Queries to Negative Keywords - custom search (Set)
+(R) Low Quality Score Keywords Report
+(R) Low Quality Score Keywords Report - MCC
+(R) Weekly Comparison Report
+(R) Weekly Comparison Report (Days sliced)
+
+(R) Account Audit - MCC
+(R) Average Position - AdGroup + Campaign level (mail)
+(R) Average Quality Score - AdGroup + Campaign level (mail)
+(R) Current 7 vs Prev 7 Days Data Comparison
+(R) Billing Limitation Expiry - MCC
+(R) Ads Final URL Monitor - Unique - MCC
+(R) Budget Overflow Monitor - MCC (mail + Pause)
+(R) Budget Overflow Monitor - Monthly (mail + Pause)
+(R) Account Daily Stats + Charts - Yesterday
+(R) Increase Cost per Converted - Topics (mail)
+(R) Increase Cost per Converted - Audience (mail)
+(R) Audience with 100 Clicks and no Conversions (mail)
+## DEMO ## (R) top 10 keywords with highest impressions (mail)

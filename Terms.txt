@@ -35,7 +35,8 @@
 * BDD = Behavior-Driven Development
 * AMP = Accelerated Mobile Pages
 * CLI = Command Line Interface (cmd etc.)
-* SSR = Server-side rendering
+* SSR = Server-Side rendering
+* SSI = Server-Side Includes (including outer files within the HTML - e.g: <!--#include file="header.ssi.txt" -->)
 * SAP = Systems, Applications and Products
         also: A German software company, well-known for its ERP and data management programs.
 * ERP = Enterprise Resource Planning
@@ -115,3 +116,6 @@
 
 * LINQ = Language Integrated Query
 * PLINQ = Parallel LINQ
+
+* SSMS = SQL Server Management Studio
+* SSIS = SQL Server Integration Services

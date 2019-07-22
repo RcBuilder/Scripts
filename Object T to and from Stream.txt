@@ -1,0 +1,49 @@
+Object T to and from Stream
+===========================
+
+static Stream Object2Stream<T>(T obj) {
+     var stream = new MemoryStream();
+     var formatter = new BinaryFormatter();
+     formatter.Serialize(stream, obj);
+     return stream;
+}
+
+static T Stream2Object<T>(Stream stream) {
+     stream.Position = 0;
+
+     var formatter = new BinaryFormatter();
+     var obj = (T)formatter.Deserialize(stream);
+     return obj;
+}
+
+----
+
+[Serializable]
+public class ClassA {
+     public int P1 { get; set; }
+     public string P2 { get; set; }
+     public float P3 { get; set; }
+}
+
+var cA = new ClassA { P1 = 1, P2 = "2", P3 = 3.0F };
+
+var stream = Object2Stream(cA);
+var copy = Stream2Object<ClassA>(stream);
+stream.Dispose();
+
+Console.WriteLine(copy == cA);
+Console.WriteLine(copy.P1 + " " + copy.P2 + " " + copy.P3);
+
+----
+
+/* 
+using (var stream = new MemoryStream()) {
+      var formatter = new BinaryFormatter();
+      formatter.Serialize(stream, cA);
+
+      stream.Position = 0;
+      var copy = (ClassA)formatter.Deserialize(stream);
+      Console.WriteLine(copy == cA);      
+      Console.WriteLine(copy.P1 + " " + copy.P2 + " " + copy.P3);
+};
+*/

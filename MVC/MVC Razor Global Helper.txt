@@ -1,0 +1,29 @@
+Razor Global Helper
+-------------------
+
+note!
+Must locate within the 'App_Code' asp Folder
+
+@using System.Web.Mvc
+@using System.Web.Mvc.Html
+
+@helper Fun1() { 
+    <div>Fun 1</div>    
+}
+
+@helper Fun2(WebViewPage page) {
+    @page.Html.Raw("<div>Fun 2</div>");
+}
+
+-------------------
+
+using:
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+@MyHelper.Fun1()
+@MyHelper.Fun2(this)

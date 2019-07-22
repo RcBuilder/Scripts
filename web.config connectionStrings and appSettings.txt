@@ -1,0 +1,28 @@
+Web.config:
+
+<configuration>  
+	<appSettings configSource="Keys.config" />	
+	<connectionStrings configSource="Connections.config" />
+</configuration>  
+
+---
+
+
+Keys.config:
+
+<appSettings>
+  <add key="DEBUG" value="1" />
+  ...
+  ...
+</appSettings>
+
+---
+
+Connections.config:
+
+<connectionStrings>
+  <!--        
+    <add name="ConnectionString" connectionString="Data Source=YourServer;Initial Catalog=YourDB;Persist Security Info=True;User ID=YourUser;Password=*****" providerName="System.Data.SqlClient" />
+  -->  
+  <add name="ConnectionString" connectionString="Data Source=YourServer;Initial Catalog=YourDB;Trusted_Connection=true" providerName="System.Data.SqlClient" />
+</connectionStrings>

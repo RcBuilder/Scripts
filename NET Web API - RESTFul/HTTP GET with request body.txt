@@ -1,0 +1,9 @@
+HTTP GET with request body
+--------------------------
+
+we can relay a request body with HTTP GET or ANY other HTTP Types 
+But it misses the purpose of the protocol usage convention! 
+GET should be used for retrieving information alone.
+
+note! 
+Elasticsearch uses body with GET requests

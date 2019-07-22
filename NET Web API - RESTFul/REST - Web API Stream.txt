@@ -1,0 +1,36 @@
+REST - Web API Stream
+---------------------
+
+return file as a stream:
+
+[HttpGet]
+[Route("api/test")]
+public HttpResponseMessage Test() {
+      var filePath = AppDomain.CurrentDomain.BaseDirectory + "/dummy.json";
+      var fileStream = File.Open(filePath, FileMode.Open);
+
+      var response = Request.CreateResponse(HttpStatusCode.OK);
+      response.Content = new StreamContent(fileStream);
+      response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+      return response;
+}
+
+---
+
+download a file:
+
+[HttpGet]
+[Route("api/test")]
+public HttpResponseMessage Test() {
+      var filePath = AppDomain.CurrentDomain.BaseDirectory + "/dummy.json";
+      var fileStream = File.Open(filePath, FileMode.Open);
+
+      var response = Request.CreateResponse(HttpStatusCode.OK);
+      response.Content = new StreamContent(fileStream);
+      response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+      response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { 
+          FileName = "download-dummy.json" 
+      };
+
+      return response;
+}

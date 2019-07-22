@@ -1,0 +1,52 @@
+HttpClient ReadAsStreamAsync
+----------------------------
+
+// read all lines
+using (var client = new HttpClient()){
+    var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+    response.EnsureSuccessStatusCode();
+
+    using (var stream = await response.Content.ReadAsStreamAsync())
+        using (var sr = new StreamReader(stream)){
+            var response = await streamReader.ReadToEndAsync();           
+    	}
+}
+
+---
+
+// read line by line
+using (var client = new HttpClient()){
+    var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+    response.EnsureSuccessStatusCode();
+
+    using (var stream = await response.Content.ReadAsStreamAsync())
+        using (var sr = new StreamReader(stream)){
+	    while ((line = await streamReader.ReadLineAsync()) != null)
+		// code ...   
+    	}
+}
+
+
+---
+
+// read bulks
+using (var client = new HttpClient()){
+    var response = await client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+    response.EnsureSuccessStatusCode();
+
+    using (var stream = await response.Content.ReadAsStreamAsync())
+        using (var sr = new StreamReader(stream)){
+	    var bulkSize = 5000;
+            do {
+               var cnt = 0;
+               var lines = new List<string>();
+               while ((line = await streamReader.ReadLineAsync()) != null && cnt < bulkSize) {
+                    lines.Add(line);
+                    cnt++;
+               }
+
+               // code ...
+            }
+            while (line != null);   
+    	}
+}

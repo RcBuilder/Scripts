@@ -1,0 +1,7 @@
+var collection = new NameValueCollection();
+collection.Add("keyA", "valueA");
+collection.Add("keyB", "valueB");
+collection.Add("keyC", "valueC");
+
+var values = collection.Keys.Cast<string>().Select(x => string.Concat(x, "=", collection[x]));
+Console.WriteLine(string.Join(",", values));

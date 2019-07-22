@@ -1,0 +1,30 @@
+bootstrap grid breakpoints
+--------------------------
+syntax:
+.col-[tier]-*
+
+tiers:
+.col-lg-* // for large screens - desktops etc.
+.col-md-* // for medium screens - laptops etc.
+.col-sm-* // for small screens - tablets etc. 
+.col-xs-* // for extra-small screens - smartphones etc.
+
+basically, it "tells" the browser when to change the horizontal view into vertical one (stacks view)
+
+so columns:
+A B C
+
+will become:
+A
+B
+C
+
+for .col-lg-* the columns will stack when the screen width is < 1200px
+for .col-md-* the columns will stack when the screen width is < 992px
+for .col-sm-* the columns will stack when the screen width is < 768px
+
+notes!
+1. for .col-xs-* the columns will never stack!
+2. we can use multiple views by setting different values for each tier
+   // take 3 columns on tablets and above and 6 columns on smartphones
+   e.g: <div class="col-sm-3 col-xs-6"></div>

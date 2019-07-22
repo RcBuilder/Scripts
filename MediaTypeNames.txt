@@ -1,0 +1,20 @@
+MediaTypeNames
+--------------
+mime types constants values
+
+namespace:
+System.Net.Mime
+
+samples:
+MediaTypeNames.Image.Jpeg  // "image/jpeg"
+MediaTypeNames.Application.Pdf  // "application/pdf"
+MediaTypeNames.Application.Octet  // "application/octet-stream"
+MediaTypeNames.Text.Html  // "text/html"
+MediaTypeNames.Text.Plain  // "text/plain"
+...
+...
+
+using:
+return new FileStreamResult(imageStream, MediaTypeNames.Image.Jpeg) {
+	FileDownloadName = "image-downloaded.jpg"
+};

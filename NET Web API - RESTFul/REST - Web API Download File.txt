@@ -1,0 +1,16 @@
+REST - Web API Download File
+----------------------------
+
+syntax:
+var fileStream = File.Open(<filePath>, FileMode.Open);
+
+var response = Request.CreateResponse(HttpStatusCode.OK);
+response.Content = new StreamContent(fileStream);
+response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment") { 
+          FileName = <downloadedfileName> 
+};     
+
+
+reference:
+REST - Web API Stream.txt

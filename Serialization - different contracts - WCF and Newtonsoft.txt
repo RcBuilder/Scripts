@@ -1,0 +1,59 @@
+Serialization - different contracts - WCF and Newtonsoft
+--------------------------------------------------------
+a single object which uses 2 contracts, one for Newtonsoft Serializer and one for WCF Serializer. 
+reminder: WCF uses System.Runtime.Serialization 
+
+------------------------
+
+Sample:
+
+[DataContract]
+public class ClassC {
+    [DataMember(Name = "AA")]
+    [JsonProperty("A")]
+    public string PropertyA { get; set; }
+
+    [DataMember(Name = "BB")]
+    [JsonProperty("B")]
+    public string PropertyB { get; set; }
+
+    [JsonProperty("C")]
+    public string PropertyC { get; set; }
+
+    [JsonProperty("D")]
+    public string PropertyD { get; set; }
+}
+
+---
+
+using Newtonsoft Serializer (Newtonsoft.Json):
+
+// { "A":"A", "B":"B", "C":"C", "D":"D" }
+var strJson = JsonConvert.SerializeObject(
+		new ClassC { 
+			PropertyA = "A", 
+			PropertyB = "B", 
+			PropertyC = "C", 
+			PropertyD = "D" 
+		});
+
+var c = JsonConvert.DeserializeObject(strJson, typeof(ClassC));
+Console.WriteLine(c);
+
+---
+
+using WCF Serializer (System.Runtime.Serialization):
+
+[OperationContract(Action = "I")]
+[WebGet(UriTemplate = "/I", ResponseFormat = WebMessageFormat.Json)]
+ClassC FunI();
+
+public ClassC FunI(){
+    // return { "AA":"A", "BB":"B" }
+    return new ClassC { 
+		PropertyA = "A", 
+		PropertyB = "B", 
+		PropertyC = "C", 
+		PropertyD = "D" 
+	};
+}

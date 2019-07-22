@@ -1,0 +1,19 @@
+BSON
+----
+Binary JSON
+.bson files
+
+commonly used by MongoDB.
+
+---
+
+input:
+{"hello": "world"}
+
+result:
+\x16\x00\x00\x00         	// document size
+\x02				// type String
+hello\x00			// field name
+\x06\x00\x00\x00world\x00	// field value
+\x00				// EOO ('end of object')
+

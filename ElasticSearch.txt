@@ -1,0 +1,513 @@
+*** ElasticSearch ***
+*********************
+
+site:
+https://www.elastic.co
+
+videos:
+https://www.elastic.co/videos/
+
+engine:
+elasticsearch-7.2.0-windows-x86_64.zip
+run: bin/elasticsearch
+http://localhost:9200
+
+(management studio)
+manager & visualization:
+kibana-7.2.0-windows-x86_64.zip
+run: bin/kibana
+http://localhost:5601
+
+---
+
+REST service listen on port 9200 (default) 
+http://localhost:9200
+stores documents as JSON format
+
+api:
+https://www.elastic.co/guide/en/elasticsearch/reference/current/docs.html
+
+types:
+_doc
+
+commands:
+_mget
+_update
+-bulk
+_search
+_sql
+_mapping
+_analyze
+
+bulk operations:
+- index
+- create
+- delete
+- update
+
+search operations:
+- match			// contains   
+- match_phrase  // contains phrase  
+- range			// range (see 'search range operations')
+- match_all
+  
+search group type:
+- must
+- must_not
+- should
+
+search range operations:
+- gte
+- lte
+// TODO
+
+notes:
+- index name MUST be lowercase
+- when searching for documents (_search command), each document in the result gets a score (score and max_score fields) which represents its search score
+- when using bulk operations - we MUST add a \n at the end of the content! will not work without it and an 400 exception will be thrown
+
+document structure:
+{
+    "_index": "<indexName>",
+    "_type": "_doc",
+    "_id": "<documentId>",
+    "_version": <version>,
+    "_seq_no": <seqNumber>,
+    "_primary_term": 1,
+    "found": <bool>,
+    "_source": <documentJson>
+}
+
+using:
+
+// system information
+GET http://localhost:9200/
+
+// create a new document 
+// a new identity is created
+// each execution - new document! use PUT to update an existing documents
+POST http://localhost:9200/users_ix/_doc
+H: Content-Type: application/json
+{
+    "firstName": "John",
+    "lastName": "Doe",
+    "createdDate": "2019-07-02T14:33:49"
+}
+
+// if not exists - create an index and add a new document 
+// if exists - update a document 
+PUT http://localhost:9200/users_ix/_doc/1
+H: Content-Type: application/json
+{
+    "firstName": "Roby",
+    "lastName": "Cohen",
+    "createdDate": "2019-07-01T14:33:49"
+}
+
+/*	
+	create an index syntax:
+	PUT /<indexName>
+
+	"settings": { <settings> },
+	"mappings": { <mappings> }
+*/
+
+// create an index
+// must provide some settings
+PUT http://localhost:9200/products_ix
+{ 
+    "settings":{
+        "index":{
+           "number_of_shards":"1",
+           "number_of_replicas":"0"
+         }
+    }
+}
+
+// update document
+// id 1 exists
+PUT http://localhost:9200/users_ix/_doc/1
+H: Content-Type: application/json
+{
+    "firstName": "Roby Updated",
+    "lastName": "Cohen",
+    "createdDate": "2019-07-01T14:33:49"
+}
+
+// get index information 
+GET http://localhost:9200/users_ix
+
+// get document
+GET http://localhost:9200/users_ix/_doc/1
+
+// update partial document (add or update specific field/s)
+POST http://localhost:9200/users_ix/_update/1
+H: Content-Type: application/json
+{
+    "doc" : {
+        "age" : 40
+    }
+}
+
+// delete document
+DELETE http://localhost:9200/users_ix/_doc/1
+
+// get multiple documents 
+GET http://localhost:9200/users_ix/_doc/_mget
+H: Content-Type: application/json
+{
+    "ids" : ["1", "2"]
+}
+
+// get multiple documents (advanced)
+GET http://localhost:9200/_mget
+H: Content-Type: application/json
+{
+    "docs" : [
+        {
+            "_index" : "users_ix",
+            "_type" : "_doc",
+            "_id" : "1"
+        },
+        {
+            "_index" : "users_ix",
+            "_type" : "_doc",
+            "_id" : "2"
+        }
+    ]
+}
+
+/*
+    condition syntax:	
+	{ "match": { <fieldName>: <value> } }	
+	---
+	{ "match_phrase": { <fieldName>: <value> }}
+	---
+	{ 
+		"range": { 
+			<fieldName>: { 
+				<range operator>: <value> 
+			} 
+		}
+	}
+
+	---------------
+
+	aggregation syntax:
+	{
+		"aggregations": {
+			"<fieldName>": {
+				"range": {
+					"field": "<fieldName>",
+					"ranges": [
+						{ "key": "<text>", "from": <from>, "to": <to> },
+						...
+						...
+					]
+				}
+			}
+		}
+	}
+
+	---------------
+
+	search syntax:
+	GET /_search
+
+	"query": { 
+		"<search operation>":  <condition>
+	}
+	---
+	"query": { 
+		"<search operation>":  <condition>
+	},
+	"sort": [
+		{ "<fieldName>": "<desc|asc>" }
+	]
+	---
+	"query": { 
+		"<search operation>":  <condition>
+	}
+	"aggregations": { <aggregation> }
+	---
+	"query": { 
+		"bool": {
+			"<group type>": [ 
+				"<search operation>":  <condition>,
+				"<search operation>":  <condition>
+				...
+			]
+		}		
+	}
+*/
+
+// search all
+GET http://localhost:9200/_search
+
+// search all (same as the above)
+GET http://localhost:9200/_search
+H: Content-Type: application/json
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+// search for documents (get all in the specified index)
+GET http://localhost:9200/users_ix/_search
+
+// search by criteria
+GET http://localhost:9200/users_ix/_search
+H: Content-Type: application/json
+{
+	"query": {
+		"match": {
+			"firstName": "Roby"
+		}
+	}
+}
+
+// search by criteria (range) 
+GET http://localhost:9200/products_ix/_search
+H: Content-Type: application/json
+{
+	"query": {
+		"range": {
+			"price": { "gte" : 35 }
+		}
+	}
+}
+
+// with sort
+GET http://localhost:9200/products_ix/_search
+H: Content-Type: application/json
+{
+	"query": {
+		"range": {
+			"price": { "gte" : 25 }
+		}
+	},
+    "sort": [
+		{ "price": "asc" }
+	]
+}
+
+// search by multiple criterias
+GET http://localhost:9200/users_ix/_search
+H: Content-Type: application/json
+{
+	"query": {
+		"bool": {
+			"must": [
+				{ "match": { "firstName": "Roby"}},
+				{ "match": { "lastName": "Cohen"}}
+			]
+		}
+	}
+}
+
+// with aggregations
+GET http://localhost:9200/products_ix/_search
+H: Content-Type: application/json
+{
+	"aggregations": {
+		"price": {
+			"range": {
+				"field": "price",
+				"ranges": [
+					{ "key": "0-40", "from": 0, "to": 40 },
+					{ "key": "40-100", "from": 40, "to": 100 },
+					{ "key": "100-400", "from": 100, "to": 400 }
+				]
+			}
+		}
+	}
+}
+
+
+
+// create bulk of documents 
+/* 
+	syntax: 
+	POST /_bulk
+
+	<action>\n
+	<source>\n (optional)
+	...
+	...
+*/
+POST http://localhost:9200/products_ix/_bulk
+H: Content-Type: application/json
+{ "create": { "_id": 1000 } }
+{ "name": "productA", "unitsInStock": 300, "price": 310 }
+{ "create": { "_id": 1001 }}
+{ "name": "productB", "unitsInStock": 988,"price": 29.90 }
+...
+...
+
+// sql queries
+/*
+	syntax:
+	POST /_sql
+
+	query:
+	SELECT <fields>
+	FROM <index>
+	WHERE <conditions>
+	ORDER BY <fields>
+	LIMIT <count>
+	
+	"query": "<query>"
+*/
+
+// get all fields from products sort by price
+POST http://localhost:9200/_sql
+H: Content-Type: application/json
+{
+	"query": "SELECT * FROM products_ix ORDER BY price ASC" 
+}
+
+// get specific fields + condition + sort 
+POST http://localhost:9200/_sql
+H: Content-Type: application/json
+{
+	"query": "SELECT price FROM products_ix WHERE price > 40 ORDER BY price ASC" 
+}
+
+// result as raw text (instead of JSON)
+POST http://localhost:9200/_sql?format=txt
+H: Content-Type: application/json
+{
+	"query": "SELECT price FROM products_ix WHERE price > 40 ORDER BY price ASC" 
+}
+
+/*
+	mapping:
+	by default, the ElasticSearch engine map each field based on an inner logic. 
+	we can change/ update the fields mapping using the '_mapping' service.
+	e.g: to set a field as type 'geo_point' (instead of the default float) 	
+
+	note!
+	we can't change an existing data type mapping!
+	we have to create a new index with the new mapping and reindex the data.
+*/
+
+// get index mapping
+GET http://localhost:9200/stores_ix/_mapping
+
+---
+
+// create an index with mappings
+PUT http://localhost:9200/stores_ix
+H: Content-Type: application/json
+{
+   "mappings": {
+	  "properties": {
+		"coordinates": {
+		  "type": "geo_point"
+		}
+	  }
+   }
+}
+
+// create some documents with 'point' type
+POST http://localhost:9200/stores_ix/_doc
+H: Content-Type: application/json
+{
+	"name": "some store 1",
+	"category": "food",
+	"coordinates": { "lat" : 34.988, "lon": 32.122 }
+}
+
+POST http://localhost:9200/stores_ix/_doc
+H: Content-Type: application/json
+{
+	"name": "some store 2",
+	"category": "video games",
+	"coordinates": { "lat" : 31.123, "lon": -122.099 }
+}
+
+// get index documents 
+POST http://localhost:9200/_sql
+H: Content-Type: application/json
+{ "query": "SELECT * FROM stores_ix" }
+
+---
+
+Kibana:
+
+(Side Menu) Dev Tools
+provides a console to interact with the Elasticsearch engine 
+
+(Side Menu) Discover 
+provides a UI for the storage with the ability to use filters, customize the presented fields and more (similar to the sumo-logic dashboard)
+it also allows us to save searches for later use and create our own visual-dashboard.
+
+---
+
+ETL?
+
+Beats? Logstash?
+
+Cloud? Shared hosting? server?
+
+---
+
+geo-search
+
+// sort stores based on their proximity to position 0,0
+// use 'plane' mode
+// provide each distance in km unit
+GET http://localhost:9200/stores_ix/_search
+H: Content-Type: application/json
+{
+    "sort": [
+     { 
+        "_geo_distance": {
+              "coordinates": {  "lat": 0,  "lon": 0 },
+              "order": "asc",
+              "unit": "km",
+              "distance_type": "plane"
+         }
+      }
+    ]
+}
+
+---
+
+ElasticSearch vs Redis
+
+---
+
+issue:
+X-Pack is not supported and Machine Learning is not available for [windows-x86]
+also see 'Elasticsearch not starting on windows'
+
+reason:
+only 64bit supported 
+
+solution:
+The default Java version on java.com is 32 bit. 
+download the 64 bit version.
+
+
+
+issue:
+Elasticsearch not starting on windows. X-Pack issues.
+
+solution:
+disable xpack
+
+how to:
+- open 'config/elasticsearch.yml'
+- xpack.ml.enabled: false
+
+issue:
+Malformed action/metadata line, expected START_OBJECT but found [VALUE_STRING]
+
+reason:
+the json payload MUST be as a singleline per item!
+
+solution:
+{ "create": { "_id": 1001 }}
+{ "name": "productB", "unitsInStock": 988, "price": 29.90 }

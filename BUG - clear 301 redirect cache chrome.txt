@@ -1,0 +1,6 @@
+clear 301 redirect cache chrome
+-------------------------------
+
+1. Open the Chrome Developer Tools (F12)
+2. Settings
+3. checked the 'Disable cache' option (Network tab)

@@ -1,0 +1,105 @@
+Download Files using MVC
+------------------------
+
+steps:
+1. set the result to 'FileResult'
+2. load the file stream or bytes 
+3. create new instance of 'FileContentResult' and pass on the file bytes 
+
+notes:
+- use 'MediaTypeNames' to set the response mime-type
+- can use async await to improve performance
+- can copy a file stream to memory using 'MemoryStream'
+- can append multiple files as a single downloaded file (see 'Test6')
+- can use 'File' (Controller) as a shortcut for FileContentResult (see 'Test1')
+
+---
+
+public class DownloadController : Controller {
+
+    // download image 
+    public FileResult Test1() {
+        var filePath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\img1.jpg";
+        var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+        // shortcut: return File(fileBytes, MediaTypeNames.Application.Octet, "img1-downloaded.jpg");            
+        return new FileContentResult(fileBytes, MediaTypeNames.Image.Jpeg) {
+            FileDownloadName = "img1-downloaded.jpg"
+        };
+    }
+
+	// download image using header attachment
+    public FileResult Test2() {
+        var filePath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\img1.jpg";
+        var fileBytes = System.IO.File.ReadAllBytes(filePath);
+
+        Response.AppendHeader("content-disposition", "attachment;filename=img1-downloaded.jpg");
+        return new FileContentResult(fileBytes, MediaTypeNames.Image.Jpeg);
+    }
+
+	// download image using file stream
+    public FileResult Test3() {
+        var filePath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\img2.jpg";
+
+        using (var fileStream = System.IO.File.Open(filePath, FileMode.Open)) {
+            var fileBytes = new byte[fileStream.Length];
+            fileStream.Read(fileBytes, 0, fileBytes.Length);
+            return new FileContentResult(fileBytes, MediaTypeNames.Image.Jpeg) {
+                FileDownloadName = "img2-downloaded.jpg"
+            };
+        }
+    }
+
+	// download image using memory stream copied from file stream
+    public FileResult Test4() {            
+        var filePath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\img1.jpg";
+
+        using (var workStream = new MemoryStream()) {
+            using (var fileStream = System.IO.File.Open(filePath, FileMode.Open))
+                fileStream.CopyTo(workStream);            
+            
+            return new FileContentResult(workStream.ToArray(), MediaTypeNames.Image.Jpeg) {
+                FileDownloadName = "img1-downloaded.jpg"
+            };
+        }
+    }
+
+	// download image using memory stream (async copy)
+    public async Task<FileResult> Test5() {
+        var filePath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\img1.jpg";
+
+        using (var workStream = new MemoryStream()) {
+            using (var fileStream = System.IO.File.Open(filePath, FileMode.Open))
+                await fileStream.CopyToAsync(workStream);
+
+            return new FileContentResult(workStream.ToArray(), MediaTypeNames.Image.Jpeg) {
+                FileDownloadName = "img1-downloaded.jpg"
+            };
+        }
+    }
+
+	// download multiple files and join them into a single downloaded file using memory stream (async copy) 
+    public async Task<FileResult> Test6()
+    {
+        var filePath1 = AppDomain.CurrentDomain.BaseDirectory + "Resources\\XMLFile1.xml";
+        var filePath2 = AppDomain.CurrentDomain.BaseDirectory + "Resources\\XMLFile2.xml";
+        var filePath3 = AppDomain.CurrentDomain.BaseDirectory + "Resources\\TextFile1.txt";
+
+        using (var workStream = new MemoryStream())
+        {
+            using (var fileStream1 = System.IO.File.Open(filePath1, FileMode.Open))
+            using (var fileStream2 = System.IO.File.Open(filePath2, FileMode.Open))
+            using (var fileStream3 = System.IO.File.Open(filePath3, FileMode.Open))
+
+                await Task.WhenAll(
+                    fileStream1.CopyToAsync(workStream),
+                    fileStream2.CopyToAsync(workStream),
+                    fileStream3.CopyToAsync(workStream)
+                );
+                
+            return new FileContentResult(workStream.ToArray(), MediaTypeNames.Text.Plain) {
+                FileDownloadName = "all-downloaded.txt"
+            };
+        }
+    }
+}

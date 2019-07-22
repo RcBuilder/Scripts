@@ -1,0 +1,183 @@
+Mediator Design Pattern
+-----------------------
+
+mediator - a Middleware between Colleagues.
+
+the Mediator decoupe objects by using a middleware-layer so that all interaction/ traffic pass through the mediator.
+prevent colleagues to refer to each other explicitly, they can comunicate with each other only via the mediator.
+
+Components:
+1. Mediator
+2. Colleagues (aka Peers)
+
+-------------
+
+[Sample] Using Event
+
+// --- Colleague ---
+
+public interface IBuyer {
+    string Name { get; set; }            
+    void SuggestBid(float bidValue);  // send data to others through the mediator
+    void GetBidUpdates(object sender, NewBidEventArgs args);  // get data from the mediator
+}
+
+public class Buyer : IBuyer {            
+    public string Name { get; set; }
+    public IAuctionMediator AuctionMediator { get; set; }
+
+    public Buyer(string name, AuctionMediator auctionMediator) {
+        this.Name = name;
+
+        auctionMediator.NewBidReceived += (this as IBuyer).GetBidUpdates; // register to updates from the mediator
+        this.AuctionMediator = auctionMediator;                
+    }
+
+    // interface hidden implementation 
+    void IBuyer.GetBidUpdates(object sender, NewBidEventArgs args) {
+        if (args.Buyer == this) return;
+        Console.WriteLine("[{0}] new Bid from {1} > {2} USD", this.Name, args.Buyer.Name, args.BidValue);
+    }
+
+    public void SuggestBid(float bidValue) {
+        this.AuctionMediator.BroadcastBid(bidValue, this); 
+    }
+}
+
+---
+
+// --- Mediator ---
+public interface IAuctionMediator {
+    void BroadcastBid(float bidValue, IBuyer sender);
+}
+
+public class AuctionMediator : IAuctionMediator
+{
+    public event EventHandler<NewBidEventArgs> NewBidReceived;
+
+    // raise an event to all subscribers
+    private void OnNewBidReceived(float bidValue, IBuyer sender) {
+        if (NewBidReceived == null) return;
+        NewBidReceived(this, new NewBidEventArgs {
+            BidValue = bidValue,
+            Buyer = sender
+        });
+    }
+
+    public void BroadcastBid(float bidValue, IBuyer sender) {
+        OnNewBidReceived(bidValue, sender);
+    }
+}
+
+---
+
+public class NewBidEventArgs : EventArgs {
+    public float BidValue { get; set; }
+    public IBuyer Buyer { get; set; }
+}
+
+---
+
+Using:
+var mediator = new AuctionMediator();
+var buyerA = new Buyer("BuyerA", mediator);
+var buyerB = new Buyer("BuyerB", mediator);
+var buyerC = new Buyer("BuyerC", mediator);
+
+buyerA.SuggestBid(20);
+buyerB.SuggestBid(25);
+buyerA.SuggestBid(30);
+buyerC.SuggestBid(35);
+
+/*
+    [BuyerB] new Bid from BuyerA > 20 USD
+    [BuyerC] new Bid from BuyerA > 20 USD
+    [BuyerA] new Bid from BuyerB > 25 USD
+    [BuyerC] new Bid from BuyerB > 25 USD
+    [BuyerB] new Bid from BuyerA > 30 USD
+    [BuyerC] new Bid from BuyerA > 30 USD
+    [BuyerA] new Bid from BuyerC > 35 USD
+    [BuyerB] new Bid from BuyerC > 35 USD 
+*/
+
+-------------
+
+[Sample] Using List Of Subscribers
+
+public interface IBuyer {
+    string Name { get; set; }            
+    void SuggestBid(float bidValue);  // send data to others through the mediator  
+    void GetBidUpdates(float BidValue, IBuyer Sender);
+}
+
+public class Buyer : IBuyer {            
+    public string Name { get; set; }
+    public IAuctionMediator AuctionMediator { get; set; }
+
+    public Buyer(string name, AuctionMediator auctionMediator) {
+        this.Name = name;
+        this.AuctionMediator = auctionMediator;                
+    }
+
+    public void GetBidUpdates(float BidValue, IBuyer Sender) {
+        if (Sender == this) return;
+        Console.WriteLine("[{0}] new Bid from {1} > {2} USD", this.Name, Sender.Name, BidValue);
+    }
+
+    public void SuggestBid(float bidValue) {
+        this.AuctionMediator.BroadcastBid(bidValue, this); 
+    }
+}
+
+public interface IAuctionMediator {
+    void RegisterBuyer(IBuyer buyer);
+    void BroadcastBid(float bidValue, IBuyer sender);
+}
+
+public class AuctionMediator : IAuctionMediator
+{
+    private List<IBuyer> Buyers { set; get; } = new List<IBuyer>();
+
+    // update all subscribers
+    private void OnNewBidReceived(float bidValue, IBuyer sender) {
+        foreach (var buyer in this.Buyers)
+            buyer.GetBidUpdates(bidValue, sender);
+    }
+
+    public void RegisterBuyer(IBuyer buyer) {
+        this.Buyers.Add(buyer);
+    }
+            
+    public void BroadcastBid(float bidValue, IBuyer buyer) {
+        OnNewBidReceived(bidValue, buyer);
+    }
+}
+
+
+---
+
+Using:
+var mediator = new AuctionMediator();
+var buyerA = new Buyer("BuyerA", mediator);
+var buyerB = new Buyer("BuyerB", mediator);
+var buyerC = new Buyer("BuyerC", mediator);
+
+mediator.RegisterBuyer(buyerA);
+mediator.RegisterBuyer(buyerB);
+mediator.RegisterBuyer(buyerC);
+
+buyerA.SuggestBid(20);
+buyerB.SuggestBid(25);
+buyerA.SuggestBid(30);
+buyerC.SuggestBid(35);
+
+/*
+    [BuyerB] new Bid from BuyerA > 20 USD
+    [BuyerC] new Bid from BuyerA > 20 USD
+    [BuyerA] new Bid from BuyerB > 25 USD
+    [BuyerC] new Bid from BuyerB > 25 USD
+    [BuyerB] new Bid from BuyerA > 30 USD
+    [BuyerC] new Bid from BuyerA > 30 USD
+    [BuyerA] new Bid from BuyerC > 35 USD
+    [BuyerB] new Bid from BuyerC > 35 USD 
+*/
