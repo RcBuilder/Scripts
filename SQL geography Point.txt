@@ -1,0 +1,17 @@
+SQL geography Point
+-------------------
+
+syntax:
+geography::Point(lat, lng, int) 
+
+sample:
+select geography::Point(37.4219983, -122.084, 4326) 
+
+---
+
+syntax:
+POINT(lng lat)
+
+sample:
+declare @g geography = 'POINT(-122.084 37.4219983)'
+select @g

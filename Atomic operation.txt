@@ -1,0 +1,53 @@
+Atomic operation
+----------------
+
+atomic operation is an operation which cannot be interrupted. 
+it means that it MUST be completed fully before acessing it again.
+usually achieved using the 'lock' keyword to prevent wrong data-return when using multiple threads. 
+for numeric values we can use the 'Interlocked' static class
+
+--
+
+for example, the following statement is NOT atomic: 
+value++;  
+
+the compiler interprets it as follow: 
+temp = value;
+temp = temp + 1;
+value = temp;
+
+--
+
+this means that if 2 (or more) threads try to access the value, one can get an incomplete value 
+as illustrated below: 
+
+private static int value = 0;
+
+[executing] (at the same time)
+threadA: value++
+threadB: value++;
+
+[code flow]
+threadA read the value 0 
+threadB read the value 0 
+
+threadA add 1 to the value > 1
+threadB add 1 to the value > 1
+
+[result]
+value is equals to 1 instead of the expected 2!!
+
+-- 
+
+to convert this operation to be an atomic one, we can use the next code: 
+
+threadA: Interlocked.Increment(ref value);
+threadB: Interlocked.Increment(ref value);
+
+or 
+
+private static object syncLock = new object();
+lock (syncLock) value++;
+ 
+
+

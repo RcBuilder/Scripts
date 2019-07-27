@@ -29,6 +29,7 @@
 - Dialogs
 - Modals
 - Popups
+- Web Version
 - visibility
 - Events/ Gestures
 - JS Modules
@@ -36,6 +37,7 @@
 - Google Firebase
 - Plugins
 - Background Services
+- Workers
 - Other Services
 - Working With Nativescript
 - Passing Context
@@ -2260,6 +2262,10 @@ Popups
 ------
 see 'Modals' and 'Dialogs'
 
+Web Version
+-----------
+// TODO 
+
 Events/ Gestures
 ----------------
 [Gestures]
@@ -3599,6 +3605,48 @@ application.run({ moduleName: "app-root" });
 
 Plugins
 -------
+
+- nativescript-explosionfield
+
+  about:
+  makes things explode
+
+  source: 
+  https://market.nativescript.org/plugins/nativescript-explosionfield
+
+  install:
+  tns plugin add nativescript-explosionfield
+
+  methods:
+  explode(<view>);  // a view can be button, label etc.
+
+  using:
+  <Button text="Boom" tap="onBoomTap" />
+
+  var explosion = require("nativescript-explosionfield");
+  viewModel.onBoomTap = args => {        
+    explosion.explode(args.object);
+  }
+
+- nativescript-insomnia
+
+  about:
+  keep the device awake.
+
+  source: 
+  https://github.com/EddyVerbruggen/nativescript-insomnia
+
+  install:
+  tns plugin add nativescript-insomnia
+
+  methods:
+  keepAwake
+  allowSleepAgain
+
+  using:
+  var insomnia = require("nativescript-insomnia");
+
+  insomnia.keepAwake().then(() => { ... })
 
 - nativescript-fancyalert
   
@@ -5662,10 +5710,65 @@ find more plugins in the market (see 'MarketPlace')
 
 Background Services
 -------------------
+also see 'Workers'
 
 https://github.com/NativeScript/sample-android-background-services
 
 // TODO
+
+Workers
+-------
+
+// TODO 
+
+// ToDocument - sample below
+
+// caller 
+var worker = new Worker("~/Services/background-services");
+viewModel.onStartWorkerTap = args => {      
+    let counter = 0;
+
+    worker.postMessage('Hello from main!');
+    worker.postMessage('start');
+    worker.onmessage = function(msg) {
+        console.log("received from worker thread: " + msg.data);
+		counter++;
+
+        if(counter == 10)
+            worker.postMessage('stop'); /// worker.terminate()
+    }
+};
+
+// worker 
+let timer;
+let intervalInSec = 2;
+
+this.start = () => {
+  timer = setInterval(() => {
+    postMessage(new Date().getTime());
+  }, intervalInSec * 1000);
+};
+
+this.stop = () => {
+  clearInterval(timer);
+};
+
+onmessage = (msg) => {
+  console.log("received from main thread: " + msg.data);  
+
+  switch(msg.data){
+    case 'start': this.start();
+      break;
+    case 'stop': this.stop();
+        break;
+    case 'close': this.close(); // terminate the worker
+  }
+};
+
+onerror = (e) => { 
+  console.log('ERROR: '+ e);  
+};
+
 
 Other Services
 --------------
@@ -5697,6 +5800,14 @@ Other Services
 
   url:
   https://waze.com/ul?<query>
+
+  parameters:
+  z			// zoom level (e.g: z=8)
+  q			// address
+  ll		// lat long (e.g: ll=45.6906304,-120.810983)
+  favorite  // favorite name (e.g: favorite=work)
+  navigate  // start natigation (e.g: navigate=yes)
+
 
   e.g:
   // coordinates: 32.1093,34.8555

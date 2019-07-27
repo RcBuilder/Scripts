@@ -1,5 +1,9 @@
 *** ElasticSearch ***
 *********************
+built on Apache Lucene. implemented in Java.
+ElasticSearch is Rest-Service Based which provides real-time search and analytics engine.
+it provides capability to store, index, search and analyze data in real-time.
+Elasticsearch stores JSON documents.
 
 site:
 https://www.elastic.co
@@ -446,10 +450,21 @@ it also allows us to save searches for later use and create our own visual-dashb
 ---
 
 ETL?
+Extract, transform, load
 
 Beats? Logstash?
 
 Cloud? Shared hosting? server?
+
+Elasticsearch as primary db?
+
+ElasticSearch and NoSQL ?
+
+
+Elasticsearch does not have support for MapReduce.
+
+Elasticsearch is not generally used as a primary database it works alongside SQL & NoSQL databases as a secondary database
+Elasticsearch is commonly used in addition to another database
 
 ---
 

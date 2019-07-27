@@ -1,0 +1,161 @@
+
+******** AWS ********
+*********************
+Amazon Web Services. 
+// TODO
+
+-----------------------------------------
+- SDK
+
+- S3 (Service)
+- EC2 (Service)
+- Elastic Beanstalk (Service)
+- EBS (Service)
+- VPC (Service)
+
+- Launch An App
+- Cost
+- AMI
+
+// TODO
+-----------------------------------------
+
+SDK
+---
+see 'AWS SDK'
+
+S3
+--
+S3 = Simple Storage Solution.
+cloud storage.
+
+console:
+Services > (Group) Storage > S3
+
+create a bucket:
+- click on '+Create bucket' button
+- enter unique bucket name (e.g: rcbuilder-aws-s3-bucket-test)
+- set the region (e.g: EU london)
+- (optional) set the bucket properties
+  versioning, server access logging, tags, etc.
+- (optional) set the bucket permissions  
+- click on 'Create bucket'
+
+add files:
+- navigate to the bucket
+- click on 'Upload' button
+- add file/s
+- (optional) click 'Next' to set extra settings to the uploaded file/s
+- click on 'Upload' button
+
+public access:
+to give public access to a file, we need to do as follow
+- click on the file > (tab) permissions 
+- set 'public access' option to 'everyone'
+
+note!
+turn Off 'Block Public Access' option of the containing bucket!
+
+EC2
+---
+EC2 = Elastic Compute Cloud.
+create machine instances. a kind-of remote desktop computer.
+
+console:
+Services > (Group) Compute > EC2
+
+resources:
+at the top, we can find a summary of all our EC2 resources
+such as 'Running Instances', 'Dedicated Hosts', 'Volumes' and etc.
+
+launch an instance:
+- click on 'Launch Instance' 
+- choose 'AMI' (image) to install (e.g: 'Windows Server 2016')
+- choose the Instance Type (the machine properties such as number of CPUs, Memory and more)
+- (optional) click on 'Configure Instance Details' button for extra configuration 
+  use this step to define the preferred Network, Subnet, IP, Role etc.
+  note! can also use it to define numer of instances to create - default is 1
+- (optional) click on 'Add Storage' button to set EBS (storage) 
+  use this step to apply virtual disks to the EC2 instance, we can set the storage volume, define it's type (SSD, HDD etc.) and choose whether to encrypt it or not. 
+- (optional) click on 'Add Tags' button to set some tags (key-value pair)
+- (optional) click on 'Configure Security Group' button to define the security layer (New or Existing group)
+  use this step to configure some inbound/ outbound rules such
+  supports types such as RDP, SSH, SMTP, HTTPS and lots more. 
+  can also create custom rules such as 'Custom TCP Rule', 'Custom UDP Rule', 'Custom IPv4 Rule', 'Custom Protocol' and more.
+- click on 'Review and Launch' button > 'Launch'
+- a pop-up will emerge asking you to provide private-public key pair, this is an extra security layer.
+  choose an existing pair or create a new one and download it.
+- click on 'Launch the Instance' button
+  
+connect to an instance via RDP:
+- open the EC2 dashboard
+- choose the instance to connect to
+- click on 'Connect' top button
+- we can download an RDP file or use the presented connection details.
+  note! to get a password, we'll have to provide our privateKey for that instance! (attached when creating the instance) 
+
+purchasing options:
+1. on-Demand
+   the most common option, allows us to create any instance and start/ stop it at any time. 
+   we are only charged on the time the instance is 'Running' (hourly).
+   the most expensive option.
+
+2. Reserved
+   allows us to purchase an instance for a long period of 1-3 years.
+   cheaper then the 'on-Demand' option.
+
+3. Spot
+   bid on an instance.
+   an instance will be auto-launched or auto-terminate based on the bid price.
+
+// TODO
+
+Elastic Beanstalk
+-----------------
+deploy, monitor, and scale applications quickly and easily.
+
+console:
+Services > (Group) Compute > Elastic Beanstalk
+
+// TODO
+
+EBS
+---
+EBS = Elastic Block Store. 
+block storage service to work with EC2 (kind-of HD)
+virtual disks to apply on EC2 instances (SSD, HDD etc.)
+
+// TODO
+
+Launch An App
+-------------
+- go to 'Elastic Beanstalk' Service
+- click on 'Create New Application' button
+- set application name (e.g: net-sample-app)
+- set environment info > name (e.g: rcbuilter-AWS-net-sample-app-env)
+- set environment info > domain (e.g: rcbuilter-AWS-net-sample-app.us-east-2.elasticbeanstalk.com)
+- choose Platform (.NET, NodeJS, Java, PHP etc.) 
+- Application code > upload the app code (zip format)
+  note! the zip file should NOT contain the folder, only the inner files (root level)
+- click on 'Create application' button
+
+note!
+amazon will create a new machine with all the required programs, it'll take a few minutes. 
+once it,s done, we can see it back on the 'Elastic Beanstalk' Service dashboard.
+use the domain URL provided to reach the site
+
+Cost
+----
+// TODO 
+
+
+how to see my usage?
+
+
+AMI
+---
+AMI = Amazon Machine Image.
+software configuration (operating system, application server, and applications)
+
+commonly used with EC2 instances. we creating an EC2 instance, we need to choose the image to install. 
+e.g: 'Microsoft Windows Server 2019 with SQL Server 2017 Standard'

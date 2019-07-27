@@ -1,0 +1,75 @@
+geography::Point
+----------------
+
+syntax:
+geography::Point(<lat>, <lng>, <int>) 
+
+sample:
+select geography::Point(37.4219983, -122.084, 4326) 
+
+POINT (string)
+--------------
+
+syntax:
+'POINT(<lng> <lat>)'
+
+--
+
+Point2geography:
+
+syntax:
+declare @<name> geography = 'POINT(<lng> <lat>)'
+
+sample:
+declare @g geography = 'POINT(-122.084 37.4219983)'
+select @g
+
+--
+
+geography2Point:
+
+syntax:
+convert(varchar(X), <geography>)
+
+sample:
+declare @c geography = 0xE6100000010CF20703CFBD0F4040B16D516683684140
+select convert(varchar(100), @c)
+
+------------------------------------------------------
+
+flip query
+----------
+due to the different signature of the geography::Point and string POINT, we might, accidently, set the coordinates value the wrong way.  
+notice that the signature for string POINT takes the <lng> first and the <lat> as second whereas the geography::Point takes it vice versa. 
+the query below flips a wrong point using string manipulations
+
+[query]
+select	curr, flip
+from	restaurants 
+	cross apply 
+	(select convert(varchar(100), Coordinates)) c(curr) 
+	cross apply 
+	(select concat('POINT (', substring(curr, charindex(' ', curr, 8) + 1, charindex(')', curr) - (charindex(' ', curr, 8) + 1)), ' ', substring(curr, 8, charindex(' ', curr, 8) - 8), ')') ) n(flip)
+where	charindex('POINT (34', curr) = 0
+
+--
+
+// result
+POINT (32.12298 34.81651) 	POINT (34.81651 32.12298)	
+POINT (32.08756 34.80361)	POINT (34.80361 32.08756)	
+POINT (32.16862 34.89147)	POINT (34.89147 32.16862)	
+POINT (32.11922 34.79654)	POINT (34.79654 32.11922)	
+POINT (32.07512 34.79446)	POINT (34.79446 32.07512)	
+
+
+----
+
+update restaurants
+set Coordinates = flip
+
+from	restaurants 
+	cross apply 
+	(select convert(varchar(100), Coordinates)) c(curr) 
+	cross apply 
+	(select concat('POINT (', substring(curr, charindex(' ', curr, 8) + 1, charindex(')', curr) - (charindex(' ', curr, 8) + 1)), ' ', substring(curr, 8, charindex(' ', curr, 8) - 8), ')') ) n(flip)
+where	charindex('POINT (34', curr) = 0

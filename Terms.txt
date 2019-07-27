@@ -44,6 +44,7 @@
 * CRM = Customer-Relationship Management
 
 * DBS = Database System
+* ESB = Enterprise Service Bus (אינטגרציה בין רכיבי תוכנה בארגון)
 
 * CIL = Common Intermediate Language
 * MSIL = Microsoft Intermediate Language // same as CIL
@@ -119,3 +120,5 @@
 
 * SSMS = SQL Server Management Studio
 * SSIS = SQL Server Integration Services
+
+* SU = Start up
