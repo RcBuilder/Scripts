@@ -1,0 +1,44 @@
+SQL EXCEPT and INTERSECT - Sample
+---------------------------------
+- t1 EXCEPT t2
+  data exists in t1 but NOT in t2.
+  LEFT JOIN.
+
+- t2 EXCEPT t1
+  data exists in t2 but NOT in t1
+  LEFT JOIN.
+
+- t1 INTERSECT t2
+  data exists in both t1 and t2
+  INNER JOIN.
+
+-------------
+
+// exists in t1 but not in t2
+select value from (values ('A'),('B'),('C')) as t1(value) 
+EXCEPT
+select value from (values ('C'),('D')) as t2(value) 
+
+result:
+A
+B
+
+---
+
+// exists in t2 but not in t1
+select value from (values ('C'),('D')) as t2(value) 
+EXCEPT
+select value from (values ('A'),('B'),('C')) as t1(value) 
+
+result:
+D
+
+---
+
+// exists in both t1 and t2
+select value from (values ('A'),('B'),('C')) as t1(value) 
+INTERSECT
+select value from (values ('C'),('D')) as t2(value) 
+
+result:
+C

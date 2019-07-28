@@ -1,0 +1,102 @@
+using Google.Apis.Customsearch.v1;
+using Google.Apis.Services;
+
+
+public interface iDataSource {
+        IEnumerable<Entities.Source> Get();
+        string DataSourceName { get; }
+    }
+
+    public class GoogleDataSource : iDataSource
+    {
+        #region Properties:
+        public string Phrase { private set; get; }
+        public int NumOfSitesToFetch { private set; get; }
+        public int StartSearchAt { private set; get; }
+        public string ApiKey { private set; get; }
+        public string CxIdentity { private set; get; }
+
+        public string DataSourceName { get { return "Google"; } }
+        #endregion
+
+        #region Constructor:
+        public GoogleDataSource(string Phrase, string ApiKey, string CxIdentity) : this(Phrase, ApiKey, CxIdentity, 10, 1) { }
+        public GoogleDataSource(string Phrase, string ApiKey, string CxIdentity, int NumOfSitesToFetch, int StartSearchAt)
+        {
+            this.Phrase = Phrase;
+            this.ApiKey = ApiKey;
+            this.CxIdentity = CxIdentity;
+
+            this.NumOfSitesToFetch = NumOfSitesToFetch;
+            this.StartSearchAt = StartSearchAt;
+        }
+        #endregion
+
+        #region Get:
+        public IEnumerable<Entities.Source> Get()
+        {
+            var cseService = new CustomsearchService(new BaseClientService.Initializer
+            {
+                ApiKey = this.ApiKey
+            });
+
+            var listRequest = cseService.Cse.List(this.Phrase);
+            listRequest.Cx = this.CxIdentity;
+
+            var domains = new List<Entities.Source>();
+
+            int position = this.StartSearchAt;
+            int start = this.StartSearchAt, pageSize = 10, num = this.NumOfSitesToFetch; 
+            while (num > 0)
+            {            
+                // note! max result per request - 10
+                listRequest.Num = num >= pageSize ? pageSize : num % pageSize;
+                listRequest.Start = start;
+                
+                var search = listRequest.Execute();
+                var result = search.Items;
+                
+                foreach (var item in result)
+                    domains.Add(new Entities.Source(item.Link, position++));
+
+                search.Items.Clear();
+                
+                num -= pageSize;
+                start += pageSize;
+            }
+
+            // search.SearchInformation.TotalResults
+
+            return domains.Distinct();
+        }
+        #endregion
+
+        #region ToString:
+        public override string ToString()
+        {
+            return this.DataSourceName;
+        }
+        #endregion
+    }
+
+
+-------
+
+<appSettings>
+    <add key="GoogleAPIKey" value="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+    <add key="CxIdentity" value="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+    <add key="GoogleResultsQuantity" value="10" />
+    <add key="GoogleResultsStartAt" value="1" />
+  </appSettings>
+
+-------
+
+
+var dataSource = new GoogleDataSource(phrase,
+                    ConfigurationManager.AppSettings["GoogleAPIKey"].Trim(),
+                    ConfigurationManager.AppSettings["CxIdentity"].Trim(),
+                    Convert.ToInt32(ConfigurationManager.AppSettings["GoogleResultsQuantity"]),
+                    Convert.ToInt32(ConfigurationManager.AppSettings["GoogleResultsStartAt"])
+                );
+
+var data = dataSource.Get();

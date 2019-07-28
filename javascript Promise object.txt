@@ -158,6 +158,6 @@ const areEquals = (p1, p2) => {
 const onSuccess = result => { console.log(result); };
 const onError = error => { console.log(error); };
 
-areEquals(3, 4).then(onSuccess).catch(onError);  // 3 is equal to 3
-areEquals(3, 3).then(onSuccess).catch(onError);  // 3 is NOT equal to 4
+areEquals(3, 3).then(onSuccess).catch(onError);  // 3 is equal to 3
+areEquals(3, 4).then(onSuccess).catch(onError);  // 3 is NOT equal to 4
 areEquals(3, '3').then(onSuccess).catch(onError);  // 3 is NOT equal to 3

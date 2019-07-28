@@ -1,0 +1,47 @@
+SQL UNION vs UNION ALL - Sample
+-------------------------------
+UNION removes duplicates whereas UNION ALL doesn't!
+
+---------
+
+select 'A' 
+UNION 
+select 'A' 
+
+result:
+A
+
+- vs -
+
+select 'A' 
+UNION ALL 
+select 'A' 
+
+result:
+A
+A
+
+---------
+
+select 'A' 
+UNION 
+select t.value from (
+	values('A'),('B')
+) as t(value)
+
+result:
+A
+B
+
+- vs -
+
+select 'A' 
+UNION ALL
+select t.value from (
+	values('A'),('B')
+) as t(value)
+
+result:
+A
+A
+B

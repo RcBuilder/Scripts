@@ -223,10 +223,10 @@ var result = conn.Query<string>("sp_Names_ByLength_Get"
 -- 1st result: lecturer details --
 select * from Lecturers where Id = @Id
 
-// code
 -- 2nd result: categories --
 exec sp_Categories_byLecturer_Get @Id
 
+// code
 using (var conn = new SqlConnection(connectionString)) {                
     var reader = conn.QueryMultiple("sp_Lecturer_Get", param: new { Id }, commandType: CommandType.StoredProcedure);
 

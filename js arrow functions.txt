@@ -166,7 +166,7 @@ services.f3(); // 10, { p1: 10, f1: ƒ, f2: ƒ }
 ---
 
 // arrow function with the NEW keyword
-// using of the NEW kwyword on an arrow function will throw an exception.
+// using of the NEW keyword on an arrow function will throw an exception.
 var A = () => { };
 var a = new A(); // TypeError: A is not a constructor!
 
@@ -197,6 +197,6 @@ f1(7); // returns odd
 // more samples 
 var arr = [5, 6, 13, 0, 1, 18, 23];
 
-var sum = arr.reduce((a, b) => a + b);  // 66
+var sum = arr.reduce((aggr, b) => aggr + b);  // 66
 var even = arr.filter(v => v % 2 == 0); // [6, 0, 18]
 var double = arr.map(v => v * 2); // [10, 12, 26, 0, 2, 36, 46]      

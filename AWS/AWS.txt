@@ -24,8 +24,8 @@ SDK
 ---
 see 'AWS SDK'
 
-S3
---
+S3 (Service)
+------------
 S3 = Simple Storage Solution.
 cloud storage.
 
@@ -56,8 +56,8 @@ to give public access to a file, we need to do as follow
 note!
 turn Off 'Block Public Access' option of the containing bucket!
 
-EC2
----
+EC2 (Service)
+-------------
 EC2 = Elastic Compute Cloud.
 create machine instances. a kind-of remote desktop computer.
 
@@ -94,6 +94,11 @@ connect to an instance via RDP:
 - we can download an RDP file or use the presented connection details.
   note! to get a password, we'll have to provide our privateKey for that instance! (attached when creating the instance) 
 
+instance information:
+- open the EC2 dashboard > choose an instance
+- at the bottom, there's an info window with the following tabs: 
+  Description, Status Checks, Monitoring and Tags
+
 purchasing options:
 1. on-Demand
    the most common option, allows us to create any instance and start/ stop it at any time. 
@@ -110,8 +115,8 @@ purchasing options:
 
 // TODO
 
-Elastic Beanstalk
------------------
+Elastic Beanstalk (Service)
+---------------------------
 deploy, monitor, and scale applications quickly and easily.
 
 console:
@@ -119,11 +124,21 @@ Services > (Group) Compute > Elastic Beanstalk
 
 // TODO
 
-EBS
----
+EBS (Service)
+-------------
 EBS = Elastic Block Store. 
 block storage service to work with EC2 (kind-of HD)
 virtual disks to apply on EC2 instances (SSD, HDD etc.)
+
+// TODO
+
+VPC (Service)
+-------------
+VPC = Virtual Private Cloud
+// TODO
+
+console:
+Services > (Group) Networking & Content Delivery > VPC
 
 // TODO
 
