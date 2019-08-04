@@ -1,0 +1,106 @@
+javascript Merge Arrays
+-----------------------
+
+syntax:
+<Array>.concat(<Array>)
+
+sample:
+[1,2,3].concat([4,5,6])
+
+---
+
+[ES6]
+
+// using destructuring 
+
+syntax:
+<Array-1>.push(...<Array-2>)
+
+sample:
+var a1 = [1,2,3];
+var a2 = [4,5,6];
+a1.push(...a2);
+
+---
+
+syntax:
+[...<Array-1>,...<Array-2>,...<Array-N>];
+
+var a1 = [1,2,3];
+var a2 = [4,5,6];
+var merge = [...a1,...a2]; // [1,2,3,4,5,6]
+
+---
+
+// remove duplicates using Set object
+
+syntax:
+new Set([...<Array>])
+
+var a1 = [1,2,3];
+var a2 = [3,4,5,6];
+var merge = [...a1,...a2]; // [1,2,3,3,4,5,6]  // duplicate number 3
+var unique = new Set([...merge]); // [1,2,3,4,5,6]  // no duplicates
+
+---
+
+// merge different structures into a single one
+
+var a = [
+    { name: 'A', count: 10 }, 
+    { name: 'B', count: 20 }, 
+    { name: 'C', count: 30 }
+];
+
+var b = [
+    { name: 'B', count: 2 }, 
+    { name: 'C', count: 3 }, 
+    { name: 'D', count: 4 }
+];
+
+// define a function to check whether an item exists in the array or not
+a.findIndex = function(name){
+    if(!this || this.length == 0) return -1;
+    
+    for(i in this)
+      if(this[i].name == name)
+        return i;
+    return -1;
+}
+
+// an array for the merge result
+var result = [];
+
+// insert array a 
+result = a.map(function(x){ 
+    return { 
+      name: x.name,       
+      count1: x.count, 
+      count2: 0
+    } 
+  });
+
+// insert array b 
+// if an item already exists - update the corresponding property (count2)
+for(i in b){
+    var curr = b[i];
+    var index = a.findIndex(curr.name);
+    if(index == -1) // exists in b and NOT in a
+      result.push({ 
+          name: curr.name,       
+          count1: 0, 
+          count2: curr.count
+      });
+    else // exists in both
+      result[index].count2 = curr.count;
+  }
+
+/*	
+result
+[
+    { name: 'A', count1: 10, count2: 0 }, 
+    { name: 'B', count1: 20, count2: 2 }, 
+    { name: 'C', count1: 30, count2: 3 },
+    { name: 'D', count1: 0,  count2: 4 }
+];
+*/

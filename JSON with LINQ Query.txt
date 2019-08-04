@@ -4,17 +4,17 @@
         $.getJSON("JSON/GetWorkers.ashx", function(Workers) {
             var res = '';
 
-			//loop on rows - {....} -> foreach Worker in Workers
+	    //loop on rows - {....} -> foreach Worker in Workers
             $.each(Workers, function(indexA, Worker) {
-				/*
-					Worker:					
-					Id, Name
-					Sons -> Id, Name
-				*/
+		/*
+			Worker:					
+			Id, Name
+			Sons -> Id, Name
+		*/
 
                 res += 'worker ' + Worker.Name + '\n';
 
-				//loop on rows - {....} -> foreach Son in Worker
+		//loop on rows - {....} -> foreach Son in Worker
                 $.each(Worker.Sons, function(indexB, Son) { 
 					res += '*** ' + Son.Name + '\n';
                 });

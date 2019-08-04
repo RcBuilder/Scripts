@@ -1,0 +1,16 @@
+Table-Valued Parameters
+-----------------------
+see 'SQL CUSTOM TYPE'
+
+---
+
+CREATE TYPE TableType AS TABLE (
+	a int NOT NULL PRIMARY KEY,
+	b int NOT NULL,
+	c int NOT NULL
+)
+
+declare @t TableType
+...
+...
+select * from @t

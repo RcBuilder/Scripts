@@ -1,12 +1,33 @@
-
 Transactions 
 ============
+- a group of commands which are treated as a single unit (atomic). 
+- if failure occurs in any step within the transaction proccess - a rollback will be performed. 
+- if all the steps were completed successfully - the transaction will be committed and the changes will apply permanently.
 
-- a group of commands which are treated as a single unit. 
-- if failure occurs in any step within the transaction proccess - a rollback will be performed 
-- if all the steps were completed successfully - the transaction will be committed and the changes will apply permanently 
+PROCESS
+-------
+DELETE, INSERT and UPDATE operations create an exclusive lock which means that others can't access them from outside the transaction scope. 
+SELECT operation creates a shared-lock which means that others outside the scope will NOT be blocked from reading the content.
 
-structure
+all the changes that are being made within the transaction, applied on the actual tables but they are temporary 
+and can only be seen from the current thread.
+
+the uncommitted data is flagged and when a COMMIT statement is used - the sql engine omits all flags. 
+if ROLLBACK statement is used - the original content is restored from the transaction log file (.ldf).
+
+the sql engine uses a "Write-ahead Logging" technique for the logging process, which means that it writes a log record to the .ldf file 
+before writing the data to the actual table! 
+
+if we'll open a new connection or query window we'll not be able to access the specific rows that were changed (they will be locked) 
+till the transaction will be completed (by COMMIT or ROLLBACK).
+
+note that we still can access rows that are not locked via the transaction so if, for example, the row with id 3 is locked by a transaction 
+we will be able to access all the other rows. 
+but any query that will try to reach the row with id 3 will be waiting to the transaction to finish 
+hence, the line "select * from someTable" can't be performed (because once the engine reaches id 3 its being blocked) 
+but "select * from someTable where Id = 4" can be executed (id 4 is NOT locked - only id 3).	   
+
+STRUCTURE
 ---------
 BEGIN TRANSACTION
 BEGIN TRY
@@ -18,36 +39,6 @@ END TRY
 BEGIN CATCH
 	ROLLBACK TRANSACTION 
 END CATCH 
-
-proccess
---------
-- all the changes that are being made within the transaction, applied on the actual tables but they are temporary and can only 
-	be seen from the current thread.
-- if we'll open a new connection or query window we'll not be able to access the specific rows that were changed (they will be locked)
-	till the transaction will be completed (by commit or rollback).
-- note that we still can access to rows that are not locked via the transaction
-	so if, for example, the row with id 3 is locked by a transaction we will be able to access all the other rows 
-	but any query that will try to reach the row with id 3 will be waiting to the transaction to finish
-	hence, the line "select * from someTable" can't be performed but "select * from someTable where Id = 4" can be executed	   
-
-TRANSACTION ISOLATION LEVEL
----------------------------
-- we can see the uncommitted changes that were made by the transaction (release the lock for READ) in other threads 
-	by setting the transaction isolation level to read uncommitted changes. 
-- code line:
-	SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
-- note! to disable this feature and return it to the default state, set the isolation leve to be READ COMMITTED
-- example:
-	assuming we are locking row id 3, the following code will wait for the transaction to finish its proccess:
-	select * from [dbo].[Products] where Id = 3 // waiting
-	select * from [dbo].[Products] // waiting
-		    
-	an attempt to read any other (unlocked) row within the same table will succeed
-	select * from [dbo].[Products] where Id = 1 // row 3 is locked, row 1 doesn't!	  
-
-	to watch the uncommitted changes do as follow:
-	SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
-	select * from [dbo].[Products] where Id = 3 // ok
 
 USING
 -----
@@ -77,3 +68,82 @@ BEGIN CATCH
 END CATCH 
 
 select * from [dbo].[Products]
+
+TRANSACTION ISOLATION LEVEL
+---------------------------
+also see 'SQL TRANSACTION ISOLATION LEVEL'
+
+1. Read Uncommitted
+2. Read Committed (Default)
+3. Repeatable Read
+4. Serializable
+5. Snapshot
+
+we can see the uncommitted changes that were made by the transaction (release the lock for READ) in other threads 
+by setting the transaction isolation level to read uncommitted changes. 
+
+code line:
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+
+note! 
+to disable this feature and return it to the default state, set the isolation leve to be READ COMMITTED
+
+example:
+assuming we are locking row id 3, the following code will wait for the transaction to finish its proccess:
+
+// within a transaction 
+select * from [dbo].[Products] where Id = 3 // waiting
+select * from [dbo].[Products] // waiting
+
+// outside the transaction		    
+an attempt to read any other (unlocked) row within the same table will succeed
+select * from [dbo].[Products] where Id = 1 // row 3 is locked, row 1 isn't!	  
+
+to watch the uncommitted changes do as follow:
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+select * from [dbo].[Products] where Id = 3 // ok
+OR 
+select * from [dbo].[Products] WITH(NOLOCK) where Id = 3 // ok
+
+note! 
+the use of the ISOLATION LEVEL is NOT as part of the update transaction session but should be defined in the session that tries to read the data!
+it basically tells the sql engine how to read the data and NOT how to lock it!
+another alternative is to use WITH(NOLOCK) instead of ISOLATION LEVEL to read an UNCOMMITTED changes.
+
+SERVICES
+--------
+- sys.dm_tran_locks // show locked objects
+- sys.fn_dblog(NULL, NULL) // transaction logs
+
+DEADLOCK 
+--------
+see 'SQL DEADLOCK'
+
+WITH(NOLOCK)
+------------
+using this clause allows us to read uncommitted data. 
+data that has changed within a transaction and hasn't commited yet. 
+note that this is a dirty data and you shouldn't depend on it because it might be rolled back!
+
+example:
+// within a transaction 
+update ##t3 set value = 'A-t1' where id = 1 -- lock row #1
+
+// outside the transaction
+select value from ##t3 WITH(NOLOCK) where Id =1  // returns 'A-t1'
+select value from ##t3 where Id =1  // waiting... (locked)
+
+DELETE
+------
+delete statement uses transaction under the hood 
+see 'SQL DELETE Statement'
+
+LOGS
+----
+all operations are written to the transaction log file (.ldf)
+each log record  that is written to the .ldf file can be identified by its LSN (Log Sequence Number). use the 'sys.fn_dblog' to find the LSN.
+
+RECOVERY MODES 
+--------------
+see 'SQL RECOVERY MODES'
+

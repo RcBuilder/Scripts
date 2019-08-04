@@ -1,0 +1,50 @@
+SQL Group By 1st Letter
+-----------------------
+
+task:
+Count Employees By Department First Letter
+
+e.g: 
+D = 3 
+departments 'DevOps' and 'Dev' starts with the letter 'D' 
+combined they have 3 employees
+
+---
+
+declare @dep table(Id int, Name varchar(50))
+insert into @dep 
+values
+(1, 'DevOps'),
+(2, 'Dev'),
+(3, 'Sales'),
+(4, 'UI'),
+(5, 'UX')
+
+declare @emp table(Id int, Name varchar(50), depId int)
+insert into @emp 
+values
+(100, 'Emp1', 1),
+(101, 'Emp2', 1),
+(102, 'Emp3', 2),
+(103, 'Emp4', 3),
+(104, 'Emp5', 4),
+(105, 'Emp6', 4),
+(106, 'Emp7', 5)
+
+select	LEFT(D.Name, 1), count(*)
+from	@dep D 
+		inner join 
+		@emp E on (D.Id = E.depId)
+group by LEFT(D.Name, 1)
+
+/*
+	D >	3
+	S >	1
+	U >	3
+*/
+
+
+
+
+
+

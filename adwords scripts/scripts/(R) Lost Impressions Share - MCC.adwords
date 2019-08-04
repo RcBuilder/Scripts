@@ -1,0 +1,135 @@
+/*
+  Compare KWs impressionShare between 'This week' and 'Last week' and look for a decline which is more than the allowed limit (DECLINE_ALLOWED_LIMIT)
+  if such case was found - increase the bid by x (BID_INCREAMENT_VALUE)
+    
+  MCC Level with Label filter  
+*/
+
+var ACCOUNT_LABEL = 'Test';
+var DECLINE_ALLOWED_LIMIT = 0.5; // 50%
+var BID_INCREAMENT_VALUE = 0.5; // 50%
+
+function main() {
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + ACCOUNT_LABEL + '"').get();  
+    
+  while(accounts.hasNext()) {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+        
+    MccApp.select(account);
+    ProcessAccount();
+   
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(){
+  var resultThisWeek = ExecuteReport('THIS_WEEK_SUN_TODAY');
+  var resultLastWeek =ExecuteReport('LAST_WEEK');
+  
+  var resultMerge = MergeResults(resultLastWeek, resultThisWeek);
+  Logger.log(resultMerge);
+  
+  for(var i = 0; i < resultMerge.length; i++ )
+  {
+    var row = resultMerge[i];
+    
+    // impressionShare was improved since last week - skip KW
+    if(row.impressionShare2 >= row.impressionShare1) 
+      continue;
+    
+    // decline in the impression Share - check the allowed limit
+    var declineValue = (1 - (row.impressionShare2 / row.impressionShare1)); // 1 - (50 / 80) = 0.375    
+    if(declineValue <= DECLINE_ALLOWED_LIMIT) 
+      continue;
+    
+    Logger.log('keyword #%s has a decline value of %s', row.keywordId, declineValue);
+    
+    // the decline in more than the allowed, increase bid!
+    IncreaseBid(row.keywordId, row.adgroupId, BID_INCREAMENT_VALUE);
+  }  
+}
+
+function IncreaseBid(keywordId, adgroupId, incValue){
+  var keywordItr = AdWordsApp.keywords().withIds([[adgroupId, keywordId]]).withLimit(1).get();
+  if(!keywordItr.hasNext()) return;
+  var keyword = keywordItr.next();
+  
+  var currBid = keyword.bidding().getCpc();
+  var newBid = currBid + (currBid * incValue); 
+      
+  Logger.log('keyword #%s bid increased by %s (from %s to %s)', keywordId, incValue, currBid, newBid);
+  keyword.bidding().setCpc(newBid);    
+}
+
+function MergeResults(result1, result2){
+  // [{ keywordId, adgroupId, impressionShare1, impressionShare2 }]
+  var result = result1.map(function(x){ 
+    return { 
+      keywordId: x.keywordId, 
+      adgroupId: x.adgroupId, 
+      impressionShare1: x.impressionShare, 
+      impressionShare2: 0
+    } 
+  });
+   
+  result.findIndex = function(keywordId, adgroupId){
+    if(!this || this.length == 0) return -1;
+    
+    for(i in this)
+      if(this[i].keywordId == keywordId && this[i].adgroupId == adgroupId)
+        return i;
+    return -1;
+  }
+  
+  for(i in result2){
+    var curr = result2[i];
+    var index = result.findIndex(curr.keywordId, curr.adgroupId);
+    if(index == -1) // exists in result2 and NOT in result1 
+      result.push({ 
+      keywordId: curr.keywordId, 
+      adgroupId: curr.adgroupId, 
+      impressionShare1: 0, 
+      impressionShare2: curr.impressionShare
+    });
+    else // exists in both
+      result[index].impressionShare2 = curr.impressionShare;
+  }
+  
+  return result;
+}
+
+function ExecuteReport(TimeSlice){
+  // [{ keywordId, adgroupId, impressionShare }]
+  var result = [];
+      
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+
+  var query =  'SELECT Id, Criteria, AdGroupId, AdGroupName, SearchImpressionShare ' + 
+      'FROM KEYWORDS_PERFORMANCE_REPORT ' + 
+      'WHERE CampaignStatus IN [ENABLED] ' +    
+      'AND AdGroupStatus IN [ENABLED] ' +
+      'AND Status = ENABLED ' +      
+      'DURING ' + TimeSlice;
+
+  var report = AdWordsApp.report(query, reportConfig);
+  var rows = report.rows(); 
+  while (rows.hasNext())
+  {
+    var row = rows.next();
+    // note! in this case '< 10' is summed as 10
+    var impressionShare = row['SearchImpressionShare'].replace('<','').replace('%','');
+    ///Logger.log('[%s] %s', row['Id'], impressionShare); 
+    
+    result.push({
+      keywordId: row['Id'],
+      adgroupId: row['AdGroupId'],
+      impressionShare: impressionShare
+    });
+  }
+  
+  return result;
+}

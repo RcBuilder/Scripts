@@ -1,0 +1,23 @@
+SQL Groupby Date Specific Format
+--------------------------------
+
+declare @temp table(W int, D datetime)
+insert into @temp 
+values
+(30, '2019-05-20 12:00'),
+(35, '2019-05-27 12:00'),
+(30, '2019-06-02 12:00'),
+(30, '2019-06-02 13:00'),
+(40, '2019-06-08 12:00')
+
+select W, convert(varchar,D, 101)
+from @temp
+group by W, convert(varchar,D, 101)
+
+/*
+	W	(No column name)
+	30	05/20/2019
+	30	06/02/2019
+	35	05/27/2019
+	40	06/08/2019
+*/

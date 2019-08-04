@@ -1,0 +1,97 @@
+SQL DELETE IN CHUNKS
+--------------------
+due to the facts that a deletion of a massive table can cause a long lock (by the transaction)
+its best practice to delete the data using chunks. 
+
+note! 
+if ALL data should be erased, use TRUNCATE instead!
+it doesn't use logging for each row which means fewer system and transaction log resources.
+
+to reduce log data, set database recovery model to SIMPLE
+
+--------
+
+given:
+a table SALES with millions of rows. 
+the 3 top products are 100, 200 and 300 (lets assume each has a couple of millions sales) 
+
+-
+
+query(1):
+// all at once
+DELETE FROM SALES WHERE ProductId in(100, 200, 300) 
+
+cons:
+massive scan, lock issues and log file burst (.ldf)
+
+-
+
+query(2):
+DECLARE @rowcount int = 1; 
+WHILE @rowcount > 0
+BEGIN
+  BEGIN TRANSACTION;
+ 
+  DELETE TOP(X) SALES WHERE ProductId in(100, 200, 300)
+  SET @rowcount = @@ROWCOUNT
+ 
+  COMMIT TRANSACTION; 
+
+  // CLEAR LOG HERE...
+  CHECKPOINT  // for SIMPLE Recovery mode
+END
+
+pros:
+reduced log file
+
+cons:
+take more time then query(1)
+
+note! 
+ProductId must be indexed to prevent db scans and locking issues
+
+-
+
+query(3):
+DELETE TOP(X) FROM SALES WHERE ProductId in(100, 200, 300)
+GO 100
+
+-
+
+query(4):
+SET ROWCOUNT X
+DELETE FROM SALES WHERE ProductId in(100, 200, 300)
+GO 100
+SET ROWCOUNT 0
+
+-
+
+query(5):
+SELECT * INTO SALES_TEMP FROM SALES WHERE ProductId NOT IN(100, 200, 300) 
+DROP TABLE SALES
+SP_RENAME 'SALES_TEMP', 'SALES';
+
+cons:
+have to preserve the old table configuration such as indexes and etc.
+re-index data
+
+pros:
+reduced log file, no locks, fast!
+
+-
+
+query(6):
+SELECT * INTO SALES_TEMP FROM SALES WHERE ProductId NOT IN(100, 200, 300) 
+TRUNCATE TABLE SALES
+INSERT INTO SALES SELECT * FROM SALES_TEMP
+DROP TABLE SALES_TEMP
+
+cons:
+re-index data
+
+pros:
+reduced log file, no locks, fast! no configuration to preserve du to a DROP statement
+[best practice]
+
+
+// TODO ->> Performance Test!

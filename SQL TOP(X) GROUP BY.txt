@@ -1,0 +1,26 @@
+SQL TOP(X) GROUP BY
+------------------- 
+syntax:
+SELECT TOP(X) 
+	<column>, <column-count> = COUNT(*)
+FROM	<table>	
+GROUP BY <column>
+ORDER BY <column-count> DESC
+
+---
+
+sample:
+SELECT TOP(5) 
+	EmployeeId, DeliveriesCount = COUNT(*)
+FROM	Deliveries	
+GROUP BY EmployeeId
+ORDER BY DeliveriesCount DESC
+
+/*
+	EmployeeId      DeliveriesCount
+	024371494	    5209
+	342433257	    1891
+	025601550	    1388
+	34045609	    1219
+	059630657	    1167
+*/

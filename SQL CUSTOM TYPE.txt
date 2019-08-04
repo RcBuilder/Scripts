@@ -1,0 +1,82 @@
+SQL CUSTOM TYPE
+---------------
+
+[syntax]
+CREATE TYPE <name> AS TABLE (
+    <columns>
+);
+
+note:
+use DataTable OR List<SqlDataRecord> to pass data from C#.
+another option is ANY class implements IEnumerable<SqlDataRecord> and IEnumerator<SqlDataRecord>.
+
+---
+
+[sample]
+CREATE TYPE IdList AS TABLE (
+    Id tinyint NOT NULL PRIMARY KEY
+);
+
+---
+
+CREATE TYPE TableType AS TABLE (
+	a int NOT NULL PRIMARY KEY,
+	b int NOT NULL,
+	c int NOT NULL
+)
+
+declare @t TableType
+select * from @t
+
+---
+
+[using sp]
+
+ALTER PROCEDURE sp_Deliveries_Food_Search
+	@StatusIds IdList READONLY
+AS
+BEGIN 
+	select * from @StatusIds
+END
+
+
+declare @t IdList
+insert into @t values(1),(2)
+exec sp_Deliveries_Food_Search @StatusIds=@t
+
+---
+
+[using C#]
+
+if (StatusIds.Count > 0)
+    prms.Add(new SqlParameter("@StatusIds", IdList.Map(StatusIds)) { 
+	TypeName = "[dbo].IdList", 
+	SqlDbType = SqlDbType.Structured 
+    });
+
+---
+
+public class IdList{
+    public static DataTable Map(List<byte> value) {
+            
+    DataTable dt = new DataTable();
+    dt.Columns.Add("Id", typeof(byte));
+
+    value.ForEach(x => {
+       var row = dt.NewRow();
+       row["Id"] = x;
+       dt.Rows.Add(row);                
+    });
+
+    return dt;
+            
+
+    /*
+         return value.Select(x =>{
+            var record = new SqlDataRecord(new SqlMetaData("Id", SqlDbType.TinyInt));
+            record.SetInt16(0, x);
+            return record;
+         });
+     */
+   }
+}

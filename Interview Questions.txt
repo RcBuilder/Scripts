@@ -1,0 +1,111 @@
+Interview Questions
+-------------------
+[Q] Question
+[G] Given
+[T] Tip
+[A] Answer
+[R] Result
+-------------------
+
+[Q] SQL
+output number of employees per department first letter. 
+
+[G]
+declare @dep table(Id int, Name varchar(50))
+insert into @dep 
+values
+(1, 'DevOps'),
+(2, 'Dev'),
+(3, 'Sales'),
+(4, 'UI'),
+(5, 'UX')
+
+declare @emp table(Id int, Name varchar(50), depId int)
+insert into @emp 
+values
+(100, 'Emp1', 1),
+(101, 'Emp2', 1),
+(102, 'Emp3', 2),
+(103, 'Emp4', 3),
+(104, 'Emp5', 4),
+(105, 'Emp6', 4),
+(106, 'Emp7', 5)
+
+[A]
+select	LEFT(D.Name, 1), count(*)
+from	@dep D 
+		inner join 
+		@emp E on (D.Id = E.depId)
+group by LEFT(D.Name, 1)
+
+[R]
+D > 3  // 3 employees in all departments starts with 'D'
+S > 1  
+U > 3  
+
+-------
+
+[Q] Logic
+create a method which calculates a column name based on 2 parameters: 
+1. column name
+2. index from it
+
+fun('A', 26) = 'AA'
+fun('B', 2) = 'D' 
+fun('B', 27) = 'AC'
+
+[G]
+sheet standard structure (up to 2 letters)
+A,B...Z,AA,AB...AZ,BA,BB...ZZ
+
+[T]
+Ascii value for 'A' is 65
+
+[A]
+var startIndex = 65; // 'A'
+var numOfLetters = 26; // 'A' - 'Z'
+
+string fun(char p1, int p2){
+   var index = ((byte)p1 - startIndex) + p2;   
+   var leftLetterAscii = startIndex + (index / numOfLetters) - 1;      
+   var rightLetterAscii = startIndex + (index % numOfLetters);   
+   return string.Format("{0}{1}", (char)leftLetterAscii, (char)rightLetterAscii).Replace("@", "");
+}
+
+Console.WriteLine(fun('A', 26));  // 'AA'
+Console.WriteLine(fun('B', 2));   // 'D' 
+Console.WriteLine(fun('B', 27));  // 'AC'
+
+-------
+
+[Q] SQL
+delete duplicate rows
+
+[G]
+declare @emp table(Id int, Name varchar(50))
+insert into @emp 
+values
+(100, 'Emp1'),
+(100, 'Emp1'),
+(100, 'Emp1'),
+(103, 'Emp4'),
+(104, 'Emp5'),
+(104, 'Emp5'),
+(106, 'Emp7')
+
+[A]
+;WITH cte(rowNum)as(
+    select row_number() over(partition by Id, Name order by Id) 
+    from @emp	
+)
+delete from cte where rowNum > 1
+select * from @emp
+
+[R]
+Id	Name
+100	Emp1
+103	Emp4
+104	Emp5
+106	Emp7
+
+-------

@@ -1,0 +1,83 @@
+SQL DEADLOCK 
+------------
+due to the reason that transactions lock table rows, two transactions which work on the same resources might generate a deadlock! 
+
+this situation can occur in the following scenario: 
+Transaction1 locks Resource1 
+Transaction2 locks Resource2 
+Transaction1 try to reach Resource2
+Transaction2 try to reach Resource1
+
+      lock >  [R1]  < access
+[T1]		      			[T2]
+    access >  [R2]  < lock
+
+--
+
+if a deadlock occurs, the SQL engine terminates (by roll it back) one of the transactions!
+the chosen transaction called "victim"! the other one continues as usual. 
+
+victim exception:
+Transaction (Process ID XX) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. 
+Rerun the transaction.
+ 
+--
+
+[simulation]
+
+step1
+-----
+create some tables to work with.
+
+code:
+create table ##t1(value varchar(20))
+insert into ##t1 values('A'),('B'),('C')
+
+create table ##t2(value varchar(20))
+insert into ##t2 values('1'),('2'),('3')
+
+--drop table ##t1
+--drop table ##t2
+
+step2
+-----
+create 1st transaction. 
+notice that it lock 'A' row (##t1 table) and try to access '1' row (##t2 table)
+I used WAITFOR to delay the process till I execute the 2nd transaction in order to create the deadlock.
+
+BEGIN TRANSACTION
+BEGIN TRY
+	
+	update ##t1 set value = 'A-t1' where value = 'A' -- lock A	
+	WAITFOR Delay '00:00:05' 
+
+	update ##t2 set value = '1-t1' where value = '1' -- 1 is locked by t2!	
+	
+	COMMIT TRANSACTION
+END TRY
+BEGIN CATCH	 
+	PRINT(ERROR_MESSAGE())	       	
+	ROLLBACK TRANSACTION 
+END CATCH 
+
+step3
+-----
+create 2nd transaction. 
+notice that it lock 'A' row (##t1 table) and try to access '1' row (##t2 table)
+
+BEGIN TRANSACTION
+BEGIN TRY
+
+	update ##t2 set value = '1-t2' where value = '1' -- lock 1		
+	update ##t1 set value = 'A-t2' where value = 'A' -- A is locked by t1!	
+		
+	COMMIT TRANSACTION
+END TRY
+BEGIN CATCH	
+	PRINT(ERROR_MESSAGE())	       	
+	ROLLBACK TRANSACTION 
+END CATCH 
+
+-
+
+note that "1 is locked by t2!" and "A is locked by t1!"

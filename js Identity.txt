@@ -1,0 +1,10 @@
+js Identity
+-----------
+// using random
+Math.ceil(Math.random() * 1000)
+
+
+// using sequel number (max+1)
+// find max value and add 1
+see 'js max number'
+

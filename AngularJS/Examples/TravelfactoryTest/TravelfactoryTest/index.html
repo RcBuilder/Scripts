@@ -1,0 +1,77 @@
+﻿<!DOCTYPE html>
+<html ng-app="my-app" lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link href="css/app.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container" ng-controller="homeController">
+        <div class="inner-wrapper">            
+            <ul class="ul-horizontal">
+                <li ng-repeat="contact in contacts track by $index">
+                    <div ng-include="'contact-card'"></div>
+                </li>
+                <li><div ng-include="'empty-card'"></div></li>
+            </ul>
+        </div>
+
+        <div ng-class="{contactPopup: true, show: isPopupMode}">
+            <p>
+                <div ng-include="'new-contact-popup'"></div>
+            </p>
+            <p>
+                <input type="button" ng-click="saveContact();" class="btn btn-alert" value="save" />
+                <input type="button" ng-click="closeContactPopup();" class="btn btn-alert" value="close" />
+            </p>
+        </div>
+    </div>
+
+    <script type="text/ng-template" id="contact-card">
+        <div class="card-wrapper contact-card">     
+            <div class="image">
+                <img src="{{ 'Assets/' + contact.image }}" alt="{{ contact.name }}" class="img-circle img-thumbnail" />
+                <p class="center">{{ contact.position }}</p>
+            </div>       
+            <div class="body">
+                <h5>{{ contact.name }}</h5>
+                <p>{{ contact.address}}</p>
+                <h6 class="bold">Twitter, Inc.</h6>
+                <p>{{ contact.twitterLine1 }}</p>
+                <p>{{ contact.twitterLine2 }}</p>
+                <p>{{ contact.phone }}</p>
+
+                <aside>
+                    <i class="icon icon-edit" ng-click="editContact($index);"></i>
+                    <i class="icon icon-delete" ng-click="deleteContact(contact.id);"></i>
+                </aside>
+            </div> 
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="new-contact-popup">
+        <div>
+            <p><select ng-options="opt as opt for opt in contactProfiles track by opt.id" ng-model="newContact.image"></select></p>
+            <p><input type="text" ng-model="newContact.position" placeholder="position" /></p>
+            <p><input type="text" ng-model="newContact.name" placeholder="name" /></p>
+            <p><input type="text" ng-model="newContact.address" placeholder="address" /></p>
+            <p><input type="text" ng-model="newContact.twitterLine1" placeholder="twitterLine1" /></p>
+            <p><input type="text" ng-model="newContact.twitterLine2" placeholder="twitterLine2" /></p>
+            <p><input type="text" ng-model="newContact.phone" placeholder="phone" /></p>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="empty-card">
+        <div class="card-wrapper empty-card">
+            <div class="body">
+                <img src="Assets/Add48x48.png" ng-click="addContact()" />
+            </div>
+        </div>
+    </script>
+    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.7.8/angular.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>

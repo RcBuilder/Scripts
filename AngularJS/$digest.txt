@@ -1,0 +1,27 @@
+use it to enforce a new cycle which trigger the watchers and, by doing that, update the UI.
+
+$scope.$digest();
+
+---
+
+sample:
+$scope.contacts = [];
+$scope.isPopupMode = false;
+$scope.newContact = new Contact();
+
+$scope.saveContact = function () {
+        
+        contactsFactory.saveContact($scope.newContact, function (result) {            
+            $scope.contacts = result;
+            saveCompleted();
+        }, function (error) {            
+            console.log('[ERROR] ' + error);
+            saveCompleted();
+        });        
+    }
+
+function saveCompleted() {
+        $scope.isPopupMode = false;         
+        $scope.newContact = new Contact();
+        $scope.$digest();
+    }

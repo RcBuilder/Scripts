@@ -1,0 +1,58 @@
+javascript use strict
+---------------------
+use it to enforce strict mode to any code under the declaration. 
+validates the written code, and prevents the use of undeclared variables.
+can be added to a script or a function. 
+
+syntax:
+"use strict";
+
+validations:
+- not allowed to use undeclared variables
+  a = 1;
+
+- not allowed to use 'delete' for variables and functions
+  delete a;
+
+- not allowed to duplicate a parameter 
+  e.g: function f1(p1, p1) { }
+
+- not allowed to create a read-only property
+  e.g: Object.defineProperty(obj, "a", {value:1, writable:false});
+
+- not allowed to create 'get' with-no 'set'
+  e.g:  { get a() { return 1} };
+
+- not allowed to create a variable named 'eval' 
+  e.g: var eval = 1;
+
+- not allowed to create a variable named 'arguments'
+  e.g: var arguments = 1;
+
+- not allowed to use eval() to create a variable within the execution-call scope 
+  e.g:  eval ("var a = 1");
+
+- using 'this' keyword within a function returns 'undefined' (instead of 'window') 
+  if no object was passed to the function 
+
+----------
+
+using:
+
+"use strict";
+a = 1;  // exception
+
+function f1(){
+    b = 2;  // exception
+}
+
+--
+
+a = 1;  // ok
+
+function f1(){
+    "use strict";
+    b = 2;  // exception
+}
+
+

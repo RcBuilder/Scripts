@@ -1,0 +1,137 @@
+﻿body {    
+    font-family: Sans-serif;    
+    background-color:#eeeded;
+    color:#808080;
+}
+
+div.inner-wrapper {
+    padding-top: 50px;
+}
+
+.card-wrapper {   
+    background-color: #fff;
+    padding: 12px 20px;        
+    height: 140px;
+    vertical-align: middle;  
+}
+
+.card-wrapper::after {
+    content: "";
+    clear: both;
+    display: table;
+}
+
+.empty-card {
+    text-align: center;
+    vertical-align: middle;
+    line-height: 110px;
+}
+
+.contact-card {
+    position: relative;
+}
+
+.contact-card > * {
+    float: left;
+    vertical-align: middle;      
+}
+
+.contact-card > div.body {
+    padding-left: 20px;    
+}
+
+.contact-card > div p {
+    margin:0px;
+    font-size: 11px;
+}
+
+.contact-card > div.image > img {
+    height: 100px;
+}
+
+.contact-card aside {
+    position: absolute;
+    right:0;
+}
+
+ul.ul-horizontal { 
+    list-style-type: none; 
+    margin:0;
+    padding:0;
+    display: flex;
+    flex-flow: row wrap;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+ul.ul-horizontal li {
+    flex-flow: 1;
+    padding-right: 18px;
+    margin-bottom: 16px;    
+    min-width: 380px;
+}
+
+.bold {
+    font-weight: bold;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    margin: 5px 0 5px 0;
+}
+
+h5 {
+    font-size:14px;  
+}
+
+h6 {
+    font-size:11px;  
+    margin-bottom:0;
+}
+
+.center {
+    text-align:center;
+}
+
+.contactPopup {
+    display: none;
+}
+
+.contactPopup.show { display: block; }
+
+.contactPopup {
+    position: absolute;
+    left: 40%;
+    top: 40%;
+    background-color: #fff;
+    border: solid 1px #000;
+    border-radius: 20px;
+    padding: 20px 30px;
+}
+
+.icon {
+    background-image: url('../Assets/sprite-icone.png');
+    background-repeat: no-repeat;    
+    height: 18px;
+    width: 18px;
+    display: inline-block;
+}
+
+.icon-delete {
+    background-position: -313px 0px;
+}
+
+.icon-edit {
+    background-position: 0px -72px;
+}
+
+
+@media screen and (max-width: 480px) {
+    ul.ul-horizontal {
+        flex-direction: column;
+    }
+
+    ul.ul-horizontal li {    
+        width: 100%;         
+    }
+}

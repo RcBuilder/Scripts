@@ -1,0 +1,22 @@
+NET CODE CYCLE
+--------------
+1. Source Code is Compiled using the correspondind compiler. 
+   (C# uses C# Compiler, VB.NET uses VB.NET Compiler etc.)
+2. the Compiler compiles the code into CIL (aka MSIL)
+3. the CLR uses JIT to transform the CIL to Machine Code
+
+process:
+Source-Code > (Compiler) > MSIL/ CIL Code + MetaData > JIT Compiler > Machine-Code
+
+---
+
+illustration:
+see 'NET_Code_Cycle'
+
+---
+
+also see:
+CLR (Common Language Runtime)
+JIT (Just In Time) Compiler
+NET GC (Garbage Collector)
+Managed vs Unmanaged code

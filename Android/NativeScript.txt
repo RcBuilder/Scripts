@@ -3495,13 +3495,14 @@ application.run({ moduleName: "app-root" });
   if the app is in the foreground - firebase will ONLY execute the onMessageReceivedCallback.
   if it in the background - firebase will show a tray notification which will route the user to our app and perform the onMessageReceivedCallback once he click on it! 
   in addition, a property named 'foreground' (which represents the app state) will be added to the payload. 
+  tip: when app in foreground, we can use local notifications.
 
   init:
   // app.js 
   // hook-up to the MessageReceived event
   firebase.init({
     onMessageReceivedCallback: message => {
-        console.log(message);                
+        console.log(message);      	
     }}).then(() => {
       console.log("firebase.init done");
     },

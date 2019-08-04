@@ -1,0 +1,64 @@
+SQL delete duplicate rows using ROW_NUMBER
+------------------------------------------
+
+steps: 
+1. create a CTE table 
+2. use ROW_NUMBER with partition to create a partition for each group of values
+3. delete from CTE all rows with rowNumber above 1
+
+samples:
+
+// t3 (before)
+id  value
+1	1
+2	2
+3	3
+4	4
+4	4
+4	4
+5	5
+5	5
+
+;with cte(rowNumber, id) as(
+	select ROW_NUMBER() OVER (partition by value order by id), id
+	from t3		
+)
+delete from cte where rowNumber > 1
+
+// t3 (after)
+id  value
+1	1
+2	2
+3	3
+4	4
+5	5
+
+--
+
+
+DECLARE @emp TABLE(Id int, Name varchar(50))
+INSERT INTO @emp 
+VALUES
+(100, 'Emp1'),
+(100, 'Emp1'),
+(100, 'Emp1'),
+(103, 'Emp4'),
+(104, 'Emp5'),
+(104, 'Emp5'),
+(106, 'Emp7')
+
+;WITH cte(rowNum)AS(
+    SELECT ROW_NUMBER() OVER(PARTITION BY Id, Name ORDER BY Id) 
+	FROM @emp	
+)
+DELETE FROM cte WHERE rowNum > 1
+SELECT * FROM @emp
+
+/*
+	Id	Name
+	100	Emp1
+	103	Emp4
+	104	Emp5
+	106	Emp7
+*/
+

@@ -1,0 +1,205 @@
+/*
+  PAUSE Non-Profitable KWs based on multiple conditions!  
+  
+  MCC Level with Label filter
+  Exclude Label Support  
+*/
+
+var EMAIL = 'rcbuilder@walla.com'; // 'ellie.mcdonald@wmegroup.com.au';
+///var STATS_PERIOD = 'LAST_30_DAYS'; // TODAY, YESTERDAY, LAST_7_DAYS, THIS_WEEK_SUN_TODAY, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, LAST_BUSINESS_WEEK, LAST_WEEK_SUN_SAT, THIS_MONTH, LAST_MONTH
+var ACCOUNT_LABEL = 'NonProfitableKWs'; // filter on the mcc level 
+var EXCLUDE_LABEL = 'ExcludeRule'; // excluded adgroups
+var KEYWORD_LABEL = 'MonitorPerformance'; // label to use on non performing keywords
+
+function main() {
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + ACCOUNT_LABEL + '"').get();
+    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+        
+    MccApp.select(account);
+    ProcessAccount();
+   
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount() {     
+  if(!IsLabelExistsInAccount(KEYWORD_LABEL)) {    
+    Logger.log('Label %s does not exists - creating it ...', KEYWORD_LABEL);        
+    AdWordsApp.createLabel(KEYWORD_LABEL, '');
+  }
+ 
+  var body = '';
+    
+  var result1 = ProcessByCondition1() || [];
+  var result2 = ProcessByCondition2() || [];
+    
+  /*
+  result2.push({ keywordId: 350100453327, adGroupId: 68584204796 });
+  result2.push({ keywordId: 303581699238, adGroupId: 68584204796 });
+  */
+  
+  // [{ keywordId, adGroupId }]
+  var keywordIds = result1.concat(result2);   
+  Logger.log('found %s keywords', keywordIds == null ? 0 : keywordIds.length);  
+  
+  if(!keywordIds || keywordIds.length == 0) 
+    return; 
+
+  for(i in keywordIds){    
+    var keywordId = keywordIds[i].keywordId;      
+    var adGroupId = keywordIds[i].adGroupId;
+
+    var keywordItr = AdWordsApp.keywords().withIds([[adGroupId, keywordId]]).withLimit(1).get();
+    if(!keywordItr.hasNext()) continue;
+
+    var keyword = keywordItr.next();
+    keyword.applyLabel(KEYWORD_LABEL);      
+    keyword.pause();
+
+    body += '<p>keyword [' + keywordId + '] "' + keyword.getText() + '" labelled</p>' +
+      '<p>Account: ' + AdWordsApp.currentAccount().getName() + '</p>'+
+      '<p>Campaign: ' + keyword.getCampaign().getName() + '</p>'+
+      '<p>Adgroup: ' + keyword.getAdGroup().getName() + '</p>'+        
+      '<p>Match Type: ' + keyword.getMatchType() + '</p>'+
+      '<p>---</p>';
+  }
+  
+  
+  if(body != '') {
+    Logger.log('mail sent to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'POOR performance keywords report', '', { htmlBody: body });
+  }
+}
+
+/* keyword cost 10x the daily budget with No conversions within 30 days/account-wide */
+function ProcessByCondition1(){
+  // [{ keywordId, adGroupId }]
+  var result = [];
+  
+   var campaigns = AdWordsApp.campaigns()
+  .withCondition('Status IN [ENABLED]')  
+  .get();
+  
+  while(campaigns.hasNext()){
+    var campaign = campaigns.next();
+    var campaignName = campaign.getName();
+    
+    Logger.log('[campaign]%s', campaignName);
+    if(IsLabelExistsInCampaign(campaign, EXCLUDE_LABEL)) {
+      Logger.log('campaign decorated with an exclude label - skip...');
+      continue;
+    }   
+    
+    var campaignId = campaign.getId();
+    var campaignBudget = campaign.getBudget().getAmount(); 
+    Logger.log('budget: %s', campaignBudget);
+    
+    // cost at least 10 times the daily budget (not profitable) 
+    var costFilter = campaignBudget * 10; // * 1000000;
+    
+    var report = AdWordsApp.report(
+      'SELECT Id ' +  // Id, Criteria, CostPerConversion, Cost, Conversions
+      'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+      'WHERE Status = ENABLED ' +  
+      'AND IsNegative = FALSE ' + 
+      'AND Conversions < 1 ' + // no conversion 
+      'AND Cost > ' + costFilter + ' ' + 
+      'AND CampaignId = ' + campaignId + ' ' + // only the current campaign
+      'AND Criteria != AutomaticContent ' +   	  
+      'DURING ' + 'LAST_30_DAYS');
+
+    var rows = report.rows();
+    while(rows.hasNext()){
+      var row = rows.next();        
+      result.push({
+        keywordId: row['Id'],
+        adGroupId: adGroupId
+      });
+    }
+  }
+  
+  return result;
+}
+
+/* keyword cost 3x adgroup alltime CPA within 30 days and no more then 1 conversions */
+function ProcessByCondition2(){
+  // [{ keywordId, adGroupId }]
+  var result = [];
+  
+  var adGroups = AdWordsApp.adGroups()
+  .withCondition('Status IN [ENABLED]')
+  .withCondition('CampaignStatus IN [ENABLED]')  
+  .get();
+  
+  while(adGroups.hasNext()){
+    var adGroup = adGroups.next();
+    var adGroupName = adGroup.getName();
+    
+    Logger.log('[adGroup]%s', adGroupName);
+    if(IsLabelExistsInAdgroup(adGroup, EXCLUDE_LABEL)) {
+      Logger.log('adgroup decorated with an exclude label - skip...');
+      continue;
+    }    
+  
+    var adGroupId = adGroup.getId();
+    var adGroupStats = adGroup.getStatsFor('ALL_TIME');    
+    var avarageCPA = CalculateCPA(adGroupStats.getConversions(), adGroupStats.getCost());
+    if(avarageCPA == 0) continue;
+
+    Logger.log('adGroup %s [CPA(avg): %s]', adGroupName, avarageCPA.toFixed(2));
+
+    // cost at least 3 times of the adgroup CPA (not profitable) 
+    var costFilter = parseInt(avarageCPA) * 3; // * 1000000;
+    
+    var report = AdWordsApp.report(
+      'SELECT Id ' +  // Id, Criteria, CostPerConversion, Cost, Conversions
+      'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+      'WHERE Status = ENABLED ' +  
+      'AND IsNegative = FALSE ' + 
+      'AND Conversions < 2 ' + // less than 1 conversions
+      'AND Cost > ' + costFilter + ' ' + 
+      'AND AdGroupId = ' + adGroupId + ' ' + // only the current adroup
+      'AND Criteria != AutomaticContent ' +   	  
+      'DURING ' + 'LAST_30_DAYS');
+
+    var rows = report.rows();
+    while(rows.hasNext()){
+      var row = rows.next();        
+      result.push({
+        keywordId: row['Id'],
+        adGroupId: adGroupId
+      });
+    }
+  }
+  
+  return result;
+}
+
+function CalculateCPA(Conversions, cost){
+  return Conversions == 0 ? 0 : cost / Conversions;
+}
+
+function IsLabelExistsInAccount(labelName){
+  var labels = AdWordsApp.labels().withCondition('Name = "' + labelName + '"').withLimit(1).get();
+  if(!labels.hasNext()) {
+    Logger.log('label "%s" was not found!', labelName);
+    return false;
+  }
+  
+  return true;  
+}
+
+function IsLabelExistsInAdgroup(adGroup, labelName){
+  var labels = adGroup.labels().withCondition('Name = "' + labelName + '"').withLimit(1).get();
+  return labels.hasNext();
+}
+
+function IsLabelExistsInCampaign(campaign, labelName){
+  var labels = campaign.labels().withCondition('Name = "' + labelName + '"').withLimit(1).get();
+  return labels.hasNext();
+}

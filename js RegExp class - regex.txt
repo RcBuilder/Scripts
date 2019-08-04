@@ -58,3 +58,8 @@ if(prices.length > 0){
    prices.sort(); // sort the array by price
    price = prices[0]; // take the lower price
 }
+
+more samples
+------------
+var regex = new RegExp('^[0-9]+$');
+return regex.test(contact.phone);

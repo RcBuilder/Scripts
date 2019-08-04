@@ -25,3 +25,4 @@ also see:
 CLR (Common Language Runtime)
 JIT (Just In Time) Compiler
 NET GC (Garbage Collector)
+NET CODE CYCLE

@@ -122,3 +122,11 @@
 * SSIS = SQL Server Integration Services
 
 * SU = Start up
+
+
+* TDLR = Too Damn Lazy to Reply
+* TLDR = Too Long, Didn't Read (אמל"ק)
+* KT = Knowledge Transfer
+* 10x = Thanks
+* Gr8 = Great
+* 

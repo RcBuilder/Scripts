@@ -1,0 +1,11 @@
+delete rows BULK using GO
+-------------------------
+
+syntax:
+delete top(<count>) from <table>
+GO <loop-size>
+
+sample:
+// loop of 100 iterations which each delete 100 rows from tbl
+delete top(100) from tbl
+GO 100

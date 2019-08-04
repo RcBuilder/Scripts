@@ -1,0 +1,62 @@
+SQL Column Name (alias) in Group by clause
+------------------------------------------
+
+syntax:
+SELECT <column>, <column-action> = <COUNT, SUM etc.>
+FROM	<table>	
+GROUP BY <column>
+ORDER BY <column-action> DESC
+
+supports:
+COUNT, 
+MAX, 
+MIN, 
+SUM, 
+AVG
+
+------
+
+samples:
+
+
+SELECT TOP(3) EmployeeId, DeliveriesCount = COUNT(*)
+FROM	Deliveries	
+GROUP BY EmployeeId
+ORDER BY DeliveriesCount DESC
+
+/*
+	EmployeeId	DeliveriesCount
+	024371494	5208
+	34045609	4260
+	342433257	1891
+*/
+
+-
+
+SELECT TOP(3) EmployeeId, DeliveriesSum = SUM(Amount)
+FROM	Deliveries	
+GROUP BY EmployeeId
+ORDER BY DeliveriesSum DESC
+
+/*
+	EmployeeId	DeliveriesSum
+	024371494	509433.00
+	34045609	297066.00
+	342433257	181532.00
+*/
+-
+
+SELECT EmployeeId, DeliveriesAverageCost = AVG(ServiceCost)
+FROM	Deliveries	
+GROUP BY EmployeeId
+HAVING AVG(ServiceCost) > 100
+ORDER BY DeliveriesAverageCost DESC
+
+/*
+	EmployeeId	DeliveriesAverageCost
+	037633765	303.00
+	034830257	200.00
+	277834567	193.00
+	032880593	116.00
+*/
+

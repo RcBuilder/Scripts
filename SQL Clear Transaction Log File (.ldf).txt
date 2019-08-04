@@ -1,0 +1,21 @@
+SQL Clear Transaction Log File (.ldf)
+-------------------------------------
+
+syntax:
+ALTER DATABASE <db> SET RECOVERY SIMPLE
+DBCC SHRINKDATABASE (<db> , <sizeInMb>)
+ALTER DATABASE <db> SET RECOVERY FULL
+
+---
+
+steps:
+1. switch db to SIMPLE recovery mode
+2. shrink log file
+3. switch db back to FULL recovery mode
+
+---
+
+sample:
+ALTER DATABASE [master] SET RECOVERY SIMPLE
+DBCC SHRINKDATABASE ([master] , 50)
+ALTER DATABASE [master] SET RECOVERY FULL

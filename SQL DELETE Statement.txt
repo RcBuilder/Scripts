@@ -1,0 +1,44 @@
+SQL DELETE Statement
+--------------------
+
+syntax:
+DELETE FROM <table>
+DELETE TOP(X) FROM <table>
+DELETE FROM <table> WHERE <condition>
+DELETE FROM <table> INNER JOIN <table> WHERE <condition>
+;WITH CTE(<columns>) as(<select>) DELETE FROM CTE
+...
+...
+
+log:
+DELETE statement is fully logged!
+DELETE statement logs every deleted row to the log file (.ldf)!
+deletion of a large table significantly increases the .ldf file.
+
+lock:
+DELETE statement uses transaction.
+it locks the table until the transaction completes! 
+
+big data:
+To delete all the rows in a table, use TRUNCATE TABLE.
+TRUNCATE doesn't use logging for each row which means fewer system and transaction log resources.
+reminder! DELETE adds log for every deleted row! 
+
+delete duplicates:
+see 'SQL delete duplicate rows using ROW_NUMBER'
+
+delete by chunks:
+due to the facts that a deletion of a massive table can cause a long lock (by the transaction)
+its best practice to delete the data using chunks. 
+note that if ALL data should be erased, use TRUNCATE instead!
+see 'SQL DELETE IN CHUNKS'
+
+references:
+see 'SQL delete rows BULK using GO'
+see 'SQL delete duplicate rows using ROW_NUMBER'
+see 'SQL DELETE USING CTE'
+see 'SQL DELETE IN CHUNKS'
+see 'SQL Transactions'
+
+
+

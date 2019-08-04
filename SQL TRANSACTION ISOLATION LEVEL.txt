@@ -1,0 +1,126 @@
+SQL TRANSACTION ISOLATION LEVEL
+===============================
+
+Read Uncommitted
+----------------
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+NO LOCK (READ UNCOMMITTED)
+
+allows us to read uncommitted changes. 
+changes that were made by the transaction and are in-process mode and haven't committed nor rolled back yet! 
+aka dirty data! 
+we can't rely on this data because it might change by a rollback statement!
+
+sample:
+[T1]
+update Deliveries set Amount = 20 where id = 1 // lock delivery row #1	
+
+[T2]
+SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+select Amount from Deliveries where Id = 1 // output  20
+
+Read Committed
+--------------
+(Default)
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED 
+LOCK ON UPDATE
+
+disallows us to read uncommitted changes and by that, prevent the read of dirty data! 
+the thread will wait till the transaction releases the lock.
+once the transaction releases the lock (by using COMMIT or ROLLBACK), a response will return to all the calling threads.
+
+sample:
+[T1]
+update Deliveries set Amount = 20 where id = 1 // lock delivery row #1	
+
+[T2]
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED 
+select Amount from Deliveries where Id = 1 // waiting... (locked)
+
+[T1]
+COMMIT
+
+[T2]
+output 20
+
+Repeatable Read
+---------------
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ
+LOCK ON SELECT
+
+prevent the read of data which might be changed as part of the transaction process. 
+so the value of the first read and the value of the second are NOT the same.
+T1 read row #1 and get value 1, in the meantime T2 update the value to 2, then T1 read the data again but this time it gets 2.
+
+sample:
+[T2]
+SET TRANSACTION ISOLATION LEVEL REPEATABLE READ
+select Amount from Deliveries where Id = 1 // lock delivery row #1
+(now we can perform this line many times and we'll always get the same result)
+
+[T1]
+update Deliveries set Amount = 20 where id = 1 // waiting... (locked)
+select Amount from Deliveries where Id = 1
+
+[T1]
+COMMIT
+
+[T2]
+output "1 row(s) affected"
+output 20
+
+Serializable
+------------
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+LOCK ON SELECT AND INSERT
+
+prevent a result of some condiiton which might be changed as part of the transaction process.
+this blocks any attempt to change data which another transaction already read and, in addition, also blocks
+any attempt to add new data which might change the condition result by matching the condition criteria. 
+T1 reads all data by a condition of Amount > 20, in the meantime T2 insert new item with Amount of 25 (which matches the T1 condition), then T1
+performs the same condition again and get differernt result since the first read.
+
+sample:
+[T2]
+SET TRANSACTION ISOLATION LEVEL SERIALIZABLE
+select Amount from Deliveries where Id >= 3 // lock delivery rows #3 and above	
+(now we can perform this line many times and we'll always get the same result)
+
+[T1]
+insert into t3 values(4, '4') // waiting... (locked)
+select Count(*) from Deliveries
+
+[T1]
+COMMIT
+
+[T2]
+output "1 row(s) affected"
+output 4
+
+Snapshot
+--------
+SET TRANSACTION ISOLATION LEVEL SNAPSHOT
+NO LOCK (READ ORIGINAL)
+
+allows us to read the original content even if it's currently changing by another transaction 
+and flagged as uncommitted. 
+T1 updates a value (e.g: 50 > 20), the value 20 marked as uncommitted, T2 read the original value before the changes made by T1 (50!)
+
+sample:
+[T1]
+update Deliveries set Amount = 20 where id = 1 // lock delivery row #1	
+
+[T2]
+SET TRANSACTION ISOLATION LEVEL READ SNAPSHOT
+select Amount from Deliveries where Id = 1 // output  50!! the original value before T1 changes.
+
+
+------------------------------
+
+note!
+the use of the ISOLATION LEVEL is NOT as part of the update transaction session but should be defined in the session that tries to read the data!
+it basically tells the sql engine how to read the data and NOT how to lock it!
+another alternative is to use WITH(NOLOCK) instead of ISOLATION LEVEL to read an UNCOMMITTED changes.
+
+tip:
+temporary tables DOES NOT support those isolation levels

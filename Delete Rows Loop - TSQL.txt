@@ -1,18 +1,18 @@
 
 declare @tblNames table (RowID int identity,Amount int, Event_Name nvarchar(200))
 insert into @tblNames(Amount,Event_Name)
-select count(*),Event_Name 
-from Temp_Event_Details 
-group by Event_Name
+	select count(*),Event_Name 
+	from Temp_Event_Details 
+	group by Event_Name
 
 declare @i int,@t int,@CurrentName nvarchar(200)
 
 set @i = 1
-set @t = (select count(*) from @tblNames)
+set @c = (select count(*) from @tblNames)
 
-while(@i<@t)
+while(@i<@c)
 BEGIN
-	if((select Amount from @tblNames where RowID = @i)>1)
+	if((select Amount from @tblNames where RowID = @i) > 1)
 	BEGIN
 		set @CurrentName = (select Event_Name from @tblNames where RowID = @i)	
 		

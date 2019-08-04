@@ -1,0 +1,22 @@
+js findIndex by condition
+-------------------------
+
+var contacts = [
+   { id:10, name: 'A' },
+   { id:20, name: 'B' },
+   { id:30, name: 'C' },
+   { id:40, name: 'D' }
+]; 
+
+contacts.findIndex = function (id) {
+  if (this.length == 0) return -1;
+
+  for (i in this)
+  	if (this[i].id == id) return i;
+   return -1;
+}
+
+--
+
+contacts.findIndex(30); // 2
+contacts.findIndex(1); // -1

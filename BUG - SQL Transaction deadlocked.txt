@@ -1,0 +1,18 @@
+Bug:
+SQL Transaction deadlocked
+
+Error:
+Transaction (Process ID XX) was deadlocked on lock resources with another process and has been chosen as the deadlock victim. 
+Rerun the transaction.
+
+Cause:
+SQL deadlock occured by 2 transactions accessing the same resources 
+
+Solution:
+see 'SQL DEADLOCK'
+
+
+
+
+
+ 
