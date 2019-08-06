@@ -1,0 +1,39 @@
+SQL Temporary tables
+--------------------
+
+// TODO
+
+create table #t1(value varchar)
+	insert into #t1 values('A'),('B'),('C')
+
+	create table #t2(value varchar)
+	insert into #t2 values('1'),('2'),('3')
+
+	create table ##t3(value varchar)
+
+	drop table #t1
+	drop table #t2
+	drop table ##t3
+
+
+	temporary table
+	#tbl
+	a temporary table is only accessible to the connection that created that temporary table
+
+	global temporary table
+	##tbl 
+	accessible to all the open connections
+
+
+	Databases > System > tempdb > Temporary Tables
+
+	[Window1]
+	create table #t1(value varchar)
+
+	[Window2]
+	create table #t1(value varchar)
+	create table ##t3(value varchar)
+
+	[dbo].[#t1_________________________________________________________________________________________________________________00000000000A]
+	[dbo].[#t1_________________________________________________________________________________________________________________00000000000D]
+	[dbo].[##t3]

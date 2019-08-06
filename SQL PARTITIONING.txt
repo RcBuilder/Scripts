@@ -1,0 +1,82 @@
+SQL PARTITIONING
+----------------
+achieved by using the PARTITION BY Clause within an OVER clause.
+PARTITION BY divides the result into partitions and then applies the function on each partition separately.
+
+syntax:
+<function>() OVER(
+	PARTITION BY <column-1>, <column-2>...<column-N> 
+	ORDER BY <column-1> <DESC|ASC>  
+)
+
+note:
+the ORDER BY clause only requires for ROW_NUMBER, RANK and DENSE_RANK
+
+function:
+ROW_NUMBER
+RANK 
+DENSE_RANK
+COUNT
+AVG
+SUM
+MIN
+MAX
+
+---
+
+GROUP BY vs PARTITION BY:
+group by reduces the number of rows returned whereas partition by does not affect the number of rows returned
+
+---
+
+references:
+'SQL - ROW_NUMBER vs RANK vs DENSE_RANK'
+'SQL - DENSE_RANK to find top rows'
+'SQL DELETE USING CTE'
+
+--- 
+
+using:
+
+CREATE TABLE t4
+(
+    Id int,
+    Name varchar(10),
+    Amount money
+)
+
+INSERT INTO t4 
+VALUES
+(1001, 'A', 12),
+(1002, 'A', 18),
+(1003, 'B', 30),
+(1004, 'C', 10),
+(1005, 'C', 60),
+(1006, 'C', 80),
+(1007, 'C', 15),
+(1008, 'D', 10),
+(1009, 'D', 40)
+
+SELECT Id, Name, Amount,
+	ROW_NUMBER() OVER(PARTITION BY Name ORDER BY Id DESC) AS 'ROW_NUMBER',
+	RANK() OVER(PARTITION BY Name ORDER BY Id DESC) AS 'RANK',
+	DENSE_RANK() OVER(PARTITION BY Name ORDER BY Id DESC) AS 'DENSE_RANK',
+	COUNT(*) OVER(PARTITION BY Name) AS 'COUNT',
+	AVG(Amount) OVER(PARTITION BY Name) AS 'AVG',
+	SUM(Amount) OVER(PARTITION BY Name) AS 'SUM',
+	MIN(Amount) OVER(PARTITION BY Name) AS 'MIN',
+	MAX(Amount) OVER(PARTITION BY Name) AS 'MAX'
+FROM t4
+
+/*
+Id	Name	Amount	ROW_NUMBER	RANK	DENSE_RANK	COUNT	AVG	SUM	MIN	MAX
+1002	A	18.00	1		1	1		2	15.00	30.00	12.00	18.00
+1001	A	12.00	2		2	2		2	15.00	30.00	12.00	18.00
+1003	B	30.00	1		1	1		1	30.00	30.00	30.00	30.00
+1007	C	15.00	1		1	1		4	41.25	165.00	10.00	80.00
+1006	C	80.00	2		2	2		4	41.25	165.00	10.00	80.00
+1005	C	60.00	3		3	3		4	41.25	165.00	10.00	80.00
+1004	C	10.00	4		4	4		4	41.25	165.00	10.00	80.00
+1009	D	40.00	1		1	1		2	25.00	50.00	10.00	40.00
+1008	D	10.00	2		2	2		2	25.00	50.00	10.00	40.00
+*/

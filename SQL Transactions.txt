@@ -143,7 +143,7 @@ LOGS
 all operations are written to the transaction log file (.ldf)
 each log record  that is written to the .ldf file can be identified by its LSN (Log Sequence Number). use the 'sys.fn_dblog' to find the LSN.
 
-RECOVERY MODES 
---------------
-see 'SQL RECOVERY MODES'
+RECOVERY MODELS
+---------------
+see 'SQL RECOVERY MODELS'
 

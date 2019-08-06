@@ -1,3 +1,5 @@
+SQL - ROW_NUMBER vs RANK vs DENSE_RANK
+--------------------------------------
 
 tblData
 -------

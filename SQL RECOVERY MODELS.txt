@@ -1,0 +1,36 @@
+SQL RECOVERY MODELS
+-------------------
+a database configuration option to determines the backup type.
+provides the ability to restore data if needed.
+
+syntax:
+ALTER DATABASE <dbName> SET RECOVERY <recoveryMode>
+
+e.g:
+ALTER DATABASE SomeDatabase SET RECOVERY SIMPLE
+
+---
+
+managment studio:
+1. right click on the db > properties
+2. (tab) Options > Recovery model 
+3. choose a model
+
+---
+
+SIMPLE:
+partial backup.
+No Support for Transaction log. it re-uses the log space every time a CHECKPOINT opeation occurs.
+commonly used in databases which contain non-important content (Test databases etc.)
+reduces the log file.
+
+FULL:
+full backup.
+all transactions are fully logs and recorded.
+fit for databases which contain important data which we can afford to lose in any case.
+might generates a massive log file (in cases of a massive table deletion etc.)
+
+BULK_LOGGED:
+something in between SIMPLE and FULL model. 
+supports more restoration features than SIMPLE model but NOT all of them. 
+waives some log-writes and by that, reduces the log file size.
