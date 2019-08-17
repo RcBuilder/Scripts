@@ -122,7 +122,7 @@
 * SSIS = SQL Server Integration Services
 
 * SU = Start up
-
+* MSDN = Microsoft Developer Network
 
 * TDLR = Too Damn Lazy to Reply
 * TLDR = Too Long, Didn't Read (אמל"ק)

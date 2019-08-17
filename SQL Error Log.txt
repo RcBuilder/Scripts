@@ -1,0 +1,5 @@
+SQL Error Log
+-------------
+
+syntax:
+exec sp_readerrorlog

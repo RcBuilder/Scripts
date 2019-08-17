@@ -1,39 +1,49 @@
-SQL Temporary tables
---------------------
+*** SQL Temporary tables ***
+****************************
+syntax
+------
+#<tableName>  // local (per session)
+##<tableName>  // global (shared for all sessions)
 
-// TODO
+CREATE TABLE #<tableName>(<columns>)
+CREATE TABLE ##<tableName>(<columns>)
 
-create table #t1(value varchar)
-	insert into #t1 values('A'),('B'),('C')
+-
 
-	create table #t2(value varchar)
-	insert into #t2 values('1'),('2'),('3')
+a local temporary table (e.g: #tbl) is only accessible to the session that created it.
+when creating such a table, the SQL engine creates the table with an additional unique identifier to allows multiple sessions 
+to create tables with the very same name without making a collision! (e.g: #t1__________________________00000000000A)
 
-	create table ##t3(value varchar)
+global temporary table (e.g: ##tbl) accessible to all the sessions and is dropped automatically 
+when the last session using it has completed!
 
-	drop table #t1
-	drop table #t2
-	drop table ##t3
+explorer
+--------
+all temporary tables (locals and globals) can be found in the 'tempdb' database:
+Databases > System > tempdb > Temporary Tables
 
+[Window1]
+create table #t1(value varchar(5))
 
-	temporary table
-	#tbl
-	a temporary table is only accessible to the connection that created that temporary table
+[Window2]
+create table #t1(value varchar(5))
+create table ##t3(value varchar(5))
 
-	global temporary table
-	##tbl 
-	accessible to all the open connections
+[dbo].[#t1_________________________________________________________________________________________________________________00000000000A]
+[dbo].[#t1_________________________________________________________________________________________________________________00000000000D]
+[dbo].[##t3]
 
+using
+-----
+create table #t1(value varchar(5))
+insert into #t1 values('A'),('B'),('C')
 
-	Databases > System > tempdb > Temporary Tables
+create table #t2(value varchar(5))
+insert into #t2 values('1'),('2'),('3')
 
-	[Window1]
-	create table #t1(value varchar)
+create table ##t3(value varchar(5))
 
-	[Window2]
-	create table #t1(value varchar)
-	create table ##t3(value varchar)
+-- drop table #t1
+-- drop table #t2
+-- drop table ##t3
 
-	[dbo].[#t1_________________________________________________________________________________________________________________00000000000A]
-	[dbo].[#t1_________________________________________________________________________________________________________________00000000000D]
-	[dbo].[##t3]

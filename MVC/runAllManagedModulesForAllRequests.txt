@@ -1,0 +1,22 @@
+runAllManagedModulesForAllRequests
+----------------------------------
+ASP.NET Routing setting.
+
+without it, IIS would only run managed modules for known ASP.NET resources (for example, .aspx files).
+use it to apply all managed modules on every request! 
+
+syntax:
+// run all managed modules
+<system.webServer>    
+  <modules runAllManagedModulesForAllRequests="true"></modules> 
+</system.webServer> 
+
+// specify the managed modules to run
+<system.webServer>    
+  <modules >    
+    <remove name="UrlRoutingModule-4.0" />    
+    <add name="UrlRoutingModule-4.0" type="System.Web.Routing.UrlRoutingModule" preCondition="" />    
+    <remove name="Session"/>    
+    <add name="Session" type="System.Web.SessionState.SessionStateModule" preCondition=""/>    
+  </modules>    
+</system.webServer>

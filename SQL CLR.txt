@@ -1,0 +1,155 @@
+**** SQL CLR ****
+*****************
+CLR = Common Language Runtime
+
+notes
+-----
+- available since SQL 2005 and up
+
+performance
+-----------
+better performance for string manipulations than using SQL Functions.
+can also be used for Regex.
+
+--
+
+(include client statistics)
+DECLARE @i int = 0
+
+WHILE(@i < 100)
+BEGIN
+	SELECT * FROM dbo.fnx_IdsStringToTable('13,334,54,22,56,3,11,467,11,1,5,6,109')   
+	SET @i = @i+1
+END
+
+/*
+	Client processing time = 562
+	Total execution time = 140
+*/
+
+--
+
+WHILE(@i < 100)
+BEGIN
+	SELECT INTGR FROM fn_CLR_SplitINT('13,334,54,22,56,3,11,467,11,1,5,6,109' , ',')  
+	SET @i = @i+1
+END
+
+/*
+	Client processing time = 125
+	Total execution time = 671
+*/
+
+capabilities
+------------
+- table valued functions
+- scalar valued functions
+- aggregation functions
+- print value (sp)
+- select value (sp)
+- out parameter value (sp)
+
+implementation
+--------------
+(steps)
+
+1. enable CLR integration   
+   EXEC sp_configure 'clr enabled', 1
+   RECONFIGURE
+   GO
+
+2. Create a .Net Dll with the integration C# code
+3. Register the Assembly
+   // create
+   CREATE ASSEMBLY <name> from '<path>' WITH PERMISSION_SET = <level>
+
+   // update
+   ALTER ASSEMBLY <name> FROM '<path>' 
+
+   // drop 
+   DROP ASSEMBLY <name>
+
+   // assemblies list (management console)
+   DB > Programmability > Assemblies
+
+   // assemblies list (query)
+   SELECT * FROM sys.assemblies
+   SELECT * FROM sys.assembly_files
+
+   // e.g
+   CREATE ASSEMBLY TestSQLCLR from 'C:\Users\RcBuilder\Desktop\TestProjects\TestSQLCLR\bin\Debug\TestSQLCLR.dll' WITH PERMISSION_SET = SAFE
+	-- DROP ASSEMBLY TestSQLCLR	
+
+4. Create SQL PROCEDURE/FUNCTION wrapper:
+
+   // assembly code naming
+   <assemblyName>.<className>.<methodName>
+
+   // syntax
+   CREATE PROCEDURE <spName> AS EXTERNAL NAME <assemblyName>.<className>.<methodName>
+   CREATE FUNCTION <functionName>(<params>) RETURNS <returnParam> AS EXTERNAL NAME <assemblyName>.<className>.<methodName>
+
+5. execute the wrapper:
+
+   // syntax
+   EXEC <spName>
+   EXEC <spName> <params>
+   SELECT <columns> from <functionName>(<params>)
+
+
+Using
+-----
+[see the dll code in 'SQL_CLR.cs']
+
+// stored procedures
+CREATE PROCEDURE sp_CLR_Hello AS EXTERNAL NAME TestSqlCLR.STORED_PROCEDURES.Hello
+CREATE PROCEDURE sp_CLR_MyNameIs @name NVARCHAR(50) AS EXTERNAL NAME TestSqlCLR.STORED_PROCEDURES.MyNameIs
+CREATE PROCEDURE sp_CLR_GetRandomId @res INT OUT AS EXTERNAL NAME TestSqlCLR.STORED_PROCEDURES.GetRandomId
+CREATE PROCEDURE sp_CLR_RAISERROR AS EXTERNAL NAME TestSqlCLR.STORED_PROCEDURES.[RAISERROR]
+CREATE PROCEDURE sp_CLR_SelectUsers AS EXTERNAL NAME TestSqlCLR.STORED_PROCEDURES.SelectUsers
+
+// execute
+EXEC sp_CLR_Hello
+EXEC sp_CLR_MyNameIs 'Roby'
+
+DECLARE @p INT
+EXEC sp_CLR_GetRandomId @p OUT
+SELECT @p
+
+EXEC sp_CLR_RAISERROR
+EXEC sp_CLR_SelectUsers
+
+--
+
+// functions
+CREATE FUNCTION fn_CLR_ToCharsArray(@sValue NVARCHAR(MAX)) RETURNS TABLE(CHR NCHAR) AS EXTERNAL NAME TestSqlCLR.FUNCTIONS.ToCharsArray
+CREATE FUNCTION fn_CLR_SplitSTR(@sValue NVARCHAR(MAX),@delimiter nchar) RETURNS TABLE(STR NVARCHAR(10)) AS EXTERNAL NAME TestSqlCLR.FUNCTIONS.SplitSTR
+CREATE FUNCTION fn_CLR_SplitINT(@sValue NVARCHAR(MAX),@delimiter nchar) RETURNS TABLE(INTGR INT) AS EXTERNAL NAME TestSqlCLR.FUNCTIONS.SplitINT
+CREATE FUNCTION fn_CLR_GetMembersStartsWith(@sValue NVARCHAR(5)) RETURNS TABLE(Id INT, Name NVARCHAR(50)) AS EXTERNAL NAME TestSqlCLR.FUNCTIONS.GetMembersStartsWith
+CREATE FUNCTION fn_CLR_NumericName(@Name NVARCHAR(20)) RETURNS INT AS EXTERNAL NAME TestSqlCLR.FUNCTIONS.NumericName
+
+// execute
+SELECT CHR from fn_CLR_ToCharsArray('Roby Cohen')
+SELECT STR from fn_CLR_SplitSTR('Roby,Evi,Lia,Avi,Ronen,Ohad,Michael,Avner' , ',')
+SELECT INTGR from fn_CLR_SplitINT('13,334,54,22,56,3,11,467,11,1,5,6,109' , ',')
+SELECT * from fn_CLR_GetMembersStartsWith('Sh')
+SELECT dbo.fn_CLR_NumericName('Roby')
+
+-- 
+
+// AGGREGATE function
+CREATE AGGREGATE fn_AGGR_CLR_CountLongNames(@input NVARCHAR(MAX)) RETURNS INT EXTERNAL NAME TestSqlCLR.[AGGREGATES.CountLongNames]
+
+DECLARE @tblNames TABLE(name NVARCHAR(100))
+INSERT INTO @tblNames
+	VALUES 
+	('roby cohen'),
+	('ronaldinyo amar'),
+	('ahroni'),
+	('avi sinuani'),
+	('shimon amzaleg'),
+	('rayya dyon')	
+
+// result: 15 | 3
+SELECT MAX(LEN(name)) AS 'Longest Name', dbo.fn_AGGR_CLR_CountLongNames(name) as 'Num of Long names' 
+FROM @tblNames 

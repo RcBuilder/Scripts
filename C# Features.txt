@@ -1,0 +1,113 @@
+C# Features
+===========
+
+[Release 6.0]
+
+// Expression body
+public class Dummy {
+        public string P1 => "V1"; // read-only
+        public int P2 => 30; // read-only
+
+        public override string ToString() => $"{this.P1} -> {this.P2}"; // V1 -> 30
+
+        public float Fun1() => 40.1F;        
+    }
+
+var d1 = new Dummy();
+Console.WriteLine(d1); // V1 -> 30
+Console.WriteLine(d1.Fun1()); // 40.1
+
+---
+
+// Auto-property initializer
+public int P1 { get; set; } = 10;
+public string P2 { get; set; } = "V2";
+public float P3 { get; set; } = 3.14F;
+
+---
+
+// Null-conditional operator
+Dummy d2 = null;
+Console.WriteLine(d2?.P1 ?? "NULL");  // NULL
+
+d2 = new Dummy();
+Console.WriteLine(d2?.P1 ?? "NULL");  // 10
+
+---
+
+// String interpolation
+syntax:
+$"...{<param>}..."
+
+sample:
+var name = "Roby";
+var city = "Kfar saba";
+
+var str1 = $"Hi, I'm {name} from {city}";
+Console.WriteLine(str1);  // Hi, I'm Roby from Kfar saba
+
+var str2 = $"10 * 3 = {10*3}";
+Console.WriteLine(str2); // 10 * 3 = 30
+
+---
+
+// Exception filters
+syntax:
+try{}
+catch(Exception ex) when (<filter>){} 
+catch(Exception ex) when (<filter>){}
+catch(Exception ex) {} // default
+
+sample:
+try {
+    ...
+}
+catch (Exception ex) when (ex.Message == "Exception-1") { 
+    Console.WriteLine("Exception-1");
+}
+catch (Exception ex) when (ex.Message == "Exception-2") {
+    Console.WriteLine("Exception-2");
+}
+catch (Exception ex) when (ex.Message.StartsWith("Exception-")) {
+    Console.WriteLine("Exception-X");
+}
+catch (Exception ex) {
+    Console.WriteLine(ex.Message);
+}
+
+cases:
+throw new Exception("Exception-1"); // will trigger the 1st catch 
+throw new Exception("Exception-2"); // will trigger the 2nd catch 
+throw new Exception("Exception-3"); // will trigger the 3rd catch 
+throw new Exception("Exception-10"); // will trigger the 3rd catch 
+throw new Exception("some error"); // will trigger the 4th catch (default)
+
+---
+
+// nameof
+var name = "Roby";
+
+Console.WriteLine(nameof(name)); // name
+Console.WriteLine(nameof(d1)); // d1
+Console.WriteLine(nameof(d1.P2));  // P2
+
+---
+
+// Collection initialize 
+
+// option1
+var dic1 = new Dictionary<int, char> {
+    { 65, 'A' },
+    { 66, 'B' },
+    { 67, 'C' }
+};
+
+// option2 (using indexer)
+var dic2 = new Dictionary<int, char> {
+    [65] = 'A',
+    [66] = 'B',
+    [67] = 'C'
+};
+
+Console.WriteLine(dic1[66]); // B
+Console.WriteLine(dic2[66]); // B

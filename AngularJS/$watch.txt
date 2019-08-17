@@ -1,0 +1,16 @@
+$watch:
+use it to explicitly watch a model. we can add our own custom logic on each change of the model value. 
+any change occurs on the watched model will trigger the registered callback function.
+
+$scope.$watch(<model>, <callback>);
+
+note:
+behind the scenes angular engine auto-sets a watcher for each view expression (e.g: {{ someModel }}).
+
+reference:
+$digest
+
+sample:
+$scope.$watch('someModel', function(newValue, oldValue) {
+  // update the DOM
+});

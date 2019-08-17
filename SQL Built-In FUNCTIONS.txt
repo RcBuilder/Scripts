@@ -365,7 +365,7 @@ SELECT FORMAT(712, '0000') -- 0712
 
 SPACE
 -----
-<string >SPACE(<count>)
+<string> SPACE(<count>)
 
 create <count> spaces 
 

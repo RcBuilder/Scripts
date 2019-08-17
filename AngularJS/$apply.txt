@@ -1,0 +1,4 @@
+$apply: 
+this function calls the $digest from the $rootScope!
+
+$scope.$apply() > $rootScope.$digest()

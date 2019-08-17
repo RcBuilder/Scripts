@@ -1,0 +1,5 @@
+$timeout:
+setTimeout() with automatic $apply()
+
+use it to apply any changes made outside of the Angular context by using setTimeout.
+also see '$digest' 

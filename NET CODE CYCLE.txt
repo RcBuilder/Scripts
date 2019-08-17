@@ -1,6 +1,6 @@
 NET CODE CYCLE
 --------------
-1. Source Code is Compiled using the correspondind compiler. 
+1. Source Code is Compiled using the corresponding compiler. 
    (C# uses C# Compiler, VB.NET uses VB.NET Compiler etc.)
 2. the Compiler compiles the code into CIL (aka MSIL)
 3. the CLR uses JIT to transform the CIL to Machine Code

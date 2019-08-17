@@ -1,6 +1,19 @@
-use it to enforce a new cycle which trigger the watchers and, by doing that, update the UI.
+$digest:
+use it to enforce a new cycle which triggers the watchers and, by doing that, update the UI.
 
 $scope.$digest();
+
+the $digest cycle fires each of the watchers. 
+these watchers check if the current model value is different from last stored value and  if so - trigger the callback.
+
+important! 
+when we within the AngularJS context, the engine calls automatically to $apply (which calls the $digest). 
+when we OUT of the angular context we'll have to call the $digest (or $apply) manually! the most common example is when using setTimeout.
+
+recurring digest:
+due to the reason that the callback functions might change a model, 
+the $digest cycle keeps looping until there are no more changes (with 10 loops threshold) 
+
 
 ---
 

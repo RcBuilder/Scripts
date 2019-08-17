@@ -35,12 +35,12 @@ types:
 _doc
 
 commands:
-_mget
+_mget	      // multiple GET
 _update
--bulk
-_search
-_sql
-_mapping
+-bulk		  // bulk operation
+_search		  // search for data 
+_sql		  // use sql-like queries
+_mapping	  // use field mapping
 _analyze
 
 bulk operations:
