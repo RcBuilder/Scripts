@@ -1,0 +1,73 @@
+ <system.web>
+    <customErrors mode="RemoteOnly" defaultRedirect="~/Errors">
+      <error statusCode="400" redirect="~/Errors/BadRequest" />
+      <error statusCode="404" redirect="~/Errors/NotFound" />
+      <error statusCode="500" redirect="~/Errors/InternalError" />
+    </customErrors>    
+  </system.web>
+
+---
+
+public class ErrorsController : Controller {
+    public ActionResult Index()
+    {
+        return View();
+    }
+
+    public ActionResult BadRequest()
+    {
+        return View();
+    }
+
+    public ActionResult NotFound()
+    {
+        return View();
+    }
+
+    public ActionResult InternalError()
+    {
+        return View();
+    }
+}
+
+---
+
+// BadRequest.cshtml
+@{
+    ViewBag.Title = "400 Bad Request";
+}
+
+<div class="container">
+    <h3>400</h3>
+    <p>בקשה שגויה</p>
+</div>
+
+// Index.cshtml
+@{
+    ViewBag.Title = "UNKNOWN ERROR";
+}
+
+<div class="container">
+    <h3>שגיאה</h3>
+    <p>@TempData["Message"]</p>
+</div>
+
+// InternalError.cshtml
+@{
+    ViewBag.Title = "500 Server Error";
+}
+
+<div class="container">
+    <h3>500</h3>
+    <p>שגיאת שרת</p>
+</div>
+
+// NotFound.cshtml
+@{
+    ViewBag.Title = "404 Page Not Found";
+}
+
+<div class="container">
+    <h3>404</h3>
+    <p>הדף המבוקש לא נמצא</p>
+</div>
