@@ -7797,10 +7797,10 @@ publish the app (iphone):
   and a popup will be shown requesting your developer credentials - provide them and click 'Upload'
 
 create an app strore build:
-// TODO 
-
-- tip
-  use sidekick to publish an app to the app-store
+- open 'Info.plist' file
+- set the build number 
+  keys 'CFBundleVersion' and 'CFBundleShortVersionString'
+- use sidekick to publish an app to the app-store
 
 add an App to the Store:
 - go to the 'dev Center'

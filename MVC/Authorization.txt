@@ -62,3 +62,35 @@ public override void OnAuthorization(AuthorizationContext filterContext) {
 
     base.OnAuthorization(filterContext);
 }
+
+-------------------
+
+- SAMPLE 3 -
+
+using System.Security.Principal;
+using System.Web.Mvc;
+
+public class AdminAuthorizeAttribute : AuthorizeAttribute
+{
+    public override void OnAuthorization(AuthorizationContext filterContext)
+    {
+        var context = System.Web.HttpContext.Current;
+       
+        var adminSession = context.Session["admin"];        
+        if (adminSession != null) {            
+            var identity = new GenericIdentity((string)adminSession, "admin");            
+            context.User = new GenericPrincipal(identity, new string[] { "admin" });
+        }
+      
+        base.OnAuthorization(filterContext);
+    }
+}
+
+// AdminController
+[AdminAuthorize(Roles = "admin")]
+public class AdminController : Controller{ ... }
+
+// Global.asax
+protected void Application_PostAuthorizeRequest() {
+    HttpContext.Current.SetSessionStateBehavior(SessionStateBehavior.Required);
+}
