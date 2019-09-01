@@ -1,0 +1,23 @@
+C# HttpClient Request - HttpRequestMessage
+------------------------------------------
+we have the ability to work with a single client on a request-level basis. 
+commonly used when working with a single (static) client (best practices). 
+instead of adding headers and configuration on the client level, we can create a request object and send them as per call!
+
+steps:
+1. create a HttpRequestMessage object
+2. set required preperties
+3. use the SendAsync method
+
+syntax:
+static HttpClient client = new HttpClient();
+
+async Task Fun(){
+	var request = new HttpRequestMessage() { ... };
+	...
+	...
+	using (var resonse = await client.SendAsync(request)){ ... }
+}
+
+sample:
+see 'C# HttpClient SendAsync Request'

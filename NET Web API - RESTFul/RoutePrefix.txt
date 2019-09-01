@@ -1,0 +1,13 @@
+[RoutePrefix("api/widget")]
+public class WidgetController : ApiController {
+	[Route("add")] // api/widget/add     
+        [HttpPost]
+        public HttpResponseMessage Add(Widget widget) { }
+
+	[Route("update")] // api/widget/update        
+        [HttpPut]
+        public HttpResponseMessage Update(Widget widget) { }
+
+        ...
+	...
+}

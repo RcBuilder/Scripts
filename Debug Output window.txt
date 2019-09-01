@@ -1,0 +1,5 @@
+Debug Output window
+-------------------
+using System.Diagnostics;
+Debug.WriteLine(<string>);
+

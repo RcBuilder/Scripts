@@ -1,0 +1,14 @@
+static HttpClient client = new HttpClient();
+async Task Main()
+{
+	var request = new HttpRequestMessage() {
+	   RequestUri = new Uri("https://example.com/"),
+	   Method = HttpMethod.Post
+	};
+	request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+	
+	using (var resonse = await client.SendAsync(request)){
+	        var result = await resonse.Content.ReadAsStringAsync();
+			Console.WriteLine("Completed");
+	}
+}

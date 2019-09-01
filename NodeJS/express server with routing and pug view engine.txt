@@ -1,0 +1,83 @@
+// server.ts
+const express = require('express');
+const app = express();
+const router = require('./router');
+
+const config = {
+    port: 9001,
+    viewsFolder: './views'
+};
+
+// view engine setup
+app.set('views', config.viewsFolder);
+app.set('view engine', 'pug');
+
+app.use('/', router);
+app.listen(config.port, () => console.log(`Server running at http://127.0.0.1:${config.port}/`));
+
+---
+
+// router.ts
+import express = require('express');
+const router = express.Router();
+
+/*
+    router.<verb>(<path>, (request, response) => { ... })
+*/
+
+router.get('/', (request, response) => {
+    response.render('index', { title: 'index' });
+});
+
+router.get('/page1', (request, response) => {    
+    response.render('page1', { title: 'page1' });       
+});
+
+router.get('/page2', (request, response) => {
+    response.render('page2', { title: 'page2' });
+});
+
+router.get('/page3', (request, response) => {
+    response.render('page3', { title: 'page3' });
+});
+
+router.get('/page4', (request, response) => {
+    response.render('page4', { title: 'page4' });
+});
+
+module.exports = router;
+
+---
+
+// views/layout.pug
+doctype html
+html
+	head
+		title= title
+		link(rel='stylesheet', href='/css/main.css')
+	body        
+		block content	
+
+---
+
+// views/page1.pug
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}
+  img(src='/images/1.jfif')
+	    
+--- 
+
+// views/index.pug
+extends layout
+
+block content
+  h1= title
+  p Welcome to #{title}  
+  div(id='div1' style='')
+  a(href='./page1') Page 1
+  a(href='./page2') Page 2
+  a(href='./page3') Page 3
+  a(href='./page4') Page 4
