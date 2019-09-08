@@ -1,0 +1,22 @@
+Deserialize A Dictionary
+------------------------
+
+using Newtonsoft.Json;
+
+class Temp {
+        [JsonProperty(PropertyName = "c")]
+        public Dictionary<string, string> items { get; set; }
+    }
+
+var sJson = @"{ 
+             'a' : '1', 
+             'b' : '2', 
+             'c' : {
+                      'p1' : 'v1', 
+                      'p2' : 'v2', 
+                      'p3' : 'v3' 
+                   }
+          }";
+
+var res = JsonConvert.DeserializeObject<Temp>(sJson);
+Console.WriteLine(res.items["p3"]); // v3

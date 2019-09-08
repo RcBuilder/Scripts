@@ -124,9 +124,13 @@
 * SU = Start up
 * MSDN = Microsoft Developer Network
 
+(phrases)
 * TDLR = Too Damn Lazy to Reply
 * TLDR = Too Long, Didn't Read (אמל"ק)
 * KT = Knowledge Transfer
 * 10x = Thanks
 * Gr8 = Great
-* 
+
+(commands)
+* > TSC = TypeScript Compile
+* > TNS = Telerik NativeScript

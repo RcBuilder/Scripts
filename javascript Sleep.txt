@@ -1,0 +1,21 @@
+Javascript Sleep
+----------------
+note: always use setTimeout if possible! 
+if you must block the main thread or don't have access to setTimeout (adwords script etc.) 
+use a while loop which checks time changes (see below).
+this approach blocks the thread till the sleep time is over.
+
+---
+
+function sleep(milliseconds) {
+    var start = new Date().getTime();
+    while (new Date().getTime() < start + milliseconds);
+}
+
+sleep(1000 * 120);  // sleep for 2 minutes
+funB();
+
+---
+
+/// using setTimeout
+/// setTimeout(funB, 1000 * 120);

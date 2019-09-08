@@ -1,0 +1,27 @@
+/*
+  this script looks for any adgroup which has only a single keyword of EXACT match
+  and add to it 2 more keywords of EXPANDED BROAD(+) and PHRASE types
+*/
+
+function main() {
+  var aIterator = AdWordsApp.adGroups()
+  .withCondition('Status = ENABLED')
+  .withCondition('CampaignStatus = ENABLED')      
+  .forDateRange('TODAY')
+  .get();
+  
+  while(aIterator.hasNext()){
+    var ag = aIterator.next();
+    var kwIterator = ag.keywords().get(); 
+    var kwCount = kwIterator.totalNumEntities();
+    if(kwCount != 1) continue;
+    
+    var kw = kwIterator.next();
+    if(kw.getMatchType() != 'EXACT') continue;
+    
+    var text = kw.getText().replace('[', '').replace(']', '');
+    Logger.log('#[%s] %s', ag.getId(), text);
+    ag.newKeywordBuilder().withText('"' + text + '"').build();    
+    ag.newKeywordBuilder().withText('+' + text.split(' ').join(' +') +'').build();
+  }
+}

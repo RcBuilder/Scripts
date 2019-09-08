@@ -113,3 +113,81 @@ var dic2 = new Dictionary<int, char> {
 
 Console.WriteLine(dic1[66]); // B
 Console.WriteLine(dic2[66]); // B
+
+[Release 7.0]
+
+// Out declaration (directly)
+
+sample:
+fun(out var i);
+Console.WriteLine(i); // 1
+
+void fun(out int num){
+	num = 1;
+}
+
+sample (using TryParse):
+if(int.TryParse(input, out int result))
+	Console.WriteLine(result);
+
+---
+
+// Tuple improvements!
+
+syntax:
+(<param-1>, <param-2>...<param-N>) <name> = (<value-1>, <value-2>...<value-N>);
+var <name> = (<param-1>: <value-1>, <value-2>: <value-2>... <value-N>: <value-N>);
+(<param-1>, <param-2>...<param-N>) = (<value-1>, <value-2>...<value-N>);
+
+sample:
+(int Id, string Name) tuple = (10, "Roby");
+Console.WriteLine($"{tuple.Id}. {tuple.Name}"); // 10. Roby
+
+sample (using var):
+var tuple = (Id: 10, Name: "Roby");
+Console.WriteLine($"{tuple.Id}. {tuple.Name}"); // 10. Roby
+
+sample (direct): 
+(int Num1, int Num2) = (5, 2);
+Console.WriteLine($"{Num1} * {Num2} = {Num1 * Num2}"); // 5 * 2 = 10
+
+sample (using function):
+var tuple = fun();
+Console.WriteLine($"{tuple.Id}. {tuple.Name}");
+
+(int Id, string Name) fun(){
+	return (10, "Roby");
+}
+
+--- 
+
+// Deconstruction
+
+reference: 
+Tuple improvements!
+
+syntax:
+(<param-1>, <param-2>...<param-N>) = (<value-1>, <value-2>...<value-N>);
+
+discard:
+use '_' sign to ignore a parameter value
+
+sample:
+int i, j, k;
+(i,j, k) = (100, 200, 300);
+Console.WriteLine($"{i}, {j}, {k}");  // 100, 200, 300
+
+sample (discard):
+(string p1, _, _, string p4, _) = ("A", "B", "C", "D", "E");
+Console.WriteLine($"{p1}, {p4}"); // A, D
+
+---
+
+
+
+
+
+------------------------------------------------------------
+
+// TODO 
+obj?.name

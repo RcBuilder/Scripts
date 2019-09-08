@@ -34,14 +34,18 @@ namespace LagojaMarketingServices
             Console.WriteLine("domain:{0}", row["Domain"].Value);
         }
     */
-
+    
     public class CsvParser {
-
+        
         public class CsvContent {
             public List<CsvRow> Rows { get; set; }
 
             public CsvContent() {
                 this.Rows = new List<CsvRow>();
+            }
+
+            public void Append(CsvContent other) {
+                this.Rows.AddRange(other.Rows);
             }
         }
 
@@ -56,6 +60,8 @@ namespace LagojaMarketingServices
             public CsvColumn this[string Name]{
                 get{
                     try {
+                        if (string.IsNullOrEmpty(Name))
+                            return null;
                         return this.Columns.FirstOrDefault(x => x.Name.Equals(Name, StringComparison.OrdinalIgnoreCase));
                     }
                     catch { return null; }
@@ -76,29 +82,49 @@ namespace LagojaMarketingServices
         }
 
 
-        public static CsvContent Parse(string strCSV, char SEPERATOR = ',') {
+        public static CsvContent Parse(string strCSV, bool contentOnly = false, char SEPERATOR = ',') {
             try {                
                 if (string.IsNullOrEmpty(strCSV)) return null;
-
-                // special case, seperator as part of a content (which means that the content is wrapped with quotes "")
-                // replace it to a temporary placeholder to prevent split issues and later return it back
-                var pattern = string.Format("(?<= \".*?) {0} (?= .*?\")", SEPERATOR);
-                var tempPH = "#PH#";
-                strCSV = Regex.Replace(strCSV, pattern, tempPH, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
                 
                 var rows = strCSV.Replace("\r", string.Empty).Split('\n');
                 if (rows.Length == 0) return null;
 
                 var csvContent = new CsvContent();
 
-                // header
-                var csvHeaderRow = new CsvRow {
-                    IsHeader = true,
-                };
+                // special case, seperator as part of a content (which means that the content is wrapped with quotes "")
+                // replace it to a temporary placeholder to prevent split issues and later return it back
+                var patternPH = string.Format("(?<= \" [^\"]+? ) \\{0} (?= [^\"]+? \" )", SEPERATOR);
+                var tempPH = "#PH#";
 
-                foreach (var col in rows.First().Split(SEPERATOR))
-                    csvHeaderRow.Columns.Add(col.Trim().Replace(tempPH, SEPERATOR.ToString()));
-                csvContent.Rows.Add(csvHeaderRow);
+                // handle double quotes
+                /// var patternDQ = "\"{2}";
+                var tempDQ = "#DQ#";
+
+                for (var i = 0; i < rows.Length; i++) {
+                    var row = rows[i];
+
+                    var hasDQ = row.Contains("\"\"");
+
+                    // temporary remove DQ to prevent it from damaging the PH matches
+                    if (hasDQ) row = row.Replace("\"\"", tempDQ);
+                    // use temporary PH to prevent the content to be splitted incorrectly
+                    row = Regex.Replace(row, patternPH, tempPH, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);                    
+                    if (hasDQ) row = row.Replace(tempDQ, "\"\"");
+
+                    rows[i] = row;
+                }
+
+                CsvRow csvHeaderRow = null;
+                if (!contentOnly) {
+                    // header
+                    csvHeaderRow = new CsvRow {
+                        IsHeader = true,
+                    };
+
+                    foreach (var col in rows.First().Split(SEPERATOR))
+                        csvHeaderRow.Columns.Add(col.Trim().Replace(tempPH, SEPERATOR.ToString()));
+                    csvContent.Rows.Add(csvHeaderRow);
+                }
 
                 // body
                 foreach (var row in rows.Skip(1)) {
@@ -111,7 +137,7 @@ namespace LagojaMarketingServices
 
                     for (int i = 0; i < cols.Length; i++)
                         csvRow.Columns.Add(new CsvColumn {
-                            Name = csvHeaderRow.Columns[i].Value, // set header name as the name of the column - for indexer row["Email"] etc.
+                            Name = csvHeaderRow == null ? "" : csvHeaderRow.Columns[i].Value, // set header name as the name of the column - for indexer row["Email"] etc.
                             Value = cols[i].Trim().Replace(tempPH, SEPERATOR.ToString())
                         });                    
 
@@ -122,8 +148,8 @@ namespace LagojaMarketingServices
             catch { return null; }
         }
 
-        public static CsvContent Load(string filePath, char SEPERATOR = ',') {
-           return CsvParser.Parse(File.ReadAllText(filePath, Encoding.UTF8), SEPERATOR);
+        public static CsvContent Load(string filePath, bool contentOnly = false, char SEPERATOR = ',') {
+           return CsvParser.Parse(File.ReadAllText(filePath, Encoding.UTF8), contentOnly, SEPERATOR);
         }
     }
 }

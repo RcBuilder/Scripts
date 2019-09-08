@@ -71,6 +71,10 @@ Reference
 https://docs.nativescript.org
 https://docs.nativescript.org/api-reference/globals
 
+// sample app + source code
+https://www.nativescript.org/app-samples-with-code
+https://github.com/NativeScript/nativescript-marketplace-demo
+
 Forum
 -----
 https://forum.nativescript.org
@@ -7336,6 +7340,11 @@ nativescript map the known css rules into native style.
   note: 
   use '@import' to import the 'common.css'  file in both 'android' and 'ios' specific css files.
 
+- application css:
+  const application = require("tns-core-modules/application");
+  application.setCssFileName("app.css");
+  application.run({ moduleName: "app-root" });
+
 - platform specific css:
   [name].[platform].css
 
@@ -7795,6 +7804,7 @@ publish the app (iphone):
 - Next  
 - once the build completed - an .IPA file will be created in [yourProject]\.cloud\ios\device 
   and a popup will be shown requesting your developer credentials - provide them and click 'Upload'
+// TODO 
 
 create an app strore build:
 - open 'Info.plist' file
@@ -7843,6 +7853,18 @@ https://developer.apple.com/account/
 deploy steps:
 1. go to the 'dev Center' > 
 // TODO
+
+TestFlight:
+- go to the 'dev Center'
+- (menu) App Store Connect > click on 'Go to ..' button
+- choose 'My Apps' > (tab) TestFlight
+- TestFlight > Testers & Groups > add testers
+- publish a new build usign Sidekick
+- TestFlight > Builds > confirm the 'Missing Compliance' of that build 
+- in the tester device > use TestFlighApp for testing
+
+// TODO
+
 
 Sidekick APP
 ------------
@@ -8157,6 +8179,19 @@ solution:
     border-color: transparent;
     border-width: 1;       
 }
+
+--
+issue:
+a new deployment is NOT ready for test (TestFlight)
+
+error:
+Missing Compliance
+
+cause:
+Complete test information is required to submit a build for external testing
+
+solution:
+app store > 'iOS builds' section > approve the build for tesing by clicking the triangle and fill in the details
 
 --
 
