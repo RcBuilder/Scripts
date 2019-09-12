@@ -1,0 +1,170 @@
+Export options
+==============
+
+option-1
+--------
+use 'module.exports' to export a module (as a class). 
+use 'require' to get the module 
+
+-
+
+// MyModule.ts
+module.exports = class MyModule {
+    constructor(public id: number, public name: string) { }
+}
+
+// app.ts
+let MyModule = require('./MyModule.js');
+
+let exM1 = new MyModule(1, 'module1');
+console.log(exM1);
+
+option-2
+--------
+use 'module.exports' to export a module (as a literal). 
+use 'require' to get the module 
+
+-
+
+// MyModule2.ts
+module.exports = {    
+    fun1: () => { console.log('fun1'); },
+    fun2: () => { console.log('fun2'); }
+};
+
+// app.ts
+let MyModule2 = require('./MyModule2.js');
+
+MyModule2.fun1();
+MyModule2.fun2();
+
+option-3
+--------
+use 'export' to export code. (supports multiple) 
+use 'import' to get the exported code.
+
+-
+
+// MyModule3.ts
+export class MyModule3A {
+    private _items: string[] = [];
+    constructor(public orderId: number) {}
+
+    public add = (name: string): void => {
+        if (!this.validate(name)) return;
+        this._items.push(name);
+    }
+
+    get items(): string[] {
+        return this._items;
+    }
+
+    private validate(name: string): boolean {
+        return name && name.trim().length > 0;
+    }
+};
+
+export class MyModule3B {    
+    public sayHello(name: string): void {
+        console.log(`hello ${name}`)
+    }
+};
+
+interface iConfig { key1: string, key2: string }
+export const MyModule3Config: iConfig = {
+    key1: 'value1',
+    key2: 'value2'
+};
+
+export enum MyModule3eColors {
+    RED, GREEN, BLUE
+}
+
+// app.ts
+import { MyModule3A, MyModule3B, MyModule3Config, MyModule3eColors } from './MyModule3.js';
+
+let exM3a = new MyModule3A(3);
+exM3a.add('itemA');
+exM3a.add('itemB');
+console.log(exM3a.items);
+
+let exM3b = new MyModule3B();
+exM3b.sayHello('Roby');
+
+console.log(MyModule3eColors.GREEN);
+console.log(MyModule3Config.key1);
+
+option-4
+--------
+use 'exports' to export code (supports multiple). 
+use 'require' to get the exported code
+
+note:
+exports is NOT returned by 'require' (module.exports is!)
+
+-
+
+// Entities.ts
+exports.MyClass1 = class MyClass1 {
+    constructor(public id: number, public name: string) { }
+}
+
+exports.MyClass2 = class MyClass2 {
+    constructor(public id: number, public name: string) { }
+}
+
+exports.MyClass3 = class MyClass3 {
+    constructor(public id: number, public name: string) { }
+} 
+
+// app.ts
+let Entities = require('./Entities.js');
+
+let exC1 = new Entities.MyClass1(10, 'item1');
+console.log(exC1);
+
+let exC2 = new Entities.MyClass2(20, 'item2');
+console.log(exC2);
+
+let exC3 = new Entities.MyClass3(30, 'item3');
+console.log(exC3);
+
+---------------------------------------
+
+[exception]
+xxx is not defined! 
+
+when using 'require' with NO EXPORT statement 
+an attempt to reach methods will throw an exception. 
+note that the script will be executed!
+
+in the example below, the lines 'in MyFile...' will be logged to the screen but an exception will be thrown 
+once we'll try to call a function defined within the external file (MyFile)! 
+
+-
+
+class MyFClass {
+    constructor(public name: string) { }
+}
+
+console.log('in MyFile step 1');
+
+let f_var_1: number = 100;
+let f_var_2: string = '100';
+
+console.log('in MyFile step 2');
+
+function f_foo() {
+    console.log('f_foo');
+}
+
+
+require('./MyFile.js');
+
+// those lines will be logged 
+/// in MyFile step 1
+/// in MyFile step 2
+
+f_foo(); // exception!! f_foo is not defined
+let f = new MyFClass('fff'); // exception!! MyFClass is not defined
+console.log(f.name);

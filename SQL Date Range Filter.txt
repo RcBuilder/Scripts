@@ -1,0 +1,21 @@
+SQL Date Range Filter
+---------------------
+
+@FromTime smalldatetime = null,
+@ToTime smalldatetime = null    
+
+-- TIME FILTER -- 
+declare @addTimeFilter bit = 0;
+if(@FromTime is not null AND @ToTime is not null)
+	set @addTimeFilter = 1;
+	
+if(@addTimeFilter = 1) 
+BEGIN
+	-- fix dates -- 
+	set @FromTime = cast((convert(varchar, @FromTime, 101) + ' 00:00:00') as smalldatetime)
+	set @ToTime = cast((convert(varchar, @ToTime, 101) + ' 23:59:00') as smalldatetime)
+END	
+
+SELECT	* 
+FROM	<table>
+WHERE	(@addTimeFilter = 0 OR <column> between @FromTime and @ToTime)

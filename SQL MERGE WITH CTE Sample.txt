@@ -1,0 +1,17 @@
+SQL MERGE WITH CTE
+------------------
+
+WITH Result_CTE (FormRowId, StatsDate, NumOfImpressions, NumOfSubmissions) AS (...)
+
+	MERGE AnalyticsWebsiteFormsRawData AS TARGET
+	USING Result_CTE AS SOURCE 
+	ON (TARGET.FormRowId = SOURCE.FormRowId AND TARGET.StatsDate = SOURCE.StatsDate)
+	WHEN MATCHED 		
+	THEN 
+		UPDATE SET 
+		TARGET.NumOfImpressions = SOURCE.NumOfImpressions,
+		TARGET.NumOfSubmissions = SOURCE.NumOfSubmissions		
+	WHEN NOT MATCHED BY TARGET 
+	THEN 
+		INSERT (FormRowId, StatsDate, NumOfImpressions, NumOfSubmissions) 
+		VALUES (SOURCE.FormRowId, SOURCE.StatsDate, SOURCE.NumOfImpressions, SOURCE.NumOfSubmissions);

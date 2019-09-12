@@ -1,0 +1,40 @@
+mongoose
+--------
+mongodb is a document-based database
+
+installation:
+> npm i mongodb
+
+dependency:
+install mongo (SERVER) + compass (Managment Tools)
+mongodb-win32-x86_64-2012plus-4.2.0-signed.msi
+
+also see 'mongoose'
+
+---------------
+
+source:
+https://www.mongodb.com/
+
+---------------
+
+const mongo = require('mongodb').MongoClient;
+const connStr: string = 'mongodb://localhost:27017';
+
+let client = await mongo.connect(connStr, { 
+	useNewUrlParser: true 
+});
+
+let db = client.db(<dbName>);
+try {
+    let result = await db.collection(<collectionName>) 
+	....
+	....
+    client.close();
+}
+catch (err) {};
+
+---------------
+
+sample:
+see 'MongoDB/DAL.ts'

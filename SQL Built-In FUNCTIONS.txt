@@ -30,6 +30,9 @@ COUNT
 MAX
 MIN
 POWER
+
+ISNULL
+COALESCE 
 ===============================
 
 STRING_SPLIT
@@ -456,3 +459,35 @@ SELECT MIN(Grade) from (values(70),(50),(65),(85)) Tmp(Grade);  -- 50
 POWER
 -----
 // TODO
+
+
+ISNULL
+------
+<result> ISNULL(<expression>, <value>)
+
+if the expression-result is NOT null - return it
+if the expression-result is null - return value
+
+---
+
+declare @p1 int
+declare @p2 int = 4
+SELECT ISNULL(NULL, 0)  -- 0
+SELECT ISNULL(@p1, 0)   -- 0
+SELECT ISNULL(@p2, 0)   -- 4
+
+COALESCE 
+--------
+<result> COALESCE(<value-1>, <value-2>... <value-N>);
+
+return the first non-null value
+
+---
+
+declare @p1 int
+declare @p2 int
+declare @p3 int = 3
+SELECT COALESCE(NULL, NULL, 0)   -- 0
+SELECT COALESCE(@p1, @p2, @p3)   -- 3
+SELECT COALESCE(@p1, @p2, 0)     -- 0
+

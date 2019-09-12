@@ -21,6 +21,7 @@ a typeScript code is converted into its JavaScript equivalent for the purpose of
 - modules
 - ambient declarations
 - import
+- @ts-ignore
 -----------------------------------------
 
 
@@ -804,3 +805,18 @@ console.log(message);
 
 import './externalTS.js';
 OnLoadCompleted('module1');
+
+------------------------------------------
+
+[@ts-ignore]
+TypeScript ignore specific error
+the @ts-ignore remark disables error reporting for the line it decorates.
+
+syntax:
+// @ts-ignore
+<code line>
+
+sample:
+// @ts-ignore
+let str: string = false;
+

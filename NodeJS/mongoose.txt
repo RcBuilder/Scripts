@@ -1,0 +1,45 @@
+mongoose
+--------
+mongoose is a schema-based model for mongodb
+
+installation:
+> npm i mongoose
+
+dependency:
+install mongo (SERVER) + compass (Managment Tools)
+mongodb-win32-x86_64-2012plus-4.2.0-signed.msi
+
+---------------
+
+source:
+https://mongoosejs.com/docs/guide.html
+https://mongoosejs.com/docs/api/model.html
+
+schema types:    
+String, Number, Array, Map etc.    
+    
+create a schema:
+<schema> <schemaName> = new Schema({ ... });
+
+create a model:
+<model> <modelName> = mongoose.model(<name>, <schema>);
+    
+use the model to connect to the db
+<model>.<method>
+
+---------------
+
+const mongoose = require('mongoose');
+let Schema = mongoose.Schema;
+
+await mongoose.connect('mongodb://localhost:27017/testDB', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+console.log('connected!');
+
+---------------
+
+sample:
+see 'Mongoose/DAL.ts'

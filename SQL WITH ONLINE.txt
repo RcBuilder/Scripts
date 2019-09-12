@@ -1,0 +1,9 @@
+SQL WITH ONLINE
+---------------
+since SQL Server 2016, a new  statement to improve performance and reduce downtime by keeping the table online while executing the change!
+
+syntax:
+WITH (ONLINE=<ON|OFF>)
+
+sample:
+ALTER TABLE Folders ALTER COLUMN UniqueName nvarchar(500) WITH (ONLINE=ON)

@@ -1,0 +1,65 @@
+CREATE TABLE
+------------
+
+syntax:
+CREATE TABLE <tableName>(<column-1>, <column-2>...<column-N>)
+
+sample:
+CREATE TABLE WebsiteFormsStats(
+	FormRowId INT,
+	StatsDate SMALLDATETIME NOT NULL,
+	NumOfImpressions INT NOT NULL DEFAULT 0,
+	NumOfSubmissions INT NOT NULL DEFAULT 0
+) 
+
+DROP TABLE
+----------
+
+syntax:
+DROP TABLE <tableName>
+
+sample:
+DROP TABLE WebsiteFormsStats
+
+ALTER TABLE
+-----------
+
+syntax:
+ALTER TABLE <tableName> DROP CONSTRAINT <constraintName-1>, <constraintName-2>...<constraintName-N>
+ALTER TABLE <tableName> DROP COLUMN <columnName-1>, <columnName-2>...<columnName-N>
+ALTER TABLE <tableName> ADD <column-1>, <column-2>...<column-N>
+ALTER TABLE <tableName> ALTER COLUMN <column-1>, <column-2>...<column-N>
+
+sample:
+ALTER TABLE [dbo].[MyTable1] DROP CONSTRAINT DF_MyTable1_MyColumn1
+ALTER TABLE [dbo].[MyTable1] DROP COLUMN MyColumn1, MyColumn2, MyColumn3
+ALTER TABLE [dbo].[MyTable1] ADD MyColumn1 DATETIME NOT NULL, MyColumn2 VARCHAR(MAX)
+ALTER TABLE [dbo].[MyTable1] ALTER COLUMN MyColumn1 NVARCHAR(128) NULL
+
+CREATE TYPE (TVP)
+-----------------
+TVP = Table Valued Parameters
+
+syntax:
+CREATE TYPE <typeName> AS TABLE(<column-1>, <column-2>...<column-N>)
+
+sample:
+CREATE TYPE [dbo].[MyType1] AS TABLE(
+	MyColumn1 nvarchar(128) NOT NULL,
+	MyColumn2 int NULL,
+	MyColumn3 bit NULL,
+	MyColumn4 DateTime NULL
+)
+
+CREATE INDEX
+------------
+
+syntax:
+CREATE <CLUSTERED|NONCLUSTERED> INDEX <indexName>
+ON <tableName>(<columnName-1>, <columnName-2>...<columnName-N>)
+INCLUDE(<columnName-1>, <columnName-2>...<columnName-N>)
+
+sample:
+CREATE NONCLUSTERED INDEX IX_MyColumn1_MyColumn2
+ON MyTable1(MyColumn1, MyColumn2)
+

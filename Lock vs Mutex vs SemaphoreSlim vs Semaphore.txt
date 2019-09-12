@@ -1,0 +1,14 @@
+Lock vs Mutex
+-------------
+Lock allows a Single thread to enter the locked zone, in the same process.
+Mutex is the same as Lock but shared across multiple processes (system wide)
+
+SemaphoreSlim vs Semaphore
+--------------------------
+SemaphoreSlim allows X threads to enter the locked zone, in the same process. 
+Semaphore is the same as SemaphoreSlim but shared across multiple processes (system wide)
+
+Mutex vs Semaphore
+------------------
+both are system wide. 
+Mutex allows 1 thread in the locked zone whereas Semaphore allows X threads

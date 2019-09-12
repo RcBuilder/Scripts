@@ -1,0 +1,17 @@
+﻿doctype html
+html
+	head
+		title= title
+		link(rel='stylesheet', href='/css/main.css')
+	body        
+		block content
+		script.
+			(function (w) {
+			w.CliClap = { ID: '941ff0fc-a3bf-4bc7-8d99-7ed4fda93096' };
+			var s1 = document.createElement('script'), s0 = document.getElementsByTagName('script')[0];
+			s1.async = true;
+			s1.src = 'http://127.0.0.1:9002/bootstrap-widget.js';            
+			s1.charset = 'UTF-8';
+			s1.setAttribute('crossorigin', '*');
+			s0.parentNode.insertBefore(s1, s0);
+			})(window);            
