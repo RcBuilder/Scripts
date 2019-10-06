@@ -1,0 +1,15 @@
+SQL Table Constraints List
+--------------------------
+
+SELECT  o.[NAME], c.CONSTRAINT_CATALOG, c.CONSTRAINT_SCHEMA, c.CONSTRAINT_NAME, c.CONSTRAINT_TYPE, u.COLUMN_NAME
+FROM	sysobjects o
+		LEFT JOIN 
+		information_schema.table_constraints c
+		ON(c.TABLE_NAME = o.[NAME])
+		CROSS APPLY( 
+			SELECT	'[' + COLUMN_NAME + ']'
+			FROM	information_schema.key_column_usage u
+			WHERE	CONSTRAINT_NAME = c.CONSTRAINT_NAME
+			FOR XML PATH('')
+		) u(COLUMN_NAME)
+WHERE	o.Name = 'UrlVisitedArchive'

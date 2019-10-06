@@ -1,0 +1,18 @@
+Linked Server To Azure Instance
+-------------------------------
+1. open your local (non-azure) sql instance
+2. Server Objects > Linked Servers
+
+[General]
+3. (Linked server) > Set custom Server Name (e.g: AZURE SQL DATABASE) 
+4. (Server type) > choose 'Other data source'
+5. (Data source) > set your azure data source (e.g: tcp:cliclap-production.database.windows.net)
+6. (Catalog) > choose the database to connect to
+
+[Security]
+choose 'Be made using this security context' and set your azure's instance credentials
+
+---
+
+sample:
+SELECT * FROM [AZURE SQL DATABASE].[TestDB].[Products]

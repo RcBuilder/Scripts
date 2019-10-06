@@ -1,0 +1,23 @@
+/* sp_sp_who2 'CliClap_db_v3' */
+CREATE Procedure sp_sp_who2(@DBName nvarchar(100) = 'CliClap_db_v3')  
+AS   
+BEGIN	 
+	declare @temp table(
+		SPID_ int, Status varchar(MAX), 
+		[Login] nvarchar(MAX), 
+		HostName nvarchar(MAX), 
+		BlkBy nvarchar(MAX), 
+		DBName nvarchar(MAX), 
+		Command varchar(MAX), 
+		CPUTime int, 
+		DiskIO int, 
+		LastBatch varchar(MAX), 
+		ProgramName nvarchar(MAX), 
+		SPID int, 
+		REQUESTID int
+	)   
+
+	insert into @temp 
+		exec sp_who2	
+	select SPID , [Status], [Login], HostName, DBName, Command, CPUTime, DiskIO, LastBatch, ProgramName from @temp where DBName = @DBName	
+END

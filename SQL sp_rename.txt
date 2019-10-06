@@ -1,0 +1,14 @@
+SQL sp_rename
+-------------
+
+source:
+https://docs.microsoft.com/en-us/sql/relational-databases/system-stored-procedures/sp-rename-transact-sql?view=sql-server-2017
+
+rename table name:
+EXEC sp_rename '<schemaName>.<tableName>', '<newName>'
+
+rename column name:
+EXEC sp_rename '<schemaName>.<tableName>.<columnName>', '<newName>'
+
+rename constraint name:
+EXEC sp_rename '<schemaName>.<constraintName>', '<newName>'

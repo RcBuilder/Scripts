@@ -25,7 +25,11 @@ create a model:
 <model> <modelName> = mongoose.model(<name>, <schema>);
     
 use the model to connect to the db
-<model>.<method>
+<model>.<methodName>()
+
+extend a schema:
+<model>.statics.<methodName> = <method>
+<model>.methods.<methodName> = <method>
 
 ---------------
 

@@ -1,0 +1,4 @@
+Ignore error "sql string or binary data would be truncated"
+
+reference:
+SQL ANSI_WARNINGS
