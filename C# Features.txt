@@ -1,43 +1,93 @@
-// TODO
+*************************
+****** C# Features ******
+*************************
 
-C# Features
-===========
 
+*************************
 [Release 6.0]
+- Expression Body
+- Auto-Property Initializer
+- Null-Conditional Operator
+- String Interpolation
+- Exception Filters
+- nameof
+- Collection Initialize 
 
-// Expression body
+[Release 7.0]
+- Out Declaration (directly)
+- Tuple improvements!
+- Deconstruction
+- Pattern Matching
+- Local Functions
+- Expression Body
+- Readable Numeric
+- Async Main
+- Default Literal Expressions
+
+[Release 7.2]
+- private protected
+- Conditional ref 
+- "in" parameter
+
+[Release 8.0]
+- Switch expression
+- "using" declaration
+- Static Local Functions
+- Asynchronous streams
+- "^" Index From End operator
+- ".." Range operator 
+- "??=" operator
+*************************
+
+
+Expression Body
+---------------
+// members, read-only properties and methods
 public class Dummy {
-        public string P1 => "V1"; // read-only
-        public int P2 => 30; // read-only
+    public string P1 => "V1"; // read-only
+    public int P2 => 30; // read-only
 
-        public override string ToString() => $"{this.P1} -> {this.P2}"; // V1 -> 30
+    public override string ToString() => $"{this.P1} -> {this.P2}"; // V1 -> 30
 
-        public float Fun1() => 40.1F;        
-    }
+    public float Fun1() => 40.1F;        
+}
 
 var d1 = new Dummy();
 Console.WriteLine(d1); // V1 -> 30
 Console.WriteLine(d1.Fun1()); // 40.1
 
----
 
-// Auto-property initializer
+Auto-Property Initializer
+-------------------------
 public int P1 { get; set; } = 10;
 public string P2 { get; set; } = "V2";
 public float P3 { get; set; } = 3.14F;
 
----
 
-// Null-conditional operator
+Null-Conditional Operator
+-------------------------
+returns null and NOT move forward if the current state is null. 
+eliminates the null.<prop> exception 
+
+e.g:
+obj.name // throw an exception if obj is null
+obj?.name // NO exception! returns null
+
+// supports multiple levels
+obj?.obj2?.name
+
+-
+
+sample:
 Dummy d2 = null;
 Console.WriteLine(d2?.P1 ?? "NULL");  // NULL
 
 d2 = new Dummy();
 Console.WriteLine(d2?.P1 ?? "NULL");  // 10
 
----
 
-// String interpolation
+String Interpolation
+--------------------
 syntax:
 $"...{<param>}..."
 
@@ -51,9 +101,9 @@ Console.WriteLine(str1);  // Hi, I'm Roby from Kfar saba
 var str2 = $"10 * 3 = {10*3}";
 Console.WriteLine(str2); // 10 * 3 = 30
 
----
 
-// Exception filters
+Exception Filters
+-----------------
 syntax:
 try{}
 catch(Exception ex) when (<filter>){} 
@@ -84,19 +134,18 @@ throw new Exception("Exception-3"); // will trigger the 3rd catch
 throw new Exception("Exception-10"); // will trigger the 3rd catch 
 throw new Exception("some error"); // will trigger the 4th catch (default)
 
----
 
-// nameof
+nameof
+------
 var name = "Roby";
 
 Console.WriteLine(nameof(name)); // name
 Console.WriteLine(nameof(d1)); // d1
 Console.WriteLine(nameof(d1.P2));  // P2
 
----
 
-// Collection initialize 
-
+Collection Initialize 
+---------------------
 // option1
 var dic1 = new Dictionary<int, char> {
     { 65, 'A' },
@@ -114,10 +163,9 @@ var dic2 = new Dictionary<int, char> {
 Console.WriteLine(dic1[66]); // B
 Console.WriteLine(dic2[66]); // B
 
-[Release 7.0]
 
-// Out declaration (directly)
-
+Out Declaration (directly)
+--------------------------
 sample:
 fun(out var i);
 Console.WriteLine(i); // 1
@@ -130,10 +178,9 @@ sample (using TryParse):
 if(int.TryParse(input, out int result))
 	Console.WriteLine(result);
 
----
 
-// Tuple improvements!
-
+Tuple improvements!
+-------------------
 syntax:
 (<param-1>, <param-2>...<param-N>) <name> = (<value-1>, <value-2>...<value-N>);
 var <name> = (<param-1>: <value-1>, <value-2>: <value-2>... <value-N>: <value-N>);
@@ -145,6 +192,12 @@ Console.WriteLine($"{tuple.Id}. {tuple.Name}"); // 10. Roby
 
 sample (using var):
 var tuple = (Id: 10, Name: "Roby");
+Console.WriteLine($"{tuple.Id}. {tuple.Name}"); // 10. Roby
+
+sample (using same-element-names shortcut)
+var Id = 10;
+var Name = "Roby";
+var tuple = (Id, Name);  // shortcut for (Id: Id, Name: Name)
 Console.WriteLine($"{tuple.Id}. {tuple.Name}"); // 10. Roby
 
 sample (direct): 
@@ -159,10 +212,9 @@ Console.WriteLine($"{tuple.Id}. {tuple.Name}");
 	return (10, "Roby");
 }
 
---- 
 
-// Deconstruction
-
+Deconstruction
+--------------
 reference: 
 Tuple improvements!
 
@@ -181,13 +233,407 @@ sample (discard):
 (string p1, _, _, string p4, _) = ("A", "B", "C", "D", "E");
 Console.WriteLine($"{p1}, {p4}"); // A, D
 
----
+sample (constructor):
+public class Buyer { 
+	public string Name { get; set; }
+	public string Country { get; set; }
+
+	public Buyer(string Name, string Country) => (this.Name, this.Country) = (Name, Country);
+}
 
 
+Pattern Matching
+----------------
+support:
+supports "is" and "switch" expressions.
+
+additions:
+1. switch-cases can have a "when" clause
+2. switch-cases can be of ANY type
+3. switch-case can be null 
+
+sample (case by type):
+int SUM(object value){
+	switch(value){
+		case int num: return num;						// if value is of type int			
+		case float num:	return (int)Math.Round(num);	// if value is of type float			
+		case IEnumerable<int> lst: return lst.Sum();	// if value is of type IEnumerable<int>						
+		case null: return 0;							// if value is null			
+		default: throw new Exception("Unknown type");   // else
+	}
+}
+
+var sum = 0;
+sum += SUM(4);
+sum += SUM(6);
+sum += SUM(new List<int>{ 1,2,3 });
+sum += SUM(new List<int>{ 4 });
+sum += SUM(null);
+sum += SUM(1.1F);
+Console.WriteLine($"the total is {sum}"); // 21
+	
+//SUM("1"); // exception: Unknown type
+
+-
+
+sample (using "when"):
+int GroupPriceByDistance(float distance){
+	switch(distance){
+		case float value when value < 10: return 35;    // 0-10 
+		case float value when value < 20: return 50;	// 10-20	
+		case float value when value < 50: return 110;	// 20-50	
+		case float value when value < 100: return 320;	// 50-100	
+		default: return 500;  							// 100+
+	}
+}
+
+Console.WriteLine($"price for 5 km -> {GroupPriceByDistance(5)}");       // price 35
+Console.WriteLine($"price for 9.3 km -> {GroupPriceByDistance(9.3F)}");  // price 35
+Console.WriteLine($"price for 25 km -> {GroupPriceByDistance(25)}");     // price 110
+Console.WriteLine($"price for 41 km -> {GroupPriceByDistance(41)}");     // price 110
+Console.WriteLine($"price for 70 km -> {GroupPriceByDistance(70)}");     // price 320
+Console.WriteLine($"price for 150 km -> {GroupPriceByDistance(150)}");   // price 500
+
+Local Functions
+---------------
+allows us to declare methods inside the context of another method!
+exists only within the local-scope!
+
+sample:
+void FunA(){	
+	Console.WriteLine("FunA");
+	FunA1(); // use a local function 
+	FunA2();
+	
+	// local functions declarations
+	// FunA1 and FunA2 exist only under the scope of FunA
+	void FunA1(){
+		Console.WriteLine("FunA1");	
+	}
+	void FunA2(){
+		Console.WriteLine("FunA1");
+	}
+}
+
+async Task<int> FunB() {
+    var num = 0;
+
+    num += await Plus10(); // use a local function 
+    num += await Plus20();
+    return num;
+
+	// local functions declarations
+	// Plus10 and Plus20 exist only under the scope of FunB
+    async Task<int> Plus10() {
+        return await Task.Factory.StartNew(() => {
+            return 10;
+        });
+    }
+    async Task<int> Plus20() {
+        return await Task.Factory.StartNew(() => {
+            return 20;
+        });
+    }
+}
 
 
+Expression Body
+---------------
+// constructor, finalizer, and get/set accessors
+public class Dummy {
+    private string _P1;    
+	public Dummy(string V1) => this._P1 = V1;
+	~Dummy() => Console.WriteLine("Finalized");    
+
+	public string P1{
+		get => this._P1;
+		set => this._P1 = value;
+	}
+}
+
+var d = new Dummy("ABCD");
+Console.WriteLine(d.P1);
+d.P1 = "EFGH";
+Console.WriteLine(d.P1);
+
+output:
+ABCD
+EFGH
+Finalized
+
+
+Readable Numeric
+----------------
+use '_' sign as a separator for more readable numerics.
+the sign can be added anywhere within the number. a common use is to separate the thousands.
+
+sample: 
+int thousand = 1_000;
+int million = 1_000_000;
+Console.WriteLine(thousand); // 1000
+Console.WriteLine(million);	 // 1000000
+
+
+Async Main
+----------
+static async Task<int> Main() {    
+    return await DoAsyncWork();
+}
+
+
+Default Literal Expressions
+---------------------------
+use the 'default' keyword to set a default value to a literal expression.
+
+sample:
+Func<int, bool> whereClause = default;	
+var numbers = new List<int>{ 1, 2, 3, 4, 5, 6 };	
+	
+whereClause = x => x <= 3;	
+var result = numbers.Where(whereClause);
+
+-
+
+// using tuple	
+Func<(int Id, string Name), bool> whereClause = default;	
+whereClause = x => x.Id <= 3;	
+var items = new List<(int, string)>{
+	(1, "A"),
+	(2, "B"),
+	(3, "C"),
+	(4, "D"),
+	(5, "E"),
+	(6, "F")
+};
+	
+var result = items.Where(whereClause);
+
+private protected
+-----------------
+new access modifier. 
+protected in same assembly AND private in other assmbly!
+also see 'C# Access Modifiers'
+
+
+Conditional ref 
+---------------
+
+sample:
+int[] numbers = new int[] { 38, 8, 2 };;
+int[] defaultNumbers = new int[]{ 1, 2, 3, 4 };
+ref var r = ref (numbers != null ? ref numbers : ref defaultNumbers); // r is a reference to numbers
+
+sample:
+int[] numbers = null;
+int[] defaultNumbers = new int[]{ 1, 2, 3, 4 };
+ref var r = ref (numbers != null ? ref numbers : ref defaultNumbers); // r is a reference to defaultNumbers
+
+
+"in" parameter
+--------------
+The in keyword causes arguments to be passed by reference.
+the called method can't change an "in" parameter - it is readonly within the method!
+any attempt to modify an "in" parameter will throw an error 
+
+ref vs out vs in:
+- "ref" MAY (or may not) be modified within the called method.
+- "out" MUST be modified within the called method.
+- "in" CANNOT be modified within the called method (serves as a readonly parameter).
+
+sample:
+void Fun1(in int p1) { 
+	p1 = 6; // exception! Cannot assign to variable 'in int' because it is a readonly variable
+}
+
+int n1= 5;
+Fun1(n1); 
+Fun1(in n1);
+
+
+Switch expression
+-----------------
+syntax:
+<variable> switch
+{
+    <case> => <expression>,
+    <case> => <expression>,      
+    _ => <expression>,  // default
+};
+
+sample:
+public enum eLetters { A, B, C, D }
+
+public class ClassA { }
+public class ClassB { }
+public class ClassC { }
+public class ClassD { }
+
+var letter = eLetters.B;
+letter switch
+{
+    eLetters.A => new ClassA(),
+    eLetters.B => new ClassB(),
+    eLetters.C => new ClassC(),
+    eLetters.D => new ClassD(),        
+    _ => throw new Exception("some error"),
+};
+
+-
+
+sample (using property):
+public class Buyer { 
+	public string Name { get; set; }
+	public string Country { get; set; }
+
+	public Buyer(string Name, string Country){
+		this.Name = Name;
+		this.Country = Country;
+	}
+}
+
+var buyer = new Buyer("Roby", "Israel");
+buyer switch
+{
+    { Country: "Israel" } => 0.17F,
+    { Country: "Germany" } => 0.19F,
+    { Country: "Russia" } => 0.2F,        
+    _ => 0F
+};
+
+-
+
+sample (using tuple):
+string v1 = "A", v2 = "B";
+(v1, v2) switch
+{
+    ("A", "A") => "both A",
+    ("A", "B") => "v1 is A and v2 is B",
+    ("B", "A") => "v1 is B and v2 is A",
+    ("B", "B") => "both B",    
+    (_, _) => "default"
+};
+
+-
+
+sample (using when clause):
+buyer switch
+{
+    var (Country) when Country = "Israel" => 0.17F,
+	var (Country) when Country = "Germany" => 0.19F,
+	var (Country) when Country = "Russia" => 0.2F,        
+    _ => 0F
+};
+
+
+"using" declaration
+-------------------
+a new shortcut to use unmanaged resources. use the "using" keyword without the wrapping brackets  
+to refer the end-of-block as the end of the resource scope which tells the compiler to dispose it. 
+
+using var file = new StreamWriter("1.txt");
+...
+...
+// file is disposed here
+
+
+Static Local Functions
+----------------------
+new support for static local function.
+
+reference:
+Local Functions
+
+sample:
+int Main() 
+{	
+    return Add(7, 5);
+    static int Add(int left, int right) => left + right;	
+}
+
+
+Asynchronous streams
+--------------------
+
+sample:
+using System.Collections.Generic;
+
+public async IAsyncEnumerable<int> Sequence1() {
+    for (var i = 0; i < 20; i++) {
+        await Task.Delay(100);
+        yield return i;
+    }
+}
+
+await foreach (var n in Sequence1()) {
+    Console.WriteLine(n);
+}
+
+"^" Index From End operator
+---------------------------
+^n = arr.Length - n
+
+var letters = new string[] { 
+	"A",  // Index 0, ^6
+	"B",  // Index 1, ^5
+	"C",  // Index 2, ^4
+	"D",  // Index 3, ^3
+	"E",  // Index 4, ^2
+	"F"	  // Index 5, ^1
+};
+
+// letters[^1] = F
+Console.WriteLine($"first item: {letters[0]}, last item: {letters[^1]}");
+
+".." Range operator 
+-------------------
+returns an array 
+
+syntax:
+..                   // all
+..<index>			 // from 0 to index
+<index>..			 // from index to end
+<index>..<index>     // range
+
+entire range:
+0..arr.Length
+
+sample:
+var bcd = letters[1..4];  // B,C,D
+var ef = letters[^2..^0]; // E,F 
+var all = letters[..];    // ALL
+var def = letters[^3..];  // D,E,F
+var ab = letters[..2];    // A,B
+
+Range variable
+--------------
+reference:
+".." Range operator 
+
+syntax:
+Range <name> = <range>
+
+sample:
+Range top4range = 0..4;
+var top4 = letters[top4range]; // A,B,C,D
+
+"??=" operator
+--------------
+set value ONLY if the variable is NULL!
+
+syntax:
+<variable> ??= <value>
+
+List<int> lst = null;
+lst ??= new List<int>();
+
+string str = null;
+str ??= "Hello";
+str ??= "World";
+Console.WriteLine(str); // Hello
+
+char? c = null;
+c ??= 'A';
+c ??= 'B';
+Console.WriteLine(c); // A
 
 ------------------------------------------------------------
-
-// TODO 
-obj?.name

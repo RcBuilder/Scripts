@@ -1,0 +1,31 @@
+Mutex using Sample
+------------------
+
+using System.Threading;
+
+static void Main(string[] args)
+        {
+            var mutex = new Mutex(false, "sample_mutex_key");
+
+            mutex.WaitOne(); // enter the mutex scope
+
+            Console.WriteLine("working ....");
+            Thread.Sleep(5000);
+
+            Console.WriteLine("press to release");
+            Console.ReadKey();
+
+            mutex.ReleaseMutex(); // exit the mutex scope
+        }
+
+---
+
+System-wide!  
+in the example above, Only a single thread/ process could enter the mutex scope at any given moment! 
+other processes will have to wait till one leaves the mutex scope.
+
+test: 
+1. build project a duplicate the execution file twice
+2. (try to) execute them all together 
+3. the first one will be executed and enter the mutex scope whereas the second one will wait 
+   till the first one releases the mutex.

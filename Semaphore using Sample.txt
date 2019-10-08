@@ -1,0 +1,31 @@
+Semaphore using Sample
+----------------------
+
+using System.Threading;
+
+static void Main(string[] args)
+        {
+            var semaphore = new Semaphore(3, 3, "sample_semaphore_key");
+            
+            semaphore.WaitOne(); // enter the semaphore scope
+
+            Console.WriteLine("working ....");
+            Thread.Sleep(5000);
+
+            Console.WriteLine("press to release");
+            Console.ReadKey();
+
+            semaphore.Release(); // exit the semaphore scope
+        }
+
+---
+
+System-wide!  
+in the example above, Only 3 threads/ processes could enter the semaphore scope at any given moment! 
+other processes will have to wait till others leave the semaphore scope.
+
+test: 
+1. build project a duplicate the execution file 4 times 
+2. execute them all together 
+3. the first 3 will be executed and enter the semaphore scope whereas the 4th one will wait 
+   till one of the others is released   

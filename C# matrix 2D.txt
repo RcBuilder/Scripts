@@ -1,0 +1,44 @@
+matrix 2D
+---------
+
+code:
+var matrix2D = new int[3,2];
+Console.WriteLine(matrix2D.Length);  // (3*2) 6
+Console.WriteLine(matrix2D.GetLength(0));  // 3
+
+-----
+
+view:
+an array of size 3 where every item is an array of size 2
+
+[[0,0], [0,0], [0,0]]
+
+  
+0 | 0
+-----
+0 | 0
+-----
+0 | 0
+
+------------------------------
+
+code:
+matrix2D[0,0] = 1; // Row 0 Column 0
+matrix2D[0,1] = 2; // Row 0 Column 1
+matrix2D[1,0] = 3; // Row 1 Column 0 
+matrix2D[1,1] = 4; // Row 1 Column 1
+matrix2D[2,0] = 5; // Row 2 Column 0
+matrix2D[2,1] = 6; // Row 2 Column 1
+Console.WriteLine(matrix2D);
+
+-----
+
+view:
+[[1,2], [3,4], [5,6]]
+
+  
+1 | 2
+-----
+3 | 4
+-----
+5 | 6

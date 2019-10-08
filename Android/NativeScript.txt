@@ -7777,7 +7777,7 @@ create a P12 file from iOS Certificate:
 - load the certificate file (.cer file)
 - provide a password > save
 
-connect a P!2 file to an app:
+connect a P12 file to an app:
 - open 'Sidekick APP'
 - open the project 
 - (tab) connected devices > settings (cogwheel icon)

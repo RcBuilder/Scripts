@@ -1,0 +1,42 @@
+matrix 3D
+---------
+
+code:
+var matrix3D = new int[3,2,2];
+Console.WriteLine(matrix3D.Length);  // (3*2*2) 12
+Console.WriteLine(matrix3D.GetLength(0));  // 3
+
+-----
+
+view:
+an array of size 3 where every item is an array of size 2 where every item is an array of 2
+
+[[[0,0],[0,0]], [[0,0],[0,0]], [[0,0],[0,0]]]
+
+  
+[0,0] | [0,0]
+-------------
+[0,0] | [0,0]
+-------------
+[0,0] | [0,0]
+
+------------------------------
+
+code:
+matrix3D[1,0,0] = 1; // Row 1 Column 0 > Column 0
+matrix3D[0,1,0] = 2; // Row 0 Column 1 > Column 0 
+matrix3D[0,0,1] = 3; // Row 0 Column 0 > Column 1
+Console.WriteLine(matrix3D);
+
+-----
+
+view:
+[[[0,3],[2,0]], [[1,0],[0,0]], [[0,0],[0,0]]]
+
+  
+[0,3] | [2,0]
+-------------
+[1,0] | [0,0]
+-------------
+[0,0] | [0,0]
+

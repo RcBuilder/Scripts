@@ -103,7 +103,7 @@ function ProcessByCondition1(){
     var costFilter = campaignBudget * 10; // * 1000000;
     
     var report = AdWordsApp.report(
-      'SELECT Id ' +  // Id, Criteria, CostPerConversion, Cost, Conversions
+      'SELECT Id, AdGroupId ' +  // Id, Criteria, CostPerConversion, Cost, Conversions
       'FROM KEYWORDS_PERFORMANCE_REPORT ' +
       'WHERE Status = ENABLED ' +  
       'AND IsNegative = FALSE ' + 
@@ -118,7 +118,7 @@ function ProcessByCondition1(){
       var row = rows.next();        
       result.push({
         keywordId: row['Id'],
-        adGroupId: adGroupId
+        adGroupId: row['AdGroupId']
       });
     }
   }
@@ -157,7 +157,7 @@ function ProcessByCondition2(){
     var costFilter = parseInt(avarageCPA) * 3; // * 1000000;
     
     var report = AdWordsApp.report(
-      'SELECT Id ' +  // Id, Criteria, CostPerConversion, Cost, Conversions
+      'SELECT Id, AdGroupId ' +  // Id, Criteria, CostPerConversion, Cost, Conversions
       'FROM KEYWORDS_PERFORMANCE_REPORT ' +
       'WHERE Status = ENABLED ' +  
       'AND IsNegative = FALSE ' + 
@@ -172,7 +172,7 @@ function ProcessByCondition2(){
       var row = rows.next();        
       result.push({
         keywordId: row['Id'],
-        adGroupId: adGroupId
+        adGroupId: row['AdGroupId']
       });
     }
   }

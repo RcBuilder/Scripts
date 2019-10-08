@@ -1,0 +1,40 @@
+var LABEL_NAME = 'LowQualityScore';
+
+function main() {
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + LABEL_NAME + '"').get();
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+    
+    MccApp.select(account);
+    ProcessAccount();
+    
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(){
+  var keywords = AdsApp.keywords()
+  .withCondition('Status = ENABLED')
+  .withCondition('AdGroupStatus = ENABLED')
+  .withCondition('CampaignStatus = ENABLED')  
+  .get();
+  
+  while(keywords.hasNext()){
+    var keyword = keywords.next();
+
+    var firstPageCPC = keyword.getFirstPageCpc();  
+    if(!firstPageCPC) continue;
+
+    var cpc = keyword.bidding().getCpc();
+
+    if(cpc < firstPageCPC)
+    {
+      var newCpc = firstPageCPC * 1.05;
+      keyword.bidding().setCpc(newCpc);
+      Logger.log('%s > bid has changed from %s to %s', keyword.getText(), cpc, newCpc);
+    }
+  }
+}

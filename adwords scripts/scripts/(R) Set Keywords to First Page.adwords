@@ -1,0 +1,23 @@
+function main() {
+  var keywords = AdsApp.keywords()
+  .withCondition('Status = ENABLED')
+  .withCondition('AdGroupStatus = ENABLED')
+  .withCondition('CampaignStatus = ENABLED')  
+  .get();
+
+  while(keywords.hasNext()){
+    var keyword = keywords.next();
+    
+    var firstPageCPC = keyword.getFirstPageCpc();  
+    if(!firstPageCPC) continue;
+    
+    var cpc = keyword.bidding().getCpc();
+    
+    if(cpc < firstPageCPC)
+    {
+      var newCpc = firstPageCPC * 1.05;
+      keyword.bidding().setCpc(newCpc);
+      Logger.log('%s > bid has changed from %s to %s', keyword.getText(), cpc, newCpc);
+    }
+  }
+}

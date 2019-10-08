@@ -1,0 +1,23 @@
+C# working with bases Bin Hex
+-----------------------------
+
+0b = binary based (16)
+0x = hexadecimal based (2)
+
+---
+
+use base prefix:
+byte a = 0b00001011;
+Console.WriteLine(a); // 11
+
+byte a = 0x10;
+Console.WriteLine(a); // 16
+
+---
+
+change base:
+Convert.To..(<value>, <base>)
+
+sample:
+Console.WriteLine(Convert.ToString(232, 2).PadLeft(32, '0'));  // 11101000
+Console.WriteLine(Convert.ToInt32("11101000", 2));  // 232
