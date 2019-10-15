@@ -1,0 +1,145 @@
+var EMAIL = 'rcbuilder@walla.com';
+var DATE_RANGE = 'LAST_7_DAYS';
+var ACCOUNT_LABEL = 'LowQualityScore';
+
+function main() {
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + ACCOUNT_LABEL + '"').get();
+  
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    
+    Logger.log('### account: %s ###', account.getName());  
+    
+    MccApp.select(account);
+    ProcessAccount();
+    
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(){
+  var htmlBuilderService = HTMLBuilderService();
+  
+  /*
+  var hasLabels = CheckAccountHasLabels();
+   if(!hasLabels){
+    Logger.log('no labels [%s] found', 'Primary, Secondary, Tertiary');
+    return;
+  }
+  */
+  
+  htmlBuilderService.add('<h1 style="direction:rtl;text-align:right;">' + AdWordsApp.currentAccount().getName() + '</h1>');
+  htmlBuilderService.add('<table cellspacing="10" cellpadding="10" border="1" style="direction:rtl;text-align:right;">');
+  htmlBuilderService.add('<tr>'+                         
+                         '<th>קבוצה</th>'+
+                         '<th>מילה</th>'+
+                         '<th>סטטוס</th>'+                         
+                         '<th>מחיר</th>'+                         
+                         '<th>מיקום</th>'+
+                         '</tr>');
+  
+  var found = CheckKeywords(htmlBuilderService);
+  Logger.log('%s KWs found', found);
+  
+  htmlBuilderService.add('</table>');
+  
+  if(found == 0)
+  {
+    Logger.log('no KWs found!!');
+    return;
+  }  
+    
+  try{                 
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Keywords Positioning Label Checker', '', {
+      htmlBody: htmlBuilderService.get()
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+function CheckAccountHasLabels(){        
+  return HELPER.containsLabel('Primary') || HELPER.containsLabel('Secondary') || HELPER.containsLabel('Tertiary');  
+}
+
+function CheckKeywords(htmlBuilderService){
+  var count = 0;
+  
+  var report = GetReport(DATE_RANGE);  
+  var rows = report.rows();
+  while(rows.hasNext()){
+    var row = rows.next();
+    var keywordText = row['Criteria'];
+    var keywordLabels = [];
+    try{
+      keywordLabels = JSON.parse(row['Labels']);
+    }
+    catch(e){}
+        
+    var skeywordLabels = '[' + keywordLabels.join() + ']';
+    Logger.log('keyword %s > %s', keywordText, skeywordLabels);  
+    
+    var hasPrimaryLabel = keywordLabels.indexOf('Primary') > -1;
+    var hasSecondaryLabel = keywordLabels.indexOf('Secondary') > -1;
+    var hasTertiaryLabel = keywordLabels.indexOf('Tertiary') > -1;
+    
+    var numOfLabels = (hasPrimaryLabel ? 1 : 0) + (hasSecondaryLabel ? 1 : 0) + (hasTertiaryLabel ? 1 : 0);     
+    if(numOfLabels == 1)  // KW has exactly 1 positioning label - skip
+      continue;    
+    
+    htmlBuilderService.add('<tr>'+
+                         '<td>' + row['AdGroupName'] + '</td>'+
+                         '<td>' + keywordText + '</td>'+
+                         '<td>' + numOfLabels == 0 ? 'ללא תגיות מיקום' : 'ריבוי תגיות מיקום' + '</td>'+                                                  
+                         '<td>' + row['AverageCpc'] + '</td>'+
+                         '<td>' + row['AveragePosition'] + '</td>'+
+                         '</tr>');
+      
+    count++;
+  }
+  
+  return count;
+}
+
+function GetReport(DATE_RANGE){  
+  return AdWordsApp.report(
+    'SELECT Id, AdGroupName, Criteria, AverageCpc, AveragePosition, Labels ' +
+    'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+    'WHERE CampaignStatus = ENABLED ' +
+    'AND AdGroupStatus = ENABLED ' +
+    'AND Status = ENABLED ' +
+    'AND IsNegative = FALSE ' +           
+    'AND Impressions > 0 ' +
+    'DURING ' + DATE_RANGE);
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}
+
+var HELPER = {
+  containsLabel: function (labelName) {
+    return AdWordsApp.labels()
+    .withCondition('Name = "' + labelName + '"')
+    .get()
+    .hasNext();
+  },
+  getLabelId: function (labelName) {
+    return AdWordsApp.labels()
+    .withCondition('Name = "' + labelName + '"')
+    .get()
+    .next().getId();
+  }
+}

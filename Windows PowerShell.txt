@@ -1,0 +1,14 @@
+Windows PowerShell
+------------------
+
+
+
+
+
+
+
+
+
+// TODO
+https://www.youtube.com/watch?v=5I_iDp5WLt8
+https://www.quora.com/What-is-the-difference-between-CMD-and-Powershell

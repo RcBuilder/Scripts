@@ -1,0 +1,95 @@
+C# 8.0 Interface Extra Capabilities
+-----------------------------------
+- supports methods with implementations.
+- supports default implementation which can be override.
+- supports static methods and members.
+- supports access modifiers (private, public etc.)
+
+---
+
+reminder: 
+a class doesn't inherit members from its interfaces! 
+
+this means that we have to Cast the class to the interface in order to 
+get an access to the interface's members. 
+
+sample:
+ICustomer iC1 = c1;
+Console.WriteLine($"{iC1.ComputeDiscount()}");
+
+---------------------
+
+// Interfaces
+public interface ICustomer{
+	List<IOrder> Orders { get; set; }
+	string Name { get; }	
+	
+	public decimal ComputeDiscount() => ICustomer.DefaultDiscount(this);	// method with default implementation	
+		
+    // static members and methods
+	private static decimal SumThreshold = 50;   
+	public static void SetDiscountThresholds(decimal SumThreshold) => ICustomer.SumThreshold = SumThreshold;
+	
+	protected static decimal DefaultDiscount(ICustomer customer){		
+		if(this.Orders.Sum() > SumThreshold) return 0.1;  // default implementation - 10% discount for customers with total sum of 50
+		return 0.0;
+	}	
+}
+
+public interface IOrder{	
+    decimal Cost { get; }
+}
+
+---
+
+// Interface Implementations 
+public class CustomerTypeA : ICustomer {
+	public List<IOrder> Orders { get; set; }
+	public string Name { get; }	
+	
+	public CustomerTypeA(string name) => (this.Name, this.Orders) = (Name, new List<IOrder>()); 
+	
+	// override the default implementation
+	public decimal ComputeDiscount(){
+		if(this.Orders.Count() > 3) return 0.2; // override implementation - 20% discount for customers with more than 3 orders
+		return ICustomer.DefaultDiscount(this);
+	}
+}
+
+public class CustomerTypeB : ICustomer {
+	public List<IOrder> Orders { get; set; }
+	public string Name { get; }
+	
+	public CustomerTypeB(string name) => (this.Name, this.Orders) = (Name, new List<IOrder>());
+}
+
+public class Order : IOrder{
+	public decimal Cost { get; }
+	
+	public Order(decimal Cost) => this.Cost = Cost;
+}
+
+---
+
+// Using
+void Main()
+{
+	var c1 = new CustomerTypeA("c1");
+	var c2 = new CustomerTypeB("c2");	
+	
+	c1.Orders.Add(new Order(300));
+	c1.Orders.Add(new Order(200));
+	c1.Orders.Add(new Order(120));
+	c1.Orders.Add(new Order(80));
+	
+	c2.Orders.Add(new Order(50));
+	
+	// Cast as ICustomer to get an access to the interface members 
+	// reminder: a class doesn't inherit members from its interfaces
+	ICustomer iC1 = c1;
+    Console.WriteLine($"{iC1.ComputeDiscount()}");
+	
+	ICustomer iC2 = c2;
+    Console.WriteLine($"{iC2.ComputeDiscount()}");
+}
+

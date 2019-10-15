@@ -1,0 +1,56 @@
+SQL CMD - xp_cmdshell
+---------------------
+a built-in procedure to run the command line (cmd)
+
+syntax:
+exec xp_cmdshell <command>
+
+---
+
+notes:
+also supports powershell commands 
+(see 'Windows PowerShell')
+
+---
+
+enable:
+use master;  
+
+exec sp_configure 'show advanced option', 1;
+RECONFIGURE;
+
+exec sp_configure 'xp_cmdshell', 1;
+RECONFIGURE;
+
+---
+
+samples:
+
+// show file list
+// use /s for sub-directories
+// use /b for stripped result (no information headers)
+exec xp_cmdshell 'dir "d:\*.txt" /b';  
+
+// copy a file
+exec xp_cmdshell 'copy d:\source.txt d:\source_copy.txt';  
+
+// output a folder file-list to a new file (using dir command)
+// including sub-folders (/s option)
+// e.g -> send all file names in folder <d> to dirResult text file
+exec xp_cmdshell 'dir "d:\" /s/b > c:\dirResult.txt' 
+
+// get the caller service
+exec xp_cmdshell 'whoami.exe';
+
+// execute a program
+// note! no UI will be presented but we could see the service is running using the task-manager
+exec xp_cmdshell 'd:\myProgram.exe';
+
+---
+
+// load file list into an sql table
+// e.g -> read all files from folder <d> and it's sub-folders into #files temporary table
+create table #files([path] nvarchar(Max))
+insert into #files
+	exec xp_cmdshell 'dir "d:\" /s/b'
+select * from #files

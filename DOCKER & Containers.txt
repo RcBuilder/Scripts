@@ -1,0 +1,132 @@
+***** DOCKER & Containers *****
+*******************************
+
+what is a Container?
+--------------------
+a unit of software which includes code and dependencies.
+a Container-image is the executable package which generates the Container.
+
+what is a Docker?
+-----------------
+aka Docker-Engine. 
+available for linux and windows. 
+the engine that runs and manages the containers. 
+
+in linux the docker is installed directly on the OS whereas in windows we need a to 
+install it on linux VM (use VirtualBox to create one).
+
+Dockerfile
+----------
+an instructions-file to build a container-image, read by the docker which uses the provided commands to assemble a container-image
+which later can be used for building a container.
+the Dockerfile is a textual file with CLI commands.
+
+Docker-Compose
+--------------
+a tool for composing multi-containers based on yaml file commands.
+it uses a .yml file (YAML) to define the way it should construct the containers, references to the relevant
+dockerFiles, communication between containers, the behaviour of each container and etc.
+in short - a single command to create and run all the services!
+
+commands:
+https://docs.docker.com/compose/reference/
+> docker-compose <command>
+
+properties:
+https://docs.docker.com/compose/compose-file/
+
+sample (basic): 
+// docker-compose.yml
+hello-world-container
+ image: hello-world
+
+
+sample (advanced): 
+// docker-compose.yml
+version: '3'
+services:
+  web:
+    build: .
+    ports:
+    - "5000:5000"
+    volumes:
+    - .:/code
+    - logvolume01:/var/log
+    links:
+    - redis
+  redis:
+    image: redis
+volumes:
+  logvolume01: {}
+
+
+Sources
+-------
+- docker Hub:
+  https://hub.docker.com/
+
+- hello-world container-image
+  https://hub.docker.com/_/hello-world
+
+- installation info:
+  https://docs.docker.com/install/linux/docker-ce/ubuntu/
+  https://docs.docker.com/compose/install/
+  
+Commands
+--------
+> docker --version  		// docker-ending version 
+> docker images 		// docker-images list
+> docker ps			// active containers list
+> docker ps -a			// containers list
+> docker rm <container>		// remove a docker-container
+> docker rmi <image>		// remove a docker-image (must remove all referencing containers first)
+> docker start <container>	// start a container
+> docker logs <container>	// console output of the container app
+> docker logs -f <container>	// console output of the container app (live log)
+> docker build <path|url> 	// build a container-image from a Dockerfile
+> docker build . 		// build a container-image from a Dockerfile in the current folder
+-
+> docker-compose --version	// docker-compose version
+> docker-compose up -d		// execute the config yml file
+-
+> nano <file>			// a text editor to edit/ create a file
+
+Containers vs Virtual-Machines
+------------------------------
+- Container is an abstraction at the app layer, VM is an abstraction of physical hardware.
+- Container is package of code and dependencies, VM is a server within the server.  
+- Container can be added to a physical server or a VM, a VM should be added to a physical server.
+- Container uses the Host-OS which is shared accross all Containers within the server/ VM, VM includes its own OS Copy.
+- Container images takes a few MBs, a VHD takes up tens of GBs.
+- Containers can be defined to communicate together through the Docker engine. one container can be served as dependency to other container.
+
+Install the Docker-Engine 
+-------------------------
+- set-up the docker-repository: (required only once)
+  > sudo apt-get update
+  > sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg-agent \
+    software-properties-common  
+  > curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+  > sudo add-apt-repository \
+    "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+    $(lsb_release -cs) \
+    stable"
+
+- install the latest docker engine: 
+  > sudo apt-get update
+  > sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+- install the Docker-Compose:
+  > sudo curl -L https://github.com/docker/compose/releases/download/<version>/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
+  > sudo chmod +x /usr/local/bin/docker-compose   // permissions
+
+- solving the 'permission denied' to connect the docker-daemon socket 
+  > sudo usermod -a -G docker $USER
+
+- reboot
+  > sudo reboot
+

@@ -37,6 +37,7 @@
 - "^" Index From End operator
 - ".." Range operator 
 - "??=" operator
+- Interfaces
 *************************
 
 
@@ -635,5 +636,18 @@ char? c = null;
 c ??= 'A';
 c ??= 'B';
 Console.WriteLine(c); // A
+
+Interfaces
+----------
+see 'C# 8.0 Interface Extra Capabilities'
+
+new capabilities:
+- supports methods with implementations.
+- supports default implementation which can be override.
+- supports static methods and members.
+- supports access modifiers (private, public etc.)
+
+
+
 
 ------------------------------------------------------------

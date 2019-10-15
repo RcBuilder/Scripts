@@ -1,3 +1,4 @@
+var EMAIL = 'avishay@logos.co.il';
 var LABEL_NAME = 'LowQualityScore';
 
 function main() {
@@ -16,12 +17,22 @@ function main() {
 }
 
 function ProcessAccount(){
+  var htmlBuilderService = HTMLBuilderService();
+  htmlBuilderService.add('<h1 style="direction:rtl;text-align:right;">' + AdWordsApp.currentAccount().getName() + '</h1>');
+  htmlBuilderService.add('<table cellspacing="10" cellpadding="10" border="1" style="direction:rtl;text-align:right;">');
+  htmlBuilderService.add('<tr>'+                         
+                         '<th>מילה</th>'+                         
+                         '<th>מחיר קודם</th>'+                         
+                         '<th>מחיר חדש</th>'+
+                         '</tr>');
+  
   var keywords = AdsApp.keywords()
   .withCondition('Status = ENABLED')
   .withCondition('AdGroupStatus = ENABLED')
   .withCondition('CampaignStatus = ENABLED')  
   .get();
   
+  var changes = 0;
   while(keywords.hasNext()){
     var keyword = keywords.next();
 
@@ -31,10 +42,49 @@ function ProcessAccount(){
     var cpc = keyword.bidding().getCpc();
 
     if(cpc < firstPageCPC)
-    {
+    {      
+      var kwText = keyword.getText();
       var newCpc = firstPageCPC * 1.05;
       keyword.bidding().setCpc(newCpc);
-      Logger.log('%s > bid has changed from %s to %s', keyword.getText(), cpc, newCpc);
+      Logger.log('%s > bid has changed from %s to %s', kwText, cpc, newCpc);
+      
+      changes++;
+      htmlBuilderService.add('<tr>'+                         
+                           '<td>' + kwText + '</td>'+                         
+                           '<td>' + cpc.toFixed(2) + '</td>'+                         
+                           '<td>' + newCpc.toFixed(2) + '</td>'+
+                         '</tr>');
     }
   }
+  
+  htmlBuilderService.add('</table>');
+  
+  if(changes == 0)
+  {
+    Logger.log('no changes!!');
+    return;
+  }  
+    
+  try{                 
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'First-Page Bid Adapter', '', {
+      htmlBody: htmlBuilderService.get()
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
 }

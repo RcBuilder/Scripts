@@ -1,0 +1,28 @@
+Google Fonts
+------------
+
+source:
+https://fonts.google.com/
+https://developers.google.com/fonts/docs/getting_started
+
+implementation (steps):
+1. add a 'link' css tag to 'fonts.googleapis.com' and choose the font families to import (pipe-seperated).
+2. add css rule using the imported font family. 
+3. (optional) add more style rules (shadow, size, etc.)
+
+parameters:
+- family   // a list of font families to import (pipe-seperated)
+- display  // <swap|auto> how to act when the font is unavailable. 
+- subset   // to load a specific version of the requested font (Latin, Cyrillic, Greek, etc.)
+- text     // optimization, in cases when only a few letters are needed, import only them.  
+- effect   // font effects
+
+sample:
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Tangerine|Inconsolata">
+<style>
+   body {
+        font-family: 'Tangerine', serif;
+        font-size: 48px;
+   }
+</style>
+
