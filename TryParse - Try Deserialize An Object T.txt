@@ -1,0 +1,25 @@
+TryParse - Try Deserialize An Object T
+--------------------------------------
+
+static bool TryParse<T>(string strJson, out T o){
+    try{	
+	o = JsonConvert.DeserializeObject<T>(strJson);
+        return true;
+    }
+    catch{
+         o = default(T);
+         return false;
+    }
+}
+
+
+---
+
+var RawData = "...";
+
+ClientForm form;
+var success = TryParse<ClientForm>(RawData, out form);
+
+
+IEnumerable<ClientForm> arrForms;
+var successArray = TryParse<IEnumerable<ClientForm>>($"[{RawData}]", out arrForms);

@@ -1,0 +1,10 @@
+TRIM
+----
+<string> TRIM(<input>)
+<string> TRIM(<character-set> FROM <input>)
+
+SELECT TRIM('  test  ') -- test
+SELECT TRIM('/  test  /') -- /  test  /
+SELECT TRIM('/ ' FROM '/  test  /') -- test
+SELECT TRIM('#' FROM '####test####') -- test
+SELECT TRIM(',/# ' FROM '#  test  /,') -- test

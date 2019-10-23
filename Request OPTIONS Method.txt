@@ -1,0 +1,15 @@
+Request OPTIONS Method
+----------------------
+in some cases A browser sends an pre-flight http OPTIONS request header 
+to verify that the server is willing to receive the request. 
+
+those cases occur in one of the following scenarios: 
+- 
+- 
+
+$.ajax({
+    type: "POST",
+    url: 'http://domain.com',
+    data: { a:1, b: 2},
+    contentType : 'application/json'
+});

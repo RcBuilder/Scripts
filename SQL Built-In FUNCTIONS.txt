@@ -11,6 +11,7 @@ LOWER
 UPPER
 LTRIM
 RTRIM
+TRIM
 REVERSE
 QUOTENAME
 CHARINDEX
@@ -178,6 +179,19 @@ right-trim
 removes trailing spaces from a string.
 
 SELECT RTRIM('   abc   ') -- .   abc 
+
+TRIM
+----
+<string> TRIM(<input>)
+<string> TRIM(<character-set> FROM <input>)
+
+---
+
+SELECT TRIM('  test  ') -- test
+SELECT TRIM('/  test  /') -- /  test  /
+SELECT TRIM('/ ' FROM '/  test  /') -- test
+SELECT TRIM('#' FROM '####test####') -- test
+SELECT TRIM(',/# ' FROM '#  test  /,') -- test
 
 REVERSE
 -------

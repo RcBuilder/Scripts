@@ -1,0 +1,32 @@
+Logging using RAISERROR
+-----------------------
+when an immediate log is required, use RAISERROR instead of PRINT
+to log the message without a delay
+
+RAISERROR ('Some Message...', 0, 1) WITH NOWAIT
+
+-- 
+
+test:
+WAITFOR DELAY '00:00:03.00'
+PRINT 'MSG-1'
+
+WAITFOR DELAY '00:00:03.00'
+PRINT 'MSG-2'
+
+result:
+both 'MSG-1' and 'MSG-2' messages will be printed after 6 seconds! 
+
+- VS - 
+
+test:
+WAITFOR DELAY '00:00:03.00'
+RAISERROR ('MSG-1', 0, 1) WITH NOWAIT
+
+WAITFOR DELAY '00:00:03.00'
+RAISERROR ('MSG-2', 0, 1) WITH NOWAIT
+
+result:
+as expected! 'MSG-1' will be printed after 3 seconds whereas 'MSG-2' after 6 seconds.
+
+

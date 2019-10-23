@@ -1,0 +1,11 @@
+SQL Kill Session
+----------------
+
+syntax:
+KILL <SessionId>
+
+sample:
+KILL 53;  
+
+tip:
+use sp_who2 to find blocking sessions etc.

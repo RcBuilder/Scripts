@@ -216,6 +216,23 @@ var result = conn.Query<string>("sp_Names_ByLength_Get"
 
 -------
 
+public IEnumerable<RawDataItem> GetData(int top = 1000) {
+    using (var conn = new SqlConnection(connStr))
+    {
+        var query = @"SELECT TOP(@top) * FROM VisitorsRawDataArchive WHERE IsDataValid = 1";
+        return conn.Query<RawDataItem>(query, param: new { top }, buffered: true);
+    }
+}
+
+public long GetBrandIdByVisitor(string VisitorId) {
+    using (var conn = new SqlConnection(connStr)) {
+        var query = @"SELECT TOP 1 BrandId FROM visitors WHERE Id = @VisitorId";
+        return conn.Query<long>(query, param: new { VisitorId }).SingleOrDefault();
+    }
+}
+
+-------
+
 [multiple result-sets]
 
 

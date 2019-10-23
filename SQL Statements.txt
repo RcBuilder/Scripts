@@ -1,6 +1,5 @@
 CREATE TABLE
 ------------
-
 syntax:
 CREATE TABLE <tableName>(<column-1>, <column-2>...<column-N>)
 
@@ -14,7 +13,6 @@ CREATE TABLE WebsiteFormsStats(
 
 DROP TABLE
 ----------
-
 syntax:
 DROP TABLE <tableName>
 
@@ -23,7 +21,6 @@ DROP TABLE WebsiteFormsStats
 
 ALTER TABLE
 -----------
-
 syntax:
 ALTER TABLE <tableName> DROP CONSTRAINT <constraintName-1>, <constraintName-2>...<constraintName-N>
 ALTER TABLE <tableName> DROP COLUMN <columnName-1>, <columnName-2>...<columnName-N>
@@ -55,7 +52,6 @@ CREATE TYPE [dbo].[MyType1] AS TABLE(
 
 CREATE INDEX
 ------------
-
 syntax:
 CREATE <CLUSTERED|NONCLUSTERED> INDEX <indexName>
 ON <tableName>(<columnName-1>, <columnName-2>...<columnName-N>)
@@ -64,4 +60,76 @@ INCLUDE(<columnName-1>, <columnName-2>...<columnName-N>)
 sample:
 CREATE NONCLUSTERED INDEX IX_MyColumn1_MyColumn2
 ON MyTable1(MyColumn1, MyColumn2)
+
+CREATE FUNCTION (SCALAR)
+------------------------
+synatx:
+CREATE FUNCTION <functionName> (
+   <param-1>, 
+   <param-2>,
+   ...
+   ...
+   <param-N>
+)
+RETURNS <type>
+AS
+BEGIN
+  ...
+  ...
+END 
+
+---
+
+sample:
+CREATE FUNCTION [dbo].[fn_DeviceFromAgent] (
+	@UserAgent NVARCHAR(MAX)
+)
+RETURNS VARCHAR(50)
+
+AS
+BEGIN
+
+	RETURN 
+		CASE WHEN
+				CHARINDEX('iphone', @UserAgent) > 0 OR
+				CHARINDEX('mobile', @UserAgent) > 0 OR
+				CHARINDEX('phone', @UserAgent) > 0 OR
+				CHARINDEX('Nexus', @UserAgent) > 0 OR
+				CHARINDEX('GTI-9300', @UserAgent) > 0 OR 
+				CHARINDEX('Nokia', @UserAgent) > 0 OR
+				CHARINDEX('SGH-M919V', @UserAgent) > 0 OR
+				CHARINDEX('SCH-', @UserAgent) > 0 OR
+				CHARINDEX('Opera mini', @UserAgent) > 0
+			THEN 'MOBILE'
+
+			WHEN 
+				CHARINDEX('Windows', @UserAgent) > 0 OR
+				CHARINDEX('WOW64', @UserAgent) > 0 OR
+				CHARINDEX('Intel Mac OS', @UserAgent) > 0 OR
+				CHARINDEX('Windows NT', @UserAgent) > 0 OR
+				CHARINDEX('Media Center PC', @UserAgent) > 0	
+			THEN 'DESKTOP'
+
+			WHEN 
+				CHARINDEX('Tablet', @UserAgent) > 0 OR
+				CHARINDEX('Touch', @UserAgent) > 0 OR
+				CHARINDEX('MyPhone', @UserAgent) > 0 OR
+				CHARINDEX('iPad', @UserAgent) > 0
+			THEN 'TABLET'
+
+			WHEN 
+				CHARINDEX('Baiduspider', @UserAgent) > 0
+			THEN 'BAIDU-SPIDER'
+
+			ELSE 'UNKNOWN' 
+		END
+
+END 
+
+// using
+declare @UserAgent nvarchar(MAX) = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36';
+SELECT [dbo].[fn_DeviceFromAgent](@UserAgent)
+
+CREATE FUNCTION (TABLE)
+-----------------------
 

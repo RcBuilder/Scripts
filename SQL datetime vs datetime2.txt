@@ -1,0 +1,15 @@
+SQL datetime vs datetime2
+-------------------------
+
+range:
+datetime range: 1753-9999
+datetime2 range: 0001-9999
+
+declare @dt1 datetime = '1700-01-01' -- out-of-range exception
+declare @dt2 datetime2 = '1700-01-01' -- ok
+
+--
+
+ms accuracy:
+declare @dt1 datetime = getdate()  -- 2019-10-16 10:11:41.463
+declare @dt2 datetime2 = getdate() -- 2019-10-16 10:11:41.4633333

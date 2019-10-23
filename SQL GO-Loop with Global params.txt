@@ -1,0 +1,29 @@
+SQL GO-Loop with Global params
+------------------------------
+steps:
+1. create a temporary table (session-level) for the global parameters
+   e.g: #params
+
+2. insert some parameters to it
+   e.g: @dt
+
+3. make a code-logical-block to execute which is based on the global parameters from chapter 1
+   - get global parameters value from the temporary table
+   - do stuff... 
+   - update the global parameters for the next iteration
+ 
+4. use GO statement 
+   e.g: GO 100
+
+--
+
+example:
+create table #params([name] varchar(20), [value] varchar(20))
+insert into #params values('@dt', '2019-06-14') -- start-date
+-- truncate table #params
+
+declare @dt date = (select [value] from #params where [name] = '@dt')
+print(@dt)
+exec Analytics_Update_dw_Visitors_Daily @dt, '6b7f2b40-6960-4e49-9b93-88aefd0e0872'
+update #params set [value] = DATEADD(day, 1, @dt) where [name] = '@dt'
+GO 100
