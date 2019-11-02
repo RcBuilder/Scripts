@@ -1,0 +1,54 @@
+dynamic function call with params using Eval command
+----------------------------------------------------
+
+var rules = [
+  { name: 'test1', filter: '30', label: '', isActive: true },
+  { name: 'test2', filter: '20', label: '', isActive: true }
+];
+
+function main() {
+  var htmlBuilderService = HTMLBuilderService();
+  
+  for(i in rules)
+  {   
+    var current = rules[i];
+    Logger.log('[rule] %s', current);
+    if(!current.isActive){
+      Logger.log('not active > skip');
+      continue;
+    }
+    
+    var fn = current.name.concat('(', JSON.stringify(current), ',', 'htmlBuilderService', ')');
+    eval(fn);    
+  }
+}
+
+function test1(rule, htmlBuilderService){
+  
+}
+
+function test2(rule, htmlBuilderService){
+  
+}
+
+// -------------------------------------------------------------------------
+
+/* HTML BUILDER SERVICE */
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    },
+    toPDF: function(pdfName){          
+      var blob = Utilities.newBlob(_html, MimeType.HTML);
+      var pdf = blob.getAs(MimeType.PDF);  
+      pdf.setName(pdfName);
+      return pdf;
+    }  
+  };
+}

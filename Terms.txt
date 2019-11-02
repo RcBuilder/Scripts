@@ -124,6 +124,8 @@
 * SU = Start up
 * MSDN = Microsoft Developer Network
 
+* AR = Augmented Reality (מציאות רבודה (שילוב  של אנימציה על רקעים אמיתיים
+
 (phrases)
 * TDLR = Too Damn Lazy to Reply
 * TLDR = Too Long, Didn't Read (אמל"ק)

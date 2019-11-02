@@ -1,14 +1,89 @@
-Windows PowerShell
-------------------
+
+*** Windows PowerShell ***
+**************************
+CMD ON STEROIDS.
+similar to the CMD, a PowerShell is used to run external programs and create batch files (scripts).
+it supports all of the CMD commands plus extra set of commands called Cmdlets. 
+
+CMD vs Powershell
+-----------------
+- Powershell supports both Cmdlets and Cmd-commands whereas CMD only supports Cmd-commands.
+- Powershell output is an Object-Collection (Object-Oriented) whereas in CMD the output is Text (String-based).
+- Due to the outout format (mentioned in the previous chapter), we can Query a Powershell output
+- Powershell has a great Integration with .NET. we can execute commands or add more functionality to it.
+
+Cmdlets
+-------
+> get-command						// get powershell available commands list
+> get-command -noun <input>			// get commands which contains the input (e.g: get-command -noun Service)
+> get-history						// get commands history 
+> get-help <commandName>			// get help about the specified command
+> get-help <commandName> -Online	// get online help about the specified command
+> start-transcript					// record session activity to a log-file 
+> get-process						// get processes list
+> Get-Process -Name <process>		// get a specific process 
+> get-service						// get services list
+> get-location						// get active folder 
+> set-location <path>				// change active folder (cmd: cd)
+> ls								// show list (cmd: dir)
+> ls <filter>						// show filtered list (e.g: ls *.exe)
+> new-item <fileName>				// create new file
+> remove-item <fileName>			// delete file
+> clear-host						// clear screen (cmd: cls)
+> get-alias							// get aliases list
+> get-alias <alias>					// get the full command of the specified alias (e.g: get-alias cls)
+> [object] | get-member				// get the object properties list
+> [object] | select-object *		// get the object properties and values
+
+note! 
+- most commands have a short version (an alias) which assembles from the first letter of each word! (GL for Get-Location etc.)
+- use 'Tab' key for auto complete
+
+tip:
+use start-transcript command to record the activity into a log file
+
+pipe '|' sign
+-------------
+use the pipe sign to add functionality on the result of the previous command
+
+syntax:
+<Command> | <Command> | <Command> ...
+
+a reminder:
+powershell commands returns an object instead of a text! 
+
+example: 
+// pass the 'explorer' service object to the next command which lists it's properties/ methods.
+> Get-Process -Name explorer | Get-member  
+
+Variables
+---------
+syntax:
+$<name> = <Command>
+
+example: 
+// get properties-values of explorer service into a variable called $explorer
+> $explorer = Get-Process -Name explorer | select-object * 
+
+// use a variable
+// output: Microsoft Corporation
+> $explorer.Company  
+
+tip:
+use Tab key to autocomplete the object properties, every Tab keystroke moves to the next property
+write the variable name > dot > Tab 
+> $variable.[Tab]
+
+Aliases
+-------
+an alias is a custom name for legitimate commands. 
+use the 'get-alias' command to view the defined aliases. 
+// TODO add new
 
 
+---
 
 
+.Net integration
+More integrations
 
-
-
-
-
-// TODO
-https://www.youtube.com/watch?v=5I_iDp5WLt8
-https://www.quora.com/What-is-the-difference-between-CMD-and-Powershell

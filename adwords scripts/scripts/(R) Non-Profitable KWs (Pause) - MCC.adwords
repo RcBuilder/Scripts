@@ -66,6 +66,7 @@ function ProcessAccount() {
       '<p>Campaign: ' + keyword.getCampaign().getName() + '</p>'+
       '<p>Adgroup: ' + keyword.getAdGroup().getName() + '</p>'+        
       '<p>Match Type: ' + keyword.getMatchType() + '</p>'+
+      '<p>State: ' + 'Paused' + '</p>'+
       '<p>---</p>';
   }
   
@@ -100,7 +101,7 @@ function ProcessByCondition1(){
     Logger.log('budget: %s', campaignBudget);
     
     // cost at least 10 times the daily budget (not profitable) 
-    var costFilter = campaignBudget * 10; // * 1000000;
+    var costFilter = campaignBudget * 1000000; 
     
     var report = AdWordsApp.report(
       'SELECT Id, AdGroupId ' +  // Id, Criteria, CostPerConversion, Cost, Conversions

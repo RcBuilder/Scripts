@@ -57,8 +57,9 @@
 - Platform Specific Capabilities
 - CSS
 - Launch Process
-- Deploy(iOS)
 - Deploy(android)
+- Deploy(iOS)
+- Webpack
 - Sidekick APP
 - MarketPlace
 - Playground
@@ -78,6 +79,8 @@ https://github.com/NativeScript/nativescript-marketplace-demo
 Forum
 -----
 https://forum.nativescript.org
+https://stackoverflow.com/questions/tagged/nativescript
+https://discourse.nativescript.org
 
 Install
 -------
@@ -7864,6 +7867,20 @@ TestFlight:
 - in the tester device > use TestFlighApp for testing
 
 // TODO
+
+Webpack
+-------
+module bundler for JS apps. 
+it creates a graph of all the required modules, then, uses this graph to generate a few bundles from those modules. 
+it also optimises our app by reducing the code and IO operations. 
+it fully configurable and supports customization of every step of the bundling process. 
+
+install:
+> npm install --save-dev nativescript-dev-webpack
+> npm install
+
+configuration:
+webpack.config.js
 
 
 Sidekick APP

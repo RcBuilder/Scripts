@@ -1,0 +1,48 @@
+javascript GroupBy implementation
+---------------------------------
+
+[sample]
+
+var aggrByAdgroup = {};
+
+var rows = report.rows(); 
+while (rows.hasNext()) { 
+    var row = rows.next();
+    var adGroupId = row['AdGroupId'].toString();
+    var qs = parseFloat(row['QualityScore']);      
+    
+    Logger.log('#%s | %s | %s', row['Id'], adGroupId, qs);
+    
+    var current = aggrByAdgroup[adGroupId];
+    if(!current) current = { totalQS: 0, countKW: 0 };
+    current.totalQS += qs;
+    current.countKW++
+    aggrByAdgroup[adGroupId] = current; 
+}
+
+---
+
+[sample]
+
+var groupbyCampaigns = {};
+  
+var rows = report.rows();
+while(rows.hasNext()){
+    var row = rows.next();
+    var campaignId = row['CampaignId'];
+      
+    if(!groupbyCampaigns[campaignId])
+      groupbyCampaigns[campaignId] = { id: campaignId, items: [] };
+    groupbyCampaigns[campaignId].items.push(row);       
+  }
+  
+  for(i in groupbyCampaigns){
+    var campaign = groupbyCampaigns[i];
+    Logger.log('#%s (%s items)', campaign.id, campaign.items.length);
+    
+    for(j in campaign.items)
+    {
+      var row = campaign.items[j];
+      // code here ...      
+    }
+  }
