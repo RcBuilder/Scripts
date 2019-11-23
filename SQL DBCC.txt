@@ -1,0 +1,12 @@
+*** DBCC ***
+************
+Database Consistency Checker. 
+DBCC Commands are console commands used for maintenance.
+
+// TODO
+Commands:
+- FreeProcCache
+- DropCleanBuffers
+
+- LOG(<db-name>)  // show transaction log 
+- 

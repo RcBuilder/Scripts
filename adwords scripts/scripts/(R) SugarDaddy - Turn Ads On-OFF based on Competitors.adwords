@@ -1,0 +1,217 @@
+/*
+  this script enables ALL ads within the specified ad-group if there's a competition of one of the provided phrases
+  if no competition found - it pauses all ads! 
+  the script uses a proxy server to make google search. (no cookies nor site data, same as in incognito mode!)
+  
+  [process]
+  
+  given:
+  the ad-group has 2 ads:
+  Ad1 and Ad2
+  
+  the phrases to check for are:
+  ['phrase1', 'phrase2']
+  
+  the adgroup has the following KWs:
+  kw1
+  kw2
+  
+  --
+  
+  steps:
+  1. load all Ads within the ad group
+  2. load all enabled keywords within the ad-group
+  3. for each keyword > create a google search using the keyword as the query 
+     note! it uses a proxy server
+  4. check the result from chapter 3 (google-ads) 
+     - filter-out the ad-group ads (using their URL)
+     - check each phrase from the provided PHRASES list
+     - if exists - stop processing and return the match
+  5. based on the result from chapter 4, the script then pauses/ enables all loaded ads fom chapter 1
+     - pauses all if a phrase hasn't found (no competition on the provided phrases)
+     - enables all if a phrase found (found competitors that advertise on one of the provided phrases)
+  6. set keywords bid to the top page
+*/
+
+var AD_GROUP_Id = 83834924109;
+var PHRASES = [    
+  'שוגר דדי',  
+  'שוגרדדי',
+  'sugar daddy',
+  'sugardaddy',
+  'sugardaddy.co.il'  
+];
+
+function main() {   
+  /*
+  var a = [
+    {'Description':'', 'Href':'https://rancom.co.il/web/'}, 
+    {'Description':'', 'Href':'https://www.interdeal.co.il/'}, 
+    {'Description':'', 'Title':'', 'Href':'https://bareket.site/home20/'}
+  ];
+  var b = ['http://domain.com', 'https://www.interdeal.co.il'];
+
+  var filtered = a.filter(function(ad) { 
+    Logger.log('%s %s', ad.Href, b.indexOf(trimEnd(ad.Href, '/')));
+    return b.indexOf(trimEnd(ad.Href, '/')) == -1;
+  });
+    
+  Logger.log('filtered: ' + filtered.map(function(ad){ return ad.Href; }).join());
+  return;
+  */
+  
+  var adGroup = AdsApp.adGroups().withIds([AD_GROUP_Id]).get().next();  
+  var adGroupAds = getAds(adGroup);
+  Logger.log('%s ads found', adGroupAds.length);
+  
+  var keywords = adGroup.keywords()
+  .withCondition('Status = ENABLED')
+  .get();
+  
+  var found = false;
+  while(keywords.hasNext()){
+    var keyword = keywords.next();
+    var keywordText = keyword.getText();
+   
+    var googleAds = scanGoogleAds(keywordText);
+    if(!googleAds) continue;
+            
+    var result = checkGoogleAds(googleAds, adGroupAds);
+    if(result.foundPhrase){ 
+      Logger.log('found google ads with the phrase %s > google-ad-url: %s', result.phrase, result.googleAdUrl)
+      found = true;
+      break;
+    }
+  } 
+  
+  var isSuccess = false;
+  
+  if(found){
+    isSuccess = setAdsStatus(adGroupAds, 'ENABLED');
+    setKWsTopPageBid();
+  }
+  else   
+    isSuccess = setAdsStatus(adGroupAds, 'PAUSED');      
+  
+  if(!isSuccess) {
+    Logger.log('setAdsStatus: some error occured');
+    return;
+  } 
+}
+
+function setKWsTopPageBid(adGroup) {
+  var keywords = adGroup.keywords()
+  .withCondition('Status = ENABLED')
+  .get();
+  
+  while(keywords.hasNext()){
+    var keyword = keywords.next();
+    keyword.bidding().setCpc(keyword.getTopOfPageCpc());
+  }
+}
+
+function getAds(adGroup){
+  var result = [];
+  var ads = adGroup.ads()
+  .withCondition('Status IN[ENABLED, PAUSED]')
+  .withCondition('Type = EXPANDED_TEXT_AD')
+  .get();
+  
+  while(ads.hasNext())
+    result.push(ads.next().asType().expandedTextAd());    
+  return result;
+}
+
+// status: 'ENABLED', 'PAUSED'
+function setAdsStatus(ads, status){
+  Logger.log('ads status > %s', status);
+  if(status != 'ENABLED' && status != 'PAUSED'){
+    Logger.log('unknown status');
+    return false;
+  }
+  
+  for(i in ads){
+    var ad = ads[i];
+    
+    if(status == 'ENABLED')
+      ad.enable();
+    else if(status == 'PAUSED')
+      ad.pause();
+  } 
+  
+  return true;
+}
+
+// result: [{Title, Href, Description}]
+function scanGoogleAds(keywordText){
+  try{
+    var serachQuery = encodeURI(keywordText);  
+    Logger.log('scan for %s (%s)', keywordText, serachQuery);
+    var searchURL = 'http://lagoja-services.rcb.co.il/api/adwordsProxy/google-ads/' + serachQuery;  
+
+    var options =   { 
+      muteHttpExceptions: true 
+    };
+
+    var response = UrlFetchApp.fetch(searchURL, options);  
+    var status_code = response.getResponseCode();
+    Logger.log('status code %s', status_code);  
+    if(status_code != 200) return null;
+  
+    var content = response.getContentText();      
+    var searchResults = JSON.parse(content);
+    
+    Logger.log('searchResults: organic %s, paid %s', searchResults.organic.length, searchResults.paid.length);
+    return searchResults.paid; // organic, paid
+  }
+  catch(ex){
+    Logger.log('ex: %s', ex); 
+    return null;
+  }
+}
+
+// result: { foundPhrase, phrase, googleAdUrl }
+function checkGoogleAds(googleAds, adGroupAds){
+  
+  ///Logger.log(googleAds);
+  ///Logger.log(adGroupAds.map(function(x) { return x.urls().getFinalUrl().trim('/');}));   
+  
+  var result = { 
+    foundPhrase: false, 
+    phrase: null, 
+    googleAdUrl: null     
+  }
+
+  Logger.log('googleAds: ' + googleAds.map(function(ad){ return ad.href; }).join());
+  
+  var adGroupAdsURLs = adGroupAds.map(function(ad){
+    return trimEnd(ad.urls().getFinalUrl(), '/');
+  });    
+  
+  var filtered = googleAds.filter(function(ad) { 
+    return adGroupAdsURLs.indexOf(trimEnd(ad.href, '/')) == -1;
+  });
+    
+  Logger.log('filtered: ' + filtered.map(function(ad){ return ad.Href; }).join());
+     
+  for(i in PHRASES){
+    var phrase = PHRASES[i];
+    
+    for(j in googleAds){
+      var googleAd = googleAds[j];
+      if(googleAds[j].title.indexOf(phrase) > -1 || googleAds[j].description.indexOf(phrase) > -1){        
+        result.phrase = phrase;
+        result.googleAdUrl = googleAd.href;        
+        return result;
+      }
+    }
+  }
+  
+  return result;
+}
+
+function trimEnd(value, char){  
+  if(value.slice(-1) == char)
+    return value.slice(0, -1);
+  return value;
+}

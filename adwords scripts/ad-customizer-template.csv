@@ -1,0 +1,8 @@
+Model (text),Capacity (number),Type (text),Start_price (price),Sale_ends (date),Target campaign,Target ad group,Target location,Target keyword
+ProWhip 300,5,tilt-head,$199,2014/05/15 20:00:00,ProWhip campaign,ProWhip 300 ad group,"Mountain View, CA",
+ProWhip X,7,bowl-lift,$399,2014/05/31 20:00:00,ProWhip campaign,ProWhip X ad group,"United States",
+
+"# 1. Replace columns A-E with the attributes you want. Make sure your attributes specify an attribute type, in a Attribute (AttributeType) format."
+"# 2. Remove Target ___ columns that you don't need. For example, to customize ads by campaign, keep the ""Target campaign"" column and remove the others."
+# 3. Replace the sample values in rows 2-3 with the values you would like to use.
+# Note: Rows starting with ""#"" will be ignored.

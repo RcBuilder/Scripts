@@ -1,0 +1,131 @@
+*** Puppeteer Sharp ***
+***********************
+
+Sources
+-------
+https://github.com/kblok/puppeteer-sharp
+
+Nuget
+-----
+Install-Package PuppeteerSharp -Version 2.0.0
+
+Chrome Engine
+-------------
+...
+...
+
+
+// TODO 
+BrowserFetcher 
+Viewport
+SetContent
+GoTo
+Pdf
+EvaluateExpression
+WaitFor
+Screenshot
+...
+Flag --window-size=1920,1080
+DefaultViewport 
+...
+...
+
+
+
+
+Full Screen:
+use '--window-size' flag plus NO DefaultViewport (set it to be null)
+
+Examples
+--------
+
+// [google-ads-search]
+
+public async Task<HttpResponseMessage> Search(string phrase) {            
+            try {
+                var timeout = 10 * 1000;
+                var chromeFolder = AppDomain.CurrentDomain.BaseDirectory + @"chrome\";
+
+                var searchURL = "https://www.google.com/search?gl=il&q=" + HttpUtility.UrlEncode(phrase);                
+                var browser = await Puppeteer.LaunchAsync(new LaunchOptions {
+                    Headless = true,
+                    ExecutablePath = chromeFolder + "chrome.exe",    // Must have permissions
+                    Timeout = timeout,
+                    DefaultViewport = null, // max resolution
+                    Args = new[] { "--no-sandbox", "--window-size=1920,1080" }
+                });
+                
+                var page = await browser.NewPageAsync();                
+                await page.GoToAsync(searchURL, new NavigationOptions
+                    {  Timeout = timeout }
+                );
+                ///await page.WaitForSelectorAsync("//div[@class=\"ad_cclk\"]");
+                ///await Task.Delay(5000);
+
+                var pageSource = await page.GetContentAsync();
+
+                /* Take Screenshot
+                try
+                {
+                    var screenshotOutput = string.Concat(chromeFolder, @"Screenshots\", DateTime.Now.ToString("yyyyMMddHHmmss"), ".jpg");
+                    await page.ScreenshotAsync(screenshotOutput);
+                }
+                catch { }
+                */
+
+                var doc = new HtmlDocument();
+                doc.LoadHtml(pageSource);
+
+                var results = new GoogleResults();
+                var adPaidNodes = doc.DocumentNode.SelectNodes("//div[@class=\"ad_cclk\"]/parent::li");
+                var adOrganicNodes = doc.DocumentNode.SelectNodes("//div[@class=\"g\"]/div[@data-hveid]");
+                
+                if (adPaidNodes != null)
+                {
+                    foreach (var node in adPaidNodes)
+                        results.Paid.Add(new GoogleAd
+                        {
+                            Title = node.SelectSingleNode(".//h3[1]")?.InnerText,
+                            Href = node.SelectSingleNode(".//a[2]")?.Attributes["href"]?.Value,
+                            Description = node.SelectSingleNode(".//div[contains(@class, 'ads-creative')]")?.InnerText,
+                        });
+                }
+
+                if (adOrganicNodes != null)
+                {
+                    foreach (var node in adOrganicNodes)
+                        results.Organic.Add(new GoogleAd
+                        {
+                            Title = node.SelectSingleNode(".//h3[1]/span")?.InnerText,
+                            Href = node.SelectSingleNode(".//div/div[1]/a[1]")?.Attributes["href"]?.Value,
+                            Description = node.SelectSingleNode(".//div/div[2]/div")?.InnerText,
+                        });
+                }
+
+                var response = Request.CreateResponse(HttpStatusCode.OK, results);
+                return response;
+            }
+            catch (Exception ex) {
+                var response = Request.CreateResponse(HttpStatusCode.InternalServerError, ex);
+                return response;
+            }
+        }
+
+
+public class GoogleAd
+    {
+        [JsonProperty(PropertyName = "title")]
+        public string Title { get; set; }
+        [JsonProperty(PropertyName = "href")]
+        public string Href { get; set; }
+        [JsonProperty(PropertyName = "description")]
+        public string Description { get; set; }        
+    }
+
+public class GoogleResults
+    {
+        [JsonProperty(PropertyName= "organic")]
+        public List<GoogleAd> Organic { get; set; } = new List<GoogleAd>();
+        [JsonProperty(PropertyName = "paid")]
+        public List<GoogleAd> Paid { get; set; } = new List<GoogleAd>();
+    }

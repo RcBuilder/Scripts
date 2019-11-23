@@ -1,0 +1,80 @@
+Ad Customizers - Data Feed
+==========================
+Data feeds for ads. 
+injects values from a data-feed into an ad 
+
+Load/ Create
+------------
+Load Feed:
+* Tools > Setup > Business data > (button) + DATA > Ad Customizer data
+* Set feed Name > load the feed file (CSV/ TSV/ XLS)
+
+Create a Feed:
+create a csv file > define a data-feed column by setting a column name and its type 
+
+structure:
+<columnName> (<columnType>)
+
+optional:
+define the feed data by adding rows to the feed file
+
+note:
+Rows starting with "#" will be ignored
+
+Add Feed Items:
+* Tools > Setup > Business data
+* Choose the feed > click on the (+) button 
+
+Sample Feed:
+// TestFeed.csv template file
+Model (text), Units (number), Price (price), Sale_ends (date)
+
+// feed items added manually via the dashboard
+Model-A, 300, 32.50, 2019/11/22
+Model-B, 190, 49.99, 2019/11/22
+Model-C, 106, 12.00, 2019/11/22
+
+columnTypes
+-----------
+- date
+- price
+- number
+- text
+
+Scheduled uploads
+-----------------
+using this option we can schedule a feed-update from Sheet, HTTP or FTP.  
+
+
+Embed within an Ad
+------------------
+use the curly brackets to embed data from the feed into an ad can be used in any 
+part of the ad content (headers, path, description etc.) except of the URL.
+structure {=<feedName>.<columnName>}
+
+//e.g 
+(headline1) Model {=TestFeed.Model}
+(headline2) Now For ONLY {=TestFeed.Price} USD
+(description) this sale limited for {=TestFeed.Capacity} units
+...
+...
+
+adwords Script code
+-------------------
+// https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_adcustomizersource
+  var dataFeeds = AdsApp.adCustomizerSources().get();
+  while(dataFeeds.hasNext()){
+    var dataFeed = dataFeeds.next();
+    
+    Logger.log('[%s]', dataFeed.getName());
+    var feedItems = dataFeed.items().get();
+    while(feedItems.hasNext()){
+      var feedItem = feedItems.next();
+      Logger.log('%s', feedItem.getAttributeValue('Model'));
+    }
+  }
+  return;
+
+-
+
+to inject the triggered KW into an ad see 'Keyword Insertion'

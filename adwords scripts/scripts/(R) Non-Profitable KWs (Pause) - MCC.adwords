@@ -72,6 +72,7 @@ function ProcessAccount() {
   
   
   if(body != '') {
+    body += '<h3 style="color:red;">all the above poor performing keywords have been paused</h3>';
     Logger.log('mail sent to %s', EMAIL);
     MailApp.sendEmail(EMAIL, 'POOR performance keywords report', '', { htmlBody: body });
   }
@@ -101,7 +102,7 @@ function ProcessByCondition1(){
     Logger.log('budget: %s', campaignBudget);
     
     // cost at least 10 times the daily budget (not profitable) 
-    var costFilter = campaignBudget * 1000000; 
+    var costFilter = campaignBudget * 1000000 * 10; 
     
     var report = AdWordsApp.report(
       'SELECT Id, AdGroupId ' +  // Id, Criteria, CostPerConversion, Cost, Conversions
@@ -155,7 +156,7 @@ function ProcessByCondition2(){
     Logger.log('adGroup %s [CPA(avg): %s]', adGroupName, avarageCPA.toFixed(2));
 
     // cost at least 3 times of the adgroup CPA (not profitable) 
-    var costFilter = parseInt(avarageCPA) * 3; // * 1000000;
+    var costFilter = parseInt(avarageCPA) * 1000000 * 3;
     
     var report = AdWordsApp.report(
       'SELECT Id, AdGroupId ' +  // Id, Criteria, CostPerConversion, Cost, Conversions

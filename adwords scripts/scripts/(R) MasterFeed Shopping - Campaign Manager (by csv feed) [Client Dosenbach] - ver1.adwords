@@ -16,18 +16,18 @@
     STEP 5: create siteLinks
 */
 
-var FEED_URI ='https://get.cpexp.de/DkA5_VA2HutKvIGYdClonJgaHW_xuUkwrxSxj4W6Gn8MRDhACUeZEHLbt_KR0B7P/dosenbachworkaroundsch_googleshoppingch.csv';
+var FEED_URI ='http://products.metalyzer.com/export.php?fid=105392a07fef86fa2cdf256ec01d336e';
 var TEST_MODE = false;
-var CAMPAIGN_ID = '8075683134'; // 1622936850
+var CAMPAIGN_ID = '2059240206'; // 1622936850
 var BrandsToRemove = [];
 
 ///[Obsolete] moved to an auto process using config sheet
 ///var ProductsRange = '0-13000'; 
 
 var CONFIG_SHEET_NAME = 'MasterFeedShoppingConfig_Dosenbach';
-var RANGE_INCREMENT_VALUE = 10;
+var RANGE_INCREMENT_VALUE = 3;
 var RANGE_MIN_VALUE = 10;
-var RANGE_MAX_VALUE = 100;
+var RANGE_MAX_VALUE = 50;
 
 var counter_success = 0;
 var counter_failures = 0;
@@ -51,8 +51,6 @@ function main() {
     Logger.log('[TEST MODE]');
   
   var adManagerService = AdManagerService();   
-  /// Logger.log(adManagerService.countWithoutKeywordInsertion('Für nur CHF {param1:1234 statt CHF 4567}'))
-  ///return;
   
   var products = LoadProducts();
   Logger.log('%s products found', products.length); 
@@ -74,10 +72,10 @@ function LoadProducts(){
   }
   
   // read products from feed
-  var csvService = CSVService('|');  
+  var csvService = CSVService('\t');  
   var dataReaderService = DataReaderService(csvService);      
   Logger.log('rowsCount: %s', csvService.count());
-    
+  
   var products = dataReaderService.getProducts();
   
   // ---
@@ -189,7 +187,7 @@ function CreateProduct(adManagerService, campaign, product){
 
   // STEP 5: create siteLinks
   var sitelinkTitle = product.sitelink.title;
-  if(sitelinkTitle.length > 25) sitelinkTitle = '{KeyWord:Top Produkte}'; // default   
+  if(sitelinkTitle.length > 25) sitelinkTitle = 'Top Produkte'; // default   
   var sitelink = adManagerService.createSiteLink(sitelinkTitle, product.sitelink.url, product.sitelink.text1, product.sitelink.text2);  
   adGroup.addSitelink(sitelink); 
   ///Logger.log('sitelink created successfully');  
@@ -402,21 +400,10 @@ var DataReaderService = function(csvService) {
       ///return;      
       
       for(i in rows){ 
-                
-        var hasSalePrice = rows[i][map['sale_price']] != '';
-        var price = hasSalePrice ? rows[i][map['sale_price']] : rows[i][map['price']];
         
-        // have both price and sale_price -> 'CHF <sale_price> statt CHF <price>'
-        // doesn't have sale_price -> 'CHF <price>'
-        // if length of <price> is 8 digits and up (e.g: 45678.90) -> 'CHF <sale_price> statt <price>'
-        var priceLine = '';
-        if(hasSalePrice)
-          priceLine = rows[i][map['sale_price']].replace('CHF', '').trim() + ' statt CHF ' + rows[i][map['price']].replace('CHF', '').trim();                           
-        else 
-          priceLine = rows[i][map['price']].replace('CHF', '').trim();        
-        
-        if(priceLine.length > 18)
-          priceLine = priceLine.replace('CHF ', ''); 
+        var price = rows[i][map['sale_price']];
+      	if(price == '') price = rows[i][map['price']];
+        price = price.replace('CHF', '').trim();
         
         var gender = rows[i][map['gender']];
         gender = this.capitalize(gender);        
@@ -426,57 +413,73 @@ var DataReaderService = function(csvService) {
         
       	result.push({ 
           campaignId: CAMPAIGN_ID, 
-          adGroupName: rows[i][map['id']] + ' – ' + rows[i][map['title']], 
+          adGroupName: rows[i][map['id']], 
           defaultBid: 0.1, 
           ads: [
           	{ /* AD-1 */
               header: {
-                line1: '{KeyWord:Grosse Auswahl – kleine Preise}', 
-                line2: 'Für nur CHF ',
-                line3: 'Jetzt bei Dosenbach kaufen'
+                line1: rows[i][map['title']], 
+                line2: 'Für nur CHF ',
+                line3: 'Jetzt bei Dosenbach online kaufen'
               },
               description: {
-                line1: rows[i][map['title']], 
-                line2: 'Grosse Auswahl bei Dosenbach.ch - Günstige Preise – Rasche Lieferung!'
+                line1: brand + '–' + rows[i][map['category']] + '–' + rows[i][map['title']], 
+                line2: rows[i][map['title']] + '. Grosse Auswahl bei Dosenbach.ch - Günstige Preise!'
               }, 
               url: { 
                 path: rows[i][map['link']].replace('http://', 'https://'),  
-                segment1: '{KeyWord:Top_Preise}',
-                segment2: rows[i][map['color']], 
+                segment1: rows[i][map['custom_label_1']],
+                segment2: '{KeyWord:Top_Preise}', 
               }
             },
             { /* AD-2 */
               header: {
-                line1: '{KeyWord:Grosse Auswahl – kleine Preise}', 
-                line2: 'Für nur CHF ',
+                line1: rows[i][map['title']], 
+                line2: 'Für nur CHF ',
                 line3: 'Sensationelle Preise'
               },
               description: {
-                line1: rows[i][map['title']], 
-                line2: 'Günstige Preise – Versandkostenfrei – Schnelle Lieferung!'
+                line1: brand + '–' + gender + '–' + rows[i][map['category']] + '–' + 'Farbe:' + rows[i][map['color']] + '.', 
+                line2: rows[i][map['title']] + '. Versandkostenfrei- Schnelle Lieferung!'
               }, 
               url: { 
                 path: rows[i][map['link']].replace('http://', 'https://'),  
-                segment1: '{KeyWord:Top_Preise}',
-                segment2: 'gender', 
+                segment1: rows[i][map['custom_label_1']],
+                segment2: '{KeyWord:Top_Preise}', 
               }
             },
             { /* AD-3 */
               header: {
-                line1: '{KeyWord:Versandkostenfrei}', 
-                line2: 'Für nur CHF ',
-                line3: 'Jetzt bei Dosenbach.ch'
+                line1: rows[i][map['title']], 
+                line2: 'Für nur CHF ',
+                line3: 'Versandkostenfrei'
               },
               description: {
-                line1: rows[i][map['title']], 
-                line2: 'Riesen Auswahl bei Dosenbach.ch – Rasche und kostenlose Lieferung – Top Preise!'
+                line1: rows[i][map['category']] + '–' + rows[i][map['title']] + '.', 
+                line2: 'Riesen Auswahl bei Dosenbach.ch – Rasche Lieferung – Gratis Lieferung – Top Preise!'
               }, 
               url: { 
                 path: rows[i][map['link']].replace('http://', 'https://'),  
-                segment1: '{KeyWord:Top_Preise}',
-                segment2: 'Grösse_' + rows[i][map['size']], 
+                segment1: rows[i][map['custom_label_1']],
+                segment2: '{KeyWord:Top_Preise}', 
               }
-            }         
+            },
+            { /* AD-4 */
+              header: {
+                line1: rows[i][map['title']], 
+                line2: 'Für nur CHF ',
+                line3: 'Jetzt bei Dosenbach.ch'
+              },
+              description: {
+                line1: gender + ' ' + rows[i][map['title']] + ' ' + rows[i][map['color']] + '.', 
+                line2: 'Versandkostenfrei – Rasche Lieferung – Grosse Auswahl – Kleine Preise bei Dosenbach.ch!'
+              }, 
+              url: { 
+                path: rows[i][map['link']].replace('http://', 'https://'),  
+                segment1: 'Grösse_' + rows[i][map['size']],
+                segment2: '{KeyWord:Top_Preise}', 
+              }
+            }            
           ],           
           sitelink: { 
               title: rows[i][map['title']],  
@@ -486,8 +489,16 @@ var DataReaderService = function(csvService) {
           },
           keywords: [            
             rows[i][map['title']],
+            rows[i][map['title']] + ' ' + rows[i][map['color']],
+            rows[i][map['title']] + ' ' + rows[i][map['size']],
+            rows[i][map['title']] + ' ' + brand,
+            rows[i][map['title']] + ' ' + brand + ' ' + rows[i][map['color']],
+            rows[i][map['title']] + ' ' + brand + ' ' + rows[i][map['size']],
+            rows[i][map['title']] + ' ' + rows[i][map['category']],
+            rows[i][map['title']] + ' ' + rows[i][map['mpn']],
+            brand + ' ' + rows[i][map['mpn']],
           ], 
-          price: priceLine, // price
+          price: price, 
           stock: rows[i][map['availability']] 
       	});
       }

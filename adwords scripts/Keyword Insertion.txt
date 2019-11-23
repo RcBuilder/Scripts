@@ -1,0 +1,13 @@
+Keyword Insertion
+-----------------
+injects the keyword which has triggered the ad, if no keyword was involved - it uses the default text
+
+structure: 
+{Keyword:<defaultText>}
+
+e.g: 
+{Keyword:Best Seller}
+
+-
+
+to inject data from feed see 'Ad Customizers - Data Feed'

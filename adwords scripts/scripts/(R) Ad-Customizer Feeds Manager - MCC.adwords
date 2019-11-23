@@ -1,390 +1,324 @@
-var EMAIL = 'rcbuilder@walla.com';
-var SHEET_NAME = 'Audit_Report';
+/* 
+  this script manages accounts Ad Customizer Feeds from a shared google-sheet 
+  
+  [sheet-columns]
+  Account ID	
+  Feed Name	
+  Value1	
+  Value2	
+  Value3	
+  Start Date	
+  End Date	
+  Target Campaign	
+  Target Ad Group	
+  Target Keyword	
+  Target Location	  
+  Target Location Restriction	  
+  Action Status	                // [Remove]
+  Script Status	                // [Done, Error]
+  Policy details	
+  Device Preference	
+  Custom Parameter
+
+  [process]
+    
+  steps:
+  1. load all rows need to be processed from the sheet ('Script Status' is NOT equals to 'Done')
+  2. group rows by account 
+  3. for each account > process the rows     
+  4. for each row
+     - find the relevant feed by its name
+     - if 'Action Status' is set to 'Remove' - remove the feed items
+     - if 'Action Status' is set to anything else - save a feed 
+  5. save a feed:
+     - if no such feed exists - create a new feed-source and a feed item using the sheet's provided data
+     - if feed exists - update the item with the new details
+       note! there's NO support for multiple items per feed source
+  6. update the 'Script Status' with the relevant process status ('Done' or 'Error')
+*/
+
+var SHEET_URL = 'https://docs.google.com/spreadsheets/d/1JHBzYPZnOBPa3336Bw1utD-W-3e8nGS4WWXbcQD4U8A/edit#gid=0';
+
+function main() {  
+  var sheetService = SpreadsheetLoader.loadSheetServiceByURL(SHEET_URL); // load   
+  var sheetNotExists = !sheetService;
+  if(sheetNotExists){
+    Logger.log('data source does NOT exists - stop processing...');
+    return;
+  }
+  
+  var adCustomizerDataService = AdCustomizerDataService(sheetService);
+  
+  /*
+    adCustomizerDataService.setFeedStatus(2, 'Approved');
+    Logger.log(adCustomizerDataService.getFeedRowIndex('111-111-1111', 'UK_Sale_Date'));    
+    Logger.log(sheetService.letter2index('A'));
+  */  
+  
+  var accountIds = adCustomizerDataService.getAccountsIds();
+  for(i in accountIds){
+    var accountId = accountIds[i];   
+    
+    if(!MccSelect(accountId)){
+      Logger.log('no such account #%s - skipping...', accountId);
+      continue; 
+    }
+    
+    processAccount(accountId, adCustomizerDataService); 
+  }
+}
+
+function MccSelect(accountId){
+  var managedAccountItr = MccApp.accounts().withIds([accountId]).get();
+  if(managedAccountItr.totalNumEntities() == 0) return false;
+  MccApp.select(managedAccountItr.next());
+  return true;
+}
+
+function processAccount(accountId, adCustomizerDataService){
+  /* 
+    [{ 
+        feedName, 
+        value1,
+        value2,	
+        value3, 
+        startDate, 
+        endDate, 
+        targetCampaign, 
+        targetAdGroup, 
+        targetKeyword, 
+        targetLocation, 
+        targetLocationRestriction, 
+        policyDetails,         
+        devicePreference, 
+        customParameter, 
+        scriptStatus,
+        actionStatus
+    }]
+  */
+  var accountFeeds = adCustomizerDataService.getAccountFeedsToProcess(accountId);    
+  var actualFeedsDic = getActualFeedsDic();
+  
+  Logger.log('[%s] found %s feeds to process', accountId, accountFeeds.length);  
+  
+  processFeeds(accountId, accountFeeds, actualFeedsDic, adCustomizerDataService);
+  /// updateFeedsApprovalStatus(accountId, accountFeeds, actualFeedsDic, adCustomizerDataService);
+}
 
 /*
-MCC + label filter per rule
-report score
---
-1. MCC level script
-    InProgress 
-2. Runs only selected account (not all accounts)
-    InProgress 
-3. The script outputs to a Google Sheet 
-    InProgress 
-The Google sheet has 1 tab that out puts the summary. And have 1 tab for each rule with detailed output. Thoughts? Do you need a template?
+function updateFeedsApprovalStatus(accountId, accountFeeds, actualFeedsDic, adCustomizerDataService){
+  var filtered = accountFeeds.filter(function(row){ return row.scriptStatus != 'Done' }); // Script Status   
+  Object.keys(actualFeedsDic).forEach(function(feedNameKey){
+    var current = actualFeedsDic[feedNameKey]; // TODO ->> How To receive a source approval status?
+    var feedIndex = adCustomizerDataService.getFeedRowIndex(accountId, accountFeed.feedName);
+  });
+}
 */
-  
 
-var rules = [
-  /**/
-  { isActive: true, name: 'CampaignWithNoSiteLinksEXT', score: 1, filter: '', label: 'test1', desc: 'Campaigns with no Sitelink Extensions' },
-  { isActive: true, name: 'CampaignWithNoCalloutsEXT', score: 1, filter: '', label: 'test2', desc: 'Campaigns with no Callout Extensions' },
-  { isActive: true, name: 'CampaignWithNoCallsEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Call Extensions' },
-  { isActive: true, name: 'CampaignWithNoAppsEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no App Extensions' },
-  { isActive: true, name: 'CampaignWithNoMessagesEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Message Extensions' },  
-  { isActive: true, name: 'CampaignWithNoPriceEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Price Extensions' },  
-  { isActive: true, name: 'CampaignWithNoSnippetsEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Structured Snippet Extensions' },  
-  { isActive: true, name: 'CampaignsWithNoNegativeKWs', score: 1, filter: '', label: '', desc: 'Campaigns With No Negative Keywords' },
-  { isActive: true, name: 'DisplayCampaignsWithNoPlacementEXC', score: 1, filter: '', label: '', desc: 'Display Campaigns With No Placement Exclusion' },
-  { isActive: true, name: 'KeywordsWithLowQualityScore', score: 1, filter: 6, label: '', desc: 'keywords With Low Quality Score' }, 
-  { isActive: true, name: 'AdGroupsWithHighCostAndLowQualityScore', score: 1, filter: 30, label: '', desc: 'High Cost AdGroups with Low Quality Score' }, 
-  { isActive: true, name: 'AdRelevanceScoreForkeywords', score: 1, filter: '', label: '', desc: 'Ad Relevance Score for keywords' },
-  { isActive: true, name: 'LandingPageScoreForkeywords', score: 1, filter: '', label: '', desc: 'Landing Page Score for keywords' },
-  
-];
-
-function main(){
-  /*
-  var accounts = MccApp.accounts().get();  
-  while(accounts.hasNext())
-  {
-    var account = accounts.next();   
-    var accountName = account.getName();
-    Logger.log('### account: %s ###', accountName);  
+function processFeeds(accountId, accountFeeds, actualFeedsDic, adCustomizerDataService){    
+  for(i in accountFeeds){
+    var accountFeed = accountFeeds[i];
+    var feedIndex = adCustomizerDataService.getFeedRowIndex(accountId, accountFeed.feedName);
+    ///Logger.log(accountFeed);  
     
-    var appliedLabels = [];
-    var labelsItr = account.labels().get();
-    while(labelsItr.hasNext())
-       appliedLabels.push(labelsItr.next().getName());
-    Logger.log('applied labels: %s', appliedLabels);
+    var current = actualFeedsDic[accountFeed.feedName];
+        
+    // remove feed 
+    if(accountFeed.actionStatus.toLowerCase() == 'remove') 
+    {
+      Logger.log('removing feed %s...', accountFeed.feedName);
+      removeFeed(current);
+      adCustomizerDataService.setFeedScriptStatus(feedIndex, 'Done');
+      continue;
+    }
     
-    MccApp.select(account);
-    ProcessAccount(accountName, appliedLabels);
+    // create/update
+    if(!current) {
+      Logger.log('creating feed %s...', accountFeed.feedName);
+      var createdFeed = createFeed(accountFeed);
+      if(!createdFeed) {
+        Logger.log('## EX ## some error occured!');
+        adCustomizerDataService.setFeedScriptStatus(feedIndex, 'Error');
+        continue;
+      }
+      
+      current = createdFeed;
+      actualFeedsDic[accountFeed.feedName] = current;
+    }
     
-    Logger.log('--------------------------');
+    Logger.log('saving feed item ...');
+    var updatedFeedItem = saveFeedItem(current, accountFeed);
+    if(!updatedFeedItem) {
+      Logger.log('## EX ## some error occured!');
+      adCustomizerDataService.setFeedScriptStatus(feedIndex, 'Error');
+      continue;
+    }
+    
+    adCustomizerDataService.setFeedScriptStatus(feedIndex, 'Done');
   }
-  */
-  
-  var account = AdsApp.currentAccount();  
-  var accountName = account.getName();
-  ProcessAccount(accountName, []);
 }
 
-function ProcessAccount(accountName, appliedLabels) {
-  var sheetName = SHEET_NAME.concat('_', accountName);
-  var sheetService = SpreadsheetLoader.loadSheetService(sheetName); // load   
-  var sheetNotExists = !sheetService;
-  if(sheetNotExists)
-     sheetService = SpreadsheetLoader.createSheetService(sheetName); // create       
-  
-  sheetService.clear();  
-  sheetService.addRow(['rule', 'filter', 'label', 'description', 'resultType', 'resultValue']); // add header 
-  sheetService.setDataUI('A1:Z1', null, null, 11, 'left', 'bold', null, 'middle');
-    
-  for(i in rules)
-  {   
-    var current = rules[i];
-    Logger.log('[rule] %s', current);
-    
-    try{        
-      if(!current.isActive){
-        Logger.log('not active > skip');
-        continue;
-      }
-            
-      if(current.label && current.label != '' && appliedLabels.indexOf(current.label) == -1){
-        Logger.log('filtered by label > skip');
-        continue;
-      }
+function createFeed(feedMetadata){
+  try{
+    // create a feed source
+    var builder = AdsApp.newAdCustomizerSourceBuilder(); 
+    var operation = builder
+    .withName(feedMetadata.feedName)  
+    .addAttribute("Value1", 'text') 
+    .addAttribute("Value2", 'text') 
+    .addAttribute("Value3", 'text')     
+    .addAttribute("Policy Details", 'text')   
+    .addAttribute("Custom Parameter", 'text') 
+    .build();  
 
-      var fn = current.name.concat('(', JSON.stringify(current), ',', 'sheetService', ')');
-      eval(fn);  
-    }
-    catch(ex){
-      Logger.log('exception occured: %s', ex.message);
-    }
-  }
-  
-  try{                 
-    Logger.log('send mail to %s', EMAIL);
-    MailApp.sendEmail(EMAIL, 'Audit Report', '', {
-      htmlBody: '<a href="' + sheetService.getURL() + '">CLICK TO SEE THE REPORT</a>'
-    });
+    if(!operation.isSuccessful())
+      return null;  
+    return operation.getResult();  
   }
   catch(ex){
-    Logger.log('exception occured: %s', ex.message);
+    Logger.log(ex);
+    return null;
   }
 }
 
-// --- RULES ---------------------------------------------------------------
+function saveFeedItem(currentFeed, feedMetadata){   
+  try{
+    var currentFeedItem = null;
 
-function CampaignWithNoSiteLinksEXT(rule, sheetService){
-  BaseDataQuantityHandler(rule, sheetService, 'sitelinks'); 
-}
+    // load feed-item  
+    var temp = currentFeed.items().get();
+    if(temp.totalNumEntities() > 0)
+      currentFeedItem = temp.next();
 
-function CampaignWithNoCalloutsEXT(rule, sheetService){
-  BaseDataQuantityHandler(rule, sheetService, 'callouts');  
-}
+    // no item found - create a new one
+    if(!currentFeedItem){
+      var builder = currentFeed.adCustomizerItemBuilder(); // update feed source item data    
+      builder.withAttributeValue("Value1", '[INIT]') // [Required] must provide at least 1 attribute on the creation!
 
-function CampaignWithNoMessagesEXT(rule, sheetService){
-  BaseDataQuantityHandler(rule, sheetService, 'messages'); 
-}
-
-function CampaignWithNoAppsEXT(rule, sheetService){
-  BaseDataQuantityHandler(rule, sheetService, 'apps');  
-}
-
-function CampaignWithNoCallsEXT(rule, sheetService){
-  var dataQuantity = AdsApp.currentAccount().extensions().phoneNumbers().get().totalNumEntities(); 
-  if(dataQuantity > 0) return; // there's an account-level callEXT - skip all campaigns  
-  BaseDataQuantityHandler(rule, sheetService, 'calls');
-}
-
-function CampaignWithNoPriceEXT(rule, sheetService){
-  BaseDataQuantityHandler(rule, sheetService, 'prices');
-}
-
-function CampaignWithNoSnippetsEXT(rule, sheetService){
-  BaseDataQuantityHandler(rule, sheetService, 'snippets');
-}
-
-function CampaignsWithNoNegativeKWs(rule, sheetService){
-  BaseDataQuantityHandler(rule, sheetService, 'negativekeywords');
-}
-
-function DisplayCampaignsWithNoPlacementEXC(rule, sheetService){
-    var report = GetReport(
-      'CAMPAIGN_PERFORMANCE_REPORT', 
-      ['CampaignName', 'AdvertisingChannelType'], 
-      ['CampaignStatus = ENABLED', 'AdvertisingChannelType = DISPLAY'], 
-      'LAST_30_DAYS'
-    );
-   
-    var rows = report.rows(); 
-    while (rows.hasNext()) { 
-      var row = rows.next();
-      var campaignName = row['CampaignName'];      
-      
-      Logger.log('display-campaign %s has No placement extensions', campaignName);    
-      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'campaign', campaignName]);      
-    };
-}
-
-function KeywordsWithLowQualityScore(rule, sheetService){  
-    var report = GetReport(
-      'KEYWORDS_PERFORMANCE_REPORT', 
-      ['Id', 'Criteria', 'QualityScore'], 
-      ['QualityScore < ' + rule.filter, 'CampaignStatus = ENABLED', 'AdGroupStatus = ENABLED', 'Status = ENABLED'], 
-      'LAST_30_DAYS'
-    );
-
-    var rows = report.rows(); 
-    while (rows.hasNext()) { 
-      var row = rows.next();
-      var keywordText = row['Criteria'];
-      var qs = parseFloat(row['QualityScore']);
-      
-      Logger.log('keyword %s has low QS of %s', keywordText, qs);   
-      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keyword', keywordText + ' | qs: ' + qs]);      
-    };      
-}
-
-function AdGroupsWithHighCostAndLowQualityScore(rule, sheetService){  
-  var dateRange = 'LAST_30_DAYS';
-  var accountTotalCost = AdsApp.currentAccount().getStatsFor(dateRange).getCost();
-  Logger.log('account total cost: %s', accountTotalCost); 
-
-  var report = GetReport(
-    'KEYWORDS_PERFORMANCE_REPORT', 
-    ['Id', 'Criteria', 'AdGroupId', 'QualityScore'], 
-    ['QualityScore > ' + 0, 'CampaignStatus = ENABLED', 'AdGroupStatus = ENABLED', 'Status = ENABLED'], 
-    dateRange
-  );
-
-  var aggrByAdgroup = {};
-
-  var rows = report.rows(); 
-  while (rows.hasNext()) { 
-    var row = rows.next();
-    var adGroupId = row['AdGroupId'].toString();
-    var qs = parseFloat(row['QualityScore']);      
-    
-    ///Logger.log('#%s | %s | %s', row['Id'], adGroupId, qs);
-    
-    var current = aggrByAdgroup[adGroupId];
-    if(!current) current = { totalQS: 0, countKW: 0 };
-    current.totalQS += qs;
-    current.countKW++
-    aggrByAdgroup[adGroupId] = current; 
-  }
-  
-  // aggregation of KWs qualityScore per adgroup
-  Logger.log(aggrByAdgroup);
-  
-  for(id in aggrByAdgroup){
-    var aggrRow = aggrByAdgroup[id];
-    var adgroup = AdsApp.adGroups().withIds([id]).get().next();
-    var adGroupName = adgroup.getName();
-    
-    var stats = adgroup.getStatsFor(dateRange);
-    var cost = stats.getCost();
-    
-    // the adGroup cost is within the x% of the total cost
-    var isHighCost = cost > accountTotalCost * rule.filter;
-    
-    // adgroup QS (average)
-    var avgQS = aggrRow.totalQS / aggrRow.countKW; 
-    
-    ///Logger.log('adgroup %s - avgQS: %s, cost: %s', adGroupName, avgQS, cost);
-    
-    // if the adgroup is NOT of high-cost OR it has a high QS - skip
-    if(!isHighCost || avgQS > 6) continue;
-    
-    Logger.log('adGroup %s has low QS of %s and high cost of %s', adGroupName, avgQS, cost);  
-    sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'adGroup', adGroupName + ' | qs: ' + avgQS + ' | cost: ' + cost]);    
-  }    
-}
-
-function AdRelevanceScoreForkeywords(rule, sheetService){
-    var report = GetReport(
-      'KEYWORDS_PERFORMANCE_REPORT', 
-      ['Id', 'Criteria', 'CreativeQualityScore'], 
-      ['CampaignStatus = ENABLED', 'AdGroupStatus = ENABLED', 'Status = ENABLED'], 
-      'LAST_30_DAYS'
-    );
-
-    /*  UNKNOWN
-        BELOW_AVERAGE
-        AVERAGE
-        ABOVE_AVERAGE        
-    */
-    var aggrByAdRelevance = {};
-
-    var rows = report.rows(); 
-    while (rows.hasNext()) { 
-      var row = rows.next();
-      var keywordText = row['Criteria'];
-      var adRelevance = row['CreativeQualityScore'];
-      
-      ///Logger.log('keyword %s -> adRelevance: %s', keywordText, adRelevance);
-      
-      var current = aggrByAdRelevance[adRelevance];
-      if(!current) current = { countKW: 0 };      
-      current.countKW++
-      aggrByAdRelevance[adRelevance] = current;
-    };
-    
-    Logger.log(aggrByAdRelevance);
-  
-    for(key in aggrByAdRelevance){
-      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keywordsCount', key + ' | ' + aggrByAdRelevance[key].countKW]);      
+      var operation = builder.build(); // build 
+      if(!operation.isSuccessful()) return null;
+      currentFeedItem = operation.getResult();
     }
+
+    // update custom attributes
+    currentFeedItem.setAttributeValue("Value1", feedMetadata.value1); 
+    currentFeedItem.setAttributeValue("Value2", feedMetadata.value2); 
+    currentFeedItem.setAttributeValue("Value3", feedMetadata.value3); 
+    currentFeedItem.setAttributeValue("Policy Details", feedMetadata.policyDetails);      
+    currentFeedItem.setAttributeValue("Custom Parameter", feedMetadata.customParameter);
+
+    // update dates      
+    if(feedMetadata.startDate != '')
+      currentFeedItem.setStartDate(Utilities.formatDate(feedMetadata.startDate, 'GMT', 'yyyyMMdd'));  // yyyyMMdd OR {year, month, day}    
+    if(feedMetadata.setEndDate != '')
+      currentFeedItem.setEndDate(Utilities.formatDate(feedMetadata.endDate, 'GMT', 'yyyyMMdd')); // yyyyMMdd OR {year, month, day}
+
+    // update target entities
+    if(feedMetadata.targetCampaign != '')
+      currentFeedItem.setTargetCampaign(feedMetadata.targetCampaign);
+    if(feedMetadata.targetCampaign != '' || feedMetadata.targetAdGroup)
+      currentFeedItem.setTargetAdGroup(feedMetadata.targetCampaign, feedMetadata.targetAdGroup);  
+    if(feedMetadata.targetKeyword != '')
+      currentFeedItem.setTargetKeyword(feedMetadata.targetKeyword);
+
+    // update device Preference
+    currentFeedItem.setMobilePreferred(feedMetadata.devicePreference); 
+
+    return currentFeedItem;
+  }
+  catch(ex){
+    Logger.log(ex);
+    return null;
+  }
 }
 
-function LandingPageScoreForkeywords(rule, sheetService){
-  var report = GetReport(
-      'KEYWORDS_PERFORMANCE_REPORT', 
-      ['Id', 'Criteria', 'PostClickQualityScore'], 
-      ['CampaignStatus = ENABLED', 'AdGroupStatus = ENABLED', 'Status = ENABLED'], 
-      'LAST_30_DAYS'
-    );
+function removeFeed(currentFeed){
+  var items = currentFeed.items().get();
+  while(items.hasNext())
+    items.next().remove();
+}
 
-    /*  UNKNOWN
-        BELOW_AVERAGE
-        AVERAGE
-        ABOVE_AVERAGE        
-    */
-    var aggrByLandingPageScore = {};
+function getActualFeedsDic(){
+  var dic = {}; // dic<string, feed>
+  var dataFeeds = AdsApp.adCustomizerSources().get();
+  while(dataFeeds.hasNext()){
+    var dataFeed = dataFeeds.next();
+    dic[dataFeed.getName()] = dataFeed;
+  }
+  return dic;
+}
 
-    var rows = report.rows(); 
-    while (rows.hasNext()) { 
-      var row = rows.next();
-      var keywordText = row['Criteria'];
-      var lpScore = row['PostClickQualityScore'];
-      
-      ///Logger.log('keyword %s -> LandingPageScore: %s', keywordText, lpScore);
-      
-      var current = aggrByLandingPageScore[lpScore];
-      if(!current) current = { countKW: 0 };      
-      current.countKW++
-      aggrByLandingPageScore[lpScore] = current;
-    };
+// https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_adcustomizersource  
+function printActualFeeds(){
+  var dataFeeds = AdsApp.adCustomizerSources().get();
+  while(dataFeeds.hasNext()){
+    var dataFeed = dataFeeds.next();
     
-    Logger.log(aggrByLandingPageScore);
-  
-    for(key in aggrByLandingPageScore){
-      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keywordsCount', key + ' | ' + aggrByLandingPageScore[key].countKW]);      
+    Logger.log('[feed] %s', dataFeed.getName());
+    var feedItems = dataFeed.items().get();
+    while(feedItems.hasNext()){
+      var feedItem = feedItems.next();
+      Logger.log('%s', feedItem.getAttributeValue('Value1'));      
     }
-}
-
-// --- CODE ----------------------------------------------------------------
-
-function BaseDataQuantityHandler(rule, sheetService, extensionType){
-  var campaigns = AdsApp.campaigns()
-    .withCondition('Status = ENABLED')
-    .get();
-  
-  while(campaigns.hasNext()){
-    var campaign = campaigns.next();
-    var dataQuantity = GetDataQuantity(campaign, extensionType);
-    if(dataQuantity > 0) continue;
-    
-    var campaignId = campaign.getId().toString();
-    Logger.log('campaign #%s has no %s', campaignId, extensionType);  
-    sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'campaign', campaign.getName()]);   
-  }
-}  
-
-function GetDataQuantity(campaign, extensionType){
-  switch(extensionType.toLowerCase()) {
-    case 'sitelink':
-    case 'sitelinks': return campaign.extensions().sitelinks().get().totalNumEntities();      
-    case 'callout':
-    case 'callouts': return campaign.extensions().callouts().get().totalNumEntities();
-    case 'message':
-    case 'messages': return campaign.extensions().messages().get().totalNumEntities();
-    case 'app':  
-    case 'apps':  
-    case 'mobileapp':  
-    case 'mobileapps': return campaign.extensions().mobileApps().get().totalNumEntities();
-    case 'call':  
-    case 'calls':
-    case 'phonenumber':
-    case 'phonenumbers': return campaign.extensions().phoneNumbers().get().totalNumEntities();      
-    case 'structuredsnippets':
-    case 'snippet':
-    case 'snippets': return campaign.extensions().snippets().get().totalNumEntities();
-    case 'price':  
-    case 'prices': return campaign.extensions().prices().get().totalNumEntities();       
-    case 'negativekeywords': return campaign.extensions().negativeKeywords().get().totalNumEntities();     
-      
-    default: return 0;
-  }
-}
-
-/* e.g: 
-   var report = GetReport(
-      'CAMPAIGN_PERFORMANCE_REPORT', 
-      ['CampaignName', 'AdvertisingChannelType'], 
-      ['CampaignStatus = ENABLED', 'AdvertisingChannelType = DISPLAY'], 
-      'LAST_30_DAYS'
-   );
-   
-   var rows = report.rows(); 
-   while (rows.hasNext()) { 
-	    var row = rows.next();
-      ...
-	 };
-*/
-function GetReport(reportName, reportFields, reportFilters, dateRange){
-  var reportConfig = {
-    includeZeroImpressions: true
-  };
-  
-  // {reportFields} FROM {reportName} WHERE {reportFilters} DURING {dateRange}
-  var query = 'SELECT ' + reportFields.join(', ') + ' ';  
-  query += 'FROM '+ reportName + ' ';
-  
-  if(reportFilters && reportFilters.length > 0)  
-    query += 'WHERE '+ reportFilters.join(' AND ') + ' ';
-  
-  query += 'DURING ' + dateRange;
-  
-  Logger.log(query);
-  return AdWordsApp.report(query, reportConfig); 
+  }  
 }
 
 // --- SERVICES ------------------------------------------------------------
+
+/* AD-CUSTOMIZER DATA SERVICE */
+var AdCustomizerDataService = function(sheetService) {   
+  return {    
+    getAccountsIds: function(){
+      var values = [];
+      
+      var range = sheetService.getColumnValues(2, 2);
+      for(r in range)
+        for(c in range[r])
+          if(values.indexOf(range[r][c]) == -1)
+            values.push(range[r][c])
+      return values;
+    },    
+    getAccountFeeds: function(accountId){
+      var all = sheetService.findRowsByFilter(accountId, 2) || [];                   
+      return all.map(function(row){
+        return {
+          feedName: row[2].trim(),	
+          value1: row[3],	
+          value2: row[4],	
+          value3: row[5],	
+          startDate: row[6],		
+          endDate: row[7],		
+          targetCampaign: row[8],		
+          targetAdGroup: row[9],	
+          targetKeyword: row[10],		
+          targetLocation: row[11],		
+          targetLocationRestriction: row[12],		          		
+          policyDetails: row[15],		          		
+          devicePreference: row[16],		
+          customParameter: row[17],
+          scriptStatus: row[14],
+          actionStatus: row[13]
+        }
+      });
+    },  
+    getAccountFeedsToProcess: function(accountId){
+      var all = this.getAccountFeeds(accountId);
+      var filtered = all.filter(function(row){ return row.scriptStatus != 'Done' }); // Script Status            
+      return filtered;
+    },    
+    getFeedRowIndex: function(accountId, feedName){
+      return parseInt(sheetService.getRowIndexBy2Columns(2, accountId, 3, feedName));
+    },
+    setFeedStatus: function(rowIndex, value){
+      // Approved, Removed, Under Review
+      return sheetService.setValue(rowIndex, 14, value);
+    },  
+    setFeedScriptStatus: function(rowIndex, value){
+      // Done, Error
+      return sheetService.setValue(rowIndex, 15, value);
+    }       
+  }
+}
 
 /* SPREADSHEET SERVICE */
 var SpreadSheetService = function(spreadSheet) {
@@ -538,6 +472,17 @@ var SheetService = function(sheet) {
     deleteRow: function(rowPosition){
       _sheet.deleteRow(rowPosition);
     }, 
+    letter2index: function(columnLetter){
+      const numOfLetters = 26;
+      const startIndex = 'A'.charCodeAt(0); 
+      /*
+        get column index by it's letter/s representation 
+        e.g: A=1, C=3 
+      */
+      
+      // TODO 
+      
+    },
 	  copyRange: function(fromRange, toRange){
         Logger.log('copy range from %s to %s', fromRange, toRange);
         var valuesToCopy = this.getValuesByRange(fromRange);      
@@ -561,6 +506,22 @@ var SheetService = function(sheet) {
       for(row in rows)
         if(rows[row][filterColumnPosition - 1] == filterValue)
           result.push(rows[row][columnPosition]);
+      return result;  
+    }, 
+    findRowsByFilter: function(filterValue, filterColumnPosition){
+      /* 
+        get rows by filter
+
+        e.g: findRowsByFilter('100', 1)          
+        all rows that the value in A column equals to '100'
+        */
+
+      var result = [];       
+      var rows = _sheet.getDataRange().getValues();
+
+      for(row in rows)
+        if(rows[row][filterColumnPosition - 1] == filterValue)
+          result.push(rows[row]);
       return result;  
     }, 
 	  freezeHeader: function(){

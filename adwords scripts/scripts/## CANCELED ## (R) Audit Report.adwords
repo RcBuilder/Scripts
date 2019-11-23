@@ -1,0 +1,424 @@
+var EMAIL = 'rcbuilder@walla.com';
+
+var rules = [
+  { isActive: true, name: 'CampaignWithNoSiteLinksEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Sitelink Extensions' },
+  { isActive: true, name: 'CampaignWithNoCalloutsEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Callout Extensions' },
+  { isActive: true, name: 'CampaignWithNoCallsEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Call Extensions' },
+  { isActive: true, name: 'CampaignWithNoAppsEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no App Extensions' },
+  { isActive: true, name: 'CampaignWithNoMessagesEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Message Extensions' },  
+  { isActive: true, name: 'CampaignWithNoPriceEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Price Extensions' },  
+  { isActive: true, name: 'CampaignWithNoSnippetsEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Structured Snippet Extensions' },  
+  { isActive: true, name: 'CampaignsWithNoNegativeKWs', score: 1, filter: '', label: '', desc: 'Campaigns With No Negative Keywords' },
+  { isActive: true, name: 'DisplayCampaignsWithNoPlacementEXC', score: 1, filter: '', label: '', desc: 'Display Campaigns With No Placement Exclusion' },
+  { isActive: true, name: 'KeywordsWithLowQualityScore', score: 1, filter: 6, label: '', desc: 'keywords With Low Quality Score' }, 
+  { isActive: true, name: 'AdGroupsWithHighCostAndLowQualityScore', score: 1, filter: 30, label: '', desc: 'High Cost AdGroups with Low Quality Score' }, 
+  { isActive: true, name: 'AdRelevanceScoreForkeywords', score: 1, filter: '', label: '', desc: 'Ad Relevance Score for keywords' },
+  { isActive: true, name: 'LandingPageScoreForkeywords', score: 1, filter: '', label: '', desc: 'Landing Page Score for keywords' },
+  
+];
+
+var reportTemplate = {
+  header: 
+    '<tr>'+
+      '<th>rule</th>'+
+      '<th>filter</th>'+
+      '<th>label</th>'+
+      '<th>description</th>'+  
+      '<th>resultType</th>'+
+      '<th>resultValue</th>'+                           
+    '</tr>',
+  row:
+    '<tr>'+
+      '<td>{rule}</td>'+
+      '<td>{filter}</td>'+
+      '<td>{label}</td>'+
+      '<td>{desc}</td>'+
+      '<td>{resultType}</td>' +                           
+      '<td>{resultValue}</td>'+
+    '</tr>'
+};
+
+function main(){
+  var account = AdsApp.currentAccount();
+  ProcessAccount(account);
+}
+
+function ProcessAccount(account) {  
+  var htmlBuilderService = HTMLBuilderService();  
+  htmlBuilderService.add('<div style="direction:ltr;text-align:left;">');
+  htmlBuilderService.add('<h1>Audit Report: ' + account.getName() + '</h1>');
+  htmlBuilderService.add('<table cellspacing="10" cellpadding="10" border="1">');
+  htmlBuilderService.add(reportTemplate.header);
+  
+  for(i in rules)
+  {   
+    var current = rules[i];
+    Logger.log('[rule] %s', current);
+    
+    try{        
+      if(!current.isActive){
+        Logger.log('not active > skip');
+        continue;
+      }
+
+      var fn = current.name.concat('(', JSON.stringify(current), ',', 'htmlBuilderService', ')');
+      eval(fn);  
+    }
+    catch(ex){
+      Logger.log('exception occured: %s', ex.message);
+    }
+  }
+  
+  htmlBuilderService.add('</table>'); 
+  htmlBuilderService.add('</div>');
+  
+  try{                 
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Audit Report', '', {
+      htmlBody: htmlBuilderService.get()
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+// --- RULES ---------------------------------------------------------------
+
+function CampaignWithNoSiteLinksEXT(rule, htmlBuilderService){
+    BaseDataQuantityHandler(rule, htmlBuilderService, 'sitelinks'); 
+}
+
+function CampaignWithNoCalloutsEXT(rule, htmlBuilderService){
+    BaseDataQuantityHandler(rule, htmlBuilderService, 'callouts');  
+}
+
+function CampaignWithNoMessagesEXT(rule, htmlBuilderService){
+    BaseDataQuantityHandler(rule, htmlBuilderService, 'messages'); 
+}
+
+function CampaignWithNoAppsEXT(rule, htmlBuilderService){
+  BaseDataQuantityHandler(rule, htmlBuilderService, 'apps');  
+}
+
+function CampaignWithNoCallsEXT(rule, htmlBuilderService){
+    BaseDataQuantityHandler(rule, htmlBuilderService, 'calls');
+}
+
+function CampaignWithNoPriceEXT(rule, htmlBuilderService){
+    BaseDataQuantityHandler(rule, htmlBuilderService, 'prices');
+}
+
+function CampaignWithNoSnippetsEXT(rule, htmlBuilderService){
+    BaseDataQuantityHandler(rule, htmlBuilderService, 'snippets');
+}
+
+function CampaignsWithNoNegativeKWs(rule, htmlBuilderService){
+    BaseDataQuantityHandler(rule, htmlBuilderService, 'negativekeywords');
+}
+
+function DisplayCampaignsWithNoPlacementEXC(rule, htmlBuilderService){
+    var report = GetReport(
+      'CAMPAIGN_PERFORMANCE_REPORT', 
+      ['CampaignName', 'AdvertisingChannelType'], 
+      ['CampaignStatus = ENABLED', 'AdvertisingChannelType = DISPLAY'], 
+      'LAST_30_DAYS'
+    );
+   
+    var rows = report.rows(); 
+    while (rows.hasNext()) { 
+      var row = rows.next();
+      var campaignName = row['CampaignName'];      
+      
+      Logger.log('display-campaign %s has No placement extensions', campaignName);    
+      htmlBuilderService.add(reportTemplate.row
+        .replace('{rule}', rule.name)
+        .replace('{filter}', rule.filter)
+        .replace('{label}', rule.label)
+        .replace('{desc}', rule.desc)                     
+        .replace('{resultType}', 'campaign')
+        .replace('{resultValue}', campaignName)
+      );
+    };
+}
+
+function KeywordsWithLowQualityScore(rule, htmlBuilderService){  
+    var report = GetReport(
+      'KEYWORDS_PERFORMANCE_REPORT', 
+      ['Id', 'Criteria', 'QualityScore'], 
+      ['QualityScore < ' + rule.filter, 'CampaignStatus = ENABLED', 'AdGroupStatus = ENABLED', 'Status = ENABLED'], 
+      'LAST_30_DAYS'
+    );
+
+    var rows = report.rows(); 
+    while (rows.hasNext()) { 
+      var row = rows.next();
+      var keywordText = row['Criteria'];
+      var qs = parseFloat(row['QualityScore']);
+      
+      Logger.log('keyword %s has low QS of %s', keywordText, qs);    
+      htmlBuilderService.add(reportTemplate.row
+        .replace('{rule}', rule.name)
+        .replace('{filter}', rule.filter)
+        .replace('{label}', rule.label)
+        .replace('{desc}', rule.desc)                     
+        .replace('{resultType}', 'keyword')
+        .replace('{resultValue}', keywordText + ' | qs: ' + qs)
+      );
+    };      
+}
+
+function AdGroupsWithHighCostAndLowQualityScore(rule, htmlBuilderService){  
+  var dateRange = 'LAST_30_DAYS';
+  var accountTotalCost = AdsApp.currentAccount().getStatsFor(dateRange).getCost();
+  Logger.log('account total cost: %s', accountTotalCost); 
+
+  var report = GetReport(
+    'KEYWORDS_PERFORMANCE_REPORT', 
+    ['Id', 'Criteria', 'AdGroupId', 'QualityScore'], 
+    ['QualityScore > ' + 0, 'CampaignStatus = ENABLED', 'AdGroupStatus = ENABLED', 'Status = ENABLED'], 
+    dateRange
+  );
+
+  var aggrByAdgroup = {};
+
+  var rows = report.rows(); 
+  while (rows.hasNext()) { 
+    var row = rows.next();
+    var adGroupId = row['AdGroupId'].toString();
+    var qs = parseFloat(row['QualityScore']);      
+    
+    ///Logger.log('#%s | %s | %s', row['Id'], adGroupId, qs);
+    
+    var current = aggrByAdgroup[adGroupId];
+    if(!current) current = { totalQS: 0, countKW: 0 };
+    current.totalQS += qs;
+    current.countKW++
+    aggrByAdgroup[adGroupId] = current; 
+  }
+  
+  // aggregation of KWs qualityScore per adgroup
+  Logger.log(aggrByAdgroup);
+  
+  for(id in aggrByAdgroup){
+    var aggrRow = aggrByAdgroup[id];
+    var adgroup = AdsApp.adGroups().withIds([id]).get().next();
+    var adGroupName = adgroup.getName();
+    
+    var stats = adgroup.getStatsFor(dateRange);
+    var cost = stats.getCost();
+    
+    // the adGroup cost is within the x% of the total cost
+    var isHighCost = cost > accountTotalCost * rule.filter;
+    
+    // adgroup QS (average)
+    var avgQS = aggrRow.totalQS / aggrRow.countKW; 
+    
+    ///Logger.log('adgroup %s - avgQS: %s, cost: %s', adGroupName, avgQS, cost);
+    
+    // if the adgroup is NOT of high-cost OR it has a high QS - skip
+    if(!isHighCost || avgQS > 6) continue;
+    
+    Logger.log('adGroup %s has low QS of %s and high cost of %s', adGroupName, avgQS, cost);         
+    htmlBuilderService.add(reportTemplate.row
+      .replace('{rule}', rule.name)
+      .replace('{filter}', rule.filter)
+      .replace('{label}', rule.label)
+      .replace('{desc}', rule.desc)                     
+      .replace('{resultType}', 'adGroup')
+      .replace('{resultValue}', adGroupName + ' | qs: ' + avgQS + ' | cost: ' + cost)
+    );
+  }    
+}
+
+function AdRelevanceScoreForkeywords(rule, htmlBuilderService){
+    var report = GetReport(
+      'KEYWORDS_PERFORMANCE_REPORT', 
+      ['Id', 'Criteria', 'CreativeQualityScore'], 
+      ['CampaignStatus = ENABLED', 'AdGroupStatus = ENABLED', 'Status = ENABLED'], 
+      'LAST_30_DAYS'
+    );
+
+    /*  UNKNOWN
+        BELOW_AVERAGE
+        AVERAGE
+        ABOVE_AVERAGE        
+    */
+    var aggrByAdRelevance = {};
+
+    var rows = report.rows(); 
+    while (rows.hasNext()) { 
+      var row = rows.next();
+      var keywordText = row['Criteria'];
+      var adRelevance = row['CreativeQualityScore'];
+      
+      ///Logger.log('keyword %s -> adRelevance: %s', keywordText, adRelevance);
+      
+      var current = aggrByAdRelevance[adRelevance];
+      if(!current) current = { countKW: 0 };      
+      current.countKW++
+      aggrByAdRelevance[adRelevance] = current;
+    };
+    
+    Logger.log(aggrByAdRelevance);
+  
+    for(key in aggrByAdRelevance){
+      htmlBuilderService.add(reportTemplate.row
+        .replace('{rule}', rule.name)
+        .replace('{filter}', rule.filter)
+        .replace('{label}', rule.label)
+        .replace('{desc}', rule.desc)                     
+        .replace('{resultType}', 'keywordsCount')
+        .replace('{resultValue}', key + ' | ' + aggrByAdRelevance[key].countKW)
+      );
+    }
+}
+
+function LandingPageScoreForkeywords(rule, htmlBuilderService){
+  var report = GetReport(
+      'KEYWORDS_PERFORMANCE_REPORT', 
+      ['Id', 'Criteria', 'PostClickQualityScore'], 
+      ['CampaignStatus = ENABLED', 'AdGroupStatus = ENABLED', 'Status = ENABLED'], 
+      'LAST_30_DAYS'
+    );
+
+    /*  UNKNOWN
+        BELOW_AVERAGE
+        AVERAGE
+        ABOVE_AVERAGE        
+    */
+    var aggrByLandingPageScore = {};
+
+    var rows = report.rows(); 
+    while (rows.hasNext()) { 
+      var row = rows.next();
+      var keywordText = row['Criteria'];
+      var lpScore = row['PostClickQualityScore'];
+      
+      ///Logger.log('keyword %s -> LandingPageScore: %s', keywordText, lpScore);
+      
+      var current = aggrByLandingPageScore[lpScore];
+      if(!current) current = { countKW: 0 };      
+      current.countKW++
+      aggrByLandingPageScore[lpScore] = current;
+    };
+    
+    Logger.log(aggrByLandingPageScore);
+  
+    for(key in aggrByLandingPageScore){
+      htmlBuilderService.add(reportTemplate.row
+        .replace('{rule}', rule.name)
+        .replace('{filter}', rule.filter)
+        .replace('{label}', rule.label)
+        .replace('{desc}', rule.desc)                     
+        .replace('{resultType}', 'keywordsCount')
+        .replace('{resultValue}', key + ' | ' + aggrByLandingPageScore[key].countKW)
+      );
+    }
+}
+
+// --- CODE ----------------------------------------------------------------
+
+function BaseDataQuantityHandler(rule, htmlBuilderService, extensionType){
+  var campaigns = AdsApp.campaigns()
+    .withCondition('Status = ENABLED')
+    .get();
+  
+  while(campaigns.hasNext()){
+    var campaign = campaigns.next();
+    var dataQuantity = GetDataQuantity(campaign, extensionType);
+    if(dataQuantity > 0) continue;
+    
+    var campaignId = campaign.getId().toString();
+    Logger.log('campaign #%s has no %s', campaignId, extensionType);    
+    htmlBuilderService.add(reportTemplate.row
+      .replace('{rule}', rule.name)
+      .replace('{filter}', rule.filter)
+      .replace('{label}', rule.label)
+      .replace('{desc}', rule.desc)                     
+      .replace('{resultType}', 'campaign')
+      .replace('{resultValue}', campaign.getName())
+    );
+  }
+}  
+
+function GetDataQuantity(campaign, extensionType){
+  switch(extensionType.toLowerCase()) {
+    case 'sitelink':
+    case 'sitelinks': return campaign.extensions().sitelinks().get().totalNumEntities();      
+    case 'callout':
+    case 'callouts': return campaign.extensions().callouts().get().totalNumEntities();
+    case 'message':
+    case 'messages': return campaign.extensions().messages().get().totalNumEntities();
+    case 'app':  
+    case 'apps':  
+    case 'mobileapp':  
+    case 'mobileapps': return campaign.extensions().mobileApps().get().totalNumEntities();
+    case 'call':  
+    case 'calls':
+    case 'phonenumber':
+    case 'phonenumbers': return campaign.extensions().phoneNumbers().get().totalNumEntities();      
+    case 'structuredsnippets':
+    case 'snippet':
+    case 'snippets': return campaign.extensions().snippets().get().totalNumEntities();
+    case 'price':  
+    case 'prices': return campaign.extensions().prices().get().totalNumEntities();       
+    case 'negativekeywords': return campaign.extensions().negativeKeywords().get().totalNumEntities();     
+      
+    default: return 0;
+  }
+}
+
+/* e.g: 
+   var report = GetReport(
+      'CAMPAIGN_PERFORMANCE_REPORT', 
+      ['CampaignName', 'AdvertisingChannelType'], 
+      ['CampaignStatus = ENABLED', 'AdvertisingChannelType = DISPLAY'], 
+      'LAST_30_DAYS'
+   );
+   
+   var rows = report.rows(); 
+   while (rows.hasNext()) { 
+	    var row = rows.next();
+      ...
+	 };
+*/
+function GetReport(reportName, reportFields, reportFilters, dateRange){
+  var reportConfig = {
+    includeZeroImpressions: true
+  };
+  
+  // {reportFields} FROM {reportName} WHERE {reportFilters} DURING {dateRange}
+  var query = 'SELECT ' + reportFields.join(', ') + ' ';  
+  query += 'FROM '+ reportName + ' ';
+  
+  if(reportFilters && reportFilters.length > 0)  
+    query += 'WHERE '+ reportFilters.join(' AND ') + ' ';
+  
+  query += 'DURING ' + dateRange;
+  
+  Logger.log(query);
+  return AdWordsApp.report(query, reportConfig); 
+}
+
+// --- SERVICES ------------------------------------------------------------
+
+/* HTML BUILDER SERVICE */
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    },
+    toPDF: function(pdfName){          
+      var blob = Utilities.newBlob(_html, MimeType.HTML);
+      var pdf = blob.getAs(MimeType.PDF);  
+      pdf.setName(pdfName);
+      return pdf;
+    }  
+  };
+}

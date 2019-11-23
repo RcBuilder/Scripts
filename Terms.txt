@@ -106,6 +106,8 @@
 * SQR = Search Query Report
 * ROAS - Return On Advertising Spend
 
+* GDN - Google Display Network (google engine to present your ads in other websites)
+
 * devOps - Developer Operations 
 
 * TIL = Today I Learned

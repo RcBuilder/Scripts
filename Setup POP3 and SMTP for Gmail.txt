@@ -1,0 +1,28 @@
+Setup POP3 and SMTP for Gmail:
+
+[OPTION-1]
+1.  Gmail > Cogwheel Icon > Settings > (tab) Accounts and Import
+2.  Check email from other accounts
+3.  Add an email account
+4.  Set Address > Next 
+5.  Import emails from my other account (POP3) > Next
+6.  Set POP Server Name and PORT, Set email UserName and Password > Confirm
+7.  (optional) choose 'leave a copy on the server' and 'use SSL'
+-
+note: those steps only configure the "receive" part, we still need to define the 'send as' in order to send emails from the particular account
+-
+8.  Gmail > Cogwheel Icon > Settings > (tab) Send mail as 
+9.  Add another email address
+10. Add an email account and Sender Name 
+12. Set SMTP Server Name and PORT, Set email UserName and Password > Confirm 
+13. Copy-paste the confirmation code received in the source-email into the input > Verify
+
+--------
+
+[OPTION-2]
+1. Gmail > Cogwheel Icon > Settings > (tab) Accounts and Import
+2. Import mail and contacts
+3. Set Address > Next 
+4. Set POP Server Name and PORT, Set email UserName and Password > Confirm
+
+

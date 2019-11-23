@@ -9,6 +9,8 @@ https://seleniumhq.github.io/selenium/docs/api/dotnet/
 
 implementation can be found in 'MACrawler' project
 
+// also see 'C# PuppeteerSharp'
+
 // flags
 // https://peter.sh/experiments/chromium-command-line-switches/
 "--blink-settings=imagesEnabled=false", // disable images download
@@ -286,4 +288,24 @@ result = browser.PageSource; // wait till fully rendered
             while (lastScrollHeight < scrollHeight);
 
             return browser.PageSource;
+*/
+
+/*
+	var searchURL = "https://www.google.com/search?q=" + HttpUtility.UrlEncode(phrase);
+
+
+                var chromeOptions = new ChromeOptions();
+                chromeOptions.AddArguments("headless"); // no UI
+                chromeOptions.AddArguments("blink-settings=imagesEnabled=false"); // disable images download
+
+                var pageSource = "";
+                using (var browser = new ChromeDriver(chromeOptions))
+                {
+                    browser.Navigate().GoToUrl(searchURL);
+                    pageSource = browser.PageSource;
+                }
+
+                var doc = new HtmlDocument();
+                doc.LoadHtml(pageSource);
+                var ads = doc.DocumentNode.SelectNodes("//div[@class=\"ad_cclk\"]"/*"//li[@class=\"ads-ad\"]"*/);
 */

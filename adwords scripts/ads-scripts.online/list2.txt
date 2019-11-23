@@ -1,0 +1,19 @@
+(R) Ads Final URL Monitor
+(R) Placement with X Clicks with no Conversions
+(R) Campaigns With X Clicks and No Conversion
+(R) Non Converting keywords
+(R) Increase Cost per Converted
+(R) Low Quality Score Keywords Report 
+(R) Non X Placements blacklist
+(R) Pause Non Converting or High Cost Ads
+(R) queries 2 keywords
+(R) queries 2 negative keywords
+(R) Keywords 2 Negative Keywords
+(R) Non-Profitable KWs
+(R) Set Keywords to First Page
+(R) Overspend Script
+(R) Daily Cost Monitor - today vs 7 days ago
+(R) Account Daily Stats + Charts - Current Month
+(R) Queries Report (Email)
+(R) Campaigns Weekly Report (Email + Sheet)
+(R) Yesterday No Impressions Campaigns List
