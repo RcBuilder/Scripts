@@ -3,6 +3,7 @@ Request OPTIONS Method
 in some cases A browser sends an pre-flight http OPTIONS request header 
 to verify that the server is willing to receive the request. 
 
+// TODO 
 those cases occur in one of the following scenarios: 
 - 
 - 

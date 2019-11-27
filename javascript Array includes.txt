@@ -1,0 +1,15 @@
+javascript Array includes
+-------------------------
+syntax:
+<array>.includes(<value>)
+
+--
+
+// includes
+['A', 'B', 'C', 'D'].includes('F'); //false
+['A', 'B', 'C', 'D'].includes('C'); // true
+
+
+// indexOf
+['A', 'B', 'C', 'D'].indexOf('C') > -1; //true
+['A', 'B', 'C', 'D'].indexOf('F') > -1; //false

@@ -1,0 +1,44 @@
+interface ILogger {
+    append(format: string, params: [string]): void;
+    getValue(): string;
+    writeToScreen(): void;
+}
+
+export class ProcessLogger implements ILogger {
+    protected static seperator: string = '\n';
+    protected value: string[] = []; 
+    
+    constructor() { }
+
+    append(format: string, params?: string[]): void {        
+        (params || []).forEach((p, i) => {
+            format = format.replace('{' + i + '}', p);          
+        });
+
+        this.value.push(format);
+    };    
+
+    getValue(): string {
+        return this.value.join(ProcessLogger.seperator);
+    }  
+
+    writeToScreen(): void {
+        console.log(this.getValue());
+    }  
+}
+
+------------
+
+import { ProcessLogger } from './core/logger';
+
+let processLogger = new ProcessLogger();
+processLogger.append('hello');
+processLogger.append('with param {0}', ['A']);
+processLogger.append('with params {0}, {1} and {2}', ['A', 'B', 'C']);
+processLogger.writeToScreen();
+
+/*
+   hello
+   with param A
+   with params A, B and C	
+*/

@@ -1,0 +1,89 @@
+javascript - callback-based function to async-await 
+---------------------------------------------------
+
+// callback-based
+function foo(callback) {
+    console.log('in foo');
+    setTimeout(() => {
+        callback(Math.random() * 100);
+    }, 2000);
+}
+
+// async-await based
+function fooAsync() {
+    console.log('in fooAsync');
+    return new Promise((resolve, reject) => {
+        try {
+            foo(result => { resolve(result); });
+        }
+        catch{
+            reject(-1);
+        }
+    });
+}
+
+// using
+(async function () {
+    foo(result => {
+        console.log('foo result: ' + result);
+    });
+    console.log('do some other work ...');
+
+    var result = await fooAsync();
+    console.log('foo result: ' + result);
+})();
+
+--------------------------------------
+
+function foo(callback) {
+    console.log('in foo');
+    setTimeout(() => {
+        callback(Math.random() * 100);
+    }, 2000);
+} 
+
+console.log('call foo...');
+fun1(result => {
+    console.log('foo result: ' + result);
+});
+console.log('do some other work ...');
+
+-
+output:
+call foo...
+in foo
+do some other work ...
+fun1 result: 44.357144172507354
+
+--VS--
+
+function fooAsync() {
+    console.log('in fooAsync');
+    return new Promise((resolve, reject) => {
+        try {
+            foo(result => { resolve(result); });
+        }
+        catch{
+            reject(-1);
+        }
+    });
+}
+
+async function foo2() {
+    console.log('in foo2');
+    var result = await fooAsync();
+    console.log('foo2 result: ' + result);
+};
+
+console.log('call foo2...');
+foo2();
+console.log('do some other work ...');
+
+-
+output:
+call foo2...
+in foo2
+in fooAsync
+in foo
+do some other work ...
+foo2 result: 20.003178616449556

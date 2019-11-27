@@ -1,0 +1,30 @@
+SQL STRING_AGG Sample
+---------------------
+
+DECLARE @userWidgetTagsMap TABLE(Id BIGINT, TagId BIGINT)
+	INSERT INTO @userWidgetTagsMap
+		VALUES 
+		(1, 100), 
+		(1, 102), 
+		(1, 102), 
+		(1, 105), 
+		(2, 102), 
+		(3, NULL), 
+		(4, 100), 
+		(4, 101)
+
+	DECLARE @userWidgets TABLE(Id BIGINT, sTags VARCHAR(MAX))
+	INSERT INTO @userWidgets
+		SELECT DISTINCT Id, T.sTags FROM @userWidgetTagsMap M
+		CROSS APPLY (
+			SELECT STRING_AGG(TagId, ';') FROM @userWidgetTagsMap WHERE Id = M.Id
+		) T(sTags)
+
+
+	SELECT * FROM @userWidgets
+
+output:
+1	100;102;102;105
+2	102
+3	NULL
+4	100;101
