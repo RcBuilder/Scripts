@@ -1,0 +1,36 @@
+SQL DATES
+=========
+
+Types
+-----
+TIME
+DATE
+SMALLDATETIME
+DATETIME
+DATETIME2
+
+Using
+-----
+declare @dt datetime2 = '2019-10-30 11:31:41.4633333';
+
+declare @t1 TIME = @dt			-- 11:31:41.4633333
+declare @d1 DATE = @dt			-- 2019-10-30
+declare @d2 SMALLDATETIME = @dt		-- 2019-10-30 11:32:00
+declare @d3 DATETIME = @dt		-- 2019-10-30 11:31:41.463
+declare @d4 DATETIME2 = @dt		-- 2019-10-30 11:31:41.4633333
+
+select @t1, @d1, @d2, @d3, @d4
+
+Ranges
+------
+SMALLDATETIME	// range: 1753-9999 (no seconds or milliseconds)
+DATETIME  	// range: 1753-9999
+DATETIME2 	// range: 0001-9999
+
+Casting 
+-------
+CAST(<date> as TIME)
+CAST(<date> as DATE)
+
+// e.g: SQL Convert To Date
+SELECT CAST('2019-09-09 05:38:12.0000000' AS DATE) -- 2019-09-09

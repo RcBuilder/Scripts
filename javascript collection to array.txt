@@ -1,0 +1,9 @@
+javascript collection to array
+------------------------------
+
+syntax:
+var arr = Array.prototype.slice.call(<collection>, 0);
+
+sample:
+var formTags = document.getElementsByTagName('form');
+var forms = Array.prototype.slice.call(formTags, 0);

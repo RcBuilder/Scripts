@@ -1,0 +1,22 @@
+javascript distinct
+-------------------
+
+function distinct(arr, propertyName){
+    let unique = {};
+
+    for(var i=0;i<arr.length;i++) { 
+	if(!propertyName)
+	    unique[arr[i]] = 1; 
+	else
+	    unique[arr[i][propertyName]] = 1;	
+    };
+
+    return Object.keys(unique);
+}
+
+---
+
+distinct([1,2,3,4,1,1,1,1,1,2,3,4])  // 1,2,3,4
+distinct(['A', 'A', 'B', 'C', 'A', 'C'])  // A,B,C
+distinct([{id:1, name:'A'}, {id:2, name:'B'}, {id:3, name:'A'}, {id:4, name:'B'}], 'name') // A,B
+distinct([{id:1, name:'A'}, {id:2, name:'B'}, {id:3, name:'A'}, {id:4, name:'B'}], 'id') // 1,2,3,4

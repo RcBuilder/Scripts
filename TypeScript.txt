@@ -786,25 +786,10 @@ the most common way to define those scope-external code is through declaration f
 import code from other sources.
 can import .ts and .js files.
 
-// TODO ->> not working...
+export class SomeClass(){ ... }
 
-// external.js
-function OnLoad(moduleName){
-    return `${moduleName} was loaded!`;
-}
-
-// externalTS.ts
-function OnLoadCompleted(moduleName: string): void{
-    console.log(`loading of ${moduleName} has completed`);
-}
-
-// .ts
-import './external.js';
-let message = OnLoad('module1');
-console.log(message);
-
-import './externalTS.js';
-OnLoadCompleted('module1');
+import {SomeClass} from './externalTS';
+let c = new SomeClass();
 
 ------------------------------------------
 
