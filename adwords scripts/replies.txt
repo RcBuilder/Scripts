@@ -346,3 +346,23 @@ you need to dictate to me the process you're doing manually and i will code it i
 for example: if you find yourself waste too much time on checking broken ads or removing non-converting keywords or any other AdWords-related action - just provide me the steps you do manually and I'll convert it to a running script and you'll never have to waste more time on this process ... 
 
 thanks, Roby (-:
+
+----------------
+
+סקריפט מצורף! 
+
+הטמעה: 
+1. יש לפתוח את הסקריפט בעזרת כל עורך (לדוגמה notepad) ולהעתיק את תוכנו 
+2. לגשת לחשבון ה adwords 
+3. תפריט tools ואז scripts 
+4. ללחוץ על כפתור ה + להוספת סקריפט חדש 
+5. יש להחליף את התוכן הדיפולטי של הסקריפט שנוצר בתוכן שהועתק בסעיף 1 
+6. בחלקו העליון של הסקריפט ישנם מספר פרמטרים אותם יש להגדיר 
+    - EMAIL מציין את המייל אליו ישלח הדו"ח 
+    - REPORT_ONLY_MODE דגל בוליאני המציין האם לבצע בפועל את עצירת המודעות או רק לשלוח דו"ח 
+    - AD_GROUP_Id מציין את מזהה הקבוצה בה נמצאים המודעות 
+    - PHRASES רשימת ביטויים לחיפוש (מופרדים בפסיק)
+7. לתת לסקריפט שם (למעלה משמאל) וללחוץ על Save בכדי לשמור את הסקריפט
+8. ברשימת הסקריפטים, יש למצוא את הסקריפט וללחוץ על options ואז Run (הרצה ראשונה)
+9. יש לתת הרשאות מתאימות (יקפוץ חלון בעת נסיון ההרצה הראשון) 
+10.לאחר מכן יש לתזמן את הסקריפט כרצונך (לחיצה על frequency בתפריט הסקריפטים) 

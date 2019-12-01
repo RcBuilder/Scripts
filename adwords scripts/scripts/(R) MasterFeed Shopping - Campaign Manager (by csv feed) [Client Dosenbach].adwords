@@ -18,25 +18,27 @@
 
 var FEED_URI ='https://get.cpexp.de/DkA5_VA2HutKvIGYdClonJgaHW_xuUkwrxSxj4W6Gn8MRDhACUeZEHLbt_KR0B7P/dosenbachworkaroundsch_googleshoppingch.csv';
 var TEST_MODE = false;
-var CAMPAIGN_ID = '8075683134'; // 1622936850
+var CAMPAIGN_ID = '8310371890'; // 1622936850
 var BrandsToRemove = [];
 
 ///[Obsolete] moved to an auto process using config sheet
 ///var ProductsRange = '0-13000'; 
 
 var CONFIG_SHEET_NAME = 'MasterFeedShoppingConfig_Dosenbach';
-var RANGE_INCREMENT_VALUE = 10;
-var RANGE_MIN_VALUE = 10;
-var RANGE_MAX_VALUE = 100;
+var RANGE_INCREMENT_VALUE = 20;
+var RANGE_MIN_VALUE = 1;
+var RANGE_MAX_VALUE = 1000;
 
 var counter_success = 0;
 var counter_failures = 0;
 
 /*
-	var csvService = CSVService('\t');
+	  var csvService = CSVService('\t');
     var rows = csvService.getRows().slice(1); 
     Logger.log(rows[0][0]);
     return;
+    ---
+    Logger.log(CleanUrlPath('abc..d.ef,d,///s,./ww'));
     ---
     Logger.log(adManagerService.countWithoutKeywordInsertion('{KeyWord:Top Preise}'));
     Logger.log(adManagerService.countWithoutKeywordInsertion('Top Preise'));
@@ -49,7 +51,7 @@ var counter_failures = 0;
 function main() {
   if(TEST_MODE)
     Logger.log('[TEST MODE]');
-  
+
   var adManagerService = AdManagerService();   
   /// Logger.log(adManagerService.countWithoutKeywordInsertion('Für nur CHF {param1:1234 statt CHF 4567}'))
   ///return;
@@ -129,8 +131,8 @@ function ProcessProduct(product, adManagerService){
       return false;
     }   
     
-    ///Logger.log('campaign: #%s, adGroup: %s, product: %s', product.campaignId, product.adGroupName, product);       
-	///Logger.log(product.description.line2); // TO DELETE
+    Logger.log('campaign: #%s, adGroup: %s, productPrices: %s', product.campaignId, product.adGroupName, product.price);       
+	  ///Logger.log(product.description.line2); // TO DELETE
     
     // STEP 1: load campaign by Id
   	var campaign = null;
@@ -159,6 +161,8 @@ function ProcessProduct(product, adManagerService){
 }
 
 function CreateProduct(adManagerService, campaign, product){
+  Logger.log('CREATE PRODUCT');
+  
   // STEP 2: create adgroup
   var adGroup = adManagerService.createAdGroup(campaign, product.adGroupName, product.defaultBid);
   if(!adGroup){
@@ -196,6 +200,8 @@ function CreateProduct(adManagerService, campaign, product){
 }
 
 function UpdateProduct(adManagerService, campaign, product){  
+  Logger.log('UPDATE PRODUCT');
+  
   var adGroup = adManagerService.getAdGroupByName(campaign, product.adGroupName);
   
   // update price param
@@ -203,10 +209,15 @@ function UpdateProduct(adManagerService, campaign, product){
   while(keywords.hasNext())
   {        
     var keyword = keywords.next();
-    var params = adManagerService.getKeywordParams(keyword);
-    ///Logger.log('price update: %s > %s', params.length == 0 ? 'NULL' : params[0].text, product.price);
+    var params = adManagerService.getKeywordParams(keyword);    
 
-    adManagerService.setKeywordParams(keyword, product.price);    	
+    adManagerService.setKeywordParams(keyword, product.price.param1);        
+    Logger.log('%s > %s', params.length < 1 ? 'NULL' : params[0].text, product.price.param1);
+    
+    if(product.price.param2 != null){
+      adManagerService.setKeywordParams(keyword, null, product.price.param2);
+      Logger.log('%s > %s', params.length < 2 ? 'NULL' : params[1].text, product.price.param2);
+    }
   }
   	
   // update ad url (if needed)
@@ -254,9 +265,7 @@ function CreateAds(adManagerService, adGroup, product){
 }
 
 
-function CreateAd(adManagerService, adGroup, adData, price){
-  	var param1Value = '{param1:' + price + '}';
-  
+function CreateAd(adManagerService, adGroup, adData, price){  	
   	if(adManagerService.countWithoutKeywordInsertion(adData.header.line1) > 30) 
     	adData.header.line1 = '{KeyWord:Top Preise}'; // default  
   
@@ -266,14 +275,21 @@ function CreateAd(adManagerService, adGroup, adData, price){
 	return adManagerService.createAd(
     adGroup, 
     adManagerService.clearSpecialCharacters(adData.header.line1), 
-    adManagerService.clearSpecialCharacters(adData.header.line2) + ' ' + param1Value, 
+    price.priceLine, 
     adManagerService.clearSpecialCharacters(adData.header.line3), 
     adManagerService.clearSpecialCharacters(adData.description.line1), 
     adManagerService.clearSpecialCharacters(adData.description.line2), 
     adData.url.path, 
-    adData.url.segment1, 
-    adData.url.segment2
+    CleanUrlPath(adData.url.segment1),
+    CleanUrlPath(adData.url.segment2)
   );
+}
+
+function CleanUrlPath(value){
+  return value
+    .split('.').join('')
+    .split(',').join('')
+    .split('/').join('');  
 }
 
 // ----------------------------------------------
@@ -327,7 +343,7 @@ function DataReaderServiceMock(){
               text2 : 'Top Aktionen - Top Service.'
             },
           	keywords: ['keyword1', 'keyword2', 'keyword3', 'keyword4', 'keyword5 Fust abc'], 
-            price: 300,
+            price: { param1: 300, param2: null, priceLine: 'Für nur CHF ' + '{param1:300}' },
             stock: 30
           });
       
@@ -343,6 +359,34 @@ var DataReaderService = function(csvService) {
   (function(){        
     csvService.load(FEED_URI);  
   })();
+  
+  // { param1, param2, priceLine }
+  function getPriceLine(price, salePrice){
+    price = (price || '').replace('CHF', '').trim();
+    salePrice = (salePrice || '').replace('CHF', '').trim();
+    var hasSalePrice = salePrice != '';
+
+    // have both price and sale_price -> 'CHF <sale_price> statt CHF <price>'
+    // doesn't have sale_price -> 'CHF <price>'
+    // if length of <price> is 8 digits and up (e.g: 45678.90) -> 'CHF <sale_price> statt <price>'
+    var priceLine = '';
+    if(hasSalePrice)
+    {          
+      priceLine = 'CHF ' + '{param2:' + salePrice + '}' + ' statt CHF ' + '{param1:' + price + '}';   
+      if(priceLine.length > 30) // to long > remove one CHF
+        priceLine = priceLine.replace('statt CHF', 'statt'); 
+      if(priceLine.length > 30) // still no enough > remove second CHF
+        priceLine = priceLine.replace('CHF ', ''); 
+    }
+    else 
+      priceLine = 'Für nur CHF ' + '{param1:' + price + '}'; 
+    
+    return { 
+      param1: price, 
+      param2: salePrice, 
+      priceLine: priceLine 
+    };
+  }
   
   return {  
      /*
@@ -380,7 +424,16 @@ var DataReaderService = function(csvService) {
     */    
     getProducts: function(){
       var result = [];
-        
+      
+      /*
+      Logger.log(getPriceLine('12.99'));                  // Für nur CHF 12.99
+      Logger.log(getPriceLine('12.99', '34.99'));         // CHF 34.99 statt CHF 12.99
+      Logger.log(getPriceLine('123.99', '345.99'));       // CHF 345.99 statt CHF 123.99
+      Logger.log(getPriceLine('1234.99', '4567.99'));     // CHF 4567.99 statt CHF 1234.99
+      Logger.log(getPriceLine('12345.99', '45678.99'));   // CHF 45678.99 statt 12345.99
+      Logger.log(getPriceLine('123456.99', '456789.99')); // CHF 456789.99 statt 123456.99
+      */
+      
       var map = {};
       map['id'] = this.getColumnIndex('id');      
       map['title'] = this.getColumnIndex('title');
@@ -401,22 +454,8 @@ var DataReaderService = function(csvService) {
       ///Logger.log('map %s', rows[1][map['price']]);
       ///return;      
       
-      for(i in rows){ 
-                
-        var hasSalePrice = rows[i][map['sale_price']] != '';
-        var price = hasSalePrice ? rows[i][map['sale_price']] : rows[i][map['price']];
-        
-        // have both price and sale_price -> 'CHF <sale_price> statt CHF <price>'
-        // doesn't have sale_price -> 'CHF <price>'
-        // if length of <price> is 8 digits and up (e.g: 45678.90) -> 'CHF <sale_price> statt <price>'
-        var priceLine = '';
-        if(hasSalePrice)
-          priceLine = rows[i][map['sale_price']].replace('CHF', '').trim() + ' statt CHF ' + rows[i][map['price']].replace('CHF', '').trim();                           
-        else 
-          priceLine = rows[i][map['price']].replace('CHF', '').trim();        
-        
-        if(priceLine.length > 18)
-          priceLine = priceLine.replace('CHF ', ''); 
+      for(i in rows){              
+        var priceLine = getPriceLine(rows[i][map['price']], rows[i][map['sale_price']]);      
         
         var gender = rows[i][map['gender']];
         gender = this.capitalize(gender);        
@@ -432,7 +471,7 @@ var DataReaderService = function(csvService) {
           	{ /* AD-1 */
               header: {
                 line1: '{KeyWord:Grosse Auswahl – kleine Preise}', 
-                line2: 'Für nur CHF ',
+                line2: '',
                 line3: 'Jetzt bei Dosenbach kaufen'
               },
               description: {
@@ -448,7 +487,7 @@ var DataReaderService = function(csvService) {
             { /* AD-2 */
               header: {
                 line1: '{KeyWord:Grosse Auswahl – kleine Preise}', 
-                line2: 'Für nur CHF ',
+                line2: '',
                 line3: 'Sensationelle Preise'
               },
               description: {
@@ -464,7 +503,7 @@ var DataReaderService = function(csvService) {
             { /* AD-3 */
               header: {
                 line1: '{KeyWord:Versandkostenfrei}', 
-                line2: 'Für nur CHF ',
+                line2: '',
                 line3: 'Jetzt bei Dosenbach.ch'
               },
               description: {
@@ -487,7 +526,7 @@ var DataReaderService = function(csvService) {
           keywords: [            
             rows[i][map['title']],
           ], 
-          price: priceLine, // price
+          price: priceLine, 
           stock: rows[i][map['availability']] 
       	});
       }

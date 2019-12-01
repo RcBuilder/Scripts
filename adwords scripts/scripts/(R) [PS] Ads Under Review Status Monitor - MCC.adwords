@@ -1,325 +1,184 @@
-/* 
-  this script manages accounts Ad Customizer Feeds from a shared google-sheet 
-  
-  [sheet-columns]
-  Account ID	
-  Feed Name	
-  Value1	
-  Value2	
-  Value3	
-  Start Date	
-  End Date	
-  Target Campaign	
-  Target Ad Group	
-  Target Keyword	
-  Target Location	  
-  Target Location Restriction	  
-  Action Status	                // [Remove]
-  Script Status	                // [Done, Error]
-  Policy details	
-  Device Preference	
-  Custom Parameter
+/*
 
+  this script monitors on ads with UNDER_REVIEW status.  
+  if an ad hangs on this status for more than the allowed threshold - a notification will be sent to PropertySuite endpoint. 
+  if an ad status has changed, it will be automatically removed from monitoring.  
+  
   [process]
-    
-  steps:
-  1. load all rows need to be processed from the sheet ('Script Status' is NOT equals to 'Done')
-  2. group rows by account 
-  3. for each account > process the rows     
-  4. for each row
-     - find the relevant feed by its name
-     - if 'Action Status' is set to 'Remove' - remove the feed items
-     - if 'Action Status' is set to anything else - save a feed 
-  5. save a feed:
-     - if no such feed exists - create a new feed-source and a feed item using the sheet's provided data
-     - if feed exists - update the item with the new details
-       note! there's NO support for multiple items per feed source
-  6. update the 'Script Status' with the relevant process status ('Done' or 'Error')
+  1. loads all ads in the account that are UNDER_REVIEW. 
+  2. for each such ad:
+     - find it in the monitoring-sheet
+     - if not found > add it to the sheet (with NOW timestamp) to be monitored from now on
+     - if found, extract the timestampt and calculate the difference in hours > if it over the allowed threshold > send notification
+  3. remove the ads from the sheet which NOT found in the account UNDER_REVIEW ad-list (meaning: they have a different status now)
+  
 */
 
-// https://docs.google.com/spreadsheets/d/1JHBzYPZnOBPa3336Bw1utD-W-3e8nGS4WWXbcQD4U8A/edit#gid=0
-var SHEET_URL = 'https://docs.google.com/spreadsheets/d/13R8arep721d2xmos1oYxf8i0Cvb90sUPNmmmtQl1T6I/edit#gid=0';
+var SHEET_NAME = 'Ads_UnderReview_Status_Monitor';
+var MAX_TIME_ALLOWED_H = 24;
 
-function main() {  
-  var sheetService = SpreadsheetLoader.loadSheetServiceByURL(SHEET_URL); // load   
+function main() {
+  var sheetService = SpreadsheetLoader.loadSheetService(SHEET_NAME); // load   
   var sheetNotExists = !sheetService;
   if(sheetNotExists){
-    Logger.log('data source does NOT exists - stop processing...');
-    return;
+     sheetService = SpreadsheetLoader.createSheetService(SHEET_NAME); // create  
+     sheetService.addRow(['#Account', '#Ad', 'Ad Status', 'Date']); // add header 
   }
   
-  var adCustomizerDataService = AdCustomizerDataService(sheetService);
+  var adStatusMonitorService = AdStatusMonitorService(sheetService);
+  
   
   /*
-    adCustomizerDataService.setFeedStatus(2, 'Approved');
-    Logger.log(adCustomizerDataService.getFeedRowIndex('111-111-1111', 'UK_Sale_Date'));    
-    Logger.log(sheetService.letter2index('A'));
-  */  
-  
-  var accountIds = adCustomizerDataService.getAccountsIds();
-  for(i in accountIds){
-    var accountId = accountIds[i];   
-    
-    if(!MccSelect(accountId)){
-      Logger.log('no such account #%s - skipping...', accountId);
-      continue; 
-    }
-    
-    processAccount(accountId, adCustomizerDataService); 
-  }
-}
-
-function MccSelect(accountId){
-  ///return true; // regular account support
-  
-  var managedAccountItr = MccApp.accounts().withIds([accountId]).get();
-  if(managedAccountItr.totalNumEntities() == 0) return false;
-  MccApp.select(managedAccountItr.next());
-  return true;
-}
-
-function processAccount(accountId, adCustomizerDataService){
-  /* 
-    [{ 
-        feedName, 
-        value1,
-        value2,	
-        value3, 
-        startDate, 
-        endDate, 
-        targetCampaign, 
-        targetAdGroup, 
-        targetKeyword, 
-        targetLocation, 
-        targetLocationRestriction, 
-        policyDetails,         
-        devicePreference, 
-        customParameter, 
-        scriptStatus,
-        actionStatus
-    }]
-  */
-  var accountFeeds = adCustomizerDataService.getAccountFeedsToProcess(accountId);    
-  var actualFeedsDic = getActualFeedsDic();
-  
-  Logger.log('[%s] found %s feeds to process', accountId, accountFeeds.length);  
-  
-  processFeeds(accountId, accountFeeds, actualFeedsDic, adCustomizerDataService);
-  /// updateFeedsApprovalStatus(accountId, accountFeeds, actualFeedsDic, adCustomizerDataService);
-}
-
-/*
-function updateFeedsApprovalStatus(accountId, accountFeeds, actualFeedsDic, adCustomizerDataService){
-  var filtered = accountFeeds.filter(function(row){ return row.scriptStatus != 'Done' }); // Script Status   
-  Object.keys(actualFeedsDic).forEach(function(feedNameKey){
-    var current = actualFeedsDic[feedNameKey]; // TODO ->> How To receive a source approval status?
-    var feedIndex = adCustomizerDataService.getFeedRowIndex(accountId, accountFeed.feedName);
-  });
-}
-*/
-
-function processFeeds(accountId, accountFeeds, actualFeedsDic, adCustomizerDataService){    
-  for(i in accountFeeds){
-    var accountFeed = accountFeeds[i];
-    var feedIndex = adCustomizerDataService.getFeedRowIndex(accountId, accountFeed.feedName);
-    ///Logger.log(accountFeed);  
-    
-    var current = actualFeedsDic[accountFeed.feedName];
-        
-    // remove feed 
-    if(accountFeed.actionStatus.toLowerCase() == 'remove') 
+    var accounts = MccApp.accounts().get();  
+    while(accounts.hasNext())
     {
-      Logger.log('removing feed %s...', accountFeed.feedName);
-      removeFeed(current);
-      adCustomizerDataService.setFeedScriptStatus(feedIndex, 'Done');
+      var account = accounts.next();
+
+      Logger.log('### account: %s ###', account.getName());  
+
+      MccApp.select(account);
+      ProcessAccount(account, adStatusDataService);
+
+      Logger.log('--------------------------');
+    }
+  */
+  
+  
+  var account = AdsApp.currentAccount();    
+  ProcessAccount(account, adStatusMonitorService);  
+}
+
+function ProcessAccount(account, adStatusMonitorService){
+  var accountId = account.getCustomerId();
+  var accountName = account.getName();
+        
+  // all received ads are UNDER_REVIEW so they either exist in the sheet and need to check their period or don't exist and need to be added with NOW timestamp 
+  var underReviewAdsState = GetAccountAdsByStatus('UNDER_REVIEW');
+  Logger.log('found %s ads with UNDER REVIEW status', underReviewAdsState.length);
+    
+  for(i in underReviewAdsState){
+    var curr = underReviewAdsState[i];
+    Logger.log(curr);
+    
+    var rowIndex = adStatusMonitorService.getAdRowIndex(curr.id);
+    
+    // ads do NOT exist in sheet but exist in underReviewAdsState array - new ads with UNDER_REVIEW status
+    // insert to sheet
+    if(rowIndex == -1) {
+      Logger.log('add new ad to monitor');
+      adStatusMonitorService.insertNewAd(accountId, curr.id, curr.policyStatus);
       continue;
     }
+         
+    // ads exist in both sheet and underReviewAdsState array - ads still UNDER_REVIEW
+    // check existing status time 
+        
+    var adRow = adStatusMonitorService.getAd(rowIndex);
+    var diff = hoursDiff(new Date(), adRow.date);
     
-    // create/update
-    if(!current) {
-      Logger.log('creating feed %s...', accountFeed.feedName);
-      var createdFeed = createFeed(accountFeed);
-      if(!createdFeed) {
-        Logger.log('## EX ## some error occured!');
-        adCustomizerDataService.setFeedScriptStatus(feedIndex, 'Error');
-        continue;
-      }
-      
-      current = createdFeed;
-      actualFeedsDic[accountFeed.feedName] = current;
-    }
+    Logger.log('diff of %s hours', diff);
+    if(diff < MAX_TIME_ALLOWED_H) continue;   
     
-    Logger.log('saving feed item ...');
-    var updatedFeedItem = saveFeedItem(current, accountFeed);
-    if(!updatedFeedItem) {
-      Logger.log('## EX ## some error occured!');
-      adCustomizerDataService.setFeedScriptStatus(feedIndex, 'Error');
-      continue;
-    }
+    Logger.log('notify PropertySuite!');    
+    // TODO ->> Notify PS
+    // TODO ->> Make a Copy and Remove the old from monitoring ???! 
+  }
+  
+  // ads exist in the sheet but NOT in underReviewAdsState array - ads were UNDER_REVIEW but not anymroe   
+  // remove from sheet
     
-    adCustomizerDataService.setFeedScriptStatus(feedIndex, 'Done');
-  }
-}
-
-function createFeed(feedMetadata){
-  try{
-    // create a feed source
-    var builder = AdsApp.newAdCustomizerSourceBuilder(); 
-    var operation = builder
-    .withName(feedMetadata.feedName)  
-    .addAttribute("Value1", 'text') 
-    .addAttribute("Value2", 'text') 
-    .addAttribute("Value3", 'text')     
-    .addAttribute("Policy Details", 'text')   
-    .addAttribute("Custom Parameter", 'text') 
-    .build();  
-
-    if(!operation.isSuccessful())
-      return null;  
-    return operation.getResult();  
-  }
-  catch(ex){
-    Logger.log(ex);
-    return null;
-  }
-}
-
-function saveFeedItem(currentFeed, feedMetadata){   
-  try{
-    var currentFeedItem = null;
-
-    // load feed-item  
-    var temp = currentFeed.items().get();
-    if(temp.totalNumEntities() > 0)
-      currentFeedItem = temp.next();
-
-    // no item found - create a new one
-    if(!currentFeedItem){
-      var builder = currentFeed.adCustomizerItemBuilder(); // update feed source item data    
-      builder.withAttributeValue("Value1", '[INIT]') // [Required] must provide at least 1 attribute on the creation!
-
-      var operation = builder.build(); // build 
-      if(!operation.isSuccessful()) return null;
-      currentFeedItem = operation.getResult();
-    }
-
-    // update custom attributes
-    currentFeedItem.setAttributeValue("Value1", feedMetadata.value1); 
-    currentFeedItem.setAttributeValue("Value2", feedMetadata.value2); 
-    currentFeedItem.setAttributeValue("Value3", feedMetadata.value3); 
-    currentFeedItem.setAttributeValue("Policy Details", feedMetadata.policyDetails);      
-    currentFeedItem.setAttributeValue("Custom Parameter", feedMetadata.customParameter);
-
-    // update dates      
-    if(feedMetadata.startDate != '')
-      currentFeedItem.setStartDate(Utilities.formatDate(feedMetadata.startDate, 'GMT', 'yyyyMMdd'));  // yyyyMMdd OR {year, month, day}    
-    if(feedMetadata.setEndDate != '')
-      currentFeedItem.setEndDate(Utilities.formatDate(feedMetadata.endDate, 'GMT', 'yyyyMMdd')); // yyyyMMdd OR {year, month, day}
-
-    // update target entities
-    if(feedMetadata.targetCampaign != '')
-      currentFeedItem.setTargetCampaign(feedMetadata.targetCampaign);
-    if(feedMetadata.targetCampaign != '' || feedMetadata.targetAdGroup)
-      currentFeedItem.setTargetAdGroup(feedMetadata.targetCampaign, feedMetadata.targetAdGroup);  
-    if(feedMetadata.targetKeyword != '')
-      currentFeedItem.setTargetKeyword(feedMetadata.targetKeyword);
-
-    // update device Preference
-    currentFeedItem.setMobilePreferred(feedMetadata.devicePreference); 
-
-    return currentFeedItem;
-  }
-  catch(ex){
-    Logger.log(ex);
-    return null;
-  }
-}
-
-function removeFeed(currentFeed){
-  var items = currentFeed.items().get();
-  while(items.hasNext())
-    items.next().remove();
-}
-
-function getActualFeedsDic(){
-  var dic = {}; // dic<string, feed>
-  var dataFeeds = AdsApp.adCustomizerSources().get();
-  while(dataFeeds.hasNext()){
-    var dataFeed = dataFeeds.next();
-    dic[dataFeed.getName()] = dataFeed;
-  }
-  return dic;
-}
-
-// https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_adcustomizersource  
-function printActualFeeds(){
-  var dataFeeds = AdsApp.adCustomizerSources().get();
-  while(dataFeeds.hasNext()){
-    var dataFeed = dataFeeds.next();
+  var adRowsInSheet = adStatusMonitorService.getAccountAds(accountId);
+  Logger.log('found %s monitored ads (sheet)', adRowsInSheet.length);
+  
+  var adsAlreadyHandledIds = underReviewAdsState.map(function(x){return x.id});
+  
+  var adsToRemoveFromSheet = adRowsInSheet.filter(function(x){
+    return adsAlreadyHandledIds.indexOf(x.adId) == -1;
+  });
+  
+  
+  Logger.log('found %s ads to remove from monitoring (exists as UNDER_REVIEW in sheet but NOT in the account)', adsToRemoveFromSheet.length);
+  
+  for(i in adsToRemoveFromSheet){
+    var curr = adsToRemoveFromSheet[i];
+    Logger.log(curr);
     
-    Logger.log('[feed] %s', dataFeed.getName());
-    var feedItems = dataFeed.items().get();
-    while(feedItems.hasNext()){
-      var feedItem = feedItems.next();
-      Logger.log('%s', feedItem.getAttributeValue('Value1'));      
-    }
-  }  
+    var rowIndex = adStatusMonitorService.getAdRowIndex(curr.adId);
+    adStatusMonitorService.deleteRow(rowIndex);
+  }
 }
+
+// AdStatus: APPROVED, APPROVED_LIMITED, ELIGIBLE, UNDER_REVIEW, DISAPPROVED, SITE_SUSPENDED
+// result: [{ id, status, policyStatus }]
+function GetAccountAdsByStatus(AdStatus) {
+  var ads = AdsApp.ads()
+  .withCondition('CombinedApprovalStatus IN [' + AdStatus + ']')   
+  .withCondition('Status = ENABLED')
+  .get();
+  
+  var result = [];
+  
+  while(ads.hasNext()){
+    var ad = ads.next();
+    
+    result.push({
+      id: ad.getId().toString(),
+      status: ad.getApprovalStatus(),
+      policyStatus: ad.getPolicyApprovalStatus()      
+    });        
+  }
+  
+  return result;
+}
+
+function hoursDiff(date1, date2) {
+  var diff = date1.getTime() - date2.getTime(); 
+  return parseInt(diff / (60*60*1000));
+};
 
 // --- SERVICES ------------------------------------------------------------
 
-/* AD-CUSTOMIZER DATA SERVICE */
-var AdCustomizerDataService = function(sheetService) {   
-  return {    
-    getAccountsIds: function(){
-      var values = [];
-      
-      var range = sheetService.getColumnValues(2, 2);
-      for(r in range)
-        for(c in range[r])
-          if(values.indexOf(range[r][c]) == -1)
-            values.push(range[r][c])
-      return values;
-    },    
-    getAccountFeeds: function(accountId){
-      var all = sheetService.findRowsByFilter(accountId, 2) || [];                   
-      return all.map(function(row){
+/* AD-STATUS DATA SERVICE */
+var AdStatusMonitorService = function(sheetService) {   
+  return {           
+    // [{ accountId, adId, adStatus, date }]
+    getAccountAds: function(accountId){
+      var data = sheetService.findRowsByFilter(accountId, 1) || [];                   
+      return data.map(function(row){
         return {
-          feedName: row[2].trim(),	
-          value1: row[3].toString(),	
-          value2: row[4].toString(),	
-          value3: row[5].toString(),	
-          startDate: row[6],		
-          endDate: row[7],		
-          targetCampaign: row[8],		
-          targetAdGroup: row[9],	
-          targetKeyword: row[10],		
-          targetLocation: row[11],		
-          targetLocationRestriction: row[12],		          		
-          policyDetails: row[15].toString(),		          		
-          devicePreference: row[16],		
-          customParameter: row[17].toString(),
-          scriptStatus: row[14],
-          actionStatus: row[13]
+          accountId: row[0],	
+          adId: row[1].toString(),	
+          adStatus: row[2],	
+          date: row[3],	          
         }
       });
     },  
-    getAccountFeedsToProcess: function(accountId){
-      var all = this.getAccountFeeds(accountId);
-      var filtered = all.filter(function(row){ return row.scriptStatus != 'Done' }); // Script Status            
-      return filtered;
-    },    
-    getFeedRowIndex: function(accountId, feedName){
-      return parseInt(sheetService.getRowIndexBy2Columns(2, accountId, 3, feedName));
-    },
-    setFeedStatus: function(rowIndex, value){
-      // Approved, Removed, Under Review
-      return sheetService.setValue(rowIndex, 14, value);
+    getAd: function(rowIndex){
+      var row = sheetService.getRowByIndex(rowIndex);     
+      
+      return {
+        accountId: row[0],	
+        adId: row[1].toString(),	
+        adStatus: row[2],	
+        date: row[3],	          
+      };      
     },  
-    setFeedScriptStatus: function(rowIndex, value){
-      // Done, Error
-      return sheetService.setValue(rowIndex, 15, value);
-    }       
+    getAdRowIndex: function(adId){      
+      return parseInt(sheetService.getRowIndex(2, adId));
+    },
+    setAdStatus: function(rowIndex, value){
+      // Approved, Removed, Under Review
+      return sheetService.setValue(rowIndex, 3, value);
+    },  
+    setDate: function(rowIndex, value){     
+      return sheetService.setValue(rowIndex, 4, value);
+    },     
+    insertNewAd: function(accountId, adId, adStatus){
+      sheetService.addRow([accountId, adId, adStatus, new Date()]);
+    },
+    deleteRow: function(rowIndex){      
+      sheetService.deleteRow(rowIndex);
+    },
   }
 }
 
@@ -428,7 +287,11 @@ var SheetService = function(sheet) {
     }, 
     getRowValues:function(rowPosition){       
       return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
-    },      
+    }, 
+    getRowByIndex:function(rowIndex){       
+      var values = this.getRowValues(rowIndex);
+      return values[0] || [];
+    }, 
     getRowIndex: function(columnPosition, key){
       var rows = _sheet.getDataRange().getValues();
       
@@ -475,17 +338,6 @@ var SheetService = function(sheet) {
     deleteRow: function(rowPosition){
       _sheet.deleteRow(rowPosition);
     }, 
-    letter2index: function(columnLetter){
-      const numOfLetters = 26;
-      const startIndex = 'A'.charCodeAt(0); 
-      /*
-        get column index by it's letter/s representation 
-        e.g: A=1, C=3 
-      */
-      
-      // TODO 
-      
-    },
 	  copyRange: function(fromRange, toRange){
         Logger.log('copy range from %s to %s', fromRange, toRange);
         var valuesToCopy = this.getValuesByRange(fromRange);      
@@ -526,7 +378,7 @@ var SheetService = function(sheet) {
         if(rows[row][filterColumnPosition - 1] == filterValue)
           result.push(rows[row]);
       return result;  
-    }, 
+    },
 	  freezeHeader: function(){
       _sheet.setFrozenRows(1);
     },

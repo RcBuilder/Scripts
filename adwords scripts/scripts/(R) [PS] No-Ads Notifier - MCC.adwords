@@ -1,0 +1,83 @@
+var EMAIL = 'rcbuilder@walla.com';
+
+function main() {
+  
+  var htmlBuilderService = HTMLBuilderService();
+  
+  htmlBuilderService.add('<h2 style="direction:rtl;text-align:right;">Campaigns-Ads-Map</h2>');
+  htmlBuilderService.add('<table cellspacing="10" cellpadding="10" border="1" style="direction:ltr;text-align:left;">');
+  htmlBuilderService.add('<tr style="background-color:#888; color:#fff;">'+
+                         '<th>Account Name</th>'+                         
+                         '<th>Campaign Name</th>'+
+                         '<th>Ads Quantity</th>'+                                                  
+                         '</tr>');
+  
+  var accounts = MccApp.accounts().get();  
+    while(accounts.hasNext())
+    {
+      var account = accounts.next();
+
+      Logger.log('### account: %s ###', account.getName());  
+
+      MccApp.select(account);
+      ProcessAccount(account, htmlBuilderService);
+
+      Logger.log('--------------------------');
+    }
+  
+  try{                 
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'No-Ads Notifier', '', {
+      htmlBody: htmlBuilderService.get()
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+function ProcessAccount(account, htmlBuilderService){
+  var accountName = AdWordsApp.currentAccount().getName();
+  var campaigns = AdsApp.campaigns()
+    .withCondition('Status = ENABLED')    
+    .get();
+  
+  while(campaigns.hasNext()){
+    var campaign = campaigns.next();
+    var campaignId = campaign.getId().toString();
+    
+    var ads = campaign.ads()
+      .withCondition('Status = ENABLED')
+      .withCondition('AdGroupStatus = ENABLED')
+      .withCondition('CampaignStatus = ENABLED')
+      .get();
+    
+    var numOfAds = ads.totalNumEntities();    
+    Logger.log('campaign #%s has %s ads', campaignId, numOfAds);      
+    
+    htmlBuilderService.add('<tr' + (numOfAds == 0 ? ' style="background-color:red; color:#fff;"' : '') + '>'+ 
+                         '<td>' + accountName + '</td>'+
+                         '<td>' + campaign.getName() + '</td>'+
+                         '<td>' + numOfAds + '</td>'+                                                  
+                         '</tr>');
+    
+    if(numOfAds > 0) continue;
+    
+    // notify PS 
+  }
+}
+
+// ------------------------------------------
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}

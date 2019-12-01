@@ -1,0 +1,63 @@
+function distinct(arr, propertyName){
+  
+  var hashCode = function(value) {
+    var hash = 0, i, chr;
+    if (value.length === 0) return hash;
+    for (i = 0; i < value.length; i++) {
+      chr   = value.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash.toString();
+  };
+  
+  var result = {};
+  for(var i=0;i<arr.length;i++){
+    if(typeof(arr[i]) == 'object' && !propertyName)
+      throw 'object types must use property name!';
+
+    var key, value;
+    if(!propertyName)
+    {
+      key = typeof(arr[i]) == 'string' ? hashCode(arr[i]) : arr[i];  
+      value = arr[i];
+    }
+    else
+    {
+      key = typeof(arr[i][propertyName]) == 'string' ? hashCode(arr[i][propertyName]) : arr[i][propertyName];             
+      value = arr[i][propertyName];
+    }
+    
+    result[key] = value;
+  }
+  
+  return Object.keys(result).map(function(x){ return result[x]; });
+}
+
+
+-----------------------
+
+var ads = [
+	{ url:'https://www.dosenbach.ch/CH/de/shop/damen/damen-accessoires/damen-accessoires-sohlen/00002000994290/Alu-Thermo-Tec+Einlegesohle+37+Unisex.prod' },
+    	{ url:'https://www.dosenbach.ch/CH/de/shop/damen/damen-schuhe/damen-schuhe-sandalen/00002001036646/Damen+Sandale+.prod' },
+    	{ url:'https://www.vac.ch/de/vorhaenge-dekoration/68388-rideau-termine-avec-bretelles.html' },
+    	{ url:'https://www.dosenbach.ch/CH/de/shop/damen/damen-accessoires/damen-accessoires-pflegeprodukte/00002000644108/Leder+Cream+braun+75ml.prod' },
+    	{ url:'https://www.vac.ch/de/fotoapparat-und-kamerataschen/69219-sacoche-universelle-pour-camera.html' },
+    	{ url:'https://www.vac.ch/de/fotoapparat-und-kamerataschen/69219-sacoche-universelle-pour-camera.html' },
+    	{ url:'https://www.dosenbach.ch/CH/de/shop/damen/damen-schuhe/damen-schuhe-sandalen/00002001036646/Damen+Sandale+.prod' },
+];
+
+var users = [
+	{ age: 30, val: 'John'},
+	{ age: 41, val: 'John'}, 
+	{ age: 30, val: 'Roby'}, 
+	{ age: 30, val: 'Roby'}, 
+	{ age: 50, val: 'Ron'}
+]
+
+distinct(ads, 'url');
+distinct(users, 'age');  // [30, 41, 50]
+distinct(users, 'val');  // ["Ron", "John", "Roby"]
+distinct([1,2,3,4,1,2,3,4]);  // [1,2,3,4] 
+distinct(['A', 'B', 'B', 'C', 'D', 'D', 'E']);
+distinct(users);  // exception! -> "object types must use property name!"

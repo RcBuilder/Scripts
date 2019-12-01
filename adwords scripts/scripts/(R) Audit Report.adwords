@@ -6,17 +6,21 @@ MCC + label filter per rule
 report score
 --
 1. MCC level script
-    InProgress 
+    Done (need to comment out)
+    
 2. Runs only selected account (not all accounts)
-    InProgress 
-3. The script outputs to a Google Sheet 
-    InProgress 
-The Google sheet has 1 tab that out puts the summary. And have 1 tab for each rule with detailed output. Thoughts? Do you need a template?
+    Done (need to comment out)
+    
+    
+    
+9. Count of negative keywords by campaigns
+11. Use of Legacy Text Ads
+13. Ad Groups With Too Many Keywords         
 */
   
 
 var rules = [
-  /**/
+  /*
   { isActive: true, name: 'CampaignWithNoSiteLinksEXT', score: 1, filter: '', label: 'test1', desc: 'Campaigns with no Sitelink Extensions' },
   { isActive: true, name: 'CampaignWithNoCalloutsEXT', score: 1, filter: '', label: 'test2', desc: 'Campaigns with no Callout Extensions' },
   { isActive: true, name: 'CampaignWithNoCallsEXT', score: 1, filter: '', label: '', desc: 'Campaigns with no Call Extensions' },
@@ -29,11 +33,68 @@ var rules = [
   { isActive: true, name: 'KeywordsWithLowQualityScore', score: 1, filter: 6, label: '', desc: 'keywords With Low Quality Score' }, 
   { isActive: true, name: 'AdGroupsWithHighCostAndLowQualityScore', score: 1, filter: 30, label: '', desc: 'High Cost AdGroups with Low Quality Score' }, 
   { isActive: true, name: 'AdRelevanceScoreForkeywords', score: 1, filter: '', label: '', desc: 'Ad Relevance Score for keywords' },
-  { isActive: true, name: 'LandingPageScoreForkeywords', score: 1, filter: '', label: '', desc: 'Landing Page Score for keywords' },
-  
+  { isActive: true, name: 'LandingPageScoreForkeywords', score: 1, filter: '', label: '', desc: 'Landing Page Score for keywords' },  
+  { isActive: true, name: 'AdsWithDuplicateDescriptions1', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Descriptions-1' },
+  { isActive: true, name: 'AdsWithDuplicateDescriptions2', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Descriptions-2' },
+  { isActive: true, name: 'AdsWithDuplicateHeadline1', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Headline-1' },
+  { isActive: true, name: 'AdsWithDuplicateHeadline2', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Headline-2' },
+  { isActive: true, name: 'AdsWithDuplicateHeadline3', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Headline-3' },  
+  { isActive: true, name: 'KeywordsWithClicks', score: 1, filter: '', label: '', desc: 'Percentage of keywords with clicks' },
+  { isActive: true, name: 'KeywordsWithConversions', score: 1, filter: '', label: '', desc: 'Percentage of keywords with Conversions' },
+  { isActive: true, name: 'KeywordsWithImpressions', score: 1, filter: '', label: '', desc: 'Percentage of keywords with Impressions' },
+  { isActive: true, name: 'HttpAds', score: 1, filter: '', label: '', desc: 'Final URLs that are still using HTTP' },
+  */  
+  { isActive: true, name: 'AdsWithDuplicateUrl', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Final URL' },  
 ];
 
+
+/* 
+  TO DELETE
+  ---------
+  var propertyName = 'url';
+  
+  /// var ads = GetTextAds();
+  
+  var ads = [
+    {url:'https://www.dosenbach.ch/CH/de/shop/damen/damen-accessoires/damen-accessoires-sohlen/00002000994290/Alu-Thermo-Tec+Einlegesohle+37+Unisex.prod'},
+    {url:'https://www.dosenbach.ch/CH/de/shop/damen/damen-schuhe/damen-schuhe-sandalen/00002001036646/Damen+Sandale+.prod'},
+    {url:'https://www.vac.ch/de/vorhaenge-dekoration/68388-rideau-termine-avec-bretelles.html'},
+    {url:'https://www.dosenbach.ch/CH/de/shop/damen/damen-accessoires/damen-accessoires-pflegeprodukte/00002000644108/Leder+Cream+braun+75ml.prod'},
+    {url:'https://www.vac.ch/de/fotoapparat-und-kamerataschen/69219-sacoche-universelle-pour-camera.html'},
+    {url:'https://www.vac.ch/de/fotoapparat-und-kamerataschen/69219-sacoche-universelle-pour-camera.html'},
+    {url:'https://www.dosenbach.ch/CH/de/shop/damen/damen-schuhe/damen-schuhe-sandalen/00002001036646/Damen+Sandale+.prod'},
+  ];
+  Logger.log('%s ads found', ads.length);  
+  
+  var duplicates = [];
+  ads.forEach(function(adOuter){
+    var count = ads.reduce(function(aggr, adInner){ 
+      return aggr += (adInner[propertyName].toLowerCase() == adOuter[propertyName].toLowerCase()) ? 1 : 0; 
+    }, 0);
+   
+    if(count > 1)
+      duplicates.push(adOuter);
+  });
+  
+  Logger.log('%s duplicates ads found', duplicates.length);
+  
+  var rate = ads.length == 0 ? 0 : duplicates.length / ads.length;
+  if(rate <= 0.4) return;
+  
+  Logger.log('found %s percentage of duplicates ads with %s', rate.toFixed(2), propertyName);   
+  
+  var summaryLine = (rate * 100).toFixed(2) + '%' + ' (' + duplicates.length + ' of ' + ads.length  + ')';
+  
+  var unique = distinct(duplicates, propertyName);
+  for(i in unique)    
+    Logger.log(unique[i])    
+  
+  return;
+*/
+
+
 function main(){
+  
   /*
   var accounts = MccApp.accounts().get();  
   while(accounts.hasNext())
@@ -68,7 +129,7 @@ function ProcessAccount(accountName, appliedLabels) {
      sheetService = SpreadsheetLoader.createSheetService(sheetName); // create       
   
   sheetService.clear();  
-  sheetService.addRow(['rule', 'filter', 'label', 'description', 'resultType', 'resultValue']); // add header 
+  sheetService.addRow(['rule', 'filter', 'label', 'description', 'resultType', 'resultValue', 'summary']); // add header 
   sheetService.setDataUI('A1:Z1', null, null, 11, 'left', 'bold', null, 'middle');
     
   for(i in rules)
@@ -107,6 +168,58 @@ function ProcessAccount(accountName, appliedLabels) {
 }
 
 // --- RULES ---------------------------------------------------------------
+
+function HttpAds(rule, sheetService){
+  var ads = GetAllAds();
+  Logger.log('%s ads found', ads.length);
+  
+  var httpAds = ads.filter(function(ad){ 
+    return ad.url.indexOf('http://') == 0; 
+  });
+  
+  Logger.log('%s http ads found', httpAds.length);
+  
+  for(i in httpAds){
+    Logger.log('http ad: %s', httpAds[i].url);    
+    sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'ad', httpAds[i].url, '#' + httpAds[i].id]);     
+  }
+}
+
+function KeywordsWithClicks(rule, sheetService){
+   KeywordsWithMetrics(rule, sheetService, 'Clicks');
+}
+
+function KeywordsWithConversions(rule, sheetService){
+   KeywordsWithMetrics(rule, sheetService, 'Conversions');
+}
+
+function KeywordsWithImpressions(rule, sheetService){
+   KeywordsWithMetrics(rule, sheetService, 'Impressions');
+}
+
+function AdsWithDuplicateUrl(rule, sheetService){
+  AdsWithDuplicateContent(rule, sheetService, 'url');  
+}
+
+function AdsWithDuplicateDescriptions1(rule, sheetService){
+  AdsWithDuplicateContent(rule, sheetService, 'description1');  
+}
+
+function AdsWithDuplicateDescriptions2(rule, sheetService){
+  AdsWithDuplicateContent(rule, sheetService, 'description2');
+}
+
+function AdsWithDuplicateHeadline1(rule, sheetService){
+  AdsWithDuplicateContent(rule, sheetService, 'title1');
+}
+
+function AdsWithDuplicateHeadline2(rule, sheetService){
+  AdsWithDuplicateContent(rule, sheetService, 'title2');
+}
+
+function AdsWithDuplicateHeadline3(rule, sheetService){
+  AdsWithDuplicateContent(rule, sheetService, 'title3');
+}
 
 function CampaignWithNoSiteLinksEXT(rule, sheetService){
   BaseDataQuantityHandler(rule, sheetService, 'sitelinks'); 
@@ -175,7 +288,7 @@ function KeywordsWithLowQualityScore(rule, sheetService){
       var qs = parseFloat(row['QualityScore']);
       
       Logger.log('keyword %s has low QS of %s', keywordText, qs);   
-      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keyword', keywordText + ' | qs: ' + qs]);      
+      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keyword', keywordText, 'qs: ' + qs]);      
     };      
 }
 
@@ -231,7 +344,7 @@ function AdGroupsWithHighCostAndLowQualityScore(rule, sheetService){
     if(!isHighCost || avgQS > 6) continue;
     
     Logger.log('adGroup %s has low QS of %s and high cost of %s', adGroupName, avgQS, cost);  
-    sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'adGroup', adGroupName + ' | qs: ' + avgQS + ' | cost: ' + cost]);    
+    sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'adGroup', adGroupName, 'qs: ' + avgQS + ' | cost: ' + cost]);    
   }    
 }
 
@@ -267,7 +380,7 @@ function AdRelevanceScoreForkeywords(rule, sheetService){
     Logger.log(aggrByAdRelevance);
   
     for(key in aggrByAdRelevance){
-      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keywordsCount', key + ' | ' + aggrByAdRelevance[key].countKW]);      
+      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keywordsCount', key, aggrByAdRelevance[key].countKW]);      
     }
 }
 
@@ -303,7 +416,7 @@ function LandingPageScoreForkeywords(rule, sheetService){
     Logger.log(aggrByLandingPageScore);
   
     for(key in aggrByLandingPageScore){
-      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keywordsCount', key + ' | ' + aggrByLandingPageScore[key].countKW]);      
+      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keywordsCount', key, aggrByLandingPageScore[key].countKW]);      
     }
 }
 
@@ -382,6 +495,188 @@ function GetReport(reportName, reportFields, reportFilters, dateRange){
   
   Logger.log(query);
   return AdWordsApp.report(query, reportConfig); 
+}
+
+/* e.g:
+   var count = GetKeyWordsQuantity([
+      'CampaignStatus IN [ENABLED,PAUSED]', 
+      'AdGroupStatus IN [ENABLED,PAUSED]', 
+      'Status IN [ENABLED,PAUSED]'
+    ], 'ALL_TIME');
+    
+   Logger.log(count);
+*/
+function GetKeyWordsQuantity(filters, dateRange) {  
+  var selector = AdsApp.keywords();
+  
+  if(filters && filters.length > 0)  
+    for(i in filters)
+      selector.withCondition(filters[i]);
+  
+  if(dateRange)
+      selector.forDateRange(dateRange);
+  
+  var keywords = selector.get();
+  return keywords.totalNumEntities();
+}
+
+// result: [{ title1, title2, title3, description1, description2, url }]
+function GetTextAds() {
+  /* TEMP
+  var campaign = AdsApp.campaigns().withIds([8235163169]).get().next(); // TODO ->> TEMP 
+  var ads = campaign.ads()
+  */
+  
+  var ads = AdsApp.ads()
+  .withCondition('CampaignStatus IN [ENABLED]')
+  .withCondition('AdGroupStatus IN [ENABLED]')
+  .withCondition('Status IN [ENABLED]')
+  .withCondition('Type = EXPANDED_TEXT_AD')  
+  .get();
+  
+  var result = [];
+  while(ads.hasNext()){
+    var textAd = ads.next().asType().expandedTextAd();
+    result.push({
+      title1: textAd.getHeadlinePart1(),
+      title2: textAd.getHeadlinePart2(),
+      title3: textAd.getHeadlinePart3(),
+      description1: textAd.getDescription1(),
+      description2: textAd.getDescription2(),   
+      url: textAd.urls().getFinalUrl()
+    });
+  }
+  
+  return result;
+}
+
+// result: [ad]
+function GetAllAds() {
+  /* TEMP
+  var campaign = AdsApp.campaigns().withIds([8235163169]).get().next(); // TODO ->> TEMP 
+  var ads = campaign.ads()
+  */
+  
+  var ads = AdsApp.ads()
+  .withCondition('CampaignStatus IN [ENABLED]')
+  .withCondition('AdGroupStatus IN [ENABLED]')
+  .withCondition('Status IN [ENABLED]')  
+  .get();
+  
+  var result = [];
+  while(ads.hasNext()){
+    var ad = ads.next();
+    
+    var item = {
+      type: ad.getType(), // EXPANDED_TEXT_AD, IMAGE_AD, MOBILE_AD, MOBILE_IMAGE_AD, PRODUCT_AD, RICH_MEDIA_AD, TEMPLATE_AD, TEXT_AD
+      id: ad.getId().toString(),
+      url: ad.urls().getFinalUrl(),
+      get item () { 
+        switch(item.type){
+          case 'EXPANDED_TEXT_AD' : return ad.asType().expandedTextAd();
+          case 'IMAGE_AD' : return ad.asType().imageAd();                  
+          case 'TEMPLATE_AD' : return ad.asType().html5Ad();      
+          default: return null;
+        }    
+      }      
+    };
+    
+    result.push(item);
+  }    
+    
+  return result;
+}
+
+function AdsWithDuplicateContent(rule, sheetService, propertyName){
+  var ads = GetTextAds();
+  Logger.log('%s ads found', ads.length);  
+  
+  var duplicates = [];
+  ads.forEach(function(adOuter){
+    var count = ads.reduce(function(aggr, adInner){ 
+      return aggr += (adInner[propertyName].toLowerCase() == adOuter[propertyName].toLowerCase()) ? 1 : 0; 
+    }, 0);
+   
+    if(count > 1)
+      duplicates.push(adOuter);
+  });
+  
+  Logger.log('%s duplicates ads found', duplicates.length);
+  
+  var rate = ads.length == 0 ? 0 : duplicates.length / ads.length;
+  if(rate <= rule.filter) return;
+  
+  Logger.log('found %s percentage of duplicates ads with %s', rate.toFixed(2), propertyName);   
+  
+  var summaryLine = (rate * 100).toFixed(2) + '%' + ' (' + duplicates.length + ' of ' + ads.length  + ')';  
+  var unique = distinct(duplicates, propertyName);  
+  for(i in unique)    
+    sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'ad', unique[i], summaryLine]);   
+}
+
+function KeywordsWithMetrics(rule, sheetService, metric){
+  var count = GetKeyWordsQuantity([
+      'CampaignStatus IN [ENABLED,PAUSED]', 
+      'AdGroupStatus IN [ENABLED,PAUSED]', 
+      'Status IN [ENABLED,PAUSED]'
+    ], 'ALL_TIME');
+  
+  var countWithClicks = GetKeyWordsQuantity([
+      'CampaignStatus IN [ENABLED]', 
+      'AdGroupStatus IN [ENABLED]', 
+      'Status IN [ENABLED]',
+      '{0} > 0'.replace('{0}', metric) 
+    ], 'ALL_TIME');
+  
+  var summaryLine = countWithClicks + ' of ' + count;
+  var ratio = ((countWithClicks / count) * 100).toFixed(2) + '%';
+  
+  Logger.log('%s > %s (%s)', metric, ratio, summaryLine);    
+  sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'keywordsCount',  ratio, summaryLine]);  
+}
+
+// --- HELPER --------------------------------------------------------------
+
+function distinct(arr, propertyName){
+  
+  var hashCode = function(value) {
+    var hash = 0, i, chr;
+    if (value.length === 0) return hash;
+    for (i = 0; i < value.length; i++) {
+      chr   = value.charCodeAt(i);
+      hash  = ((hash << 5) - hash) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash.toString();
+  };
+  
+  try{
+    var result = {};
+    for(var i=0;i<arr.length;i++){
+      if(typeof(arr[i]) == 'object' && !propertyName)
+        throw 'object types must use property name!';
+
+      var key, value;
+      if(!propertyName)
+      {
+        key = typeof(arr[i]) == 'string' ? hashCode(arr[i]) : arr[i];  
+        value = arr[i];
+      }
+      else
+      {
+        key = typeof(arr[i][propertyName]) == 'string' ? hashCode(arr[i][propertyName]) : arr[i][propertyName];             
+        value = arr[i][propertyName];
+      }
+
+      result[key] = value;
+    }
+
+    return Object.keys(result).map(function(x){ return result[x]; });
+  }
+  catch(e){
+    Logger.log('distinct -> ex: %s', e);
+    return [];
+  }
 }
 
 // --- SERVICES ------------------------------------------------------------

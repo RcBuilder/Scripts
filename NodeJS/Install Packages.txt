@@ -1,0 +1,14 @@
+npm install
+-----------
+ 
+the npm install command uses the packages.json file as a reference. 
+the packages file includes information about the required packages and their dependencies.
+the command reads the packages file, then fetches and installs all the packages needed! 
+
+source:
+https://docs.npmjs.com/cli/install
+
+tip: 
+re-install the packages to prevent packages conflicts.
+> delete 'nodes_modules' folder
+> npm install

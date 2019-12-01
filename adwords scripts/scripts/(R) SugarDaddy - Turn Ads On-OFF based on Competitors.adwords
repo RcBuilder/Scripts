@@ -33,6 +33,8 @@
   6. set keywords bid to the top page
 */
 
+var EMAIL = 'rcbuilder@walla.com';
+var REPORT_ONLY_MODE = true;
 var AD_GROUP_Id = 83834924109;
 var PHRASES = [    
   'שוגר דדי',  
@@ -60,25 +62,36 @@ function main() {
   return;
   */
   
+  var htmlBuilderService = HTMLBuilderService();
+  htmlBuilderService.add('<div style="direction:ltr;text-align:left;">');
+  
   var adGroup = AdsApp.adGroups().withIds([AD_GROUP_Id]).get().next();  
+  htmlBuilderService.add('<h2>{0}</h2>'.replace('{0}', adGroup.getName()));   
+  
   var adGroupAds = getAds(adGroup);
-  Logger.log('%s ads found', adGroupAds.length);
+  Logger.log('%s ads found', adGroupAds.length);  
+  htmlBuilderService.add('<p>{0} ads found</p>'.replace('{0}', adGroupAds.length));  
   
   var keywords = adGroup.keywords()
   .withCondition('Status = ENABLED')
   .get();
   
+  htmlBuilderService.add('<p>{0} keywords found</p>'.replace('{0}', adGroupAds.length)); 
+  
   var found = false;
   while(keywords.hasNext()){
     var keyword = keywords.next();
     var keywordText = keyword.getText();
-   
-    var googleAds = scanGoogleAds(keywordText);
+    
+    var googleAds = scanGoogleAds(keywordText, htmlBuilderService);
     if(!googleAds) continue;
             
-    var result = checkGoogleAds(googleAds, adGroupAds);
+    var result = checkGoogleAds(googleAds, adGroupAds, htmlBuilderService);
     if(result.foundPhrase){ 
-      Logger.log('found google ads with the phrase %s > google-ad-url: %s', result.phrase, result.googleAdUrl)
+      var msg = 'found google ads with the phrase {0} > google-ad-url: {1}'.replace('{0}', result.phrase).replace('{1}', result.googleAdUrl);
+      Logger.log(msg);
+      htmlBuilderService.add('<p>' + msg + '</p>');
+      
       found = true;
       break;
     }
@@ -87,26 +100,44 @@ function main() {
   var isSuccess = false;
   
   if(found){
-    isSuccess = setAdsStatus(adGroupAds, 'ENABLED');
-    setKWsTopPageBid();
+    isSuccess = setAdsStatus(adGroupAds, 'ENABLED', htmlBuilderService);
+    setKWsTopPageBid(htmlBuilderService);
   }
   else   
-    isSuccess = setAdsStatus(adGroupAds, 'PAUSED');      
+    isSuccess = setAdsStatus(adGroupAds, 'PAUSED', htmlBuilderService);      
   
   if(!isSuccess) {
     Logger.log('setAdsStatus: some error occured');
     return;
-  } 
+  }
+  
+  htmlBuilderService.add('</div>');  
+  
+  try{                 
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Competitors Ads Monitor ', '', {
+      htmlBody: htmlBuilderService.get()
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
 }
 
-function setKWsTopPageBid(adGroup) {
+function setKWsTopPageBid(adGroup, htmlBuilderService) {
   var keywords = adGroup.keywords()
   .withCondition('Status = ENABLED')
   .get();
   
   while(keywords.hasNext()){
     var keyword = keywords.next();
-    keyword.bidding().setCpc(keyword.getTopOfPageCpc());
+    var keywordText = keyword.getText();
+    
+    var topBid = keyword.getTopOfPageCpc();
+    htmlBuilderService.add('<p>keyword {0} > set bid to {1}</p>'.replace('{0}', keywordText).replace('{1}', topBid));
+    
+    if(!REPORT_ONLY_MODE)
+      keyword.bidding().setCpc(topBid);    
   }
 }
 
@@ -123,32 +154,38 @@ function getAds(adGroup){
 }
 
 // status: 'ENABLED', 'PAUSED'
-function setAdsStatus(ads, status){
+function setAdsStatus(ads, status, htmlBuilderService){
   Logger.log('ads status > %s', status);
+  htmlBuilderService.add('<p>set ads status to {0}</p>'.replace('{0}', status));
+  
   if(status != 'ENABLED' && status != 'PAUSED'){
     Logger.log('unknown status');
     return false;
   }
   
-  for(i in ads){
-    var ad = ads[i];
-    
-    if(status == 'ENABLED')
-      ad.enable();
-    else if(status == 'PAUSED')
-      ad.pause();
-  } 
+  if(!REPORT_ONLY_MODE) {
+    for(i in ads){
+      var ad = ads[i];
+
+      if(status == 'ENABLED')
+        ad.enable();
+      else if(status == 'PAUSED')
+        ad.pause();
+    } 
+  }
   
   return true;
 }
 
 // result: [{Title, Href, Description}]
-function scanGoogleAds(keywordText){
+function scanGoogleAds(keywordText, htmlBuilderService){
   try{
     var serachQuery = encodeURI(keywordText);  
     Logger.log('scan for %s (%s)', keywordText, serachQuery);
-    var searchURL = 'http://lagoja-services.rcb.co.il/api/adwordsProxy/google-ads/' + serachQuery;  
-
+    htmlBuilderService.add('<p>google search was made with keyword {0}</p>'.replace('{0}', keywordText)); 
+    
+    var searchURL = 'http://lagoja-services.rcb.co.il/api/adwordsProxy/google-ads/' + serachQuery;      
+    
     var options =   { 
       muteHttpExceptions: true 
     };
@@ -161,7 +198,10 @@ function scanGoogleAds(keywordText){
     var content = response.getContentText();      
     var searchResults = JSON.parse(content);
     
-    Logger.log('searchResults: organic %s, paid %s', searchResults.organic.length, searchResults.paid.length);
+    var msg = 'searchResults: organic {0}, paid {1}'.replace('{0}', searchResults.organic.length).replace('{1}', searchResults.paid.length);
+    Logger.log(msg);
+    htmlBuilderService.add('<p>' + msg + '</p>'); 
+    
     return searchResults.paid; // organic, paid
   }
   catch(ex){
@@ -171,7 +211,7 @@ function scanGoogleAds(keywordText){
 }
 
 // result: { foundPhrase, phrase, googleAdUrl }
-function checkGoogleAds(googleAds, adGroupAds){
+function checkGoogleAds(googleAds, adGroupAds, htmlBuilderService){
   
   ///Logger.log(googleAds);
   ///Logger.log(adGroupAds.map(function(x) { return x.urls().getFinalUrl().trim('/');}));   
@@ -182,23 +222,33 @@ function checkGoogleAds(googleAds, adGroupAds){
     googleAdUrl: null     
   }
 
-  Logger.log('googleAds: ' + googleAds.map(function(ad){ return ad.href; }).join());
+  var msg = 'googleAds: ' + googleAds.map(function(ad){ return ad.href; }).join();
+  Logger.log(msg);
+  htmlBuilderService.add('<p>' + msg + '</p>'); 
   
   var adGroupAdsURLs = adGroupAds.map(function(ad){
     return trimEnd(ad.urls().getFinalUrl(), '/');
   });    
   
+  // remove the ads of this account (based on their url)
   var filtered = googleAds.filter(function(ad) { 
     return adGroupAdsURLs.indexOf(trimEnd(ad.href, '/')) == -1;
   });
     
-  Logger.log('filtered: ' + filtered.map(function(ad){ return ad.Href; }).join());
-     
+  msg = 'filtered: ' + filtered.map(function(ad){ return ad.Href; }).join();
+  Logger.log(msg);
+  htmlBuilderService.add('<p>' + msg + '</p>');
+    
   for(i in PHRASES){
     var phrase = PHRASES[i];
     
     for(j in googleAds){
       var googleAd = googleAds[j];
+      
+      msg = 'phrase {0} was checked against ad {1}'.replace('{0}', phrase).replace('{1}', googleAds[j].title);
+      Logger.log(msg);
+      htmlBuilderService.add('<p>' + msg + '</p>');
+      
       if(googleAds[j].title.indexOf(phrase) > -1 || googleAds[j].description.indexOf(phrase) > -1){        
         result.phrase = phrase;
         result.googleAdUrl = googleAd.href;        
@@ -214,4 +264,19 @@ function trimEnd(value, char){
   if(value.slice(-1) == char)
     return value.slice(0, -1);
   return value;
+}
+
+// -----------------------------
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
 }
