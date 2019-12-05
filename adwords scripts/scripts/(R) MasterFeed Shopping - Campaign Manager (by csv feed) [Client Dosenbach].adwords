@@ -25,6 +25,7 @@ var BrandsToRemove = [];
 ///var ProductsRange = '0-13000'; 
 
 var CONFIG_SHEET_NAME = 'MasterFeedShoppingConfig_Dosenbach';
+var SHEET_FOLDER = 'Script generierte Feeds';
 var RANGE_INCREMENT_VALUE = 20;
 var RANGE_MIN_VALUE = 1;
 var RANGE_MAX_VALUE = 1000;
@@ -85,9 +86,9 @@ function LoadProducts(){
   // ---
   
   // get next bulk (config based)
-  var configSheet = SpreadsheetLoader.loadSheetService(CONFIG_SHEET_NAME); // load     
+  var configSheet = SpreadsheetLoader.loadSheetService(CONFIG_SHEET_NAME, SHEET_FOLDER); // load     
   if(!configSheet)
-    configSheet = SpreadsheetLoader.createSheetService(CONFIG_SHEET_NAME); // create
+    configSheet = SpreadsheetLoader.createSheetService(CONFIG_SHEET_NAME, SHEET_FOLDER); // create
   
   var ProductsRange = configSheet.getValueByRange('A1');
   var firstRange = RANGE_MIN_VALUE.toString().concat(' -> ', RANGE_MIN_VALUE + RANGE_INCREMENT_VALUE);
@@ -372,10 +373,11 @@ var DataReaderService = function(csvService) {
     var priceLine = '';
     if(hasSalePrice)
     {          
+      var paramsCharLength = "{param2:}{param1:}";
       priceLine = 'CHF ' + '{param2:' + salePrice + '}' + ' statt CHF ' + '{param1:' + price + '}';   
-      if(priceLine.length > 30) // to long > remove one CHF
+      if(priceLine.length - paramsCharLength > 30) // to long > remove one CHF
         priceLine = priceLine.replace('statt CHF', 'statt'); 
-      if(priceLine.length > 30) // still no enough > remove second CHF
+      if(priceLine.length - paramsCharLength > 30) // still no enough > remove second CHF
         priceLine = priceLine.replace('CHF ', ''); 
     }
     else 

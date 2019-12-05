@@ -10,12 +10,7 @@ report score
     
 2. Runs only selected account (not all accounts)
     Done (need to comment out)
-    
-    
-    
-9. Count of negative keywords by campaigns
-11. Use of Legacy Text Ads
-13. Ad Groups With Too Many Keywords         
+                 
 */
   
 
@@ -39,12 +34,15 @@ var rules = [
   { isActive: true, name: 'AdsWithDuplicateHeadline1', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Headline-1' },
   { isActive: true, name: 'AdsWithDuplicateHeadline2', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Headline-2' },
   { isActive: true, name: 'AdsWithDuplicateHeadline3', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Headline-3' },  
+  { isActive: true, name: 'AdsWithDuplicateUrl', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Final URL' },  
   { isActive: true, name: 'KeywordsWithClicks', score: 1, filter: '', label: '', desc: 'Percentage of keywords with clicks' },
   { isActive: true, name: 'KeywordsWithConversions', score: 1, filter: '', label: '', desc: 'Percentage of keywords with Conversions' },
   { isActive: true, name: 'KeywordsWithImpressions', score: 1, filter: '', label: '', desc: 'Percentage of keywords with Impressions' },
   { isActive: true, name: 'HttpAds', score: 1, filter: '', label: '', desc: 'Final URLs that are still using HTTP' },
-  */  
-  { isActive: true, name: 'AdsWithDuplicateUrl', score: 1, filter: '0.4', label: '', desc: 'Ads With Duplicate Final URL' },  
+  { isActive: true, name: 'NegativeKeywordsByCampaigns', score: 1, filter: '', label: '', desc: 'Count of negative keywords by campaigns' },
+  { isActive: true, name: 'LegacyTextAds', score: 1, filter: '', label: '', desc: 'Use of Legacy Text Ads' },
+  { isActive: true, name: 'AdGroupsWithTooManyKeywords', score: 1, filter: '8', label: '', desc: 'Ad Groups With Too Many Keywords' },
+  */        
 ];
 
 
@@ -168,6 +166,59 @@ function ProcessAccount(accountName, appliedLabels) {
 }
 
 // --- RULES ---------------------------------------------------------------
+
+function AdGroupsWithTooManyKeywords(rule, sheetService){
+  /* TEMP 
+  var campaign = AdsApp.campaigns().withIds([8235163169]).get().next(); // TODO ->> TEMP 
+  var adGroups = campaign.adGroups()
+  */
+  
+  var adGroups = AdsApp.adGroups()  
+  .withCondition('Status IN [ENABLED]')  
+  .withCondition('CampaignStatus IN [ENABLED]')  
+  .get();
+    
+  while(adGroups.hasNext()){
+    var adGroup = adGroups.next();
+    var adGroupName = adGroup.getName();    
+    var count = adGroup.keywords().get().totalNumEntities();
+    
+    if(count > rule.filter){
+      Logger.log('adGroup %s has %s KWs', adGroupName, count);    
+      sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'adGroup', adGroupName, count + ' Keywords']);     
+    }
+  }
+}
+
+function NegativeKeywordsByCampaigns(rule, sheetService){
+  var campaigns = AdsApp.campaigns()  
+  .withCondition('Status IN [ENABLED]')  
+  .get();
+    
+  while(campaigns.hasNext()){
+    var campaign = campaigns.next();
+    var campaignName = campaign.getName();    
+    var count = campaign.negativeKeywords().get().totalNumEntities();
+    Logger.log('campaign %s has %s negative KWs', campaignName, count);    
+    sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'negativeKeywordsCount', count, campaignName]);     
+  }
+}
+
+function LegacyTextAds(rule, sheetService){
+  var ads = GetAllAds();
+  Logger.log('%s ads found', ads.length);
+  
+  var legacyTextAds = ads.filter(function(ad){ 
+    return ad.type == 'TEXT_AD'; 
+  });
+  
+  Logger.log('%s legacy text ads found', legacyTextAds.length);
+  
+  for(i in legacyTextAds){
+    Logger.log('legacy text ad: %s', legacyTextAds[i].id);    
+    sheetService.addRow([rule.name, rule.filter, rule.label, rule.desc, 'ad', '#' + legacyTextAds[i].id, 'total: ' + legacyTextAds.length]);     
+  }
+}
 
 function HttpAds(rule, sheetService){
   var ads = GetAllAds();

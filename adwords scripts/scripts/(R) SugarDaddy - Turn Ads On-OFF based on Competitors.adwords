@@ -12,7 +12,7 @@
   the phrases to check for are:
   ['phrase1', 'phrase2']
   
-  the adgroup has the following KWs:
+  the campaign has the following KWs:
   kw1
   kw2
   
@@ -35,7 +35,7 @@
 
 var EMAIL = 'rcbuilder@walla.com';
 var REPORT_ONLY_MODE = true;
-var AD_GROUP_Id = 83834924109;
+var CAMPAIGN_Id = 8149881011;
 var PHRASES = [    
   'שוגר דדי',  
   'שוגרדדי',
@@ -65,18 +65,18 @@ function main() {
   var htmlBuilderService = HTMLBuilderService();
   htmlBuilderService.add('<div style="direction:ltr;text-align:left;">');
   
-  var adGroup = AdsApp.adGroups().withIds([AD_GROUP_Id]).get().next();  
-  htmlBuilderService.add('<h2>{0}</h2>'.replace('{0}', adGroup.getName()));   
+  var campaign = AdsApp.campaigns().withIds([CAMPAIGN_Id]).get().next();  
+  htmlBuilderService.add('<h2>{0}</h2>'.replace('{0}', campaign.getName()));   
   
-  var adGroupAds = getAds(adGroup);
-  Logger.log('%s ads found', adGroupAds.length);  
-  htmlBuilderService.add('<p>{0} ads found</p>'.replace('{0}', adGroupAds.length));  
+  var campaignAds = getAds(campaign);
+  Logger.log('%s ads found', campaignAds.length);  
+  htmlBuilderService.add('<p>{0} ads found</p>'.replace('{0}', campaignAds.length));  
   
-  var keywords = adGroup.keywords()
+  var keywords = campaign.keywords()
   .withCondition('Status = ENABLED')
   .get();
   
-  htmlBuilderService.add('<p>{0} keywords found</p>'.replace('{0}', adGroupAds.length)); 
+  htmlBuilderService.add('<p>{0} keywords found</p>'.replace('{0}', campaignAds.length)); 
   
   var found = false;
   while(keywords.hasNext()){
@@ -86,7 +86,7 @@ function main() {
     var googleAds = scanGoogleAds(keywordText, htmlBuilderService);
     if(!googleAds) continue;
             
-    var result = checkGoogleAds(googleAds, adGroupAds, htmlBuilderService);
+    var result = checkGoogleAds(googleAds, campaignAds, htmlBuilderService);
     if(result.foundPhrase){ 
       var msg = 'found google ads with the phrase {0} > google-ad-url: {1}'.replace('{0}', result.phrase).replace('{1}', result.googleAdUrl);
       Logger.log(msg);
@@ -100,11 +100,11 @@ function main() {
   var isSuccess = false;
   
   if(found){
-    isSuccess = setAdsStatus(adGroupAds, 'ENABLED', htmlBuilderService);
+    isSuccess = setAdsStatus(campaignAds, 'ENABLED', htmlBuilderService);
     setKWsTopPageBid(htmlBuilderService);
   }
   else   
-    isSuccess = setAdsStatus(adGroupAds, 'PAUSED', htmlBuilderService);      
+    isSuccess = setAdsStatus(campaignAds, 'PAUSED', htmlBuilderService);      
   
   if(!isSuccess) {
     Logger.log('setAdsStatus: some error occured');
@@ -124,8 +124,8 @@ function main() {
   }
 }
 
-function setKWsTopPageBid(adGroup, htmlBuilderService) {
-  var keywords = adGroup.keywords()
+function setKWsTopPageBid(campaign, htmlBuilderService) {
+  var keywords = campaign.keywords()
   .withCondition('Status = ENABLED')
   .get();
   
@@ -141,9 +141,9 @@ function setKWsTopPageBid(adGroup, htmlBuilderService) {
   }
 }
 
-function getAds(adGroup){
+function getAds(campaign){
   var result = [];
-  var ads = adGroup.ads()
+  var ads = campaign.ads()
   .withCondition('Status IN[ENABLED, PAUSED]')
   .withCondition('Type = EXPANDED_TEXT_AD')
   .get();
@@ -211,10 +211,10 @@ function scanGoogleAds(keywordText, htmlBuilderService){
 }
 
 // result: { foundPhrase, phrase, googleAdUrl }
-function checkGoogleAds(googleAds, adGroupAds, htmlBuilderService){
+function checkGoogleAds(googleAds, campaignAds, htmlBuilderService){
   
   ///Logger.log(googleAds);
-  ///Logger.log(adGroupAds.map(function(x) { return x.urls().getFinalUrl().trim('/');}));   
+  ///Logger.log(campaignAds.map(function(x) { return x.urls().getFinalUrl().trim('/');}));   
   
   var result = { 
     foundPhrase: false, 
@@ -226,13 +226,13 @@ function checkGoogleAds(googleAds, adGroupAds, htmlBuilderService){
   Logger.log(msg);
   htmlBuilderService.add('<p>' + msg + '</p>'); 
   
-  var adGroupAdsURLs = adGroupAds.map(function(ad){
+  var campaignAdsURLs = campaignAds.map(function(ad){
     return trimEnd(ad.urls().getFinalUrl(), '/');
   });    
   
   // remove the ads of this account (based on their url)
   var filtered = googleAds.filter(function(ad) { 
-    return adGroupAdsURLs.indexOf(trimEnd(ad.href, '/')) == -1;
+    return campaignAdsURLs.indexOf(trimEnd(ad.href, '/')) == -1;
   });
     
   msg = 'filtered: ' + filtered.map(function(ad){ return ad.Href; }).join();
