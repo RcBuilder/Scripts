@@ -1,0 +1,14 @@
+function stringFormat(format, params) { 
+	let value =  format;      
+        (params || []).forEach((p, i) => {
+            value = value.replace('{' + i + '}', p);          
+        });
+
+        return value;
+}; 
+
+------------
+
+stringFormat('hello');
+stringFormat('with param {0}', ['A']);
+stringFormat('with params {0}, {1} and {2}', ['A', 'B', 'C']);

@@ -42,7 +42,7 @@ var rules = [
   { isActive: true, name: 'NegativeKeywordsByCampaigns', score: 1, filter: '', label: '', desc: 'Count of negative keywords by campaigns' },
   { isActive: true, name: 'LegacyTextAds', score: 1, filter: '', label: '', desc: 'Use of Legacy Text Ads' },
   { isActive: true, name: 'AdGroupsWithTooManyKeywords', score: 1, filter: '8', label: '', desc: 'Ad Groups With Too Many Keywords' },
-  */        
+  */     
 ];
 
 

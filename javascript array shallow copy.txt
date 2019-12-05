@@ -1,0 +1,67 @@
+javascript array shallow copy
+-----------------------------
+copy value-types and references.
+to copy an array use slice(0) or map, filter etc.
+
+--
+
+let arr = [o1, o2, o3, 1, 'A'];
+let copy = ar.slice(0); // shallow copy
+
+memory: 
+100 --> o1
+200 --> o2
+300 --> o3
+
+actual:
+arr = [&100, &200, &300, 1, 'A']
+copy = [&100, &200, &300, 1, 'A']
+
+recap:
+a change in value-type of 'copy' will not be reflected in 'arr'
+but a change in reference-type will affect them both! 
+item which is pushed to 'copy' will not be pushed to 'arr'
+
+---
+
+let arr = [{ id: 1 }, { id: 2 }, { id: 3 }];
+let copy = arr;
+copy.push({ id: 4});
+
+arr.map(x => x.id);  // [1, 2, 3, 4]
+copy.map(x => x.id); // [1, 2, 3, 4]
+
+--
+
+let arr = [{ id: 1 }, { id: 2 }, { id: 3 }];
+let copy = arr.map(x => x);
+copy.push({ id: 5 });
+
+arr.map(x => x.id);  // [1, 2, 3, 4]
+copy.map(x => x.id); // [1, 2, 3, 4, 5]
+
+--
+
+let arr = [{ id: 1 }, { id: 2 }, { id: 3 }];
+let copy = arr.slice(0);
+copy.push({ id: 6});
+
+arr.map(x => x.id);  // [1, 2, 3, 4] 
+copy.map(x => x.id); // [1, 2, 3, 4, 6]
+
+--
+
+// sort
+let arr = [{ id: 1}, { id: 2 }, { id: 3 }];
+let copy = arr.slice(0);
+
+copy.sort((x, y) => { return y.id - x.id; });
+arr.map(x => x.id);  // [1, 2, 3]
+copy.map(x => x.id); // [3, 2, 1]
+
+--
+
+// change reference-item value
+copy[0].name = 'A';
+copy[0] // {id: 1, name: "A"}
+arr[0]  // {id: 1, name: "A"}
