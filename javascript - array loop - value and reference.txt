@@ -1,0 +1,48 @@
+array loop - value and reference 
+--------------------------------
+
+// value type array loop
+var arrHeaders = ['A', 'B', 'C'];
+
+arrHeaders.forEach(header => { 
+	header = header + '1'; 
+});
+console.log(arrHeaders); // 'A', 'B', 'C'
+
+--
+
+for(let i = 0; i < arrHeaders.length; i++)  {
+	let header = arrHeaders[i];
+	header = header + '1';
+}
+console.log(arrHeaders); // 'A', 'B', 'C'
+
+--
+
+for(let i = 0; i < arrHeaders.length; i++)
+	arrHeaders[i] = arrHeaders[i] + '1';
+console.log(arrHeaders); // 'A1', 'B1', 'C1'
+
+-------------------------
+
+// reference type array loop
+var arrHeaders = [{name: 'A'}, {name: 'B'}, {name: 'C'}];
+
+arrHeaders.forEach(header => { 
+	header.name = header.name + '1'; 
+});
+console.log(arrHeaders.map(x => x.name)); // 'A1', 'B1', 'C1'
+
+--
+
+for(let i = 0; i < arrHeaders.length; i++)  {
+	let header = arrHeaders[i];
+	header.name = header.name + '1';
+}
+console.log(arrHeaders.map(x => x.name)); // 'A1', 'B1', 'C1'
+
+--
+
+for(let i = 0; i < arrHeaders.length; i++)
+	arrHeaders[i].name = arrHeaders[i].name + '1';
+console.log(arrHeaders.map(x => x.name)); // 'A1', 'B1', 'C1'

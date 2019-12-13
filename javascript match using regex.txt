@@ -1,0 +1,10 @@
+javascript match using regex
+----------------------------
+
+syntax:
+<string>.match(/<pattern>/<flags>);
+
+e.g:
+"abc1cw22w3c4ccvf".match(/[0-9]+c/g);  // ["1c", "3c", "4c"]
+
+
