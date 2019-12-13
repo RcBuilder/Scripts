@@ -469,6 +469,16 @@ console.log(res);  // { x: 7, y: 13 }
 
 ---
 
+interface ILogger {
+    readonly value: string;		// only gettter
+    readonly processId: string; // only gettter
+
+    append(format: string, params: [string]): void;    
+    writeToScreen(): void;
+}
+
+---
+
 interface iReadable{
     read():string;
 }
@@ -599,6 +609,35 @@ Circle.calculateArea(5); // 78.5
 
 constructor:
 use 'public' keyword as a shorthand to create and populate the property automatically.
+
+---
+
+// static members
+protected static seperator: string = ' \n';
+
+// data members
+protected value: string[] = [];
+private processId: string = '';
+    
+constructor() {
+    this.processId = this.uuid(); 
+}
+
+// properties (getter/setter)
+public get getProcessId(): string { return this.processId; };
+
+// methods
+private uuid() {
+    return ...
+};
+
+public getValue(): string {
+    return this.value.join(ProcessLogger.seperator);
+}; 
+
+public writeToScreen(): void {
+    console.log(this.getValue());
+};
 
 ---
 

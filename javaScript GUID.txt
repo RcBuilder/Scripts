@@ -1,0 +1,11 @@
+javaScript GUID
+---------------
+
+function uuid() {
+  return 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+console.log(uuid()); // df5c9078-c56e-2b20-ba78-7cbc0e802f9d

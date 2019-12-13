@@ -1,30 +1,60 @@
 interface ILogger {
-    append(format: string, params: [string]): void;
-    getValue(): string;
+    value: string;
+    processId: string;
+
+    append(format: string, params: [string]): void;    
     writeToScreen(): void;
 }
 
-export class ProcessLogger implements ILogger {
-    protected static seperator: string = '\n';
-    protected value: string[] = []; 
+export class ProcessLogger implements ILogger {    
+    // static members
+    protected static seperator: string = ' \n';
+
+    // data members
+    protected _value: string[] = [];
+    private _processId: string = '';
     
-    constructor() { }
+    constructor() {
+        this._processId = this.uuid(); // unique id for each process (the glue between the screen outputs)
+    }
 
-    append(format: string, params?: string[]): void {        
-        (params || []).forEach((p, i) => {
-            format = format.replace('{' + i + '}', p);          
+    // properties (getter/setter)
+    public get processId(): string { return this._processId; };
+    public get value(): string { return this._value.join(ProcessLogger.seperator); };
+
+    // methods
+    private uuid() {
+        return 'xxxxxxxx-xxxx-xxxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
         });
-
-        this.value.push(format);
+    }
+    
+    public append(format: string, params?: string[]): void {   
+        try {
+            let msg = this.build(format, params);
+            this._value.push(msg);
+        }
+        catch (e) { }
     };    
 
-    getValue(): string {
-        return this.value.join(ProcessLogger.seperator);
-    }  
+    public writeToScreen(): void {
+        console.log(this.value);
+    };
 
-    writeToScreen(): void {
-        console.log(this.getValue());
-    }  
+    public build(format: string, params?: string[]): string {
+        try {
+            let result = format;
+            (params || []).forEach((p, i) => {
+                result = result.replace('{' + i + '}', p);
+            });
+
+            return result;
+        }
+        catch (e) {            
+            return '[EX] method: ProcessLogger.build, ex: ' + e;
+        }
+    };
 }
 
 ------------
