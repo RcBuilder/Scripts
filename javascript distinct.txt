@@ -1,5 +1,8 @@
 javascript distinct
 -------------------
+see 'javascript distinct advanced'
+
+--
 
 function distinct(arr, propertyName){
     let unique = {};

@@ -1,0 +1,26 @@
+javascript xpath usign evaluate
+-------------------------------
+
+syntax:
+document.evaluate(<path>, <document>, null, <resultType>, null);
+
+resultTypes:
+ANY_TYPE
+NUMBER_TYPE
+STRING_TYPE
+BOOLEAN_TYPE
+UNORDERED_NODE_ITERATOR_TYPE
+ORDERED_NODE_ITERATOR_TYPE
+UNORDERED_NODE_SNAPSHOT_TYPE
+ORDERED_NODE_SNAPSHOT_TYPE
+ANY_UNORDERED_NODE_TYPE
+FIRST_ORDERED_NODE_TYPE
+
+samples:
+var div = document.evaluate('//div[1]', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+- 
+var divs = document.evaluate('//div', document, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+divs.snapshotItem(0);
+divs.snapshotItem(1);
+divs.snapshotItem(2);
+...

@@ -1,0 +1,28 @@
+/*
+  This script reviews KWs performance of yesterday and increases the converting ones by x% for the next day
+*/
+
+var INCREAMENT_VALUE = 0.1; // add 10%
+
+function main() {
+  var keywords = AdsApp.keywords()
+  .withCondition('Status IN [ENABLED]')
+  .withCondition('AdGroupStatus IN [ENABLED]')
+  .withCondition('CampaignStatus IN [ENABLED]')
+  .withCondition('Conversions > 0') // has conversion
+  .forDateRange('YESTERDAY')
+  .get();
+  
+  while(keywords.hasNext()){
+    var keyword = keywords.next();
+    var keywordText = keyword.getText();
+    
+    var maxCpc = keyword.getTopOfPageCpc(); // limit the cpc to be maximum the 1st-place bid
+    var cpc = keyword.bidding().getCpc();
+    var newCpc = cpc * (1 + INCREAMENT_VALUE);
+    
+    if(maxCpc && newCpc > maxCpc) newCpc = maxCpc;
+    
+    Logger.log('[%s] bid changed from %s to %s', keywordText, cpc.toFixed(3), newCpc.toFixed(3));
+  }
+}
