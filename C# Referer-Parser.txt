@@ -1,0 +1,95 @@
+C# Referer-Parser
+-----------------
+
+Nuget:
+Install-Package RefererParser -Version 1.0.0.2
+
+Source:
+https://github.com/snowplow-referer-parser/referer-parser/tree/master/dotnet
+
+
+------------------------------------
+
+public class ChannelExtractor : IDataExtractor
+    {
+        public string Extract(string Input)  // refererUrl
+        {
+            try {
+                var refererInfo = Parser.Parse(new Uri(Input));
+                return refererInfo.Medium.ToString();
+            }
+            catch {
+                return string.Empty;
+            }
+        }
+    }
+
+    public class ChannelSourceExtractor : IDataExtractor
+    {
+        public string Extract(string Input)  // refererUrl
+        {
+            try {
+                var refererInfo = Parser.Parse(new Uri(Input));
+                return refererInfo.Source ?? "Unknown";
+            }
+            catch {
+                return string.Empty;
+            }
+        }
+    }
+
+----
+
+namespace CliClapTests
+{
+    public class DataExtractors
+    {        
+        public class UrlReferrers {            
+            public static string Cliclap = "http://www.cliclap.com";
+            public static string Ynet = "http://www.ynet.co.il";            
+            public static string Google = "http://www.google.com";
+            public static string Bing = "http://www.bing.com";
+            public static string Facebook = "http://www.facebook.com";
+            public static string LinkedIn = "http://www.linkedin.com";
+            public static string YouTube = "https://www.youtube.com/";
+            public static string Instagram = "https://www.instagram.com/?hl=en";
+            public static string None = "";
+        }
+        
+        [SetUp]
+        public void Init(){}
+
+        [Test]
+        public void Test_ChannelExtractor()
+        {
+            var extractor = new ChannelExtractor();
+            
+            // Search, Social, Email, Unknown, Internal            
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Cliclap) == "Unknown");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Ynet) == "Unknown");            
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Google) == "Search");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Bing) == "Search");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Facebook) == "Social");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.LinkedIn) == "Social");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.YouTube) == "Unknown");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Instagram) == "Unknown");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.None) == "");
+        }
+
+        [Test]
+        public void Test_ChannelSourceExtractor()
+        {
+            var extractor = new ChannelSourceExtractor();
+
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Cliclap) == "Unknown");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Ynet) == "Unknown");            
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Google) == "Google");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Bing) == "Bing");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Facebook) == "Facebook");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.LinkedIn) == "LinkedIn");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.YouTube) == "Unknown");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.Instagram) == "Unknown");
+            Assert.IsTrue(extractor.Extract(UrlReferrers.None) == "");
+        }
+    }
+}

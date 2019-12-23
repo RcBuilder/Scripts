@@ -1,0 +1,5 @@
+SQL GroupBy Switch Case
+-----------------------
+
+reference:
+'SQL GroupBy Cross Apply'

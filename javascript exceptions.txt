@@ -1,0 +1,18 @@
+javascript exceptions
+---------------------
+
+["Identifier has already been declared"]
+
+function fun(a){
+    var a = 1;
+    console.log(a); // 1
+}
+
+function fun(a){
+    let a = 1;  // Uncaught SyntaxError: Identifier 'a' has already been declared
+    console.log(a);
+}
+
+note:
+beware of minification process which might cause 
+same-name for different variables and by doing so - break the js

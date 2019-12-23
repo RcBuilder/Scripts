@@ -1,0 +1,37 @@
+C# ConcurrentQueue Basic Sample
+-------------------------------
+Built-In Thread-Safe Queue
+
+---
+
+// thread-safe queue
+var queue = new ConcurrentQueue<int>();
+
+// add items to queue 
+Enumerable.Range(1, 100).ToList().ForEach(num => {
+    queue.Enqueue(num);
+});
+            
+// create an action to perform by the tasks
+Action a = () => {                
+    int item;
+    while (queue.TryDequeue(out item))                    
+        Console.WriteLine("[{0}] {1}", Thread.CurrentThread.ManagedThreadId, item);
+};
+
+// run tasks in parallel
+Task.WaitAll(
+	Task.Factory.StartNew(a), 
+	Task.Factory.StartNew(a), 
+	Task.Factory.StartNew(a)
+);
+
+/*
+var tasks = new List<Task>();
+Enumerable.Range(1, 10).ToList().AsParallel().ForAll(n => {
+      tasks.Add(Task.Factory.StartNew(a));
+});
+Task.WaitAll(tasks.ToArray());
+*/
+
+Console.ReadKey();

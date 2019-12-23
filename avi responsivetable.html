@@ -1,0 +1,122 @@
+﻿ï»¿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <style>
+        body {
+            margin:0px;
+            padding:0px;
+            font-size:13px;
+            font-family:Arial;
+            direction:rtl;
+        }
+        .table-wrapper {
+            padding:50px;
+        }
+        .site-table
+        {
+            width:100%;
+            border:solid 1px #d1cfcf;
+            border-spacing:1px;
+            border-collapse:separate;
+            /* This hack works for IE6+, Chrome, Firefox, and Opera: */
+            *border-collapse: expression('separate', cellSpacing = '1px');
+        }
+        .site-table th{
+            vertical-align:top;
+            text-align:right;
+            padding: 7px 10px 7px 10px;
+            background-color:#4c7fc1;
+	        font-size:13px;
+	        font-weight:bold;
+	        color:#ffffff; 
+        }
+        .site-table td{
+            vertical-align:top;
+            text-align:right;
+            padding: 7px 10px 7px 10px;
+	        background-color:#eaeaea;
+	        font-size:13px;
+	        color:#000000;
+        }
+        .site-table tr:nth-child(odd) td{
+            background-color:#ffffff; 
+        }
+
+        @media screen and (max-width: 500px) {
+            .site-table th {
+                display:none;
+            }
+            .site-table td {
+                display:block;
+            }
+            .site-table td:first-child {
+                background-color:#4c7fc1 !important;
+	            font-weight:bold;
+	            color:#ffffff; 
+            }
+            .site-table td:before {
+                content: attr(data-title);
+                display:inline-block;
+                width:50%;
+                font-weight:bold;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="table-wrapper">
+
+        <table class="site-table">
+            <tr>
+                <th> ××¡×¤×¨ ×××¨×× </th>
+                <th> ×××××ª </th>
+                <th> ×ª××××ª ××¨×©×× </th>
+                <th> ×¡××× ××¨×©×× </th>
+                <th> ××××¨ ××××¨ </th>
+            </tr>
+            <tr>
+                <td data-title="××¡×¤×¨ ×××¨××"> 1 </td>
+                <td data-title="×××××ª"> ××¡×¨× ××××¨ ×××©×¤×¨× ××××¨ </td>
+                <td data-title="×ª××××ª ××¨×©××"> 11/10/2019 </td>
+                <td data-title="×¡××× ××¨×©××"> 11/12/2020 </td>
+                <td data-title="××××¨ ××××¨"> 11,000 </td>
+            </tr>
+            <tr>
+                <td data-title="××¡×¤×¨ ×××¨××"> 2 </td>
+                <td data-title="×××××ª"> ××¡×¨× ××××¨ ×××©×¤×¨× ××××¨ </td>
+                <td data-title="×ª××××ª ××¨×©××"> 12/10/2019 </td>
+                <td data-title="×¡××× ××¨×©××"> 12/12/2020 </td>
+                <td data-title="××××¨ ××××¨"> 12,000 </td>
+            </tr>
+            <tr>
+                <td data-title="××¡×¤×¨ ×××¨××"> 3 </td>
+                <td data-title="×××××ª"> ××¡×¨× ××××¨ ×××©×¤×¨× ××××¨ </td>
+                <td data-title="×ª××××ª ××¨×©××"> 13/10/2019 </td>
+                <td data-title="×¡××× ××¨×©××"> 13/12/2020 </td>
+                <td data-title="××××¨ ××××¨"> 13,000 </td>
+            </tr>
+            <tr>
+                <td data-title="××¡×¤×¨ ×××¨××"> 4 </td>
+                <td data-title="×××××ª"> ××¡×¨× ××××¨ ×××©×¤×¨× ××××¨ </td>
+                <td data-title="×ª××××ª ××¨×©××"> 14/10/2019 </td>
+                <td data-title="×¡××× ××¨×©××"> 14/12/2020 </td>
+                <td data-title="××××¨ ××××¨"> 14,000 </td>
+            </tr>
+            <tr>
+                <td data-title="××¡×¤×¨ ×××¨××"> 5 </td>
+                <td data-title="×××××ª"> ××¡×¨× ××××¨ ×××©×¤×¨× ××××¨ </td>
+                <td data-title="×ª××××ª ××¨×©××"> 15/10/2019 </td>
+                <td data-title="×¡××× ××¨×©××"> 15/12/2020 </td>
+                <td data-title="××××¨ ××××¨"> 15,000 </td>
+            </tr>
+        </table>
+
+    </div>
+</body>
+</html>

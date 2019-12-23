@@ -1,0 +1,21 @@
+try {
+    var http = new XMLHttpRequest();
+
+    var url = "<api url>";
+    var postData = { };
+
+    http.open("POST", url, true);
+    http.setRequestHeader("Content-type", "application/json; charset=UTF-8");
+    http.withCredentials = "<your credentials>"
+
+    http.onreadystatechange = function () {
+        var data = http.responseText;
+        if (http.readyState == 4) {
+			// http.status
+            // var jsonData = JSON.parse(data);                                   
+        } 
+    };
+
+    http.send(postData);
+}
+catch (e) {}

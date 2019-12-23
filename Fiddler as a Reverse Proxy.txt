@@ -1,0 +1,76 @@
+Fiddler as a Reverse Proxy
+==========================
+
+use fiddler as reverse proxy to change requests/ responses content
+
+* Rules > Customize rules
+* find the relevant method (OnBeforeRequest, OnBeforeResponse etc.)
+* set your custom code 
+
+   e.g:
+   static function OnBeforeRequest(oSession: Session) {		
+      if (oSession.uriContains('bootstrap-widget.min.js')) {            
+   	   oSession.url = oSession.url.Replace('bootstrap-widget.min.js', 'bootstrap-widget.js'); 			
+      }
+      ... 
+      ...
+   }
+
+   static function OnBeforeResponse(oSession: Session) {
+
+	if (oSession.oResponse.headers.ExistsAndContains("content-type", "text/html")){			
+		oSession.utilDecodeResponse();
+
+		var oBody = System.Text.Encoding.UTF8.GetString(oSession.responseBodyBytes);
+		if(oBody != null && oBody != ""){  			
+			oBody = oBody.replace("span", "div"); // replace all span with div (view > source)
+			oSession.utilSetResponseBody(oBody); 
+		}
+	}	
+  }
+
+* Capture traffic
+  note! only when capturing the traffic - the fiddler serves as a reverse-proxy!
+
+---
+
+enable cors:
+
+* Rules > Customize rules
+* Root > Set the following code 
+
+  public static RulesOption("Force CORS")
+  var m_ForceCORS: boolean = true;
+
+* OnBeforeRequest > Set the following code 
+
+  if (m_ForceCORS && oSession.oRequest.headers.HTTPMethod == "OPTIONS") { 
+	oSession.utilCreateResponseAndBypassServer();
+	
+	oSession.oResponse.headers.Add("Access-Control-Allow-Origin", oSession.oRequest.headers["Origin"]) ;
+	oSession.oResponse.headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");			
+	oSession.oResponse.headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Csrf-Token, X-Requested-With, cloudSession, WbeSession, Cookie");
+	oSession.oResponse.headers.Add("Access-Control-Max-Age", "1728000");
+	oSession.oResponse.headers.Add("Access-Control-Allow-Credentials", "true");
+	
+	oSession.responseCode = 200;
+  }
+
+* OnBeforeResponse > Set the following code 
+
+  if (m_ForceCORS && oSession.oRequest.headers.Exists("Origin")) { 
+	oSession.oResponse.headers.Remove("Access-Control-Allow-Origin");
+	oSession.oResponse.headers.Add("Access-Control-Allow-Origin", oSession.oRequest.headers["Origin"]) ;
+	
+	oSession.oResponse.headers.Remove("Access-Control-Allow-Methods");
+	oSession.oResponse.headers.Add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+	
+	oSession.oResponse.headers.Remove("Access-Control-Allow-Headers"); 
+	oSession.oResponse.headers.Add("Access-Control-Allow-Headers", "Content-Type, Authorization, Accept, Csrf-Token, X-Requested-With, cloudSession, WbeSession, Cookie");
+	
+	oSession.oResponse.headers.Remove("Access-Control-Max-Age");
+	oSession.oResponse.headers.Add("Access-Control-Max-Age", "1728000");
+	
+	oSession.oResponse.headers.Remove("Access-Control-Allow-Credentials");
+	oSession.oResponse.headers.Add("Access-Control-Allow-Credentials", "true");
+  }

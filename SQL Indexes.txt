@@ -15,6 +15,10 @@ an update of a row requires going through all the indexes and update them accord
 the indexes structure is B+Tree! the tree trunk is based on the index columns.
 reference: 'B-Tree vs B+Tree vs Binary Tree'
 
+Syntax
+------
+CREATE <UNIQUE>? <CLUSTERED|NONCLUSTERED> INDEX <IndexName> ON <TableName>(<Column-1> <ASC|DESC>? ...) INCLUDE(<Column-1> ...)? WITH(<Flags>)?
+DROP INDEX <IndexName> ON <TableName>
 
 Clustered Index
 ---------------
@@ -29,7 +33,10 @@ Clustered Index
 Non Clustered Index
 -------------------
 - creates a new side table which consists of the index columns, this table is sorted based on the index columns. 
-- in each row within the index-table we'll find a pointer to the actual row in the data-table. 
+- in each row within the index-table we'll find a pointer (aka 'row locator') to the actual row in the data-table. 
+  the pointer can be one of two options (depending on the case)
+  1. when there's NO clustered index on that table -> the pointer is the row address 
+  2. when there IS a clustered index defined -> the pointer is the clustered index key!  
 - when an index is being used, the SQL engine collects the rows pointer from the matches and uses it to fetch the data from the actual data-table.  
 - can be multiple non-clustered indexes per table (up to 999)
 
@@ -106,6 +113,63 @@ in this case, the SQL engine finds the matching rows using the index (the same a
 but because we've only requested the column 'Id' and 'UserName' and they exist on the index leaves, the data will be returned directly from the index 
 and no extra call to the data-table will be made!
 
+Flags
+-----
+- DROP_EXISTING		// ON|OFF (default: OFF)
+  when set to ON, the SQL engine will rebuild the existing clustered by dropping and re-creating it.
+
+- ONLINE		// ON|OFF (default: OFF)
+  when set to ON, related table and associated indexes will be available for queries and data modification.
+  
+Order
+-----
+- ASC		// default
+- DESC
+
+when we have an ASC index and we request the data in DESC order there's almost no performance difference when using a single-key index 
+but it does matter when we have a combined-key index of 2 or more columns!
+
+--
+
+note:
+given the following combined-key index:
+col1 ASC, col2 ASC
+
+the below clause:
+Order by col1 ASC, col2 ASC
+
+will perform better than the below:
+Order by col1 ASC, col2 DESC
+
+due to the need of sorting the data (which in a different sort as the index!)
+
+--
+
+sample:
+CREATE NONCLUSTERED INDEX [IX_Col1] ON [dbo].[MyTable] (Col1 ASC)
+CREATE NONCLUSTERED INDEX [IX_Col1_Col2] ON [dbo].[MyTable] (Col1 ASC, Col2 DESC)
+
+Uniqueness
+----------
+- UNIQUE
+
+mark the index as unique. no duplicate values allowed!
+
+sample:
+CREATE UNIQUE INDEX IX_Id ON Persons (PersonID);
+
+Filtered Index
+--------------
+use the WHERE clause in the Index definition to filter-out un-wanted rows to index! 
+common case is to filter-out NULLs and ONLY index columns with values.
+can also be used for genetating an Index Range! 
+
+sample:
+CREATE UNIQUE NONCLUSTERED INDEX [IX_OrderDate] 
+ON [dbo].[Products](OrderDate ASC) 
+WHERE [IX_OrderDate] IS NOT NULL;
+
+// TODO --> test of range index + sample (by id etc.)
 
 Using Example
 -------------
@@ -157,9 +221,12 @@ from that index, it'll take the identities (or addresses) of the matched rows,
 with those ids, it'll fetch the actual rows from the data table. 
 NO table-scan occurred this time!  
 
+---------------------------------------------------
 
+// TODO 
 
 Page node ???
 Leaf ???
 
 index with bit type?
+index with null?

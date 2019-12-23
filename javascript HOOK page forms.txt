@@ -1,0 +1,114 @@
+*** javascript HOOK page forms ***
+**********************************
+hook html page forms. 
+change the actual submit to do your action prior the original action.
+
+
+SAMPLE
+------
+
+<form id="frm1" action="HookForms.html?P=1" method="post">
+    <button id="btn1" type="submit">send</button>
+</form>
+<form id="frm2" action="HookForms.html?P=2" method="post">
+    <input id="btn2" type="submit" value="send" />
+</form>
+<form id="frm3" action="HookForms.html?P=3" method="post">
+    <input id="btn3" type="button" onclick="send('frm3')" value="send" />
+</form>
+<form id="frm4" action="HookForms.html?P=4" method="post">
+    <a id="btn4" class="btn" onclick="send('frm4')">send</a>
+</form>
+
+<hr />
+<input type="button" value="create dynamic form" onclick="createDynamicForm()" />
+<input type="button" value="remove dynamic form" onclick="removeDynamicForm()" />
+<hr />
+
+---
+
+function send(formId) {
+    console.log(new Date().getTime());
+    let form = document.getElementById(formId);
+    form.submit();
+}
+
+// -------
+
+function createElement(tag, attributes) {
+    let newElement = document.createElement(tag);
+    Object.keys(attributes || {}).forEach(a => {
+        newElement[a] = attributes[a];
+    });
+    return newElement;
+}
+
+function removeDynamicForm() {
+    let form = document.querySelector('form#frmD');
+    form.remove();
+}
+
+function createDynamicForm() {
+    let newForm = createElement('form', {
+        id: 'frmD',
+        action: 'HookForms.html?P=D',
+        method: 'post',
+        style: 'padding: 8px 0'
+    });
+
+    let submit = createElement('input', {
+        type: 'submit',
+        value: 'send'
+    });
+
+    let br = createElement('br');
+    let text = document.createTextNode('dynamic form');
+
+    newForm.appendChild(text);
+    newForm.appendChild(br);
+    newForm.appendChild(submit);
+
+    document.body.appendChild(newForm);  // dynamic form injection! will be catched by the 'DOMNodeInserted' event 
+}
+
+---
+
+// hook logic 
+(function () {
+	// action-hook
+    let action = f => {
+        console.log('hook form #' + f.id || '');
+
+		// preserve the original submit action 
+        var originalSubmit = f.submit;
+
+		// override the submit action
+        f.submit = function () {			
+            f.dispatchEvent(new Event('submit')); // trigger submit event (will be catched by the listener)
+            originalSubmit.call(f); // execute the original-submit call
+        };
+
+		// listen to 'submit' event
+        f.addEventListener('submit', e => {
+            var formsClicked = JSON.parse(localStorage.getItem('formsClicked')) || [];
+            formsClicked.push(f.id);
+
+			// save all clicked forms into the localstorage
+            localStorage.setItem('formsClicked', JSON.stringify(formsClicked));
+        }, false);
+    };
+
+	// map all forms presented on the page
+    var formTags = document.getElementsByTagName('form');
+    var forms = Array.prototype.slice.call(formTags, 0);
+    forms.map(action);
+
+	// register to a DOM changes (INSERT NODE) to support hook also for dynamic forms
+    document.addEventListener('DOMNodeInserted', e => {
+        var element = e.target;
+        if (element.tagName.toUpperCase() != 'FORM') return;
+
+        console.log('new form was injected into the DOM #' + element.id || '');
+        action(element); // action-hook 
+    }, false)
+})();

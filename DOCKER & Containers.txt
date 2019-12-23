@@ -31,6 +31,7 @@ in short - a single command to create and run all the services!
 commands:
 https://docs.docker.com/compose/reference/
 > docker-compose <command>
+> docker-compose up -d  // -d = deamon, up = build + up
 
 properties:
 https://docs.docker.com/compose/compose-file/

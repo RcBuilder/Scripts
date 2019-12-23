@@ -1,0 +1,10 @@
+SQL Join using XML PATH
+-----------------------
+reference: 'SQL FOR XML'
+
+
+DECLARE @t TABLE(v VARCHAR(10))
+INSERT INTO @t 
+VALUES('A'),('B'),('C'),('D')
+
+select STUFF((select ',' + v from @t for XML PATH('')), 1, 1, '')  -- A,B,C,D

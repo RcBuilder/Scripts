@@ -1,0 +1,38 @@
+SQL MERGE SYNTAX
+----------------
+
+// syntax
+MERGE <target-table> AS [TARGET]
+USING <source-table> AS [SOURCE]
+ON ([TARGET].<column1> = [SOURCE].<column1>...)
+WHEN MATCHED 
+   THEN 
+   UPDATE SET [TARGET].<column1> = [SOURCE].<column1>...   
+WHEN NOT MATCHED BY TARGET
+   THEN 
+   INSERT 
+   (<column1>...) 
+   VALUES 
+   ([SOURCE].<column1>...);
+WHEN NOT MATCHED BY SOURCE
+   THEN 
+   DELETE 	
+
+
+---
+
+// sample
+MERGE @VisitorsStats AS [TARGET]
+USING @JourneyOnTotalVisitors AS [SOURCE]
+ON ([TARGET].UserId = [SOURCE].UserId AND [TARGET].BrandId = [SOURCE].BrandId AND [TARGET].[Date] = [SOURCE].[Date])
+WHEN MATCHED 
+   THEN 
+   UPDATE SET 
+   [TARGET].JourneyOnTotalUniqueVisitors = [SOURCE].TotalUnique, 
+   [TARGET].JourneyOnTotalVisitors = [SOURCE].Total   
+WHEN NOT MATCHED BY TARGET
+   THEN 
+   INSERT 
+   (UserId, BrandId, [Date], JourneyOnTotalUniqueVisitors, JourneyOnTotalVisitors) 
+   VALUES 
+   ([SOURCE].UserId, [SOURCE].BrandId, [SOURCE].[Date], [SOURCE].TotalUnique, [SOURCE].Total);

@@ -132,4 +132,4 @@ SELECT [dbo].[fn_DeviceFromAgent](@UserAgent)
 
 CREATE FUNCTION (TABLE)
 -----------------------
-
+// TODO 

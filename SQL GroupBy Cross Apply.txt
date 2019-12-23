@@ -1,0 +1,39 @@
+SQL GroupBy Cross Apply
+-----------------------
+
+declare @products table(someName varchar(20), someType tinyint) 
+insert into @products 
+values
+('Laptop1', 1),
+('Laptop2', 1),
+('Laptop3', 1),
+('CdPlayer1', 2),
+('CdPlayer2', 2),
+('Tv1', 3),
+('Tv2', 3),
+('VacuumCleaner1', 4)
+
+SELECT	t.ProductType,
+		COUNT(*) AS 'CNT'
+FROM	@products p
+		CROSS APPLY (
+			SELECT 
+				CASE 
+					WHEN (someType = 1) THEN 'LAPTOPS'
+					WHEN (someType = 2) THEN 'CD PLAYERS'
+					WHEN (someType = 3) THEN 'TVs'
+					WHEN (someType = 4) THEN 'VACUUM CLEANERS'
+					ELSE 'UNKNOWN'
+				END 
+			FROM @products WHERE someName = p.someName
+		) t(ProductType)	
+GROUP BY t.ProductType
+
+---
+
+
+ProductType			CNT
+CD PLAYERS			2
+LAPTOPS				3
+TVs					2
+VACUUM CLEANERS		1

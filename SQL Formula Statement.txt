@@ -1,0 +1,35 @@
+SQL Formula Statement
+---------------------
+computed column. 
+
+use PERSISTED to calculate the value on INSERT clause (and store it in the table)
+otherwise, the computation will take place in run-time on SELECT
+
+syntax:
+<column-name> AS <formula>
+<column-name> AS <formula> <PERSISTED>
+
+---
+
+sample:
+
+CREATE TABLE AccountPerformance_Report(
+	UserId NVARCHAR(128) NOT NULL, 
+
+	[Date] DATE NOT NULL,
+	[Day] AS DAY([Date]) PERSISTED,
+	[Month] AS MONTH([Date]) PERSISTED,
+	[Year] AS YEAR([Date]) PERSISTED,
+	[DayOfWeek] AS DATEPART(WEEKDAY, [Date]),
+	
+	[Cost] MONEY NOT NULL DEFAULT 0.0,
+	[Conversions] INT NOT NULL DEFAULT 0,
+	[CostPerConversion] AS Cost / Conversions
+)
+
+INSERT INTO AccountPerformance_Report
+(UserId, [Date], Cost, Conversions) 
+VALUES
+('123456789', '2019-11-01', 300, 3)
+
+SELECT * FROM AccountPerformance_Report

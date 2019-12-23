@@ -1,0 +1,20 @@
+SQL While-Loop Sample
+---------------------
+
+DECLARE @users TABLE(Id NVARCHAR(128), UserName NVARCHAR(256))
+INSERT INTO @users
+	SELECT	Id, UserName
+	FROM	[dbo].[AspNetUsers]
+	WHERE IsActivated = 1
+
+WHILE(EXISTS(SELECT 1 FROM @users))
+BEGIN 
+	DECLARE @Id NVARCHAR(128);
+	SELECT TOP 1 @Id = Id FROM @users;
+
+	PRINT('USER #' + @Id);
+		
+	EXEC sp_Process_AccountPerformance_ByUser @Id;
+		
+	DELETE FROM @users WHERE Id = @Id;
+END

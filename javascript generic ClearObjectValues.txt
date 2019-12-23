@@ -1,0 +1,15 @@
+javascript generic ClearObjectValues
+------------------------------------
+works on objects (reference type) 
+
+--
+
+function ClearObjectValues(obj) {
+    Object.keys(obj).forEach(function (k) {
+        obj[k] = '';
+    });
+}
+
+var o1 = { a: 1, b: 2, c: 3 };
+ClearObjectValues(o1); 
+console.log(o1); // {a: "", b: "", c: ""}
