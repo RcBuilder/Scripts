@@ -1,4 +1,4 @@
-var EMAIL = 'RcBuilder@walla.com,eyal@kivi.co.il';
+var EMAIL = 'RcBuilder@walla.com';
 var CLICKS = 20;
 var CREATE = true;
 

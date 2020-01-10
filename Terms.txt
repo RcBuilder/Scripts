@@ -87,6 +87,7 @@
 * SDLC = Systems development life cycle (describe a process for planning, creating, testing, and deploying an information system)
 
 * ETA = Estimated Time of Arrival
+* KPI = Key Performance Indicator (by setting KPIs the company enables the team to make smart business decisions)
 
 * Webinar = Web Seminar
 * MVP = Minimum Vital Product

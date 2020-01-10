@@ -1,0 +1,351 @@
+var EMAIL = 'adirtp@gmail.com';
+var CLICKS = 2;
+var DATE_RANGE = '20170601,20190714'; // '20150101,20170101'
+
+function main() {
+  var accounts = MccApp.accounts().get();  
+	while(accounts.hasNext())
+	{
+		var account = accounts.next();
+
+		Logger.log('### account: %s ###', account.getName());  
+
+		MccApp.select(account);
+		ProcessAccount();
+
+		Logger.log('--------------------------');
+	}
+}
+
+function ProcessAccount() {
+  var htmlService = HTMLBuilderService();
+  var adManagerService = AdManagerService();
+  
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+
+  var report = AdWordsApp.report(
+   'SELECT Query,Clicks,Conversions,AverageCpc,AdGroupId,AdGroupName,CampaignId ' +
+   'FROM SEARCH_QUERY_PERFORMANCE_REPORT ' +
+   'WHERE Clicks > ' + CLICKS + ' ' +  
+   'DURING ' + DATE_RANGE, reportConfig);
+ 
+  var matches = 0;  
+  
+  var rows = report.rows();  
+  while(rows.hasNext()) {
+    var row = rows.next();
+    
+    var clicks = row['Clicks'];    
+	var adGroupId = row['AdGroupId'];
+    var campaignId = row['CampaignId'];
+        
+    var query = row['Query'];
+    Logger.log('[%s] %s clicks', query, clicks);
+    
+    var adGroup = adManagerService.getAdGroupById(adGroupId); 
+    var campaign = adManagerService.getCampaignById(campaignId);    
+    
+    var newAdGroupName = adManagerService.clearKeywordSpacers(query);    
+    var newAdGroupExists = adManagerService.checkIfAdGroupExistsByName(campaign, newAdGroupName);
+    
+    if(newAdGroupExists) {
+      Logger.log('new adgroup already exists - skip query');
+      continue;
+    }
+       
+    var defaultBid = row['AverageCpc'];        
+    var newAdGroup = adManagerService.createAdGroup(campaign, newAdGroupName, defaultBid);           
+    if(!newAdGroup) {
+      Logger.log('error while creating an adgroup - skip query');
+      continue;
+    }
+    
+    Logger.log('new adgroup created!');
+    
+    var textAd = adGroup.ads()    
+    .withCondition('Type IN [EXPANDED_TEXT_AD]')
+    .withCondition('Status = ENABLED')
+    .withLimit(1)
+    .get().next().asType().expandedTextAd();
+    
+    var newAd = copyAd(adManagerService, newAdGroup, textAd);
+    if(!newAd) {
+      Logger.log('error while coping the text ad - skip query');
+      continue;
+    }
+         
+    var keywords = [ 
+      '[' + query + ']', 
+      '"' + query + '"', 
+      '+' + query.split(' ').join(' +'),      
+    ];
+    
+    Logger.log(keywords);
+    
+    
+    Logger.log('adding keywords to the new adgroup %s', newAdGroupName);
+    adManagerService.createKeywords(newAdGroup, keywords);     
+    
+    var adGroupName = row['AdGroupName'];
+    Logger.log('adding negative keywords to the old adgroup %s', adGroupName);
+    adManagerService.createNegativeKeywords(adGroup, keywords); 
+    
+    matches++;            
+    htmlService.add('<p>[' + query + '] ' + clicks + ' clicks -> newAdGroup: ' + newAdGroupName + '</p>');    
+    ;
+  }
+  
+  if(matches > 0){    
+    MailApp.sendEmail(EMAIL, 'Queries 2 Keywords', '', { 
+      htmlBody: htmlService.get() 
+    });
+  }
+}
+
+function copyAd(adManagerService, adGroup, textAd){
+  var header1 = textAd.getHeadlinePart1();
+	var header2 = textAd.getHeadlinePart2();
+	var description = textAd.getDescription();
+	var destinationURL = textAd.urls().getFinalUrl();
+	var partURL1 = textAd.getPath1();
+	var partURL2 = textAd.getPath2();
+
+	return adManagerService.createAd(
+	  adGroup, 
+	  header1, 
+	  header2, 
+	  description, 
+	  destinationURL, 
+	  partURL1, 
+	  partURL2
+	);
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth() + 1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}
+
+// ----------------------------------------------
+
+// HTML BUILDER SERVICE
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}
+
+// AD MANAGER SERVICE
+var AdManagerService = function() { 
+  return{
+    createAdGroup: function(campaign, adGroupName, defaultBid){
+      var adGroupBuilder = campaign.newAdGroupBuilder();
+      var operation = adGroupBuilder
+      .withName(adGroupName)
+      .withCpc(defaultBid)
+      // .withStatus('ENABLED')
+      .build();
+      
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },
+    createAd: function(adGroup, header1, header2, description, destinationURL, partURL1, partURL2){
+      
+      if(header1.length > 30)
+        header1 = header1.substr(0, 29);
+      if(header2.length > 30)
+        header2 = header2.substr(0, 29);
+      if(description.length > 80)
+        description = description.substr(0, 79);
+     
+      var builder = adGroup.newAd().expandedTextAdBuilder()
+      .withHeadlinePart1(header1) // 30 characters      
+      .withHeadlinePart2(header2) // 30 characters
+      .withDescription(description) // 80 characters      
+      .withFinalUrl(destinationURL) // 255 characters    
+      .withMobileFinalUrl(destinationURL);
+      
+      /* parameters:
+      
+         syntax:
+         {param<num>:<default value>}
+         
+         e.g: 
+         product {param1: 'some product'} for only {param2: 0} $ - buy now!
+      */
+      if(partURL1)
+        builder.withPath1(partURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/partURL1/partURL2
+      
+      if(partURL2)
+        builder.withPath2(partURL2); // 15 characters (the second part after the siteURL)
+      
+      var operation = builder.build();
+      
+      if(!operation.isSuccessful())
+        return null;
+      return operation.getResult();
+    },        
+    createKeywords: function(adGroup, arrKeywods){
+      
+      /* types:
+         BROAD, PHRASE, EXACT
+         
+         e.g:
+         BROAD: 'word'
+         PHRASE: '"word"'
+         EXACT: '[word]'        
+      */
+      
+      for(i in arrKeywods){
+        var keyword = arrKeywods[i];                        
+        var operation = adGroup.newKeywordBuilder()        
+        .withText(keyword)       
+        // .withCpc(1.0)
+        .build();        
+      }
+    },
+    createNegativeKeywords: function(adGroup, arrKeywods){
+      for(i in arrKeywods){
+        var keyword = arrKeywods[i];
+        adGroup.createNegativeKeyword(keyword);
+      }
+    },    
+    /*
+	   important! 
+	   use it before you add your match type signs! (calling the createKeywords method)
+	   in order to prevent a deletion of those legitimate chars which add to represent the keyword match type ("keyword", [keyword], +keyword)
+       Logger.log(adManagerService.clearKeyword('A!@%,*B'));
+       Logger.log(adManagerService.clearKeyword('12%34'));
+       Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K L M N O P'));
+       Logger.log(adManagerService.clearKeyword('A B C D E F G H I J K    L M N      O       P', true));
+    */
+    clearKeyword: function(keyword, clearSpacers){
+      var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']'];
+      var maxWordsAllowed = 10;
+      
+      // non allowed characters
+      // [error] Keywords cannot contain non-standard characters like: ! @ % , *
+      for(i in specialCharacters)
+      {
+        var c = specialCharacters[i];
+        if(keyword.indexOf(c) == -1) continue;
+        keyword = keyword.split(c).join(''); // replace all
+      }      
+      
+      // two many words
+      // [error] Keywords cannot contain more than 10 words
+      if(keyword.split(' ').length > maxWordsAllowed)
+        keyword = keyword.split(' ').slice(0, 9).join(' '); // remove words
+        
+      if(clearSpacers == true)
+        keyword = this.clearKeywordSpacers(keyword);
+      
+      return keyword;
+    },
+    clearKeywordSpacers : function (input){
+		var arrWords = input.split(' ');
+		if(arrWords.length == 1) {
+		// Logger.log('single word: /%s/', input);
+		return input;
+		}
+		// clear extra middle spaces ('A B C' -> 'A B C')
+		var temp = [];
+		for(i in arrWords){ 
+		var word = arrWords[i].trim();
+		if(word == '' || word.length == 1) continue; 
+		// Logger.log('word: /%s/', word);
+		temp.push(word); 
+		} 
+		var output = temp.join(' ');
+		// Logger.log('input: /%s/', input);
+		// Logger.log('output: /%s/', output);
+		return output; 
+	},
+    setKeywordParams: function(keyword, param1Value, param2Value, param3Value){      
+      if(param1Value)
+        keyword.setAdParam(1, param1Value);
+      
+      if(param2Value)
+        keyword.setAdParam(2, param2Value);
+      
+      if(param3Value)
+        keyword.setAdParam(3, param3Value);
+    },
+    getAds: function(campaign){
+      var ads = [];
+      
+      var adsIter = campaign.ads()
+      .withCondition('Type = EXPANDED_TEXT_AD')
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .get();
+      
+      while(adsIter.hasNext())      
+        ads.push(adsIter.next().asType().expandedTextAd());
+      
+      return ads;      
+    },    
+    checkIfAdExistsByTitle: function(campaign, adTitle){
+      var ads = this.getAds(campaign);
+      for(i in ads)
+        if(ads[i].getHeadlinePart1() == adTitle)
+          return true;
+      return false;
+    },
+    checkIfAdGroupExistsByName: function(campaign, adGroupName){
+      return this.getAdGroupByName(campaign, adGroupName) != null;
+    },
+    getAdGroupByName: function(campaign, adGroupName){
+      var adgroup = campaign.adGroups()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withCondition('Name = "' + adGroupName + '"')
+      .get()
+      
+      if(adgroup.hasNext())
+        return adgroup.next();
+      return null;
+    },
+    getAdGroupById: function(adGroupId){            
+      var adgroup = AdWordsApp.adGroups()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withIds([adGroupId])
+      .get()
+      
+      if(adgroup.hasNext())
+        return adgroup.next();
+      return null;
+    },
+    getCampaignById: function(campaignId){            
+      var campaign = AdWordsApp.campaigns()
+      .withCondition('Status IN [ENABLED,PAUSED]')
+      .withIds([campaignId])
+      .get()
+      
+      if(campaign.hasNext())
+        return campaign.next();
+      return null;
+    },
+    checkIfKeywordExists: function(campaign, keywordText){
+      return campaign.keywords()
+      .withCondition('Text = \'' + keywordText + '\'')
+      .get()
+      .hasNext();
+    },
+  };
+}
+

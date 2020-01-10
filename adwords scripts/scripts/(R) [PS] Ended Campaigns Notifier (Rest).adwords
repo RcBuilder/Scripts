@@ -58,11 +58,11 @@ function dateDiffInDays(dt1, dt2){
   return parseInt(ts / (24*60*60*1000));
 }
 
-function NotifyPS(callbackURL, entityName, entityId, approvalStatus, reason, notes, completedDate){
+function NotifyPS(callbackURL, entityName, entityId, status, reason, notes, completedDate){
   var payload = {
     'id': entityId,
     'entity': entityName,
-    'status': approvalStatus,
+    'status': status,
     'message': reason,
     'completed_date': completedDate,
     'notes': notes
@@ -82,7 +82,7 @@ function NotifyPS(callbackURL, entityName, entityId, approvalStatus, reason, not
 
 function GetCallbackURL(campaignName){    
   try{
-    var response = MakeRequest(MIDDLEWARE.concat('/properties/list/', campaignName), 'get', 'application/json');    
+    var response = MakeRequest(MIDDLEWARE.concat('/properties/list/', campaignName, '?api_key=d7133010-4de1-437e-9f7c-083531aaf67a'), 'get', 'application/json');    
     if(!response) return null;  
     
     response = Utilities.jsonParse(response);

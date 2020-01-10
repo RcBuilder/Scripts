@@ -1,0 +1,11 @@
+javascript replace regex vs string
+----------------------------------
+the built-in string 'replace' function only replaces the first instance!
+use regex pattern to replace ALL instances
+
+e.g:
+'12,345,678'.replace(/[,]/g,''); // 12345678
+'12,345,678'.replace(',',''); // 12345,678
+-
+'12,345,678.90'.replace(/[,\.]/g,''); // 1234567890
+'12,345,678.90'.replace(',','').replace('.',''); // 12345,67890

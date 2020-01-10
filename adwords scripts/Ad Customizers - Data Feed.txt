@@ -3,11 +3,16 @@ Ad Customizers - Data Feed
 Data feeds for ads. 
 injects values from a data-feed into an ad 
 
+Entities
+--------
+- AdCustomizerSources
+- AdCustomizerItem
+
 Load/ Create
 ------------
 Load Feed:
-* Tools > Setup > Business data > (button) + DATA > Ad Customizer data
-* Set feed Name > load the feed file (CSV/ TSV/ XLS)
+- Tools > Setup > Business data > (button) + DATA > Ad Customizer data
+- Set feed Name > load the feed file (CSV/ TSV/ XLS)
 
 Create a Feed:
 create a csv file > define a data-feed column by setting a column name and its type 
@@ -22,8 +27,8 @@ note:
 Rows starting with "#" will be ignored
 
 Add Feed Items:
-* Tools > Setup > Business data
-* Choose the feed > click on the (+) button 
+- Tools > Setup > Business data
+- Choose the feed > click on the (+) button 
 
 Sample Feed:
 // TestFeed.csv template file
@@ -61,9 +66,20 @@ structure {=<feedName>.<columnName>}
 
 adwords Script code
 -------------------
-// https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_adcustomizersource
-  var dataFeeds = AdsApp.adCustomizerSources().get();
-  while(dataFeeds.hasNext()){
+
+reference:
+https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_adcustomizersource
+
+-
+
+related scripts:
+'(R) Ad-Customizer Feeds Manager - MCC'
+
+-
+
+[read]
+var dataFeeds = AdsApp.adCustomizerSources().get();
+while(dataFeeds.hasNext()){
     var dataFeed = dataFeeds.next();
     
     Logger.log('[%s]', dataFeed.getName());
@@ -72,9 +88,76 @@ adwords Script code
       var feedItem = feedItems.next();
       Logger.log('%s', feedItem.getAttributeValue('Model'));
     }
-  }
-  return;
+}
 
 -
+
+[feedMetadata] // Sample
+var feedMetadata = {
+	feedName: 'some name',	
+    value1: 'some value 1',	
+    value2: 'some value 2',	
+    value3: 'some value 3',	              
+    startDate: '',		
+    endDate: '',		
+    targetCampaign: '',		
+    targetAdGroup: '',	
+    targetKeyword: '',		
+    targetLocation: '',		
+    targetLocationRestriction: ''		          		    	          		
+    devicePreference: ''    
+}
+
+-
+
+[create feed]
+var builder = AdsApp.newAdCustomizerSourceBuilder(); 
+var operation = builder
+.withName(feedMetadata.feedName)  
+.addAttribute("Value1", 'text') 
+.addAttribute("Value2", 'text') 
+.addAttribute("Value3", 'text')
+.build();  
+
+var createdFeed = null;
+if(operation.isSuccessful())    
+	createdFeed = operation.getResult();  
+
+-
+
+[create item]
+var builder = currentFeed.adCustomizerItemBuilder(); 
+builder.withAttributeValue("Value1", '[INIT]') // [Required] must provide at least 1 attribute on the creation!
+
+var operation = builder.build(); // build 
+
+var currentFeedItem = null;
+if(operation.isSuccessful())
+	currentFeedItem = operation.getResult();
+
+// update custom attributes
+currentFeedItem.setAttributeValue('Value1', feedMetadata.value1); 
+currentFeedItem.setAttributeValue('Value2', feedMetadata.value2); 
+currentFeedItem.setAttributeValue('Value3', feedMetadata.value3);  
+
+// update dates      
+if(feedMetadata.startDate != '')      
+    currentFeedItem.setStartDate(Utilities.formatDate(feedMetadata.startDate, 'GMT', 'yyyyMMdd'));  // yyyyMMdd OR {year, month, day}        
+if(feedMetadata.endDate != '')
+    currentFeedItem.setEndDate(Utilities.formatDate(feedMetadata.endDate, 'GMT', 'yyyyMMdd')); // yyyyMMdd OR {year, month, day}    
+
+// update target entities
+if(feedMetadata.targetCampaign != '')
+    currentFeedItem.setTargetCampaign(feedMetadata.targetCampaign);
+if(feedMetadata.targetCampaign != '' || feedMetadata.targetAdGroup)
+    currentFeedItem.setTargetAdGroup(feedMetadata.targetCampaign, feedMetadata.targetAdGroup);  
+if(feedMetadata.targetKeyword != '')
+    currentFeedItem.setTargetKeyword(feedMetadata.targetKeyword);
+
+// update device Preference
+currentFeedItem.setMobilePreferred(feedMetadata.devicePreference); 
+
+
+-----
 
 to inject the triggered KW into an ad see 'Keyword Insertion'

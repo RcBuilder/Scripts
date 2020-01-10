@@ -1,0 +1,19 @@
+using System.Net;
+using System.Net.Mail;
+
+var myMessage = new MailMessage();
+myMessage.From = new MailAddress("rcbuilder@gmail.com");
+myMessage.To.Add(new MailAddress("rcbuilder@walla.com"));
+/// myMessage.Bcc.Add(new MailAddress("rcbuilder@walla.com"));
+myMessage.Subject = "TEST EMAIL";
+myMessage.Body = "bla bla bla";
+myMessage.IsBodyHtml = true;
+
+// [IMPORTANT] Allow less secure apps -> ON
+// https://myaccount.google.com/lesssecureapps
+
+var mySmtp = new SmtpClient("smtp.gmail.com", 587);
+mySmtp.UseDefaultCredentials = false;
+mySmtp.Credentials = new NetworkCredential("rcbuilder@gmail.com", "xxxxxxx");
+mySmtp.EnableSsl = true;
+mySmtp.Send(myMessage); 

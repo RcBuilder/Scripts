@@ -1,0 +1,100 @@
+try.NET
+=======
+aka .Net-try
+interactive documentation generator.
+allows us to execute a .Net code in the browser!
+
+online
+------
+https://try.dot.net/
+
+tool
+----
+dotnet-try
+
+install (.NET CLI)
+------------------
+> dotnet tool install --global dotnet-try
+> dotnet tool update -g dotnet-try
+> dotnet tool uninstall -g dotnet-try
+
+github
+------
+https://github.com/dotnet/try
+https://github.com/dotnet/try-samples
+
+global tool
+-----------
+requires .NET Core SDK
+https://dotnet.microsoft.com/download
+https://dotnet.microsoft.com/download/dotnet-core/3.0
+
+markdown code
+-------------
+reference-link to a piece of code in an existing project. 
+ 
+```cs --region <regionName> --source-file <filePath> --project <projectPath>
+```cs --region HelloWorld --source-file .\Program.cs --project .\TryDotNetDemo.csproj
+
+commands (.NET CLI)
+-------------------
+> dotnet try  // run a project
+
+demo
+----
+creates a "getting started" demo project
+> create a new folder
+> cd <new folder>
+> dotnet try demo
+
+The language
+------------
+* h1 tag
+  # <text>			
+
+* li tag
+  - <text>	
+  note! also generates the ul tag
+
+* anchor 
+  [<text>](<href>)	
+
+* code tag
+  `<text>`			
+
+* strong tag
+  **<text>**		
+
+* img tag
+  ![<alt>](<src>)		
+
+* pre + code block
+  ```
+  <text>
+  ```		
+
+Markdowns
+---------
+adding code-block with the code defined in the provided project-file-region references. 
+we can add C# code and execute it using the "play" button (top-right)
+
+syntax:
+```csharp --source-file <cs-file> --project <csproj-file> --region <region-name>
+
+sample:
+// MySample.md
+// sample url: https://localhost:3882/MySample.md
+// present the code defined in the 'MyRegion1' region located in 'MyCsFile.cs' file of the 'MyProject.csproj' project
+```csharp --source-file ./MyCsFile.cs --project MyProject.csproj --region MyRegion1
+
+// MyCsFile.cs
+public static void Run1() {
+    #region MyRegion1
+    Console.WriteLine(DateTime.Now);
+    #endregion
+}
+
+
+------------------------------
+
+// TODO

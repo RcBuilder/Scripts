@@ -1,0 +1,78 @@
+
+.NET Core CLI (Command Line Interface)
+======================================
+
+install
+-------
+requires .NET Core SDK
+https://dotnet.microsoft.com/download
+https://dotnet.microsoft.com/download/dotnet-core/3.0
+
+commands
+--------
+dotnet <verb> <arguments>
+
+> dotnet
+> dotnet --help
+> dotnet --info
+> dotnet --list-sdks							// installed SDKs
+> dotnet new									// show applicationType list
+> dotnet new <applicationType>					// create a new application in the current directory
+> dotnet new <applicationType> --output <path>	// create a new application in the specified path
+> dotnet restore								// install all packages (similar to npm install)
+> dotnet build									// build the project
+> dotnet run									// run the project (use CTRL + C to shut the app down)
+> dotnet <dll_path>								// run the project by dll path (e.g: dotnet ".\bin\Debug\netcoreapp3.1\myApp.dll"
+> dotnet clean									// clean the project
+> dotnet publish								// publish the app (to the bin folder)
+> dotnet publish --output <path>				// publish the app (to a specific path)
+
+
+create a new project
+--------------------
+// show available applications 
+// console, wpf, nunit, mvc, webapp, angular, react, library etc.
+> dotnet new 
+
+// create an MVC project
+> dotnet new MVC
+
+// create an Console project 
+> dotnet new Console
+
+// create a Console project (in the specified location)
+> dotnet new Console --output "C:\MyNewProject"
+
+publish the app
+---------------
+// publish to the bin folder 
+// a new "publish" folder will be created under the "bin" folder
+> dotnet publish
+
+// publish to the specified location
+> dotnet publish --output "C:\Users\RcBuilder\Desktop\MyProject\Publish"
+
+// same as the above (relative path)
+> dotnet publish --output "Publish"
+
+note: 
+can use -o instead of --output.
+
+
+
+
+
+
+
+--
+// TODO 
+
+.. test
+.. pack
+.. migrate
+.. sln
+.. add
+.. remove
+.. list
+.. nuget
+.. msbuild

@@ -7,6 +7,18 @@
   Value1	
   Value2	
   Value3	
+  Value4
+  Value5
+  Value6
+  Value7
+  Value8
+  Value9
+  Value10
+  Value11
+  Value12
+  Value13
+  Value14
+  Value15  
   Start Date	
   End Date	
   Target Campaign	
@@ -85,6 +97,18 @@ function processAccount(accountId, adCustomizerDataService){
         value1,
         value2,	
         value3, 
+        Value4,
+        Value5,
+        Value6,
+        Value7,
+        Value8,
+        Value9,
+        Value10,
+        Value11,
+        Value12,
+        Value13,
+        Value14,
+        Value15,
         startDate, 
         endDate, 
         targetCampaign, 
@@ -92,11 +116,11 @@ function processAccount(accountId, adCustomizerDataService){
         targetKeyword, 
         targetLocation, 
         targetLocationRestriction, 
+        actionStatus,
+        scriptStatus,
         policyDetails,         
         devicePreference, 
-        customParameter, 
-        scriptStatus,
-        actionStatus
+        customParameter                
     }]
   */
   var accountFeeds = adCustomizerDataService.getAccountFeedsToProcess(accountId);    
@@ -169,7 +193,19 @@ function createFeed(feedMetadata){
     .withName(feedMetadata.feedName)  
     .addAttribute("Value1", 'text') 
     .addAttribute("Value2", 'text') 
-    .addAttribute("Value3", 'text')     
+    .addAttribute("Value3", 'text')
+    .addAttribute("Value4", 'text') 
+    .addAttribute("Value5", 'text') 
+    .addAttribute("Value6", 'text')
+    .addAttribute("Value7", 'text') 
+    .addAttribute("Value8", 'text') 
+    .addAttribute("Value9", 'text')
+    .addAttribute("Value10", 'text') 
+    .addAttribute("Value11", 'text') 
+    .addAttribute("Value12", 'text')
+    .addAttribute("Value13", 'text') 
+    .addAttribute("Value14", 'text') 
+    .addAttribute("Value15", 'text')
     .addAttribute("Policy Details", 'text')   
     .addAttribute("Custom Parameter", 'text') 
     .build();  
@@ -206,15 +242,27 @@ function saveFeedItem(currentFeed, feedMetadata){
     // update custom attributes
     currentFeedItem.setAttributeValue("Value1", feedMetadata.value1); 
     currentFeedItem.setAttributeValue("Value2", feedMetadata.value2); 
-    currentFeedItem.setAttributeValue("Value3", feedMetadata.value3); 
+    currentFeedItem.setAttributeValue("Value3", feedMetadata.value3);     
+    currentFeedItem.setAttributeValue("Value4", feedMetadata.value4); 
+    currentFeedItem.setAttributeValue("Value5", feedMetadata.value5); 
+    currentFeedItem.setAttributeValue("Value6", feedMetadata.value6); 
+    currentFeedItem.setAttributeValue("Value7", feedMetadata.value7); 
+    currentFeedItem.setAttributeValue("Value8", feedMetadata.value8); 
+    currentFeedItem.setAttributeValue("Value9", feedMetadata.value9); 
+    currentFeedItem.setAttributeValue("Value10", feedMetadata.value10); 
+    currentFeedItem.setAttributeValue("Value11", feedMetadata.value11); 
+    currentFeedItem.setAttributeValue("Value12", feedMetadata.value12); 
+    currentFeedItem.setAttributeValue("Value13", feedMetadata.value13); 
+    currentFeedItem.setAttributeValue("Value14", feedMetadata.value14); 
+    currentFeedItem.setAttributeValue("Value15", feedMetadata.value15);     
     currentFeedItem.setAttributeValue("Policy Details", feedMetadata.policyDetails);      
     currentFeedItem.setAttributeValue("Custom Parameter", feedMetadata.customParameter);
 
     // update dates      
-    if(feedMetadata.startDate != '')
-      currentFeedItem.setStartDate(Utilities.formatDate(feedMetadata.startDate, 'GMT', 'yyyyMMdd'));  // yyyyMMdd OR {year, month, day}    
-    if(feedMetadata.setEndDate != '')
-      currentFeedItem.setEndDate(Utilities.formatDate(feedMetadata.endDate, 'GMT', 'yyyyMMdd')); // yyyyMMdd OR {year, month, day}
+    if(feedMetadata.startDate != '')      
+      currentFeedItem.setStartDate(Utilities.formatDate(feedMetadata.startDate, 'GMT', 'yyyyMMdd'));  // yyyyMMdd OR {year, month, day}        
+    if(feedMetadata.endDate != '')
+      currentFeedItem.setEndDate(Utilities.formatDate(feedMetadata.endDate, 'GMT', 'yyyyMMdd')); // yyyyMMdd OR {year, month, day}    
 
     // update target entities
     if(feedMetadata.targetCampaign != '')
@@ -288,19 +336,31 @@ var AdCustomizerDataService = function(sheetService) {
           feedName: row[2].trim(),	
           value1: row[3].toString(),	
           value2: row[4].toString(),	
-          value3: row[5].toString(),	
-          startDate: row[6],		
-          endDate: row[7],		
-          targetCampaign: row[8],		
-          targetAdGroup: row[9],	
-          targetKeyword: row[10],		
-          targetLocation: row[11],		
-          targetLocationRestriction: row[12],		          		
-          policyDetails: row[15].toString(),		          		
-          devicePreference: row[16],		
-          customParameter: row[17].toString(),
-          scriptStatus: row[14],
-          actionStatus: row[13]
+          value3: row[5].toString(),	          
+          value4: row[6].toString(),	
+          value5: row[7].toString(),	
+          value6: row[8].toString(),	
+          value7: row[9].toString(),	
+          value8: row[10].toString(),	
+          value9: row[11].toString(),	
+          value10: row[12].toString(),	
+          value11: row[13].toString(),	
+          value12: row[14].toString(),	
+          value13: row[15].toString(),	
+          value14: row[16].toString(),	
+          value15: row[17].toString(),          
+          startDate: row[18],		
+          endDate: row[19],		
+          targetCampaign: row[20],		
+          targetAdGroup: row[21],	
+          targetKeyword: row[22],		
+          targetLocation: row[23],		
+          targetLocationRestriction: row[24],		          		
+          actionStatus: row[25],
+          scriptStatus: row[26],          
+          policyDetails: row[27].toString(),		          		
+          devicePreference: row[28],		
+          customParameter: row[29].toString()          
         }
       });
     },  
@@ -314,11 +374,11 @@ var AdCustomizerDataService = function(sheetService) {
     },
     setFeedStatus: function(rowIndex, value){
       // Approved, Removed, Under Review
-      return sheetService.setValue(rowIndex, 14, value);
+      return sheetService.setValue(rowIndex, 25, value);
     },  
     setFeedScriptStatus: function(rowIndex, value){
       // Done, Error
-      return sheetService.setValue(rowIndex, 15, value);
+      return sheetService.setValue(rowIndex, 26, value);
     }       
   }
 }

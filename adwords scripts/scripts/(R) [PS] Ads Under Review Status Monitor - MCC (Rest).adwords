@@ -12,8 +12,15 @@
      - if found, extract the timestampt and calculate the difference in hours > if it over the allowed threshold > send notification
   3. remove the ads from the sheet which NOT found in the account UNDER_REVIEW ad-list (meaning: they have a different status now)
   
+  [sheet]
+  #Account	
+  #Ad	
+  Ad Status	
+  Date
+  
 */
 
+var MIDDLEWARE = 'http://ec2-52-62-203-30.ap-southeast-2.compute.amazonaws.com/api';
 var SHEET_NAME = 'Ads_UnderReview_Status_Monitor';
 var MAX_TIME_ALLOWED_H = 24;
 
@@ -27,25 +34,24 @@ function main() {
   
   var adStatusMonitorService = AdStatusMonitorService(sheetService);
   
+  var accounts = MccApp.accounts().get();  
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+
+    Logger.log('### account: %s ###', account.getName());  
+
+    MccApp.select(account);
+    ProcessAccount(account, adStatusMonitorService);
+
+    Logger.log('--------------------------');
+  }
+  
   
   /*
-    var accounts = MccApp.accounts().get();  
-    while(accounts.hasNext())
-    {
-      var account = accounts.next();
-
-      Logger.log('### account: %s ###', account.getName());  
-
-      MccApp.select(account);
-      ProcessAccount(account, adStatusDataService);
-
-      Logger.log('--------------------------');
-    }
-  */
-  
-  
   var account = AdsApp.currentAccount();    
   ProcessAccount(account, adStatusMonitorService);  
+  */
 }
 
 function ProcessAccount(account, adStatusMonitorService){
@@ -80,8 +86,16 @@ function ProcessAccount(account, adStatusMonitorService){
     if(diff < MAX_TIME_ALLOWED_H) continue;   
     
     Logger.log('notify PropertySuite!');    
-    // TODO ->> Notify PS
-    // TODO ->> Make a Copy and Remove the old from monitoring ???! 
+    
+    var callbackURL = GetCallbackURL(curr.campaignName);
+    Logger.log('campaign: %s > callbackURL: %s', curr.campaignName, callbackURL);
+    
+    if(!callbackURL){
+      Logger.log('No callbackURL!!');
+      continue;
+    }
+    
+    NotifyPS(callbackURL, 'ad', curr.id, 'Under-Review', '', 'ad in "Under-Review" status');     
   }
   
   // ads exist in the sheet but NOT in underReviewAdsState array - ads were UNDER_REVIEW but not anymroe   
@@ -109,7 +123,7 @@ function ProcessAccount(account, adStatusMonitorService){
 }
 
 // AdStatus: APPROVED, APPROVED_LIMITED, ELIGIBLE, UNDER_REVIEW, DISAPPROVED, SITE_SUSPENDED
-// result: [{ id, status, policyStatus }]
+// result: [{ id, status, policyStatus, campaignName }]
 function GetAccountAdsByStatus(AdStatus) {
   var ads = AdsApp.ads()
   .withCondition('CombinedApprovalStatus IN [' + AdStatus + ']')   
@@ -124,7 +138,8 @@ function GetAccountAdsByStatus(AdStatus) {
     result.push({
       id: ad.getId().toString(),
       status: ad.getApprovalStatus(),
-      policyStatus: ad.getPolicyApprovalStatus()      
+      policyStatus: ad.getPolicyApprovalStatus(),
+      campaignName: ad.getCampaign().getName()
     });        
   }
   
@@ -135,6 +150,57 @@ function hoursDiff(date1, date2) {
   var diff = date1.getTime() - date2.getTime(); 
   return parseInt(diff / (60*60*1000));
 };
+
+// ------------------------------------------
+
+function NotifyPS(callbackURL, entityName, entityId, status, reason, notes){
+  var payload = {
+    'id': entityId,
+    'entity': entityName,
+    'status': status,
+    'message': reason,
+    'notes': notes
+  };
+  
+  /// Logger.log(payload);
+  /// callbackURL = 'https://webhook.site/f97dceb3-9133-496a-a69a-390a7dde68eb';
+  
+  var response = MakeRequest(callbackURL, 'post', 'application/json', payload);
+  if(!response) return null;
+  
+  response = Utilities.jsonParse(response);
+  Logger.log('status: %s', response.status);
+  if(response.status = 'FAIL')   
+  	Logger.log('%s', response);
+}
+
+function GetCallbackURL(campaignName){    
+  try{
+    var response = MakeRequest(MIDDLEWARE.concat('/properties/list/', campaignName, '?api_key=d7133010-4de1-437e-9f7c-083531aaf67a'), 'get', 'application/json');    
+    if(!response) return null;  
+    
+    response = Utilities.jsonParse(response);
+    return response.callbackUrl;
+  }
+  catch(e){ return null; }
+}
+
+function MakeRequest(url, method, contentType, payload){
+  if(!url) return null;
+  
+  var options = {
+    'method' : method,
+    'contentType': contentType,
+    'payload' : payload || null
+  };
+    
+  var response = UrlFetchApp.fetch(url, options);
+  var status_code = response.getResponseCode();
+  Logger.log('%s %s > status code: %s', method, url, status_code);
+  if(payload) Logger.log('%s', payload);
+  
+  return response;
+}
 
 // --- SERVICES ------------------------------------------------------------
 
