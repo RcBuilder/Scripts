@@ -303,21 +303,65 @@ public static int Save(Category Category)
 }
 
 public static bool MapCategories(int Id, IEnumerable<int> CategoryIds) {
-            using (var conn = new SqlConnection(connectionString)) {
-                conn.Open();
-                using (var tran = conn.BeginTransaction()) {
-                    try {
-                        conn.Execute("sp_LecturerCategories_Delete", param: new { LecturerId = Id }, commandType: CommandType.StoredProcedure, transaction: tran);
-                        foreach (var cId in CategoryIds)
-                            conn.Execute("sp_LecturerCategory_Map", param: new { LecturerId = Id, CategoryId = cId }, commandType: CommandType.StoredProcedure, transaction: tran);
+	using (var conn = new SqlConnection(connectionString)) {
+		conn.Open();
+		using (var tran = conn.BeginTransaction()) {
+			try {
+				conn.Execute("sp_LecturerCategories_Delete", param: new { LecturerId = Id }, commandType: CommandType.StoredProcedure, transaction: tran);
+				foreach (var cId in CategoryIds)
+					conn.Execute("sp_LecturerCategory_Map", param: new { LecturerId = Id, CategoryId = cId }, commandType: CommandType.StoredProcedure, transaction: tran);
 
-                        tran.Commit();
-                        return true;
-                    }
-                    catch{                        
-                        tran.Rollback();
-                        return false;
-                    }
-                }
-            }            
-        }
+				tran.Commit();
+				return true;
+			}
+			catch{                        
+				tran.Rollback();
+				return false;
+			}
+		}
+	}            
+}
+
+-------
+
+[Shared Loader]
+public BrandSetting GetByUserId(string UserId) {            
+    using (var conn = new SqlConnection(this.ConnectionString))
+    {
+        var reader = conn.QueryMultiple("sp_BrandSettings_ByUserId_Get", param: new { UserId }, commandType: CommandType.StoredProcedure);
+        return LoadBrandSetting(reader);
+    }
+}
+
+public BrandSetting GetByUserName(string UserName) {
+    using (var conn = new SqlConnection(this.ConnectionString)) {
+        var reader = conn.QueryMultiple("sp_BrandSettings_ByUserName_Get", param: new { UserName }, commandType: CommandType.StoredProcedure);
+        return LoadBrandSetting(reader);
+    }                
+}
+
+protected BrandSetting LoadBrandSetting(SqlMapper.GridReader reader) {
+    //-- 1st table: details --                
+    var brandSetting = reader.Read<BrandSetting>().FirstOrDefault();
+    if (brandSetting == null) return null;
+
+    //-- 2nd table: filters --
+    brandSetting.TrafficFilters = reader.Read<TrafficFilter>();
+
+    //-- 3rd table: campaigns --
+    brandSetting.Campaigns = reader.Read<Campaign>();
+
+    //-- 4th table: campaign Utms --
+    var campaignUtms = reader.Read<CampaignUtm>().ToLookup(x => x.CampaignId);
+
+    //-- 5th table: campaign Widgets --
+    var campaignWidgets = reader.Read<WidgetToCampaign>().ToLookup(x => x.CampaignId);
+
+    foreach (var campaign in brandSetting.Campaigns)
+    {                
+        campaign.WidgetToCampaigns = campaignWidgets[campaign.Id];
+        campaign.Utms = campaignUtms[campaign.Id];
+    }
+
+    return brandSetting;
+}

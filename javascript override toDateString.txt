@@ -1,0 +1,30 @@
+javascript override toDateString
+--------------------------------
+
+// format: yyyy-MM-dd HH:mm
+Date.prototype.toDateString = function () {
+    var format = (value) => {
+        value = value.toString();
+        return value.length == 1 ? ('0' + value) : value; 
+    };
+
+    return ''.concat(this.getFullYear(), '-', format(this.getMonth() + 1), '-', format(this.getDate()), ' ', format(this.getHours()), ':', format(this.getMinutes()));
+}
+
+---
+
+sample:
+
+let cronLogs = await SysEvent.find({ message: /cron\s+mentor/i }).sort({ entry_date: -1 }).limit(20);
+
+Date.prototype.toDateString = function () {
+    var format = (value) => {
+        value = value.toString();
+        return value.length == 1 ? ('0' + value) : value; 
+    };
+
+    return ''.concat(this.getFullYear(), '-', format(this.getMonth() + 1), '-', format(this.getDate()), ' ', format(this.getHours()), ':', format(this.getMinutes()));
+}
+cronLogs.forEach(log => {
+    console.log(log.message + ' ' + new Date(log.entry_date).toDateString());
+});

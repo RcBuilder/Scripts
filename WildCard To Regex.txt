@@ -1,0 +1,3 @@
+WildCard To Regex 
+-----------------
+Regex.Escape(<pattern>).Replace("\\*", ".*?");

@@ -1,0 +1,32 @@
+javascript ResizeObserver - element Resize monitor
+--------------------------------------------------
+
+<style>
+        #div1 {
+            background-color: pink;
+            width: 300px;
+            height: 300px;
+        }        
+    </style>
+
+<button onclick="changeTo(null, 1000)">H1000</button>
+    <button onclick="changeTo(1000, null)">W1000</button>
+    <button onclick="changeTo(null, 300)">H300</button>
+    <button onclick="changeTo(300, null)">W300</button>
+
+    <div id="div1"></div>
+
+<script type="text/javascript" id="">
+        let div1 = document.querySelector('#div1');
+        
+        let resizeObserver = new ResizeObserver(() => {
+            console.log('div1 has resized!');
+        });
+
+        resizeObserver.observe(div1); 
+
+        function changeTo(w, h) {            
+            if (w) div1.style.width = ''.concat(w, 'px');
+            if (h) div1.style.height = ''.concat(h, 'px');
+        }
+    </script>

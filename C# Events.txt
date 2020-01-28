@@ -1,0 +1,82 @@
+C# Events
+---------
+
+[syntax]
+
+public event EventHandler<T> SomeEvent;
+protected void OnSomeEvent(T args) {            
+     SomeEvent?.Invoke(null, args);
+}
+
+---
+
+[using] 
+
+static void Main(string[] args)
+{
+	var c = new MyClass();
+    c.SomethingHappened += (sender, e) => {
+        Console.WriteLine("something happened {0}, {1}", e.p1, e.p2);
+    };
+
+    Console.WriteLine("executing Fun1...");
+    c.Fun1();
+}
+
+public class MyEventArgs : EventArgs 
+{
+    public int p1 { get; set; }
+    public string p2 { get; set; }
+}
+
+public class MyClass
+{
+    public event EventHandler<MyEventArgs> SomethingHappened;
+
+    protected void OnSomethingHappened(MyEventArgs args)
+    {
+        if (SomethingHappened != null)
+            SomethingHappened(null, args);
+    }
+
+	public void Fun1(){
+		...
+		...
+
+		OnSomethingHappened(new LoadParamsEventArgs { 
+            p1 = 0, p2 = "abcd" 
+        });
+	}
+}
+
+
+--------------------------------------
+
+public class CrawledPage {
+        public Uri Uri { get; set; }
+    }
+
+    public class CrawlEventArgs : EventArgs
+    {
+        public CrawledPage CrawledPage { get; set; }        
+    }
+
+    public class WebCrawler
+    {
+        public event EventHandler<CrawlEventArgs> PageCrawlCompleted;
+
+        protected void OnPageCrawlCompleted(CrawlEventArgs args) {            
+            PageCrawlCompleted?.Invoke(null, args);
+        }
+
+        public WebCrawler(CrawlConfiguration Config)
+        {
+            
+        }
+
+        public async Task<CrawlResult> CrawlAsync(Uri uri)
+        {
+            ...
+	    ...
+        }
+    }

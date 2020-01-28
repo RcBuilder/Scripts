@@ -1,0 +1,290 @@
+** MVC 5 Registration **
+************************
+
+Source
+------
+https://docs.microsoft.com/en-us/aspnet/mvc/overview/security/create-an-aspnet-mvc-5-web-app-with-email-confirmation-and-password-reset
+
+Entities
+--------
+ApplicationUser : IdentityUser { }
+
+Models
+------
+RegisterViewModel
+
+Controllers
+-----------
+AccountController
+- Register
+
+Providers
+---------
+ApplicationOAuthProvider
+
+Manager
+-------
+ApplicationUserManager : UserManager<ApplicationUser> { }
+
+Files
+-----
+IdentityConfig.cs    // App_Start
+IdentityModels.cs    // Models
+AccountViewModels.cs // Models
+AccountController.cs // Controllers
+
+EXAMPLE 
+-------
+Taken From 'CliClap.Web.API' Project
+
+// IdentityModels.cs
+public class ApplicationUser : IdentityUser {
+    public async Task<ClaimsIdentity> GenerateUserIdentityAsync(UserManager<ApplicationUser> manager, string authenticationType)
+    {        
+        var userIdentity = await manager.CreateIdentityAsync(this, authenticationType);        
+        return userIdentity;
+    }
+
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string NickName { get; set; }
+    public string ContactEmail { get; set; }
+    public string Comment { get; set; }
+    public string PhotoUrl { get; set; }
+    public string WebSite { get; set; }
+    public DateTime Joined { get; set; }
+    public bool UseDefaultProfile { get; set; }
+    public bool IsActivated { get; set; }
+    public string PasswordResetToken { get; set; }
+    public DateTime? LastOnline { get; set; }
+    public bool EmailNewUpdates { get; set; }
+    public int? MonthlyVisitors { get; set; }        
+    public int? AvgLeadConversion { get; set; }
+    public bool AccessEnabled { get; set; }
+}
+
+public class ApplicationDbContext : IdentityDbContext<ApplicationUser> {
+    public ApplicationDbContext() : base("DefaultConnection", throwIfV1Schema: false) { }
+        
+    public static ApplicationDbContext Create() {
+        return new ApplicationDbContext();
+    }
+}
+
+
+// IdentityConfig.cs
+public class ApplicationUserManager : UserManager<ApplicationUser>
+{
+    public ApplicationUserManager(IUserStore<ApplicationUser> store) : base(store) { }
+
+    public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context)
+    {
+        var store = new UserStore<ApplicationUser>(context.Get<ApplicationDbContext>());
+        var manager = new ApplicationUserManager(store);
+        
+        manager.UserValidator = new UserValidator<ApplicationUser>(manager)
+        {
+            AllowOnlyAlphanumericUserNames = false,
+            RequireUniqueEmail = true
+        };
+        
+        manager.PasswordValidator = new PasswordValidator
+        {
+            RequiredLength = 6,
+            RequireNonLetterOrDigit = false,
+            RequireDigit = false,
+            RequireLowercase = false,
+            RequireUppercase = false,
+        };
+
+        manager.EmailService = new DefaultEmailService();
+
+        var dataProtectionProvider = options.DataProtectionProvider;
+        if (dataProtectionProvider != null) {
+            manager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
+        }
+
+        return manager;
+    }
+}
+
+public class DefaultEmailService : IIdentityMessageService {
+    public Task SendAsync(IdentityMessage message) {
+        return SendGridasync(message);
+    }
+
+    private Task SendGridasync(IdentityMessage message) {
+        ....
+    }
+}
+
+
+// AccountViewModels.cs
+public class RegisterBindingModel
+{
+    [Display(Name = "Display Name")]
+    [StringLength(128)]
+    public string Name { get; set; }
+
+    [Required]
+    [Display(Name = "Email")]
+    public string Email { get; set; }
+
+    [Required]
+    [StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
+    [DataType(DataType.Password)]
+    [Display(Name = "Password")]
+    public string Password { get; set; }
+}
+
+// AccountController.cs
+[AllowAnonymous]
+[Route("Register")]
+public async Task<IHttpActionResult> Register(RegisterBindingModel model)
+{
+    if (!ModelState.IsValid)
+    {
+        // Failed to Register since the modal was invalid.
+        return BadRequest(ModelState);
+    }
+
+    if (UserManager.FindByEmail(model.Email) != null) 
+    {
+        // Failed to Register since the email already exists.
+        return Conflict();
+    }
+
+    var user = new ApplicationUser() {};
+
+	user.UserName = model.Email,
+    user.Email = model.Email
+    user.NickName = model.Name;
+    user.IsActivated = true;
+    user.EmailNewUpdates = true;
+    user.PhotoUrl = _UserDataSource.GetDefaultUserPhoto;
+    user.Joined = DateTime.UtcNow;    	
+    user.ContactEmail = model.Email;
+
+    IdentityResult result = await UserManager.CreateAsync(user, model.Password);
+           
+    if (!result.Succeeded)
+    {
+        // Failed to Register Error:" + GetErrors(result)
+        return GetErrorResult(result);
+    }
+
+    var notes = string.Empty;
+    try
+    {
+        var callbackUrl = string.Format("https://" + AppSettings.DashboardHostName + "/#/confirmEmail?token={0}", user.Id);
+        var body = GetConfirmationEmailHtml(user.NickName, callbackUrl);
+        await UserManager.SendEmailAsync(user.Id, "CliClap Email Confirmation", body);
+    }
+    catch{
+        notes = "Error while trying to send an email confirmation!";
+    }
+
+    return Ok(new { user.Id, notes });
+}
+
+
+[AllowAnonymous]
+[Route("ResendConfirmationEmail")]
+[HttpPost]
+public async Task<IHttpActionResult> ResendConfirmationEmail([FromUri]string token)
+{
+    var user = UserManager.FindById(token);
+    if (user == null) {
+        // $"user not found: token={token}"
+        return NotFound();
+    }
+
+    try {
+        var callbackUrl = string.Format("https://" + AppSettings.DashboardHostName + "/#/confirmEmail?token={0}", user.Id);
+        var body = GetConfirmationEmailHtml(user.NickName, callbackUrl);
+        await UserManager.SendEmailAsync(user.Id, "CliClap Email Confirmation", body);
+    }
+    catch(Exception ex) {
+        return BadRequest("Error while trying to send an email confirmation!");
+    }
+
+    return Ok();
+}
+
+[AllowAnonymous]
+[Route("Confirm")]
+[HttpPost]
+public async Task<IHttpActionResult> Confirm([FromUri]string token)
+{
+    var user = UserManager.FindById(token);
+    if (user == null)
+    {
+        // $"user not found: token={token}";
+        return NotFound();
+    }
+
+    user.AccessEnabled = true;
+
+    await UserManager.UpdateAsync(user);
+
+    return Ok();
+}
+
+[HttpPost]
+[AllowAnonymous]
+[Route("ForgotPassword")]
+public async Task<IHttpActionResult> ForgotPassword(ForgotPasswordBindingModel model)
+{
+    if (!ModelState.IsValid) {
+        // Failed to send the forgot password email since the modal was invalid."
+        return BadRequest(ModelState);
+    }
+
+    var user = await UserManager.FindByNameAsync(model.Email);
+    if (user == null) {        
+        return BadRequest(msg);
+    }
+    
+    try {
+        string code = await UserManager.GeneratePasswordResetTokenAsync(user.Id);
+        code = code.Replace(" ", "+");
+        code = HttpUtility.UrlEncode(code);
+        string callbackUrl = string.Format("https://" + AppSettings.DashboardHostName + "/#/resetPassword?userId={0}&code={1}", user.Id, code);
+
+        string displayName = string.Empty;
+        if (!string.IsNullOrWhiteSpace(user.FirstName))        
+            displayName = user.FirstName;        
+        else if(!string.IsNullOrWhiteSpace(user.NickName))        
+            displayName = user.NickName;        
+
+        string email = GetResetPasswordEmailHtml(displayName, model.Email, callbackUrl);
+        await UserManager.SendEmailAsync(user.Id, "Reset your CliClap password", email);
+        return Ok();
+    }
+    catch (Exception exception) {        
+        return InternalServerError(exception);
+    }
+}
+
+[HttpPost]
+[AllowAnonymous]
+[Route("ResetPassword")]
+public async Task<IHttpActionResult> ResetPassword(ResetPasswordBindingModel model)
+{
+
+    if (!ModelState.IsValid)
+    {
+        // Failed to reset password since the modal was invalid.
+        return BadRequest(ModelState);
+    }
+
+    string code = model.Code.Replace(" ", "+");
+    IdentityResult result = await UserManager.ResetPasswordAsync(model.UserId, code, model.Password);
+    if (result.Succeeded) {
+        return Ok();
+    }
+    else {
+        // Failed to Reset Password  Error:" + GetErrors(result);        
+        return BadRequest(ModelState);
+    }
+} 

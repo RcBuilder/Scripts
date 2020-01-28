@@ -1,0 +1,31 @@
+﻿<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <link href="dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
+    <script src="dist/jsoneditor.min.js"></script>
+</head>
+<body>
+    <div id="json-editor" style="width: 400px; height: 400px;"></div>
+
+    <script>
+        // create the editor
+        const container = document.getElementById("json-editor");
+        const options = { mode: 'view' }; // tree (default), view, form, code, text
+        const editor = new JSONEditor(container, options);
+
+        let obj = {
+            'Array': [1, 2, 3],
+            'Boolean': true,            
+            'Number': 123,
+            'Object': { 'a': 'b', 'c': 'd' },
+            'String': 'Hello World'
+        }
+        editor.set(obj);
+        
+        const result = editor.get();
+        console.log(result);
+    </script>
+</body>
+</html>

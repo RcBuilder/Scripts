@@ -1,0 +1,31 @@
+C# NReadability
+---------------
+cleans up hard-to-read articles.
+
+source: 
+https://github.com/marek-stoj/NReadability
+
+nuget:
+Install-Package NReadability
+
+---
+
+var transcoder = new NReadabilityTranscoder();
+string content;
+using (var wc = new WebClient())            
+     content = wc.DownloadString("http://example.com/");
+var transcodingResult = transcoder.Transcode(new TranscodingInput(content));
+var result = transcodingResult.GetInnerText();
+
+---
+
+Extensions:
+public static class NReadabilityTranscoderExtensions {
+    public static string GetInnerText(this TranscodingResult me)
+    {
+        var doc = new HtmlAgilityPack.HtmlDocument();
+        doc.LoadHtml(me.ExtractedContent);
+        var bodyNode = doc.DocumentNode.SelectSingleNode("//body");
+        return bodyNode.InnerText;
+    }
+}

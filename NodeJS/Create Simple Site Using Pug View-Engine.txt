@@ -1,0 +1,80 @@
+NodeJS - Create Simple Site Using Pug View-Engine 
+=================================================
+
+[steps]
+1. VS > New Project > NodeJS 
+
+2. Install packages:
+   > npm install express --save
+   > npm install cors --save
+   > npm install pug --save
+
+3. Create Basic Server (using Pug Engine) 
+   see 'basic server'
+
+4. use Pug to create your views
+   see 'pug views'
+
+--- 
+
+[basic server]
+
+const express = require('express');
+const app = express();
+var cors = require('cors');
+
+const config = {
+	port: 8088,
+	viewsFolder: './views'
+};
+
+let headers = {
+	'Access-Control-Allow-Origin': '*',
+	'Access-Control-Allow-Methods': 'OPTIONS, POST, GET'
+};
+
+// view engine setup
+app.set('views', config.viewsFolder);
+app.set('view engine', 'pug');
+app.use(cors());
+
+app.get('/', (request, response) => {
+	console.log('/');
+	response.render('page1', { title: 'page1' });
+});
+app.get('/page1', (request, response) => {
+	console.log('page1');
+	response.render('page1', { title: 'page1' });
+});
+app.get('/page2', (request, response) => {
+	console.log('page2');
+	response.render('page2', { title: 'page2' });
+});
+app.get('/page3', (request, response) => {
+	console.log('page3');
+	response.render('page3', { title: 'page3' });
+});
+
+app.listen(config.port, () => console.log(`Server running at http://127.0.0.1:${config.port}/`));
+
+--- 
+
+[pug views]
+
+// layout.pug
+doctype html
+html
+	head
+		title= title               
+	body        
+		block content 
+
+-
+
+// page1.pug
+extends layout
+block content
+  h1= title
+  p Welcome to #{title}        
+  a(href='./page2' style='display:block;') Page 2
+  a(href='./page3' style='display:block;') Page 3  

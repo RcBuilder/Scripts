@@ -1,0 +1,58 @@
+C# Abot Crawler
+---------------
+a Web Scraper service to parse HTML content. 
+similar to Puppeteer, Selenium and ScrapySharp
+use it as a base to a web Crawler.
+
+Nuget:
+Install-Package Abot
+
+Namespaces:
+using Abot2.Poco;
+using Abot2.Crawler;
+
+Sources:
+https://www.nuget.org/packages/Abot/
+https://github.com/sjdirect/abot
+
+Process:
+trigger a 'PageCrawlCompleted' Event for each crawled page.
+await the 'CrawlAsync' method to get a summary of the crawling process (optional).   
+
+Config:
+CrawlTimeoutSeconds
+MaxConcurrentThreads
+MaxPagesToCrawl
+UserAgentString
+ConfigurationExtensions  
+        
+Events:
+PageCrawlStarting
+PageCrawlCompleted
+PageCrawlDisallowed
+PageLinksCrawlDisallowed
+
+---
+
+Code Sample:
+see 'AbotSample'
+
+---
+
+var config = new CrawlConfiguration {
+    MaxPagesToCrawl = 100,  // Pages quantity to scan 
+    MinCrawlDelayPerDomainMilliSeconds = 100,  // min delay time between requests 
+    MaxConcurrentThreads = 10,  // max threads quantity 
+    CrawlTimeoutSeconds = 20  // timeout in seconds
+};
+
+var crawler = new PoliteWebCrawler(config);
+
+crawler.PageCrawlCompleted += (s, e) => {
+    Console.WriteLine($"Page {e.CrawledPage.Uri}, Depth: {e.CrawledPage.CrawlDepth} -> {e.CrawledPage.ParsedLinks?.Count()} Links");                
+};
+            
+var crawlSummary = await crawler.CrawlAsync(new Uri("http://www.example.com"));
+Console.WriteLine($"[Completed] {crawlSummary.CrawlContext.CrawledCount}");
+
+Console.ReadKey();

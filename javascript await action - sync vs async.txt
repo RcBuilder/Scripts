@@ -1,0 +1,24 @@
+javascript await action - sync vs async
+---------------------------------------
+
+let processAccountAction = async account => {
+		console.log('saving account...');
+        await account.save()
+
+		...
+		...
+
+        console.log('adding cron stats...');
+        await stats.save();        
+    });
+}
+
+---
+
+[sync mode]
+for (var i = 0; i < accounts.length; i++)
+    await processAccountAction(accounts[i]);    
+
+[async mode] 
+let tasks = accounts.map(processAccountAction);
+await Promise.all(tasks);

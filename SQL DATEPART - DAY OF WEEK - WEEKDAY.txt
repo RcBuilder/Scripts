@@ -1,0 +1,3 @@
+SQL DATEPART - DAY OF WEEK - WEEKDAY
+------------------------------------
+see 'SQL DATE PART.txt'

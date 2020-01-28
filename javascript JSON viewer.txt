@@ -1,0 +1,39 @@
+javascript JSON viewer
+----------------------
+
+github:
+https://github.com/josdejong/jsoneditor
+
+api:
+https://github.com/josdejong/jsoneditor/blob/master/docs/api.md
+
+install:
+> npm install jsoneditor
+
+---
+
+using:
+
+// wihtin the head tag
+<link href="dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
+<script src="dist/jsoneditor.min.js"></script>
+
+// before the body closing tag 
+<script>
+        // create the editor
+        const container = document.getElementById("json-editor");
+        const options = { mode: 'view' }; // tree (default), view, form, code, text
+        const editor = new JSONEditor(container, options);
+
+        let obj = {
+            'Array': [1, 2, 3],
+            'Boolean': true,            
+            'Number': 123,
+            'Object': { 'a': 'b', 'c': 'd' },
+            'String': 'Hello World'
+        }
+        editor.set(obj);
+        
+        const result = editor.get();
+        console.log(result);
+    </script>

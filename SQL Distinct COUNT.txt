@@ -1,0 +1,16 @@
+SQL Distinct COUNT
+------------------
+
+// result: 4
+select COUNT(b) 
+from (
+	values (1, 'A'),(2, 'A'),(3, 'B'),(4, 'B')
+) t(a, b)
+
+---
+
+// result: 2
+select COUNT(distinct b)
+from (
+	values (1, 'A'),(2, 'A'),(3, 'B'),(4, 'B')
+) t(a, b)

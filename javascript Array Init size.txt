@@ -1,0 +1,19 @@
+javascript Array Init size
+--------------------------
+
+syntax:
+new Array(<size>);
+<array>.fill(<default_value>);
+
+-----
+
+var a = new Array(100);
+a.length // 100
+a[99]    // undefined
+
+--
+
+var b = new Array(100).fill('A');
+b.length // 100
+b[99]    // A
+

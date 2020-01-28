@@ -1,0 +1,15 @@
+C# WordsCount
+-------------
+Regex.Replace(content, "\\s+", " ").Split(' ').Length;
+
+--
+
+var content = "AA    BB CC   DD";
+Console.WriteLine(Regex.Replace(content, "\\s+", " ").Split(' ').Length); // 4
+
+--
+
+public static int WordsCount(this string me) {
+      if (string.IsNullOrWhiteSpace(me)) return 0;
+      return Regex.Replace(me, "\\s+", " ").Split(' ').Length;
+}

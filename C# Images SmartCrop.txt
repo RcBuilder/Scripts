@@ -1,0 +1,88 @@
+C# Images SmartCrop
+-------------------
+
+Nuget:
+Install-Package Smartcrop.net -Version 1.0.2-beta
+
+Source:
+https://github.com/softawaregmbh/smartcrop.net/blob/master/README.md
+https://github.com/softawaregmbh/smartcrop.net
+https://github.com/jwagner/smartcrop.js
+
+Crop Method:
+this method (ImageCrop.Crop) returns the best crop for the provided photo. 
+under the hood, it adds a layer that marks heated areas and find the best area to crop. 
+it returns an area fits the requested crop size ratio! 
+
+-------
+
+[USING]
+
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12; // (SecurityProtocolType)(SslProtocols)0x00000C00;
+using (var client = new WebClient()) {    
+    var fileBytes = client.DownloadData("https://demo-res.cloudinary.com/image/upload/sample.jpg");
+  
+    var cropOptions = new Options(200, 200);
+    var imageCropResult = new ImageCrop(cropOptions).Crop(fileBytes);
+    Console.WriteLine($"Best crop: {imageCropResult.Area.X}, {imageCropResult.Area.Y} - {imageCropResult.Area.Width} x {imageCropResult.Area.Height}");
+
+	var folder = "C:\\RcBuilder\\TestProjects\\TestConsole7";
+    var name = Guid.NewGuid().ToString();
+
+    using (var ms = new MemoryStream(fileBytes)) {
+        var image = Image.FromStream(ms);
+
+        var target = new Bitmap(imageCropResult.Area.Width, imageCropResult.Area.Height);
+        using (var canvas = Graphics.FromImage(target))
+            canvas.DrawImage(image, new System.Drawing.Rectangle(-imageCropResult.Area.X, -imageCropResult.Area.Y, image.Width, image.Height));
+        
+        image.Save($"{folder}\\{name}.jpg", ImageFormat.Jpeg);
+        using (var thumb = target.GetThumbnailImage(cropOptions.Width, cropOptions.Height, null, IntPtr.Zero))
+            thumb.Save($"{folder}\\{name}-thumb.jpg", ImageFormat.Jpeg);
+    }
+};
+
+-------
+
+public static Image SmartCrop(string ImageURL, int CropWidth, int CropHeight) {
+    if (string.IsNullOrEmpty(ImageURL))
+        return null;
+
+    try {
+        using (var client = new WebClient()) {
+            var fileBytes = client.DownloadData(ImageURL);
+
+            var imageCropResult = new Smartcrop.ImageCrop(new Smartcrop.Options(CropWidth, CropHeight)).Crop(fileBytes);
+            Console.WriteLine($"Best crop: {imageCropResult.Area.X}, {imageCropResult.Area.Y} - {imageCropResult.Area.Width} x {imageCropResult.Area.Height}");
+
+            using (var ms = new MemoryStream(fileBytes)) {
+                var image = Image.FromStream(ms);
+                Image target = new Bitmap(imageCropResult.Area.Width, imageCropResult.Area.Height);
+                using (var canvas = Graphics.FromImage(target))
+                    canvas.DrawImage(image, new Rectangle(-imageCropResult.Area.X, -imageCropResult.Area.Y, image.Width, image.Height));
+
+                using (var thumb = target.GetThumbnailImage(CropWidth, CropHeight, null, IntPtr.Zero)) {
+                    var msInner = new MemoryStream();
+                    thumb.Save(msInner, ImageFormat.Jpeg);
+                    return Image.FromStream(msInner);
+                }
+            }
+        };
+    }
+    catch(Exception ex) {
+        return null;
+    }
+}
+
+-------
+
+[BUGS]
+
+this utility is compiled to 64bit target machines and has NO support for 32bit.
+
+exception:
+"An attempt was made to load a program with an incorrect format"
+occurs when using the 32bit version of the IIS Express. 
+            
+fix:
+(Environment) Tools > Options > Projects and Solutions > Web Projects > Use the 64 bit version of IIS Express 

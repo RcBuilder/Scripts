@@ -1,0 +1,15 @@
+javascript await all
+--------------------
+
+let tasks = accounts.map(async account => {
+        console.log('saving account...');
+        await account.save()
+
+	...
+	...
+
+        console.log('adding cron stats...');
+        await stats.save();        
+    });
+
+await Promise.all(tasks);

@@ -1,0 +1,30 @@
+C# ScrapySharp
+--------------
+a Web Scraper service to parse HTML content. 
+it wraps the 'HtmlAgilityPack'. 
+similar to Puppeteer and Selenium
+use it as a base to a web Crawler.
+
+Nuget:
+Install-Package ScrapySharp
+
+Namespaces:
+using ScrapySharp.Network;  
+using HtmlAgilityPack; 
+using ScrapySharp.Extensions;
+
+Sources:
+https://www.nuget.org/packages/ScrapySharp/
+https://github.com/rflechner/ScrapySharp
+
+---
+
+var Browser = new ScrapingBrowser();
+Browser.AllowAutoRedirect = true; // Browser has settings you can access in setup
+Browser.AllowMetaRedirect = true;
+
+var PageResult = Browser.NavigateToPage(new Uri("http://www.example.com"));
+var TitleNode = PageResult.Html.SelectSingleNode("//title");            
+Console.WriteLine(TitleNode.InnerText);
+
+Console.ReadKey();
