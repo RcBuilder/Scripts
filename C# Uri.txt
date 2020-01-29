@@ -1,3 +1,39 @@
+C# URI
+------
+
+[Uri]
+
+// "https://twitter.com/intent/tweet"
+new Uri("https://twitter.com/intent/tweet?p=1&p=2").GetLeftPart(UriPartial.Path);  
+
+// "https://twitter.com/intent/tweet?p=1&p=2"
+new Uri("https://twitter.com/intent/tweet?p=1&p=2#a").GetLeftPart(UriPartial.Query);
+ 
+// "/hubfs/1623566/content-library/whitepapers/2017-Whitepapers/Engagement_Tips.pdf"
+new Uri("https://cdn2.hubspot.net/hubfs/1623566/content-library/whitepapers/2017-Whitepapers/Engagement_Tips.pdf").LocalPath;
+
+// "/"
+new Uri("https://rcb.co.il").LocalPath
+
+// "/customers.aspx"
+new Uri("https://rcb.co.il/customers.aspx").LocalPath
+
+----
+
 ar uri = new Uri("https://skinnerlive.auctionserver.net/view-auctions/catalog/id/407/?page=1&key=NASA&cat=&xclosed=no");
-            var URL = string.Concat(uri.Scheme, "://", uri.Host, uri.LocalPath); // https://skinnerlive.auctionserver.net/view-auctions/catalog/id/407/
-            var QUERY = uri.Query; // ?page=1&key=NASA&cat=&xclosed=no
+var URL = string.Concat(uri.Scheme, "://", uri.Host, uri.LocalPath); // https://skinnerlive.auctionserver.net/view-auctions/catalog/id/407/
+var QUERY = uri.Query; // ?page=1&key=NASA&cat=&xclosed=no
+
+----
+
+[Path + Uri]
+
+// "Engagement_Tips.pdf"
+Path.GetFileName(new Uri("https://cdn2.hubspot.net/hubfs/1623566/content-library/whitepapers/2017-Whitepapers/Engagement_Tips.pdf").LocalPath);
+
+// empty
+Path.GetFileName(new Uri("https://rcb.co.il").LocalPath);
+
+// "customers.aspx"
+Path.GetFileName(new Uri("https://rcb.co.il/customers.aspx").LocalPath);
+

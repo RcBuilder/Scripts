@@ -1,0 +1,22 @@
+Bug:
+calling functions from a 32-bit unmanaged DLL on a 64-bit system
+
+Error:
+"An attempt was made to load a program with an incorrect format"
+
+Cause:
+when trying to run 32bit apps on 64bit machine using IIS.
+
+Solution:
+1. load the 32bit project 
+2. change its Platform Target to be 'x64' or 'Any CPU' 
+3. build
+
+Notes:
+might also occurs as a dependency when one app uses a referenced 32bit dll.
+
+
+
+
+
+ 

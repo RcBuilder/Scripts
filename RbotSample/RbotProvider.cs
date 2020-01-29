@@ -21,26 +21,35 @@ namespace CliClap.Crawler
             CrawlTimeoutSeconds = 30  // timeout in seconds
         };
 
-        public async Task<List<CrawlerPage>> CollectLinks(string URL, IEnumerable<ICrawlerFilter> Filters = null)
+        public async Task<List<CrawlerPage>> CollectLinks(string URL, IEnumerable<ICrawlerFilter> IncludeFilters = null, IEnumerable<ICrawlerFilter> ExcludeFilters = null)
         {
             var result = new HashSet<CrawlerPage>(new CrawlerPageComparer());
             var crawler = new WebCrawler(RbotProvider.DefaultConfig);
 
-            var useFilters = Filters != null && Filters.Count() > 0;
+            var useIncludeFilters = IncludeFilters != null && IncludeFilters.Count() > 0;
+            var useExcludeFilters = ExcludeFilters != null && ExcludeFilters.Count() > 0;
 
             crawler.PageCrawlCompleted += (s, e) => {
-                var currentURL = e.CrawledPage.Uri.ToString();
+                var currentURL = e.CrawledPage.Uri.GetLeftPart(UriPartial.Path); // remove query-params
                 Debug.WriteLine($"Page {e.CrawledPage.Uri}");
 
-                var match = Filters?.FirstOrDefault(f => f.Execute(currentURL));
-                if (!useFilters || (useFilters && match != null))
-                {
-                    result.Add(new CrawlerPage
-                    {
-                        URL = currentURL,
-                        ContentType = (match is CrawlerVideoFilter) ? eCrawlerContentType.VIDEO : eCrawlerContentType.CONTENT
-                    });
+                var match = IncludeFilters?.FirstOrDefault(f => f.Execute(currentURL));
+                if (useIncludeFilters && match == null) {
+                    Debug.WriteLine("skipped by Include filter");
+                    return;
                 }
+
+                match = ExcludeFilters?.FirstOrDefault(f => f.Execute(currentURL));
+                if (useExcludeFilters && match != null) {
+                    Debug.WriteLine("skipped by Exclude filter");
+                    return;
+                }
+
+                result.Add(new CrawlerPage
+                {
+                    URL = currentURL,
+                    ContentType = (match is CrawlerVideoFilter) ? eCrawlerContentType.VIDEO : eCrawlerContentType.CONTENT
+                });
             };
 
             var crawlSummary = await crawler.CrawlAsync(new Uri(URL));

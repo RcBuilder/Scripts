@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace CliClap.Web.Serivces.API.Models
+namespace CliClap.Crawler.Models
 {
     public class CrawlerWildcardFilter : CrawlerRegexFilter
     {        

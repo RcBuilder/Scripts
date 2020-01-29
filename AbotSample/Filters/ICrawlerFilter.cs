@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 
-namespace CliClap.Web.Serivces.API.Models
+namespace CliClap.Crawler.Models
 {
     public interface ICrawlerFilter<T>
     {

@@ -1,46 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Web;
-
-using Abot2.Poco;
-using Abot2.Crawler;
-using CliClap.Web.Serivces.API.Models;
+using System.Text;
 using System.Threading.Tasks;
+using Abot2.Crawler;
+using Abot2.Poco;
+using CliClap.Crawler.Models;
 
-/*    
-    Abot Crawler
-    ------------
-    Nuget:
-    Install-Package Abot
-
-    Namespaces:
-    using Abot2.Poco;
-    using Abot2.Crawler;
-
-    Sources:
-    https://www.nuget.org/packages/Abot/
-    https://github.com/sjdirect/abot
-
-    Process:
-    trigger a 'PageCrawlCompleted' Event for each crawled page.
-    await the 'CrawlAsync' method to get a summary of the crawling process (optional).   
-
-    Config:
-    CrawlTimeoutSeconds
-    MaxConcurrentThreads
-    MaxPagesToCrawl
-    UserAgentString
-    ConfigurationExtensions  
-        
-    Events:
-    PageCrawlStarting
-    PageCrawlCompleted
-    PageCrawlDisallowed
-    PageLinksCrawlDisallowed
-*/
-
-namespace CliClap.Web.Serivces.API.CrawlerServices
+namespace CliClap.Crawler
 {
     public class AbotProvider
     {
@@ -52,30 +20,42 @@ namespace CliClap.Web.Serivces.API.CrawlerServices
             CrawlTimeoutSeconds = 30  // timeout in seconds
         };
 
-        public async Task<List<CrawlerPage>> CollectLinks(string URL, IEnumerable<ICrawlerFilter> Filters = null)
+        public async Task<List<CrawlerPage>> CollectLinks(string URL, IEnumerable<ICrawlerFilter> IncludeFilters = null, IEnumerable<ICrawlerFilter> ExcludeFilters = null)
         {
-            var result = new List<CrawlerPage>();                      
+            var result = new List<CrawlerPage>();
             var crawler = new PoliteWebCrawler(AbotProvider.DefaultConfig);
 
-            crawler.PageCrawlCompleted += (s, e) => {
-                var currentURL = e.CrawledPage.Uri.ToString();
-                /// Console.WriteLine($"Page {e.CrawledPage.Uri}, Depth: {e.CrawledPage.CrawlDepth} -> {e.CrawledPage.ParsedLinks?.Count()} Links");
+            var useIncludeFilters = IncludeFilters != null && IncludeFilters.Count() > 0;
+            var useExcludeFilters = ExcludeFilters != null && ExcludeFilters.Count() > 0;
 
-                if (Filters == null || Filters.Any(f => f.Execute(currentURL)))
-                {                
-                    result.Add(new CrawlerPage
-                    {
-                        URL = currentURL,
-                        Depth = e.CrawledPage.CrawlDepth,
-                        Links = e.CrawledPage.ParsedLinks?.Select(x => x.HrefValue.ToString()).ToList()
-                    });
+            crawler.PageCrawlCompleted += (s, e) => {
+                var currentURL = e.CrawledPage.Uri.GetLeftPart(UriPartial.Path); // remove query-params
+                Debug.WriteLine($"Page {e.CrawledPage.Uri}, Depth: {e.CrawledPage.CrawlDepth} -> {e.CrawledPage.ParsedLinks?.Count()} Links");
+
+                var match = IncludeFilters?.FirstOrDefault(f => f.Execute(currentURL));
+                if (useIncludeFilters && match == null) {
+                    Debug.WriteLine("skipped by Include filter");
+                    return;
                 }
+
+                match = ExcludeFilters?.FirstOrDefault(f => f.Execute(currentURL));
+                if (useExcludeFilters && match != null) {
+                    Debug.WriteLine("skipped by Exclude filter");
+                    return;
+                }
+
+                result.Add(new CrawlerPage
+                {
+                    URL = currentURL,
+                    ContentType = (match is CrawlerVideoFilter) ? eCrawlerContentType.VIDEO : eCrawlerContentType.CONTENT,
+                    Depth = e.CrawledPage.CrawlDepth,   
+                    Links = e.CrawledPage.ParsedLinks?.Select(x => x.HrefValue.ToString()).ToList()
+                });
             };
 
-            ///var crawlSummary = await crawler.CrawlAsync(new Uri(URL));
-            ///Console.WriteLine($"[Completed] {crawlSummary.CrawlContext.CrawledCount}");
+            var crawlSummary = await crawler.CrawlAsync(new Uri(URL));
+            Debug.WriteLine($"[Completed] {crawlSummary.CrawlContext.CrawledCount}");            
 
-            await crawler.CrawlAsync(new Uri(URL));
             return result;
         }
     }

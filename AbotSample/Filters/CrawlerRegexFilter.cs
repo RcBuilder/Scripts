@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace CliClap.Web.Serivces.API.Models
+namespace CliClap.Crawler.Models
 {
     public class CrawlerRegexFilter : ICrawlerFilter
     {        
@@ -18,7 +18,7 @@ namespace CliClap.Web.Serivces.API.Models
             if (string.IsNullOrEmpty(Input) || string.IsNullOrEmpty(this.Expression))
                 return false;
 
-            return Regex.IsMatch(Input, this.Expression, RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);            
+            return Regex.IsMatch(Input, this.Expression, /*RegexOptions.IgnorePatternWhitespace | */ RegexOptions.IgnoreCase);            
         }
     }
 }

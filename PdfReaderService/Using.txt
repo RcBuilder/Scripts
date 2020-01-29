@@ -1,0 +1,11 @@
+var readerService = new PDFExtractor();
+var pdfResult = readerService.Extract(url);
+
+Console.WriteLine(pdfResult.Body);
+Console.WriteLine(pdfResult.Title);
+Console.WriteLine(pdfResult.Images.Count);
+
+
+pdfResult.Images.Take(10).ToList().ForEach((image) => {
+	image.Save($@"C:\Users\Roby\Downloads\AAA\{Guid.NewGuid()}.jpg");
+});
