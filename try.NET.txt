@@ -1,16 +1,34 @@
 try.NET
 =======
-aka .Net-try
+aka .Net-try or try-dotnet. 
 interactive documentation generator.
 allows us to execute a .Net code in the browser!
+based on the 'Blazor' engine. 
+
+dlls
+----
+all the .Net dlls required for processing the server code will be downloaded via the browser!!
+use the browser dev-tools (F12) > Network tab to see the downloaded .net dlls (System.dll, System.Linq.dll etc.)
+// TODO ->> check this statement locally + find the related project dll
+
 
 online
 ------
 https://try.dot.net/
 
-tool
-----
-dotnet-try
+community:
+https://dotnet.microsoft.com/platform/community
+
+github
+------
+https://github.com/dotnet/try
+https://github.com/dotnet/try-samples
+
+requirements
+------------
+.NET Core 2.1 SDK
+.NET Core 3.0 SDK
+dotnet-try tool
 
 install (.NET CLI)
 ------------------
@@ -18,14 +36,12 @@ install (.NET CLI)
 > dotnet tool update -g dotnet-try
 > dotnet tool uninstall -g dotnet-try
 
-github
-------
-https://github.com/dotnet/try
-https://github.com/dotnet/try-samples
+tool
+----
+dotnet-try
 
-global tool
------------
-requires .NET Core SDK
+.NET Core SDK
+-------------
 https://dotnet.microsoft.com/download
 https://dotnet.microsoft.com/download/dotnet-core/3.0
 
@@ -34,11 +50,99 @@ markdown code
 reference-link to a piece of code in an existing project. 
  
 ```cs --region <regionName> --source-file <filePath> --project <projectPath>
+```
+
 ```cs --region HelloWorld --source-file .\Program.cs --project .\TryDotNetDemo.csproj
+```
 
 commands (.NET CLI)
 -------------------
-> dotnet try  // run a project
+> dotnet try				// run a project
+> dotnet try verify         // verify a project, a compiler to validate the code syntax
+
+gitHub integration
+------------------
+allows us to load code directly from github.
+// TODO 
+
+javascript interaction
+----------------------
+we can use the javascript postMessage API to programatically interact with an instance of Try .NET.
+the .Net instance is the auto-generated window (frame) of the .Net (the one with the C# code editor and output). 
+using js code we can throw messages to be caught, and then to be executed by the .Net frame.  
+(see 'javascript post-messages')
+
+using sample:
+function fun() {
+    let codeMessage = {
+        type: 'setWorkspace',
+        workspace: {
+            workspaceType: 'console',
+            buffers: [{
+                id: 'Program.cs',
+                content: 
+					`using System;
+					public class Program {   
+						public static void Main(){        
+							Console.WriteLine("Hello World");   
+						}
+					}`
+				}]
+        },
+        bufferId: "Program.cs"
+    };
+
+	let runMessage = { type: 'run' };
+
+	let editorFrame = document.getElementById('example-iframe');
+	editorFrame.contentWindow.postMessage(codeMessage, 'https://trydotnet.microsoft.com');  // set window code 
+	editorFrame.contentWindow.postMessage(runMessage,  'https://trydotnet.microsoft.com');  // run the code
+}
+
+
+javascript post-messages
+------------------------
+- set code file
+  type: setWorkspaceFromGist
+  gistId
+  bufferId: <cs-file name> 
+
+- set code
+  type: setWorkspace
+  workspace: {
+	workspaceType: <project-type> // console etc.
+	buffers: [
+		id
+		content: <c# code>
+	]
+	bufferId: <cs-file name> 
+  }
+
+- run code 
+  type: run
+
+- set editor theme
+  type: configureMonacoEditor
+  theme: <theme-name> // vs, vs-dark
+  
+- define custom themes
+  type: defineMonacoEditorThemes
+  themes: {
+	myCustomTheme: {
+		base: <theme-name> // vs, vs-dark 
+		inherit: <bool>
+		rules: [
+			{ token: <token-name>, foreground: <color> }
+			...
+			...
+		]
+	}
+  }
+
+- set editor custom theme
+  (message-1) define custom theme
+  (message-2) set editor theme
+
 
 demo
 ----

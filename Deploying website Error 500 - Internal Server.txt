@@ -1,0 +1,14 @@
+Deploying website Error 500 - Internal Server
+---------------------------------------------
+Detailed httpErrors!
+
+use the listed configuration to get extended information 
+about the error. 
+
+<system.webServer>
+	<httpErrors errorMode="Detailed" />
+	<asp scriptErrorSentToBrowser="true"/>
+</system.webServer>
+<system.web>
+	<customErrors mode="Off"/>
+</system.web>

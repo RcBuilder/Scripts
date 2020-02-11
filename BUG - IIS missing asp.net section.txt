@@ -1,0 +1,12 @@
+Bug:
+IIS missing asp.net section
+
+Error:
+missing windows feature
+
+Solution:
+(steps)
+1. Open Control Panel
+2. 'Turn Windows Features on or off'
+3. Roles > Web server (IIS) > 'ASP.NET'
+4. Close and re-open IIS

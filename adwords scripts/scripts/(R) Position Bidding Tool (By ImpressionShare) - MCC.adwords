@@ -1,0 +1,353 @@
+
+/*
+   range:
+   <value> = 0 - 1
+   
+   syntax:
+   top-<value>
+   top-abs-<value>
+ 
+   e.g:
+   top-0.83
+   top-abs-0.7
+*/
+
+var config = {};
+config['default'] = { 
+  maxBid: 3.00, 
+  minBid: 0.15, 
+  firstPageMaxBid: 0.90, 
+  useFirstPageBidsOnKeywordsWithNoImpressions: false, 
+  bidIncreaseProportion: 0.2,
+  bidDecreaseProportion: 0.2,
+  targetPositionTolerance: 0.05
+};
+
+config['949-163-9088'] = { 
+  maxBid: 6.00, 
+  minBid: 0.01,
+  targetPositionTolerance: 0.25
+};
+
+var dataFile = "AveragePositionData.txt";
+
+function main() {
+    var accounts = MccApp.accounts().get();  
+    while(accounts.hasNext())
+    {
+      var account = accounts.next();
+      var accountId = account.getCustomerId();
+
+      Logger.log('### account: %s (%s) ###', account.getName(), accountId);  
+
+      var accountConfig = config[accountId] || {};
+      accountConfig = {
+        maxBid: accountConfig.maxBid || config['default'].maxBid,
+        minBid: accountConfig.minBid || config['default'].minBid,
+        firstPageMaxBid: accountConfig.firstPageMaxBid || config['default'].firstPageMaxBid,
+        useFirstPageBidsOnKeywordsWithNoImpressions: accountConfig.useFirstPageBidsOnKeywordsWithNoImpressions || config['default'].useFirstPageBidsOnKeywordsWithNoImpressions,
+        bidIncreaseProportion: accountConfig.bidIncreaseProportion || config['default'].bidIncreaseProportion,
+        bidDecreaseProportion: accountConfig.bidDecreaseProportion || config['default'].bidDecreaseProportion,
+        targetPositionTolerance: accountConfig.targetPositionTolerance || config['default'].targetPositionTolerance
+      };
+  
+      Logger.log(accountConfig)
+      
+      MccApp.select(account);
+      ProcessAccount(accountConfig);
+
+      Logger.log('--------------------------');
+    }
+}
+
+function ProcessAccount(accountConfig) {
+     
+  var fieldJoin = ",";
+  var lineJoin = "$";
+  var idJoin = "#";
+     
+  var files = DriveApp.getFilesByName(dataFile);
+  if (!files.hasNext()) {
+    var file = DriveApp.createFile(dataFile,"\n");
+    Logger.log("File '" + dataFile + "' has been created.");
+  } else {
+    var file = files.next();
+    if (files.hasNext()) {
+      Logger.log("Error - more than one file named '" + dataFile + "'");
+      return;
+    }
+    Logger.log("File '" + dataFile + "' has been read.");
+  }
+ 
+  var labelIds = [];
+     
+  var labels = AdWordsApp.labels()
+  .withCondition("KeywordsCount > 0")
+  .withCondition("LabelName STARTS_WITH_IGNORE_CASE 'top-'")
+  .get();
+     
+  while (labels.hasNext())    
+    labelIds.push(labels.next().getId());      
+     
+  if (labelIds.length == 0) {
+    Logger.log("No position labels found.");
+    return;
+  };
+  
+  Logger.log(labelIds.length + " position labels have been found.");
+
+  var keywordData = {};     
+  var ids = [];
+  var uniqueIds = [];
+     
+  var report = AdWordsApp.report(
+    'SELECT Id, Criteria, AdGroupId, AdGroupName, CampaignName, Impressions, CpcBid, FirstPageCpc, Labels, BiddingStrategyType, SearchTopImpressionShare, SearchAbsoluteTopImpressionShare ' +
+    'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+    'WHERE Status = ENABLED AND AdGroupStatus = ENABLED AND CampaignStatus = ENABLED ' +
+    'AND LabelIds CONTAINS_ANY [' + labelIds.join(",") + '] ' +
+    'AND AdNetworkType2 = SEARCH ' +
+    'AND Device NOT_IN ["HIGH_END_MOBILE"] ' +
+    'DURING TODAY'
+  );
+     
+  var rows = report.rows();
+     
+  while(rows.hasNext()){
+    var row = rows.next();
+       
+    if (row["BiddingStrategyType"] != "cpc") {
+      if (row["BiddingStrategyType"] == "Enhanced CPC" || row["BiddingStrategyType"] == "Target search page location" || row["BiddingStrategyType"] == "Target Outranking Share" || row["BiddingStrategyType"] == "None" || row["BiddingStrategyType"] == "unknown") {
+        Logger.log("Warning: keyword " + row["Criteria"] + "' in campaign '" + row["CampaignName"] + "' uses '" + row["BiddingStrategyType"] + "' rather than manual CPC. This may overrule keyword bids and interfere with the script working.");
+      } else {
+        Logger.log("Warning: keyword " + row["Criteria"] + "' in campaign '" + row["CampaignName"] + "' uses the bidding strategy '" + row["BiddingStrategyType"] + "' rather than manual CPC. This keyword will be skipped.");
+        continue;
+      }
+    }
+       
+    var positionTarget = '';
+    var positionType = ''; // top or top-abs 
+       
+    if (row['Labels'].trim() == '--') {
+      continue;
+    }
+    var labels = JSON.parse(row["Labels"].toLowerCase()); // Labels are returned as a JSON formatted string
+       
+    for (var i=0; i<labels.length; i++) {
+      var labelName = labels[i];
+      if (labelName.indexOf('top-abs-') == 0) {
+        positionTarget = parseFloat(labelName.replace('top-abs-', '').replace(/,/g,'.'), 10);
+        positionType = 'top-abs';
+        break;
+      }
+      else if (labelName.indexOf('top-') == 0) {
+        positionTarget = parseFloat(labelName.replace('top-', '').replace(/,/g,'.'), 10);
+        positionType = 'top';
+        break;
+      }      
+    };
+    
+    Logger.log('position target %s (%s)', positionTarget, positionType);
+        
+    if (positionTarget == '' || isNaN(positionTarget)) {
+      continue;
+    };
+    
+    ids.push(parseFloat(row['Id'], 10));
+    var uniqueId = row['AdGroupId'] + idJoin + row['Id'];
+    uniqueIds.push(uniqueId);
+       
+    keywordData[uniqueId] = {};
+    keywordData[uniqueId]['Criteria'] = row['Criteria'];    
+    keywordData[uniqueId]['Impressions'] = parseFloat(row['Impressions'].replace(/,/g,""),10);    
+    keywordData[uniqueId]['CpcBid'] = parseFloat(row['CpcBid'].replace(/,/g,""),10);
+    keywordData[uniqueId]['FirstPageCpc'] = parseFloat(row['FirstPageCpc'].replace(/,/g,""),10);
+    
+    var absTopSearchShare = customParseFloat(row['SearchAbsoluteTopImpressionShare']); // very first ad
+    var topSearchShare = customParseFloat(row['SearchTopImpressionShare']); // top 4 ads
+    keywordData[uniqueId]['AbsTopSearchShare'] = absTopSearchShare;    
+    keywordData[uniqueId]['TopSearchShare'] = topSearchShare;    
+       
+    setPositionTargets(uniqueId, positionTarget, positionType);
+  }
+    
+  Logger.log(uniqueIds.length + " labelled keywords found");
+        
+  setBidChange();
+  setMinMaxBids(accountConfig);
+  
+  //Batch the keyword IDs, as the iterator can't take them all at once
+  var idBatches = [];
+  var batchSize = 5000;
+  for (var i=0; i<uniqueIds.length; i += batchSize) {
+    idBatches.push(uniqueIds.slice(i,i+batchSize));
+  }
+    
+  Logger.log("Updating keywords");
+     
+  // Update each batch
+  for (var i=0; i<idBatches.length; i++) {
+    try {
+      updateKeywords(idBatches[i]);
+    } catch (e) {
+      Logger.log("Error updating keywords: " + e);
+      Logger.log("Retrying after one minute.");
+      Utilities.sleep(60000);
+      updateKeywords(idBatches[i]);
+    }
+  }
+     
+  Logger.log("Writing file.");  
+  file.setContent(resultsString());    
+  Logger.log("Finished.");
+     
+  
+  
+  
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+  function setPositionTargets(uniqueId, positionTarget, positionType){
+    keywordData[uniqueId]['HigherPositionTarget'] = Math.min(positionTarget + accountConfig.targetPositionTolerance, 1);
+    keywordData[uniqueId]['LowerPositionTarget'] = Math.max(positionTarget - accountConfig.targetPositionTolerance, 0);
+    keywordData[uniqueId]['PositionTarget'] = positionTarget;
+    keywordData[uniqueId]['PositionType'] = positionType;       
+  }
+     
+  function bidChange(uniqueId){
+       
+    var newBid = -1;
+    if(keywordData[uniqueId]['HigherPositionTarget'] === -1){
+      return newBid;
+    }
+       
+    var cpcBid = keywordData[uniqueId]['CpcBid'];
+    var minBid = keywordData[uniqueId]['MinBid'];
+    var maxBid = keywordData[uniqueId]['MaxBid'];
+       
+    if (isNaN(keywordData[uniqueId]['FirstPageCpc'])) {
+      Logger.log("Warning: first page CPC estimate is not a number for keyword '" + keywordData[uniqueId]['Criteria'] + "'. This keyword will be skipped");
+      return -1;
+    }
+       
+    var firstPageBid = Math.min(keywordData[uniqueId]['FirstPageCpc'], keywordData[uniqueId]['FirstPageMaxBid'], maxBid);
+           
+    var positionType = keywordData[uniqueId]['PositionType'];
+    var currentPosition = keywordData[uniqueId][positionType == 'top-abs' ? 'AbsTopSearchShare' : 'TopSearchShare'];
+
+    var positionTarget = keywordData[uniqueId]['PositionTarget'];
+    var higherPositionTarget = keywordData[uniqueId]['HigherPositionTarget'];
+    var lowerPositionTarget = keywordData[uniqueId]['LowerPositionTarget'];
+       
+    var bidIncrease = keywordData[uniqueId]['BidIncrease'];
+    var bidDecrease = keywordData[uniqueId]['BidDecrease'];
+       
+    if((currentPosition > lowerPositionTarget) && (currentPosition !== 0)){
+      var linearBidModel = Math.min(2*bidIncrease,(2*bidIncrease/lowerPositionTarget)*(currentPosition-lowerPositionTarget));
+      var newBid = Math.min((cpcBid + linearBidModel), maxBid);
+    }
+    if((currentPosition < higherPositionTarget) && (currentPosition !== 0)) {
+      var linearBidModel = Math.min(2*bidDecrease,((-4)*bidDecrease/higherPositionTarget)*(currentPosition-higherPositionTarget));
+      var newBid = Math.max((cpcBid-linearBidModel),minBid);
+      if (cpcBid > firstPageBid) {
+        var newBid = Math.max(firstPageBid,newBid);
+      }
+    }
+    if((currentPosition === 0) && accountConfig.useFirstPageBidsOnKeywordsWithNoImpressions && (cpcBid < firstPageBid)){
+      var newBid = firstPageBid;
+    }
+       
+    if (isNaN(newBid)) {
+      Logger.log("Warning: new bid is not a number for keyword '" + keywordData[uniqueId]['Criteria'] + "'. This keyword will be skipped");
+      return -1;
+    }
+       
+    Logger.log('positionType: %s, currentPosition: %s, positionTarget: %s, positionRange: %s > %s, bidIncrease: %s, bidDecrease: %s, minBid: %s, maxBid: %s', 
+               positionType, 
+               currentPosition.toFixed(2), 
+               positionTarget,
+               lowerPositionTarget.toFixed(2), 
+               higherPositionTarget.toFixed(2), 
+               bidIncrease.toFixed(2), 
+               bidDecrease.toFixed(2),
+               minBid,
+               maxBid
+    )
+    
+    if(newBid !== -1)
+      Logger.log('bid should changed from %s to %s', cpcBid, newBid)    
+    
+    return newBid;
+       
+  }
+     
+  function keywordUniqueId(keyword){
+    var id = keyword.getId();
+    var idsIndex = ids.indexOf(id);
+    if(idsIndex === ids.lastIndexOf(id)){
+      return uniqueIds[idsIndex];
+    }
+    else{
+      var adGroupId = keyword.getAdGroup().getId();
+      return adGroupId + idJoin + id;
+    }
+  }
+      
+  function setMinMaxBids(){
+    for(var x in keywordData){
+      keywordData[x]['MinBid'] = accountConfig.minBid;
+      keywordData[x]['MaxBid'] = accountConfig.maxBid;
+      keywordData[x]['FirstPageMaxBid'] = accountConfig.firstPageMaxBid;
+    }
+  }
+      
+  function setBidChange(){
+    for(var x in keywordData){
+      keywordData[x]['BidIncrease'] = keywordData[x]['CpcBid'] * accountConfig.bidIncreaseProportion/2;
+      keywordData[x]['BidDecrease'] = keywordData[x]['CpcBid'] * accountConfig.bidDecreaseProportion/2;
+    }
+  }
+
+  function updateKeywords(idBatch) {
+    var keywords = AdWordsApp.keywords()
+    .withIds(idBatch.map(function(str){return str.split(idJoin);}))
+    .get();
+    
+    while(keywords.hasNext()){
+      var keyword = keywords.next();
+      var uniqueId = keywordUniqueId(keyword);  
+      var newBid = bidChange(uniqueId);
+         
+      if(newBid !== -1){
+        keyword.setMaxCpc(newBid);
+      }
+         
+    }
+  }
+       
+  function resultsString(){
+       
+    var results = [];
+    for(var uniqueId in keywordData){
+      var resultsRow = [uniqueId, keywordData[uniqueId]['Impressions'], keywordData[uniqueId]['AbsTopSearchShare'], keywordData[uniqueId]['TopSearchShare']];
+      results.push(resultsRow.join(fieldJoin));
+    }
+       
+    return results.join(lineJoin);
+  }
+  
+  function customParseFloat(value){    
+    value = value.replace('%', '');
+
+    if(value.indexOf('<') != -1)
+      value = '5';
+
+    if(value.indexOf('--') != -1)
+      value = '0';
+
+    value = parseFloat(value);
+
+    if(value > 1)
+      value = value / 100;
+    
+    return Math.round(value * 100) / 100;
+  }
+}

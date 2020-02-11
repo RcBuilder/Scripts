@@ -1,5 +1,5 @@
-Media-Type Formatters
----------------------
+REST - Media-Type Formatters
+----------------------------
 
 Media type formatters are classes that serialize the incoming requests and outgoing responses content
 to fit the client needs. 

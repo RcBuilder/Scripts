@@ -1,0 +1,7 @@
+.Net BundlerMinifier
+--------------------
+
+source:
+https://marketplace.visualstudio.com/items?itemName=MadsKristensen.BundlerMinifier
+https://github.com/madskristensen/BundlerMinifier
+https://www.nuget.org/packages/BuildBundlerMinifier

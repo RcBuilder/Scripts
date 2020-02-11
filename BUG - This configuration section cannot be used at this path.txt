@@ -1,0 +1,19 @@
+Bug:
+Config Error
+This configuration section cannot be used at this path
+
+Error:
+This configuration section cannot be used at this path. 
+This happens when the section is locked at a parent level. 
+Locking is either by default (overrideModeDefault="Deny"), 
+or set explicitly by a location tag with overrideMode="Deny" or the legacy allowOverride="false".
+
+Cause:
+missing windows features
+
+Solution:
+(steps)
+1. go to 'Turn windows features on or off'
+2. choose 'Internet Information Services'
+3. chose 'World Wide Web Services'
+4. choose 'Application Development Features' > enable.
