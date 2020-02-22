@@ -1,0 +1,19 @@
+C# Tuple List initialization
+----------------------------
+
+List<(long a, int b, bool c)> abc = null;
+abc = new List<(long a, int b, bool c)>();
+
+abc.Add((1000, 3, false));
+abc.Add((1001, 3, true));
+abc.Add((1002, 2, true));
+abc.Add((1003, 1, false));
+
+--
+
+var abc = new List<(long a, int b, bool c)>{
+	(1000, 3, false),
+	(1001, 3, true),
+	(1002, 2, true),
+	(1003, 1, false)
+};

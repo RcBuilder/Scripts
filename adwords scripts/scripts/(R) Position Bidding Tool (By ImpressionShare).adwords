@@ -178,6 +178,7 @@ function main() {
        
     var newBid = -1;
     if(keywordData[uniqueId]['HigherPositionTarget'] === -1){
+      Logger.log('not an HigherPositionTarget state');
       return newBid;
     }
        
@@ -202,19 +203,18 @@ function main() {
     var bidIncrease = keywordData[uniqueId]['BidIncrease'];
     var bidDecrease = keywordData[uniqueId]['BidDecrease'];
        
-    if((currentPosition > lowerPositionTarget) && (currentPosition !== 0)){
-      var linearBidModel = Math.min(2*bidIncrease,(2*bidIncrease/lowerPositionTarget)*(currentPosition-lowerPositionTarget));
-      var newBid = Math.min((cpcBid + linearBidModel), maxBid);
+    if((currentPosition < lowerPositionTarget) && (currentPosition !== 0)){      
+      var newBid = Math.min((cpcBid + bidIncrease), maxBid);
     }
-    if((currentPosition < higherPositionTarget) && (currentPosition !== 0)) {
-      var linearBidModel = Math.min(2*bidDecrease,((-4)*bidDecrease/higherPositionTarget)*(currentPosition-higherPositionTarget));
-      var newBid = Math.max((cpcBid-linearBidModel),minBid);
+    else if((currentPosition > higherPositionTarget) && (currentPosition !== 0)) {      
+      var newBid = Math.max((cpcBid-bidDecrease), minBid);
       if (cpcBid > firstPageBid) {
         var newBid = Math.max(firstPageBid,newBid);
       }
     }
     if((currentPosition === 0) && useFirstPageBidsOnKeywordsWithNoImpressions && (cpcBid < firstPageBid)){
       var newBid = firstPageBid;
+      Logger.log('bid set as firstPageBid (%s)', firstPageBid);
     }
        
     if (isNaN(newBid)) {
@@ -222,7 +222,8 @@ function main() {
       return -1;
     }
        
-    Logger.log('positionType: %s, currentPosition: %s, positionTarget: %s, positionRange: %s > %s, bidIncrease: %s, bidDecrease: %s, minBid: %s, maxBid: %s', 
+    Logger.log('[%s] positionType: %s, currentPosition: %s, positionTarget: %s, positionRange: %s > %s, bidIncrease: %s, bidDecrease: %s, minBid: %s, maxBid: %s, cpcBid: %s, newBid: %s', 
+               uniqueId,
                positionType, 
                currentPosition.toFixed(2), 
                positionTarget,
@@ -231,7 +232,9 @@ function main() {
                bidIncrease.toFixed(2), 
                bidDecrease.toFixed(2),
                minBid,
-               maxBid
+               maxBid,
+               cpcBid,
+               newBid
     )
     
     if(newBid !== -1)

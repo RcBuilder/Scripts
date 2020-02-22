@@ -1,0 +1,42 @@
+SQL - Bulk Update Using 2-Levels SPLIT
+--------------------------------------
+
+reference:
+'SQL - ROWS 2 COLUMNS BY INDEX'
+
+---
+
+CREATE FUNCTION [dbo].[SPLIT_TO_COLUMNS] 
+(
+    @STR VARCHAR(MAX)
+)
+RETURNS TABLE
+AS
+RETURN  
+(
+    WITH CTE(Value, [Index]) AS(
+		SELECT	Value, 
+				ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) 
+		FROM	STRING_SPLIT(@STR, ',')
+	)
+	SELECT 
+		(SELECT Value FROM CTE WHERE [Index] = 1) as Column1, 
+		(SELECT Value FROM CTE WHERE [Index] = 2) as Column2, 
+		(SELECT Value FROM CTE WHERE [Index] = 3) as Column3
+)
+
+---
+
+using: 
+DECLARE @STR VARCHAR(MAX) = 'A1,A2,A3|B1,B2,B3|C1,C2,C3';
+SELECT	T.* FROM STRING_SPLIT(@STR, '|') -- 1st split
+		CROSS APPLY (			
+			SELECT * FROM SPLIT_TO_COLUMNS(Value) -- 2nd split
+		) T(Col1,Col2,Col3)
+
+
+output:
+Col1	Col2	Col3
+A1		A2		A3
+B1		B2		B3
+C1		C2		C3
