@@ -1,0 +1,9 @@
+Alt + D, Alt+Enter 
+duplicate chrome tab shortcut
+
+alt + right-Arrow
+next page
+
+alt + left-Arrow
+previous page
+

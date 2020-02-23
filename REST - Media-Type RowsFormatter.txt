@@ -1,0 +1,53 @@
+REST - Media-Type RowsFormatter
+-------------------------------
+
+reference:
+REST - Media-Type Formatters
+
+--------------------
+
+public class RowsFormatter : MediaTypeFormatter
+    {
+        private static Encoding Encoding = Encoding.UTF8;
+
+        public RowsFormatter() {            
+            this.SupportedEncodings.Add(Encoding);
+        }
+
+        // validate that the API Response type is IEnumerable<T>
+        public override bool CanWriteType(Type type) {
+            return true;                      
+        }
+
+        public override bool CanReadType(Type type) {
+            return true;
+        }
+
+        public override Task WriteToStreamAsync(Type type, object value, Stream writeStream, HttpContent content, TransportContext transportContext, CancellationToken cancellationToken) {
+            var writer = new StringWriter();
+
+            return Task.Factory.StartNew(() => {
+                var collection = (IEnumerable<string>)value;
+
+                RenderCollection(writer, collection);
+                
+                using(var sw = new StreamWriter(writeStream, Encoding))
+                    sw.Write(writer.ToString());
+            });
+        }
+        
+        protected void RenderCollection(StringWriter writer, IEnumerable<string> collection) {            
+            foreach (var line in collection) {               
+                writer.WriteLine("{0}", line);
+            }
+        }
+    }
+
+
+--------------------
+
+[Using]
+
+var localCopyPath = $"{AppDomain.CurrentDomain.BaseDirectory}Resources\\test.csv";
+var linesContent = File.ReadAllLines(localCopyPath, Encoding.UTF8)?.ToList();
+var response = Request.CreateResponse(HttpStatusCode.OK, linesContent, new RowsFormatter());

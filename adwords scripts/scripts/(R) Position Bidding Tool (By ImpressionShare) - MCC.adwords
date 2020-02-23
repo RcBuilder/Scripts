@@ -12,17 +12,55 @@
    top-abs-0.7
 */
 
-var maxBid = 3.00;
-var minBid = 0.15;
-var firstPageMaxBid = 0.90;
-var dataFile = "AveragePositionData.txt";
-var useFirstPageBidsOnKeywordsWithNoImpressions = false;
+var config = {};
+config['default'] = { 
+  maxBid: 3.00, 
+  minBid: 0.15, 
+  firstPageMaxBid: 0.90, 
+  useFirstPageBidsOnKeywordsWithNoImpressions: false, 
+  bidIncreaseProportion: 0.2,
+  bidDecreaseProportion: 0.2,
+  targetPositionTolerance: 0.05
+};
 
-var bidIncreaseProportion = 0.2;
-var bidDecreaseProportion = 0.2;
-var targetPositionTolerance = 0.05;
+config['949-163-9088'] = { 
+  maxBid: 6.00, 
+  minBid: 0.01,
+  targetPositionTolerance: 0.25
+};
+
+var dataFile = "AveragePositionData.txt";
 
 function main() {
+    var accounts = MccApp.accounts().get();  
+    while(accounts.hasNext())
+    {
+      var account = accounts.next();
+      var accountId = account.getCustomerId();
+
+      Logger.log('### account: %s (%s) ###', account.getName(), accountId);  
+
+      var accountConfig = config[accountId] || {};
+      accountConfig = {
+        maxBid: accountConfig.maxBid || config['default'].maxBid,
+        minBid: accountConfig.minBid || config['default'].minBid,
+        firstPageMaxBid: accountConfig.firstPageMaxBid || config['default'].firstPageMaxBid,
+        useFirstPageBidsOnKeywordsWithNoImpressions: accountConfig.useFirstPageBidsOnKeywordsWithNoImpressions || config['default'].useFirstPageBidsOnKeywordsWithNoImpressions,
+        bidIncreaseProportion: accountConfig.bidIncreaseProportion || config['default'].bidIncreaseProportion,
+        bidDecreaseProportion: accountConfig.bidDecreaseProportion || config['default'].bidDecreaseProportion,
+        targetPositionTolerance: accountConfig.targetPositionTolerance || config['default'].targetPositionTolerance
+      };
+  
+      Logger.log(accountConfig)
+      
+      MccApp.select(account);
+      ProcessAccount(accountConfig);
+
+      Logger.log('--------------------------');
+    }
+}
+
+function ProcessAccount(accountConfig) {
      
   var fieldJoin = ",";
   var lineJoin = "$";
@@ -135,7 +173,7 @@ function main() {
   Logger.log(uniqueIds.length + " labelled keywords found");
         
   setBidChange();
-  setMinMaxBids();
+  setMinMaxBids(accountConfig);
   
   //Batch the keyword IDs, as the iterator can't take them all at once
   var idBatches = [];
@@ -168,8 +206,8 @@ function main() {
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
 
   function setPositionTargets(uniqueId, positionTarget, positionType){
-    keywordData[uniqueId]['HigherPositionTarget'] = Math.min(positionTarget + targetPositionTolerance, 1);
-    keywordData[uniqueId]['LowerPositionTarget'] = Math.max(positionTarget - targetPositionTolerance, 0);
+    keywordData[uniqueId]['HigherPositionTarget'] = Math.min(positionTarget + accountConfig.targetPositionTolerance, 1);
+    keywordData[uniqueId]['LowerPositionTarget'] = Math.max(positionTarget - accountConfig.targetPositionTolerance, 0);
     keywordData[uniqueId]['PositionTarget'] = positionTarget;
     keywordData[uniqueId]['PositionType'] = positionType;       
   }
@@ -258,16 +296,16 @@ function main() {
       
   function setMinMaxBids(){
     for(var x in keywordData){
-      keywordData[x]['MinBid'] = minBid;
-      keywordData[x]['MaxBid'] = maxBid;
-      keywordData[x]['FirstPageMaxBid'] = firstPageMaxBid;
+      keywordData[x]['MinBid'] = accountConfig.minBid;
+      keywordData[x]['MaxBid'] = accountConfig.maxBid;
+      keywordData[x]['FirstPageMaxBid'] = accountConfig.firstPageMaxBid;
     }
   }
       
   function setBidChange(){
     for(var x in keywordData){
-      keywordData[x]['BidIncrease'] = keywordData[x]['CpcBid'] * bidIncreaseProportion/2;
-      keywordData[x]['BidDecrease'] = keywordData[x]['CpcBid'] * bidDecreaseProportion/2;
+      keywordData[x]['BidIncrease'] = keywordData[x]['CpcBid'] * accountConfig.bidIncreaseProportion/2;
+      keywordData[x]['BidDecrease'] = keywordData[x]['CpcBid'] * accountConfig.bidDecreaseProportion/2;
     }
   }
 

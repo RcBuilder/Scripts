@@ -1,3 +1,0 @@
-duplicate chrome tab shortcut
-
-Alt + D, Alt+Enter 

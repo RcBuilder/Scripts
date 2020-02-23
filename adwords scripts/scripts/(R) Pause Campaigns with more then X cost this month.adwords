@@ -1,0 +1,19 @@
+var CUTOFF_COST = 1200;
+var CUTOFF_LABEL = "Total Spend cutoff";
+
+function main() {
+   
+  var label = AdWordsApp.labels().withCondition("Name='" + CUTOFF_LABEL + "'").get().next();
+  
+  var campaignIterator = label.campaigns().get();
+
+  while (campaignIterator.hasNext()) {
+    var campaign = campaignIterator.next();
+    var cost = campaign.getStatsFor("THIS_MONTH").getCost();
+    Logger.log('%s spent %s this month', campaign.getName(), cost);
+    if(cost > CUTOFF_COST){
+      Logger.log('pause campaign!');
+      campaign.pause();
+    }
+  } 	
+}

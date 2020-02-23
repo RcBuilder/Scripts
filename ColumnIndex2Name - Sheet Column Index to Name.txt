@@ -1,0 +1,42 @@
+ColumnIndex2Name - Sheet Column Index to Name
+---------------------------------------------
+recursive function.
+converts a sheet column index to its corresponding name representation. 
+
+also see:
+'ColumnName2Index - Sheet Column Name to Index'
+
+--
+
+string ColumnIndex2Name(int val){	
+	if(val <= 0) return "";	
+	var c = ((val - 1) % 26);
+	return ColumnIndex2Name((val - c) / 26) + Convert.ToChar(65 + c).ToString();	
+}
+
+--
+
+Console.WriteLine($"Index {1} Is {ColumnIndex2Name(1)}");
+Console.WriteLine($"Index {3} Is {ColumnIndex2Name(3)}");
+Console.WriteLine($"Index {25} Is {ColumnIndex2Name(25)}");
+Console.WriteLine($"Index {26} Is {ColumnIndex2Name(26)}");
+Console.WriteLine($"Index {27} Is {ColumnIndex2Name(27)}");
+Console.WriteLine($"Index {38} Is {ColumnIndex2Name(38)}");
+Console.WriteLine($"Index {53} Is {ColumnIndex2Name(53)}");
+Console.WriteLine($"Index {154} Is {ColumnIndex2Name(154)}");
+Console.WriteLine($"Index {701} Is {ColumnIndex2Name(701)}");
+Console.WriteLine($"Index {702} Is {ColumnIndex2Name(702)}");
+
+--
+
+output:
+Index 1 Is A
+Index 3 Is C
+Index 25 Is Y
+Index 26 Is Z
+Index 27 Is AA
+Index 38 Is AL
+Index 53 Is BA
+Index 154 Is EX
+Index 701 Is ZY
+Index 702 Is ZZ

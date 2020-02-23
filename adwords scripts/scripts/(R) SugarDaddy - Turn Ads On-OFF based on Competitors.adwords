@@ -33,18 +33,15 @@
   6. set keywords bid to the top page
 */
 
+var PROXY_SERVER = 'http://adwordsservices.linkgen.biz/';
 var EMAIL = 'rcbuilder@walla.com';
 var REPORT_ONLY_MODE = true;
 var CAMPAIGN_Id = 8149881011;
 var PHRASES = [    
-  'שוגר דדי',  
-  'שוגרדדי',
-  'sugar daddy',
-  'sugardaddy',
-  'sugardaddy.co.il'  
+  'שוגר דדי'
 ];
 
-function main() {   
+function main() {      
   /*
   var a = [
     {'Description':'', 'Href':'https://rancom.co.il/web/'}, 
@@ -78,17 +75,21 @@ function main() {
   
   htmlBuilderService.add('<p>{0} keywords found</p>'.replace('{0}', campaignAds.length)); 
   
+  var organicCount = 0;
   var found = false;
   while(keywords.hasNext()){
     var keyword = keywords.next();
     var keywordText = keyword.getText();
     
-    var googleAds = scanGoogleAds(keywordText, htmlBuilderService);
+    //  { organic, paid }
+    var googleResult = scanGoogleAds(keywordText, htmlBuilderService);
+    var googleAds = googleResult.paid;
+    organicCount += googleResult.organic.length;
     if(!googleAds) continue;
             
     var result = checkGoogleAds(googleAds, campaignAds, htmlBuilderService);
     if(result.foundPhrase){ 
-      var msg = 'found google ads with the phrase {0} > google-ad-url: {1}'.replace('{0}', result.phrase).replace('{1}', result.googleAdUrl);
+      var msg = 'found google ads with the phrase [{0}] > google-ad-url: [{1}]'.replace('{0}', result.phrase).replace('{1}', result.googleAdUrl);
       Logger.log(msg);
       htmlBuilderService.add('<p>' + msg + '</p>');
       
@@ -97,18 +98,15 @@ function main() {
     }
   } 
   
-  var isSuccess = false;
-  
-  if(found){
-    isSuccess = setAdsStatus(campaignAds, 'ENABLED', htmlBuilderService);
-    setKWsTopPageBid(htmlBuilderService);
+  Logger.log('organicCount: %s', organicCount);    
+  if(organicCount == 0){
+    Logger.log('organicCount is 0, stop processing...');    
   }
-  else   
-    isSuccess = setAdsStatus(campaignAds, 'PAUSED', htmlBuilderService);      
-  
-  if(!isSuccess) {
-    Logger.log('setAdsStatus: some error occured');
-    return;
+  else {        
+    var isSuccess = setAds(found, campaign, campaignAds, htmlBuilderService);
+    Logger.log('setAds (isSuccess): %s', isSuccess);  
+    if(!isSuccess)
+      Logger.log('setAdsStatus: some error occured');        
   }
   
   htmlBuilderService.add('</div>');  
@@ -124,6 +122,19 @@ function main() {
   }
 }
 
+function setAds(found, campaign, campaignAds, htmlBuilderService){
+  var isSuccess = false;
+  
+  if(found){
+    isSuccess = setAdsStatus(campaignAds, 'ENABLED', htmlBuilderService);
+    setKWsTopPageBid(campaign, htmlBuilderService);
+  }
+  else   
+    isSuccess = setAdsStatus(campaignAds, 'PAUSED', htmlBuilderService); 
+  
+  return isSuccess;
+}
+
 function setKWsTopPageBid(campaign, htmlBuilderService) {
   var keywords = campaign.keywords()
   .withCondition('Status = ENABLED')
@@ -135,9 +146,11 @@ function setKWsTopPageBid(campaign, htmlBuilderService) {
     
     var topBid = keyword.getTopOfPageCpc();
     htmlBuilderService.add('<p>keyword {0} > set bid to {1}</p>'.replace('{0}', keywordText).replace('{1}', topBid));
-    
-    if(!REPORT_ONLY_MODE)
+
+    if(!REPORT_ONLY_MODE && topBid){
+      Logger.log('keyword: %s > set bid to %s', keywordText, topBid);
       keyword.bidding().setCpc(topBid);    
+    }
   }
 }
 
@@ -181,11 +194,10 @@ function setAdsStatus(ads, status, htmlBuilderService){
 function scanGoogleAds(keywordText, htmlBuilderService){
   try{
     var serachQuery = encodeURI(keywordText);  
-    Logger.log('scan for %s (%s)', keywordText, serachQuery);
+    Logger.log('scan for [%s] (%s)', keywordText, serachQuery);
     htmlBuilderService.add('<p>google search was made with keyword {0}</p>'.replace('{0}', keywordText)); 
     
-    var searchURL = 'http://adwordsservices.linkgen.biz/api/adwordsProxy/google-ads/' + serachQuery;      
-    
+    var searchURL = PROXY_SERVER + 'api/adwordsProxy/google-ads/' + serachQuery;          
     var options =   { 
       muteHttpExceptions: true 
     };
@@ -202,7 +214,7 @@ function scanGoogleAds(keywordText, htmlBuilderService){
     Logger.log(msg);
     htmlBuilderService.add('<p>' + msg + '</p>'); 
     
-    return searchResults.paid; // organic, paid
+    return searchResults; // organic, paid
   }
   catch(ex){
     Logger.log('ex: %s', ex); 
@@ -245,13 +257,15 @@ function checkGoogleAds(googleAds, campaignAds, htmlBuilderService){
     for(j in googleAds){
       var googleAd = googleAds[j];
       
-      msg = 'phrase {0} was checked against ad {1}'.replace('{0}', phrase).replace('{1}', googleAds[j].title);
+      msg = 'phrase [{0}] was checked against ad [{1}]'.replace('{0}', phrase).replace('{1}', googleAds[j].title);
       Logger.log(msg);
       htmlBuilderService.add('<p>' + msg + '</p>');
-      
-      if(googleAds[j].title.indexOf(phrase) > -1 || googleAds[j].description.indexOf(phrase) > -1){        
+            
+      if(googleAds[j].title.indexOf(phrase) > -1 || googleAds[j].description.indexOf(phrase) > -1){   
+        Logger.log('found!');
         result.phrase = phrase;
-        result.googleAdUrl = googleAd.href;        
+        result.googleAdUrl = googleAd.href; 
+        result.foundPhrase = true;
         return result;
       }
     }

@@ -1,0 +1,12 @@
+javascript endsWith implementation 
+----------------------------------
+
+function endsWith(input, suffix){
+  if(input.length < 3) return false;
+  return input.substr(input.length - 3, 3) == suffix;
+} 
+
+// using
+var description = 'abcd???';
+if(endsWith(description, '???'))
+   description = description.replace('???', '?');

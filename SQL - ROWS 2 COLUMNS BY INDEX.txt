@@ -1,0 +1,37 @@
+SQL - ROWS 2 COLUMNS BY INDEX
+-----------------------------
+
+reference: 
+'ROW_NUMBER Without ORDER BY'
+
+--
+
+syntax:
+;WITH CTE([Index], Value) AS(
+	SELECT ROW_NUMBER() OVER(ORDER BY (SELECT NULL)), Value
+	FROM <provider>	 
+)
+SELECT 
+	(SELECT Value FROM CTE WHERE [Index] = 1) as <ColumnName>, 
+	(SELECT Value FROM CTE WHERE [Index] = 2) as <ColumnName>
+	...
+	...
+
+--
+
+using: 
+
+;WITH CTE(Value, [Index]) AS(
+	SELECT	Value, 
+		ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) 
+	FROM	STRING_SPLIT('A,B,C', ',')
+)
+SELECT 
+	(SELECT Value FROM CTE WHERE [Index] = 1) as COL1, 
+	(SELECT Value FROM CTE WHERE [Index] = 2) as COL2, 
+	(SELECT Value FROM CTE WHERE [Index] = 3) as COL3
+
+
+output:
+COL1	COL2	COL3
+A	B	C

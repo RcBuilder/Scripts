@@ -9,3 +9,36 @@ Setup an FTP Server on IIS
 6. [Router] open port 21
 7. [Firewall] Allow app 'FTP Server'
 8. [Folder] make sure the user has enough permissions to the FTP folder 
+
+-- 
+
+users scope: 
+when need to give different access for each user. 
+one can only access the 'Upload' sub folder whereas the other can access all content
+1. Create 2 users Groups > FTP Admins and FTP Users 
+2. Create 2 users > Roby and Ravit
+3. map users from chapter 2 to the following groups:
+   Roby - FTP Admins and FTP Users
+   Ravit - FTP Users
+4. [IIS] open the Ftp site
+5. [Auth Tab] Add the following Rules:
+   Allow 'FTP Admins' Read, Write
+   Allow 'FTP Users' Read
+6. [Isolation Tab] choose 'User name directory'
+7. Create a virtual directory per user (name each directory with the user name)
+   (vd) Roby > Basic Settings > set the path to be the Root folder
+   (vd) Ravit > Basic Settings > set the path to be the 'Upload' folder
+8. [Auth Tab] each vd > Add the following Rules:
+   Allow 'FTP Admins' Read, Write
+   Allow 'FTP Users' Read
+   Allow '<user>' Read, Write // set 'Ravit' for 'Ravit' vd, set 'Roby' for 'Roby' vd
+
+--
+
+Error: 
+530 User cannot log in, home directory inaccessible
+
+Solution:
+FTP User Isolation > choose one of the non-isolated options ('FTP Root Directory' or 'User name directory')
+
+

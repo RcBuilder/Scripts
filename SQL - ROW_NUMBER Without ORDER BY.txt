@@ -1,0 +1,19 @@
+SQL - ROW_NUMBER Without ORDER BY
+---------------------------------
+
+syntax:
+ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) 
+
+----
+
+sample:
+
+SELECT	Value, 
+	ROW_NUMBER() OVER(ORDER BY (SELECT NULL)) 
+From	STRING_SPLIT('A,B,D,C', ',')
+
+output:
+A  1
+B  2
+D  3
+C  4

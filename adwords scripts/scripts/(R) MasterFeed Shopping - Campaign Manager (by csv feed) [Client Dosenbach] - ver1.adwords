@@ -546,7 +546,8 @@ var CSVService = function(delimiter) {
     content = content.replace(/"/g, '');
     csvService.parse(content);
   */
-  function _get(uri){
+  function _get(uri){    
+    Logger.log('loading %s', uri); 
     var response = UrlFetchApp.fetch(uri);
     var status_code = response.getResponseCode();
 
@@ -609,7 +610,8 @@ var CSVService = function(delimiter) {
   // {base64URL} {seperator} {from} {to}
   // e.g: http://lagoja-services.rcb.co.il/api/adwordsProxy/feed/{base64URL}/{seperator}/{from}/{to}
    
-  /* 
+   
+  /*  OLD VERSION 
   function _loadUsingProxy(uriToLoad, proxyInitTemplate, proxyTemplate, bulkVolume, delay){
       // TODO
       var fileEncoded = 'aHR0cDovL3RyYW5zcG9ydC5wcm9kdWN0c3VwLmlvLzQ3N2VhMGM3NTQwZjM0MGNmNjE0L2NoYW5uZWwvNTI2MS9tYXN0ZXJmZWVkLXNob3BwaW5nLWRlLmNzdg==';  // atob(file)
@@ -643,13 +645,42 @@ var CSVService = function(delimiter) {
       while(hasData)       
    }
    */
+   
+   function _loadUsingProxy(base64UriToLoad, proxyInitTemplate, proxyTemplate, bulkVolume, delay){      
+      var bulkVolume = bulkVolume || 1000;   
+      var hasData = false;
+      var startIndex = 0;
+    
+      if(proxyInitTemplate){
+        var initUri = proxyInitTemplate.replace('{base64URL}', base64UriToLoad);        
+        _get(initUri);
+        sleep(delay);        
+      }
+    
+      do{
+        var uri = proxyTemplate.replace('{base64URL}', base64UriToLoad)        
+        .replace('{from}', startIndex)
+        .replace('{to}', startIndex + bulkVolume)    
+
+        try{          
+          var content = _get(uri);   
+          hasData = content && content.length > 0;
+          if(hasData)
+            _document = _document.concat(Utilities.parseCsv(content, delimiter));
+        }
+        catch(e){ Logger.log(e);}
+
+        startIndex += bulkVolume;
+      }
+      while(hasData)       
+   }
   
    return { 
      get: _get,
      parse: _parse,
      document: _document,
      load: _load,
-     ///loadUsingProxy: _loadUsingProxy,
+     loadUsingProxy: _loadUsingProxy,
      loadUsingBulks: _loadUsingBulks,
      count: function(){
        if(!_document) 

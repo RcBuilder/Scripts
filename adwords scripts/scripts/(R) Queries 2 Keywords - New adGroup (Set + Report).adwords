@@ -1,11 +1,22 @@
 var EMAIL = 'RcBuilder@walla.com';
-var CLICKS = 15;
+var CLICKS = 2;
 var CAMPAIGN_ID = 266841030;
 var DATE_RANGE = 'LAST_30_DAYS'; // '20150101,20170101'
 
 function main() {
   var htmlService = HTMLBuilderService();
   var adManagerService = AdManagerService();
+    
+  /*
+  var textAd = AdsApp.ads()    
+    .withCondition('Type IN [EXPANDED_TEXT_AD]')
+    .withCondition('Status = ENABLED')
+    .withLimit(1)
+    .get().next().asType().expandedTextAd();
+    
+  var newAd = copyAd(adManagerService, textAd.getAdGroup(), textAd);
+  return;
+  */
   
   /*
   var campaign = AdWordsApp.campaigns().withIds([CAMPAIGN_ID]).get().next();
@@ -56,11 +67,23 @@ function main() {
     }
     
     Logger.log('new adgroup created!');
+    
+    var textAd = adGroup.ads()    
+    .withCondition('Type IN [EXPANDED_TEXT_AD]')
+    .withCondition('Status = ENABLED')
+    .withLimit(1)
+    .get().next().asType().expandedTextAd();
+    
+    var newAd = copyAd(adManagerService, newAdGroup, textAd);
+    if(!newAd) {
+      Logger.log('error while coping the text ad - skip query');
+      continue;
+    }
          
     var keywords = [ 
       '[' + query + ']', 
       '"' + query + '"', 
-      '+' + query.split(' ').join('+'),      
+      '+' + query.split(' ').join(' +'),      
     ];
     
     Logger.log(keywords);
@@ -83,7 +106,28 @@ function main() {
     });
   }
 }
-
+function copyAd(adManagerService, adGroup, textAd){
+  var header1 = textAd.getHeadlinePart1();
+	var header2 = textAd.getHeadlinePart2();
+  var header3 = textAd.getHeadlinePart3();
+	var description1 = textAd.getDescription1();
+  var description2 = textAd.getDescription2();
+	var destinationURL = textAd.urls().getFinalUrl();
+	var partURL1 = textAd.getPath1();
+	var partURL2 = textAd.getPath2();
+  
+	return adManagerService.createAd(
+	  adGroup, 
+	  header1, 
+	  header2, 
+    header3,
+	  description1, 
+    description2,
+	  destinationURL, 
+	  partURL1, 
+	  partURL2
+	);
+}
 function dateFormat(date){
   var year = date.getFullYear().toString();
   var month = (date.getMonth() + 1).toString();
@@ -126,19 +170,19 @@ var AdManagerService = function() {
         return null;
       return operation.getResult();
     },
-    createAd: function(adGroup, header1, header2, description, destinationURL, partURL1, partURL2){
-      
-      if(header1.length > 30)
+    // createAd: function(adGroup, header1, header2, description, destinationURL, pathURL1, pathURL2)
+    createAd: function(adGroup, header1, header2, header3, description1, description2, destinationURL, pathURL1, pathURL2){     
+      if(this.countWithoutKeywordInsertion(header1) > 30)
         header1 = header1.substr(0, 29);
-      if(header2.length > 30)
+      if(this.countWithoutKeywordInsertion(header2) > 30)
         header2 = header2.substr(0, 29);
-      if(description.length > 80)
-        description = description.substr(0, 79);
+      if(this.countWithoutKeywordInsertion(description1) > 90)
+        description1 = description1.substr(0, 89);
      
       var builder = adGroup.newAd().expandedTextAdBuilder()
       .withHeadlinePart1(header1) // 30 characters      
       .withHeadlinePart2(header2) // 30 characters
-      .withDescription(description) // 80 characters      
+      .withDescription1(description1) // 90 characters      
       .withFinalUrl(destinationURL) // 255 characters    
       .withMobileFinalUrl(destinationURL);
       
@@ -151,16 +195,34 @@ var AdManagerService = function() {
          product {param1: 'some product'} for only {param2: 0} $ - buy now!
       */
 
-      if(partURL1)
-        builder.withPath1(partURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/partURL1/partURL2
+      if(pathURL1 && this.countWithoutKeywordInsertion(pathURL1) <= 15)     
+        builder.withPath1(pathURL1); // 15 characters (the first part after the siteURL) e.g: http://mydomain.com/pathURL1/pathURL2      
       
-      if(partURL2)
-        builder.withPath2(partURL2); // 15 characters (the second part after the siteURL)
+      if(pathURL2 && this.countWithoutKeywordInsertion(pathURL2) <= 15)
+        builder.withPath2(pathURL2); // 15 characters (the second part after the siteURL)
+
+      if(header3){
+      	if(header3.length > 30)
+        	header3 = header3.substr(0, 29);
+        
+        builder.withHeadlinePart3(header3) // 30 characters
+      }
+      
+      if(description2){
+      	if(description2.length > 90)
+        description2 = description2.substr(0, 89);
+        
+        builder.withDescription2(description2) // 90 characters  
+      }
       
       var operation = builder.build();
       
       if(!operation.isSuccessful())
+      {
+        Logger.log('createAd error: %s', operation.getErrors())
         return null;
+      }
+      
       return operation.getResult();
     },        
     createKeywords: function(adGroup, arrKeywods){
@@ -187,6 +249,16 @@ var AdManagerService = function() {
         var keyword = arrKeywods[i];
         adGroup.createNegativeKeyword(keyword);
       }
+    }, 
+    countWithoutKeywordInsertion: function(input){      
+      /*
+        // the value does not include a keyword insertion - return it as is 
+        if(input.indexOf('{') == -1 && input.indexOf('}') == -1) 
+          return input;
+      */
+      
+      var keywordInsertionPattern = /{\s*(KeyWord|param[1-3])\s*:(.*?)\s*}/ig;
+      return input.replace(keywordInsertionPattern, '$2').length;      	
     },    
     /*
 	   important! 
@@ -276,19 +348,13 @@ var AdManagerService = function() {
       return this.getAdGroupByName(campaign, adGroupName) != null;
     },
     getAdGroupByName: function(campaign, adGroupName){
-      adGroupName = adGroupName.toLowerCase();
-      
-      var adgroups = campaign.adGroups()
+      var adgroup = campaign.adGroups()
       .withCondition('Status IN [ENABLED,PAUSED]')
-      .withCondition('Name STARTS_WITH_IGNORE_CASE "' + adGroupName + '"')
+      .withCondition('Name = "' + adGroupName + '"')
       .get()
       
-      while(adgroups.hasNext())
-      { 
-        var adgroup = adgroups.next();
-        if(adgroup.getName().toLowerCase() == adGroupName)
-          return adgroup;
-      }
+      if(adgroup.hasNext())
+        return adgroup.next();
       return null;
     },
     getAdGroupById: function(adGroupId){            

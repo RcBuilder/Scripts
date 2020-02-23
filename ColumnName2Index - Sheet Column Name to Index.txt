@@ -1,0 +1,43 @@
+ColumnName2Index - Sheet Column Name to Index
+---------------------------------------------
+recursive function.
+converts a sheet column name to its corresponding index representation. 
+
+also see:
+'ColumnIndex2Name - Sheet Column Index to Name'
+
+--
+
+int ColumnName2Index(string val, int offset = 1){		
+	if(val == "") return 0;		
+	var a = val[val.Length-1];
+	var c = (Convert.ToInt32(a) - 65 + 1) * offset;	
+	return ColumnName2Index(val.Substring(0, val.Length - 1), offset*=26) + c;	
+}
+
+--
+
+Console.WriteLine($"Name {"A"} Is {ColumnName2Index("A")}");
+Console.WriteLine($"Name {"C"} Is {ColumnName2Index("C")}");
+Console.WriteLine($"Name {"Z"} Is {ColumnName2Index("Z")}");
+Console.WriteLine($"Name {"AA"} Is {ColumnName2Index("AA")}");
+Console.WriteLine($"Name {"AB"} Is {ColumnName2Index("AB")}");
+Console.WriteLine($"Name {"AL"} Is {ColumnName2Index("AL")}");
+Console.WriteLine($"Name {"BA"} Is {ColumnName2Index("BA")}");
+Console.WriteLine($"Index {"EX"} Is {ColumnName2Index("EX")}");
+Console.WriteLine($"Index {"ZY"} Is {ColumnName2Index("ZY")}");
+Console.WriteLine($"Index {"ZZ"} Is {ColumnName2Index("ZZ")}");
+
+--
+
+output:
+Name A Is 1
+Name C Is 3
+Name Z Is 26
+Name AA Is 27
+Name AB Is 28
+Name AL Is 38
+Name BA Is 53
+Index EX Is 154
+Index ZY Is 701
+Index ZZ Is 702

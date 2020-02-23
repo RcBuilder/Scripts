@@ -42,6 +42,7 @@
 * ERP = Enterprise Resource Planning
 * CMS = Content Management System
 * CRM = Customer-Relationship Management
+* WASM = WebAssembly
 
 * DBS = Database System
 * ESB = Enterprise Service Bus (אינטגרציה בין רכיבי תוכנה בארגון)
