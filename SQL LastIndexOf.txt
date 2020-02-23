@@ -1,0 +1,24 @@
+SQL LastIndexOf
+---------------
+
+syntax:
+LEN(<Input>) - CHARINDEX(<Seperator>, REVERSE(<Input>));
+
+--
+
+DECLARE @Input NVARCHAR(100) = 'a/b/c/d';
+SELECT LEN(@Input) - CHARINDEX('/', REVERSE(@Input)); 
+
+output:
+5
+
+--
+
+// sample (with substring by lastIndexOf):
+DECLARE @Input NVARCHAR(100) = 'thefutureof/www.dummy.com/hubspot/3420262/26a229a6-bb8f-4bc7-87fc-3b46cae376ba';
+SELECT LEN(@Input) - CHARINDEX('/', REVERSE(@Input)); 
+SELECT LEFT(@Input, LEN(@Input) - CHARINDEX('/', REVERSE(@Input))); 
+
+output:
+41
+thefutureof/www.dummy.com/hubspot/3420262

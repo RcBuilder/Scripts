@@ -1,0 +1,27 @@
+C# HTTP GetActualURL
+--------------------
+
+// Global.asax
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;     
+
+
+[Route("GetActualURL")]
+[AllowAnonymous]
+[HttpGet]        
+public async Task<HttpResponseMessage> GetActualURL(string Url)
+{
+    // case:
+	// the url "https://go.skillsurvey.com/EBK-045-2020RecruitingTrends" does a 301 redirect to "https://storage.pardot.com/5652/375607/EBK_045___2020_Recruiting_Trends.pdf"
+
+    var webRequest = (HttpWebRequest)WebRequest.Create(Url);
+    webRequest.AllowAutoRedirect = true;  // 3xx redirects
+
+    try
+    {
+        using (var response = await webRequest.GetResponseAsync())                                   
+            Url = ((HttpWebResponse)response).ResponseUri.ToString();                
+    }
+    catch {}
+
+    return Request.CreateResponse(HttpStatusCode.OK, Url);
+}

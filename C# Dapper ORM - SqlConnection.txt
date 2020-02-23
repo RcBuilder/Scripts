@@ -233,6 +233,28 @@ public long GetBrandIdByVisitor(string VisitorId) {
 
 -------
 
+// using Tupple
+public (int Id, int? GroupId) SaveWebsiteForm(int rowId, int? groupId, string formName, string formId, bool? isShow, string source, long? brandId, DateTime? createdDate, Dictionary<string, string> fields)
+{
+    using (var conn = new SqlConnection(this.ConnectionString))
+    {
+        var result = conn.Query<(int Id, int? GroupId)>("sp_WebsiteForm_Save", param: new {
+            Id = rowId,
+            GroupId = groupId,
+            Name = formName,
+            FormId = formId,
+            IsShow = isShow,
+            Source = source,
+            BrandId = brandId,
+            CreatedDate = createdDate,
+            Fields = fields.JoinKeys(";")
+    }, commandType: CommandType.StoredProcedure);
+        return result.FirstOrDefault();
+    }
+}
+
+-------
+
 [multiple result-sets]
 
 
@@ -365,3 +387,5 @@ protected BrandSetting LoadBrandSetting(SqlMapper.GridReader reader) {
 
     return brandSetting;
 }
+
+-------

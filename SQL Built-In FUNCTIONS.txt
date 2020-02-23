@@ -31,9 +31,9 @@ COUNT
 MAX
 MIN
 POWER
-
 ISNULL
 COALESCE 
+DATEFROMPARTS
 ===============================
 
 STRING_SPLIT
@@ -505,3 +505,14 @@ SELECT COALESCE(NULL, NULL, 0)   -- 0
 SELECT COALESCE(@p1, @p2, @p3)   -- 3
 SELECT COALESCE(@p1, @p2, 0)     -- 0
 
+DATEFROMPARTS 
+-------------
+<DATE> DATEFROMPARTS(<YEAR>, <MONTH>, <DAY>);
+
+create a date from a given parts
+
+---
+
+DECLARE @TODAY DATE = GETDATE();  -- e.g: 2020-02-17	
+DECLARE @1ST DATE = DATEFROMPARTS(YEAR(@TODAY), MONTH(@TODAY), 1);
+PRINT(CONCAT(@1ST, ' - ', @TODAY)); -- 2020-02-01 - 2020-02-17

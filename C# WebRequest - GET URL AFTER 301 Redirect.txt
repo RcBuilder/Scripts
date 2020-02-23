@@ -1,0 +1,18 @@
+C# WebRequest - GET URL AFTER 301 Redirect
+------------------------------------------
+
+case:
+the url "https://go.skillsurvey.com/EBK-045-2020RecruitingTrends" does a 301 redirect to "https://storage.pardot.com/5652/375607/EBK_045___2020_Recruiting_Trends.pdf"
+
+---
+
+var webRequest = (HttpWebRequest)WebRequest.Create("https://go.skillsurvey.com/EBK-045-2020RecruitingTrends");
+webRequest.AllowAutoRedirect = true;
+using (var response = await webRequest.GetResponseAsync())
+{
+	var webResponse = (HttpWebResponse)response;
+    Console.WriteLine(webResponse.StatusCode);	  // OK
+	Console.WriteLine(webResponse.ResponseUri);   // https://storage.pardot.com/5652/375607/EBK_045___2020_Recruiting_Trends.pdf
+	var headers = webResponse.Headers;
+	Console.WriteLine(headers["Content-Type"]);   // application/octet-stream
+}  

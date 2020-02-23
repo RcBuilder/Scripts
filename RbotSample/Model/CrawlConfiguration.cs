@@ -12,5 +12,7 @@ namespace CliClap.Crawler.Rbot
         public int MinCrawlDelayPerDomainMilliSeconds { get; set; }  // min delay time between requests 
         public int MaxConcurrentThreads { get; set; }  // max threads quantity 
         public int CrawlTimeoutSeconds { get; set; }  // timeout in seconds
+        public bool IgnoreFooter { get; set; }  // ignore footer
+        public bool IgnoreHeader { get; set; }  // ignore header
     }
 }

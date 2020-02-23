@@ -1,11 +1,28 @@
+iTextSharp
+----------
+Nuget:
+Install-Package iTextSharp -Version 5.5.13.1
+
+Library:
+iTextSharp
+
+Namespaces:
+using iTextSharp.text.pdf;
+using iTextSharp.text.pdf.parser;
+
+Sources:
+https://www.nuget.org/packages/iTextSharp/
+
+----
+
+// Using 
 var readerService = new PDFExtractor();
 var pdfResult = readerService.Extract(url);
 
 Console.WriteLine(pdfResult.Body);
 Console.WriteLine(pdfResult.Title);
-Console.WriteLine(pdfResult.Images.Count);
+Console.WriteLine(pdfResult.Images.Count);            
 
 
-pdfResult.Images.Take(10).ToList().ForEach((image) => {
-	image.Save($@"C:\Users\Roby\Downloads\AAA\{Guid.NewGuid()}.jpg");
-});
+foreach (var image in images.Take(numOfImagesToSave))
+        image.Save($@"C:\Users\Roby\Downloads\AAA\{Guid.NewGuid()}.jpg");

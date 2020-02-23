@@ -1,0 +1,30 @@
+javascript video regex sample
+-----------------------------
+
+/*
+    -- https://www.youtube.com/watch?v=3swcKhG-xXs
+    -- http://fast.wistia.com/embed/iframe/b0767e8ebb?version=v1&controlsVisibleOnLoad=false&playerColor=aae3d8
+    -- https://player.vimeo.com/video/343239308
+*/
+var urlToCheck = 'https://player.vimeo.com/video/343239308';
+
+var videoPatterns = {                                        
+    wistia: /(.*)fast.(wistia.com|wistia.net)\/embed\/iframe\/(.*)/g,
+    youtube: /youtu(?:\.be|be\.com)\/(?:.*v(?:\/|=)|(?:.*\/)?)([a-zA-Z0-9-_]+)/g,
+    vimeo: /vimeo\.com\/(?:.*#|.*\/)?([0-9]+)/g
+};
+                                    
+var videoResult = { 
+	isVideo: false, 
+	videoType: '' 
+};  
+
+for (i in Object.keys(videoPatterns)) {
+    var key = Object.keys(videoPatterns)[i];                                        
+    var pattern = videoPatterns[key];                                        
+    if (urlToCheck.match(pattern)) {
+        videoResult.isVideo = true;
+        videoResult.videoType = key;
+        break;
+    }
+};

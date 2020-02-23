@@ -184,7 +184,7 @@ function scanGoogleAds(keywordText, htmlBuilderService){
     Logger.log('scan for %s (%s)', keywordText, serachQuery);
     htmlBuilderService.add('<p>google search was made with keyword {0}</p>'.replace('{0}', keywordText)); 
     
-    var searchURL = 'http://lagoja-services.rcb.co.il/api/adwordsProxy/google-ads/' + serachQuery;      
+    var searchURL = 'http://adwordsservices.linkgen.biz/api/adwordsProxy/google-ads/' + serachQuery;      
     
     var options =   { 
       muteHttpExceptions: true 

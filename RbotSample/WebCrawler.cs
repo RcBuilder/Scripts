@@ -48,6 +48,12 @@ namespace CliClap.Crawler.Rbot
 
                 var document = new HtmlDocument();
                 document.LoadHtml(response);
+
+                if(this.Config.IgnoreFooter)
+                    document.DocumentNode.SelectSingleNode("//footer")?.RemoveAll();
+                if (this.Config.IgnoreHeader)
+                    document.DocumentNode.SelectSingleNode("//header")?.RemoveAll();
+
                 var links = document.DocumentNode.SelectNodes("//a")
                     ?.Select(x => x.Attributes["href"]?.Value)
                     .Where(x => !string.IsNullOrEmpty(x));
@@ -66,8 +72,6 @@ namespace CliClap.Crawler.Rbot
                         }
                     });
                 });
-
-                Debug.Write("");
             }
             catch (Exception ex)
             {

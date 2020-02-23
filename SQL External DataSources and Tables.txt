@@ -1,0 +1,75 @@
+*** SQL External Tables ***
+***************************
+
+the 'External Data Sources' feature allows us to create a reference to a remote data sources (see 'Supported Data Sources')
+the 'External Tables' feature allows us to pull data from an external source into a local copy.
+
+Supported Data Sources:
+* Azure Blob Storage
+* SQL Server
+* Oracle
+* MongoDB 
+* Teradata
+* ODBC
+* Bulk Operations
+* Cloudera 
+
+---
+
+* External Resources > External Data Sources
+* Tables > External Tables
+
+---
+
+Steps:
+1. Create a CREDENTIAL
+2. Create EXTERNAL DATA SOURCE and pass the credential from chapter 1 
+3. Create EXTERNAL TABLE and pull data from the external source from chapter 2
+
+---
+
+[Using]
+
+in this example, we create a 'WebsiteForms' external table and pull the data from the external (remote) SQL instance. 
+not all columns are being pulled - only 'Id', 'GroupId' and 'BrandId'.
+then, we join the local table with the external one and compare the data!
+
+-
+
+// Create
+CREATE DATABASE SCOPED CREDENTIAL MyCredentials
+WITH IDENTITY = 'xxxxxx', Secret = 'xxxxxx';
+
+CREATE EXTERNAL DATA SOURCE MySQLInstance
+WITH
+(
+ TYPE=RDBMS,
+ LOCATION='cliclap-production.database.windows.net',
+ DATABASE_NAME='CliClap_db_v3_2020-02-11T05-02-RESTORE',
+ CREDENTIAL= MyCredentials
+);
+
+CREATE EXTERNAL TABLE WebsiteForms_RESTORE(     
+     [Id] INT, 
+	 [GroupId] INT, 
+	 [BrandId] BIGINT
+      )
+		  WITH (			  	  		 
+		  DATA_SOURCE=MySQLInstance,		  		  
+		  SCHEMA_NAME = 'dbo',
+		  OBJECT_NAME = 'WebsiteForms',
+     );
+
+select	F.Id, R.Id as 'RestoreId', F.GroupId, R.GroupId as 'RestoreGroupId'
+from	WebsiteForms F
+		INNER JOIN 
+		WebsiteForms_RESTORE R
+		ON(F.Id = R.Id)
+WHERE	F.GroupId IS NULL
+
+-
+
+// Drop
+drop EXTERNAL TABLE WebsiteForms_RESTORE
+drop EXTERNAL DATA SOURCE MySQLInstance
+drop DATABASE SCOPED CREDENTIAL MyCredentials

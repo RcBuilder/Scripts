@@ -1,0 +1,61 @@
+C# Tasks AggregateException
+---------------------------
+use 'AggregateException' exception to get all exceptions occured in other threads as part of the TPL library. 
+this exception type will not be thrown for exceptions in the current thread so we need to add another catch.  
+
+------
+
+try
+{
+    var task1 = Task.Run(() => { throw new Exception("Exception From Task-1"); });
+    var task2 = Task.Run(() => { throw new Exception("Exception From Task-2"); });
+    var task3 = Task.Run(() => { throw new Exception("Exception From Task-3"); });
+    var task4 = Task.Run(() => { Console.WriteLine("Task-4 is OK"); });
+
+    Task.WaitAll(task1, task2, task3, task4);
+}
+catch (AggregateException aex)
+{
+    foreach(var ex in aex.InnerExceptions)
+        Console.WriteLine($"[ERROR] {ex.Message}");
+}     
+catch(Exception ex) {
+	Console.WriteLine($"[ERROR] {ex.Message}");
+}
+
+-
+
+OUTPUT:
+Exception From Task-1
+Exception From Task-2
+Exception From Task-3
+
+---------
+
+try
+{
+	throw new Exception("Exception From Root");
+
+    var task1 = Task.Run(() => { throw new Exception("Exception From Task-1"); });
+    var task2 = Task.Run(() => { throw new Exception("Exception From Task-2"); });
+    var task3 = Task.Run(() => { throw new Exception("Exception From Task-3"); });
+    var task4 = Task.Run(() => { Console.WriteLine("Task-4 is OK"); });
+
+    Task.WaitAll(task1, task2, task3, task4);
+}
+catch (AggregateException aex)
+{
+    foreach(var ex in aex.InnerExceptions)
+        Console.WriteLine($"[ERROR] {ex.Message}");
+}     
+catch(Exception ex) {
+	Console.WriteLine($"[ERROR] {ex.Message}");
+}
+
+-
+
+OUTPUT:
+Exception From Root  
+
+NOTE:
+note that all tasks weren't run because a root exception was thrown before they even started! 

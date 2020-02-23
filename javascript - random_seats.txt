@@ -1,0 +1,48 @@
+javascript - random_seats
+-------------------------
+
+[using] 
+
+var arr = [
+	{ id: 1, 'p': 1 }, 
+	{ id: 2, 'p': 1 }, 
+	{ id: 3, 'p': 1 }, 
+	{ id: 4, 'p': 1 }, 
+	{ id: 5, 'p': 600 }, 
+	{ id: 6, 'p': 1 }
+];
+
+// get 2 random items from the array based on the 'p' field priority
+// the function allocates x seats for each item in the array, the x value is taken from the provided field (in this case: p)
+// so items 1,2,3,4 and 6 will get only 1 seat whereas item 5 will get 600 seats
+random_seats(arr, 'p', 2);
+
+------
+
+[fn]
+
+function random_seats(arr,field,count) {
+    let result = [];
+    let arrCopy = JSON.parse(JSON.stringify(arr));
+
+    for (let n = 0; n < count; n++) {
+        let temp = [];
+        arrCopy.forEach(function (item) {
+            for (let i = 0; i < item[field] + 1; i++) {
+                temp.push(item);
+            }
+        });
+
+        let j = Math.floor(Math.random() * temp.length);
+        let selected = temp[j % temp.length];
+        if (selected) {
+            result.push(selected);
+            arrCopy.splice(arrCopy.indexOf(selected), 1);
+        }
+    };
+    
+    return result;
+}
+
+
+

@@ -1,0 +1,99 @@
+custom app-loading
+------------------
+in this technique, a directive (m-app-loading) is used in a pre-loader div which is a fixed layer on top of the app. 
+till the angular engine is on, it doesn't triggred. once angular starts, it triggers the directive which removes itself. 
+by doing this, the app-loader fixed layer is emitted from the DOM and we see the layer underneath it - the actual application.    
+
+source:
+https://www.bennadel.com/blog/2758-creating-a-pre-bootstrap-loading-screen-in-angularjs.htm
+
+---------
+
+<div ng-animate-children class="m-app-loading">
+        <style type="text/css">
+
+            div.m-app-loading {
+                position: fixed;
+            }
+
+            div.m-app-loading div.animated-container {
+                background:linear-gradient(to bottom, #314769, #151636);
+                bottom: 0px;
+                left: 0px;
+                opacity: 1.0;
+                position: fixed;
+                right: 0px;
+                top: 0px;
+                z-index: 999999;
+            }
+
+            /* Used to initialize the ng-leave animation state. */
+            div.m-app-loading div.animated-container.ng-leave {
+                opacity: 1.0;
+                transition: all linear 200ms;
+                -webkit-transition: all linear 200ms;
+            }
+
+            /* Used to set the end properties of the ng-leave animation state. */
+            div.m-app-loading div.animated-container.ng-leave-active {
+                opacity: 0;
+            }
+
+            div.m-app-loading div.messaging {
+                color: #FFFFFF;
+                font-family: monospace;
+                left: 0px;
+                margin-top: -37px;
+                position: absolute;
+                right: 0px;
+                text-align: center;
+                top: 50%;
+            }
+
+            div.m-app-loading h1 {
+                font-size: 26px;
+                line-height: 35px;
+                margin: 0px 0px 20px 0px;
+            }
+
+            div.m-app-loading p {
+                font-size: 18px;
+                line-height: 14px;
+                margin: 0px 0px 0px 0px;
+            }
+        </style>
+        <div class="animated-container">
+            <div class="messaging">
+                <h1>
+                    The dashboard is loading
+                </h1>
+                <p>
+                    almost there... 
+                </p>
+            </div>
+        </div>
+    </div>
+
+---------
+
+app.directive(
+    "mAppLoading",
+    function ($animate) {        
+        return ({
+            link: link,
+            restrict: "C"
+        });
+        
+        function link(scope, element, attributes) {            
+            $animate.leave(element.children().eq(1)).then(
+                function cleanupAfterAnimation() {
+                    // Remove the root directive element.
+                    element.remove();
+
+                    // Clear the closed-over variable references.
+                    scope = element = attributes = null;
+                }
+            );
+        }
+    }
+);
