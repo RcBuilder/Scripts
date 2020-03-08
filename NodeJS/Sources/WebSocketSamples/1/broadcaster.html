@@ -1,0 +1,24 @@
+<html>
+<head>
+    <title>Server</title>
+</head>
+<body>
+    <input type="text" id="txtMessage" placeholder="message" />
+    <input type="button" id="btnBroadcast" value="Broadcast" onclick="broadcast()" />
+
+    <script>
+        const input = document.querySelector('#txtMessage');
+
+        const WS_URL = 'ws://localhost:3000/';
+        const ws = new WebSocket(WS_URL);
+
+        ws.onopen = () => {
+            console.log(`Connected to ${WS_URL}`);            
+        };      
+
+        broadcast = () => {
+            ws.send(input.value);
+        };        
+    </script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+Windows Secondary Sort
+----------------------
+shift + click (hold down the Shift key)
+
+-
+
+1. click on the column for the primary sorting.  
+2. use shift + click for secondary sorting.

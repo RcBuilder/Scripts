@@ -349,6 +349,16 @@ thanks, Roby (-:
 
 ----------------
 
+
+basically it's a code snippet that can do almost every manual work you do on your AdWords account. 
+we can then schedule the script to run hourly, daily, etc. 
+the script capabilities are vast and include actions that you can do on your account, interacting with 3rd parties services, integrating with google sheets, docs, save and read files from your google drive, send mails, generate reports and much more ... 
+you have NO limitation on the number of scripts to use so you can add as many as you want and for any purpose. 
+
+
+----------------
+
+
 סקריפט מצורף! 
 
 הטמעה: 

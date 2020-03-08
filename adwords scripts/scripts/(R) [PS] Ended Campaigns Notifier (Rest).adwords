@@ -71,12 +71,12 @@ function NotifyPS(callbackURL, entityName, entityId, status, reason, notes, comp
   /// Logger.log(payload);
   /// callbackURL = 'https://webhook.site/f97dceb3-9133-496a-a69a-390a7dde68eb';
   
-  var response = MakeRequest(callbackURL, 'post', 'application/json', payload);
+  var response = MakeRequest(callbackURL, 'post', 'application/json', payload, { 'X-apikey': 'w&82ps#Sh!Xt' });
   if(!response) return null;
   
   response = Utilities.jsonParse(response);
   Logger.log('status: %s', response.status);
-  if(response.status = 'FAIL')   
+  if(response.status == 'FAIL')   
   	Logger.log('%s', response);
 }
 
@@ -91,7 +91,9 @@ function GetCallbackURL(campaignName){
   catch(e){ return null; }
 }
 
-function MakeRequest(url, method, contentType, payload){
+// headers: { key, value }
+// headers['apikey'] = 'xxxxxx';
+function MakeRequest(url, method, contentType, payload, headers){
   if(!url) return null;
   
   var options = {
@@ -99,6 +101,9 @@ function MakeRequest(url, method, contentType, payload){
     'contentType': contentType,
     'payload' : payload || null
   };
+  
+  if(headers)    
+      options.headers = headers; 
     
   var response = UrlFetchApp.fetch(url, options);
   var status_code = response.getResponseCode();

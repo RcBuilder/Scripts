@@ -1,0 +1,44 @@
+<html>
+<head>
+    <title>Server</title>
+</head>
+<body>
+    <input type="text" id="txtMessage" placeholder="message" />
+    <input type="button" id="btnBroadcast" value="Broadcast" onclick="broadcast()" />
+    <br />
+    <select id="ddlClients">
+        <option>clientA</option>
+        <option>clientB</option>
+    </select>
+    <input type="button" id="btnSendToClient" value="SendTo" onclick="sendToClient()" />
+
+    <script>
+        const input = document.querySelector('#txtMessage');
+        const select = document.querySelector('#ddlClients');
+
+        const WS_URL = 'ws://localhost:3000/';
+        const ws = new WebSocket(WS_URL);
+
+        ws.onopen = () => {
+            console.log(`Connected to ${WS_URL}`);
+        };
+
+        broadcast = () => {
+            ws.send(JSON.stringify({
+                type: 'broadcast',
+                data: input.value
+            }));
+        };
+
+        sendToClient = () => {
+            ws.send(JSON.stringify({
+                type: 'peer2peer',
+                data: {
+                    clientName: select.options[select.selectedIndex].value,
+                    body: input.value
+                }
+            }));
+        }
+    </script>
+</body>
+</html>

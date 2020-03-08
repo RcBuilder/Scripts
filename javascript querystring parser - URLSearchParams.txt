@@ -1,0 +1,44 @@
+javascript querystring parser - URLSearchParams
+-----------------------------------------------
+
+class:
+URLSearchParams
+
+tip:
+window.location.search returns the current url querystring
+
+init: 
+new URLSearchParams(<querystring>);
+
+methods:
+has(<paramName>)
+get(<paramName>)
+getAll(<paramName>)
+
+iterators:
+keys()
+values()
+entries()
+
+support:
+https://caniuse.com/#feat=urlsearchparams
+
+--
+
+let prms = new URLSearchParams('?p1=1&p2=2&p3=3');
+prms.has('p1'); // true
+prms.has('p4'); // false
+
+prms.get('p1') // 1
+prms.get('p3') // 3
+
+prms.getAll('p1'); // ['1']
+
+for(key of prms.keys()) 
+   console.log(key); 
+
+for(value of prms.values()) 
+   console.log(value);
+
+for(entry of prms.entries()) 
+   console.log(entry);
