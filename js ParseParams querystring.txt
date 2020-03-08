@@ -1,3 +1,11 @@
+js ParseParams querystring
+--------------------------
+
+reference:
+'javascript querystring parser - URLSearchParams'
+
+-----------
+
 function ParseParams() {
     var result = [];
 

@@ -1,0 +1,23 @@
+Deploy NodeJS app
+-----------------
+
+prerequisites: 
+- a node-js app with a listening server on a chosen port.
+- nodeJS engine with npm installed on the server. 
+
+note:
+use 'npm install' command to import all modules (if needed)
+
+---
+
+[VPS]
+1. copy the app folder
+2. execute the server.js 
+3. open the required port/s
+
+[Hosting]
+// TODO
+
+[Amazon]
+
+[Azure]

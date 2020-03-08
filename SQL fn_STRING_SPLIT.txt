@@ -1,0 +1,29 @@
+SQL fn_STRING_SPLIT
+-------------------
+note:
+built-in STRING_SPLIT function is only supported from 2016 version and up
+
+reference:
+'SQL STRING_SPLIT'
+
+---
+
+ALTER FUNCTION fn_STRING_SPLIT(
+	@Seperator VARCHAR(5) = ',',
+	@Str NVARCHAR(MAX)
+)
+RETURNS TABLE 
+AS
+RETURN 
+
+	SELECT Split.a.value('.', 'NVARCHAR(MAX)') Value
+	FROM
+	(
+		-- <X>a</X><X>b</X><X>c</X><X>d</X>
+		SELECT CAST('<X>'+REPLACE(@Str, @Seperator, '</X><X>')+'</X>' AS XML) AS String
+	) AS A
+	CROSS APPLY String.nodes('/X') AS Split(a);
+GO
+
+-- using --
+Select Value from fn_STRING_SPLIT(DEFAULT, '1,2,3,4')

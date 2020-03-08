@@ -1,0 +1,25 @@
+javascript parse date using regex sample
+----------------------------------------
+
+// input: 'yyyy-mm-ddTHH:mm:ss±HH:mm'
+// output: Date
+function dateFromCalendarDate(value){
+  var pattern = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})([+-]\d{2}):(\d{2})$/
+  var match = value.match(pattern);
+
+  var year = match[1];
+  var month = match[2];
+  var day = match[3];
+  var hour = match[4];
+  var minute = match[5];
+  var second = match[6];
+  var tzHour = parseInt(match[7]);
+  var tzMin = parseInt(match[8]);
+  
+  if (tzHour < 0) tzMin = -tzMin;  
+  var tzOffset = new Date().getTimezoneOffset() + tzHour * 60 + tzMin;
+  var date = new Date(year, month - 1, day, hour, minute - tzOffset, second, 0);
+  
+  /// Logger.log('IN: "%s", OUT: %s', value, date);
+  return date;
+}

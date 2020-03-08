@@ -1,5 +1,5 @@
-SQL Split
----------
+SQL STRING_SPLIT
+----------------
 function: 
 STRING_SPLIT
 

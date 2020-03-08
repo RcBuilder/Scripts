@@ -1,0 +1,45 @@
+<html>
+
+<head>
+    <title>Client</title>
+</head>
+
+<body>
+    <ul></ul>
+
+    <script>        
+        const ul = document.querySelector('ul');      
+
+        const clientName = 'clientA';
+        const WS_URL = `ws://localhost:3000/?u=${clientName}`;
+        const ws = new WebSocket(WS_URL);
+
+        ws.onopen = () => {
+            console.log(`Connected to ${WS_URL}`);
+            ws.send(JSON.stringify({
+                type: 'register',
+                data: ''
+            }));
+        }
+
+        /* 
+            message: {
+                isTrusted: bool,
+                data: any,
+                origin: string,
+                type: string,
+                bubbles: bool,
+                cancelable: bool,
+                timeStamp: float
+            } 
+        */
+        ws.onmessage = message => {
+            let li = document.createElement('li');
+            li.innerHTML = message.data;
+            ul.append(li);
+            console.log(message);
+        }
+    </script>
+</body>
+
+</html>
