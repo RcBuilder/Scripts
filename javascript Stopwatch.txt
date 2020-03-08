@@ -1,0 +1,56 @@
+*** javascript Stopwatch ***
+****************************
+
+class Stopwatch { 
+    private static Second : Number = 1000;
+    private static Minute : Number = Stopwatch.Second * 60;
+    private static Hour : Number = Stopwatch.Minute * 60;
+    private static Day: Number = Stopwatch.Hour * 24;
+    private static FP = 1; // floating points
+
+    private StartedTime: Date = null;    
+
+    public TotalMilliseconds: Number = 0;
+    public TotalSeconds: Number = 0;    
+    public TotalMinutes: Number = 0;    
+    public TotalHours: Number = 0;
+    public TotalDays: Number = 0;
+
+    constructor() { }
+
+    Start(): void { 
+        this.Reset();
+    } 
+    Stop(): void { 
+        let diff = new Date().getTime() - this.StartedTime.getTime(); 
+        this.TotalMilliseconds = diff;
+        this.TotalSeconds = parseFloat((diff / Stopwatch.Second).toFixed(Stopwatch.FP));
+        this.TotalMinutes = parseFloat((diff / Stopwatch.Minute).toFixed(Stopwatch.FP));
+        this.TotalHours = parseFloat((diff / Stopwatch.Hour).toFixed(Stopwatch.FP));
+        this.TotalDays = parseFloat((diff / Stopwatch.Day).toFixed(Stopwatch.FP));
+    }
+    Restart(): void {
+        this.Reset();
+    } 
+    Reset(): void {
+        this.StartedTime = new Date();
+        this.TotalMilliseconds = this.TotalSeconds = this.TotalMinutes = this.TotalHours = this.TotalDays = 0;
+    }    
+}
+
+---
+
+// using
+
+let stopwatch = new Stopwatch();
+stopwatch.Start();
+setTimeout(() => {
+    stopwatch.Stop();    
+    console.log(`${stopwatch.TotalSeconds} sec, ${stopwatch.TotalMilliseconds} millisec`);
+
+    stopwatch.Restart();    
+    setTimeout(() => {  
+        stopwatch.Stop();      
+        console.log(`${stopwatch.TotalSeconds} sec, ${stopwatch.TotalMilliseconds} millisec`);
+    }, 1500);
+}, 3000);

@@ -1,0 +1,10 @@
+SQL - Table To String Using STUFF and XML PATH
+----------------------------------------------
+
+DECLARE @t TABLE(val NVARCHAR(20))
+INSERT INTO @t 
+VALUES('value1'), ('value2'), ('value3'), ('value4'), ('value5')
+SELECT STUFF((SELECT TOP 3 ',' + val FROM @t FOR XML PATH('')), 1, 1, '')
+-
+output:
+value1,value2,value3

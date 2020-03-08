@@ -1,0 +1,38 @@
+*** SQL FETCH-NEXT ***
+**********************
+
+syntax
+------
+DECLARE crsr CURSOR FOR <select-clause>
+OPEN crsr
+
+FETCH NEXT FROM crsr INTO <variables> -- 1st row
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+	<code-statements>					
+	FETCH NEXT FROM crsr INTO <variables> -- next row
+END
+
+CLOSE crsr
+DEALLOCATE crsr	
+
+---------------------------
+
+sample
+------
+DECLARE @VALUE VARCHAR(5)
+
+DECLARE crsr CURSOR FOR (SELECT * FROM STRING_SPLIT('A,B,C,D,E', ','))
+OPEN crsr
+
+FETCH NEXT FROM crsr INTO @VALUE -- 1st row
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+	Print(@VALUE);
+	FETCH NEXT FROM crsr INTO @VALUE -- next row
+END
+
+CLOSE crsr
+DEALLOCATE crsr	
