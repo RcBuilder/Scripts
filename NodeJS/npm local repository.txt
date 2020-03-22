@@ -1,0 +1,56 @@
+npm local repository
+--------------------
+we can create our own repository (package), add custom modules and use npm to import it to any project. 
+
+code sample:
+see 'Local-Repo-sample/'
+
+-----
+
+(steps)
+1. create your repository
+   - create a folder
+   - use 'npm init' command to initialize a project (a package.json file will be created automatically)
+   - create your module/s (.ts or .js files)   
+
+2. create a new node project 
+   - use 'npm init' command to initialize a project
+   - use 'npm install --save <path-to-repository>' to install the package and save as a dependency to the package.json file.
+     note that once your package included within the package.json file, it will be imported using the 'npm install' along with the rest of the packages!
+   - create a file (.ts or .js) and use 'import' or 'require' commands to fetch your modules from your repository
+     import { ... } from '<repository-name>/<module-name>'
+
+-----
+
+// folder structure for this sample
+[folders]
+root
+- repo
+- node
+
+[repo]
+> cd repo
+> npm init
+> create modules
+  
+  // module1.ts
+  export function fun1(num1: number, num2: number): number {
+    return num1 * num2;
+  }
+  export function fun2(): string {
+    return "some title";
+  }
+  export const c1: string = 'const-1';
+
+> tsc module1
+
+
+[node]
+> cd node
+> npm init
+> npm install --save ../repo
+> create index.ts and use import 
+  import { fun1, fun2, c1 } from 'repo/module1';
+
+> tsc index
+> node index

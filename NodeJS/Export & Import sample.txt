@@ -1,0 +1,61 @@
+Export & Import sample
+----------------------
+
+reference: 
+'Export & Import'
+
+-------------
+
+use 'export' to export code. (supports multiple) 
+use 'import' to get the exported code.
+
+-
+
+export class MyClassA {
+    private _items: string[] = [];
+    constructor(public orderId: number) {}
+
+    public add = (name: string): void => {
+        if (!this.validate(name)) return;
+        this._items.push(name);
+    }
+
+    get items(): string[] {
+        return this._items;
+    }
+
+    private validate(name: string): boolean {
+        return name && name.trim().length > 0;
+    }
+};
+
+export class MyClassB {    
+    public sayHello(name: string): void {
+        console.log(`hello ${name}`)
+    }
+};
+
+interface iConfig { key1: string, key2: string }
+export const MyConfig: iConfig = {
+    key1: 'value1',
+    key2: 'value2'
+};
+
+export enum eColors {
+    RED, GREEN, BLUE
+}
+
+-------------
+
+import { MyClassA, MyClassB, MyConfig, eColors } from './MyModule.js';
+
+let a = new MyClassA(3);
+a.add('itemA');
+a.add('itemB');
+console.log(a.items);
+
+let b = new MyClassB();
+b.sayHello('Roby');
+
+console.log(eColors.GREEN);
+console.log(MyConfig.key1);

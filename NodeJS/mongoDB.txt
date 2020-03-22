@@ -1,20 +1,144 @@
-mongoose
---------
+******** Mongo DB ********
+**************************
 mongodb is a document-based database
 
-installation:
-> npm i mongodb
-
-dependency:
-install mongo (SERVER) + compass (Managment Tools)
-mongodb-win32-x86_64-2012plus-4.2.0-signed.msi
-
-also see 'mongoose'
+* how mongo store the data?
+  mongo uses BSON format to store the documents. 
+  BSON stands-for Binary JSON.
+  the BSON format has built specifically for MongoDB. 
+  
+  in addition, mongo adds the following fields by default:
+  _id, timestamp, machine id, process id and counter
 
 ---------------
 
-source:
-https://www.mongodb.com/
+* installation:
+  > npm install mongodb --save
+
+* dependency:
+  install mongo (SERVER) + compass (Managment Tools)
+  mongodb-win32-x86_64-2012plus-4.2.0-signed.msi
+
+* reference:
+  also see 'mongoose'
+
+* sources:
+  https://www.mongodb.com/
+  https://flaviocopes.com/node-mongodb/
+
+---------------
+
+* run the server:
+  > mongod.exe --dbpath="<path>"
+
+  e.g:
+  > mongod.exe --dbpath="c:\data\db"
+
+* connect: 
+  const mongo = require('mongodb').MongoClient; // mongo client 
+  const connStr: string = 'mongodb://localhost:27017';
+
+  structure:
+  mongo.connect(connStr,  {useNewUrlParser: true }, (err, client) => { ... });
+
+  sample:
+  mongo.connect(connStr,  { useNewUrlParser: true }, (err, client) => {
+      if(err){
+          console.log(`[ERROR] db.connect > ${err}`);
+          return;
+      } 
+  
+      let db = client.db('testDB'); 
+	  ...
+	  ...
+      client.close();
+  });
+
+* get a db client:  
+  when connecting to mongo, the callback contains the db-client object.
+
+* get a database: 
+  structure:
+  let db = client.db(<dbName>);
+
+  sample:
+  let db = client.db('testDB'); 
+  ...
+  ...
+  client.close();
+
+* close the connection:
+  client.close();
+
+* get collection:
+  use the db object to reach it's collections. 
+  a db-collection is a collection of documents.
+  a document is an item which can be of any type.
+
+  structure:
+  let collection = db.collection(<collectionName>); 
+  
+  note:
+  if the collection does not exist, it’s created. 
+
+  sample:
+  let collection = db.collection('items');
+
+* get:
+  <collection>.findOne(<filter>, (error, result) => {});  // a single match
+  <collection>.find().toArray((error, result) => {});  // all
+  <collection>.find(<filter>).toArray((error, result) => {});  
+
+* insert: 
+  <collection>.insert(<document> or [<document>], (error, result) => {});
+  <collection>.insertOne(<document>, (error, result) => {});
+  <collection>.insertMany([<document>], (error, result) => {});
+
+* delete:
+  <collection>.deleteOne(<filter>, (error, result) => {});
+  <collection>.deleteMany(<filter>, (error, result) => {});
+
+  note:
+  to delete all documents in a collection, pass in an empty filter ({ })
+
+* update:
+  <collection>.update(<filter>, {'$set': <document>}, (error, result) => {});
+  <collection>.updateOne(<filter>, {'$set': <document>}, (error, result) => {});
+
+* methods (full list):  
+  https://docs.mongodb.com/manual/reference/method/
+
+* promises:
+  all actions supports promises (get, insert, delete and update)
+
+  // sample
+  collection.findOne({id: 1})
+  .then(item => { ... })
+  .catch(err => { ... })
+
+* async/await
+  all actions supports async/await
+
+  // sample
+  let findOneAsync = async () => {
+	try{
+		let item = await collection.findOne({id: 1});
+	}
+	catch(ex) {}
+  };
+
+* working with unique keys:
+  mongo generates a unique key for each item.
+  the generated key is an object and NOT a string so any attempt to pass it as is will fail. 
+  use the ObjectID helper class provided by mongodb to convert the presented key to a mongo object key which should be passed to the db queries.
+
+  e.g:
+  // mongo auto-generated key (_id)
+  { _id: 5d055aea771c686b6005f866, id: 1, name: 'item1' }
+
+  // convert db-key to actual key-object
+  const objectId = require('mongodb').ObjectID;
+  { '_id': objectId('5d055aea771c686b6005f866') }
 
 ---------------
 
@@ -36,5 +160,6 @@ catch (err) {};
 
 ---------------
 
-sample:
+samples:
 see 'MongoDB/DAL.ts'
+see 'mongodb-sample.ts' 

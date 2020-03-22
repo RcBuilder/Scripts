@@ -1,0 +1,97 @@
+******** Node JS ********
+*************************
+server-side javascript. based on the V8 engine (by google)
+an environment to execute javascript code outside the browser.
+
+=========================
+- website
+- installation
+- code execution
+- file execution
+- global object
+- process object
+- export & import
+- npm
+- deploy
+=========================
+
+website
+-------
+https://nodejs.org/en/
+
+installation
+------------
+https://nodejs.org/en/download/
+note: it includes the npm 
+
+code execution
+--------------
+use 'node' command to run the v8 engine in the console!
+we can execute any javascript code directly in the console without a browser.
+
+syntax:
+> node  (enter)
+
+e.g:
+> node
+> let a = 1;
+> console.log(a); // 1
+
+file execution
+--------------
+use 'node' command to run any javascript file!
+
+syntax:
+> node <file>
+
+e.g:
+// test.js
+console.log('Hello World');
+
+> node test.js
+
+global object
+-------------
+there is NO 'window' object as we have in the browser 
+instead, we have a 'global' object.
+
+process object
+--------------
+there is NO 'document' object as we have in the browser 
+instead, we have a 'process' object.
+
+export & import
+---------------
+see 'Export & Import sample'
+see 'Export & Import'
+see 'Require'
+
+npm
+---
+use the npm (node packages manager) to install/ update and remove packages.
+the packages will be imported to the node_modules folder. 
+use import or require command to import and use them.
+
+install command:
+install all packages defined in the package.json file
+use the 'save' flag to store the imported package into the package.json file 
+> npm install  
+> npm install --save   
+
+init command:
+create a package.json file from the current state
+> npm init 
+
+deploy
+------
+see 'Deploy NodeJS app'
+
+
+
+
+
+  
+
+
+
+

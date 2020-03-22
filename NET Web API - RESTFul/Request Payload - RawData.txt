@@ -1,0 +1,61 @@
+Request Payload - RawData
+-------------------------
+
+known issue - stream pointer: 
+using using the default REST binder - the stream pointer is set to the end of stream 
+so any attempt to read it, ends-up in empty value. 
+e.g: Request.Content.ReadAsStringAsync().Result;
+
+the solution is to NOT use the binder and bind the model yourself using 'DeserializeObject'
+or to reset the pointer with 'stream.Seek(0, SeekOrigin.Begin)'
+
+--------------
+
+public class DefaultController : ApiController
+{
+    [HttpPost]
+    [Route("api/test1")]
+    public async Task<string> Test1([FromBody]Model1 value)
+    {        
+        using (var stream = await Request.Content.ReadAsStreamAsync())
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            using (var sr = new StreamReader(stream))                
+                return sr.ReadToEnd();                                    
+        }
+    }
+
+    [HttpPost]
+    [Route("api/test2")]
+    public async Task<string> Test2([FromBody]Model1 value)
+    {        
+        var raw = await Request.RawData();  // Extension method
+        return raw;
+    }
+
+	[HttpPost]
+    [Route("api/test3")]
+    public string Test3()
+    {
+        var raw = Request.Content.ReadAsStringAsync().Result;
+        var model = JsonConvert.DeserializeObject<Model1>(raw);
+        return raw;
+    }
+}
+
+---
+
+public static class RequestExtensions {
+    public static async Task<string> RawData(this HttpRequestMessage me) {
+        try
+        {
+            using (var stream = await me.Content.ReadAsStreamAsync())
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                using (var sr = new StreamReader(stream))
+                    return sr.ReadToEnd();
+            }
+        }
+        catch { return null; }
+    }
+}

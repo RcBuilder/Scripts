@@ -1,0 +1,36 @@
+C# Youtube Url Converter
+------------------------
+convert to embed video (full screen mode)
+
+---
+
+using:
+var URL = "https://youtu.be/kfB8KM8FBjU";
+URL = new YoutubeUrlConverter().Convert(URL);
+Console.WriteLine(URL); // https://www.youtube.com/embed/kfB8KM8FBjU
+
+----
+
+code:
+public interface IUrlConverter {
+    string Convert(string URL);
+}
+
+public abstract class UrlConverter : IUrlConverter {
+    public abstract string Convert(string URL);
+}
+
+public class YoutubeUrlConverter : UrlConverter {
+    public const string Pattern = @"youtu(?:.be|be.com)/(?:.v(?:/|=)|(?:./)?)([a-zA-Z0-9-_]+)";
+
+    public override string Convert(string URL)
+    {
+        if (string.IsNullOrWhiteSpace(URL)) return string.Empty;
+
+        var match = Regex.Match(URL, YoutubeUrlConverter.Pattern, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        if (match == null || !match.Success) return URL;
+
+        var videoId = match.Groups[1].Value;
+        return $"https://www.youtube.com/embed/{videoId}";
+    }
+}

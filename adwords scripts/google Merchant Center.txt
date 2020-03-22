@@ -1,0 +1,30 @@
+google Merchant Center
+----------------------
+https://merchants.google.com/
+
+What is Merchant Center?
+a platform that allows you to upload your store and product data to Google. 
+then you can link it to Adwords account and create ads to those items. 
+
+in Adwords the entity known-as shopping (shoppingCampaign, shoppingAdGroup, shopping productGroup etc.)
+and you can use most of the adwords features like reports and scripts with those entities.
+
+Link To Google Adwords Account:
+1. (Merchant Center) send a link-request
+   Settings > Linked accounts > Link 
+2. (Adwords) approve the request
+   Settings > Linked accounts > Merchant Center > View Details > Actions > Approve 
+note: return those steps for each account you want to link
+
+
+Work With Adwords:
+(Merchant Center)
+1. create a 'Merchant Center account'
+2. link account to adwords
+(Adwords)
+3. create a new campaign
+4. choose the linked Merchant Center
+
+there are 2 ways of working with your merchant center - 
+using the 'AdsApp' class (for linked accounts) or using the 'Advanced APIs' feature (3rd party api).
+

@@ -91,6 +91,12 @@ String Interpolation
 --------------------
 syntax:
 $"...{<param>}..."
+$"...{<param>, <padding>}..."
+$"...{<param>, <padding> : <format>}..."
+
+special characters:
+use {{ to replace { 
+use }} to replace }
 
 sample:
 var name = "Roby";
@@ -102,6 +108,15 @@ Console.WriteLine(str1);  // Hi, I'm Roby from Kfar saba
 var str2 = $"10 * 3 = {10*3}";
 Console.WriteLine(str2); // 10 * 3 = 30
 
+// padding
+Console.WriteLine($"{"Left",-7}|{"Right",7}");  // Left   |  Right
+
+// special characters
+Console.WriteLine($"1 {{ {"2"} }} 3"); // 1 { 2 } 3
+
+// format 
+// e.g: C = Currency
+Console.WriteLine($"{234.567:C}"); // $234.57
 
 Exception Filters
 -----------------
