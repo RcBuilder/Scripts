@@ -1,0 +1,4 @@
+C# Local-Scope Functions
+------------------------
+reference: 
+'C# Features'

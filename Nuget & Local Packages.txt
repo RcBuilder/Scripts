@@ -1,0 +1,46 @@
+Nuget & Local Packages
+----------------------
+we can create a local repository for packages or/and use the 
+nuget cloud server to store them. 
+
+Create A Package:
+- Create a Class Library Project 
+- Project Properties > (tab) Package > set Package Details (Id, Version, Author etc.)
+  note! for update an existing package we Must change the package version 
+- Right Click on the project > Pack
+  a new .nupkg file will be created (bin folder)
+- go to nuget website > logIn 
+  https://www.nuget.org/
+- upload > browse > choose the created .nupkg file  
+
+----
+
+Create A Local Repository:
+a "local repository" is a simple folder which contains all of your created packages
+- create a simple folder
+- copy all packages to that folder 
+
+----
+
+Upload A Package To Nuget:
+- go to nuget website > logIn 
+  https://www.nuget.org/
+- upload > browse > choose the package .nupkg file  
+
+----
+
+Install A Package From Local Repository:
+- open Package Manage Console 
+- command:
+  > Install-Package <path to .nupkg>
+- sample:
+  > Install-Package "E:\PackagesRepository\TestLibrary4.1.0.1.nupkg"
+
+----
+
+Install A Package From Nuget:
+- open Package Manage Console
+- command:
+  > Install-Package <packageName>
+- sample:
+  > Install-Package TestLibrary4 -Version 1.0.1

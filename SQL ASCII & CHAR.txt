@@ -1,0 +1,4 @@
+SQL ASCII & CHAR 
+----------------
+reference: 
+'SQL Built-In FUNCTIONS'

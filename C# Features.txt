@@ -16,9 +16,9 @@
 [Release 7.0]
 - Out Declaration (directly)
 - Tuple improvements!
-- Deconstruction
+- Tuple Deconstruction
 - Pattern Matching
-- Local Functions
+- Local-Scope Functions
 - Expression Body
 - Readable Numeric
 - Async Main
@@ -229,8 +229,8 @@ Console.WriteLine($"{tuple.Id}. {tuple.Name}");
 }
 
 
-Deconstruction
---------------
+Tuple Deconstruction
+--------------------
 reference: 
 Tuple improvements!
 
@@ -310,8 +310,8 @@ Console.WriteLine($"price for 41 km -> {GroupPriceByDistance(41)}");     // pric
 Console.WriteLine($"price for 70 km -> {GroupPriceByDistance(70)}");     // price 320
 Console.WriteLine($"price for 150 km -> {GroupPriceByDistance(150)}");   // price 500
 
-Local Functions
----------------
+Local-Scope Functions
+---------------------
 allows us to declare methods inside the context of another method!
 exists only within the local-scope!
 

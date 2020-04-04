@@ -90,6 +90,10 @@ console.log(e2);
 -
 // using alias ('as' keyword)
 import { e1 as imported1, e2 as imported2 } from './test.js';
+-
+// import a default exported object
+// no extraction needed when importing a default item
+import class1 from './test.js'
 
 exports keyword
 ---------------

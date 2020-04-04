@@ -9,6 +9,7 @@ function main() {
   
   var campaignIds = [];
   var campaignsItr = AdsApp.shoppingCampaigns()
+    //.withCondition('Status IN [ENABLED]')
     .withCondition('LabelNames CONTAINS_ANY ' + JSON.stringify(CampaignLabelsFilter) + '')
     .get();
   
@@ -52,7 +53,7 @@ function main() {
       continue;
     }
     
-    product.customLabel4 = null; // reset               
+    product.customLabel4 = 'ALL'; // exclude from best sellers               
     storeService.UpdateProduct(row['MerchantId'], product);  
     Logger.log('updated successfully');
   }

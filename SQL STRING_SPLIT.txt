@@ -1,0 +1,4 @@
+SQL STRING_SPLIT
+----------------
+reference: 
+'SQL Built-In FUNCTIONS'

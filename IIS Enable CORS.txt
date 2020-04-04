@@ -1,0 +1,10 @@
+IIS Enable CORS
+---------------
+
+1. Open IIS > Choose Site
+2. HTTP Response Headers
+3. Add "Access-Control-Allow-Origin" header (set Value to "*" to allow all)
+   
+note: 
+can also be applied to Virtual-Directory
+    

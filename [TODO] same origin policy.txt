@@ -1,0 +1,16 @@
+same origin policy
+------------------
+What is "Same Origin"?
+Two URLs have the same origin if they have identical schemes, hosts, and ports. (RFC 6454)
+
+These two URLs have the same origin:
+http://example.com/foo.html
+http://example.com/bar.html
+
+These URLs have different origins than the previous two:
+http://example.net - Different domain
+http://example.com:9000/foo.html - Different port
+https://example.com/foo.html - Different scheme
+http://www.example.com/foo.html - Different subdomain
+
+// TODO

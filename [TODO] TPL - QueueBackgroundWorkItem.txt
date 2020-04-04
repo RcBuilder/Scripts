@@ -1,0 +1,57 @@
+TPL - QueueBackgroundWorkItem
+-----------------------------
+- aka QBWI 
+- added in .NET 4.5.2
+- namespace: System.Web.Hosting 
+- independent of any request
+- fit for small background tasks
+- see 'before-terminate notification'
+- can only be used for apps under the IIS (e.g: console apps through an exception)
+- it uses IRegisteredObject under the hood
+
+---
+
+before-terminate notification:
+the tasks are being monitored by the ASP.NET which prevents IIS from terminating till all have completed.  
+
+since IIS is not aware of tasks (using Task library), it might recycles the app and kill the bk process.  
+using QueueBackgroundWorkItem basically notify the IIS about the task so 
+it could notify the BG process before it terminates it. 
+by setting the CancellationToken the IIS notifies each BG process about an upcoming termination and it will wait for 30 seconds before it terminates it.
+
+---
+
+Syntax:
+HostingEnvironment.QueueBackgroundWorkItem(Action<CancellationToken>);
+HostingEnvironment.QueueBackgroundWorkItem(Func<CancellationToken, Task>);
+
+---
+
+Reference:
+see 'Quartz.NET - Tasks Manager in ASP.NET'
+see 'Hangfire - Tasks Manager in ASP.NET '
+
+---
+
+Sample:
+HostingEnvironment.QueueBackgroundWorkItem(ct => SendMailAsync(user.Email));
+return RedirectToAction("Index", "Home");
+
+
+
+
+--------
+// TODO ????
+try to check IIS termination (cancelToken)
+
+--
+
+HostingEnvironment.QueueBackgroundWorkItem(ct => {
+	System.Threading.Thread.Sleep(3000);	
+	Console.WriteLine("BK Work Item 1");
+});
+
+HostingEnvironment.QueueBackgroundWorkItem(ct => {
+	System.Threading.Thread.Sleep(1500);	
+	Console.WriteLine("BK Work Item 2");
+});

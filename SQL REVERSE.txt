@@ -1,0 +1,4 @@
+SQL REVERSE
+-----------
+reference: 
+'SQL Built-In FUNCTIONS'

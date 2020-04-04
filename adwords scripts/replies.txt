@@ -1,7 +1,7 @@
 implementation process: 
 1. login to your adwords account
-2. click on 'Tools' option at the top-right menu
-3. click on 'Scripts' option
+2. click on 'Tools & Settings' option at the top-right menu (near the account name)
+3. click on 'Scripts' option (under BULK ACTIONS column)
 4. click on '+Script' red button to add a new script
 5. a permission window might pops-up - confirm it and continue
 6. copy-paste the content of the attached file into the created script

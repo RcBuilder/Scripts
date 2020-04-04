@@ -1,0 +1,4 @@
+C# Static Local Functions
+-------------------------
+reference: 
+'C# Features'

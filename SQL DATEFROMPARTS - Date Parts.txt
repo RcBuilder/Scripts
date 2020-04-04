@@ -1,0 +1,4 @@
+SQL DATEFROMPARTS - Date Parts
+------------------------------
+reference: 
+'SQL Built-In FUNCTIONS'

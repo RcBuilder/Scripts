@@ -3,6 +3,10 @@ C# Tasks AggregateException
 use 'AggregateException' exception to get all exceptions occured in other threads as part of the TPL library. 
 this exception type will not be thrown for exceptions in the current thread so we need to add another catch.  
 
+a reminder: 
+An unhandled exception in a background thread will take down the process!
+therefore, its better to use AggregateException in the main thread to collect all exceptions that occur in other threads.
+
 ------
 
 try

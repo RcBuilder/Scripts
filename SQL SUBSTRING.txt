@@ -1,0 +1,4 @@
+SQL SUBSTRING
+-------------
+reference: 
+'SQL Built-In FUNCTIONS'

@@ -1,0 +1,4 @@
+SQL LTRIM RTRIM & TRIM
+----------------------
+reference: 
+'SQL Built-In FUNCTIONS'
