@@ -285,3 +285,19 @@ require('./MyFile.js');
 f_foo(); // exception!! f_foo is not defined
 let f = new MyFClass('fff'); // exception!! MyFClass is not defined
 console.log(f.name);
+
+More Samples
+------------
+
+let MyModule = require('./test1.js');
+var m = new MyModule();
+m.sayHello('Roby');
+
+// test1.js
+module.exports = function MyClass() {    
+    this.sayHello = function(name) {
+        console.log(`hello ${name}`)
+    }
+};
+
+

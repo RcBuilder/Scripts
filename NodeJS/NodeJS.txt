@@ -147,6 +147,9 @@ commands:
 > npm config set prefix=<path> 		// change the path of the global packages folder
 > npm cache clear --force		// clear cache
 > npm cache verify			// verify cache
+> npm publish				// publish a package to npmjs
+> npm login				// login to npmjs 
+> npm adduser				// add user to npmjs
 
 deploy
 ------

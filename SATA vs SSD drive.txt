@@ -1,0 +1,27 @@
+SATA vs SSD drive
+-----------------
+SSD = Solid-State Drive
+SATA = Serial Advanced Technology Attachment (S-ATA)
+HDD refers to the mechanical drives (and not the SSD)
+
+- SSD is not a mechanical drive whereas SATA is (and has some moving parts).
+- SSD actions (read and write) are much faster than the SATA drive.
+- SSD boot-up is faster than SATA.
+- SSD is more expensive than the SATA drive.
+- SSD is more stable and with less malfunctions than the SATA drive.
+- SSD doesn't require defragment (never) whereas SATA does.
+- SSD uses less power than the SATA (which has a niddle to move)
+
+notes
+- the only reason to choose SATA over SSD is the price.
+- use SSD drive for the OS and Programs and use SATA for documents.
+
+common sizes:
+2.5"
+3.5"
+
+how they work?
+SATA has a stack of disks and a niddle
+SSD has memory card and transistors
+
+data store as binary format

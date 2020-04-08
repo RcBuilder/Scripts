@@ -11,6 +11,7 @@ see 'Local-Repo-sample/'
 1. create your repository
    - create a folder
    - use 'npm init' command to initialize a project (a package.json file will be created automatically)
+     in this step, we need to provide details about our package(name, author etc.) 
    - create your module/s (.ts or .js files)   
 
 2. create a new node project 
@@ -54,3 +55,39 @@ root
 
 > tsc index
 > node index
+
+-----
+
+// folder structure for this sample
+[folders]
+root
+- repo
+- node
+
+[repo]
+// repo/module-1.js
+module.exports = function MyClass() {    
+    this.sayHello = function(name) {
+        console.log(`hello ${name}`)
+    }
+};
+
+// repo/package.json
+{
+  "name": "test-package-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "module-1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "RcBuilder",
+  "license": "ISC"
+}
+
+[node]
+// node/index.js
+let MyModule = require('test-package-1/module-1');
+
+var m = new MyModule();
+m.sayHello('Roby');  // hello Roby
