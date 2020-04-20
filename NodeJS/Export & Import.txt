@@ -6,6 +6,7 @@ see 'Require'
 
 --
 
+
 CommonJS vs ES6 module syntax
 -----------------------------
 node uses CommonJS syntax (module.exports) and NOT ES6 syntax (export keyword) 

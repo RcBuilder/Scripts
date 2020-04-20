@@ -799,5 +799,7 @@ console.log(studentTemplate(student2));
 
 Modules
 -------
-// TODO ->> ES6 Module syntax
-// note: NodeJS uses CommonJS Module syntax (module.exports) not ES6 module syntax (export keyword).
+see 'NodeJS/Export & Import'
+
+note: 
+NodeJS uses CommonJS Module syntax (module.exports) not ES6 module syntax (export keyword).

@@ -1,0 +1,523 @@
+**********************************
+********** React Native **********
+**********************************
+
+======================
+- Sources
+- Install
+- Npx Commands
+- New Project
+- Run A Project
+- React Templates
+- File Structure
+- JSX
+- React-Native Modules
+- React-Native Camera
+- Navigation
+- Styles
+- Layouts
+- Flex
+- State
+- Dynamic Content
+- Find Devices
+======================
+
+
+Sources
+-------
+https://reactnative.dev/
+https://reactnative.dev/docs/environment-setup
+https://reactnative.dev/docs/getting-started.html
+https://reactnative.dev/docs/components-and-apis
+
+Install
+-------
+dependencies:
+- Node
+- React Native CLI
+- Python2
+- JDK
+- Android Studio
+
+steps:
+1. open powershell as admiistrator 
+2. install 'choco' package manager
+   > Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+3. install python2 package using 'choco'
+   > choco install -y python2
+4. install jdk8 package using 'choco'
+   > choco install -y jdk8
+5. make sure the Android 9 (Pie) SDK installed (required by native script)   
+   open Android studio > File > Settings > Appearance & Behavior > System Settings > Android SDK
+6. Configure the ANDROID_HOME environment variable
+
+notes:
+- you don't have to use 'choco' to install the packages.
+- note version should be 8.3 or newer. (use node -v to check your version)
+- android studion required options: 
+  1. Android SDK
+  2. Android SDK Platform
+  3. Performance (Intel ® HAXM)
+  4. Android Virtual Device
+
+Npx Commands
+------------
+> npx react-native --help
+
+> npx react-native run-android 
+> npx react-native run-android --help
+> npx react-native run-android --deviceId=<deviceId>
+
+> npx react-native init <projectName>
+> npx react-native init <projectName> --version <version> 
+> npx react-native init <projectName> --template <templateName>
+
+New Project
+-----------
+> cd <projectFolder>
+> npx react-native init <projectName>
+> npx react-native init <projectName> <options> // see 'Npx Commands'
+-
+e.g:
+> cd C:\MyProjects
+> npx react-native init MyProject1
+> code .	// open in VSCode
+
+Run A Project
+-------------
+> cd <projectFolder>
+> npx react-native run-android  
+> npx react-native run-android <options> // see 'Npx Commands'
+-
+run on physical device:
+to run the app on physical USB-connected device, we need to shut down all emulators 
+and only then use the 'run-android' command!
+-
+e.g:
+> cd C:\MyProjects\MyProject1
+> npx react-native run-android
+
+React Templates
+---------------
+- basic
+- react-native-template-typescript
+
+File Structure
+--------------
+- android\
+- ios\
+- node_modules\
+- app
+	- services\
+	- popups\
+	- pages\
+	- components\
+	- images\
+	- fonts\
+	- entities\
+	- app.js			// app root file
+	- app.json			// application config
+- index.js				// starting file
+- package.json			// packages file
+
+JSX
+---
+// TODO
+
+React-Native Modules
+--------------------
+import { <module-1>, <module-2> .... <module-3> } from 'react-native';
+
+// TODO
+
+[Text]
+
+[Button]
+also see 'TouchableOpacity'
+
+events:
+- onPress
+
+properties:
+
+---
+
+[TextInput]
+
+events:
+- onChangeText
+
+properties:
+
+e.g:
+<TextInput
+    onChangeText={this.textChanged}
+    placeholder="write something..."
+    defaultValue={this.state.value1}
+    style={styles.textInput}
+/>
+
+textChanged(text) {	
+	this.setState({value1: text});
+}
+
+note!
+// inline
+onChangeText={text => this.setState({value1: text})}
+
+
+---
+
+[Image]
+
+source:
+https://reactnative.dev/docs/images
+
+events:
+- 
+
+properties:
+- source	// see 'sources'
+
+sources:
+- using uri image
+  { uri: '<imagePath>' }
+- using local image
+  require('<imagePath>')
+
+e.g:
+<Image style={styles.image200} source={{uri: 'https://picsum.photos/id/237/200/200'}} />
+<Image style={styles.image200} source={require('./images/237-200x200.jpg')} />
+
+// style
+image200: {
+	marginBottom: 4,
+	width: 200,
+	height: 200,
+},
+
+[ScrollView]
+
+ // TODO 
+
+ [TouchableOpacity]
+ similar to a button but with the ability of custom style and content.
+ supports any of the CSS rules available. all content within this module will be clickable! 
+
+ e.g:
+ <TouchableOpacity style={styles.customButton}>
+    <Text>ClickMe</Text>
+</TouchableOpacity>
+
+// style
+customButton: {
+    flex: 1,
+    borderRadius: 8,
+    backgroundColor: 'aqua',
+    margin: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+},
+
+React-Native Camera
+-------------------
+
+sources:
+https://github.com/react-native-community/react-native-camera
+https://github.com/react-native-community/react-native-camera/blob/master/docs/RNCamera.md
+
+install:
+> npm install --save react-native-camera
+
+permissions:
+- android
+  1. file 'android/app/src/main/AndroidManifest.xml'   
+
+     // required
+	 <uses-permission android:name="android.permission.CAMERA" />
+
+	 // include this for video recording
+	 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+	 // include this for microphone (on video recording)
+	 <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+  2. file 'android/app/build.gradle'
+     android {
+		defaultConfig {
+			missingDimensionStrategy 'react-native-camera', 'general'
+		}
+	 }
+
+- ios
+  1. file 'ios/<project>/Info.plis'
+
+	 // required
+     <key>NSCameraUsageDescription</key>
+	 <string>a message to user when the camera is accessed for the first time</string>
+
+	 // include this for video recording
+	 <key>NSPhotoLibraryAddUsageDescription</key>
+	 <string>a message to user when the photo library is accessed for the first time</string>
+
+	// include this for video recording
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>a message to user when the photo library is accessed for the first time</string>
+
+	// include this for microphone (on video recording)
+	<key>NSMicrophoneUsageDescription</key>
+	<string>a message to user when the microphone is accessed for the first time</string>
+
+e.g:
+import { RNCamera } from 'react-native-camera';
+// TODO
+
+Navigation
+----------
+
+sources:
+https://reactnavigation.org/
+https://reactnavigation.org/docs/getting-started
+
+install:
+// core
+> npm install --save @react-navigation/native
+
+// dependencies
+> npm install --save react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view
+
+// stack navigator
+> npm install --save @react-navigation/stack
+
+base import:
+import 'react-native-gesture-handler';  // must be added at the top!
+import {NavigationContainer} from '@react-navigation/native';
+...
+...
+
+stack navigation:
+<base import>  // see 'base import'
+import {createStackNavigator} from '@react-navigation/stack';
+const Stack = createStackNavigator();
+
+// TODO
+
+Styles
+------
+
+sources:
+https://reactnative.dev/docs/style
+https://github.com/vhpoet/react-native-styling-cheat-sheet/blob/master/README.md
+
+syntax:
+const styles = StyleSheet.create({  
+	<className-1>: { <rules> }, 
+	<className-2>: { <rules> }, 
+	...
+	...
+	<className-N>: { <rules> }, 
+});
+
+using:
+style={styles.<className>}    // single class
+style={[styles.<className-1>, styles.<className-2>... styles.<className-N>]}  // multiple classes
+
+flex properties:
+use these properties to define the page layout (see 'Flex')
+
+- 
+
+e.g:
+<View style={styles.container}>
+	<Text style={styles.text}>Hello World</Text>
+</View>
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  text: {
+    fontSize: 18,
+  },
+});
+
+Layouts
+-------
+layouts are defined using the flex properties (see 'Flex')
+
+// TODO ->> samples
+
+
+Flex
+----
+
+properties:
+- flex
+- flexDirection
+- direction 
+- justifyContent 
+- alignItems
+- alignSelf
+- alignContent
+- flexWrap
+- flexGrow
+- flexShrink 
+- flexBasis
+
+flex property:
+<number>
+same as in CSS, the 'flex' property defines how to devide the available space.
+it works in both vertical and horizontal alike. 
+
+flexDirection property:
+<row, column, row-reverse, column-reverse>
+children-nodes direction
+see 'flex_flexDirection.png'
+
+direction property:
+<LTR, RTL>
+layout direction (right-to-left or left-to-right)
+
+justifyContent property:
+<flex-start, flex-end, center, space-between, space-around, space-evenly>
+children-nodes alignment within the main axis
+see 'flex_justifyContent.png'
+
+alignItems property:
+<stretch, flex-start, flex-end, center, baseline>
+children-nodes alignment within the cross-axis
+see 'flex_alignItems.png'
+
+alignSelf property:
+<stretch, flex-start, flex-end, center, baseline>
+specific-node alignment within the cross-axis (same as alignItems but for a single child element)
+see 'flex_alignSelf.png'
+
+
+alignContent property:
+<flex-start, flex-end, stretch, center, space-between, space-around>
+only available when using with flexWrap property.
+defines the distribution of lines along the cross-axis.
+see 'flex_alignContent.png'
+
+flexWrap property:
+<nowrap, wrap>
+handles items-overflow within the container.
+see 'flex_flexWrap.png'
+
+
+State
+-----
+[inheritance]
+when using inheritance, by extending the 'Component' class, we have access to the base class 'State' object. 
+use 'this.state' to get the current state. 
+use 'this.setState' method to update the current state.
+
+the state object can be of any type.
+note that we don't have to provide the 'state' object structure beforehand. we can define it as an empty object and add properties to it on the fly.
+ANY change to the 'state' - re-renders the view!
+
+in some cases, we lose the context of 'this' keyword so it refers to a different object than our class.
+a common case is event callback (onPress, onChange etc.). to solve this issue, we need to bind 'this' to those callbacks.
+the bind process is usually performed within the class constructor. 
+tip: as a rule, it's better to bind ALL defined functions.
+
+sample:
+constructor() {
+	super();
+	this.state = {
+		counter: 0,
+	};
+	this.btnClicked = this.btnClicked.bind(this); // binding process in order to use 'this'
+}
+btnClicked() {
+	this.state.counter++;
+	this.setState(this.state);
+}
+<Button onPress={this.btnClicked} title="ClickMe" />
+<Text style={styles.text}>{this.state.counter}</Text>
+
+[useState model]
+// TODO
+
+
+Dynamic Content
+---------------
+we can embed content within the js code to generate a dynamic content.
+we can use any of the available modules as part of our js code. (see 'JSX')
+we have 2 options to do so: 
+1. using code within the 'render' function.
+2. using a function as a class member. 
+
+e.g: 
+// option 2
+renderContent(){
+    return <Text>dynamic 4</Text>;
+}
+
+render() {
+	// option 1
+    let dynamicContent = [];
+    dynamicContent.push(<Text>dynamic 1</Text>);
+    dynamicContent.push(<Text>dynamic 2</Text>);
+    dynamicContent.push(<Text>dynamic 3</Text>);
+
+	return (
+		<View>
+			{dynamicContent}
+			{this.renderContent()}
+		</View>
+	);
+}
+
+
+Find Devices
+------------
+use the adb tool to find all connected android devices (physical & emulators) 
+> adb devices
+see 'Android Studio - Android Debug Bridge (ADB)'
+
+-------------------------------------------------------------
+// TODO
+
+android > local.properties
+
+StatusBar
+
+Platform (react-native)
+const device = Platform.select({
+  ios: 'IOS',
+  android: 'ANDROID',
+});
+
+JSX explanation
+Component explanation
+
+fonts
+
+
+Layouts:
+page layouts using flex! 
+(colored-cubes example)
+flex, flexDirection...
+
+styles:
+alignItems
+justifyContent
+
+
+debbug ??
+
+module ref: ??? to-check
+ref={input => this._inputA = input}  // reference to the current input
+
+javascript.json ??? // shortcut for a template? RNC+TAB
+
+
+

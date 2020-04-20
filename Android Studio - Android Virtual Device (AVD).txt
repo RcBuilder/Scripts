@@ -1,0 +1,75 @@
+Android Virtual Device (AVD)
+----------------------------
+in order to debug an app on android, we have to configure a AVD on our machine 
+
+Physical Devices:
+see 'Android Device'
+
+AVD Manager using Android Studio:
+- open Android Studio
+- (menu) Tools > AVD Manager
+
+- actions:
+  run - use the green 'play' button to run the emulator.
+  stop - use the arrow button > stop
+  clear - use the arrow button > Wipe Data
+  duplicate - use the arrow button > duplicate
+
+- note!
+  behind the scene, the android studio interface runs the avd manager tool (see 'AVD Manager Tool')
+
+- default location:
+  C:\Users\[User]\.android\avd
+
+AVD Manager Tool:
+file avdmanager.bat.
+use the avdmanager tool to create and manage android virtual devices (AVDs) from the command line.
+this tool is provided in the android SDK. 
+located within the %ANDROID_HOME%\tools\bin folder in the SDK.
+
+Create an AVD using Android Studio:
+- open Android Studio
+- (menu) Tools > AVD Manager
+- click on 'Create Virtual Device' button (bottom-left corner)
+- choose 'Category' (TV, Phone, Tablet etc.) from the left pane
+- choose pre-defined device from the list presented in the right pane > next
+- select the system image
+- set AVD name and some more settings (if needed) > finish
+
+- tip: custom hardware profiles
+  we can generate an AVD based on a custom hardware (instead of using the built-in suggested hardwares) by using 
+  the 'New Hardware Profile' button underneath the Category section! 
+
+Create an AVD using the CLI:
+- syntax
+  // using the avdmanager tool
+  > avdmanager create avd -n [AVD Name] -k [options] -p [path]
+
+- sample  
+  > avdmanager create avd -n testAVD -k "system-images;android-25;google_apis;x86" -p "D:\\"
+
+Options:
+- Hardware Profile  // Profile - Nexus 5, Pixel 2 etc.
+- System Image  // OS - Oreo, Lollipop, Marshmallow etc.
+- Startup Orientation  // Portrait or Landscape
+- Camera  // enable camera - Back-Facing/ Front-Facing Camera 
+- Network: Speed  // network protocol to determine the speed of data transfer - GSM, LTE etc. 
+- Network: Latency  // network Latency
+- Memory and Storage: RAM  // amount of RAM on the device 
+- Memory and Storage: VM Heap  // VM heap size
+- Memory and Storage: Internal Storage  // amount of nonremovable memory space available on the device
+- Memory and Storage: SD Card  // amount of removable memory space available to store data on the device
+- Device Frame: Enable Device Frame  // enable a frame around the emulator window
+- Custom Skin Definition  // the emulator's skin
+- Keyboard: Enable Keyboard Input  // to use your hardware keyboard to interact with the emulator
+
+
+----------------
+
+issue:
+can't find the AVD Manager menu in Android Studio after update 
+
+solution:
+open android studio > (tab) messages/ event log (located in the bottom)
+click "Install missing platforms(s)..."
+then after the download/install, click "Intall Build Tools..."

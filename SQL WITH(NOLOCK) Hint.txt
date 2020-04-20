@@ -1,0 +1,59 @@
+SQL WITH(NOLOCK) Hint
+---------------------
+use this hint to allow getting uncommited data (aka dirty data). 
+if there's a transaction in process which updates the data - the updated data will be return (even though it wasn't commited yet)
+if no such hint provided - the thread will be waiting till the transaction is completed and only then returns the commited value.
+
+-
+
+the default isolation level is READ COMMITTED which means the data will be blocked until the changes are committed.
+the WITH(NOLOCK) hint overrides the default isolation level. using this hint prevents deadlock and wait time in other transaction updates the requested data.
+the WITH(NOLOCK) hint is similar to the READ UNCOMMITTED isolation level.
+
+-
+
+we can also use the WITH(READUNCOMMITTED) hint instead.
+
+-
+
+there are also other isolation levels that allow us to dictate the way the data returns.
+reference: 
+'SQL TRANSACTION ISOLATION LEVEL'
+
+-
+
+tip: 
+use 'sp_who2' to find out blocking sessions
+
+
+------------------------
+
+
+given:
+CREATE TABLE ##t(id int identity(1,1), val VARCHAR(30))
+
+case 1
+------
+BEGIN TRANSACTION
+INSERT INTO ##t VALUES('A')
+-- COMMIT/ROLLBACK
+-
+SELECT * FROM ##t -- wait to commit
+
+case 2
+------
+BEGIN TRANSACTION
+INSERT INTO ##t VALUES('A')
+-- COMMIT/ROLLBACK
+-
+SELECT * FROM ##t WITH(NOLOCK) -- get uncommited values (dirty), no wait!
+
+case 3
+------
+INSERT INTO ##t VALUES('A'), ('B')
+
+BEGIN TRANSACTION
+UPDATE ##t SET val = 'A1' WHERE Id = 1
+-- COMMIT/ROLLBACK
+-
+SELECT * FROM ##t WITH(NOLOCK) WHERE Id = 1 -- return A1 (uncommited dirty value), no wait!
