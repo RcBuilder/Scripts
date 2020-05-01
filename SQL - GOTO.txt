@@ -1,0 +1,138 @@
+SQL - GOTO  
+----------
+syntax:
+<label>:
+	<code...>
+<label>:
+	<code...>
+..
+..
+GOTO <label>
+
+---
+
+note:
+when using labels, all code below will continue to be executed and code after the GOTO clause not! 
+tip: use return to exit the procedure and not contuinue to the following defined labels. 
+
+---
+
+step by step:
+DECLARE @N INT = 1;
+FUN_1:
+  PRINT('FUN_1');
+  SET @N += 1;
+IF (@N <= 2) GOTO FUN_1;
+PRINT('END');
+
+flow:
+SET @N = 1 
+IF IS TRUE > GO TO FUN_1
+SET @N = 2
+IF IS TRUE > GO TO FUN_1
+SET @N = 3
+IF IS FALSE 
+PRINT END
+
+output:
+FUN_1
+FUN_1
+END
+
+
+-
+
+step by step:
+DECLARE @N INT = 1;
+IF (@N <= 2) GOTO FUN_1;
+PRINT('END');
+FUN_1:
+  PRINT('FUN_1');
+  SET @N += 1;
+
+flow:
+SET @N = 1 
+IF IS TRUE > GO TO FUN_1
+
+output:
+FUN_1
+
+---
+
+[while loop]
+DECLARE @N INT=1;
+ADD_ONE:
+  PRINT(@N);
+  SET @N += 1;
+IF (@N <= 5) GOTO ADD_ONE;
+
+output:
+1
+2
+3
+4
+5
+
+---
+
+[condition]
+DECLARE @Id INT = 20;
+IF(@Id < 10) GOTO FUN_1
+ELSE GOTO FUN_2
+
+// must be at the bottom after all coding
+FUN_1:
+	PRINT 'FUN_1';
+	RETURN
+FUN_2:
+	PRINT 'FUN_2';
+	RETURN
+
+output:
+FUN_2
+
+---
+
+[no break]
+PRINT '0';
+GOTO Label_2
+
+Label_1:
+	PRINT '1';
+Label_2:
+	PRINT '2';
+Label_3:
+	PRINT '3';
+
+output:
+0
+2
+3
+
+note:
+value 3 has been printed due to there's no return clause in Label_2
+
+---
+
+[code after GOTO]
+PRINT '0';
+GOTO Label_2
+PRINT '4';
+
+Label_1:
+	PRINT '1';
+	RETURN
+Label_2:
+	PRINT '2';
+	RETURN
+Label_3:
+	PRINT '3';
+	RETURN
+
+output:
+0
+2
+3
+
+note:
+value 4 has NOT been printed

@@ -1,0 +1,28 @@
+SQL Extended Events
+-------------------
+1. Managment > Extended Events > Sessions
+2. Right Click > New Session Wizard > Set Name 
+   - choose 'do not use a template' 
+   - select events to capture
+   - select global fields to add to the response (optional)
+   - add filters (optional)
+   - choose data storage (optional)
+   - finish 
+
+note: 
+choose 'watch live data onscreen' to see a live trail of the captured events
+
+storage: 
+if buffer-storage was using - we'll find the latest stored data under the created session (in the 'Extended Events' section)
+
+live-data:
+on the live-data window, we can add columns to the presented table by right clicking the details column to add > 'show column in table'.
+
+----
+	
+[sample]
+events: 
+wait_info
+
+global fields: 
+session_id, sql_text

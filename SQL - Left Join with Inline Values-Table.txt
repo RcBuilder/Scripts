@@ -1,0 +1,12 @@
+SQL - Left Join with Inline Values-Table
+----------------------------------------
+SELECT	Id, Joined, UserName, ISNULL(T.Domain, '')
+FROM	[dbo].[AspNetUsers] U
+	LEFT JOIN (
+		VALUES 
+			('adc9d644-3645-4fde-8f6f-1ba3be682c87', 'postfunnel.com'), 
+			('adc9d644-3645-4fde-8f6f-1ba3be682c87', 'optimove.com'),
+			('6b7f2b40-6960-4e49-9b93-88aefd0e0872', 'sysaid.com'), 
+			('6b7f2b40-6960-4e49-9b93-88aefd0e0872', 'joetheitguy.com')
+		) AS T(UserId, Domain)
+		ON(U.Id = T.UserId)

@@ -1,0 +1,113 @@
+SQL - XML Type
+--------------
+
+cast: 
+cast as xs:<type> 
+cast as xs:<type>? // nullable 
+
+note! 
+must be written in lower case 	
+
+e.g:
+xTbl.xRows.query('GroupId').value('. cast as xs:int?', 'INT') AS 'GroupId'
+
+-----------------------------
+
+basic example:
+
+DECLARE @META_DATA XML = 
+	'<Root>
+		<Books>
+			<Book>
+				<Id>100</Id>
+				<Name>Some Book</Name>				
+			</Book>
+			<Book>
+				<Id>131</Id>
+				<Name>Other Book</Name>			
+			</Book>
+		</Books>
+	</Root>';
+	
+	
+// OPTION-1 
+// use data-query
+;WITH CTE(Id, Name) AS(
+	SELECT	CONVERT(VARCHAR, xTbl.xRows.query('data(Id/.)')), 
+			CONVERT(VARCHAR, xTbl.xRows.query('data(Name/.)'))
+	FROM	@META_DATA.nodes('/Root/Books/Book') as xTbl(xRows)	
+)
+SELECT * FROM CTE
+
+--	
+
+// OPTION-2 (recommended) 
+// use query and value 
+;WITH CTE(Id, Name) AS(
+	SELECT	xTbl.xRows.query('Name').value('.', 'VARCHAR(MAX)'), 
+			xTbl.xRows.query('MetaData').value('.', 'VARCHAR(MAX)')
+	FROM	@META_DATA.nodes('/Root/Books/Book') as xTbl(xRows)	
+)
+SELECT * FROM CTE
+
+-----------------------------
+
+advanced example:
+
+DECLARE @META_DATA XML = 
+		'<Settings>
+			<Groups>
+				<Group>
+					<Name>Contact Us | {{BrandName}}</Name>
+					<Type>1</Type>					
+				</Group>				
+			</Groups>
+			<Tags>
+				<Tag>
+					<Name>General</Name>
+					<Type>1</Type>					
+				</Tag>
+			</Tags>
+			<Posts>
+				<Post>
+					<OriginalUrl>https://www.cliclap.com/page1</OriginalUrl>					
+					<Host>cliclap.com</Host>																				
+				</Post>				
+			</Posts>
+			<Widgets>
+				<Widget>				
+					<Name>Blank Widget</Name>
+					<TypeId>1</TypeId>
+					<MetaData><![CDATA[{ title: ""... }]]></MetaData>					
+					<IsDraft>0</IsDraft>				
+				</Widget>			
+			</Widgets>			
+		</Settings>';
+
+--
+
+SELECT	REPLACE(xGroups.xRows.query('Name').value('.', 'NVARCHAR(256)'), '{{BrandName}}', @BrandName) AS 'Name', 		
+		xGroups.xRows.query('Type').value('.', 'INT') AS 'Type'
+FROM	@META_DATA.nodes('/Settings/Groups/Group') as xGroups(xRows)
+
+SELECT	xTags.xRows.query('Name').value('.', 'NVARCHAR(64)') AS 'Name', 			
+		xTags.xRows.query('Type').value('.', 'INT') AS 'Type'
+FROM	@META_DATA.nodes('/Settings/Tags/Tag') as xTags(xRows)
+
+SELECT	ROW_NUMBER() OVER (ORDER BY NEWID()),
+		xPosts.xRows.query('OriginalUrl').value('.', 'NVARCHAR(2048)') AS 'OriginalUrl', 					
+		xPosts.xRows.query('Host').value('.', 'NVARCHAR(128)') AS 'Host'		
+FROM	@META_DATA.nodes('/Settings/Posts/Post') as xPosts(xRows)
+
+SELECT	xWidgets.xRows.query('Name').value('.', 'NVARCHAR(256)') AS 'Name', 
+		xWidgets.xRows.query('TypeId').value('.', 'INT') AS 'TypeId',
+		xWidgets.xRows.query('MetaData').value('.', 'NVARCHAR(MAX)') AS 'MetaData',		
+		xWidgets.xRows.query('IsDraft').value('.', 'BIT') AS 'IsDraft'		
+FROM	@META_DATA.nodes('/Settings/Widgets/Widget') as xWidgets(xRows)
+
+-----------------------------
+
+full example:
+see 'SP/sp_BrandSettings_Defaults_Set.sql'
+
+-----------------------------

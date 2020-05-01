@@ -1,6 +1,9 @@
 javascript xpath usign evaluate
 -------------------------------
 
+note: 
+to generate a document object from xml, we can use DOMParser (see 'javascript DOMParser')
+
 syntax:
 document.evaluate(<path>, <document>, null, <resultType>, null);
 
@@ -24,3 +27,12 @@ divs.snapshotItem(0);
 divs.snapshotItem(1);
 divs.snapshotItem(2);
 ...
+-
+let iter = document.evaluate('//h1', document, null, XPathResult.ANY_TYPE, null);
+let nodes = [];
+let current = {};
+while((current = iter.iterateNext()) != null) 
+    nodes.push({
+	tag: current.tagName, 
+	text: current.textContent
+    });
