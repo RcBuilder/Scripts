@@ -1,0 +1,46 @@
+SQL UPDATE Using CTE 
+--------------------
+CTE holds REFERENCES to the actual rows! (as opposed to Table-Variable)
+
+-----
+
+[POC]
+ 
+SELECT * FROM Products
+
+output:
+Id	Name		UnitPrice	Stock		IsActive
+1	Product-A	30.00		3		1
+2	Product-B	21.00		0		1
+3	Product-C	87.00		0		1
+4	Product-D	109.00		30		1
+5	Product-E	9.00		51		1
+6	Product-F	62.00		8		1
+7	Product-G	90.00		17		1
+
+-
+
+// CTE_NoStock now has pointers to products 2 and 3
+// an update on the CTE changes the actual rows in the 'Products' table!
+;WITH CTE_NoStock(Name, IsActive) AS(
+	SELECT Name, IsActive FROM Products WHERE Stock = 0
+)
+UPDATE CTE_NoStock SET IsActive = 0
+
+-
+
+SELECT * FROM Products
+
+output:
+// note that both products 2 and 3 has changed to IsActive 0
+Id	Name		UnitPrice	Stock		IsActive
+1	Product-A	30.00		3		1
+2	Product-B	21.00		0		0
+3	Product-C	87.00		0		0
+4	Product-D	109.00		30		1
+5	Product-E	9.00		51		1
+6	Product-F	62.00		8		1
+7	Product-G	90.00		17		1
+
+
+

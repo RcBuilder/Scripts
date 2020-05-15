@@ -1,0 +1,21 @@
+javascript Delay using async sleep
+----------------------------------
+
+<script>
+        (async function () {
+            var sleep = async function (seconds) {
+                return new Promise((resolve, reject) => {
+                    console.log('waiting...');
+                    setTimeout(() => {
+                        console.log('done waiting');
+                        resolve();
+                    }, seconds * 1000);
+                });
+            }
+
+            await sleep(2);
+
+            // code here ...
+
+        }());
+    </script>

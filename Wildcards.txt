@@ -1,0 +1,55 @@
+Wildcards
+---------
+aka wildcard-character. 
+wildcard is a text patterns.
+wildcard uses special characters to extend the ability to find content based on template.  
+as opposed to regex patterns, wildcards only have a bunch of characters allowed. 
+we can think of them as lite-weight text-patterns. 
+
+---
+
+characters:
+* 	// represents any number of characters
+%	// same as '*'
+? 	// represents a single alphabet in the specified position
+_	// same as '?'
+#	// represents a single numeric in the specified position 
+-	// represents a range of characters
+[] 	// represents a group of characters allowed
+!	// represents a group of characters NOT allowed
+
+---
+
+samples:
+pattern 'ab*' matches 'abc', 'abd', 'abcd' etc.
+pattern 'a?z' matches 'aaz', 'abz', 'acz', 'azz' etc. 
+pattern '9#9' matches '909', '919', '929' etc.
+pattern 'a[a-c]z' matches ONLY 'aaz', 'abz' and 'acz'
+pattern 'a[xy]z' matches ONLY 'axz' and 'ayz' 
+pattern 'a[!xy]z' matches 'aaz', 'abz', 'azz' etc. (but NOT 'axz' and 'ayz') 
+
+more samples:
+pattern 'ab*1' matches 'abcde1', 'abab1' etc.
+pattern 'a??z' matches 'aaaz', 'abcz', 'asgz' etc.
+pattern '1##0' matches '1000', '1110', '1480' etc.
+
+common samples: 
+'[a-zA-Z0-9]' represents any alphanumeric character
+'[A-Z]' represents any english uppercase letter
+'[0-9]' represents any numeric character
+'[abcd]' represents any character within the list (a, b, c or d)
+'[!abcd]' represents any character NOT within the list (all but a, b, c and d)
+
+note! 
+we can combine characters to assemble more complicated patterns
+pattern 'ab##c[x-z]d[!abc]*z?' matches 'ab22cxdsgghhzm' etc.
+
+---
+
+wildcard vs regex:
+wildcard patterns and regex patterns are NOT alike and have a different meaning! 
+in wildcard a special character represents both the type and quantity whereas, in regex it usually referred to as a quantifier. 
+
+lets take the following pattern as an example -> 'Rx?100' 
+in wildcard it means 'R' + 'x' + any alphabet character + '100' hense, it matches 'RxA100', 'RxB100' etc. 
+in regex it means 'R' + 'x'(optinal) + '100' hense, it matches 'Rx100' or 'R100'!

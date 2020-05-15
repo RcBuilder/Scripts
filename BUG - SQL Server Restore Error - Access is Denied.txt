@@ -1,0 +1,15 @@
+Bug:
+SQL Server Restore Error - Access is Denied
+
+Error:
+Restore of database 'xxxx' failed. (Microsoft.SqlServer.Management.RelationalEngineTasks)
+System.Data.SqlClient.SqlError: The operating system returned the error '5(Access is denied.)' while attempting 'RestoreContainer::ValidateTargetForCreation' on 'xxxx.mdf'. (Microsoft.SqlServer.SmoExtended)
+
+Cause:
+file permissions issue 
+
+Solution:
+SQL Restore window > 'Files' section > check 'Relocate all files to folder'
+
+
+

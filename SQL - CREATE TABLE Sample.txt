@@ -1,0 +1,21 @@
+SQL - CREATE TABLE Sample
+-------------------------
+
+CREATE TABLE Products (
+	Id INT IDENTITY(1,1) PRIMARY KEY,
+	Name NVARCHAR(200) NOT NULL,
+	UnitPrice MONEY NOT NULL DEFAULT 0,
+	Stock FLOAT NOT NULL DEFAULT 0	
+) 
+
+CREATE NONCLUSTERED INDEX IX_Stock ON Products(Stock) INCLUDE(Id)
+
+INSERT INTO Products 
+VALUES
+('Product-A', 30, 3),
+('Product-B', 21, 0),
+('Product-C', 87, 1),
+('Product-D', 109, 30),
+('Product-E', 9, 51),
+('Product-F', 62, 8),
+('Product-G', 90, 17)

@@ -1,5 +1,5 @@
-WebApi Authorization Filter
----------------------------
+REST Authorization Filter - Basic
+---------------------------------
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class AuthorizeRequestAttribute : AuthorizationFilterAttribute {

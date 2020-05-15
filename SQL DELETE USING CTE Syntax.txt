@@ -1,0 +1,25 @@
+SQL DELETE USING CTE
+--------------------
+syntax:
+;WITH CTE(<columns>) as(<select>) DELETE FROM CTE
+
+references:
+see 'SQL delete duplicate rows using ROW_NUMBER'
+
+----------------------
+
+samples:
+// delete duplicate rows
+;with cte(rowNumber, id) as(
+	select ROW_NUMBER() OVER (partition by value order by id), id
+	from t3		
+)
+delete from cte where rowNumber > 1
+-
+// delete rows 2, 4 and 5
+;with cte(id) as(
+	select id
+	from t3
+	where id in(2,4,5)		
+)
+delete from cte

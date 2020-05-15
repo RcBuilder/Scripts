@@ -1,25 +1,44 @@
-SQL DELETE USING CTE
+SQL DELETE Using CTE 
 --------------------
-syntax:
-;WITH CTE(<columns>) as(<select>) DELETE FROM CTE
+CTE holds REFERENCES to the actual rows! (as opposed to Table-Variable)
 
-references:
-see 'SQL delete duplicate rows using ROW_NUMBER'
+-----
 
-----------------------
+[POC]
+ 
+SELECT * FROM Products
 
-samples:
-// delete duplicate rows
-;with cte(rowNumber, id) as(
-	select ROW_NUMBER() OVER (partition by value order by id), id
-	from t3		
-)
-delete from cte where rowNumber > 1
+output:
+Id	Name		UnitPrice	Stock
+1	Product-A	30.00		3
+2	Product-B	21.00		0
+3	Product-C	87.00		0
+4	Product-D	109.00		30
+5	Product-E	9.00		51
+6	Product-F	62.00		8
+7	Product-G	90.00		17
+
 -
-// delete rows 2, 4 and 5
-;with cte(id) as(
-	select id
-	from t3
-	where id in(2,4,5)		
+
+// CTE_NoStock now has pointers to products 2 and 3
+// using deletion on the CTE removes the actual rows in the 'Products' table!
+;WITH CTE_NoStock(Id) AS(
+	SELECT Id FROM Products WHERE Stock = 0
 )
-delete from cte
+DELETE FROM CTE_NoStock
+
+-
+
+SELECT * FROM Products
+
+output:
+// note that both products 2 and 3 has removed!
+Id	Name		UnitPrice	Stock
+1	Product-A	30.00		3
+4	Product-D	109.00		30
+5	Product-E	9.00		51
+6	Product-F	62.00		8
+7	Product-G	90.00		17
+
+
+

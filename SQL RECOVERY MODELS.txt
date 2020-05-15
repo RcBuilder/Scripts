@@ -11,6 +11,10 @@ ALTER DATABASE SomeDatabase SET RECOVERY SIMPLE
 
 ---
 
+SELECT recovery_model_desc FROM sys.databases where name = '<dbName>'
+
+---
+
 managment studio:
 1. right click on the db > properties
 2. (tab) Options > Recovery model 

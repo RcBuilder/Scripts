@@ -1,0 +1,3 @@
+SQL DELETE BY BULK Using ROWCOUNT
+---------------------------------
+see 'SQL DELETE BY CHUNKS Using ROWCOUNT'

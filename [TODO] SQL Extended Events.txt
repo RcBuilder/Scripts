@@ -9,6 +9,7 @@ SQL Extended Events
    - choose data storage (optional)
    - finish 
 
+
 note: 
 choose 'watch live data onscreen' to see a live trail of the captured events
 

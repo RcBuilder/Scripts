@@ -14,6 +14,67 @@ notes:
 use this technique to generate a short-URL for web references. 
 best practice is to use high base (62 is recommended)
 
+base-array values:
+the array which serves as our source-map should have the specified order
+0-9
+A-Z
+a-z
+
+[0, 1, 2 ... 9, A, B ... y, z]
+
+---
+
+(built-in) ToString:
+use <number>.ToString(<format>) to convert to HEX value.
+the format should be "x" and the number of digits (e.g: "x2")
+14.ToString("x")  // E
+14.ToString("x2") // 0E
+14.ToString("x4") // 000E
+
+(built-in) Convert.ToString:
+use Convert.ToString(<number>, <base>) to convert to one of the following bases: 2, 8, 10, 16
+Convert.ToString(14, 2)  // 1110
+Convert.ToString(14, 8)  // E
+Convert.ToString(14, 10) // 16
+Convert.ToString(14, 16) // 14
+
+---
+
+logic-process:
+from base 10 to ANY base (2, 16, 32, 62, 64 etc.)!
+1. define an array to serve as our source-map, the size is based on the target-base. 
+   a reminder - based on the sort convention (see 'base-array values')
+
+   e.g:
+   if the target base is 8, we'll have an array of 8 characters. 
+   source-map = [0,1,2,3,4,5,6,7]
+
+2. use MOD (%) arithmetic action on the provided dec in-value and the target-base.
+3. use DIV (/) arithmetic action on the provided dec in-value and the target-base, override the in-value. 
+4. return steps 2 and 3 till the in-value is 0. 
+5. take all results of the MOD actions (from last to first)
+6. use them as indexes to the source-map (array) to extract each character correspondingly.
+
+// process example
+given 
+in-value = 14 
+target-base = 8
+-
+source-map = [0,1,2,3,4,5,6,7]
+-
+14 % 8 = 6     
+in-value = (14 / 8) = 1
+1 % 8 = 1
+in-value = (1 / 8) = 0
+-
+mod1 result = 6
+mod2 result = 1
+-
+index 6 in source-map = 6
+index 1 in source-map = 1
+-
+result = 16  // 14 in base 8 equals to 16
+
 ---
 
 source-code:
@@ -45,11 +106,11 @@ string ConvertToBaseX(int value, int baseToUse){
 	
 	while (value != 0)
 	{
-	    mod = (int)(value % baseNum); //should be safe
+	    mod = (int)(value % baseNum); 
 	    current = baseDigits.Substring(mod, 1);
-		result = current + result;
+	    result = current + result;
 	    value = value / baseNum;	
-		Console.WriteLine($"mod: {mod} ({value} % {baseNum}), current: {current} (array[{mod}]), value: {value}");
+	    Console.WriteLine($"mod: {mod} ({value} % {baseNum}), current: {current} (array[{mod}]), value: {value}");
 	}
 
 	return result;

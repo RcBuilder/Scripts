@@ -14,7 +14,9 @@
 - React-Native Modules
 - React-Native Camera
 - React-Native Image-Picker
+- React-Native Picker
 - Navigation
+- StyleSheet
 - Styles
 - Layouts
 - Flex
@@ -137,12 +139,14 @@ list:
 - View
 - Text
 - Button
+- Picker
 - Switch
 - TextInput
 - Image 
 - FlatList
 - SectionList
 - TouchableOpacity
+- TouchableHighlight
 - ScrollView
 - ActivityIndicator 
 - Alert
@@ -151,36 +155,101 @@ list:
 - Dimensions
 - StatusBar
 - PixelRatio
-
-// TODO
+- RefreshControl
 
 ---
+[View]
+used as a container.
+
+e.g:
+<View style={[styles.container]}>
+	<Text>Hello World</Text>	
+    <View style={styles.row}>
+		...
+	</View>
+</View>
+
+// styles
+container: {
+    flex: 1,
+    backgroundColor: '#F5FCFF',
+},
+row: {
+    flex: 1,
+    flexDirection: 'row',
+},
 
 [Text]
 
 nested:
 can nest text within text. commonly used for styling. 
+note that a container-text serves as an inline-container (like a SPAN tag)
 <Text>
 	Hi <Text>There</Text>
 </Text>
 
+properties:
+- disabled: <bool>
+- dataDetectorType: <dataDetectorType>  // known-types to auro-convert as clickable (see 'data-detector types')
+- ellipsizeMode: <bool>		// truncate long text, add '...' as head (e.g: ...wxyz), middle (e.g: ab...yz) or tail (abcd...)
+- numberOfLines: <int>		// used with ellipsizeMode, how many lines allowed before truncating the content  
+- selectable: <bool>		// allow text-selection (for copy-paste functionality)
+- selectionColor: <string>	// text-selection color
+
+events:
+- onLongPress
+- onPress
+
+data-detector types:
+- phoneNumber
+- link
+- email
+- none (default)
+- all
+
 using:
 <Text style={styles.text}>Hello World</Text>
 
+// styles
+text: {
+    fontSize: 18,
+},
+
 [Button]
-also see 'TouchableOpacity'
+
+note: 
+a button has a style-limitation and it only supports a few style-rules 
+therefore, its better to use 'TouchableOpacity' module instead 
+(see 'TouchableOpacity')
+
+properties:
+- title: <string>
+- color: <string>
+- disabled: <bool>
+- touchSoundDisabled: <bool> // enable or disable the system sound on touch
+- nextFocusDown: <int>		 // set a number to define the next-focused element when when the user navigates down
+- nextFocusForward: <int>	
+- nextFocusLeft: <int>
+- nextFocusRight: <int>
+- nextFocusUp: <int>
 
 events:
 - onPress
 
+[Picker]
+see 'react-native-picker'
+
 [Switch]
 
 properties:
-- trackColor
-- thumbColor
+- trackColor: <string>	// set color for the switch track
+- thumbColor: <string>	// set color for the foreground switch grip
+- disabled: <bool>
+- value: <bool>  
 
 events:
-- onValueChange
+- onChange			// on-change, passes the change event 
+- onValueChange		// same as 'onChange' but only passes the newValue
 
 e.g:
 switchChanged = newValue => {
@@ -192,8 +261,82 @@ switchChanged = newValue => {
 
 [TextInput]
 
+properties:
+- autoCapitalize: <capitalizeOption>	// capitalize characters (see 'capitalize Options')
+- autoCorrect: <bool>					// enable or disable the auto-correct feature
+- defaultValue: <string>				// init value
+- editable: <bool>
+- keyboardType: <keyboardType>			// the type of keyboard to open (see 'keyboard Types')
+- maxLength: <int>						// max characters allowed 
+- multiline: <bool>						// true for multiple lines (text-area), false for a single line (text-box)
+- numberOfLines: <int>					// used with multiline, how many lines allowed.
+- placeholder: <string>					
+- placeholderTextColor: <string>
+- returnKeyType: <returnKeyType>		// the type of the return-key in the keyboard (see 'return-key Types')
+- scrollEnabled: <bool>					// used with multiline, enable or disable the scrolling
+- selection: <{start: int, end: int}>   // text-selection value
+- selectionColor: <string>				// text-selection color
+- selectTextOnFocus: <bool>				// on focus, select all text
+- spellCheck: <bool>					// enable or disable the spell-check feature
+- textAlign: <left|center|right>
+- textContentType: <textContentType>	// the type of the content (see 'text-content Types')
+
+methods:
+- focus()
+- blur()
+- clear()
+- isFocused()
+
 events:
-- onChangeText
+- onChange			// on-change, passes the change event 
+- onChangeText		// same as 'onChange' but only passes the newValue
+- onKeyPress
+- onBlur
+- onFocus
+- onScroll
+- onEndEditing
+- onSelectionChange
+- onContentSizeChange
+- onSubmitEditing
+
+capitalize Options:
+- characters			// all characters 
+- words					// 1st letter of a work
+- sentences (default)	// 1st letter of a sentence
+- none					 
+
+keyboard Types:
+- default
+- number-pad
+- decimal-pad
+- numeric
+- email-address
+- phone-pad
+...
+...
+
+return-key Types:
+- done
+- go
+- next
+- search
+- send
+- previous
+- none
+...
+...
+
+text-content Types:
+- none
+- URL
+- addressCity
+- emailAddress
+- creditCardNumber
+- password
+- newPassword
+- username
+...
+...
 
 e.g:
 <TextInput
@@ -201,6 +344,8 @@ e.g:
     placeholder="write something..."
     defaultValue={this.state.value1}
     style={styles.textInput}
+	maxLength={6}
+    keyboardType="numeric"
 />
 
 textChanged(text) {	
@@ -217,13 +362,32 @@ source:
 https://reactnative.dev/docs/images
 
 properties:
-- source	// see 'sources'
+- source: <source>		// remote url or local resource (see 'sources')
+- resizeMode: <resizeMode>	// how to resize the image (see 'resize Modes')
+
+methods:
+- getSize(<uri>, <onSuccess>, <onFailure>)
+- getSizeWithHeaders(<uri>, <onSuccess>, <onFailure>)
+- prefetch(<uri>)		// fetch a url into the cache for later use
+- queryCache(<[url]>)   // fetch urls into the cache for later use 
+
+events:
+- onLoad
+- onLoadStart
+- onLoadEnd
 
 sources:
 - using uri image
   { uri: '<imagePath>' }
 - using local image
   require('<imagePath>')
+
+resize Modes:
+- cover (default)
+- contain
+- stretch
+- repeat
+- center
 
 e.g:
 <Image style={styles.image200} source={{uri: 'https://picsum.photos/id/237/200/200'}} />
@@ -251,9 +415,24 @@ syntax:
    <FlatList data={DATA} renderItem={({item}) => <fnItem ... />} />
 
 properties:
-- data			// items array 
-- renderItem	// function to execute for each item
-- keyExtractor	// function to extract a unique id (default is key)
+- data					// items array 
+- renderItem			// function to execute for each item
+- keyExtractor			// function to extract a unique id (default is key)
+- ListEmptyComponent	// code to render when list is empty (see 'empty list handler')
+- ListFooterComponent   // code to render at the bottom -> footer  (see 'header & footer')
+- ListHeaderComponent   // code to render at the top -> header (see 'header & footer')
+- ListFooterComponentStyle  // footer style
+- ListHeaderComponentStyle  // header style
+- extraData:				// an indicator if refresh is needed (see 're-render on state changed')
+- horizontal: <bool>		// horizontal list instead of vertical (stack) list mode
+- numColumns: <int>			// used with 'horizontal' to define how many columns to use.
+- initialScrollIndex<int>	// set init scroll index
+
+methods:
+- scrollToEnd(<options>)
+- scrollToIndex(<options>)
+- scrollToItem(<options>)
+- scrollToOffset(<options>)
 
 item-key: 
 in order to use Lists in RN, we must provide an extra property 'key' for each item in the array-provider (unique key to identify the item)
@@ -266,6 +445,17 @@ e.g <FlatList numColumns={3} ... />
 re-render on state changed:
 use 'extraData' property 
 e.g <FlatList extraData={this.state.refresh} ... /> - toggle the 'refresh' value to re-render.
+
+empty list handler:
+use 'ListEmptyComponent' to render custom JSX content in case of empty list.
+syntax 'ListEmptyComponent={JSX}'
+e.g <FlatList ... ListEmptyComponent={<Text>EMPTY</Text>} > ... </FlatList>
+
+header & footer:
+use 'ListFooterComponent' to render custom JSX content as footer.
+use 'ListHeaderComponent' to render custom JSX content as header.
+syntax 'ListFooterComponent={JSX}' 
+e.g <FlatList ... ListFooterComponent={<Text>FOOTER</Text>} ListHeaderComponent={<Text>HEADER</Text>} > ... </FlatList>
 
 e.g:
 <View style={{padding: 8}}>
@@ -380,17 +570,26 @@ array of { title: string, data: ANY }
 
 syntax:
 1. inline item rendering
-   <FlatList data={DATA} renderItem={({item}) => ...} />
+   <SectionList sections={DATA} renderItem={({item}) => ...} />
 2. use item function
-   <FlatList data={DATA} renderItem={fnItem} />
+   <SectionList sections={DATA} renderItem={fnItem} />
 3. combination of the above two
-   <FlatList data={DATA} renderItem={({item}) => <fnItem ... />} />
+   <SectionList sections={DATA} renderItem={({item}) => <fnItem ... />} />
 
 properties:
-- sections		// array of { title, data } items
-- renderItem	// function to execute for each item
-- keyExtractor	// function to extract a unique id (default is key)
-- renderSectionHeader // function to execute for each section-header
+- sections						// array of { title, data } items
+- renderItem					// function to execute for each item
+- keyExtractor					// function to extract a unique id (default is key)
+- renderSectionHeader			// code to render for each section-header
+- renderSectionFooter			// code to render for each section-footer
+- ListEmptyComponent			// code to render when list is empty (see 'empty list handler')
+- ListFooterComponent			// code to render at the bottom -> footer  (see 'header & footer')
+- ListHeaderComponent			// code to render at the top -> header (see 'header & footer')
+- extraData:							// an indicator if refresh is needed (see 're-render on state changed')
+- stickySectionHeadersEnabled: <bool>	// stick section-header to the top
+
+methods:
+- scrollToLocation(<options>)
 
 item-key: 
 in order to use Lists in RN, we must provide an extra property 'key' for each item in the array-provider (unique key to identify the item)
@@ -399,7 +598,18 @@ note that a key must be unique per section!
 
 re-render on state changed:
 use 'extraData' property 
-e.g <FlatList extraData={this.state.refresh} ... /> - toggle the 'refresh' value to re-render.
+e.g <SectionList extraData={this.state.refresh} ... /> - toggle the 'refresh' value to re-render.
+
+empty list handler:
+use 'ListEmptyComponent' to render custom JSX content in case of empty list.
+syntax 'ListEmptyComponent={JSX}'
+e.g <SectionList ... ListEmptyComponent={<Text>EMPTY</Text>} > ... </SectionList>
+
+header & footer:
+use 'ListFooterComponent' to render custom JSX content as footer.
+use 'ListHeaderComponent' to render custom JSX content as header.
+syntax 'ListFooterComponent={JSX}' 
+e.g <SectionList ... ListFooterComponent={<Text>FOOTER</Text>} ListHeaderComponent={<Text>HEADER</Text>} > ... </SectionList>
 
 define sections:
 use 'renderSectionHeader' 
@@ -456,13 +666,47 @@ item: {
 },
 
 [TouchableOpacity]
+a touchble wrapper for modules (usually for buttons)
 similar to a button but with the ability of custom style and content.
 supports any of the CSS rules available. all content within this module will be clickable! 
+
+properties:
+- activeOpacity: <0..1>			// opacity value (default: 0.2)
 
 e.g:
 <TouchableOpacity style={styles.customButton}>
     <Text>ClickMe</Text>
 </TouchableOpacity>
+
+// style
+customButton: {
+    flex: 1,
+    borderRadius: 8,
+    backgroundColor: 'aqua',
+    margin: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+},
+
+[TouchableHighlight]
+a touchble wrapper for modules. creates an highlight effect when a user touch it. 
+as opposed to the 'TouchableOpacity' - we need to assign it an 'onPress' event.
+
+properties:
+- activeOpacity: <0..1>			// opacity value (default: 0.2)
+- underlayColor: <string>		// layer color
+
+events:
+- onPress
+- onHideUnderlay
+- onShowUnderlay
+
+e.g:
+<TouchableHighlight style={styles.customButton} activeOpacity={0.9} underlayColor="#EEE" onPress={...}>
+    <Text>ClickMe</Text>
+</TouchableHighlight>
 
 // style
 customButton: {
@@ -527,7 +771,6 @@ properties:
 - transparent						// use transparent background layout
 - visible: <bool>					// modal state - is the modal visible (show or hide)
 - statusBarTranslucent: <bool>		// should the popup go under the system statusbar
--
 
 events:
 - onShow
@@ -586,8 +829,220 @@ modal: {
 },
 
 [Animated]
-make animations using RN
-//TODO
+make animations using RN.
+
+the process:
+to work with animations we need to declare 'Animation Value' variable (see 'Animation-variable') and use the static 'Animated.timing' function to change this value (internally).
+then, we need to bind the animation-variable to animation-module! (see 'Animation-modules')
+we can also apply multiple animations (see 'advanced animations')
+
+(steps)
+1. create an animation-value variable with init-value of 100 
+   let animationVar = new Animated.Value(100); 
+
+2. create a function to execute an animation 
+const executeAnimation = () => {
+    // change the value of animationVar to 200 using 1.5 sec animation
+    Animated.timing(animationVar, {
+    toValue: 200,
+    duration: 1500,
+    }).start();
+};
+
+3. bind the value to an Animation-module (see 'Animation-modules')
+   <Animated.View style={[styles.cube, {width: animationVar}]}>...</Animated.View>
+
+4. trigger the animation
+   <Button onPress={executeAnimation} title="ClickMe" />
+
+static methods:
+// curve functions
+// used for defining the animation curve and timing 
+// returns <animation> object
+<animation> Animated.timing(<animation-value>, <config>)	// see 'Animated.timing'
+<animation> Animated.spring(<animation-value>, <config>)	
+<animation> Animated.decay(<animation-value>, <config>)
+
+// behavioral functions
+// used for defining the "way" to perform animations and how they should behave
+// all of those functions (except 'loop') gets an array of animations!
+Animated.sequence(<[animation]>)				// starts array of animations in sync mode
+Animated.parallel(<[animation]>, <config>)		// starts array of animations in async mode
+Animated.stagger(<int>, <[animation]>)
+Animated.delay(<int>)
+Animated.loop(<animation>, <config>)
+
+// execution functions
+<animation>.start(<callback>)		// start an animation
+<animation>.stop()					// stop any running animation
+<animation>.reset()				// stop any running animation + reset the animation-value to its init-value
+
+// arithmetic functions 
+// used for creating new animation-value from existing animation-variables
+Animated.add
+Animated.subtract
+Animated.divide
+Animated.multiply
+Animated.modulo
+
+interpolate:
+map animation-value to custom value like string.  
+due to the limitation of animation-variables which only support numeric values, some cases require-us to translate those values into different values 
+for example to use 'rotate' css rule which takes 'deg' as value (such as '180deg'). 
+to achieve that, we can use the 'interpolate' method which takes a source (inputRange) ands a destination (outputRange) and map the values accordingly.
+
+// syntax
+<animation-value>.interpolate({
+  inputRange: [...],
+  outputRange: [...],
+})
+
+// sample
+const executeAnim = () => {    
+    Animated.timing(animVarRotate, {
+    toValue: 360,
+    duration: 2000,
+    }).start();
+};
+
+<Animated.View style={{transform: [
+		{scale: animVarScale}, 
+		{rotate: animVarRotate.interpolate({
+			inputRange: [0, 360],
+			outputRange: ['0deg', '360deg'],
+		})}
+	]}}>		
+</Animated.View>
+<Button onPress={executeAnim} title="ClickMe" />
+
+events:
+Animated.event
+// TODO
+
+Animation-variable:
+there are two value types supported, 'number' and '{x, y}' object. 
+
+Animated.Value(<number>);
+Animated.ValueXY(<{x, y}>);
+
+Animation-modules:
+- see 'built-in Animation-modules'
+- see 'custom Animation-modules'
+
+built-in Animation-modules:
+- Animated.Image
+- Animated.ScrollView
+- Animated.Text
+- Animated.View
+- Animated.FlatList
+- Animated.SectionList
+
+custom Animation-modules:
+use 'createAnimatedComponent' method to generate a new animation-module
+// TODO
+
+Animated.timing:
+used for changing the a single animation variable using the specified config(duration etc.)
+note that we can't change an animation variable outside of this function scope. 
+returns an <animation> object, use the start method to execute it. 
+for more complex animations and for multiple effects see 'advanced animations'
+
+Animated.timing(<animation-value>, <config>).start();
+Animated.timing(<animation-value>, <config>).start(<callback>);
+
+// config
+- toValue: <Any>		// the new value to set to the provided animation-value
+- easing: <function>	// curve definition (use static Easing.<function> for built-in curves)
+- duration: <int>		// animation duration in milliseconds
+- delay: <int>			// animation delay in milliseconds
+- useNativeDriver: <bool>	// whether to use the native driver or not
+
+advanced animations:
+we can compose an advanced animations by using the built-in behavioral methods (sequence, parallel, stagger and delay).
+for example -> Animated.parallel(arrAnimation).start();
+
+e.g (basic):
+const animVar1 = new Animated.Value(100); // 100 = init-value
+const animVar2 = new Animated.ValueXY({x: 20, y: 20}); // {x: 20, y: 20} = init-value
+
+const executeAnim1 = () => {
+    // changes the value of animVar1 to 200 using 1.5 sec animation
+    Animated.timing(animVar1, {
+    toValue: 200,
+    duration: 1500,
+    }).start();
+};
+
+const executeAnim2 = () => {
+    // changes the value of animVar2 to {x: 150, y: 150} using 1.5 sec animation
+    Animated.timing(animVar2, {
+    toValue: {x: 150, y: -150},
+    duration: 1500,
+    }).start();
+};
+
+<Animated.View style={[styles.cube, {width: animVar1}]}>
+    <Text>Transform</Text>
+</Animated.View>
+<Animated.View style={[styles.cube, {absolute: 'absolute', left: animVar2.x, top: animVar2.y}]}>
+    <Text>Translate</Text>
+</Animated.View>
+<Button onPress={executeAnim1} title="ClickMe" />
+<Button onPress={executeAnim2} title="ClickMe" />
+
+e.g (advanced):
+const animVarfadeOut = new Animated.Value(1);
+const animVarPosition = new Animated.ValueXY({x: 0, y: 0});
+const animVarScale = new Animated.Value(1);
+const animVarRotate = new Animated.Value(0);
+
+const executeComplex = () => {
+    let arrAnimation = [];
+
+    arrAnimation.push(
+		Animated.timing(animVarfadeOut, {
+			toValue: 0.3,
+			duration: 1500,
+		}),
+    );
+
+    arrAnimation.push(
+		Animated.timing(animVarPosition, {
+			toValue: {x: 150, y: -250},
+			duration: 1500,
+		}),
+    );
+
+    arrAnimation.push(
+		Animated.timing(animVarScale, {
+			toValue: 2,
+			duration: 1500,
+		}),
+    );
+
+    arrAnimation.push(
+		Animated.timing(animVarRotate, {
+			toValue: 6,
+			duration: 1500,
+		}),
+    );
+
+    Animated.parallel(arrAnimation).start(() => {
+		console.log('animation has completed!');
+    });
+};
+
+<Animated.View style={
+    [
+		styles.cube,
+		{absolute: 'absolute'},
+		{opacity: animVarfadeOut},
+		{left: animVarPosition.x, top: animVarPosition.y},
+		{transform: [{scale: animVarScale}, {rotate: animVarRotate}]},
+    ]}>
+    <Text>Complex</Text>
+</Animated.View>
+<Button onPress={executeComplex} title="Complex" />
 
 [Dimensions]
 
@@ -612,12 +1067,117 @@ const screenD = Dimensions.get('screen');
 <Text>Screen Size: {screenD.width.toFixed(2)} x {screenD.height.toFixed(2)}</Text>
 <Text>Window Size: {windowD.width.toFixed(2)} x {windowD.height.toFixed(2)}</Text>
 
+
 [StatusBar]
 status-bar is the device's top & bottom menus. 
 we can use this module to show/ hide them and change their theme.
 
+static properties:
+- StatusBar.currentHeight  // return the height of the status-bar
+
+properties:
+- backgroundColor: <string>	// set color 
+- barStyle: <barStyle>		// set theme (see 'bar Styles')
+- hidden					// show/ hide the status-bar
+
+static methods:
+- StatusBar.setBackgroundColor(<string>)	// set color
+- StatusBar.setBarStyle(<barStyle>)			// set theme (see 'bar Styles')
+- setHidden(<bool>)							// show/ hide the status-bar
+
+bar Styles:
+- default
+- light-content
+- dark-content
+
+e.g:
+<StatusBar hidden={false} backgroundColor="black" barStyle="default" />
+<Text>StatusBar Height: {StatusBar.currentHeight}</Text>
+<Button onPress={() => {StatusBar.setBackgroundColor('red')}} title="Change" />
 
 [PixelRatio]
+get the pixel density and font scale of the device
+
+layout size:
+use dp units. 
+dp stands-for Density-independent Pixels.
+each device has a density (see 'pixel density per device')
+the "number of pixels" requires differs between devices and it depends on each density.
+
+static methods:
+- PixelRatio.get()				// get the device pixel density (see 'pixel density per device')
+- PixelRatio.getFontScale()		// get the scale for fonts
+- PixelRatio.getPixelSizeForLayoutSize(<number>)	// convert layout size (dp) to pixel size (px)
+- PixelRatio.roundToNearestPixel(<number>)			// round the dp to match an integer of px.
+
+pixel-density per device:
+https://material.io/resources/devices/
+
+- mdpi devices = 1
+- hdpi devices = 1.5
+- xhdpi devices = 2
+- xxhdpi devices = 3
+- xxxhdpi devices = 3.5
+
+e.g:
+<Text>pixel-ratio: {PixelRatio.get()}</Text>
+<Text>font-scale:{PixelRatio.getFontScale()}</Text>
+<Text>width 100 requires {PixelRatio.getPixelSizeForLayoutSize(100)}px in this device</Text>
+
+[RefreshControl]
+pull-to-refresh. 
+used in ScrollView or ListView containers. 
+use the container 'refreshControl' property to set the pull-to-refresh behavior.
+
+syntax:
+<ScrollView .... refreshControl={<RefreshControl .... />} >...</ScrollView>
+
+properties:
+- refreshing: <bool>				// should indicate of an active refresh
+- colors: <string[]>				// colors to paint the refresh indicator (switches color every sec)
+- enabled: <bool>					// is the pull-to-refresh functionality active or not
+- progressBackgroundColor: <string>	// refresh indicator background color
+- progressViewOffset: <int>			// progress view top offset
+- size: <layoutSize>				// the layout size (see 'layout Sizes')
+- title: <string>					// text to display under the refresh indicator (iOS)
+- titleColor: <string>				// title-color (iOS)
+- tintColor: <string>				// refresh indicator fore color (iOS)
+
+events:
+- onRefresh
+
+layout Sizes:
+RefreshLayoutConsts.SIZE.DEFAULT
+RefreshLayoutConsts.SIZE.LARGE
+
+e.g:
+<ScrollView refreshControl={<RefreshControl refreshing={this.state.isRefreshing} onRefresh={(this.onRefresh)} title="refreshing..." colors={['red', 'green', 'blue']} />}>
+	...
+	...
+</ScrollView>
+
+// code 
+constructor() {
+	super();
+	this.state = {
+		isRefreshing: false,
+	};
+}
+
+sleepAsync = timeout => {
+	return new Promise(resolve => {
+		setTimeout(resolve, timeout);
+	});
+};
+
+onRefresh = async () => {	
+	this.setState({isRefreshing: true});  // 
+	console.log('refreshing...');
+	await this.sleepAsync(5000);
+	console.log('done!');
+	this.setState({isRefreshing: false});
+};
+
 
 React-Native Camera
 -------------------
@@ -834,6 +1394,50 @@ class TestImagePicker extends Component {
   		);
 	}
 }
+
+React-Native Picker
+-------------------
+aka DropDownList (DDL)
+
+sources:
+https://github.com/react-native-community/react-native-picker
+
+install:
+> npm install --save @react-native-community/picker
+
+hierarchy:
+- Picker
+--- Picker.Item
+--- Picker.Item
+--- Picker.Item
+
+properties:
+- selectedValue: <any>
+- enabled: <bool>
+- mode: <dialog|dropdown>
+
+events:
+- onValueChange		// passes info about the selected item -> {value, index}
+
+e.g:
+<Picker
+    selectedValue={this.state.selectedValue}
+    style={{height: 36, width: 200}}
+    onValueChange={(value, index) => this.setState({selectedValue: value}) }>
+
+    <Picker.Item label="option1" value="1" />
+    <Picker.Item label="option2" value="2" />
+    <Picker.Item label="option3" value="3" />
+</Picker>
+
+// code
+constructor() {
+    super();
+    this.state = {     
+      selectedValue: '3',
+    };
+}
+
 
 Navigation
 ----------
@@ -1312,7 +1916,9 @@ stack navigation:
     }
   }
 
-
+StyleSheet
+----------
+see 'Styles'
 
 Styles
 ------
@@ -1321,7 +1927,11 @@ sources:
 https://reactnative.dev/docs/style
 https://github.com/vhpoet/react-native-styling-cheat-sheet/blob/master/README.md
 
-syntax:
+styleSheet:
+an equivalent to the CSS 'classes'
+use the 'style' property of the module to set styleSheet classes
+
+// syntax
 const styles = StyleSheet.create({  
 	<className-1>: { <rules> }, 
 	<className-2>: { <rules> }, 
@@ -1330,21 +1940,43 @@ const styles = StyleSheet.create({
 	<className-N>: { <rules> }, 
 });
 
-note! 
+global and local support:
 we can generate stylesheets globaly in the js file or locally within the 'render' function of a module
+
+note:
+rule -> key: value (e.g: fontSize: 18)
+
+inline-style:
+we can set styles inline instead of using a styleSheet.
+use the 'style' property of the module to set inline rules.
+
+// syntax
+style={{ <rules> }}  
+
+// sample
+<Image style={{width: 50, height: 50, borderRadius: 8}} ... />
 
 using:
 style={styles.<className>}    // single class
 style={[styles.<className-1>, styles.<className-2>... styles.<className-N>]}  // multiple classes
+style={{ <rule1>, <rule2>... <ruleN> }}  // inline
+style={[styles.<className-1>, {<rules-1}, {<rules-2}...]}  // combination
 
 flex properties:
 use these properties to define the page layout (see 'Flex')
+
+absolute position:
+- position: 'absolute'
+- left: <int>
+- top: <int>
 
 - 
 
 e.g:
 <View style={styles.container}>
 	<Text style={styles.text}>Hello World</Text>
+	<Image style={styles.image150} source={{uri: 'https://picsum.photos/id/237/200/200'}} />
+	<Image style={{width: 150, height: 150, borderRadius: 8}} source={{uri: 'https://picsum.photos/id/237/200/200'}} />
 </View>
 
 const styles = StyleSheet.create({
@@ -1356,6 +1988,11 @@ const styles = StyleSheet.create({
   },
   text: {
     fontSize: 18,
+  },
+  image150: {    
+    width: 150,
+    height: 150,
+	borderRadius: 8,
   },
 });
 
@@ -1758,7 +2395,6 @@ see 'Android Studio - Android Debug Bridge (ADB)'
 
 android > local.properties
 
-StatusBar
 
 Platform (react-native)
 const device = Platform.select({
@@ -1770,7 +2406,8 @@ JSX explanation
 Component explanation
 
 fonts
-
+Font Awesome
+Icons
 
 styles:
 alignItems
@@ -1845,9 +2482,29 @@ KeyboardAvoidingView???
 
 Linking ???
 
-TouchableHighlight ???
-
 fetch service (api) ???
 
 run on device:
 play store > download 'expo' app > scan QR code 
+
+
+Playground
+
+web-Build IPA file
+
+// copy from nativescript
+- Deploy(android)
+- Deploy(iOS)
+- Android Device
+- Android Virtual Device (AVD)
+
+systemIcon
+
+Storage
+
+Notifications
+
+Google Firebase
+
+transforms
+https://reactnative.dev/docs/transforms

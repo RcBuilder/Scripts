@@ -1,0 +1,67 @@
+angular bootstrap-app
+---------------------
+when using the ng-app directive, the app is bootstrapped (complied) automatically.  
+to execute it manually we can use the angular.bootstrap method. 
+
+syntax:
+angular.bootstrap(document, [<module>])
+
+----------------
+
+in the below sample, we manually bootstrap the angular app.
+note that the ng-app was removed from the html tag!
+
+// index.html
+<div class="m-app-loading">        
+       <h1>
+                    Shovelling coal into the server...
+       </h1>
+</div>
+
+<script type="text/javascript" src="app.js"></script>
+<script type="text/javascript" src="controllers.js"></script>
+<script type="text/javascript" src="directives.js"></script>
+...
+...
+
+<script>
+        (async function () {
+            var sleep = async function (seconds) {
+                return new Promise((resolve, reject) => {
+                    console.log('waiting...');
+                    setTimeout(() => {
+                        console.log('done waiting');
+                        resolve();
+                    }, seconds * 1000);
+                });
+            }
+
+            await sleep(2);
+
+            // bootstrap 'myApp' module
+            // MUST remove ng-app="myApp" directive!! (it also bootstraps the app)
+            angular.element(function () {
+                angular.bootstrap(document, ['myApp']);
+                document.querySelector('.m-app-loading').remove(); // remove loader from the DOM
+            });
+        }());
+    </script>
+
+--
+
+// app.js
+var app = angular.module('myApp', []); // create a module
+...
+...
+
+// controllers.js
+app.controller('controllerA', function() { ... });
+app.controller('controllerB', function() { ... });
+...
+...
+
+// directives.js
+app.directive('directiveA', function() { ... });
+app.directive('directiveB', function() { ... });
+...
+...

@@ -1,20 +1,17 @@
-USE [cliclap-testing-db]
-GO
-
-/****** Object:  StoredProcedure [dbo].[sp_BrandSettings_Defaults_Set]    Script Date: 03/05/2020 14:29:15 ******/
+-- ==========================================================
+-- Create Stored Procedure Template for SQL Azure Database
+-- ==========================================================
 SET ANSI_NULLS ON
 GO
-
 SET QUOTED_IDENTIFIER ON
 GO
-
 -- =============================================
 -- Author:		<Roby>
 -- Create date: <2020-04-30>
--- sp_BrandSettings_Defaults_Set '2a46358d-dc28-4b64-9126-707ab1ccbb42'
+-- sp_BrandSettings_Defaults_Set '1efa31b1-9b04-4aef-aa58-8453a0a90ed4'
 
 /*
-	DECLARE @UserId NVARCHAR(128) = '2a46358d-dc28-4b64-9126-707ab1ccbb42'
+	DECLARE @UserId NVARCHAR(128) = '1efa31b1-9b04-4aef-aa58-8453a0a90ed4'
 	DECLARE @BrandId BIGINT = (SELECT TOP 1 Id FROM [dbo].[BrandSettings] WHERE UserId = @UserId)	
 
 	DELETE FROM [WidgetToTags] WHERE WidgetId in (SELECT Id FROM widgets WHERE UserId = @UserId)
@@ -22,14 +19,12 @@ GO
 	DELETE FROM [TrafficFilters] WHERE BrandId = @BrandId
 	DELETE FROM [Groups] WHERE BrandId = @BrandId
 	DELETE FROM [Tags] WHERE UserId = @UserId  
-	DELETE FROM [WidgetToTags] WHERE TagId IN (SELECT Id FROM [Tags] WHERE UserId = @UserId)
-	DELETE FROM [UrlMapToTags] WHERE TagId IN (SELECT Id FROM [Tags] WHERE UserId = @UserId)
 	DELETE FROM [UrlMaps] WHERE UserId = @UserId 
-	DELETE FROM [Contents] WHERE Id = (SELECT TOP 1 ContentId FROM UrlMaps WHERE UserId = @UserId)	
+	DELETE FROM [Contents] WHERE Id = (SELECT TOP 1 ContentId FROM UrlMaps WHERE UserId = @UserId)
 
 	---
-	
-	DECLARE @UserId NVARCHAR(128) = '2a46358d-dc28-4b64-9126-707ab1ccbb42'
+
+	DECLARE @UserId NVARCHAR(128) = '1efa31b1-9b04-4aef-aa58-8453a0a90ed4'
 	DECLARE @BrandId BIGINT = (SELECT TOP 1 Id FROM [dbo].[BrandSettings] WHERE UserId = @UserId)
 
 	SELECT * FROM widgets WHERE UserId = @UserId
@@ -38,11 +33,9 @@ GO
 	SELECT * FROM Tags WHERE UserId = @UserId
 	SELECT * FROM UrlMaps WHERE UserId = @UserId
 	SELECT * FROM Contents WHERE Id = (SELECT TOP 1 ContentId FROM UrlMaps WHERE UserId = @UserId)
-	SELECT * FROM [WidgetToTags] WHERE TagId IN (SELECT Id FROM [Tags] WHERE UserId = @UserId)
-	SELECT * FROM [UrlMapToTags] WHERE TagId IN (SELECT Id FROM [Tags] WHERE UserId = @UserId)		
 */
 -- =============================================
-ALTER PROCEDURE [dbo].[sp_BrandSettings_Defaults_Set]
+ALTER PROCEDURE sp_BrandSettings_Defaults_Set
 	@UserId NVARCHAR(128)
 AS
 BEGIN	
@@ -83,16 +76,6 @@ BEGIN
 					<Type>1</Type>
 					<IsDefault>false</IsDefault>
 				</Tag>
-				<Tag>
-					<Name>Example-Content-Tag</Name>
-					<Type>1</Type>
-					<IsDefault>false</IsDefault>
-				</Tag>
-				<Tag>
-					<Name>Example-Goal-Tag</Name>
-					<Type>2</Type>
-					<IsDefault>false</IsDefault>
-				</Tag>				
 			</Tags>
 			<Posts>
 				<Post>
@@ -102,8 +85,7 @@ BEGIN
 					<ContentId>966u15</ContentId>
 					<ContentType>pdf</ContentType>
 					<ViewPermissionId>3</ViewPermissionId>
-					<IsManuallyCreated>1</IsManuallyCreated>	
-					<Tags>Example-Content-Tag, Example-Goal-Tag</Tags>				
+					<IsManuallyCreated>1</IsManuallyCreated>					
 				</Post>				
 			</Posts>
 			<Widgets>
@@ -118,8 +100,7 @@ BEGIN
 					<CtaUrlContentId>NULL</CtaUrlContentId>
 					<GroupId>NULL</GroupId>
 					<IsValid>1</IsValid>
-					<isDraft>0</isDraft>
-					<Tags>Example-Content-Tag</Tags>
+					<isDraft>0</isDraft>				
 				</Widget>
 				<Widget>				
 					<Name>Example 1</Name>
@@ -132,8 +113,7 @@ BEGIN
 					<CtaUrlContentId>1epp90h</CtaUrlContentId>
 					<GroupId>NULL</GroupId>
 					<IsValid>1</IsValid>
-					<isDraft>0</isDraft>	
-					<Tags>Example-Content-Tag</Tags>
+					<isDraft>0</isDraft>				
 				</Widget>	
 				<Widget>				
 					<Name>Example 2</Name>
@@ -146,8 +126,7 @@ BEGIN
 					<CtaUrlContentId>1hx6uvx</CtaUrlContentId>
 					<GroupId>NULL</GroupId>
 					<IsValid>1</IsValid>
-					<isDraft>0</isDraft>	
-					<Tags>Example-Content-Tag</Tags>
+					<isDraft>0</isDraft>				
 				</Widget>	
 				<Widget>				
 					<Name>Example 3</Name>
@@ -160,8 +139,7 @@ BEGIN
 					<CtaUrlContentId>164lc0v</CtaUrlContentId>
 					<GroupId>NULL</GroupId>
 					<IsValid>1</IsValid>
-					<isDraft>0</isDraft>	
-					<Tags>Example-Content-Tag</Tags>
+					<isDraft>0</isDraft>				
 				</Widget>
 				<Widget>				
 					<Name>Example 4</Name>
@@ -174,8 +152,7 @@ BEGIN
 					<CtaUrlContentId>5o2oyu</CtaUrlContentId>
 					<GroupId>NULL</GroupId>
 					<IsValid>1</IsValid>
-					<isDraft>0</isDraft>
-					<Tags>Example-Content-Tag</Tags>
+					<isDraft>0</isDraft>				
 				</Widget>
 				<Widget>				
 					<Name>Example of ClClap''s video widget</Name>
@@ -188,8 +165,7 @@ BEGIN
 					<CtaUrlContentId>141tdss</CtaUrlContentId>
 					<GroupId>NULL</GroupId>
 					<IsValid>1</IsValid>
-					<isDraft>0</isDraft>	
-					<Tags>Example-Content-Tag</Tags>			
+					<isDraft>0</isDraft>				
 				</Widget>	
 				<Widget>				
 					<Name>Request a Demo</Name>
@@ -202,12 +178,11 @@ BEGIN
 					<CtaUrlContentId>xio784</CtaUrlContentId>
 					<GroupId>489</GroupId>
 					<IsValid>1</IsValid>
-					<isDraft>0</isDraft>
-					<Tags>Example-Goal-Tag</Tags>				
+					<isDraft>0</isDraft>				
 				</Widget>				
-			</Widgets>						
+			</Widgets>			
 		</Settings>';
-
+	
 	-- WIDGETS --
 	INSERT INTO [dbo].[Widgets](Name, TypeId, MetaData, IsArchived,IsDisplayable, ContentTypeId, CtaUrl, CtaUrlContentId, GroupId, IsValid, isDraft, UserId, CreatedTimeStamp)
 		SELECT	xWidgets.xRows.query('Name').value('.', 'NVARCHAR(256)') AS 'Name', 
@@ -274,8 +249,6 @@ BEGIN
 		INSERT INTO BaseCounter VALUES(NEWID())
 		DECLARE @Max BIGINT = (SELECT MAX(Id) FROM BaseCounter);
 		DECLARE @ShortUrlCode NVARCHAR(128) = (SELECT [dbo].[ConvertToBase62](@Max))
-		
-		PRINT('MAX: ' + CONVERT(VARCHAR, @Max) + '|  CODE:' + @ShortUrlCode)
 
 		INSERT INTO [dbo].[UrlMaps](OriginalUrl, HostWithoutTld, Host, ContentId, ViewPermissionId, IsManuallyCreated, UserId, CreatedTimeStamp, IsActive, Clicks, Conversions, BounceRate, ShortUrl, ShortUrlCode)	
 			SELECT	OriginalUrl, HostWithoutTld, Host, ContentId, ViewPermissionId, IsManuallyCreated,
@@ -287,50 +260,16 @@ BEGIN
 					@ShortUrlCode
 			FROM	@xPostsTemp
 			WHERE	RowNum = @currentId
-		
-		DECLARE @ContentId NVARCHAR(128) = (SELECT TOP 1 ContentId FROM @xPostsTemp WHERE RowNum = @currentId)
-		IF NOT EXISTS(SELECT 1 FROM [dbo].[Contents] WHERE Id = @ContentId)
-		BEGIN 
-			PRINT('CREATING CONTENT')
-			INSERT INTO [dbo].[Contents](Id, OriginalUrl, IsIFrameDisplayable, LastUpdatedTimeStamp, ContentType)
-				SELECT	ContentId, OriginalUrl, 0, GETDATE(), ContentType					
-				FROM	@xPostsTemp
-				WHERE	RowNum = @currentId
-		END 
+
+		INSERT INTO [dbo].[Contents](Id, OriginalUrl, IsIFrameDisplayable, LastUpdatedTimeStamp, ContentType)
+			SELECT	ContentId, OriginalUrl, 0, GETDATE(), ContentType					
+			FROM	@xPostsTemp
+			WHERE	RowNum = @currentId
 
 		FETCH NEXT FROM crsr INTO @currentId
 	END
 	CLOSE crsr
 	DEALLOCATE crsr	
 
-	-- Tags Mapping -- 
-	INSERT INTO WidgetToTags(WidgetId, TagId)	
-		SELECT	W.Id, T.Id				
-		FROM	@META_DATA.nodes('/Settings/Widgets/Widget') as xWidgets(xRows) 
-				INNER JOIN 
-				[dbo].[Widgets] W ON (W.Name = xWidgets.xRows.query('Name').value('.', 'NVARCHAR(256)'))
-				OUTER APPLY(
-					SELECT Id FROM [dbo].[Tags] WHERE UserId = @UserId AND Name IN (
-						SELECT	LTRIM(RTRIM([Value])) 
-						FROM	STRING_SPLIT(xWidgets.xRows.query('Tags').value('.', 'NVARCHAR(128)'), ',')
-					)					
-				) AS T(Id)
-		WHERE	UserId = @UserId
-
-	INSERT INTO UrlMapToTags(UrlMapId, TagId)
-		SELECT	U.ShortUrlCode, T.Id				
-		FROM	@META_DATA.nodes('/Settings/Posts/Post') as xPosts(xRows)
-				INNER JOIN 
-				[dbo].[UrlMaps] U ON (U.ContentId = xPosts.xRows.query('ContentId').value('.', 'NVARCHAR(256)'))
-				CROSS APPLY(
-					SELECT Id FROM [dbo].[Tags] WHERE UserId = @UserId AND Name IN (
-						SELECT	LTRIM(RTRIM([Value])) 
-						FROM	STRING_SPLIT(xPosts.xRows.query('Tags').value('.', 'NVARCHAR(128)'), ',')
-					)
-				) AS T(Id)
-		WHERE	UserId = @UserId
-
 END
-
-
 GO
