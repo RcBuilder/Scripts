@@ -34,7 +34,7 @@ function main() {
   
   var adStatusMonitorService = AdStatusMonitorService(sheetService);
   
-  var accounts = MccApp.accounts().get();  
+  var accounts = MccApp.accounts().withCondition('LabelNames DOES_NOT_CONTAIN "Cancelled"').get();  
   ///var accounts = MccApp.accounts().withIds([6905672540]).get();  
   while(accounts.hasNext())
   {
