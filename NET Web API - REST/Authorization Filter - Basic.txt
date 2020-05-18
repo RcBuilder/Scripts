@@ -1,11 +1,13 @@
-REST Authorization Filter - Basic
----------------------------------
+Authorization Filter - Basic
+----------------------------
+
+H: Authorization: Basic Base64(<User>:<Password>)  
+
+---
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class AuthorizeRequestAttribute : AuthorizationFilterAttribute {
     public override void OnAuthorization(HttpActionContext context) {        
-        // Authorization: Basic Base64([User]:[Password])        
-
         try {
             // [AllowAnonymous]
             if (context.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any()) {
@@ -59,3 +61,7 @@ public class HomeController : ApiController
     [HttpGet] 
     public ApiResponse FunB(string p1){ ... }
 }
+
+
+GET api/b/3
+Authorization: Bearer <token>

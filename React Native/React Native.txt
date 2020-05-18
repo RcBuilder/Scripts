@@ -2508,3 +2508,6 @@ Google Firebase
 
 transforms
 https://reactnative.dev/docs/transforms
+
+State
+Props

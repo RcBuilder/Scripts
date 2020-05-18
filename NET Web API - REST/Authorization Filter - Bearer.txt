@@ -1,0 +1,8 @@
+Authorization Filter - Bearer
+-----------------------------
+
+H: Authorization: Bearer <token>  
+
+---
+
+see 'JWT - Json Web Token'
