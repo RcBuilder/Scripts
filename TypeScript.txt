@@ -98,6 +98,9 @@ each build the vs auto-compilation process will create a pure javascript version
 tip:
 to see the generated .js version, click on the 'Show All Files' top button in the solution explorer.
 
+note:
+in order to add .ts auto-compilation to an existing project with no such support - add tsconfig.json file 
+
 open a typeScript app:
 Add > New Project > Other Languages > TypeScript > HTML application with TypeScript
 
@@ -111,6 +114,24 @@ window.onload = () => {
     var someClass = new SomeClass();
 	...    
 };
+
+---
+
+tsconfig.json:
+this file contains all settings relevant to typescript.
+without it the compilation of .ts files will NOT work!
+
+sample:
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5"
+  }
+}
 
 ---
 

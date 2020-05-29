@@ -8,8 +8,7 @@ an environment to execute javascript code outside the browser.
 - installation
 - code execution
 - file execution
-- global object
-- process object
+- global objects
 - export & import
 - package.json
 - npm
@@ -52,15 +51,43 @@ console.log('Hello World');
 
 > node test.js
 
-global object
--------------
-there is NO 'window' object as we have in the browser 
-instead, we have a 'global' object.
-
-process object
+global objects
 --------------
-there is NO 'document' object as we have in the browser 
-instead, we have a 'process' object.
+- global
+  
+  note:
+  there is NO 'window' object as we have in the browser 
+  instead, we have a 'global' object.
+	
+- process
+
+  note:  
+  there is NO 'document' object as we have in the browser 
+  instead, we have a 'process' object.
+
+- __dirname
+- __filename
+- URL     
+  { 
+	href, 
+	origin, 
+	protocol, 
+	username, 
+	password, 
+	host, 
+	hostname, 
+	port, 
+	pathname, 
+	search, 
+	searchParams, 
+	hash 
+  }  	
+
+  e.g:
+  console.log(new URL('http://www.domain.com/pageA?p=1&p=2'));
+
+- setInterval
+- setTimeout
 
 export & import
 ---------------
@@ -116,6 +143,7 @@ use '@' sign to provide a specific version (@<version>)
 > npm install <packageName> -g      	// install package globally
 > npm install <packageName> --save  	// install and save (to json file) a package locally 
 > npm install <packageName>@<version>	// install a specific version (e.g: underscore@1.9.1)
+> npm install <packageName-1>..... <packageName-N>	// install multiple packages
 
 init command:
 create a package.json file from the current state

@@ -10,7 +10,7 @@
 
 const express = require('express');
 const app = express();
-var cors = require('cors');
+const cors = require('cors');
 
 const config = {
     port: 8088,

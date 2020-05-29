@@ -1,0 +1,28 @@
+Bug:
+Typescript and Visual studio Build
+
+Error:
+multiple Visual Studio Duplicate identifier errors (.d.ts vs multiple .ts files) 
+
+Cause:
+no tsconfig.json file 
+
+Solution:
+add tsconfig.json file to the project root 
+
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5"
+  }
+}
+
+
+
+
+
+ 

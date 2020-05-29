@@ -129,6 +129,7 @@
 * MSDN = Microsoft Developer Network
 
 * AR = Augmented Reality (מציאות רבודה (שילוב  של אנימציה על רקעים אמיתיים
+* TOC = Table Of Contents
 
 (phrases)
 * TDLR = Too Damn Lazy to Reply

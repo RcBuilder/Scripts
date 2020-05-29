@@ -26,7 +26,8 @@ ALTER TABLE <tableName> DROP CONSTRAINT <constraintName-1>, <constraintName-2>..
 ALTER TABLE <tableName> DROP COLUMN <columnName-1>, <columnName-2>...<columnName-N>
 ALTER TABLE <tableName> ADD <column-1>, <column-2>...<column-N>
 ALTER TABLE <tableName> ALTER COLUMN <column-1>, <column-2>...<column-N>
-ALTER TABLE <tableName> ADD FOREIGN KEY (<keyName>) REFERENCES <tableName>(<keyName>);
+ALTER TABLE <tableName> ADD FOREIGN KEY (<columnName>) REFERENCES <targetTableName>(<columnName>);
+ALTER TABLE <tableName> ADD PRIMARY KEY (<columnName>)
 
 sample:
 ALTER TABLE [dbo].[MyTable1] DROP CONSTRAINT DF_MyTable1_MyColumn1
@@ -34,6 +35,7 @@ ALTER TABLE [dbo].[MyTable1] DROP COLUMN MyColumn1, MyColumn2, MyColumn3
 ALTER TABLE [dbo].[MyTable1] ADD MyColumn1 DATETIME NOT NULL, MyColumn2 VARCHAR(MAX)
 ALTER TABLE [dbo].[MyTable1] ALTER COLUMN MyColumn1 NVARCHAR(128) NULL
 ALTER TABLE [dbo].[MyTable1] ADD FOREIGN KEY (table2RowId) REFERENCES MyTable2(RowId)
+ALTER TABLE [dbo].[MyTable1] ADD PRIMARY KEY (table2RowId)
 
 CREATE TYPE (TVP)
 -----------------

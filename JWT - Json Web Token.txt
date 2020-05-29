@@ -24,6 +24,27 @@ Sources
 - Cryptii - Base64 Encode/Decode + Bytes
   https://cryptii.com/pipes/text-to-base64
 
+Expiry
+------
+add a timestamp extra field to the token-payload to set the time of the created token. 
+later we could use that to revoke old tokens and improve our security.
+
+sample:
+new {
+	id = "1234567890",
+	name = "John Doe",
+	timestamp = DateTime.Now.Ticks
+} 
+
+Auth Server
+-----------
+we can set a dedicated server for all auth actions
+- login (generate a token)
+- logout
+- refresh a token
+- etc.
+
+once we have a valid token, we can use it to reach resources from other services.
 
 How To Create A JWT?
 --------------------
@@ -79,11 +100,115 @@ use this tool https://cryptii.com/pipes/text-to-base64 to encode the <header> an
 use this tool https://www.freeformatter.com/hmac-generator.html to create a signature using the provided algorithm. 
 use this tool https://cryptii.com/pipes/text-to-base64 to encode the <signature> to base64 (note! use as bytes and NOT as plain text)
 
+Implementation (NodeJS)
+-----------------------
+source:
+see 'NodeJS/Sources/JWT Sample'
 
-Implementation
---------------
+jsonwebtoken module:
+- <token> jwt.sign(<payloadData>, <secretKey>, <options>)
+- jwt.verify(<token>, <secretKey>)
+- expiresIn:
+  there's a built-in support for expiration
+  property 'expiresIn', supports 'm' for minutes, 's' for seconds and etc.
+  e.g: jwt.sign(payloadData, config.secretKey, { expiresIn: '60m' })
+
+
+--
+
+init:
+> npm init
+> npm install --save express
+> npm install --save jsonwebtoken
+
+--
+
+const express = require('express');
+const jwt = require('jsonwebtoken');
+
+const config = {
+    port: 2222,
+    secretKey: 'my-secret-key'
+}
+
+const app = express();
+app.use(express.json());
+
+app.get('/', (request, response) => {
+    response.send('home-page');
+})
+
+
+/* 
+    GET api/users
+    H: Authorization: Bearer <access_token>
+*/
+app.get('/api/users', async (request, response, next) => { 
+        let authorization = request.headers['authorization'];
+        if(!authorization)
+            return response.status(401).send('No Authorization Header');
+
+        let scheme = authorization.split(' ')[0];
+        if(!scheme || scheme != 'Bearer')
+            return response.status(401).send('Not a Bearer Authorization');
+
+        let token = authorization.split(' ')[1];
+        if(!token)
+            return response.status(401).send('NoToken');
+
+        try{
+            let payloadData = await jwt.verify(token, config.secretKey);
+            console.log(payloadData);
+            next();
+        }
+        catch(ex){
+            return response.sendStatus(403);
+        }
+
+    }, (request, response) => {
+    response.json(
+        [
+            {id: 1, name: 'user-A'},
+            {id: 1, name: 'user-B'},
+            {id: 1, name: 'user-C'}
+        ]
+    );
+})
+
+/*
+    POST api/token
+    REQ: grant_type=password&username=&password=
+    RES: { access_token }
+*/
+app.post('/api/token', (request, response) => {
+    let username = request.body.username;
+    let password = request.body.password;
+
+    // validate credentials here...
+
+    let payloadData = {
+        id: '1234567890',
+        name: 'John Doe',
+        timestamp: 637252521370415500  // DateTime.Now.Ticks
+    };
+    
+    response.json({
+        access_token: jwt.sign(payloadData, config.secretKey, { expiresIn: '60m' })
+    });
+})
+
+app.listen(config.port, () => console.log(`Server running at http://127.0.0.1:${config.port}/`));
+
+
+Implementation (C#)
+-------------------
+source:
+see 'JWT Sample'
+
 dependency:
 see 'JWT Sample/JWTGenerator.cs'
+
+--
 
 [AuthorizeRequest]
 public class JWTController : ApiController

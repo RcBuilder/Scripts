@@ -13,7 +13,7 @@ https://www.nuget.org/packages/BuildBundlerMinifier
 download
 --------
 go to 'https://github.com/madskristensen/BundlerMinifier'
-file -> Bundler___Minifier_v2.8.396.vsix
+file -> Bundler & Minifier v3.2.447.vsix
 
 process 
 -------
@@ -203,7 +203,8 @@ async-await, character `, let, const and etc.
 let a = `some string` // error
 let a = 'some string' // ok
 
-
+solution:
+move to a newer .Net BundlerMinifier version (v3.2.447 and up)
 
 
 	
