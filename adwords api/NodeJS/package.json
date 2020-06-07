@@ -1,16 +1,17 @@
 {
-  "name": "ExpressServer",
+  "name": "AdwordsAPI",
   "version": "0.0.0",
-  "description": "ExpressServer",
+  "description": "AdwordsAPI",
   "author": {
     "name": ""
   },
   "dependencies": {
     "@types/node": "^12.7.5",
     "body-parser": "^1.19.0",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-react-views": "^0.11.0",
-    "pug": "^2.0.4",
+    "node-adwords": "^201809.0.2",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "webfiller": "^0.1.4"

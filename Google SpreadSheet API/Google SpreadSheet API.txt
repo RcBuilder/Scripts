@@ -1,0 +1,162 @@
+﻿Google SpreadSheet API
+======================
+
+GOOGLE DEVELOPERS:
+https://console.developers.google.com/
+Enable 'Google Sheets API'
+                                        
+API KEY:
+* GOOGLE DEVELOPERS -> Credential -> get the api key
+* e.g: AIzaSyApPPyBtRCgxaUj3Vxc1fcrSXtukUevatM
+* Read Only permission!! // use 'Service Account Key' instead for full permissions
+        
+SERVICE ACCOUNT KEY:
+1. GOOGLE DEVELOPERS -> Credential -> Service Account Key -> fill data 
+2. download created json file and move it into your project 
+3. F4 (properties) -> Copy to output directory -> set to ALWAYS   
+
+note! 
+need to add the service account as a permitted user to access the sheet! 
+go to the developer console -> find the service account -> take it's 'Service account ID' (alternatively: also appears in the credentials.json file)
+open the sheet -> share -> advanced -> refer the 'Service account ID' as a user, add it and set the allowed permissions 
+e.g: general@api-project-635489688114.iam.gserviceaccount.com  		
+		            
+note! 
+the best approach for Server 2 Server communication 
+(no user authentication popups)
+					 
+NuGet:
+Install-Package Google.Apis.Sheets.v4
+                
+Docs:
+https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets
+https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.sheets
+https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values
+https://developers.google.com/sheets/api/samples/
+
+-------
+
+// CODE SAMPLE 
+var scopes = new string[] { SheetsService.Scope.Spreadsheets };
+var credentialsFile = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "\\", "credentials.json");
+
+var credential = GoogleCredential.FromStream(
+    new FileStream(credentialsFile, FileMode.Open)
+).CreateScoped(scopes);
+
+var service = new SheetsService(new BaseClientService.Initializer()
+{
+    HttpClientInitializer = credential,
+    ApplicationName = "test",
+});
+        
+// code here ...
+
+-------
+
+// ACTIONS
+service.Spreadsheets.Values.Get(string SpreadsheetId, string Range);
+service.Spreadsheets.Values.Update(ValueRange body, string SpreadsheetId, string Range);
+service.Spreadsheets.Values.Append(ValueRange body, string SpreadsheetId, string Range);
+
+-------
+
+// SERVICE FACTORY
+private static SheetsService service = null;
+
+public static SheetsService Produce()
+{
+    if (service != null) 
+        return service;
+
+    //lazy loading ...
+
+    var scopes = new string[] { SheetsService.Scope.Spreadsheets };
+    var credentialsFile = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "\\", "credentials.json");
+
+    var credential = GoogleCredential.FromStream(
+        new FileStream(credentialsFile, FileMode.Open)
+    ).CreateScoped(scopes);
+
+    service = new SheetsService(new BaseClientService.Initializer()
+    {
+        HttpClientInitializer = credential,
+        ApplicationName = "SpreadSheet Service",
+    });
+
+    return service;
+}
+
+-------
+
+// GET STRUCTURE
+var apiGetRequest = service.Spreadsheets.Values.Get(AppConfig.SpreadSheetId, Range); 
+var apiGetResponse = apiGetRequest.Execute();
+
+var apiGetResponseRows = apiGetResponse.Values;
+
+if (apiGetResponseRows == null)
+    return;
+
+for (var i = 1 /*skip header*/; i < apiGetResponseRows.Count; i++)
+{                
+    var row = apiGetResponseRows[i];
+	
+	// code ...    
+	// get column value: row[0], row[1] etc.
+}
+
+-------
+
+// UPDATE STRUCTURE
+var values = new List<object> { 
+    // values ...
+};
+
+var apiUpdateRequest = service.Spreadsheets.Values.Update(new ValueRange
+{
+    MajorDimension = "ROWS", // COLUMNS/ ROWS
+    Values = new List<IList<object>> { 
+        values 
+    }
+}, AppConfig.SpreadSheetId, Range);
+
+apiUpdateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
+var apiUpdateResponse = apiUpdateRequest.Execute();
+
+return apiUpdateResponse.UpdatedColumns.HasValue ? apiUpdateResponse.UpdatedColumns.Value : 0;
+
+-------
+
+// APPEND STRUCTURE
+var values =  new List<IList<object>>(); 
+Enumerable.Range(0, Count).ToList().ForEach((index) =>{
+    values.Add(new List<object> { 
+        // values ...
+    });
+});    
+
+var apiAppendRequest = service.Spreadsheets.Values.Append(new ValueRange
+{
+    MajorDimension = "ROWS", // COLUMNS/ ROWS
+    Values = values
+}, AppConfig.SpreadSheetId, Range); // usually "Sheet1"
+
+apiAppendRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.AppendRequest.ValueInputOptionEnum.RAW;
+var apiAppendResponse = apiAppendRequest.Execute();
+
+return apiAppendResponse.Updates.UpdatedRows.HasValue ? apiAppendResponse.Updates.UpdatedRows.Value : 0;
+
+-------
+
+// RANGE SAMPLES
+Sheet1!L2  // [update] L2 column on sheet1 is the starting point
+Sheet1  // [append]
+Sheet1!A1:B  // [get] all data in column A
+Sheet1!A1:L  // [get] all data from A-K
+
+-------
+
+// IMPLEMENTATION
+see 'Google SpreadSheet API/Example'
+(ATDConference services app)

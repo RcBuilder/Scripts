@@ -1,0 +1,16 @@
+<p>this is a paragraph</p>
+<p id="token"></p>
+
+<!--<iframe id="ifrm" width="500" height="500"></iframe>-->
+<script>        
+    var popup = window.open('http://127.0.0.1:3334/token', '_blank', 'height=400, width=550, status=yes, toolbar=no, menubar=no, location=no,addressbar=no');
+    window.addEventListener('message', (message) => {
+        switch (message.data.name) {
+            case 'token':
+                let token = message.data.value;
+                document.querySelector('#token').innerHTML = token;
+                popup.close();
+            break;
+        }        
+    }, false);
+</script>

@@ -8,9 +8,13 @@
 - app object
 - request object
 - response object
+- middlewares
+- app pipline
 - route pipline
 - static content
 - url-encoded
+- body-parser
+- request-data
 - router
 - headers
 - cors
@@ -18,6 +22,7 @@
 - render html using 'webfiller' view-engine
 - render views using react view-engine
 - render views using pug view-engine
+- config file
 - POC
 =============================================
 
@@ -70,7 +75,7 @@ request object
 --------------
 properties:
 - app				// a reference to the app instance
-- body				// payload data
+- body				// payload data  (for json body, see 'body-parser')
 - cookies			// cookies
 - hostname			// hostname
 - ip				// user ip
@@ -201,35 +206,127 @@ response object
   sample:
   response.download(__dirname + '/static/static1.jpg');
 
-route pipline
--------------
-aka filters.
-any route has a pipeline. 
-we can add as many handlers as needed. 
-use the next function to move to the next handler in the pipeline.
+middlewares
+-----------
+aka filters or handlers.
+middlewares are functions to execute on the pipeline. 
+they will be executed by the order they defined. 
+can be applied on route pipeline or app pipeline. 
+we can add as many middlewares as needed. 
+use the next function to move to the next middleware in the pipeline.
 commonly used for authorization etc.
 
 syntax:
-// handler - (request, response, next) => {}
-app.get(<route-path>, <handler-1>, <handler-2> ... <handler-N>);  
+(request, response, next) => {}
+
+app level:
+app.use(middleware-1);
+app.use(middleware-2);
+...
+app.use(middleware-N);
+
+route level:
+app.<verb>(<route-path>, <middleware-1>, <middleware-2> ... <middleware-N>);
+
+using and samples:
+see 'app pipline'
+see 'route pipline'
+
+
+app pipline
+-----------
+reference: 'middlewares'
+
+any app has a pipeline. 
+app level - middlewares will be executed for ALL requests!
+
+syntax:
+// middleware - (request, response, next) => {}
+app.use(<middleware-1>);  
+app.use(<middleware-2>);
+...
+app.use(<middleware-N>);  
 
 note:
 we can either use inline-anonymous function or external function.
 
-samples:
+common middlewares:
+- body-parser 
 
-// pipeline - inline filters
+  install:
+  > npm install --save body-parser
+
+  using:
+  const bodyParser = require('body-parser'); 
+  app.use(bodyParser.json());  
+
+- static-content
+	
+  using:
+  const staticMiddleware = express.static(__dirname + '/static');
+  app.use(staticMiddleware);
+
+
+custom middleware:
+- inline-anonymous function
+  app.use((request, response, next) => { ... });
+
+- external function
+  let middleware = (request, response, next) => { ... };
+  app.use(middleware);
+
+
+samples:
+// pipeline - inline middlewares
+app.use(
+	(request, response, next) => {
+        console.log('app-middleware-A');      
+        next();
+    }
+);
+app.use(
+	(request, response, next) => {
+        console.log('app-middleware-B');   
+        next();
+    }
+);
+
+-
+
+app.use(express.static(__dirname + '/static'));
+app.use(require('body-parser').json());
+
+
+route pipline
+-------------
+reference: 'middlewares'
+
+any route has a pipeline.
+route level - middlewares will be executed on the specified route alone.
+
+syntax:
+// middleware - (request, response, next) => {}
+app.get(<route-path>, <middleware-1>, <middleware-2> ... <middleware-N>);  
+
+note:
+we can either use inline-anonymous function or external function.
+
+passing data between middlewares:
+use the request object to add custom object/s which will be available throughout the request. 
+
+samples:
+// pipeline - inline middlewares
 app.get('/test14',
     (request, response, next) => {
-        console.log('test14-A');      
+        console.log('route-middleware-A');      
         next();
     },
     (request, response, next) => {
-        console.log('test14-B');
+        console.log('route-middleware-B');
         next();
     },
     (request, response) => {
-        console.log('test14=C');
+        console.log('test14');
         response.send('some content...');
 });
 
@@ -285,6 +382,7 @@ app.get('/test15', authorize, (request, response) => {
 
 -
 
+// sharing data between filters
 const filterA = (request, response, next) => {
     request.items = ['itemA'];
     next();
@@ -302,6 +400,24 @@ const filterC = (request, response, next) => {
 app.get('/test16', filterA, filterB, filterC, (request, response) => {
     console.log('test16');
     response.send(request.items);   // ["itemA","itemB","itemC"]
+});
+
+-
+
+// passing data between filters
+/* 
+	GET http://127.0.0.1:3334/test17
+	H: Authorization: Bearer #123456
+	RES: #123456
+*/
+const authorize = (request, response, next) => {
+    let token = '#1234';
+	request.token = token;
+    next();
+}
+app.get('/test17', authorize, (request, response) => {
+    console.log('test17');
+    response.send(request.token);	// #1234
 });
 
 
@@ -336,6 +452,96 @@ a built-in middleware to url-decode incoming requests.
 syntax:
 const urlencodedMiddleware = express.urlencoded(<options>)
 app.use(urlencodedMiddleware);  // use middleware
+
+body-parser
+-----------
+provides payload-parsing middlewares for express. 
+
+source:
+https://www.npmjs.com/package/body-parser
+
+install:
+> npm install --save body-parser 
+
+sample:
+const bodyParser = require('body-parser'); 
+
+// middleware -> json-payloads parser
+app.use(bodyParser.json()); 
+
+/*
+	POST http://127.0.0.1:3334/test/8837814803
+	H: Content-Type: application/json
+	B: { a: 1, b: 2 }
+*/
+app.post('/test/:account', (request, response) => {    
+    console.log(request.params.account);   // 8837814803 
+    console.log(request.body);  // { a: 1, b: 2 }
+	...
+});
+
+request-data
+------------
+1. request.body 
+   get data from the request payload 
+   note! need to add the body-parser middleware (see 'body-parser')
+
+   e.g: 
+   /*
+		POST /test
+		H: Content-Type: application/json
+		B: { a: 1, b: 2 }
+   */
+   app.post('/test', (request, response) => {    	
+		console.log(request.body);  // { a: 1, b: 2 }
+		console.log(request.body.a);  // 1
+		console.log(request.body.b);  // 2
+   });
+
+   
+2. request.params
+   get data from route.
+   
+   e.g:
+   /// GET /test/1/2			   
+   app.get('/test/:a/:b', (request, response) => {    	
+		console.log(request.params);   // 
+		console.log(request.params.a);   // 1 
+		console.log(request.params.b);   // 2
+   });
+
+3. request.query
+   get data from the querystring.   
+
+   e.g:
+   /// GET /test?a=1&b=2			
+   app.get('/test/:account', (request, response) => {    	
+		console.log(request.query);   // 
+		console.log(request.query.a);   // 1 
+		console.log(request.query.b);   // 2
+   });
+
+-   
+
+sample:
+/*
+	POST /test/1/2?a=1&b=2
+	H: Content-Type: application/json
+	B: { "a": "1","b": "2" }
+*/
+app.post('/test/:a/:b', (request, response) => {    
+    console.log(request.body);      // { a: 1, b: 2 }
+    console.log(request.body.a);    // 1
+    console.log(request.body.b);    // 2
+
+    console.log(request.params);    // { a: 1, b: 2 }
+    console.log(request.params.a);  // 1 
+    console.log(request.params.b);  // 2
+
+    console.log(request.query);     // { a: 1, b: 2 }
+    console.log(request.query.a);   // 1 
+    console.log(request.query.b);   // 2
+});
 
 router
 ------
@@ -432,6 +638,10 @@ response:
   response.type('html');				// Content-Type: 'text/html'
   response.type('application/json');	// Content-Type: 'application/json'
   
+sample:
+app.get('/test', (request, response) => {    
+    response.send(request.headers);
+});
 
 cors
 ----
@@ -621,6 +831,41 @@ html
   p this is a paragraph
   div(style='color:red') Hello #{name}   
   
+
+config file
+-----------
+we can create any json file to serves as our app configuration file. 
+
+(steps)
+1. create config.json file
+2. add properties as per need (port, keys etc.)
+3. load the file using the 'require' clause
+
+comments:
+we can't add comments to a json file, we need to use dedicated properties for this (such as "_comment")
+// e.g:
+{  
+  "_comment_p1": "v1, v2, v3",
+  "p1": "v2",
+
+  "_comment_p2": "20, 30, 50",
+  "p2": 50,
+}
+
+sample:
+// config.json
+{
+  "port": 3334,
+  "p1": "value1",
+  "p2": "value2",
+  "p3": "value3"
+}
+
+// server.js
+const config = require('./config.json');
+...
+...
+app.listen(config.port, () => console.log(`Server running at http://127.0.0.1:${config.port}/`));
 
 POC
 ---

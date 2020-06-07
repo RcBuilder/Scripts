@@ -134,7 +134,8 @@
 (phrases)
 * TDLR = Too Damn Lazy to Reply
 * TLDR = Too Long, Didn't Read (אמל"ק)
-* KT = Knowledge Transfer
+* K.T = Knowledge Transfer
+* M.O = (Latin) Modus Operandi ("Method of Operating") דרך פעולה 
 * 10x = Thanks
 * Gr8 = Great
 

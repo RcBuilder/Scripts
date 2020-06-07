@@ -59,9 +59,20 @@ CREATE <CLUSTERED|NONCLUSTERED> INDEX <indexName>
 ON <tableName>(<columnName-1>, <columnName-2>...<columnName-N>)
 INCLUDE(<columnName-1>, <columnName-2>...<columnName-N>)
 
-sample:
-CREATE NONCLUSTERED INDEX IX_MyColumn1_MyColumn2
-ON MyTable1(MyColumn1, MyColumn2)
+samples:
+CREATE NONCLUSTERED INDEX IX_MyColumn1 ON MyTable1(MyColumn1)
+CREATE NONCLUSTERED INDEX IX_MyColumn1_MyColumn2 ON MyTable1(MyColumn1, MyColumn2)
+
+CREATE NONCLUSTERED INDEX IX_MyColumn1 ON MyTable1(MyColumn1) INCLUDE(MyColumn3, MyColumn4, MyColumn5)
+CREATE NONCLUSTERED INDEX IX_MyColumn1_Desc ON MyTable1(MyColumn1 DESC)
+
+CREATE NONCLUSTERED INDEX IX_MyColumn1 ON MyTable1(MyColumn1) WHERE MyColumn1 IS NOT NULL
+CREATE UNIQUE NONCLUSTERED INDEX IX_MyColumn1 ON MyTable1(MyColumn1) WHERE MyColumn1 IS NOT NULL
+
+CREATE NONCLUSTERED INDEX IX_Name_A ON MyTable1(Name) WHERE Name = 'A'
+
+more info:
+see 'SQL Indexes'
 
 CREATE FUNCTION (SCALAR)
 ------------------------

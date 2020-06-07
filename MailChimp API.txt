@@ -1,0 +1,130 @@
+## MailChimp API ##
+===================
+
+Authorization
+-------------
+Authorization: Basic base64(<name>:<apiKey>)  
+
+sources
+-------
+- control panel:
+  https://us5.admin.mailchimp.com
+      
+- api server 
+  https://us5.api.mailchimp.com/3.0/   
+
+- documentation:
+  http://developer.mailchimp.com/documentation/mailchimp/reference/overview/
+     
+- playground:
+  https://us1.api.mailchimp.com/playground/?_ga=2.122965901.788719496.1497604357-1049574962.1495999186
+     
+tip:
+use the control panel to manage your entites and use the playground to see each schema
+     
+Entites        
+-------
+
+List
+    - Category/Group (interest-category)
+        - SubCategory/SubGroup (interest)
+        - SubCategory
+    - Category
+        - SubCategory
+        - SubCategory
+    - Category
+        - SubCategory
+        - SubCategory
+     
+-
+     
+Campaign
+    - listId
+    - segmentId (optional)            
+     
+-
+     
+Member
+    - listId
+    - interests []
+      
+-
+        
+Segments      
+--------
+use segments to create an internal list of members (within the main list) by a condition (such as group).
+for example, all members within the current list who belongs to the group 'Students'.
+later we can define a campaign of that list and segment, so it'll apply ONLY for the 'Students' group and NOT for all members.
+
+-
+
+static segment: 
+we can also create a 'static segment' which is a segment with a static list of emails and not a conditioned-like group 
+
+-      
+
+Campaigns are used for sending a designed email to a group of members (using lists and segments) 
+we can create a campaign on a specific segment and list, design it and send it using the api afterwards. 
+      
+how to send an email for a specific members using the api? (steps)
+1. create a list of members (e.g: STUDENTS), 
+2. create a group for each class (e.g: CLASS-A, CLASS-B)
+3. create a segment and choose the groups to include within it(e.g: CLASS-A-SEGMENT) 
+4. create a campaign on that list and segment (CLASS-A-CAMPAIGN)
+5. use the api to send the campaign 
+   endpoint: /campaigns/{campaign_id}/actions/send
+
+
+API
+---
+- GET https://us5.api.mailchimp.com/3.0/lists
+  H: Authorization: Basic base64(<name>:<apiKey>)
+  RES: MailChimpList
+
+- GET https://us5.api.mailchimp.com/3.0/lists/<id>/interest-categories
+  H: Authorization: Basic base64(<name>:<apiKey>)
+  RES: MailChimpListCategories
+
+- GET https://us5.api.mailchimp.com/3.0/lists/<listId>/members
+  H: Authorization: Basic base64(<name>:<apiKey>)
+  RES: MailChimpMembers
+
+- GET https://us5.api.mailchimp.com/3.0/lists/<listId>/interest-categories/<categoryId>/interests
+  H: Authorization: Basic base64(<name>:<apiKey>)
+  RES: MailChimpCategory
+
+- POST https://us5.api.mailchimp.com/3.0/campaigns/<campaignId>/actions/send
+  H: Authorization: Basic base64(<name>:<apiKey>)
+
+- POST https://us5.api.mailchimp.com/3.0/campaigns
+  H: Authorization: Basic base64(<name>:<apiKey>)  
+  H: Content-Type: application/json
+  B: {
+        type, // regular, plaintext, rss, variate
+        settings: { title, subject_line, from_name, reply_to },
+        recipients: { list_id, saved_segment_id }
+  }
+  RES: { id }  // created campaign-id
+
+- PUT https://us5.api.mailchimp.com/3.0/campaigns/<campaignId>/content
+  H: Authorization: Basic base64(<name>:<apiKey>)
+  H: Content-Type: application/json
+  B: {
+		html // plain_text, html
+  }
+
+- POST https://us5.api.mailchimp.com/3.0/lists/{0}/segments
+  H: Authorization: Basic base64(<name>:<apiKey>)
+  H: Content-Type: application/json
+  B: { 
+        name, 
+        options: {
+            match, // any, all
+            conditions: [{ condition_type, field, op, value }]            
+        }
+  }
+  RES: { id }  // created segment-id
+
+Using
+-----
+see 'MailChimpController.cs'

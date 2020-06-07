@@ -1,0 +1,67 @@
+reference
+---------
+https://www.tiny.cloud/docs/
+
+cdn
+---
+https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js
+
+source
+------
+tinymce_source.zip
+
+syntax
+------
+tinymce.init(<options>);
+
+options
+-------
+(see 'reference')
+
+- selector: string 		// *required
+- height: int			// editor height
+- menubar: bool
+- plugins: [string]		// plugin list
+- toolbar1: string		// 1st-line toolbar (pipe-seperator)
+- toolbar2: string		// 2nd-line toolbar (pipe-seperator)
+- directionality: <ltr|rtl>	// direction
+- content_css: [string]
+...
+...
+
+basic usage
+-----------
+<head>
+    <script src="https://cdn.tiny.cloud/1/3dv7pd5z7unyxk5sb1nzl53p1o4kxxuujxsi8mjer9lzbydp/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+        tinymce.init({ selector: 'textarea' });
+    </script>
+</head>
+<body>
+    <textarea placeholder="text here..."></textarea>
+    <button onclick="alert(document.querySelector('textarea').value)">ClickMe</button>
+</body>
+
+init sample
+-----------
+ (function () {
+            tinymce.init({
+                selector: 'textarea',
+                setup: function (editor) {
+                    editor.on('change', function () {
+                        editor.save();
+                    });
+                },
+                height: 300,
+                menubar: false,
+                plugins: [
+                    'advlist autolink lists link image charmap print preview anchor',
+                    'searchreplace visualblocks code fullscreen directionality',
+                    'insertdatetime media table contextmenu paste code'
+                ],
+                toolbar1: 'undo | bold italic | link image | code preview',
+                toolbar2: 'alignleft aligncenter alignright | ltr rtl',
+                directionality: 'ltr',
+                content_css: []
+            });
+        })();

@@ -1,0 +1,3 @@
+C# Query2Dictionary
+-------------------
+see 'Helper.cs'

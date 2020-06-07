@@ -1,0 +1,34 @@
+dangerouslySetInnerHTML
+-----------------------
+innerHTML property.
+injects html raw code into an element. 
+also allows us to add js code with no encoding issues.
+
+syntax:
+dangerouslySetInnerHTML={{ __html: <html> }}
+
+render a script tag:
+let jsCode = `...`;
+<script dangerouslySetInnerHTML={{ __html: jsCode }}></script>
+
+sample:
+const React = require('react');
+module.exports = (props) => {    
+    let jsCode = `
+        let message = {
+            name: 'token',
+            value: '${props.token}'
+        };
+
+        if(chrome.runtime)
+            chrome.runtime.sendMessage('${props.extensionId}', message);
+        if(window.opener)
+            window.opener.postMessage(message);
+    `;
+    return (
+        <body>
+            <h6>{props.token}</h6>
+            <script dangerouslySetInnerHTML={{ __html: jsCode }}></script>
+        </body>        
+    );
+}

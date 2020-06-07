@@ -2,6 +2,23 @@
 ******** SQL Indexes ********
 *****************************
 
+- About
+- Syntax
+- Clustered Index
+- Non Clustered Index
+- Tips
+- Create An Index
+- Include Columns
+- Flags
+- Order
+- Uniqueness
+- Filtered Index
+- STATISTICS PROFILE
+- Using Example
+- References
+
+About
+-----
 indexes help us to evade table-scans which are a heavy task and by doing so, improve performance. 
 a table-scan is a process taken to loop through ALL rows of a table.
 a table with no index has to do a table-scan for almost any query!
@@ -17,8 +34,8 @@ reference: 'B-Tree vs B+Tree vs Binary Tree'
 
 Syntax
 ------
-CREATE <UNIQUE>? <CLUSTERED|NONCLUSTERED> INDEX <IndexName> ON <TableName>(<Column-1> <ASC|DESC>? ...) INCLUDE(<Column-1> ...)? WITH(<Flags>)?
-DROP INDEX <IndexName> ON <TableName>
+- CREATE <UNIQUE>? <CLUSTERED|NONCLUSTERED> INDEX <IndexName> ON <TableName>(<Column-1> <ASC|DESC>? ...) INCLUDE(<Column-1> ...)? WITH(<Flags>)? WHERE(<condition>)?
+- DROP INDEX <IndexName> ON <TableName>
 
 Clustered Index
 ---------------
@@ -160,20 +177,57 @@ CREATE UNIQUE INDEX IX_Id ON Persons (PersonID);
 
 Filtered Index
 --------------
+Index with condition! is used to index only a portion of rows in a table.
+a filtered Index reduces maintenance cost and storage usage. it also improves performance!
 use the WHERE clause in the Index definition to filter-out un-wanted rows to index! 
 common case is to filter-out NULLs and ONLY index columns with values.
 can also be used for genetating an Index Range! 
+
+be-ware:
+in some cases, the query-optimizer will NOT select the index cause it's not safe! 
+meaning it doesn't know for sure if using that index contributes to the query.
+
+a good example for such a case is using parameters within an sp, the query-optimizer doesn't read the parameter value and therefore, 
+can't predict whether the filtered index is the best choise or not!
 
 sample:
 CREATE UNIQUE NONCLUSTERED INDEX [IX_OrderDate] 
 ON [dbo].[Products](OrderDate ASC) 
 WHERE [IX_OrderDate] IS NOT NULL;
 
-// TODO --> test of range index + sample (by id etc.)
+--
+
+CREATE TABLE #t1(Name CHAR(1))
+CREATE NONCLUSTERED INDEX IX_Name ON #t1(Name) WHERE Name = 'A'
+
+INSERT INTO #t1 VALUES('A')
+GO 20
+INSERT INTO #t1 VALUES('B')
+GO 20
+
+SELECT * FROM #t1 WHERE Name = 'A'	-- Index Seek
+SELECT * FROM #t1 WHERE Name = 'B' -- Table Scan!
+
+
+STATISTICS PROFILE
+------------------
+displays the profile information for a statement. 
+use it to get extra information about the using indexes. 
+
+syntax:
+SET STATISTICS PROFILE <ON|OFF>
+
+sample:
+SET STATISTICS PROFILE ON
+SELECT * FROM #t1 WHERE Name = 'A'  -- 6897
+SET STATISTICS PROFILE OFF
+
+// output
+|--Index Seek(OBJECT:([tempdb].[dbo].[#t1]), SEEK:([tempdb].[dbo].[#t1].[Name]='A') ORDERED FORWARD)
+
 
 Using Example
 -------------
-
 ** No Index **
 
 [table] 
@@ -221,9 +275,18 @@ from that index, it'll take the identities (or addresses) of the matched rows,
 with those ids, it'll fetch the actual rows from the data table. 
 NO table-scan occurred this time!  
 
+References
+----------
+see 'SQL CREATE INDEX'
+see 'SQL Statements'
+
+
+
 ---------------------------------------------------
 
 // TODO 
+Filtered Index --> test of range index + sample (by id etc.)
+
 
 Page node ???
 Leaf ???

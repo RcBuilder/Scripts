@@ -1,0 +1,12 @@
+{
+  "port": 3334,
+  "client_id": "1077252635708-crhp3ci2q5afvfe0serntuvkgfo17t88.apps.googleusercontent.com",
+  "client_secret": "CLIENT_SECRET",
+  "token_response_url": "http://127.0.0.1:3334/token_response",
+  "_comment_token_response_format": "json, chromeExtension, text",
+  "token_response_format": "chromeExtension",
+  "_comment_extensionId": "(local) kodallhpklbdekhpfnnaghbnijkgcahh | (prod) infmgkaafmggbegkdldnakpdaooekggp",
+  "extensionId": "kodallhpklbdekhpfnnaghbnijkgcahh",
+  "developerToken": "DEVELOPER_TOKEN",
+  "userAgent": "RcBuilder"
+}

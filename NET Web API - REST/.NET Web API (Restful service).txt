@@ -657,6 +657,14 @@ Enable CORS
 	[EnableCors(origins: "http://myClientA.com, http://myClientB.com", headers: "*", methods: "*")]
 	public class TestController : ApiController { ... }
 
+	-
+
+	enable all:
+	[EnableCors(origins: "*", headers: "*", methods: "*")]
+	public class TestController : ApiController { ... }
+
+	-
+
 	note! 
 	we can use it to decorate a specific action or the whole controller. 
 	in addition, we can set it as global (see 'Enable CORS Globally')

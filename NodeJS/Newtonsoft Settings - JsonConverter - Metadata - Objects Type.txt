@@ -1,0 +1,14 @@
+linux - deploy node-server 
+--------------------------
+- buy a linux VPS
+- open MobaXTerm > add session > use SSH 
+- install npm 
+  > apt install npm
+- create a new directory for the service (use CLI or MobaXTerm side-menu)
+  > mkdir <service1>
+- use MobaXTerm side-menu to enter the folder > right-click > upload to current folder
+- choose the node source-code > upload
+- install packages 
+  > npm install
+- run your server! 
+  > node server 

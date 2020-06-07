@@ -21,12 +21,31 @@ app.set('view engine', 'jsx');
 app.engine('pug', require('pug').__express);  // npm install --save pug
 app.set('view engine', 'pug');
 
+// add body parser middleware
+const bodyParser = require('body-parser'); 
+app.use(bodyParser.json());  // npm install --save body-parser 
 
 // map a route to static contents
 // in this example - the static contents defined under '/static' folder. 
 // e.g: /static1.txt
 const staticMiddleware = express.static(__dirname + '/static');
 app.use(staticMiddleware);
+
+// custom middlewares
+app.use(
+    (request, response, next) => {
+        console.log('app-middleware-A');
+        next();
+    }
+);
+
+app.use(
+    (request, response, next) => {
+        console.log('app-middleware-B');
+        next();
+    }
+);
+
 
 // text content
 app.get('/test1', (request, response) => {
@@ -187,9 +206,19 @@ app.get('/test16', filterA, filterB, filterC, (request, response) => {
     response.send(request.items);   // ["itemA","itemB","itemC"]
 });
 
-app.get('/test17', filterA, filterB, filterC, (request, response) => {
+// headers
+app.get('/test17', (request, response) => {
     console.log('test17');
     response.send(request.headers);
+});
+
+// params
+app.post('/test18/:a/:b', (request, response) => {
+    console.log('test18');
+    console.log(request.body);      // { a: 1, b: 2 }    
+    console.log(request.params);    // { a: 1, b: 2 }   
+    console.log(request.query);     // { a: 1, b: 2 }  
+    response.send('OK');
 });
 
 // routers

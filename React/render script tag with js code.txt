@@ -1,0 +1,4 @@
+render script tag with js code
+------------------------------
+reference:
+dangerouslySetInnerHTML

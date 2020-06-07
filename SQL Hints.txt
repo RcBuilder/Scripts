@@ -1,0 +1,156 @@
+SQL Hints
+=========
+hints are options/ suggestions to use in a query. 
+they override any execution plan the query optimizer might select.
+
+there are 3 types of hints:
+- Join Hints
+- Query Hints
+- Table Hint
+
+note: 
+the query optimizer usually selects the best execution plan to perform.
+use those hints only when absolutely necessary.
+
+Join Hints
+----------
+specifies the join strategy to use. 
+
+syntax:
+INNER <strategy> JOIN
+LEFT  <strategy> JOIN
+RIGHT <strategy> JOIN
+
+strategies:
+- LOOP
+- HASH
+- MERGE
+
+using:
+SELECT * FROM A INNER HASH JOIN B ON(A.Id = B.Id)
+
+Query Hints
+-----------
+specifies that a certain hint should be used throughout the query.
+the hint will be applied to ALL the query statements.
+
+syntax:
+OPTION(<arguments>) 
+
+arguments:
+- HASH GROUP
+- ORDER GROUP   
+- CONCAT UNION
+- HASH UNION
+- MERGE UNION   
+- LOOP JOIN
+- MERGE JOIN 
+- HASH JOIN   
+- FAST
+- FORCE ORDER   
+- DISABLE EXTERNALPUSHDOWN
+- FORCE EXTERNALPUSHDOWN
+- DISABLE SCALEOUTEXECUTION
+- FORCE SCALEOUTEXECUTION
+- IGNORE_NONCLUSTERED_COLUMNSTORE_INDEX  
+- KEEP PLAN   
+- KEEPFIXED PLAN  
+- MAX_GRANT_PERCENT
+- MIN_GRANT_PERCENT
+- MAXDOP
+- MAXRECURSION
+- NO_PERFORMANCE_SPOOL
+- OPTIMIZE FOR
+- QUERYTRACEON
+- RECOMPILE    
+- ROBUST PLAN
+- USE HINT
+- USE PLAN
+- TABLE HINT
+
+note:
+supports multiple hints
+OPTION (<hint>, .... <hint>)
+
+using:
+SELECT * FROM A INNER JOIN B ON(A.Id = B.Id)
+OPTION (MERGE JOIN)
+-
+SELECT * FROM A WHERE C1 = @P1
+OPTION (OPTIMIZE FOR (@P1 = 'SomeValue'))
+-
+SELECT * FROM A
+UNION  
+SELECT * FROM B
+OPTION (MERGE UNION)  
+-
+SELECT TypeId, SUM(C1) FROM A GROUP BY TypeId
+OPTION (HASH GROUP)
+- 
+SELECT TypeId, SUM(C1) FROM A GROUP BY TypeId
+OPTION (HASH GROUP, FAST 10)
+
+Table Hint
+----------
+specifies a certain hint to be applied on a specific table. 
+commonly used for specifying the locking method or setting indexes.
+
+syntax:
+WITH(<arguments>) 
+
+arguments:
+- INDEX
+- FORCESEEK
+- FORCESCAN    
+- HOLDLOCK   
+- NOLOCK   
+- NOWAIT  
+- PAGLOCK   
+- READCOMMITTED   
+- READCOMMITTEDLOCK   
+- READPAST   
+- READUNCOMMITTED   
+- REPEATABLEREAD   
+- ROWLOCK   
+- SERIALIZABLE   
+- SNAPSHOT   
+- SPATIAL_WINDOW_MAX_CELLS
+- TABLOCK   
+- TABLOCKX   
+- UPDLOCK   
+- XLOCK   
+
+note:
+supports multiple hints
+WITH (<hint>, .... <hint>)
+
+using:
+SELECT * FROM A WITH (NOLOCK)
+-
+SELECT * FROM A WITH (READCOMMITTED)
+-
+SELECT * FROM A WITH (SNAPSHOT)
+- 
+UPDATE A WITH (TABLOCK) SET C1 = @C1 WHERE C2 = @C2 
+-
+SELECT * FROM A WITH (FORCESEEK)
+- 
+SELECT * FROM A WITH (FORCESCAN)
+-
+SELECT * FROM A WITH (INDEX(SomeIndex)) 
+-
+SELECT * FROM A WITH (NOLOCK, INDEX(SomeIndex)) 
+
+test:
+CREATE TABLE #t1(Name CHAR(1))
+CREATE NONCLUSTERED INDEX IX_Name_A ON #t1(Name) WHERE Name = 'A'
+CREATE NONCLUSTERED INDEX IX_Name ON #t1(Name)
+INSERT INTO #t1 VALUES('A')
+GO 20
+
+INSERT INTO #t1 VALUES('B')
+GO 20
+  
+SELECT * FROM #t1	-- IX_Name was used 
+SELECT * FROM #t1 WHERE Name = 'A'	-- IX_Name was used 
+SELECT * FROM #t1 WITH(INDEX(IX_Name_A)) WHERE Name = 'A'	-- IX_Name_A was used 
