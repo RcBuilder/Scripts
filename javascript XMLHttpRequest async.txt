@@ -1,0 +1,4 @@
+javascript XMLHttpRequest async
+-------------------------------
+reference:
+'javascript await XMLHttpRequest'
