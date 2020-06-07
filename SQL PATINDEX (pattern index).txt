@@ -1,0 +1,4 @@
+SQL PATINDEX (pattern index)
+----------------------------
+reference: 
+'SQL Built-In FUNCTIONS'

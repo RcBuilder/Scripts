@@ -1,0 +1,24 @@
+SQL First Day Of Month
+----------------------
+function:
+DATEFROMPARTS
+
+reference:
+'SQL Built-In FUNCTIONS'
+
+syntax:
+DATEFROMPARTS(<year>, <month>, <day>)
+
+using:
+DATEFROMPARTS(YEAR(GETDATE()),MONTH(GETDATE()),1)
+
+-----
+
+DECLARE @TODAY DATE = GETDATE();	
+DECLARE @FIRST DATE = (SELECT DATEFROMPARTS(YEAR(GETDATE()),MONTH(GETDATE()),1))  
+PRINT(CONCAT(@FIRST, ' - ', @TODAY))
+	 
+SELECT	COUNT(*) 
+FROM	[dbo].[Analytics_dw_Visitors_Daily] WITH(NOLOCK)  
+WHERE	 UserId = @UserId
+AND	([Day] BETWEEN @FIRST AND @TODAY)

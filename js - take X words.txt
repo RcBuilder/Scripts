@@ -1,0 +1,24 @@
+javascript - take X words
+-------------------------
+function takeXWords(phrase, count) {
+    if(!phrase) return;
+    count = count || 10; // default
+    
+    try{
+      return phrase.split(' ').slice(0, count).join(' ');
+    }
+    catch(ex){
+      return phrase.split(' ').slice(0).join(' ');
+    }
+  }
+
+
+takeXWords(null, 6);	// null
+takeXWords('', 6);	// null
+takeXWords('aa bb cc dd', 1);	// aa
+takeXWords('aa bb cc dd', 2);	// aa bb
+takeXWords('aa bb cc dd', 3);	// aa bb cc
+takeXWords('aa bb cc dd', 4);	// aa bb cc dd
+takeXWords('aa bb cc dd', 6);	// aa bb cc dd
+
+

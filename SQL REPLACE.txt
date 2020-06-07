@@ -1,0 +1,4 @@
+SQL REPLACE
+-----------
+reference: 
+'SQL Built-In FUNCTIONS'

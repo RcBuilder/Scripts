@@ -1,0 +1,10 @@
+javascript DOMParser
+--------------------
+note: 
+the DOMParser generates a DOM document object. 
+to work with XPath, we need to use the 'document.evaluate' function (see 'javascript XPath usign evaluate')
+
+let parser = new DOMParser();
+let dom = parser.parseFromString('<body><h1>A</h1><h1>B</h1><p>C</p><h1>C</h1></body>', 'text/xml');
+console.log(dom); // document object
+dom.querySelectorAll('h1') // [h1, h1, h1]

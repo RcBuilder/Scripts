@@ -1,0 +1,4 @@
+SQL LEFT & RIGHT
+----------------
+reference: 
+'SQL Built-In FUNCTIONS'

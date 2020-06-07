@@ -1,0 +1,628 @@
+***************************
+** nodeJS express server **
+***************************
+
+=== [TOC] ===================================
+- basic
+- create server
+- app object
+- request object
+- response object
+- route pipline
+- static content
+- url-encoded
+- router
+- headers
+- cors
+- view-engines
+- render html using 'webfiller' view-engine
+- render views using react view-engine
+- render views using pug view-engine
+- POC
+=============================================
+
+basic
+-----
+const express = require('express');
+const app = express();
+
+const config = {
+    port: 3333
+}
+
+app.use(express.static(__dirname + '/static'));
+
+app.get('/', (request, response) => { ... });
+app.get('/endpoint1', (request, response) => { ... });
+app.get('/endpoint2', (request, response) => { ... });
+...
+...
+app.listen(config.port, () => console.log(`Server running at http://127.0.0.1:${config.port}/`)); 
+
+
+create server
+-------------
+const https = require('https');
+const http = require('http');
+const app = express();
+
+http.createServer(app).listen(<port>);
+https.createServer(options, app).listen(<port>);
+
+note:
+app.listen(<port>) is a wrapper for http.createServer(app).listen(<port>)
+
+
+app object
+----------
+- app.locals		// app-level object for custom properties throughout the app-life.
+- app.get			// HTTP GET route
+- app.post			// HTTP POST route
+- app.delete		// HTTP DELETE route
+- app.engine		// adds rendering engine
+- app.listen		// listens to requests
+- app.param			// adds a trigger which based on parameter name
+- app.render		// renders a view 
+- app.set			// assigns setting name to value
+- app.use			// appends middleware to the app
+
+request object
+--------------
+properties:
+- app				// a reference to the app instance
+- body				// payload data
+- cookies			// cookies
+- hostname			// hostname
+- ip				// user ip
+- originalUrl		// the original url
+- params			// routing param
+- path				// url-path part
+- protocol			// url-protocol part
+- query				// url-querystring
+
+methods:
+- accepts(<type>)					// append accepted type  
+  request.accepts('text/html')
+
+- acceptsCharsets(<charset>)		// append accepted charset
+  request.acceptsCharsets('utf-8')
+
+- acceptsEncodings(<encoding>)		// append accepted encoding
+  request.acceptsEncodings('gzip')
+
+- acceptsLanguages(<language>)		// append accepted language
+  request.acceptsLanguages('es');
+
+- get(<header-name>)				// get header value 
+  request.get('content-type')		
+
+- is(type) 
+  request.is('text/html')
+
+response object
+---------------
+- send
+  send all sort of data.
+
+  syntax:
+  response.send(<any>);
+  
+  content-Type:
+  the express engine auto-appends the 'Content-Type' header based on the type of the provided content. 
+  
+  note:
+  can only use it once. 
+  an attempt to use it again throws a 'Cannot set headers after they are sent to the client' exception.
+  
+  samples:
+  response.send('string');
+  response.send('<p>html</p>');
+  response.send({ a: 1, b: 2 });    
+
+- sendStatus
+  send an http status.
+  
+  syntax:
+  response.sendStatus(<statusCode>);
+  
+  note:
+  no custom content allowed. to send a custom message, use 'status' instead
+  
+  samples:
+  response.sendStatus(500);
+  response.sendStatus(400);
+  response.sendStatus(403);
+
+- status
+  set the response status. 
+  allows us to send a custom message or end the response.
+  
+  syntax:
+  response.status(<statusCode>);
+  
+  samples:
+  response.status(403).send('Forbidden');
+  response.status(403).send('no authorization header');
+  response.status(403).send('invalid token');
+  response.status(500).send('server is down for maintenance');
+  response.status(404).end();
+
+- redirect
+
+  syntax:
+  response.redirect(<location>);
+  
+  note:
+  supports local-routes
+  
+  samples:
+  response.redirect('/test1');	
+  response.redirect('http://127.0.0.1:3333/test1');
+
+- end
+  end the response.
+
+  syntax:
+  response.end();
+
+- render
+  use this option to render a response using a view-engine.
+  there are a variety of engines to use (see 'view-engines')
+
+  syntax:
+  response.render(<view>, <params>);
+
+  sample: 
+  app.set('views', __dirname + '/views');     
+  app.engine('jsx', require('express-react-views').createEngine()); 
+  app.set('view engine', 'jsx');
+
+  response.render('view1.jsx', { name: 'Roby' });
+
+- sendFile
+  send a file.	
+
+  tip:
+  use the global variable '__dirname' to get the current folder path.
+
+  syntax:
+  response.sendFile(<file-path>);
+
+  samples:
+  response.sendFile(__dirname + '/views/view1.html');    
+  response.sendFile(__dirname + '/static/static1.jpg');
+
+- download
+  download a file.
+
+  syntax:
+  response.download(<file-path>);
+
+  sample:
+  response.download(__dirname + '/static/static1.jpg');
+
+route pipline
+-------------
+aka filters.
+any route has a pipeline. 
+we can add as many handlers as needed. 
+use the next function to move to the next handler in the pipeline.
+commonly used for authorization etc.
+
+syntax:
+// handler - (request, response, next) => {}
+app.get(<route-path>, <handler-1>, <handler-2> ... <handler-N>);  
+
+note:
+we can either use inline-anonymous function or external function.
+
+samples:
+
+// pipeline - inline filters
+app.get('/test14',
+    (request, response, next) => {
+        console.log('test14-A');      
+        next();
+    },
+    (request, response, next) => {
+        console.log('test14-B');
+        next();
+    },
+    (request, response) => {
+        console.log('test14=C');
+        response.send('some content...');
+});
+
+-
+
+/*
+    GET http://127.0.0.1:3333/test15 
+    RES: 401 No Authorization Header
+    -
+    GET http://127.0.0.1:3333/test15
+    H: Authorization Basic 1234
+    RES: 401 Not a Bearer Authorization
+    -
+    GET http://127.0.0.1:3333/test15
+    H: Authorization Bearer
+    RES: 401 No Token
+    -
+    GET http://127.0.0.1:3333/test15
+    H: Authorization Bearer #67890
+    RES: 401 Invalid Token
+    -
+    GET http://127.0.0.1:3333/test15
+    H: Authorization: Bearer #123456
+    RES: 200 some content...
+*/
+
+const authorize = (request, response, next) => {
+    console.log('authorization process');
+
+	let authorization = request.headers['authorization'];
+    if(!authorization)
+        return response.status(401).send('No Authorization Header');
+
+    let scheme = authorization.split(' ')[0];
+    if(!scheme || scheme != 'Bearer')
+        return response.status(401).send('Not a Bearer Authorization');
+
+    let token = authorization.split(' ')[1];
+    if(!token)
+        return response.status(401).send('No Token');
+
+	if(token != '#123456')
+		return response.status(401).send('Invalid Token');
+
+	next();        
+};
+
+// with authorization process
+app.get('/test15', authorize, (request, response) => {
+        console.log('test15');
+        response.send('some content...');
+});
+
+-
+
+const filterA = (request, response, next) => {
+    request.items = ['itemA'];
+    next();
+}
+const filterB = (request, response, next) => {
+    request.items.push('itemB');
+    next();
+}
+const filterC = (request, response, next) => {
+    request.items.push('itemC');
+    next();
+}
+
+// pipeline - external filters
+app.get('/test16', filterA, filterB, filterC, (request, response) => {
+    console.log('test16');
+    response.send(request.items);   // ["itemA","itemB","itemC"]
+});
+
+
+static content
+--------------
+a built-in middleware to map a route to static contents.
+common static files are images, css, htmls, txt and etc.
+express.static creates a middleware to serve static contents.
+
+syntax:
+const staticMiddleware = express.static(<folder-path>, <options>)
+app.use(staticMiddleware);  // use middleware
+
+schema:
+- root
+--- server.js
+--- static
+------ static1.txt
+------ static1.jpg
+------ static1.html
+
+using:
+in this example - the static contents defined under '/static' folder. 
+
+// e.g: GET http://127.0.0.1:3333/static1.txt
+app.use(express.static(__dirname + '/static'));
+
+url-encoded
+-----------
+a built-in middleware to url-decode incoming requests.
+
+syntax:
+const urlencodedMiddleware = express.urlencoded(<options>)
+app.use(urlencodedMiddleware);  // use middleware
+
+router
+------
+create a router. router contains set of routes of any http type (get, post etc.)
+can use multiple routers. 
+can be defined as an external module (and export it using module.exports).
+
+syntax:
+app.use(<path>, <router>);
+
+basic:
+const router = express.Router();
+<routes>
+app.use('/', router);
+
+advanced sample:
+GET http://127.0.0.1:3333/test1
+GET http://127.0.0.1:3333/test2
+GET http://127.0.0.1:3333/api/test1
+GET http://127.0.0.1:3333/users/test1
+
+-
+
+// server.js
+app.get('/test1', (request, response) => {
+    console.log('test1');        
+    response.send('some content...');    
+});
+
+app.use('/', require('./router1'));       // external router for more routes on the root
+app.use('/api', require('./router2'));    // external router for api routes
+app.use('/users', require('./router3'));  // external router for users routes
+
+-
+
+// router1.js
+const router = express.Router();
+
+router.get('/test2', (request, response) => {
+    console.log('router1 > test2');
+    response.send('some content from router1 ...');
+});
+
+module.exports = router;
+
+-
+
+// router2.js
+const router = express.Router();
+
+router.get('/test1', (request, response) => {
+    console.log('router2 > test1');
+    response.send('some content from router2 ...');
+});
+
+module.exports = router;
+
+-
+
+// router3.js
+const router = express.Router();
+
+router.get('/test1', (request, response) => {
+    console.log('router3 > test1');
+    response.send('some content from router3 ...');
+});
+
+module.exports = router;
+
+
+headers
+-------
+request:
+- request.headers			// returns the headers in the request as an object.   
+- request.headers[<name>]   // get header value by name
+- sample:
+   
+  // H: Authorization: Bearer #123456 
+  let authorization = request.headers['authorization'];   // Bearer #123456
+
+response:
+- response.append(<name>, <value>)		// add ANY header 
+
+  samples:  
+  response.append('Content-Type', 'application/javascript; charset=UTF-8');
+  response.append('Connection', 'keep-alive');
+  response.append('Set-Cookie', 'divehours=fornightly');
+  response.append('Content-Length', '5089990'); 
+
+- response.type(<value>)				// add a 'Content-Type' header
+
+  samples:
+  response.type('png');					// Content-Type: 'image/png'
+  response.type('html');				// Content-Type: 'text/html'
+  response.type('application/json');	// Content-Type: 'application/json'
+  
+
+cors
+----
+we use cors to allow access from javascript code on a different domain. (same-origin policy)
+we can apply it for all requests as a middleware (using the 'app.use' method) or as per a route. 
+we can enable access to all domains or only to specific ones. 
+
+install:
+> npm install --save cors
+
+syntax:
+cors()
+cors(<options>)
+
+options:
+- origin				// configure the 'Access-Control-Allow-Origin' header
+- methods				// configure the 'Access-Control-Allow-Methods' header
+- allowedHeaders		// configure the 'Access-Control-Allow-Headers' header
+- preflightContinue	
+- optionsSuccessStatus
+
+default:
+{
+  "origin": "*",
+  "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  "preflightContinue": false,
+  "optionsSuccessStatus": 204
+}
+
+using:
+- enable for all requests (all cors) 
+
+  const cors = require('cors');
+  app.use(cors()); // as middleware (all requests)
+
+- enable for all requests (specific domains)
+
+  const cors = require('cors');
+  const options = {
+    origin: 'http://example.com',
+    optionsSuccessStatus: 200
+  } 
+  app.use(cors(options)); // as middleware (all requests)
+
+- enable per route (all cors)
+
+  const cors = require('cors');
+  app.get('/', cors(), (request, response) => { ... }) // per route
+
+- enable per route (specific domains)
+
+  const cors = require('cors');
+  const options = {
+    origin: 'http://example.com',
+    optionsSuccessStatus: 200
+  } 
+  app.get('/', cors(options), (request, response) => { ... }) // per route
+
+- enable for pre-flight
+  app.options('*', cors());
+
+
+view-engines
+------------
+aka 'Template engines'
+https://expressjs.com/en/resources/template-engines.html
+
+views folder:
+we need to define the folder where the views exist-in.
+use the app 'views' property to set it. 
+when rendering a view by its name, the engine searches the view in the views folder.
+
+// set views folder
+app.set('views', __dirname + '/views');
+
+samples:
+- render html using 'webfiller' view-engine
+- render views using react view-engine
+- render views using pug view-engine
+
+
+render html using 'webfiller' view-engine
+-----------------------------------------
+html engine.
+note that for static html we don't realy need view-engine and can serve them as static content (see 'static content')
+
+install:
+> npm install --save webfiller
+
+schema:
+- root
+--- server.js
+--- views
+------ view1.html
+------ view2.html
+
+using:
+// add html engine
+app.engine('html', require('webfiller').__express); 
+app.set('view engine', 'html');
+
+// set views folder
+app.set('views', __dirname + '/views');
+
+app.get('/view1', (request, response) => {   
+    response.render('view1.html');
+});
+
+--
+
+// view1.html
+<p>this is a paragraph</p>
+<script>
+    document.write('<p>this is a dynamic paragraph</p>');
+</script>
+
+
+render views using react view-engine
+------------------------------------
+jsx engine.
+
+install:
+> npm install --save express-react-views react react-dom
+
+schema:
+- root
+--- server.js
+--- views
+------ view1.jsx
+------ view2.jsx
+
+using:
+// add jsx engine
+app.engine('jsx', require('express-react-views').createEngine()); 
+app.set('view engine', 'jsx');
+
+// set views folder
+app.set('views', __dirname + '/views');
+
+app.get('/view1', (request, response) => {   
+    response.render('view1.jsx', { name: 'Roby' });
+});
+
+--
+
+// view1.jsx
+const React = require('react');
+module.exports = (props) => {
+    return <div>Hello {props.name}</div>;
+}
+
+
+render views using pug view-engine
+----------------------------------
+pug engine.
+
+install:
+> npm install --save pug
+
+schema:
+- root
+--- server.js
+--- views
+------ view1.pug
+------ view2.pug
+
+using:
+// add pug engine
+app.engine('pug', require('pug').__express);
+app.set('view engine', 'pug');
+
+// set views folder
+app.set('views', __dirname + '/views');
+
+app.get('/view1', (request, response) => {   
+    response.render('view1.pug', { title: 'page-title', name: 'Roby' });
+});
+
+--
+
+// view1.pug
+doctype html
+html
+ head
+  title #{title}
+ body  
+  p this is a paragraph
+  div(style='color:red') Hello #{name}   
+  
+
+POC
+---
+a fully functioning server using express engine with all the above features can be found here:
+'/NodeJS/Sources/ExpressServer'

@@ -1,0 +1,14 @@
+1. Close Android Studio
+2. Control Panel
+3. System and Security > System > Advanced system settings
+4. Environment Variables
+5. Create New 
+   - set name to 'ANDROID_AVD_HOME' 
+   - set value to the new folder path (e.g: E:\Android AVD\)
+6. Re-open Android Studio
+
+
+--
+
+default location:
+C:/users/<username>/.android

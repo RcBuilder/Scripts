@@ -79,6 +79,8 @@ starting from position <start>, delete <length> characters from the <input> and 
 note: 1 based
 
 ---
+similar to 'splice' function in javascript
+---
 
 // delete string from position 7 till 12 ('World') and insert the value 'Roby' from index 7
 select STUFF('Hello World', 7, 5, 'Roby') -- Hello Roby

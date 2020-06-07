@@ -1,12 +1,168 @@
 Export & Import
----------------
+===============
 
+references:
+see 'Require'
+
+--
+
+
+CommonJS vs ES6 module syntax
+-----------------------------
+node uses CommonJS syntax (module.exports) and NOT ES6 syntax (export keyword) 
+so any attempt to use export will throw the following exception: 
+"Unexpected token export".
+the same issue applies to the 'import' clause, use 'require' instead.
+
+solutions:
+- use 'babel' compiler to convert your js code from ES6 to ES5
+- use module.exports syntax instead
+- use typescript which includes a built-in compiler
+
+
+using typescript
+----------------
+// test.ts
+export function fun1(){ console.log('fun1'); }
+export function fun2(){ console.log('fun2'); }
+
+-
+
+// index.ts
+import { fun1 } from "./test.js";
+fun1();
+
+- 
+
+// compile .ts files to .js 
+> tsc test.ts
+> tsc index.ts
+
+// run index.js
+> node index
+
+
+export keyword
+--------------
+// supported in ES6 and up
+export interface ICopy { ... }
+-
+export class Copy implements ICopy { ... }
+-
+export let months = ['Jan', 'Feb', 'Mar','Apr', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+-
+export const PI = 3.14;
+-
+export const numberRegex = /^[0-9]+$/;
+-
+export function fun1(){ console.log('fun1'); }
+-
+export class User {
+  constructor(name) {
+    this.name = name;
+  }
+}
+- 
+let e1 = {...};
+let e2 = {...};
+export { e1, e2 };
+-
+// using alias ('as' keyword)
+export { e1 as exported1, e2 as exported2 };
+-
+// Re-export
+export { e1 } from './test.js';
+-
+// Re-export
+import { e1, e2 } from './test.js';
+export { e1, e2 };
+
+
+import keyword
+--------------
+// supported in ES6 and up
+import * as all from './test.js';
+console.log(all.e1);
+console.log(all.e2);
+-
+import { e1, e2 } from './test.js';
+console.log(e1);
+console.log(e2);
+-
+// using alias ('as' keyword)
+import { e1 as imported1, e2 as imported2 } from './test.js';
+-
+// import a default exported object
+// no extraction needed when importing a default item
+import class1 from './test.js'
+
+exports keyword
+---------------
+// supported in ES5 and up
+exports.fun1 = function fun1(){}
+exports.fun2 = function fun2(){}
+exports.c1 = 'value-1';
+
+require 
+-------
+// supported in ES5 and up
+let o = require('./test.js');
+o.fun1();
+o.fun2();
+console.log(o.c1);
+
+export default 
+--------------
+use the 'default' keyword when exporting a single class! 
+can only be used one per module.
+-
+export default class MyClass { ... }
+
+using options
+-------------
+[option-1]
+use 'module.exports' to export a module (as a class). 
+use 'require' to get the module 
+
+-
+
+// MyModule.ts
+module.exports = class MyModule {
+    constructor(public id: number, public name: string) { }
+}
+
+// app.ts
+let MyModule = require('./MyModule.js');
+
+let exM1 = new MyModule(1, 'module1');
+console.log(exM1);
+
+[option-2]
+use 'module.exports' to export a module (as a literal). 
+use 'require' to get the module 
+
+-
+
+// MyModule2.ts
+module.exports = {    
+    fun1: () => { console.log('fun1'); },
+    fun2: () => { console.log('fun2'); }
+};
+
+// app.ts
+let MyModule2 = require('./MyModule2.js');
+
+MyModule2.fun1();
+MyModule2.fun2();
+
+[option-3]
 use 'export' to export code. (supports multiple) 
 use 'import' to get the exported code.
 
 -
 
-export class MyClassA {
+// MyModule3.ts
+export class MyModule3A {
     private _items: string[] = [];
     constructor(public orderId: number) {}
 
@@ -24,33 +180,125 @@ export class MyClassA {
     }
 };
 
-export class MyClassB {    
+export class MyModule3B {    
     public sayHello(name: string): void {
         console.log(`hello ${name}`)
     }
 };
 
 interface iConfig { key1: string, key2: string }
-export const MyConfig: iConfig = {
+export const MyModule3Config: iConfig = {
     key1: 'value1',
     key2: 'value2'
 };
 
-export enum eColors {
+export enum MyModule3eColors {
     RED, GREEN, BLUE
 }
 
--------------
+// app.ts
+import { MyModule3A, MyModule3B, MyModule3Config, MyModule3eColors } from './MyModule3.js';
 
-import { MyClassA, MyClassB, MyConfig, eColors } from './MyModule.js';
+let exM3a = new MyModule3A(3);
+exM3a.add('itemA');
+exM3a.add('itemB');
+console.log(exM3a.items);
 
-let a = new MyClassA(3);
-a.add('itemA');
-a.add('itemB');
-console.log(a.items);
+let exM3b = new MyModule3B();
+exM3b.sayHello('Roby');
 
-let b = new MyClassB();
-b.sayHello('Roby');
+console.log(MyModule3eColors.GREEN);
+console.log(MyModule3Config.key1);
 
-console.log(eColors.GREEN);
-console.log(MyConfig.key1);
+[option-4]
+use 'exports' to export code (supports multiple). 
+use 'require' to get the exported code
+
+note:
+exports is NOT returned by 'require' (module.exports is!)
+
+-
+
+// Entities.ts
+exports.MyClass1 = class MyClass1 {
+    constructor(public id: number, public name: string) { }
+}
+
+exports.MyClass2 = class MyClass2 {
+    constructor(public id: number, public name: string) { }
+}
+
+exports.MyClass3 = class MyClass3 {
+    constructor(public id: number, public name: string) { }
+} 
+
+// app.ts
+let Entities = require('./Entities.js');
+
+let exC1 = new Entities.MyClass1(10, 'item1');
+console.log(exC1);
+
+let exC2 = new Entities.MyClass2(20, 'item2');
+console.log(exC2);
+
+let exC3 = new Entities.MyClass3(30, 'item3');
+console.log(exC3);
+
+
+
+Known Issues
+------------
+
+[exception]
+xxx is not defined! 
+
+when using 'require' with NO EXPORT statement 
+an attempt to reach methods will throw an exception. 
+note that the script will be executed!
+
+in the example below, the lines 'in MyFile...' will be logged to the screen but an exception will be thrown 
+once we'll try to call a function defined within the external file (MyFile)! 
+
+-
+
+class MyFClass {
+    constructor(public name: string) { }
+}
+
+console.log('in MyFile step 1');
+
+let f_var_1: number = 100;
+let f_var_2: string = '100';
+
+console.log('in MyFile step 2');
+
+function f_foo() {
+    console.log('f_foo');
+}
+
+
+require('./MyFile.js');
+
+// those lines will be logged 
+/// in MyFile step 1
+/// in MyFile step 2
+
+f_foo(); // exception!! f_foo is not defined
+let f = new MyFClass('fff'); // exception!! MyFClass is not defined
+console.log(f.name);
+
+More Samples
+------------
+
+let MyModule = require('./test1.js');
+var m = new MyModule();
+m.sayHello('Roby');
+
+// test1.js
+module.exports = function MyClass() {    
+    this.sayHello = function(name) {
+        console.log(`hello ${name}`)
+    }
+};
+
+

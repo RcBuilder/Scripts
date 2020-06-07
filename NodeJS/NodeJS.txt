@@ -1,0 +1,194 @@
+******** Node JS ********
+*************************
+server-side javascript. based on the V8 engine (by google)
+an environment to execute javascript code outside the browser.
+
+=========================
+- website
+- installation
+- code execution
+- file execution
+- global objects
+- export & import
+- package.json
+- npm
+- deploy
+=========================
+
+website
+-------
+https://nodejs.org/en/
+
+installation
+------------
+https://nodejs.org/en/download/
+note: it includes the npm 
+
+code execution
+--------------
+use 'node' command to run the v8 engine in the console!
+we can execute any javascript code directly in the console without a browser.
+use CTRL + C to abort
+
+syntax:
+> node  (enter)
+
+e.g:
+> node
+> let a = 1;
+> console.log(a); // 1
+
+file execution
+--------------
+use 'node' command to run any javascript file!
+
+syntax:
+> node <file>
+
+e.g:
+// test.js
+console.log('Hello World');
+
+> node test.js
+
+global objects
+--------------
+- global
+  
+  note:
+  there is NO 'window' object as we have in the browser 
+  instead, we have a 'global' object.
+	
+- process
+
+  note:  
+  there is NO 'document' object as we have in the browser 
+  instead, we have a 'process' object.
+
+- __dirname
+- __filename
+- URL     
+  { 
+	href, 
+	origin, 
+	protocol, 
+	username, 
+	password, 
+	host, 
+	hostname, 
+	port, 
+	pathname, 
+	search, 
+	searchParams, 
+	hash 
+  }  	
+
+  e.g:
+  console.log(new URL('http://www.domain.com/pageA?p=1&p=2'));
+
+- setInterval
+- setTimeout
+
+export & import
+---------------
+see 'Export & Import sample'
+see 'Export & Import'
+see 'Require'
+
+package.json
+------------
+this file contains a list of all packages the app needs. 
+use this file to store the packages state so later it can be imported using the 'npm install' command.
+when adding a new local package, use the '--save' option to auto store it in the file (in adding to the import process). 
+-
+private: true  // do not publish private repositories
+-
+instead of:
+> npm install somePackage1
+> npm install somePackage2
+> npm install somePackage3
+
+add the packages to the .json and use the 'install' command 
+{
+    "name": "app name",
+    "version": "0.0.1",
+    "dependencies": {
+      "somePackage1": ">=2.5.0",
+      "somePackage2": ">= 0.16.4",
+      "somePackage3": ">=2.3.10"
+  }
+}
+> npm install
+
+
+npm
+---
+use the npm (node packages manager) to install/ update and remove packages.
+the packages will be imported to the node_modules folder. 
+use import or require command to import and use them.
+
+global packages:
+packages that can be imported in any project within the current machine.
+usually located in C:\Users\<user>\AppData\Roaming\npm
+
+install command:
+shortcut 'i'
+the 'install' command with no packageName imports ALL packages defined in the package.json file.
+the 'install' command with packageName imports a specific package.
+use the 'save' flag to store the imported package into the package.json file. 
+use flag '-g' to install a package globally (see 'global packages')
+use '@' sign to provide a specific version (@<version>) 
+> npm install  			    	// install all packages defined in package.json
+> npm install <packageName>         	// install package locally 
+> npm install <packageName> -g      	// install package globally
+> npm install <packageName> --save  	// install and save (to json file) a package locally 
+> npm install <packageName>@<version>	// install a specific version (e.g: underscore@1.9.1)
+> npm install <packageName-1>..... <packageName-N>	// install multiple packages
+
+init command:
+create a package.json file from the current state
+> npm init 
+
+list command:
+shortcut 'ls'
+display a tree of installed packages including their dependencies
+the flag '-g' display a tree of global packages (see 'global packages')
+the flag '--depth=0' avoid dependencies (flat packages view)
+> npm list
+> npm list -g --depth=0  // global packages
+> npm list --depth=0     // local packages(current project)
+
+commands:
+> npm list 				// see 'list command'
+> npm install  				// see 'install command'  
+> npm init  				// see 'init command'
+> npm uninstall <packageName>   	// uninstall a package
+> npm search <packageName>		// search a package
+> npm update -g				// update global packages
+> npm update				// update local packages
+> node --version			// get the version of the node engine 
+> npm --version				// get the version of the installed npm
+> npm config list			// show configuration
+> npm config get <property> 		// get a value of the specified config property
+> npm config get prefix 		// get the path of the global packages folder
+> npm config set <property>=<value> 	// set a value of the specified config property
+> npm config set prefix=<path> 		// change the path of the global packages folder
+> npm cache clear --force		// clear cache
+> npm cache verify			// verify cache
+> npm publish				// publish a package to npmjs
+> npm login				// login to npmjs 
+> npm adduser				// add user to npmjs
+
+deploy
+------
+see 'Deploy NodeJS app'
+
+
+
+
+
+  
+
+
+
+

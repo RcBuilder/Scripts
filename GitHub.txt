@@ -144,6 +144,7 @@ note that we can use ANY of the known cmd command using the Git CMD dialog
 > git checkout [branchName] // switch to a different branch
 > git checkout -b [NewBranchName] // create a new branch and switch to it
 > git checkout master // switch to the master branch
+> git checkout -f master // switch to the master branch (force)
 > git checkout -a // show all repositories (including the unmapped ones)
 > git checkout -b [source] [destination] // map a specific branch (use checkout -a to see the list)
 > git rm [fileName] // delete a file (can also be achieved by manual deletion and 'add' command)
@@ -216,6 +217,7 @@ note that we can use ANY of the known cmd command using the Git CMD dialog
 > git diff -w // show differences (ignore all spaces)
 > git reset HEAD [fileName] // reset staging index to be as the latest commit (undo staging changes)
 > git reset [resetType] [commitGuid] // change HEAD pointer to points to a specific changeset (see 'reset types')
+> git reset --hard origin/<branch> // get server version
 > git clean -f // remove all files that exist in the local copy and NOT in the staging index (for debug mode, use -n insead)
 > git revert [commitGuid] // revert a commit (adding a new commit with the previous state)
 > git ls-tree [tree-ish] // show files list in the specified tree-ish (see 'what is tree-ish')

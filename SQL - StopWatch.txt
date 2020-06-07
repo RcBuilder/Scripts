@@ -1,0 +1,31 @@
+SQL - StopWatch
+---------------
+
+DECLARE @dtS DATETIME = GETDATE()
+DECLARE @tsMsg VARCHAR(30)
+
+-
+
+Code A ....
+
+--PRINT('Action A has completed')
+RAISERROR ('Action A has completed', 0, 1) WITH NOWAIT
+
+SET @tsMsg = CONCAT(DATEDIFF(SECOND, @dtS, GETDATE()), 'sec')
+RAISERROR (@tsMsg, 0, 1) WITH NOWAIT
+SET @dtS = GETDATE()
+
+-
+
+Code B ....
+
+--PRINT('Action B has completed')
+RAISERROR ('Action B has completed', 0, 1) WITH NOWAIT
+
+SET @tsMsg = CONCAT(DATEDIFF(SECOND, @dtS, GETDATE()), 'sec')
+RAISERROR (@tsMsg, 0, 1) WITH NOWAIT
+SET @dtS = GETDATE()
+
+...
+...
+...

@@ -1,0 +1,17 @@
+CSS - Disable ALL Content Within an Element
+-------------------------------------------
+the css rule 'pointer-events: none;' disabled all events within the element.
+
+---
+
+.disabled {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+<div class="disabled">
+    <input type="button" value="clickMe" /><br />
+    <input type="button" value="clickMe" /><br />
+    <input type="text" placeholder="some text" /><br />
+    <input type="checkbox" /> Choose
+</div>

@@ -1,0 +1,23 @@
+SQL DELETE Best Practice
+------------------------
+as a thumb-rule, when deleting a large table we should use TRUNCATE (if possible)
+or use the SIMPLE Recovery model along with a loop to delete the table using small chunks. 
+
+reference: 
+'SQL DELETE & LOG'
+
+delete by chunks:
+// step-1 -> temporary use SIMPLE Recovery model to signal the SQL we don't need log
+ALTER DATABASE TEST SET RECOVERY SIMPLE
+
+// step-2 -> delete table in small chunks using a loop (of any kind), use CHECKPOINT after each chunk 
+DECLARE @Rows INT = 1;
+WHILE (@Rows > 0)
+BEGIN
+   DELETE TOP (10000) FROM Guids; 
+   SET @Rows = @@ROWCOUNT;
+   CHECKPOINT;
+END
+
+// step-3 -> switch back to FULL Recovery model
+ALTER DATABASE TEST SET RECOVERY FULL

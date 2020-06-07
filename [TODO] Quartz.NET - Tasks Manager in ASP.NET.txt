@@ -1,0 +1,72 @@
+Quartz.NET - Tasks Manager in ASP.NET 
+-------------------------------------
+Reference:
+see 'Hangfire - Tasks Manager in ASP.NET'
+see 'TPL - QueueBackgroundWorkItem'
+
+Nuget:
+Install-Package Quartz
+
+Sources:
+https://www.quartz-scheduler.net/
+https://github.com/quartznet/quartznet
+https://www.nuget.org/packages/Quartz/
+https://quartznet.sourceforge.io/apidoc/3.0/html/
+
+Entities:
+- Job 		// a task to be performed
+- Trigger	// how and when to perform the task
+- Scheduler	// schedule the exexution based on the defined Job and Trigger  
+
+IJob:
+to create a Quartz job we just need to implement the IJob interface.
+
+JobBuilder.Create<T>:
+create a Job from any class implements IJob 
+
+Bootstrap:
+start the scheduler on the Application_Start method (within the Global.asax)
+or in your Main function (Program.cs)
+note! can use any entry point to bootstrap the scheduler.
+
+---
+
+using Quartz;
+using Quartz.Impl;
+
+// Job
+public class SomeJob1 : IJob {
+    public void Execute(IJobExecutionContext context){
+	// code here ...
+    }	
+}
+
+// Scheduler
+public class MyJobScheduler {
+    public static void Start() {
+        var scheduler = StdSchedulerFactory.GetDefaultScheduler();
+        scheduler.Start();
+
+        var job1 = JobBuilder.Create<SomeJob1>().Build();
+
+	// trigger: every 10 seconds, run forever
+        var trigger = TriggerBuilder.Create()
+           .StartNow()
+    	   .WithSimpleSchedule(x => x
+           .WithIntervalInSeconds(10)
+           .RepeatForever()
+        ).Build();
+
+        scheduler.ScheduleJob(job, trigger);
+    }
+}
+
+// bootstrap
+void Application_Start(object sender, EventArgs e) {
+    MyJobScheduler.Start();
+}
+
+
+
+------------
+// TODO check

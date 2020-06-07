@@ -1,0 +1,49 @@
+js - event registration - reference function vs inline function
+---------------------------------------------------------------
+when registering the very same event multiple times to the same element 
+it behaves as follow: 
+1. if the function to execute is a reference - the event ignores duplicates.
+2. if the function to execute is an inline function - the event register ALL instances. 
+
+-
+
+in the example below, we have 2 buttons.
+'btn1' uses function reference whereas 'btn2' uses inline function.
+both register to the 'click' event 3 times.
+in case of 'btn1' - a click will log only a single output line,   
+in case of 'btn2' - a click will log 3 output lines!
+
+----------------
+
+<button id="btn1">ClickMe</button>
+<button id="btn2">ClickMe</button>
+
+<script>   
+        let btn1 = document.querySelector('#btn1');
+        let fnClick = (e) => {
+            console.log(`${e.target.id} was clicked`);
+        };
+
+        btn1.addEventListener('click', fnClick);
+        btn1.addEventListener('click', fnClick);
+        btn1.addEventListener('click', fnClick);
+
+	----
+
+        let btn2 = document.querySelector('#btn2');
+        btn2.addEventListener('click', (e) => {
+            console.log(`${e.target.id} was clicked`);
+        });
+        btn2.addEventListener('click', (e) => {
+            console.log(`${e.target.id} was clicked`);
+        });
+        btn2.addEventListener('click', (e) => {
+            console.log(`${e.target.id} was clicked`);
+        });
+</script>
+
+output (after a single click on each):
+btn1 was clicked
+btn2 was clicked
+btn2 was clicked
+btn2 was clicked

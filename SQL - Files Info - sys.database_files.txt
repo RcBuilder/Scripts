@@ -1,0 +1,12 @@
+SQL - Files Info - sys.database_files
+-------------------------------------
+
+SELECT 
+	type_desc, 
+	name, 
+	physical_name, 
+	state_desc, 
+	CAST(size AS FLOAT) / 128 as sizeInMB, 
+	growth 
+FROM	
+	sys.database_files

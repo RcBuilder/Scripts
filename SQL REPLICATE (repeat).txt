@@ -1,0 +1,4 @@
+SQL REPLICATE (repeat)
+----------------------
+reference: 
+'SQL Built-In FUNCTIONS'

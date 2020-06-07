@@ -1,0 +1,37 @@
+Android Debug Bridge (ADB)
+--------------------------
+this tool is used for any communication with a device.  
+
+file adb.exe.
+this tool is provided in the android SDK. 
+located within the %ANDROID_HOME%\platform-tools folder in the SDK.
+
+it is a client-server program with 3 components: 
+- an adb client
+- an adb server
+- an adb deamon
+
+using port: 
+the server listens on port 5037. 
+the client uses this port to send commands.
+
+USB debugging:
+to use adb with a physical device connected via USB, we must enable the USB debugging feature.
+System Settings > Developer options > USB debugging.
+
+Tip:
+add the android tools and platform-tools to the 'PATH' environment variable so we could access them from anywhere!
+environment variables > Path > add > 'E:\Android SDK\sdk\platform-tools'
+ 
+---
+
+Commands:
+> adb --help						// help
+> adb devices   					// list of connected devices (physical & emulators)
+> adb devices -l					// extra information about each device
+> adb -s <deviceId> install <.apk file> 		// install an app
+> adb -s <deviceId> pull <remotePath> <localPath>  	// copy files from the device
+> adb -s <deviceId> push <localPath> <remotePath>  	// copy files to a device
+> adb kill-server					// kill adb server
+> adb -s <deviceId> shell screencap <path>		// take a screenshot and save it to the provided path (e.g: /sdcard/DCIM/screen.png)
+> adb -s <deviceId> shell screenrecord <path>		// record a video and save it to the provided path (e.g: /sdcard/DCIM/demo.mp4)

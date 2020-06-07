@@ -1,0 +1,4 @@
+Android Studio - SDKs state
+---------------------------
+- launch Android studio
+- File > Settings > Appearance & Behavior > System Settings > Android SDK

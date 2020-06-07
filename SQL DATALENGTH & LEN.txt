@@ -1,0 +1,4 @@
+SQL DATALENGTH & LEN
+--------------------
+reference: 
+'SQL Built-In FUNCTIONS'

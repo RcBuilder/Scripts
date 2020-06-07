@@ -1,0 +1,13 @@
+SQL DELETE BY CHUNKS Using ROWCOUNT
+-----------------------------------
+
+CREATE TABLE Guids(Id UNIQUEIDENTIFIER) -- create table
+INSERT INTO Guids VALUES(NEWID()) GO 100000  -- insert data
+
+-- delete Ids started with 'A'
+-- in chunks of 100
+DECLARE @chunkSize INT = 100
+SELECT 1 -- force the @@ROWCOUNT to be 1 (for the first execution)
+WHILE (@@ROWCOUNT > 0)	
+	DELETE TOP(@chunkSize) FROM Guids WHERE LEFT(Id, 1) = 'A' 	
+-- SELECT * FROM Guids WHERE LEFT(Id, 1) = 'B' 	

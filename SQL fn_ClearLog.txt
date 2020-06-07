@@ -1,0 +1,18 @@
+SQL fn_ClearLog
+---------------
+ALTER PROCEDURE fn_ClearLog
+AS
+BEGIN
+	-- get the log-file size before the reduce command
+	DECLARE @From FLOAT = (SELECT CAST(size AS FLOAT) / 128 FROM sys.database_files WHERE type_desc = 'LOG')
+
+	-- reduce command
+	ALTER DATABASE TEST SET RECOVERY SIMPLE
+	DBCC SHRINKDATABASE (TEST , 0)
+	ALTER DATABASE TEST SET RECOVERY FULL	
+
+	-- get the log-file size after the reduce command
+	DECLARE @To FLOAT = (SELECT CAST(size AS FLOAT) / 128 FROM sys.database_files WHERE type_desc = 'LOG')
+
+	SELECT @From AS 'FromSizeInMB', @To AS 'ToSizeInMB'
+END

@@ -1,7 +1,7 @@
 var MIDDLEWARE = 'http://ec2-52-62-203-30.ap-southeast-2.compute.amazonaws.com/api';
 
 function main() {
-  var accounts = MccApp.accounts().get();  
+  var accounts = MccApp.accounts().withCondition('LabelNames DOES_NOT_CONTAIN "Cancelled"').get();  
   
   while (accounts.hasNext()) {
     var account = accounts.next();

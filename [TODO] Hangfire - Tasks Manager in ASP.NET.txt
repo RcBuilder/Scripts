@@ -1,0 +1,27 @@
+Hangfire - Tasks Manager in ASP.NET 
+-----------------------------------
+Reference:
+see 'Quartz.NET - Tasks Manager in ASP.NET'
+see 'TPL - QueueBackgroundWorkItem'
+
+Nuget:
+
+Sources:
+
+Entities:
+
+Bootstrap:
+
+---
+
+
+------------
+// TODO ????
+
+Hangfire
+https://www.hangfire.io/
+http://docs.hangfire.io/en/latest/
+/hangfire dashboard
+BackgroundJob.Enqueue(() => Console.WriteLine("Fire-and-forget"));
+BackgroundJob.Schedule(() => Console.WriteLine("Delayed"), TimeSpan.FromDays(1));
+RecurringJob.AddOrUpdate(() => Console.Write("Recurring"), Cron.Daily);

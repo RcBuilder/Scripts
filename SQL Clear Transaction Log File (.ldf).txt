@@ -19,3 +19,7 @@ sample:
 ALTER DATABASE [master] SET RECOVERY SIMPLE
 DBCC SHRINKDATABASE ([master] , 50)
 ALTER DATABASE [master] SET RECOVERY FULL
+
+---
+
+also see 'SQL fn_ClearLog'

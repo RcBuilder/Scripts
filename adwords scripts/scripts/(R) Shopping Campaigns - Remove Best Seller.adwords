@@ -1,0 +1,113 @@
+var Conversions_Threshold = 2;
+var Period = 'LAST_7_DAYS';  // TODAY, YESTERDAY, LAST_7_DAYS, THIS_WEEK_SUN_TODAY, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, LAST_BUSINESS_WEEK, LAST_WEEK_SUN_SAT, THIS_MONTH, LAST_MONTH
+var CampaignLabelsFilter = ['Best-Seller'];
+
+function main() {
+  Logger.log('[config] Conversions_Threshold: %s, Period: %s', Conversions_Threshold, Period);
+  
+  var storeService = StoreService();   
+  
+  var campaignIds = [];
+  var campaignsItr = AdsApp.shoppingCampaigns()
+    //.withCondition('Status IN [ENABLED]')
+    .withCondition('LabelNames CONTAINS_ANY ' + JSON.stringify(CampaignLabelsFilter) + '')
+    .get();
+  
+  while(campaignsItr.hasNext())
+    campaignIds.push(campaignsItr.next().getId().toString());
+  
+  Logger.log('campaignIds: %s', campaignIds);
+  
+  // https://developers.google.com/adwords/api/docs/appendix/reports/shopping-performance-report     
+  var report = AdWordsApp.report(
+      'SELECT OfferId, Conversions, CampaignId, CampaignName, MerchantId, Channel, Impressions ' + 
+      'FROM SHOPPING_PERFORMANCE_REPORT ' + 
+      'DURING ' + Period, {
+        includeZeroImpressions: true
+      });
+  
+  var rows = report.rows();
+  while (rows.hasNext()) 
+  {
+	  var row = rows.next();
+    
+    Logger.log('--------------');
+    Logger.log('[%s] item %s', row['CampaignName'], row['OfferId']);
+    
+    var campaignId = row['CampaignId'];
+    if(campaignIds.indexOf(campaignId) == -1){
+      Logger.log('filter by campaign - skip');
+      continue;
+    }
+    
+    var conversions = parseInt(row['Conversions'] || 0);    
+    Logger.log('conversions: %s', conversions);
+    if(conversions >= Conversions_Threshold) {  
+      Logger.log('conversions are over the threshold - skip');
+      continue;
+    }
+    
+    var product = storeService.GetProduct(row['MerchantId'], row['OfferId'], row['Channel'], 'en', 'US');
+    if(!product) {
+      Logger.log('no product - skip');
+      continue;
+    }
+    
+    product.customLabel4 = 'ALL'; // exclude from best sellers               
+    storeService.UpdateProduct(row['MerchantId'], product);  
+    Logger.log('updated successfully');
+  }
+}
+
+/* STORE SERVICE */
+// Google Merchant Center API
+// prerequisite: ADVANCED APIS > turn on 'Shopping Content' feature
+// API reference: https://developers.google.com/shopping-content/v2/reference/v2/
+var StoreService = function(){
+  return {
+    UpdateProduct: function (merchantId, product){
+      if(product.customAttributes){ 
+        for(i in product.customAttributes){
+          Logger.log(product.customAttributes[i]);
+          if(product.customAttributes[i].name == 'price')  product.customAttributes[i].type = 'float';
+          else if(product.customAttributes[i].name == 'shipping weight') {
+            // e.g: 32.1 lb -> 32.1
+            product.customAttributes[i].value = product.customAttributes[i].value.split(' ')[0]
+            product.customAttributes[i].type = 'float';
+          }
+          else product.customAttributes[i].type = 'text'; 
+        }
+      }
+
+      if(product.customGroups){
+        for(i in product.customGroups)
+          for(j in product.customGroups[i].attributes)
+            product.customGroups[i].attributes[j].type = 'text';  
+      }
+
+      ShoppingContent.Products.insert(product, merchantId);   
+    },
+
+    // sample: GetProductFromStore('144199810', 'shopify_US_4343555227736_31383633920088', 'Online', 'en', 'US')
+    GetProduct: function (merchantId, offerId, channel, languageCode, countryCode){
+      try{          
+          // itemId = <channel>:<contentLanguage>:<targetCountry>:<offerId>
+          var itemId = '{0}:{1}:{2}:{3}'
+            .replace('{0}', channel)
+            .replace('{1}', languageCode || 'en')
+            .replace('{2}', countryCode || 'US')
+            .replace('{3}', offerId);
+
+          Logger.log('product #%s', itemId);
+
+          var p = ShoppingContent.Products.get(merchantId, itemId);  
+          Logger.log('[product] %s', p.title);
+          return p;
+        }
+        catch(e){
+          Logger.log('[ERROR] %s', e.message);
+          return null;
+        }
+    }   
+  }
+}

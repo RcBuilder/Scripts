@@ -16,9 +16,9 @@
 [Release 7.0]
 - Out Declaration (directly)
 - Tuple improvements!
-- Deconstruction
+- Tuple Deconstruction
 - Pattern Matching
-- Local Functions
+- Local-Scope Functions
 - Expression Body
 - Readable Numeric
 - Async Main
@@ -91,6 +91,12 @@ String Interpolation
 --------------------
 syntax:
 $"...{<param>}..."
+$"...{<param>, <padding>}..."
+$"...{<param>, <padding> : <format>}..."
+
+special characters:
+use {{ to replace { 
+use }} to replace }
 
 sample:
 var name = "Roby";
@@ -102,6 +108,15 @@ Console.WriteLine(str1);  // Hi, I'm Roby from Kfar saba
 var str2 = $"10 * 3 = {10*3}";
 Console.WriteLine(str2); // 10 * 3 = 30
 
+// padding
+Console.WriteLine($"{"Left",-7}|{"Right",7}");  // Left   |  Right
+
+// special characters
+Console.WriteLine($"1 {{ {"2"} }} 3"); // 1 { 2 } 3
+
+// format 
+// e.g: C = Currency
+Console.WriteLine($"{234.567:C}"); // $234.57
 
 Exception Filters
 -----------------
@@ -214,8 +229,8 @@ Console.WriteLine($"{tuple.Id}. {tuple.Name}");
 }
 
 
-Deconstruction
---------------
+Tuple Deconstruction
+--------------------
 reference: 
 Tuple improvements!
 
@@ -295,8 +310,8 @@ Console.WriteLine($"price for 41 km -> {GroupPriceByDistance(41)}");     // pric
 Console.WriteLine($"price for 70 km -> {GroupPriceByDistance(70)}");     // price 320
 Console.WriteLine($"price for 150 km -> {GroupPriceByDistance(150)}");   // price 500
 
-Local Functions
----------------
+Local-Scope Functions
+---------------------
 allows us to declare methods inside the context of another method!
 exists only within the local-scope!
 

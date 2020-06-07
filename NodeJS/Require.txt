@@ -1,0 +1,37 @@
+Require
+-------
+
+references:
+ses 'Export & Import'
+
+---
+
+syntax:
+require('<path>');
+
+- use '.' for current folder
+  require('./module1');
+
+- use only the module-name fo nodes_modules folder
+  note: use npm to install the package first.
+  require('module1');  // nodes_modules > module1
+
+---
+
+// test.js
+var o = { a:1, b:2 };
+module.exports = o;
+
+// main.js
+var obj = require('./test');
+
+---
+
+// test.js
+module.exports = function(){
+    console.log('hello');
+}
+
+// main.js
+var fn = require('./test');
+fn();

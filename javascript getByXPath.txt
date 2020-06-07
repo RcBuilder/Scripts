@@ -1,0 +1,19 @@
+javascript getByXPath
+---------------------
+
+getByXPath = async (xpath) => {
+    let iter = document.evaluate(xpath, document, null, XPathResult.ANY_TYPE, null);
+
+    let nodes = [];
+    let current = {};
+    while ((current = iter.iterateNext()) != null)
+            nodes.push({
+                tag: current.tagName,
+                text: current.textContent
+            });
+
+    return nodes;
+};
+
+let nodes = await getByXPath('//h1');
+console.log(nodes);

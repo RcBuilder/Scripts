@@ -1,0 +1,4 @@
+SQL CHARINDEX
+-------------
+reference: 
+'SQL Built-In FUNCTIONS'

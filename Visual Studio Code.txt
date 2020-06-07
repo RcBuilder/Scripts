@@ -127,6 +127,12 @@ Extensions
 
 Working With VS Code
 --------------------
+
+open via the console:
+to open vs-code from the console use the command 'code'
+to open the current folder use 'code .'
+> code .
+
 activity bar:
 at the left, we have a stripe menu with the following views:
 - File Explorer

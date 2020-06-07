@@ -8,6 +8,11 @@ prerequisites:
 note:
 use 'npm install' command to import all modules (if needed)
 
+quick deploy:
+we can publish apps directly from VS-Code and VS environments. 
+create a deploy profile and use the 'Publish' button. 
+there are some destinations we can choose (a folder, azure, ftp and etc.)
+
 ---
 
 [VPS]
@@ -15,9 +20,14 @@ use 'npm install' command to import all modules (if needed)
 2. execute the server.js 
 3. open the required port/s
 
-[Hosting]
+[Hosting] Plesk app
 // TODO
 
 [Amazon]
+1. Launch an EC2 instance
+2. follow steps in [VPS] section
 
 [Azure]
+1. Launch an VPS instance
+2. follow steps in [VPS] section
+

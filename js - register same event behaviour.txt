@@ -1,0 +1,3 @@
+js - register same event behaviour
+----------------------------------
+see 'js - event registration - reference function vs inline function'

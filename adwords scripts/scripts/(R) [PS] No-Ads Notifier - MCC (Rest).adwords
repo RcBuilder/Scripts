@@ -19,7 +19,7 @@ function main() {
                          '<th>Ads Quantity</th>'+                                                  
                          '</tr>');
   
-  var accounts = MccApp.accounts().get();  
+  var accounts = MccApp.accounts().withCondition('LabelNames DOES_NOT_CONTAIN "Cancelled"').get();  
     while(accounts.hasNext())
     {
       var account = accounts.next();

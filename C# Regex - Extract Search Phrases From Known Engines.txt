@@ -1,0 +1,102 @@
+C# Regex - Extract Search Phrases From Known Engines
+----------------------------------------------------
+
+var patterns = new {
+	Google = @"^https?://(www\.)?google\.[a-zA-Z\.]{3,}/search .*? [?&]q=(?<q>[^&\n]*)",
+	Bing = @"^https?://(www\.)?bing\.[a-zA-Z\.]{3,}/search .*? [?&]q=(?<q>[^&\n]*)", 
+	Yahoo = @"^https?://(www\.)?search.yahoo\.[a-zA-Z\.]{3,}/search .*? [?&]p=(?<q>[^&\n]*)", 
+	Baidu = @"^https?://(www\.)?baidu\.[a-zA-Z\.]{3,}/s .*? [?&]wd=(?<q>[^&\n]*)",
+	Yandex = @"^https?://(www\.)?yandex\.[a-zA-Z\.]{3,}/search/ .*? [?&]text=(?<q>[^&\n]*)"
+}; 
+
+Func<string, string> ExtractSearchPhrase = (input) => {
+	var match = Regex.Match(input, patterns.Google, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+	if(match != null && match.Success) {
+		var value = HttpUtility.UrlDecode(match.Groups["q"].Value);
+		Console.WriteLine($"Google -> {value}");
+		return value;
+	}
+	
+	match = Regex.Match(input, patterns.Bing, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+	if(match != null && match.Success) {
+		var value = HttpUtility.UrlDecode(match.Groups["q"].Value);
+		Console.WriteLine($"Bing -> {value}");
+		return value;
+	}
+		
+	match = Regex.Match(input, patterns.Yahoo, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+	if(match != null && match.Success) {
+		var value = HttpUtility.UrlDecode(match.Groups["q"].Value);
+		Console.WriteLine($"Yahoo -> {value}");
+		return value;
+	}
+	
+	match = Regex.Match(input, patterns.Baidu, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+	if(match != null && match.Success) {
+		var value = HttpUtility.UrlDecode(match.Groups["q"].Value);
+		Console.WriteLine($"Baidu -> {value}");
+		return value;
+	}
+		
+	match = Regex.Match(input, patterns.Yandex, RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+	if(match != null && match.Success) {
+		var value = HttpUtility.UrlDecode(match.Groups["q"].Value);
+		Console.WriteLine($"Yandex -> {value}");
+		return value;
+	}
+	
+	return null;
+};
+
+-- 
+
+using:
+
+var inputs = new List<string>{ 
+	"https://www.google.com/search?q=1234",
+	"https://www.google.com/search?q=נסיון",
+	"https://www.google.com/search?q=%D7%A0%D7%A1%D7%99%D7%95%D7%9F&p2=2&p3=3",
+	"https://www.google.com/search?q=forex&rlz=1C1CHBF_enIL763IL763&oq=forex&aqs=chrome..69i57j35i39j69i59j0l4j46.1144j1j3&sourceid=chrome&ie=UTF-8",
+	"https://www.google.com/search?rlz=1C1CHBF_enIL763IL763&sxsrf=ALeKk00M0nN4xblLvSCIXs6MzuVwNPsiOA%3A1589493109686&ei=db29XvvGKc6k1fAPttWZWA&q=%D7%A4%D7%95%D7%A8%D7%A7%D7%A1&oq=%D7%A4%D7%95%D7%A8%D7%A7%D7%A1&gs_lcp=CgZwc3ktYWIQAzIFCAAQywEyBQgAEMsBMgUIABDLATIFCAAQywEyBQgAEMsBMgUIABDLATIFCAAQywEyBQgAEMsBMgUIABDLATIFCAAQywE6BAgAEEc6BAgjECc6AggAOgYIIxAnEBM6BAgAEB5Qhl1YnWZg3mdoAHACeACAAZUBiAHDBZIBAzAuNZgBAKABAaoBB2d3cy13aXo&sclient=psy-ab&ved=0ahUKEwi71bOhq7TpAhVOUhUIHbZqBgsQ4dUDCAw&uact=5",
+	
+	"https://www.google.co.il/search?q=1234",
+	"https://www.google.co.uk/search?q=1234",
+	
+	"https://www.bing.com/search?q=forex&form=QBLH&sp=-1&pq=forex&sc=8-5&qs=n&sk=&cvid=AF23AFC7C4AD40C9AA8AF3CEBD5E6895",
+	"https://www.bing.com/search?q=נסיון",
+	"https://www.bing.com/search?p=1&q=%D7%A0%D7%A1%D7%99%D7%95%D7%9F",
+	"https://www.bing.com/search?q=1234&p2=2&p3=3",
+	
+	"https://www.bing.co.il/search?q=1234",
+	"https://www.bing.co.uk/search?q=1234",
+	
+	"https://search.yahoo.com/search;_ylt=AwrEzecfJb5eUPEAHwdDDWVH;_ylc=X1MDMTE5NzgwNDg2NwRfcgMyBGZyAwRncHJpZANnY0lyYlRjR1FIQ1oxNV9yZUtSZDBBBG5fcnNsdAMwBG5fc3VnZwMxMARvcmlnaW4Dc2VhcmNoLnlhaG9vLmNvbQRwb3MDMARwcXN0cgMEcHFzdHJsAwRxc3RybAM1BHF1ZXJ5A2ZvcmV4BHRfc3RtcAMxNTg5NTIwMjQy?fr2=sb-top-search&p=forex&fr=sfp&iscqry=",
+	"https://search.yahoo.com/search;_ylt=;_ylc=2?fr2=sb-top-search&p=forex&fr=sfp&iscqry=",
+	"https://search.yahoo.com/search;_ylt=;_ylc=2?p=%D7%A0%D7%A1%D7%99%D7%95%D7%9F",
+	"https://search.yahoo.com/search?p=1234",
+	
+	"https://search.yahoo.co.il/search?p=1234",
+	"https://search.yahoo.co.uk/search?p=1234",
+	
+	"https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&rsv_idx=1&tn=baidu&wd=forex&fenlei=256&rsv_pq=a8c3466c00005790&rsv_t=2ebcTzS6y%2BaqTkzslFpdEShvn5WZNEFrCknJwPu7JRfalr3XOrDdL9Li9Q0&rqlang=cn&rsv_enter=0&rsv_dl=tb&rsv_sug3=6&rsv_sug1=1&rsv_sug7=100&rsv_btype=i&prefixsug=forex&rsp=0&inputT=2679&rsv_sug4=4129",
+	"https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&rsv_idx=1&tn=baidu&wd=פורקס",
+	"https://www.baidu.com/s?ie=utf-8&f=8&rsv_bp=1&rsv_idx=1&tn=baidu&wd=%D7%A0%D7%A1%D7%99%D7%95%D7%9F",
+	"https://www.baidu.com/s?p=1&wd=1234",
+	"https://www.baidu.com/s?wd=1234&p=1",
+	
+	"https://www.baidu.co.il/s?wd=1234",
+	"https://www.baidu.co.uk/s?wd=1234",
+	
+	"https://yandex.com/search/?text=forex&lr=131",
+	"https://yandex.com/search/?text=forex",
+	"https://yandex.com/search/?p=1&text=forex&p=2",
+	"https://yandex.com/search/?text=פורקס",
+	"https://yandex.com/search/?text=%D7%A0%D7%A1%D7%99%D7%95%D7%9F",
+	
+	"https://yandex.co.il/search/?text=1234",
+	"https://yandex.co.uk/search/?text=1234",
+};
+
+inputs.ForEach(input => {	
+	ExtractSearchPhrase(input);
+});

@@ -1,0 +1,4 @@
+SQL STUFF (splice)
+------------------
+reference: 
+'SQL Built-In FUNCTIONS'

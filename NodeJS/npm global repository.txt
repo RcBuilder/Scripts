@@ -1,0 +1,85 @@
+npm local repository
+--------------------
+we can create our own repository (package), add custom modules and use npm to import it to any project. 
+once we have a package - we can publish it to npmjs server so it will be available publicly.
+
+-----
+
+npmjs server:
+https://www.npmjs.com/
+https://www.npmjs.com/package/<package>
+https://www.npmjs.com/package/rcbuilder-test-package-1
+
+default registry: 
+https://registry.npmjs.org/
+
+-----
+
+(steps)
+1. create your repository
+   see 'npm local repository'
+
+2. login to npmjs server
+   > npm login
+   > username: <username>
+   > password: <password>
+
+   note: 
+   if you don't have a user, you can create on using 'npm adduser' command
+   > npm adduser
+   > username: <username>
+   > password: <password>
+   > email: <email>
+   you'll have to confirm your email before publishing packages
+
+3. navigate to the repository you wish to publish
+   > cd <repository path> 
+     (e.g: E:/repo)
+
+     note: 
+	 the folder with your modules and the 'package.json' file which provides data about the package to publish
+
+3. publish your modules
+  > npm publish
+
+4. use 'npm install' command to install your package directly from npmjs server.
+   > npm install <package name> 
+     (e.g: npm install rcbuilder-test-package-1)
+
+-----
+
+common errors:
+"operation not permitted"
+use 'npm login' to login to npm
+-
+"You do not have permission to publish" 
+package with the same name already exists (and its not yours) - change the package name
+
+-----
+
+// repo/module-1.js
+module.exports = function MyClass() {    
+    this.sayHello = function(name) {
+        console.log(`hello ${name}`)
+    }
+};
+
+// repo/package.json
+{
+  "name": "rcbuilder-test-package-1",
+  "version": "1.0.0",
+  "description": "",
+  "main": "module-1.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "rcbuilder",
+  "license": "ISC"
+}
+
+[using]
+> npm install rcbuilder-test-package-1
+
+let MyModule = require('test-package-1/module-1');
+var m = new MyModule();
+m.sayHello('Roby');  // hello Roby

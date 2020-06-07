@@ -1,0 +1,6 @@
+SQL POC - CTE IS REFERENCE  
+--------------------------
+CTE holds REFERENCES to the actual rows! (as opposed to Table-Variable)
+when using CTE, the data inserted into it is NOT a copy but a reference to the source-rows!
+
+see 'SQL UPDATE Using CTE'

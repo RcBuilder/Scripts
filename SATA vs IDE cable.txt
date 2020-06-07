@@ -1,0 +1,11 @@
+SATA vs IDE cable
+-----------------
+IDE aka PATA
+SATA aka ATA
+
+- SATA is smaller and has 7 pins whereas IDE has 40 pins.
+- SATA cable is longer (up to 1m) than the IDE (45cm).
+- SATA can connect only 1 HDDs whereas IDE can connect 2 HDDs. 
+- SATA transfers data range of 150mb/sec to 300mb/sec whereas IDE uses 5mb/sec to 133mb/sec.     
+- 
+

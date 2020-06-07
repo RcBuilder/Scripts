@@ -1,0 +1,4 @@
+SQL CONCAT
+----------
+reference: 
+'SQL Built-In FUNCTIONS'

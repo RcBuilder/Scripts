@@ -1,0 +1,19 @@
+SQL Troubleshooting
+-------------------
+
+tools:
+- use client statistics to compare executions performance. 
+- use execution-plan to watch the plan executed for the active query.
+- use windows-task-manager to see the process performance (sqlservr.exe)
+
+------
+
+tips:
+- Implicit Conversion causes a High CPU.
+
+------
+
+query-based helpers:
+- use sp_who2 to find all active processes.
+
+

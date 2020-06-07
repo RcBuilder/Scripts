@@ -1,0 +1,6 @@
+LINQPad - Add Reference
+-----------------------
+1. Query (menu) > References & Properties
+2. Additional References (tab) > Add (button) > choose dll > Ok
+3. Additional Namespace Imports (tab) > Pick from assemblies (link)
+4. choose Assembly > Ok

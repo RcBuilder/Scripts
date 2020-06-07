@@ -1,0 +1,1 @@
+console.log(`content-script was injected to ${location.href}`);

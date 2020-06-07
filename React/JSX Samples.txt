@@ -1,0 +1,89 @@
+JSX Samples
+-----------
+
+// render jsx files
+const express = require('express');
+const app = express();
+
+// add jsx engine
+app.engine('jsx', require('express-react-views').createEngine());  // npm install express-react-views react react-dom
+app.set('view engine', 'jsx');
+app.set('views', __dirname + '/views'); // set views folder
+
+app.get('/', (request, response) => {
+	response.render(<view-name>, <params>);
+})
+
+----------
+
+// server 
+app.get('/test', (request, response) => {
+	response.render('campaigns.jsx', {
+		title: 'page-title',
+                items: [
+		   {name: 'C-1'},
+		   {name: 'C-2'},
+		   {name: 'C-3'}
+		]
+        });
+})
+
+// campaigns.jsx
+const React = require('react');
+
+module.exports = (props) => {
+    let items = props.items.map(c => {
+        return <p>{c.name}</p>
+    });
+
+    return (
+        <div>
+            <h1>{props.title}</h1>
+            {props.items}
+        </div>
+    );
+}
+
+----------
+
+// server
+app.get('/test', (request, response) => {
+	response.render('report.jsx', {
+		title: 'page-title',
+                items: [
+		   {impressions: 30, clicks: 2, cost:200},
+		   {impressions: 71, clicks: 20, cost:1908},
+		   {impressions: 4, clicks: 0, cost:160},
+		]
+        });
+})
+
+// report.jsx
+const React = require('react');
+
+module.exports = (props) => {
+    console.log(props.items.length);
+    let items = props.items.map(x => {
+        return(
+            <tr>
+                <td>{x.impressions}</td>
+                <td>{x.clicks}</td>
+                <td>{x.cost}</td>
+            </tr>)
+    });
+    
+    return (
+        <div>
+            <h1>{props.title}</h1>
+            <table border="1" cellPadding="10">
+                <tr>
+                    <th>Impressions</th>
+                    <th>Clicks</th>
+                    <th>Cost</th>
+                </tr>
+                {items}
+            </table>            
+        </div>
+    );
+}
+

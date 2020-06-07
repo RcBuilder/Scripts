@@ -1,0 +1,7 @@
+js - convert math-phrase expression to value
+--------------------------------------------
+use eval to easily convert a textual mathematical phrase into real value.
+
+e.g:
+eval('30 + 10 * 2') 	// 50
+eval('(30 + 10) * 2') 	// 80

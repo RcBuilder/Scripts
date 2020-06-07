@@ -1,0 +1,41 @@
+C# ConcurrentBag Sample
+-----------------------
+a thread-safe list
+
+---
+
+syntax:
+ConcurrentBag<T>();
+ConcurrentBag<T>(<Enumerable>);
+
+using:
+var threadSafeList = new ConcurrentBag<string>();
+data.AsParallel().ForAll(x => {
+    Thread.Sleep(500);
+    threadSafeList.Add(x);
+});
+
+---
+
+var stopWatch = new Stopwatch();
+var data = Enumerable.Repeat("DUMMY DATA", 10).ToList();
+
+stopWatch.Start();
+var list = new List<string>();
+data.ForEach(x => {
+    Thread.Sleep(500);
+    list.Add(x);
+});
+stopWatch.Stop();
+Console.WriteLine($"{list.Count} items loaded in {stopWatch.Elapsed.TotalMilliseconds} millisec");  // 5017.5369 millisec
+
+stopWatch.Reset();
+
+stopWatch.Start();
+var threadSafeList = new ConcurrentBag<string>();
+data.AsParallel().ForAll(x => {
+    Thread.Sleep(500);
+    threadSafeList.Add(x);
+});
+stopWatch.Stop();
+Console.WriteLine($"{threadSafeList.Count} items loaded in {stopWatch.Elapsed.TotalMilliseconds} millisec"); // 1053.6246 millisec

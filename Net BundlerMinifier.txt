@@ -1,7 +1,210 @@
 .Net BundlerMinifier
 --------------------
+Extension to .NET IDE.
+Bundles and minifies CSS, JS and HTML files. 
 
-source:
+sources
+-------
 https://marketplace.visualstudio.com/items?itemName=MadsKristensen.BundlerMinifier
 https://github.com/madskristensen/BundlerMinifier
+https://github.com/madskristensen/BundlerMinifier/wiki/bundleconfig.json-specs
 https://www.nuget.org/packages/BuildBundlerMinifier
+
+download
+--------
+go to 'https://github.com/madskristensen/BundlerMinifier'
+file -> Bundler & Minifier v3.2.447.vsix
+
+process 
+-------
+(steps)
+1. download the extension > install it 
+2. re-open VS
+3. create some css, js and html files 
+4. solution explorer > select 2 or more of the same type files
+5. right-click > Bundler & Minifier (menu) > 'Bundle & Minify files' > choose destination and save. 
+6. reference the generated files in your app.
+
+bundleconfig.json
+-----------------
+this file which was added to the project's root, contains all the bundling and minification rules to apply.
+the content is a json array of rules.
+
+schema:
+[{outputFileName: string, inputFiles: [string], minify: object}]
+
+minify object: {
+- enabled: <bool>
+- commentMode: <string>
+- e.g:
+  // disable minification
+  "minify": { "enabled": false }
+
+sample:
+[
+   {
+      "outputFileName": "_test/bundle.css",
+      "inputFiles": [
+        "_test/testBundle1.css",
+        "_test/testBundle2.css"
+      ]
+   },
+]
+
+wildcards
+---------
+we can use wildcards in the 'inputFiles' property of each bundle defined within the bundleconfig.json.
+
+e.g:
+{
+    "outputFileName": "_test/bundle.css",
+    "inputFiles": [
+      "styles/*.css"	
+      "_test/*.css"
+      "!_test/ignore.css"	
+    ]
+}
+
+capabilities
+------------
+create a bundle from files:
+- solution explorer > select 2 or more of the same type files (css, js or html)
+- right-click > Bundler & Minifier (menu) > 'Bundle & Minify files' > choose destination and save.
+
+update-all:
+- solution explorer > bundleconfig.json
+- right-click > Bundler & Minifier (menu) > 'Update Bundles'
+
+delete output files:
+- solution explorer > bundleconfig.json
+- right-click > Bundler & Minifier (menu) > 'Delete Bundle Output Files'
+
+update on build:
+- solution explorer > bundleconfig.json
+- right-click > Bundler & Minifier (menu) > 'Enable Bundle On Build'
+
+minify a single file:
+- solution explorer > select a file (css, js or html)
+- right-click > Bundler & Minifier (menu) > 'Minify file' 
+
+debugging & troubleshooting
+---------------------------
+we can use VS 'output' and 'Error List' windows to find bundling issues.
+- output window > Bundler & Minifier
+- Error List window > all rows starting with (Bundler & Minifier) 
+
+we can also use the Task-Runner-Explorer
+- bundleconfig.json > right click > Task Runner Explorer > see console log
+
+using
+-----
+files in project:
+
+_test (folder)
+------>  testBundle1.css
+------>  testBundle2.css
+------>  testBundle1.js
+------>  testBundle2.js
+------>  testBundle1.html
+------>  testBundle2.html
+
+-
+
+choose all .css files > right-click > Bundler & Minifier > Bundle & Minify files > save as 'bundle.css'
+choose all .js files > right-click > Bundler & Minifier > Bundle & Minify files > save as 'bundle.js'
+choose all .html files > right-click > Bundler & Minifier > Bundle & Minify files > save as 'bundle.html'
+
+-
+
+new files were added to the project.
+each generated bundle has created 2 files (bundle version and minified version)
+
+_test (folder)
+...
+...
+------>  bundle.css
+------>  bundle.min.css
+------>  bundle.js
+------>  bundle.min.js
+------>  bundle.html
+------>  bundle.min.html
+
+-
+
+a new json file was created at the root of the project.
+
+bundleconfig.json:
+[
+  {
+    "outputFileName": "_test/bundle.css",
+    "inputFiles": [
+      "_test/testBundle1.css",
+      "_test/testBundle2.css"
+    ]
+  },
+  {
+    "outputFileName": "_test/bundle.js",
+    "inputFiles": [
+      "_test/testBundle1.js",
+      "_test/testBundle2.js"
+    ]
+  },
+  {
+    "outputFileName": "_test/bundle.html",
+    "inputFiles": [
+      "_test/testBundle1.html",
+      "_test/testBundle2.html"
+    ]
+  }
+]
+
+-
+
+add references from the app:
+<link href="_test/bundle.min.css" rel="stylesheet" />
+<script src="_test/bundle.min.js"></script>
+
+BUGS
+----
+issue:
+minify is not working
+
+troubleshooting:
+use VS windows to find information about the errors (see 'debugging & troubleshooting')
+
+error:
+@import url(...); must be first!
+
+solution:
+create an imports.css file, add all imports and add it to the bundle files (at the very top) 
+
+-
+
+issue: 
+bundle output has created but without the minified version (.min) 
+
+cause:
+the minification process has been broken.
+if one of the css-files is not valid (due to any reason), a bundle file is created but not a minified version.
+
+solution:
+review all errors and fix them (see 'debugging & troubleshooting'), then try again.
+
+-
+
+issue:
+generic error when trying to minify the bundle!
+"Object reference not set to an instance of an object."
+
+cause:
+ES6 features! 
+async-await, character `, let, const and etc.
+
+let a = `some string` // error
+let a = 'some string' // ok
+
+solution:
+move to a newer .Net BundlerMinifier version (v3.2.447 and up)
+
+
+	

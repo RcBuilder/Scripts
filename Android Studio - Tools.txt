@@ -1,0 +1,30 @@
+Android Studio - Tools
+----------------------
+all android tools located within the android SDK folder. 
+
+tools can be found in: 
+%ANDROID_HOME%\tools\bin folder
+
+platform-tools can be found in: 
+%ANDROID_HOME%\platform-tools
+
+note! 
+%ANDROID_HOME% represents a path to the SDK folder.
+it can be varied for each computer (the path is decided in the installation)
+e.g: E:\Android SDK\sdk\
+
+----------
+
+AVD Manager Tool: 
+- tool
+- avdmanager.bat
+- see 'Android Studio - Android Virtual Device (AVD)'
+
+--
+
+Android Debug Bridge Tool:
+- platform-tool
+- adb.exe
+- see 'Android Studio - Android Debug Bridge (ADB)'
+
+-

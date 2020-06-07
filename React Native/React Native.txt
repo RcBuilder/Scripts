@@ -1,0 +1,2513 @@
+**********************************
+********** React Native **********
+**********************************
+
+======================
+- Sources
+- Install
+- Npx Commands
+- New Project
+- Run A Project
+- React Templates
+- File Structure
+- JSX
+- React-Native Modules
+- React-Native Camera
+- React-Native Image-Picker
+- React-Native Picker
+- Navigation
+- StyleSheet
+- Styles
+- Layouts
+- Flex
+- State
+- Dynamic Content
+- Find Devices
+======================
+
+
+Sources
+-------
+https://reactnative.dev/
+https://reactnative.dev/docs/environment-setup
+https://reactnative.dev/docs/getting-started.html
+https://reactnative.dev/docs/components-and-apis
+
+Install
+-------
+dependencies:
+- Node
+- React Native CLI
+- Python2
+- JDK
+- Android Studio
+
+steps:
+1. open powershell as admiistrator 
+2. install 'choco' package manager
+   > Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+3. install python2 package using 'choco'
+   > choco install -y python2
+4. install jdk8 package using 'choco'
+   > choco install -y jdk8
+5. make sure the Android 9 (Pie) SDK installed (required by native script)   
+   open Android studio > File > Settings > Appearance & Behavior > System Settings > Android SDK
+6. Configure the ANDROID_HOME environment variable
+
+notes:
+- you don't have to use 'choco' to install the packages.
+- note version should be 8.3 or newer. (use node -v to check your version)
+- android studion required options: 
+  1. Android SDK
+  2. Android SDK Platform
+  3. Performance (Intel ® HAXM)
+  4. Android Virtual Device
+
+Npx Commands
+------------
+> npx react-native --help
+
+> npx react-native run-android 
+> npx react-native run-android --help
+> npx react-native run-android --deviceId=<deviceId>
+
+> npx react-native init <projectName>
+> npx react-native init <projectName> --version <version> 
+> npx react-native init <projectName> --template <templateName>
+
+New Project
+-----------
+> cd <projectFolder>
+> npx react-native init <projectName>
+> npx react-native init <projectName> <options> // see 'Npx Commands'
+-
+e.g:
+> cd C:\MyProjects
+> npx react-native init MyProject1
+> code .	// open in VSCode
+
+Run A Project
+-------------
+> cd <projectFolder>
+> npx react-native run-android  
+> npx react-native run-android <options> // see 'Npx Commands'
+-
+run on physical device:
+to run the app on physical USB-connected device, we need to shut down all emulators 
+and only then use the 'run-android' command!
+-
+e.g:
+> cd C:\MyProjects\MyProject1
+> npx react-native run-android
+
+React Templates
+---------------
+- basic
+- react-native-template-typescript
+
+File Structure
+--------------
+- android\
+- ios\
+- node_modules\
+- app
+	- services\
+	- popups\
+	- pages\
+	- components\
+	- images\
+	- fonts\
+	- entities\
+	- app.js			// app root file
+	- app.json			// application config
+- index.js				// starting file
+- package.json			// packages file
+
+JSX
+---
+// TODO
+
+React-Native Modules
+--------------------
+sources:
+https://reactnative.dev/docs/components-and-apis#basic-components
+
+import:
+import { <module-1>, <module-2> .... <module-3> } from 'react-native';
+
+list:
+- View
+- Text
+- Button
+- Picker
+- Switch
+- TextInput
+- Image 
+- FlatList
+- SectionList
+- TouchableOpacity
+- TouchableHighlight
+- ScrollView
+- ActivityIndicator 
+- Alert
+- Modal
+- Animated
+- Dimensions
+- StatusBar
+- PixelRatio
+- RefreshControl
+
+---
+[View]
+used as a container.
+
+e.g:
+<View style={[styles.container]}>
+	<Text>Hello World</Text>	
+    <View style={styles.row}>
+		...
+	</View>
+</View>
+
+// styles
+container: {
+    flex: 1,
+    backgroundColor: '#F5FCFF',
+},
+row: {
+    flex: 1,
+    flexDirection: 'row',
+},
+
+[Text]
+
+nested:
+can nest text within text. commonly used for styling. 
+note that a container-text serves as an inline-container (like a SPAN tag)
+<Text>
+	Hi <Text>There</Text>
+</Text>
+
+properties:
+- disabled: <bool>
+- dataDetectorType: <dataDetectorType>  // known-types to auro-convert as clickable (see 'data-detector types')
+- ellipsizeMode: <bool>		// truncate long text, add '...' as head (e.g: ...wxyz), middle (e.g: ab...yz) or tail (abcd...)
+- numberOfLines: <int>		// used with ellipsizeMode, how many lines allowed before truncating the content  
+- selectable: <bool>		// allow text-selection (for copy-paste functionality)
+- selectionColor: <string>	// text-selection color
+
+events:
+- onLongPress
+- onPress
+
+data-detector types:
+- phoneNumber
+- link
+- email
+- none (default)
+- all
+
+using:
+<Text style={styles.text}>Hello World</Text>
+
+// styles
+text: {
+    fontSize: 18,
+},
+
+[Button]
+
+note: 
+a button has a style-limitation and it only supports a few style-rules 
+therefore, its better to use 'TouchableOpacity' module instead 
+(see 'TouchableOpacity')
+
+properties:
+- title: <string>
+- color: <string>
+- disabled: <bool>
+- touchSoundDisabled: <bool> // enable or disable the system sound on touch
+- nextFocusDown: <int>		 // set a number to define the next-focused element when when the user navigates down
+- nextFocusForward: <int>	
+- nextFocusLeft: <int>
+- nextFocusRight: <int>
+- nextFocusUp: <int>
+
+events:
+- onPress
+
+[Picker]
+see 'react-native-picker'
+
+[Switch]
+
+properties:
+- trackColor: <string>	// set color for the switch track
+- thumbColor: <string>	// set color for the foreground switch grip
+- disabled: <bool>
+- value: <bool>  
+
+events:
+- onChange			// on-change, passes the change event 
+- onValueChange		// same as 'onChange' but only passes the newValue
+
+e.g:
+switchChanged = newValue => {
+	this.state.checked1 = newValue;
+	this.setState(this.state);
+};
+
+<Switch value={this.state.checked1} onValueChange={this.switchChanged} />
+
+[TextInput]
+
+properties:
+- autoCapitalize: <capitalizeOption>	// capitalize characters (see 'capitalize Options')
+- autoCorrect: <bool>					// enable or disable the auto-correct feature
+- defaultValue: <string>				// init value
+- editable: <bool>
+- keyboardType: <keyboardType>			// the type of keyboard to open (see 'keyboard Types')
+- maxLength: <int>						// max characters allowed 
+- multiline: <bool>						// true for multiple lines (text-area), false for a single line (text-box)
+- numberOfLines: <int>					// used with multiline, how many lines allowed.
+- placeholder: <string>					
+- placeholderTextColor: <string>
+- returnKeyType: <returnKeyType>		// the type of the return-key in the keyboard (see 'return-key Types')
+- scrollEnabled: <bool>					// used with multiline, enable or disable the scrolling
+- selection: <{start: int, end: int}>   // text-selection value
+- selectionColor: <string>				// text-selection color
+- selectTextOnFocus: <bool>				// on focus, select all text
+- spellCheck: <bool>					// enable or disable the spell-check feature
+- textAlign: <left|center|right>
+- textContentType: <textContentType>	// the type of the content (see 'text-content Types')
+
+methods:
+- focus()
+- blur()
+- clear()
+- isFocused()
+
+events:
+- onChange			// on-change, passes the change event 
+- onChangeText		// same as 'onChange' but only passes the newValue
+- onKeyPress
+- onBlur
+- onFocus
+- onScroll
+- onEndEditing
+- onSelectionChange
+- onContentSizeChange
+- onSubmitEditing
+
+capitalize Options:
+- characters			// all characters 
+- words					// 1st letter of a work
+- sentences (default)	// 1st letter of a sentence
+- none					 
+
+keyboard Types:
+- default
+- number-pad
+- decimal-pad
+- numeric
+- email-address
+- phone-pad
+...
+...
+
+return-key Types:
+- done
+- go
+- next
+- search
+- send
+- previous
+- none
+...
+...
+
+text-content Types:
+- none
+- URL
+- addressCity
+- emailAddress
+- creditCardNumber
+- password
+- newPassword
+- username
+...
+...
+
+e.g:
+<TextInput
+    onChangeText={this.textChanged}
+    placeholder="write something..."
+    defaultValue={this.state.value1}
+    style={styles.textInput}
+	maxLength={6}
+    keyboardType="numeric"
+/>
+
+textChanged(text) {	
+	this.setState({value1: text});
+}
+
+note!
+// inline
+onChangeText={text => this.setState({value1: text})}
+
+[Image]
+
+source:
+https://reactnative.dev/docs/images
+
+properties:
+- source: <source>		// remote url or local resource (see 'sources')
+- resizeMode: <resizeMode>	// how to resize the image (see 'resize Modes')
+
+methods:
+- getSize(<uri>, <onSuccess>, <onFailure>)
+- getSizeWithHeaders(<uri>, <onSuccess>, <onFailure>)
+- prefetch(<uri>)		// fetch a url into the cache for later use
+- queryCache(<[url]>)   // fetch urls into the cache for later use 
+
+events:
+- onLoad
+- onLoadStart
+- onLoadEnd
+
+sources:
+- using uri image
+  { uri: '<imagePath>' }
+- using local image
+  require('<imagePath>')
+
+resize Modes:
+- cover (default)
+- contain
+- stretch
+- repeat
+- center
+
+e.g:
+<Image style={styles.image200} source={{uri: 'https://picsum.photos/id/237/200/200'}} />
+<Image style={styles.image200} source={require('./images/237-200x200.jpg')} />
+
+// style
+image200: {
+	marginBottom: 4,
+	width: 200,
+	height: 200,
+},
+
+[FlatList]
+item list component. 
+
+DATA:
+array of Any
+
+syntax:
+1. inline item rendering
+   <FlatList data={DATA} renderItem={({item}) => ...} />
+2. use item function
+   <FlatList data={DATA} renderItem={fnItem} />
+3. combination of the above two
+   <FlatList data={DATA} renderItem={({item}) => <fnItem ... />} />
+
+properties:
+- data					// items array 
+- renderItem			// function to execute for each item
+- keyExtractor			// function to extract a unique id (default is key)
+- ListEmptyComponent	// code to render when list is empty (see 'empty list handler')
+- ListFooterComponent   // code to render at the bottom -> footer  (see 'header & footer')
+- ListHeaderComponent   // code to render at the top -> header (see 'header & footer')
+- ListFooterComponentStyle  // footer style
+- ListHeaderComponentStyle  // header style
+- extraData:				// an indicator if refresh is needed (see 're-render on state changed')
+- horizontal: <bool>		// horizontal list instead of vertical (stack) list mode
+- numColumns: <int>			// used with 'horizontal' to define how many columns to use.
+- initialScrollIndex<int>	// set init scroll index
+
+methods:
+- scrollToEnd(<options>)
+- scrollToIndex(<options>)
+- scrollToItem(<options>)
+- scrollToOffset(<options>)
+
+item-key: 
+in order to use Lists in RN, we must provide an extra property 'key' for each item in the array-provider (unique key to identify the item)
+we can "tell" the RN engine to use a custom property instead. to provide our own key - we need to use the 'keyExtractor' feature of the 'FlatList' module
+
+column-mode:
+use 'numColumns' property to use columns instead of row per item
+e.g <FlatList numColumns={3} ... />
+
+re-render on state changed:
+use 'extraData' property 
+e.g <FlatList extraData={this.state.refresh} ... /> - toggle the 'refresh' value to re-render.
+
+empty list handler:
+use 'ListEmptyComponent' to render custom JSX content in case of empty list.
+syntax 'ListEmptyComponent={JSX}'
+e.g <FlatList ... ListEmptyComponent={<Text>EMPTY</Text>} > ... </FlatList>
+
+header & footer:
+use 'ListFooterComponent' to render custom JSX content as footer.
+use 'ListHeaderComponent' to render custom JSX content as header.
+syntax 'ListFooterComponent={JSX}' 
+e.g <FlatList ... ListFooterComponent={<Text>FOOTER</Text>} ListHeaderComponent={<Text>HEADER</Text>} > ... </FlatList>
+
+e.g:
+<View style={{padding: 8}}>
+	<Text>List-1</Text>
+	<FlatList
+		style={[styles.baseList]}
+		data={DATA}
+		renderItem={({item}) => <Text>{item.name}</Text>}
+	/>
+
+	<Text>List-2</Text>
+	<FlatList
+		style={[styles.baseList]}
+		data={DATA}
+		renderItem={Item1}
+		keyExtractor={item => item.id}
+	/>
+
+	<Text>List-3</Text>
+	<FlatList
+		style={[styles.baseList]}
+		data={DATA}
+		renderItem={({item}) => <Item2 id={item.id} name={item.name} />}
+		keyExtractor={item => item.id}
+	/>
+
+	<Text>List-4</Text>
+	<FlatList
+		data={DATA}
+		renderItem={Item3}
+		keyExtractor={item => item.id}
+	/>
+
+	<Text>List-5</Text>
+	<FlatList
+		data={DATA}
+		renderItem={Item4}
+		keyExtractor={item => item.id}
+	/>
+</View>
+
+// list data
+const DATA = [
+    {id: 1, name: 'Item-A', key: '58694a0f'},
+    {id: 2, name: 'Item-B', key: '3ac68afc'},
+    {id: 3, name: 'Item-C', key: 'bd7acbea'},
+];
+
+// basic
+// {index, item, separators}
+const Item1 = ({index, item}) => {
+    return (
+    <Text>
+        [{index}] {item.name}
+    </Text>
+    );
+};
+
+// with custom properties
+// {id, name}
+// note: we can also grab the full payload (obj, {id, name})
+const Item2 = ({id, name}) => {
+    return <Text>{name}</Text>;
+};
+
+// with styles
+const Item3 = ({index, item}) => {
+    return (
+    <View style={styles.item}>
+        <Text>
+        [{index}] {item.name}
+        </Text>
+    </View>
+    );
+};
+
+// with events
+const Item4 = ({index, item}) => {
+    return (
+    <TouchableOpacity onPress={()=>{alert(item.id)}}>
+        <View style={styles.item}>
+        <Text>
+            [{index}] {item.name}
+        </Text>
+        </View>
+    </TouchableOpacity>
+    );
+};
+
+// style
+baseList: {
+	marginBottom: 10,
+	padding: 8,
+	borderColor: '#888',
+	borderWidth: 1,
+},
+item: {
+	backgroundColor: '#E0E0E0',
+	borderColor: '#fff',
+	borderBottomWidth: 1,
+	height: 40,
+	alignItems: 'center',
+	justifyContent: 'center',
+},
+
+
+[SectionList]
+item list component, sectioned. 
+
+DATA:
+array of { title: string, data: ANY }
+
+syntax:
+1. inline item rendering
+   <SectionList sections={DATA} renderItem={({item}) => ...} />
+2. use item function
+   <SectionList sections={DATA} renderItem={fnItem} />
+3. combination of the above two
+   <SectionList sections={DATA} renderItem={({item}) => <fnItem ... />} />
+
+properties:
+- sections						// array of { title, data } items
+- renderItem					// function to execute for each item
+- keyExtractor					// function to extract a unique id (default is key)
+- renderSectionHeader			// code to render for each section-header
+- renderSectionFooter			// code to render for each section-footer
+- ListEmptyComponent			// code to render when list is empty (see 'empty list handler')
+- ListFooterComponent			// code to render at the bottom -> footer  (see 'header & footer')
+- ListHeaderComponent			// code to render at the top -> header (see 'header & footer')
+- extraData:							// an indicator if refresh is needed (see 're-render on state changed')
+- stickySectionHeadersEnabled: <bool>	// stick section-header to the top
+
+methods:
+- scrollToLocation(<options>)
+
+item-key: 
+in order to use Lists in RN, we must provide an extra property 'key' for each item in the array-provider (unique key to identify the item)
+we can "tell" the RN engine to use a custom property instead. to provide our own key - we need to use the 'keyExtractor' feature of the 'SectionList' module.
+note that a key must be unique per section! 
+
+re-render on state changed:
+use 'extraData' property 
+e.g <SectionList extraData={this.state.refresh} ... /> - toggle the 'refresh' value to re-render.
+
+empty list handler:
+use 'ListEmptyComponent' to render custom JSX content in case of empty list.
+syntax 'ListEmptyComponent={JSX}'
+e.g <SectionList ... ListEmptyComponent={<Text>EMPTY</Text>} > ... </SectionList>
+
+header & footer:
+use 'ListFooterComponent' to render custom JSX content as footer.
+use 'ListHeaderComponent' to render custom JSX content as header.
+syntax 'ListFooterComponent={JSX}' 
+e.g <SectionList ... ListFooterComponent={<Text>FOOTER</Text>} ListHeaderComponent={<Text>HEADER</Text>} > ... </SectionList>
+
+define sections:
+use 'renderSectionHeader' 
+
+e.g:
+<View style={{padding: 8}}>
+	<SectionList
+		sections={DATA}
+		renderItem={Item}
+		keyExtractor={item => item.id}
+		renderSectionHeader={Section}
+	/>
+</View>
+
+// data
+const DATA = [
+    {
+		title: 'Category-A',
+		data: [{id: 1, name: 'Item-A'}],
+    },
+    {
+		title: 'Category-B',
+		data: [{id: 2, name: 'Item-B'}, {id: 3, name: 'Item-C'}],
+    },
+    {
+		title: 'Category-C',
+		data: [{id: 4, name: 'Item-D'}, {id: 5, name: 'Item-E'}],
+    },
+];
+
+// code
+// {index, item, separators}
+const Item = ({index, item}) => {
+    return (
+		<View style={styles.item}>
+			<Text>{item.name}</Text>
+		</View>
+    );
+};
+
+// { section: { data, title } }
+const Section = ({section}) => {
+    return <Text>{section.title}</Text>;
+};
+
+// style
+item: {
+    backgroundColor: '#E0E0E0',
+    borderColor: '#fff',
+    borderBottomWidth: 1,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+},
+
+[TouchableOpacity]
+a touchble wrapper for modules (usually for buttons)
+similar to a button but with the ability of custom style and content.
+supports any of the CSS rules available. all content within this module will be clickable! 
+
+properties:
+- activeOpacity: <0..1>			// opacity value (default: 0.2)
+
+e.g:
+<TouchableOpacity style={styles.customButton}>
+    <Text>ClickMe</Text>
+</TouchableOpacity>
+
+// style
+customButton: {
+    flex: 1,
+    borderRadius: 8,
+    backgroundColor: 'aqua',
+    margin: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+},
+
+[TouchableHighlight]
+a touchble wrapper for modules. creates an highlight effect when a user touch it. 
+as opposed to the 'TouchableOpacity' - we need to assign it an 'onPress' event.
+
+properties:
+- activeOpacity: <0..1>			// opacity value (default: 0.2)
+- underlayColor: <string>		// layer color
+
+events:
+- onPress
+- onHideUnderlay
+- onShowUnderlay
+
+e.g:
+<TouchableHighlight style={styles.customButton} activeOpacity={0.9} underlayColor="#EEE" onPress={...}>
+    <Text>ClickMe</Text>
+</TouchableHighlight>
+
+// style
+customButton: {
+    flex: 1,
+    borderRadius: 8,
+    backgroundColor: 'aqua',
+    margin: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+},
+
+[ActivityIndicator]
+loader indicator.
+
+properties:
+- animating	  // true/false - show or hide indicator
+- size		  // small, large or number
+- color
+
+e.g:
+<ActivityIndicator size="large" color="#0000ff" animating={true} />
+
+[Alert]
+
+syntax:
+Alert.alert(<title>, <message>);
+Alert.alert(<title>, <message>, <buttons>, <options>);
+
+e.g:
+<Button onPress={() => Alert.alert("Some Title", "Some Message")} title="Alert" />
+<Button onPress={this.createAlert} title="Alert" />
+
+createAlert = () => {
+	let buttons = [
+		{
+			text: 'OK',
+			onPress: () => console.log('OK button was pressed'),
+		},
+		{
+			text: 'Cancel',
+			onPress: () => console.log('Cancel button was pressed'),
+		},
+		{
+			text: 'Later',
+			onPress: () => console.log('Later button was pressed'),
+		},
+	];
+
+	let options = {};
+
+	Alert.alert('Some Title', 'Some Message', buttons, options);
+};
+
+[Modal]
+aka popup
+
+properties:
+- animationType: <animationType>	// the type of animations to use when showing/hiding the modal (see 'animation Types')
+- presentationStyle: <modalStyle>	// the model style-behavior (see 'animation Types')
+- transparent						// use transparent background layout
+- visible: <bool>					// modal state - is the modal visible (show or hide)
+- statusBarTranslucent: <bool>		// should the popup go under the system statusbar
+
+events:
+- onShow
+- onDismiss
+- onOrientationChange
+- onRequestClose
+
+animation Types:
+- slide
+- fade
+- none
+
+modal Styles:
+- fullScreen
+- pageSheet
+- formSheet
+- overFullScreen
+
+e.g:
+<View>
+	<Modal animationType="slide" presentationStyle="overFullScreen" transparent={true} visible={this.state.isVisible}>
+		<View style={styles.modal}>
+			<Text>Hello From Modal</Text>
+			<Button onPress={() => { this.setState({isVisible: false}); }} title="Hide Modal" />
+		</View>
+	</Modal>
+
+	<Text>Hello From Page</Text>
+	<Button onPress={() => { this.setState({isVisible: true}); }} title="Show Modal" />
+</View>
+
+// code
+constructor() {
+	super();
+	this.state = {
+		isVisible: false,
+	};
+}
+
+// styles
+modal: {
+    minHeight: 150,
+    backgroundColor: '#d3d3d3',
+    margin: 12,
+    borderRadius: 20,
+    padding: 12,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+        width: 0,
+        height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+},
+
+[Animated]
+make animations using RN.
+
+the process:
+to work with animations we need to declare 'Animation Value' variable (see 'Animation-variable') and use the static 'Animated.timing' function to change this value (internally).
+then, we need to bind the animation-variable to animation-module! (see 'Animation-modules')
+we can also apply multiple animations (see 'advanced animations')
+
+(steps)
+1. create an animation-value variable with init-value of 100 
+   let animationVar = new Animated.Value(100); 
+
+2. create a function to execute an animation 
+const executeAnimation = () => {
+    // change the value of animationVar to 200 using 1.5 sec animation
+    Animated.timing(animationVar, {
+    toValue: 200,
+    duration: 1500,
+    }).start();
+};
+
+3. bind the value to an Animation-module (see 'Animation-modules')
+   <Animated.View style={[styles.cube, {width: animationVar}]}>...</Animated.View>
+
+4. trigger the animation
+   <Button onPress={executeAnimation} title="ClickMe" />
+
+static methods:
+// curve functions
+// used for defining the animation curve and timing 
+// returns <animation> object
+<animation> Animated.timing(<animation-value>, <config>)	// see 'Animated.timing'
+<animation> Animated.spring(<animation-value>, <config>)	
+<animation> Animated.decay(<animation-value>, <config>)
+
+// behavioral functions
+// used for defining the "way" to perform animations and how they should behave
+// all of those functions (except 'loop') gets an array of animations!
+Animated.sequence(<[animation]>)				// starts array of animations in sync mode
+Animated.parallel(<[animation]>, <config>)		// starts array of animations in async mode
+Animated.stagger(<int>, <[animation]>)
+Animated.delay(<int>)
+Animated.loop(<animation>, <config>)
+
+// execution functions
+<animation>.start(<callback>)		// start an animation
+<animation>.stop()					// stop any running animation
+<animation>.reset()				// stop any running animation + reset the animation-value to its init-value
+
+// arithmetic functions 
+// used for creating new animation-value from existing animation-variables
+Animated.add
+Animated.subtract
+Animated.divide
+Animated.multiply
+Animated.modulo
+
+interpolate:
+map animation-value to custom value like string.  
+due to the limitation of animation-variables which only support numeric values, some cases require-us to translate those values into different values 
+for example to use 'rotate' css rule which takes 'deg' as value (such as '180deg'). 
+to achieve that, we can use the 'interpolate' method which takes a source (inputRange) ands a destination (outputRange) and map the values accordingly.
+
+// syntax
+<animation-value>.interpolate({
+  inputRange: [...],
+  outputRange: [...],
+})
+
+// sample
+const executeAnim = () => {    
+    Animated.timing(animVarRotate, {
+    toValue: 360,
+    duration: 2000,
+    }).start();
+};
+
+<Animated.View style={{transform: [
+		{scale: animVarScale}, 
+		{rotate: animVarRotate.interpolate({
+			inputRange: [0, 360],
+			outputRange: ['0deg', '360deg'],
+		})}
+	]}}>		
+</Animated.View>
+<Button onPress={executeAnim} title="ClickMe" />
+
+events:
+Animated.event
+// TODO
+
+Animation-variable:
+there are two value types supported, 'number' and '{x, y}' object. 
+
+Animated.Value(<number>);
+Animated.ValueXY(<{x, y}>);
+
+Animation-modules:
+- see 'built-in Animation-modules'
+- see 'custom Animation-modules'
+
+built-in Animation-modules:
+- Animated.Image
+- Animated.ScrollView
+- Animated.Text
+- Animated.View
+- Animated.FlatList
+- Animated.SectionList
+
+custom Animation-modules:
+use 'createAnimatedComponent' method to generate a new animation-module
+// TODO
+
+Animated.timing:
+used for changing the a single animation variable using the specified config(duration etc.)
+note that we can't change an animation variable outside of this function scope. 
+returns an <animation> object, use the start method to execute it. 
+for more complex animations and for multiple effects see 'advanced animations'
+
+Animated.timing(<animation-value>, <config>).start();
+Animated.timing(<animation-value>, <config>).start(<callback>);
+
+// config
+- toValue: <Any>		// the new value to set to the provided animation-value
+- easing: <function>	// curve definition (use static Easing.<function> for built-in curves)
+- duration: <int>		// animation duration in milliseconds
+- delay: <int>			// animation delay in milliseconds
+- useNativeDriver: <bool>	// whether to use the native driver or not
+
+advanced animations:
+we can compose an advanced animations by using the built-in behavioral methods (sequence, parallel, stagger and delay).
+for example -> Animated.parallel(arrAnimation).start();
+
+e.g (basic):
+const animVar1 = new Animated.Value(100); // 100 = init-value
+const animVar2 = new Animated.ValueXY({x: 20, y: 20}); // {x: 20, y: 20} = init-value
+
+const executeAnim1 = () => {
+    // changes the value of animVar1 to 200 using 1.5 sec animation
+    Animated.timing(animVar1, {
+    toValue: 200,
+    duration: 1500,
+    }).start();
+};
+
+const executeAnim2 = () => {
+    // changes the value of animVar2 to {x: 150, y: 150} using 1.5 sec animation
+    Animated.timing(animVar2, {
+    toValue: {x: 150, y: -150},
+    duration: 1500,
+    }).start();
+};
+
+<Animated.View style={[styles.cube, {width: animVar1}]}>
+    <Text>Transform</Text>
+</Animated.View>
+<Animated.View style={[styles.cube, {absolute: 'absolute', left: animVar2.x, top: animVar2.y}]}>
+    <Text>Translate</Text>
+</Animated.View>
+<Button onPress={executeAnim1} title="ClickMe" />
+<Button onPress={executeAnim2} title="ClickMe" />
+
+e.g (advanced):
+const animVarfadeOut = new Animated.Value(1);
+const animVarPosition = new Animated.ValueXY({x: 0, y: 0});
+const animVarScale = new Animated.Value(1);
+const animVarRotate = new Animated.Value(0);
+
+const executeComplex = () => {
+    let arrAnimation = [];
+
+    arrAnimation.push(
+		Animated.timing(animVarfadeOut, {
+			toValue: 0.3,
+			duration: 1500,
+		}),
+    );
+
+    arrAnimation.push(
+		Animated.timing(animVarPosition, {
+			toValue: {x: 150, y: -250},
+			duration: 1500,
+		}),
+    );
+
+    arrAnimation.push(
+		Animated.timing(animVarScale, {
+			toValue: 2,
+			duration: 1500,
+		}),
+    );
+
+    arrAnimation.push(
+		Animated.timing(animVarRotate, {
+			toValue: 6,
+			duration: 1500,
+		}),
+    );
+
+    Animated.parallel(arrAnimation).start(() => {
+		console.log('animation has completed!');
+    });
+};
+
+<Animated.View style={
+    [
+		styles.cube,
+		{absolute: 'absolute'},
+		{opacity: animVarfadeOut},
+		{left: animVarPosition.x, top: animVarPosition.y},
+		{transform: [{scale: animVarScale}, {rotate: animVarRotate}]},
+    ]}>
+    <Text>Complex</Text>
+</Animated.View>
+<Button onPress={executeComplex} title="Complex" />
+
+[Dimensions]
+
+static methods:
+- Dimensions.get(<window|screen>); 
+- Dimensions.addEventListener(<type>, <fn>);  // see 'events'
+- Dimensions.removeEventListener(<type>, <fn>);
+
+events:
+- change
+
+onchange event:
+Dimensions.addEventListener('change', ({window, screen}) => {
+    console.log(`screen: ${screen.width} x ${screen.height}`);
+    console.log(`window: ${window.width} x ${window.height}`);
+});
+
+e.g:
+const windowD = Dimensions.get('window');
+const screenD = Dimensions.get('screen');
+
+<Text>Screen Size: {screenD.width.toFixed(2)} x {screenD.height.toFixed(2)}</Text>
+<Text>Window Size: {windowD.width.toFixed(2)} x {windowD.height.toFixed(2)}</Text>
+
+
+[StatusBar]
+status-bar is the device's top & bottom menus. 
+we can use this module to show/ hide them and change their theme.
+
+static properties:
+- StatusBar.currentHeight  // return the height of the status-bar
+
+properties:
+- backgroundColor: <string>	// set color 
+- barStyle: <barStyle>		// set theme (see 'bar Styles')
+- hidden					// show/ hide the status-bar
+
+static methods:
+- StatusBar.setBackgroundColor(<string>)	// set color
+- StatusBar.setBarStyle(<barStyle>)			// set theme (see 'bar Styles')
+- setHidden(<bool>)							// show/ hide the status-bar
+
+bar Styles:
+- default
+- light-content
+- dark-content
+
+e.g:
+<StatusBar hidden={false} backgroundColor="black" barStyle="default" />
+<Text>StatusBar Height: {StatusBar.currentHeight}</Text>
+<Button onPress={() => {StatusBar.setBackgroundColor('red')}} title="Change" />
+
+[PixelRatio]
+get the pixel density and font scale of the device
+
+layout size:
+use dp units. 
+dp stands-for Density-independent Pixels.
+each device has a density (see 'pixel density per device')
+the "number of pixels" requires differs between devices and it depends on each density.
+
+static methods:
+- PixelRatio.get()				// get the device pixel density (see 'pixel density per device')
+- PixelRatio.getFontScale()		// get the scale for fonts
+- PixelRatio.getPixelSizeForLayoutSize(<number>)	// convert layout size (dp) to pixel size (px)
+- PixelRatio.roundToNearestPixel(<number>)			// round the dp to match an integer of px.
+
+pixel-density per device:
+https://material.io/resources/devices/
+
+- mdpi devices = 1
+- hdpi devices = 1.5
+- xhdpi devices = 2
+- xxhdpi devices = 3
+- xxxhdpi devices = 3.5
+
+e.g:
+<Text>pixel-ratio: {PixelRatio.get()}</Text>
+<Text>font-scale:{PixelRatio.getFontScale()}</Text>
+<Text>width 100 requires {PixelRatio.getPixelSizeForLayoutSize(100)}px in this device</Text>
+
+[RefreshControl]
+pull-to-refresh. 
+used in ScrollView or ListView containers. 
+use the container 'refreshControl' property to set the pull-to-refresh behavior.
+
+syntax:
+<ScrollView .... refreshControl={<RefreshControl .... />} >...</ScrollView>
+
+properties:
+- refreshing: <bool>				// should indicate of an active refresh
+- colors: <string[]>				// colors to paint the refresh indicator (switches color every sec)
+- enabled: <bool>					// is the pull-to-refresh functionality active or not
+- progressBackgroundColor: <string>	// refresh indicator background color
+- progressViewOffset: <int>			// progress view top offset
+- size: <layoutSize>				// the layout size (see 'layout Sizes')
+- title: <string>					// text to display under the refresh indicator (iOS)
+- titleColor: <string>				// title-color (iOS)
+- tintColor: <string>				// refresh indicator fore color (iOS)
+
+events:
+- onRefresh
+
+layout Sizes:
+RefreshLayoutConsts.SIZE.DEFAULT
+RefreshLayoutConsts.SIZE.LARGE
+
+e.g:
+<ScrollView refreshControl={<RefreshControl refreshing={this.state.isRefreshing} onRefresh={(this.onRefresh)} title="refreshing..." colors={['red', 'green', 'blue']} />}>
+	...
+	...
+</ScrollView>
+
+// code 
+constructor() {
+	super();
+	this.state = {
+		isRefreshing: false,
+	};
+}
+
+sleepAsync = timeout => {
+	return new Promise(resolve => {
+		setTimeout(resolve, timeout);
+	});
+};
+
+onRefresh = async () => {	
+	this.setState({isRefreshing: true});  // 
+	console.log('refreshing...');
+	await this.sleepAsync(5000);
+	console.log('done!');
+	this.setState({isRefreshing: false});
+};
+
+
+React-Native Camera
+-------------------
+
+sources:
+https://github.com/react-native-community/react-native-camera
+https://github.com/react-native-community/react-native-camera/blob/master/docs/RNCamera.md
+
+install:
+> npm install --save react-native-camera
+
+import:
+import { RNCamera } from 'react-native-camera';
+
+permissions:
+- android
+  1. file 'android/app/src/main/AndroidManifest.xml'   
+
+     // required
+	 <uses-permission android:name="android.permission.CAMERA" />
+
+	 // include this for video recording
+	 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+	 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+	 // include this for microphone (on video recording)
+	 <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+  2. file 'android/app/build.gradle'
+     android {
+		defaultConfig {
+			missingDimensionStrategy 'react-native-camera', 'general'
+		}
+	 }
+
+- ios
+  1. file 'ios/<project>/Info.plis'
+
+	 // required
+     <key>NSCameraUsageDescription</key>
+	 <string>a message to user when the camera is accessed for the first time</string>
+
+	 // include this for video recording
+	 <key>NSPhotoLibraryAddUsageDescription</key>
+	 <string>a message to user when the photo library is accessed for the first time</string>
+
+	// include this for video recording
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>a message to user when the photo library is accessed for the first time</string>
+
+	// include this for microphone (on video recording)
+	<key>NSMicrophoneUsageDescription</key>
+	<string>a message to user when the microphone is accessed for the first time</string>
+
+record a video:
+const options = {
+  quality: RNCamera.Constants.VideoQuality['720p'],
+  orientation: 'landscapeRight',
+  maxDuration: 3,
+};
+
+// result: {uri, videoOrientation, deviceOrientation, isRecordingInterrupted}
+const result = await this.camera.recordAsync(options);
+
+take a picture:
+const options = {
+  quality: 0.5,
+  base64: true,
+};
+
+// result: {width, height, uri, base64, pictureOrientation, deviceOrientation}
+const result = await this.camera.takePictureAsync(options);
+
+using:
+import { RNCamera } from 'react-native-camera';
+  
+class TestCamera extends Component {
+	constructor(){
+  		this.takePicture = this.takePicture.bind(this);
+		this.recordVideo = this.recordVideo.bind(this);
+	}
+  
+	takePicture = async () => {
+		if (this.camera) {
+			const options = {
+			quality: 0.5,
+			base64: true,
+			};
+
+			// result: {width, height, uri, base64, pictureOrientation, deviceOrientation}
+			const result = await this.camera.takePictureAsync(options);
+			console.log(result.uri);
+		}
+	};
+
+	recordVideo = async () => {
+		if (this.camera) {
+			const options = {
+			quality: RNCamera.Constants.VideoQuality['720p'],
+			orientation: 'landscapeRight',
+			maxDuration: 3,
+			};
+
+			// result: {uri, videoOrientation, deviceOrientation, isRecordingInterrupted}
+			const result = await this.camera.recordAsync(options);
+			console.log(result.uri);
+		}
+	};
+  
+	render() {
+  		return(
+  			<View style={styles.cameraContainer}>
+  				<RNCamera
+  				ref={ref => {
+  					this.camera = ref;
+  				}}    
+  				type={RNCamera.Constants.Type.back}
+  				flashMode={RNCamera.Constants.FlashMode.on}
+  				androidCameraPermissionOptions={{
+  					title: 'Permission to use camera',
+  					message: 'We need your permission to use your camera',
+  					buttonPositive: 'Ok',
+  					buttonNegative: 'Cancel',
+  				}}
+  				androidRecordAudioPermissionOptions={{
+  					title: 'Permission to use audio recording',
+  					message: 'We need your permission to use your audio',
+  					buttonPositive: 'Ok',
+  					buttonNegative: 'Cancel',
+  				}}>
+  				<View style={styles.cameraButtonsContainer}>
+					<Button onPress={this.takePicture} title="Snap" />
+					<Button onPress={this.recordVideo} title="Record" />
+				</View>
+  				</RNCamera>
+  			</View>
+  		);
+	}
+}
+  
+const styles = StyleSheet.create({
+	cameraContainer: {
+  		flex: 1,
+		marginTop: 280,
+		backgroundColor: '#000',
+	},
+	cameraButtonsContainer: {
+		flex: 1,
+		flexDirection: 'row',
+		justifyContent: 'space-evenly',
+		alignItems: 'center',
+	},
+});
+
+React-Native Image-Picker
+-------------------------
+sources:
+https://github.com/react-native-community/react-native-image-picker
+https://github.com/react-native-community/react-native-image-picker/blob/master/docs/Reference.md
+
+install:
+> npm install --save react-native-image-picker
+
+import:
+import ImagePicker from 'react-native-image-picker';
+
+pick from camera:
+ImagePicker.launchCamera(<options>, <callback>);
+
+pick from library:
+ImagePicker.launchImageLibrary(<options>, <callback>);
+
+response object:
+- didCancel
+- data		// base64 encoded image data (note: use 'noData' option to reduce this value from the response)
+- uri
+- width
+- height
+- fileSize
+- type
+- path
+- fileName
+- isVertical
+
+using:
+import ImagePicker from 'react-native-image-picker';
+
+class TestImagePicker extends Component {
+	constructor(){
+  		this.pickImageFromCamera = this.pickImageFromCamera.bind(this);
+		this.pickImageFromLibrary = this.pickImageFromLibrary.bind(this);
+	}
+  
+	pickImageFromCamera = () => {
+		let options = {};
+		ImagePicker.launchCamera(options, response => {
+		  console.log(response.fileName);
+		});
+	};
+
+	pickImageFromLibrary = () => {
+		let options = {};		
+		ImagePicker.launchImageLibrary(options, response => {
+			console.log(response.fileName);
+		});
+	};
+  
+	render() {
+  		return(
+  			<View>
+  				<Button onPress={this.pickImageFromCamera} title="Pick From Camera" />
+				<Button onPress={this.pickImageFromLibrary} title="Pick From Library" />
+  			</View>
+  		);
+	}
+}
+
+React-Native Picker
+-------------------
+aka DropDownList (DDL)
+
+sources:
+https://github.com/react-native-community/react-native-picker
+
+install:
+> npm install --save @react-native-community/picker
+
+hierarchy:
+- Picker
+--- Picker.Item
+--- Picker.Item
+--- Picker.Item
+
+properties:
+- selectedValue: <any>
+- enabled: <bool>
+- mode: <dialog|dropdown>
+
+events:
+- onValueChange		// passes info about the selected item -> {value, index}
+
+e.g:
+<Picker
+    selectedValue={this.state.selectedValue}
+    style={{height: 36, width: 200}}
+    onValueChange={(value, index) => this.setState({selectedValue: value}) }>
+
+    <Picker.Item label="option1" value="1" />
+    <Picker.Item label="option2" value="2" />
+    <Picker.Item label="option3" value="3" />
+</Picker>
+
+// code
+constructor() {
+    super();
+    this.state = {     
+      selectedValue: '3',
+    };
+}
+
+
+Navigation
+----------
+sources:
+https://reactnavigation.org/
+https://reactnavigation.org/docs/getting-started
+
+install:
+// core
+> npm install --save @react-navigation/native
+
+// dependencies
+> npm install --save react-native-reanimated react-native-gesture-handler react-native-screens react-native-safe-area-context @react-native-community/masked-view
+
+base import:
+import 'react-native-gesture-handler';  // must be added at the top!
+import {NavigationContainer} from '@react-navigation/native';
+...
+...
+
+route prop:
+this prop allows us to work with the route object. 
+commonly used to read parameters passing from one screen to the other. (route.params)
+
+navigation prop:
+this prop allows us to work with the screens. we use it to navigate between screens and add/ remove screens from the navigator screens-stack.
+this prop is passed in to every screen component defined within the Stack.Navigator.
+https://reactnavigation.org/docs/navigation-prop/
+
+navigation.navigate:
+- use the injected 'navigation' prop to navigate between screens. (see 'navigation prop')  
+
+- syntax
+  navigation.navigate(<screenName>);
+  navigation.navigate(<screenName>, <options>);
+
+- options
+  - screen  // set the name of the target tab (when we need to navigate to a specific tab in a screen)
+  - params  // passing params 
+
+- using
+  class Home extends Component {
+	constructor({navigation}) {
+		super();
+		this.navigation = navigation;
+	}
+
+	render(){
+		return (
+		  <View>
+			<Button onPress={() => this.navigation.navigate('Test')} title="Text Screen" />			
+		  </View>
+		);
+	}
+  }
+
+navigation.push:
+- use the injected 'navigation' prop to push screens to the stack. (see 'navigation prop') 
+
+- syntax
+  navigation.push(<screenName>);
+
+- using
+  class Home extends Component {
+	constructor({navigation}) {
+		super();
+		this.navigation = navigation;
+	}
+
+	render(){
+		return (
+		  <View>
+			<Button onPress={() => this.navigation.push('Test')} title="Text Screen" />
+		  </View>
+		);
+	}
+  }
+
+navigation.pop:
+- use the injected 'navigation' prop to pop screens from the stack. (see 'navigation prop') 
+- opposite to 'navigation.push' 
+
+navigation.goBack:
+- use the injected 'navigation' prop to return to the previous screen. (see 'navigation prop') 
+  more accurately - to pop a screen from the stack!
+
+- syntax
+  navigation.goBack();
+
+- using
+  class Text extends Component {
+	constructor({navigation}) {
+		super();
+		this.navigation = navigation;
+	}
+
+	render(){
+		return (
+		  <View>
+			<Button onPress={() => this.navigation.goBack()} title="Go Back" />
+		  </View>
+		);
+	}
+  }
+
+navigation.popToTop:
+- use the injected 'navigation' prop to return to the first screen. (see 'navigation prop') 
+  more accurately - go back to the first screen in the stack!
+
+- syntax
+  navigation.popToTop();
+
+- using
+  class Text extends Component {
+	constructor({navigation}) {
+		super();
+		this.navigation = navigation;
+	}
+
+	render(){
+		return (
+		  <View>
+			<Button onPress={() => this.navigation.popToTop()} title="GO TO TOP" />
+		  </View>
+		);
+	}
+  }
+
+navigation.jumpTo:
+used in tab and drawer navigators. 
+allows us to go to a specific screen.
+
+navigation.drawer:
+when using drawer navigator type, those extra functions available for us:
+- openDrawer
+- closeDrawer
+- toggleDrawer
+
+route parameters:
+- passing parameters to screens is done by adding an extra object to the 'navigation.navigate' function.
+  to read the passed parameters we need to import the injected 'route' prop (see 'route prop')
+  to update route parameters use the 'navigation.setParams' function.
+ 
+- syntax  
+  // send
+  navigation.navigate(<screenName>, { <params> });    
+
+  // read  
+  const { <params> } = route.params; 
+
+- using
+  navigation.navigate('ProductScreen', {
+    itemId: 100    
+  });
+
+  class ProductScreen extends Component {
+    constructor({navigation, route}) {
+      super();
+      this.navigation = navigation;
+      this.route = route;
+    }
+  
+    render() {
+      if (this.route.params) {
+        let {itemId} = this.route.params;
+        console.log(itemId);
+      }
+  
+      return (
+        <View>
+          <Text>Hello TEST</Text>          
+        </View>
+      );
+    }
+  }
+
+-
+
+header style:
+we can set a styles per screen or use shared style for multiple scrrens.
+use 'options' or 'screenOptions' property to set styles (see 'navigation options')
+
+navigation options:
+use 'options' property (Screen level) to set options to a specific screen. 
+use 'screenOptions' property (Navigator level) to et options to all screens.
+use the combination of the above two to set base options to all with the ability to override/ add specific options.
+
+- using sample 1
+  const screenOptions = {
+      headerStyle: {
+  		backgroundColor: '#f4511e',
+      },
+      headerTintColor: '#fff',
+      headerTitleStyle: {
+  		fontWeight: 'bold',
+      },
+  };
+  
+  const Screen2Options = {
+  	title: 'My Screen 2',
+      headerStyle: {
+  		backgroundColor: 'blue',
+      },
+  };
+  
+  // apply on Screen2
+  <Stack.Navigator>
+  	<Stack.Screen name="Screen1" component={Screen1} />
+  	<Stack.Screen name="Screen2" component={Screen2} options={screenOptions} />
+  </Stack.Navigator>
+  
+  // apply to all screens
+  <Stack.Navigator screenOptions={screenOptions}>
+  	<Stack.Screen name="Screen1" component={Screen1} />
+  	<Stack.Screen name="Screen2" component={Screen1} />
+  </Stack.Navigator>
+  
+  // combination of shared and specific (+ override)
+  <Stack.Navigator screenOptions={screenOptions}>
+  	<Stack.Screen name="Screen1" component={Screen1} />
+  	<Stack.Screen name="Screen2" component={Screen1} options={Screen2Options} />
+  </Stack.Navigator>
+
+- using sample 2
+  function fnHeaderLogo() {
+      return (
+		  <Image
+			  style={{width: 50, height: 50, borderRadius: 8}}
+			  source={require('./images/237-200x200.jpg')}
+		  />
+      );
+  }
+  
+  function fnHeaderButton() {
+      return (
+		  <Button
+			  onPress={() => console.log('Click!')}
+			  title="Info"
+			  color="#000"
+		  />
+      );
+  }
+  
+  const HomeScreenOptions = {
+      headerTitle: fnHeaderLogo,
+      headerRight: fnHeaderButton,
+  };
+
+  <Stack.Navigator>  	
+  	<Stack.Screen name="Home" component={Home} options={HomeScreenOptions} />
+  </Stack.Navigator>
+
+tab navigation:
+- install    
+  > npm install --save @react-navigation/bottom-tabs
+
+- reference
+  https://reactnavigation.org/docs/tab-based-navigation/  
+  https://reactnavigation.org/docs/bottom-tab-navigator
+
+- import
+  <base import>  // see 'base import'
+  import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+
+- component
+  const Tab = createBottomTabNavigator();
+
+- syntax:
+  <Tab.Screen name="<screenName>" component={<screen>} options={<options>} />
+  name and component are required!
+
+- options object
+  e.g <Tab.Screen .... options={{ title: 'Tab Title' }} />
+  e.g <Tab.Screen .... options={{ headerShown: false }} />  // no header
+  see 'reference'
+
+- hierarchy
+  NavigationContainer
+  ---> Tab.Navigator
+  ------> Tab.Screen
+  ------> Tab.Screen
+
+- using (basic)
+  export default class App extends Component {
+    render() {
+      return (
+        <NavigationContainer>
+			<Tab.Navigator>
+			  <Tab.Screen name="Home" component={Home} />
+			  <Tab.Screen name="Test" component={Test} />
+			</Tab.Navigator>
+      </NavigationContainer>
+      );
+    }
+  }
+
+  class Home extends Component {
+    render() {
+      return (
+        <View>
+          <Text>HOME SCREEN</Text>
+        </View>
+      );
+    }
+  }
+  
+  class Test extends Component {
+    render() {
+      return (
+        <View>
+          <Text>TEST SCREEN</Text>
+        </View>
+      );
+    }
+  }
+
+drawer navigation:
+- install      
+  > npm install --save @react-navigation/drawer
+
+- reference
+  https://reactnavigation.org/docs/drawer-based-navigation
+  https://reactnavigation.org/docs/drawer-navigator
+
+- import
+  <base import>  // see 'base import'
+  import {createDrawerNavigator} from '@react-navigation/drawer';
+
+- component
+  const Drawer = createDrawerNavigator();
+
+- syntax:
+  <Drawer.Screen name="<screenName>" component={<screen>} options={<options>} />
+  name and component are required!
+
+- options object
+  e.g <Drawer.Screen .... options={{ title: 'Tab Title' }} />
+  see 'reference'
+
+- navigation actions:
+  see 'navigation.drawer'
+
+- hierarchy
+  NavigationContainer
+  ---> Drawer.Navigator
+  ------> Drawer.Screen
+  ------> Drawer.Screen
+
+- initialRouteName property
+  use it to set the default screen, the default is the first screen defined.
+  applied to the Drawer.Navigator element.
+
+- drawerPosition property
+  use it to set the position of the navigator. 
+  options are 'left' or 'right' (to swipe left or to swipe right).
+  default is 'left'
+  applied to the Drawer.Navigator element.
+
+- drawerType property
+  use it to set the behaviour of the navigator when it's being opened/ closed. 
+  options are 'front', 'slide' or 'permanent'.
+  'slide' pushes the screen, 'permanent' is a constant menu and 'front' is a layer on top of the screen.
+  default is 'front'
+  applied to the Drawer.Navigator element.
+
+- using (basic)
+  export default class App extends Component {
+    render() {
+      return (
+        <NavigationContainer>
+			<Drawer.Navigator initialRouteName="Home" drawerType="slide" drawerStyle={styles.drawerContainer}>
+			  <Drawer.Screen name="Home" component={Home} />
+			  <Drawer.Screen name="Test" component={Test} />
+			</Drawer.Navigator>
+		</NavigationContainer>
+      );
+    }
+  }
+
+  class Home extends Component {
+    render() {
+      return (
+        <View>
+          <Text>HOME SCREEN</Text>
+        </View>
+      );
+    }
+  }
+  
+  class Test extends Component {
+    render() {
+      return (
+        <View>
+          <Text>TEST SCREEN</Text>
+        </View>
+      );
+    }
+  }
+
+  // styles
+  drawerContainer: {
+    backgroundColor: 'aqua',
+    width: 240,
+  },
+
+stack navigation:
+- install  
+  > npm install --save @react-navigation/stack
+
+- reference
+  https://reactnavigation.org/docs/stack-navigator/  
+
+- import
+  <base import>  // see 'base import'
+  import {createStackNavigator} from '@react-navigation/stack';
+
+- component
+  const Stack = createStackNavigator();
+
+- syntax:
+  <Stack.Screen name="<screenName>" component={<screen>} options={<options>} />
+  name and component are required!
+
+- options object
+  e.g <Stack.Screen .... options={{ title: 'Screen Title' }} />
+  see 'reference'
+
+- hierarchy
+  NavigationContainer
+  ---> Stack.Navigator
+  ------> Stack.Screen
+  ------> Stack.Screen
+
+- screens-stack
+  the navigator uses stack model for the screens. 
+  it pushes and pops screens from it based on the user navigation actions.
+
+  how it works?
+  user navigates from pageA to pageB -> stack: pageA
+  user navigates from pageB to pageC -> stack: pageB, pageA
+  user use 'goback' command to go to pageB -> stack: pageA
+  user use 'push' command to push both pageC then pageD -> stack: pageD, pageC, pageA
+  user use 'popToTop' command to go to pageA -> stack: 
+
+- using (basic)
+  export default class App extends Component {
+    render() {
+      return (
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="Test" component={Test} />
+          </Stack.Navigator>
+        </NavigationContainer>
+      );
+    }
+  }
+
+  class Home extends Component {
+    render() {
+      return (
+        <View>
+          <Text>HOME SCREEN</Text>
+        </View>
+      );
+    }
+  }
+  
+  class Test extends Component {
+    render() {
+      return (
+        <View>
+          <Text>TEST SCREEN</Text>
+        </View>
+      );
+    }
+  }
+
+StyleSheet
+----------
+see 'Styles'
+
+Styles
+------
+
+sources:
+https://reactnative.dev/docs/style
+https://github.com/vhpoet/react-native-styling-cheat-sheet/blob/master/README.md
+
+styleSheet:
+an equivalent to the CSS 'classes'
+use the 'style' property of the module to set styleSheet classes
+
+// syntax
+const styles = StyleSheet.create({  
+	<className-1>: { <rules> }, 
+	<className-2>: { <rules> }, 
+	...
+	...
+	<className-N>: { <rules> }, 
+});
+
+global and local support:
+we can generate stylesheets globaly in the js file or locally within the 'render' function of a module
+
+note:
+rule -> key: value (e.g: fontSize: 18)
+
+inline-style:
+we can set styles inline instead of using a styleSheet.
+use the 'style' property of the module to set inline rules.
+
+// syntax
+style={{ <rules> }}  
+
+// sample
+<Image style={{width: 50, height: 50, borderRadius: 8}} ... />
+
+using:
+style={styles.<className>}    // single class
+style={[styles.<className-1>, styles.<className-2>... styles.<className-N>]}  // multiple classes
+style={{ <rule1>, <rule2>... <ruleN> }}  // inline
+style={[styles.<className-1>, {<rules-1}, {<rules-2}...]}  // combination
+
+flex properties:
+use these properties to define the page layout (see 'Flex')
+
+absolute position:
+- position: 'absolute'
+- left: <int>
+- top: <int>
+
+- 
+
+e.g:
+<View style={styles.container}>
+	<Text style={styles.text}>Hello World</Text>
+	<Image style={styles.image150} source={{uri: 'https://picsum.photos/id/237/200/200'}} />
+	<Image style={{width: 150, height: 150, borderRadius: 8}} source={{uri: 'https://picsum.photos/id/237/200/200'}} />
+</View>
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#F5FCFF',
+  },
+  text: {
+    fontSize: 18,
+  },
+  image150: {    
+    width: 150,
+    height: 150,
+	borderRadius: 8,
+  },
+});
+
+Layouts
+-------
+layouts are defined using the flex properties (see 'Flex')
+
+---
+
+using:
+
+this sample UI reault can be found in 'layouts.jpg'
+
+-
+
+class LayoutsScreen extends Component {
+  render() {
+    const styles = StyleSheet.create({
+      Layout_Base: {
+        margin: 12,
+        height: 200,
+        width: 200,
+      },
+
+      // ******* [Layout-1] *******
+      Layout_1: {
+        flex: 1,
+        flexDirection: 'column',
+      },
+      Layout_1_1: {
+        flex: 1,
+        backgroundColor: 'red',
+      },
+      Layout_1_2: {
+        flex: 1,
+        backgroundColor: 'green',
+      },
+      Layout_1_3: {
+        flex: 1,
+        backgroundColor: 'blue',
+      },
+
+      // ******* [Layout-2] *******
+      Layout_2: {
+        flex: 1,
+        flexDirection: 'row',
+      },
+      Layout_2_1: {
+        flex: 1,
+        backgroundColor: 'red',
+      },
+      Layout_2_2: {
+        flex: 1,
+        backgroundColor: 'green',
+      },
+      Layout_2_3: {
+        flex: 1,
+        backgroundColor: 'blue',
+      },
+
+      // ******* [Layout-3] *******
+      Layout_3: {
+        flex: 1,
+        flexDirection: 'column',
+      },
+      Layout_3_1: {
+        flex: 1,
+        backgroundColor: 'red',
+      },
+      Layout_3_2: {
+        flex: 2,
+        flexDirection: 'row',
+      },
+      Layout_3_2_1: {
+        flex: 1,
+        backgroundColor: 'green',
+      },
+      Layout_3_2_2: {
+        flex: 1,
+        backgroundColor: 'blue',
+      },
+
+      // ******* [Layout-4] *******
+      Layout_4: {
+        flex: 1,
+        flexDirection: 'column',
+      },
+      Layout_4_1: {
+        flex: 1,
+        backgroundColor: 'red',
+      },
+      Layout_4_2: {
+        flex: 2,
+        flexDirection: 'row',
+      },
+      Layout_4_2_1: {
+        flex: 1,
+        flexDirection: 'column',
+      },
+      Layout_4_2_2: {
+        flex: 2,
+        backgroundColor: 'blue',
+      },
+      Layout_4_2_1_1: {
+        flex: 1,
+        backgroundColor: 'green',
+      },
+      Layout_4_2_1_2: {
+        flex: 1,
+        backgroundColor: 'aqua',
+      },
+      Layout_4_2_1_3: {
+        flex: 1,
+        backgroundColor: 'pink',
+      },
+
+      // ******* [Layout-5] *******
+      Layout_5: {
+        flex: 1,
+        flexDirection: 'column',
+      },
+      Layout_5_1: {
+        flex: 1,
+        backgroundColor: 'red',
+      },
+      Layout_5_2: {
+        flex: 5,
+        backgroundColor: 'green',
+      },
+      Layout_5_3: {
+        flex: 1,
+        backgroundColor: 'blue',
+      },
+
+      // ******* [Layout-6] *******
+      Layout_6: {
+        flex: 1,
+        flexDirection: 'column',
+      },
+      Layout_6_1: {
+        flex: 2,
+        flexDirection: 'row',
+      },
+      Layout_6_2: {
+        flex: 5,
+        backgroundColor: 'green',
+      },
+      Layout_6_3: {
+        flex: 1,
+        backgroundColor: 'blue',
+      },
+      Layout_6_1_1: {
+        flex: 1,
+        backgroundColor: 'red',
+      },
+      Layout_6_1_2: {
+        flex: 3,
+        backgroundColor: 'pink',
+      },
+      Layout_6_1_3: {
+        flex: 1,
+        backgroundColor: 'aqua',
+      },
+    });
+
+    return (
+      <ScrollView>
+        <View style={{alignItems: 'center', justifyContent: 'center'}}>
+
+          <View style={[styles.Layout_Base, styles.Layout_1]}>
+            <View style={styles.Layout_1_1}>
+              <Text>1_1</Text>
+            </View>
+            <View style={styles.Layout_1_2}>
+              <Text>1_2</Text>
+            </View>
+            <View style={styles.Layout_1_3}>
+              <Text>1_3</Text>
+            </View>
+          </View>
+
+          <View style={[styles.Layout_Base, styles.Layout_2]}>
+            <View style={styles.Layout_2_1}>
+              <Text>2_1</Text>
+            </View>
+            <View style={styles.Layout_2_2}>
+              <Text>2_2</Text>
+            </View>
+            <View style={styles.Layout_2_3}>
+              <Text>2_3</Text>
+            </View>
+          </View>
+
+          <View style={[styles.Layout_Base, styles.Layout_3]}>
+            <View style={styles.Layout_3_1}>
+              <Text>3_1</Text>
+            </View>
+            <View style={styles.Layout_3_2}>
+              <View style={styles.Layout_3_2_1}>
+                <Text>3_2_1</Text>
+              </View>
+              <View style={styles.Layout_3_2_2}>
+                <Text>3_2_2</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[styles.Layout_Base, styles.Layout_4]}>
+            <View style={styles.Layout_4_1}>
+              <Text>4_1</Text>
+            </View>
+            <View style={styles.Layout_4_2}>
+              <View style={styles.Layout_4_2_1}>
+                <View style={styles.Layout_4_2_1_1}>
+                  <Text>4_2_1_1</Text>
+                </View>
+                <View style={styles.Layout_4_2_1_2}>
+                  <Text>4_2_1_2</Text>
+                </View>
+                <View style={styles.Layout_4_2_1_3}>
+                  <Text>4_2_1_3</Text>
+                </View>
+              </View>
+              <View style={styles.Layout_4_2_2}>
+                <Text>4_2_2</Text>
+              </View>
+            </View>
+          </View>
+
+          <View style={[styles.Layout_Base, styles.Layout_5]}>
+            <View style={styles.Layout_5_1}>
+              <Text>5_1</Text>
+            </View>
+            <View style={styles.Layout_5_2}>
+              <Text>5_2</Text>
+            </View>
+            <View style={styles.Layout_5_3}>
+              <Text>5_3</Text>
+            </View>
+          </View>
+
+          <View style={[styles.Layout_Base, styles.Layout_6]}>
+            <View style={styles.Layout_6_1}>
+              <View style={styles.Layout_6_1_1}>
+                <Text>6_1_1</Text>
+              </View>
+              <View style={styles.Layout_6_1_2}>
+                <Text>6_1_2</Text>
+              </View>
+              <View style={styles.Layout_6_1_3}>
+                <Text>6_1_3</Text>
+              </View>
+            </View>
+            <View style={styles.Layout_6_2}>
+              <Text>6_2</Text>
+            </View>
+            <View style={styles.Layout_6_3}>
+              <Text>6_3</Text>
+            </View>
+          </View>
+
+        </View>
+      </ScrollView>
+    );
+  }
+}
+
+
+Flex
+----
+
+properties:
+- flex
+- flexDirection
+- direction 
+- justifyContent 
+- alignItems
+- alignSelf
+- alignContent
+- flexWrap
+- flexGrow
+- flexShrink 
+- flexBasis
+
+flex property:
+<number>
+same as in CSS, the 'flex' property defines how to devide the available space.
+it works in both vertical and horizontal alike. 
+
+flexDirection property:
+<row, column, row-reverse, column-reverse>
+children-nodes direction
+see 'flex_flexDirection.png'
+
+direction property:
+<LTR, RTL>
+layout direction (right-to-left or left-to-right)
+
+justifyContent property:
+<flex-start, flex-end, center, space-between, space-around, space-evenly>
+children-nodes alignment within the main axis
+see 'flex_justifyContent.png'
+
+alignItems property:
+<stretch, flex-start, flex-end, center, baseline>
+children-nodes alignment within the cross-axis
+see 'flex_alignItems.png'
+
+alignSelf property:
+<stretch, flex-start, flex-end, center, baseline>
+specific-node alignment within the cross-axis (same as alignItems but for a single child element)
+see 'flex_alignSelf.png'
+
+
+alignContent property:
+<flex-start, flex-end, stretch, center, space-between, space-around>
+only available when using with flexWrap property.
+defines the distribution of lines along the cross-axis.
+see 'flex_alignContent.png'
+
+flexWrap property:
+<nowrap, wrap>
+handles items-overflow within the container.
+see 'flex_flexWrap.png'
+
+
+State
+-----
+[inheritance]
+when using inheritance, by extending the 'Component' class, we have access to the base class 'State' object. 
+use 'this.state' to get the current state. 
+use 'this.setState' method to update the current state.
+
+the state object can be of any type.
+note that we don't have to provide the 'state' object structure beforehand. we can define it as an empty object and add properties to it on the fly.
+ANY change to the 'state' - re-renders the view!
+
+in some cases, we lose the context of 'this' keyword so it refers to a different object than our class.
+a common case is event callback (onPress, onChange etc.). to solve this issue, we need to bind 'this' to those callbacks.
+the bind process is usually performed within the class constructor. 
+tip: as a rule, it's better to bind ALL defined functions.
+
+sample:
+constructor() {
+	super();
+	this.state = {
+		counter: 0,
+	};
+	this.btnClicked = this.btnClicked.bind(this); // binding process in order to use 'this'
+}
+btnClicked() {
+	this.state.counter++;
+	this.setState(this.state);
+}
+<Button onPress={this.btnClicked} title="ClickMe" />
+<Text style={styles.text}>{this.state.counter}</Text>
+
+[useState model]
+// TODO
+
+
+Dynamic Content
+---------------
+we can embed content within the js code to generate a dynamic content.
+we can use any of the available modules as part of our js code. (see 'JSX')
+we have 2 options to do so: 
+1. using code within the 'render' function.
+2. using a function as a class member. 
+
+e.g: 
+// option 2
+renderContent(){
+    return <Text>dynamic 4</Text>;
+}
+
+render() {
+	// option 1
+    let dynamicContent = [];
+    dynamicContent.push(<Text>dynamic 1</Text>);
+    dynamicContent.push(<Text>dynamic 2</Text>);
+    dynamicContent.push(<Text>dynamic 3</Text>);
+
+	return (
+		<View>
+			{dynamicContent}
+			{this.renderContent()}
+		</View>
+	);
+}
+
+
+Find Devices
+------------
+use the adb tool to find all connected android devices (physical & emulators) 
+> adb devices
+see 'Android Studio - Android Debug Bridge (ADB)'
+
+-------------------------------------------------------------
+// TODO
+
+android > local.properties
+
+
+Platform (react-native)
+const device = Platform.select({
+  ios: 'IOS',
+  android: 'ANDROID',
+});
+
+JSX explanation
+Component explanation
+
+fonts
+Font Awesome
+Icons
+
+styles:
+alignItems
+justifyContent
+
+
+debbug ??
+
+
+module ref: ??? to-check
+ref={input => this._inputA = input}  // reference to the current input
+
+javascript.json ??? // shortcut for a template? RNC+TAB
+
+
+react Context ??
+
+function fn() {
+	return(<JSX>); 
+}
+
+Animations ???
+
+
+// props
+// readonly?
+function Greeting(props) {
+  return (
+    <View style={styles.center}>
+      <Text>Hello {props.name}!</Text>
+    </View>
+  );
+}
+function LotsOfGreetings() {
+  return (
+    <View style={[styles.center, {top: 50}]}>
+      <Greeting name='Rexxar' />
+      <Greeting name='Jaina' />
+      <Greeting name='Valeera' />
+    </View>
+  );
+}
+
+// function-approach
+import React, { useState } from "react";
+[get, set] = useState(<name>)
+// class approach 
+constructor(){
+	this.state = {}
+}
+
+onSwipe event
+
+
+// custom "native" components (wrapper)
+import { Text as TextRN } from 'react-native';
+export default class Text extends Component {
+  render() {
+    return (
+      <TextRN style={[YOUR_CUSTOM_STYLES, this.props.style]}>
+        {this.props.children}
+      </TextRN>
+    )
+  }
+}
+// using
+import { Text } from 'PATH/react-native-wrapper'; // react-native-wrapper is our module which wraps native components! 
+
+SafeAreaView ???
+
+KeyboardAvoidingView???
+
+Linking ???
+
+fetch service (api) ???
+
+run on device:
+play store > download 'expo' app > scan QR code 
+
+
+Playground
+
+web-Build IPA file
+
+// copy from nativescript
+- Deploy(android)
+- Deploy(iOS)
+- Android Device
+- Android Virtual Device (AVD)
+
+systemIcon
+
+Storage
+
+Notifications
+
+Google Firebase
+
+transforms
+https://reactnative.dev/docs/transforms
+
+State
+Props

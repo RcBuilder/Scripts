@@ -1,0 +1,4 @@
+SQL LOWER & UPPER
+-----------------
+reference: 
+'SQL Built-In FUNCTIONS'

@@ -1,0 +1,292 @@
+*** JWT - Json Web Token ***
+****************************
+JWT stands-for Json Web Token.
+is used for authorization. 
+commonly used in REST services to decide whether the user has access to the requested resource or not.
+no server dependency! each request is stateless! any information about the user is encoded within the token (JWT)!
+
+JWT vs Session
+--------------
+a session is stored as an object in the server memory and a reference (in form of Session-Id) is stored as user-cookie. once a request is made, the server uses the user referece cookie to find the object in the server memory and get the relevant information about the user. 
+if our service must be scaled out (more servers to serve the same service and a router to distribute the traffic between them), we'll face session issues. 
+lets say a user enters serverA and logs-in, serverA saves a local cookie and a client cookie... then, this user makes another request but now reaches serverB... serverB does NOT have the object in memory so it could NOT identify the user! 
+
+using JWT allows us to scale-out our servers due to the independent mechanism. 
+the token contains information about the user and it's being attached to any request so once we decipher it we have all we need in order to identify the user. 
+that means, we don't have a server-cookie dependency so we can add more and more servers and they all work the same (note: they will have to share the same secret-key) 
+
+Sources
+-------
+- JWT Playground
+  https://jwt.io/
+- hash - HMAC generator
+  https://www.freeformatter.com/hmac-generator.html
+- Cryptii - Base64 Encode/Decode + Bytes
+  https://cryptii.com/pipes/text-to-base64
+
+Expiry
+------
+add a timestamp extra field to the token-payload to set the time of the created token. 
+later we could use that to revoke old tokens and improve our security.
+
+sample:
+new {
+	id = "1234567890",
+	name = "John Doe",
+	timestamp = DateTime.Now.Ticks
+} 
+
+Auth Server
+-----------
+we can set a dedicated server for all auth actions
+- login (generate a token)
+- logout
+- refresh a token
+- etc.
+
+once we have a valid token, we can use it to reach resources from other services.
+
+How To Create A JWT?
+--------------------
+<header>.<payload>.<signature>
+
+header: 
+contains the token type (typ) and the algorithm to use (alg). 
+{ alg, typ }
+
+payload:
+any data. usually user information.
+
+signature:
+- to generate a signature, we need to use the provided algorithm to encode a base64 of the <header> and <payload> (seperated by a dot sign). 
+  the algorithm which defines in the <header> section
+
+- formula to create a signature
+  HASH(
+	base64UrlEncode(<header>) + "." + base64UrlEncode(<payload>), 
+	<secret-key>
+  )
+
+- toBase64 
+  convert as bytes the generated signature as base64. 
+  note! use as bytes and NOT as plain text.
+  replace "+" with "-" 
+  remove suffix "="
+
+token:
+<header-toBase64>.<payload-toBase64>.<signature-toBase64>
+
+sample:
+
+// header
+{"alg":"HS256","typ":"JWT"}   // eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9
+
+// payload
+{"id":"1234567890","name":"John Doe","timestamp":1516239022}   // eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ
+
+// signature
+HMACSHA256($"{base64UrlEncode(header)}.{base64UrlEncode(payload)}", "my-secret-key");  // 311bceddf134a3d0bea597ddde923484c0c35e28497d06b55cf43e5007a5cda2
+
+// signature-toBase64
+MRvO3fE0o9C-pZfd3pI0hMDDXihJfQa1XPQ-UAelzaI 
+
+// token
+// <header-toBase64>.<payload-toBase64>.<signature-toBase64>
+eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.MRvO3fE0o9C-pZfd3pI0hMDDXihJfQa1XPQ-UAelzaI
+
+Using Online Tools
+------------------
+use this tool https://cryptii.com/pipes/text-to-base64 to encode the <header> and <payload> json to base64.
+use this tool https://www.freeformatter.com/hmac-generator.html to create a signature using the provided algorithm. 
+use this tool https://cryptii.com/pipes/text-to-base64 to encode the <signature> to base64 (note! use as bytes and NOT as plain text)
+
+Implementation (NodeJS)
+-----------------------
+source:
+see 'NodeJS/Sources/JWT Sample'
+
+jsonwebtoken module:
+- <token> jwt.sign(<payloadData>, <secretKey>, <options>)
+- jwt.verify(<token>, <secretKey>)
+- expiresIn:
+  there's a built-in support for expiration
+  property 'expiresIn', supports 'm' for minutes, 's' for seconds and etc.
+  e.g: jwt.sign(payloadData, config.secretKey, { expiresIn: '60m' })
+
+
+--
+
+init:
+> npm init
+> npm install --save express
+> npm install --save jsonwebtoken
+
+--
+
+const express = require('express');
+const jwt = require('jsonwebtoken');
+
+const config = {
+    port: 2222,
+    secretKey: 'my-secret-key'
+}
+
+const app = express();
+app.use(express.json());
+
+app.get('/', (request, response) => {
+    response.send('home-page');
+})
+
+
+/* 
+    GET api/users
+    H: Authorization: Bearer <access_token>
+*/
+app.get('/api/users', async (request, response, next) => { 
+        let authorization = request.headers['authorization'];
+        if(!authorization)
+            return response.status(401).send('No Authorization Header');
+
+        let scheme = authorization.split(' ')[0];
+        if(!scheme || scheme != 'Bearer')
+            return response.status(401).send('Not a Bearer Authorization');
+
+        let token = authorization.split(' ')[1];
+        if(!token)
+            return response.status(401).send('NoToken');
+
+        try{
+            let payloadData = await jwt.verify(token, config.secretKey);
+            console.log(payloadData);
+            next();
+        }
+        catch(ex){
+            return response.sendStatus(403);
+        }
+
+    }, (request, response) => {
+    response.json(
+        [
+            {id: 1, name: 'user-A'},
+            {id: 1, name: 'user-B'},
+            {id: 1, name: 'user-C'}
+        ]
+    );
+})
+
+/*
+    POST api/token
+    REQ: grant_type=password&username=&password=
+    RES: { access_token }
+*/
+app.post('/api/token', (request, response) => {
+    let username = request.body.username;
+    let password = request.body.password;
+
+    // validate credentials here...
+
+    let payloadData = {
+        id: '1234567890',
+        name: 'John Doe',
+        timestamp: 637252521370415500  // DateTime.Now.Ticks
+    };
+    
+    response.json({
+        access_token: jwt.sign(payloadData, config.secretKey, { expiresIn: '60m' })
+    });
+})
+
+app.listen(config.port, () => console.log(`Server running at http://127.0.0.1:${config.port}/`));
+
+
+Implementation (C#)
+-------------------
+source:
+see 'JWT Sample'
+
+dependency:
+see 'JWT Sample/JWTGenerator.cs'
+
+--
+
+[AuthorizeRequest]
+public class JWTController : ApiController
+{
+
+    /*
+        POST api/token
+        REQ: grant_type=password&username=&password=
+        RES: { access_token }
+    */
+
+    [AllowAnonymous]
+    [HttpPost]
+    [Route("api/token")]
+    public HttpResponseMessage Token()
+    {
+        // validate credentials here...             
+
+        return Request.CreateResponse(HttpStatusCode.OK, new {
+            access_token = new JWTGenerator("my-secret-key").GenerateToken("1234567890", "John Doe")
+        });                    
+    }
+        
+    /*
+        POST api/resource
+        H: Authorization: Bearer <token>
+        H: Content-Type: application/json;charset=UTF-8 
+    */
+
+    [HttpGet]
+    [Route("api/resource")]
+    public string GetResource()
+    {
+        return "resource";
+    }
+}
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public class AuthorizeRequestAttribute : AuthorizationFilterAttribute
+{
+    public override void OnAuthorization(HttpActionContext context) {
+        // Authorization: Bearer <token>       
+
+        try
+        {
+            // [AllowAnonymous]
+            if (context.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any())
+            {
+                base.OnAuthorization(context);
+                return;
+            }
+
+            var authorization = context.Request.Headers.Authorization;
+            if (authorization == null)
+                throw new HttpException((int)HttpStatusCode.Unauthorized, "No Authorization Header");
+
+            if (authorization.Scheme != "Bearer")
+                throw new HttpException((int)HttpStatusCode.Unauthorized, "Not a Bearer Authorization");
+
+            var token = authorization.Parameter;
+            var generator = new JWTGenerator("my-secret-key");
+            if (!generator.VerifyToken(token))
+                throw new HttpException((int)HttpStatusCode.Unauthorized, "Unauthorized Access");
+
+            var header = generator.GetTokenHeader(token);
+            var payload = generator.GetTokenPayload(token);
+
+            base.OnAuthorization(context);
+        }
+        catch (HttpException ex) {
+            context.Response = new HttpResponseMessage((HttpStatusCode)ex.GetHttpCode()) {
+                Content = new StringContent(ex.Message)
+            };
+        }
+        catch (Exception ex) {
+            context.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized) {
+                Content = new StringContent(ex.Message)
+            };
+        }
+    }
+}

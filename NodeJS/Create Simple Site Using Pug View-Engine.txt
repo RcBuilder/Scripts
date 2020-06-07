@@ -1,5 +1,8 @@
 NodeJS - Create Simple Site Using Pug View-Engine 
 =================================================
+also see 'nodeJS express server'
+
+---
 
 [steps]
 1. VS > New Project > NodeJS 

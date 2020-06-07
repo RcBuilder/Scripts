@@ -1,0 +1,146 @@
+SQL DELETE & LOG
+----------------
+
+a DELETE statement uses transactions under-the-hood and therefore, saves all deleted data 
+to the transaction log file (.ldf). 
+this causes the file to blow up and take lots of disk space! 
+there are ways to erase data without affecting the log (see POC below)
+
+statements:
+- TRUNCATE TABLE <tableName>
+  use this statement to clear ALL data in the table. 
+  no transaction log.
+  does NOT support in WHERE clause.
+
+- DELETE FROM <tableName>
+  use this statement to delete part of the rows in the table. 
+  include transaction log.
+  fully supports WHERE, JOIN and etc.  
+
+thumb-rule:
+as a thumb-rule, when deleting a large table we should use TRUNCATE (if possible).
+or use the SIMPLE Recovery model along with a loop to delete the table using small chunks. 
+
+recovery-models:
+see 'SQL RECOVERY MODELS'
+
+---------------
+
+[POC]
+
+setup:
+1. create a dummy table 
+
+CREATE TABLE Guids(
+	Id UNIQUEIDENTIFIER,
+	Content NVARCHAR(100)
+) 
+
+---
+
+preparation for each test:
+1. make sure the table is empty (should already be empty)
+2. shrink database (to reset the log file size)
+3. insert data
+4. check log file size before the test execution 
+5. execute the test
+6. check log file size after the test execution 
+
+// clear table
+TRUNCATE TABLE Guids
+
+// shrink database
+ALTER DATABASE TEST_DB SET RECOVERY SIMPLE
+DBCC SHRINKDATABASE (TEST_DB , 0)
+ALTER DATABASE TEST_DB SET RECOVERY FULL
+
+// fill table
+INSERT INTO Guids VALUES(NEWID(), 'Lorem Ipsum is simply dummy text of the printing and typesetting industry.')
+GO 1000000
+
+// check log file size 
+see 'helpers'
+
+<TestCase>
+
+// check log file size 
+see 'helpers'
+
+---
+
+helpers:
+1. statement - change active recovery model.   
+   ALTER DATABASE TEST_DB SET RECOVERY SIMPLE
+   ALTER DATABASE TEST_DB SET RECOVERY FULL
+
+2. statement - shrink database (must be in SIMPLE recovery model).   
+   DBCC SHRINKDATABASE (TEST_DB , 0)
+
+3. query - get log file size.
+
+   SELECT type_desc, 
+	  name, 
+	  physical_name, 
+	  state_desc, 
+	  CAST(size AS FLOAT) / 128 as sizeInMB, 
+	  growth 
+   FROM	  sys.database_files
+
+4. query - get active recovery model.
+   SELECT recovery_model_desc FROM sys.databases where name = 'TEST_DB'
+
+5. query - delete by chunks
+
+   -- step-1 -> temporary use SIMPLE Recovery model to signal the SQL we don't need log
+   ALTER DATABASE TEST SET RECOVERY SIMPLE
+
+   -- step-2 -> delete table in small chunks using a loop (of any kind), use CHECKPOINT after each chunk 
+   DECLARE @Rows INT = 1;
+   WHILE (@Rows > 0)
+   BEGIN
+      DELETE TOP (10000) FROM Guids; 
+      SET @Rows = @@ROWCOUNT;
+      CHECKPOINT;
+   END
+
+   -- step-3 -> switch back to FULL Recovery model
+   ALTER DATABASE TEST SET RECOVERY FULL
+
+---
+
+Test Cases:
+
+[TestCase]
+FULL Recovery model
+INSERT 1,000,000 rows
+log size -> before 8mb, after 392mb  // 384mb were added to the log
+
+[TestCase]
+SIMPLE Recovery model
+INSERT 1,000,000 rows
+log size -> before 8mb, after 328mb  // 320mb were added to the log
+
+[TestCase]
+FULL Recovery model
+DELETE ALL
+log size -> before 392mb, after 840mb  // 448mb were added to the log
+
+[TestCase]
+SIMPLE Recovery model
+DELETE ALL
+log size -> before 392mb, after 840mb  // 448mb were added to the log
+
+[TestCase]
+SIMPLE OR FULL Recovery model
+TRUNCATE
+log size -> before 392mb, after 392mb  // 0mb were added to the log! (no change)
+
+[TestCase]
+SIMPLE Recovery model
+DELETE BY CHUNKS
+log size -> before 392mb, after 392mb  // 0mb were added to the log! (no change)
+
+---
+
+conclusion:
+use TRUNCATE or DELETE BY CHUNKS

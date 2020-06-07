@@ -1,0 +1,5 @@
+SQL - URL SCHEMA
+----------------
+
+DECLARE @url VARCHAR(50) = 'https://example.com'
+SELECT SUBSTRING(@url, 1, CHARINDEX('://', @url) - 1)

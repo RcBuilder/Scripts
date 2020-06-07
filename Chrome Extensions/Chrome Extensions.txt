@@ -1,0 +1,515 @@
+﻿*************************
+*** Chrome Extensions ***
+*************************
+
+-------------------------
+- About
+- Manifest
+- Build
+- Deploy
+- Extension Files
+- UI Files
+- Background Scripts
+- Content Scripts
+- Extension-Options
+- Permissions
+- Storage
+- Runtime
+- Icons
+- Tabs
+- Messages
+- Connect via Channel
+- Samples
+- BUGS
+-------------------------
+
+About
+-----
+allow us to integrate into any web-page. 
+once activated, we can change the DOM of any chrome tab (change style, set title, change elements, add elements and etc.)
+
+store:
+https://chrome.google.com/webstore/category/extensions
+
+location:
+chrome://extensions/
+
+files location:
+chrome-extension://<extension-id>/
+
+// e.g 
+chrome-extension://kodallhpklbdekhpfnnaghbnijkgcahh/popup.html
+chrome-extension://kodallhpklbdekhpfnnaghbnijkgcahh/icon-64.png
+
+common architecture:
+- manifest.json		
+- popup.html		
+- options.html		
+- icon-24.png		 
+- icon-32.png
+- site.css			// styles of the extension ui
+- site.js			// scripts for the extension ui
+- content.css		// styles to be injected to the active web-page 
+- content.js		// scripts to be injected to the active web-page 
+- background.js		// background worker to listen to events
+
+
+Manifest
+--------
+file: manifest.json
+this file serves as our entry-point. 
+
+properties:
+
+
+basic:
+{
+    "name": "MyExtension",
+    "version": "1.0",
+    "description": "Bla bla bla...",
+    "manifest_version": 2
+}
+
+advanced:
+{
+    "manifest_version": 2,
+
+    "name": "mail-chimp extension",
+    "description": "extension to manage the data on your mail-chimp app",
+    "version": "1.0",
+    "icons": {
+        "16": "icon-16.png",
+        "24": "icon-24.png",
+        "64": "icon-64.png"
+    },
+    "browser_action": {
+        "default_icon": "icon-24.png",
+        "default_popup": "popup.html",
+        "default_title": "mail-chimp extension"
+    },        
+    "options_page": "options.html",
+    "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+    "permissions": [
+		"http://*/",
+		"https://*/"
+
+		"notifications",
+		"activeTab",
+		"tabs",
+		"storage",		
+	  ]
+}
+
+
+Build
+-----
+1. go to chrome://extensions/
+2. turn-on 'Developer mode'
+3. click on 'Pack extension' button
+4. choose the extension folder and set private key
+
+two files will be generated: 
+.pem and .crx
+
+note: 
+to update an extension in PROD, we need to change the extension version in the manifest. 
+
+Deploy
+------
+
+DEV:
+1. go to chrome://extensions/
+2. turn-on 'Developer mode'
+3. click on 'Load unpacked' button
+4. choose your project folder (where the extension manifest is)
+
+Reload:
+use the refresh icon (on the right near the disable switch) to reload the extension.
+
+PROD:
+1. zip the extension files.
+2. go to https://chrome.google.com/webstore/devconsole
+2. upload the zipped files from chapter 1
+3. (store listing) provide information about the extension (title, screenshots and etc.)
+4. (privacy) fill in the required information 
+5. (pricing & distribution) set the extension visibility and countries to support
+
+Extension Files
+---------------
+- Background Scripts:  
+  background workers to listen to events and communicate with external web-pages and other tabs.
+  see 'Background Scripts'
+
+- Content Scripts:  
+  scripts which being injected into the presented web-page and gain access to its DOM.
+  see 'Content Scripts'
+
+- UI Files:
+  the extension's ui pages - popup.html and options.html 
+  see 'UI Files'
+
+- Resources:  
+  images, css, js scripts etc.
+  note that those files only have access to the extension DOM! to gain access to the active content see Content Scripts.
+
+
+UI Files
+--------
+extension uses 2 main files: popup and options. 
+use the manifest 'options_page' property to set the 'options' page. (see 'Extension-Options')
+use the manifest 'default_popup' property to set the 'popup' page.
+the 'popup' page is the one being activated once one clicks on the extension-icon 
+the 'options' page is reachable via right-click on the extension-icon > options
+
+
+Background Scripts
+------------------
+those scripts serve as the extension's event handlers. a background workers.
+to set a background worker, use the manifest 'background' section to register it as background script. 
+
+sample:
+// manifest.json
+"background": {
+	"scripts": ["background.js"],
+	"persistent": false
+}
+
+// background.js
+chrome.runtime.onInstalled.addListener(() => {
+    chrome.storage.sync.set({ color: '#3aa757' });
+});
+
+// site.js
+chrome.storage.sync.get((obj) => {    
+    document.querySelector('body').style.backgroundColor = obj.color;    
+});
+
+Content Scripts
+---------------
+those files allow us to modify the presented web-page DOM! 
+supports js and css files which can be injected from code or using the manifest(most common use). 
+the context of content-scripts is the web-page DOM whereas, the context of extension-scripts is the html files of the extension.
+
+content scripts are injected to the presented web-page and refereced as part of it's context, as opposed to 
+regular scripts that are referenced in the extension popup.html file and only relevant to the extension UI.
+
+use messages to communicate between content-scripts, extension-scripts and background-scripts. (see 'Messages')
+
+-
+
+permission: 
+"activeTab"
+
+
+content_scripts section (manifest):
+- matches: [string]				// hosts to inject the files to
+- exclude_matches: [string]		// hosts to ignore injecting the files to
+- css: [string]					// styles to inject
+- js: [string]					// scripts to inject 
+- all_frames: bool				// should inject to inner frames or only the top level page
+- run_at: string				// when to inject the scripts (document_idle, document_start, document_end)
+
+
+inject a file:
+- option 1 - using 'executeScript' 
+  chrome.tabs.executeScript({
+    file: 'content.js'
+  });
+
+- option 2 - using the 'content_scripts' property in the manifest.
+  "content_scripts": [
+     {       
+       "css": ["content.css"],
+       "js": ["content.js"]
+     }
+   ]
+
+
+sample:
+// in the below example, those 2 files will be injected to the current web-page 
+// you could use F12 button (on the web-page) and see they are part of the page context! 
+"content_scripts": [
+     {       
+       "css": ["content.css"],
+       "js": ["content.js"]
+     }
+   ]
+
+// content.js
+console.log(`content-script was injected to ${location.href}`);
+
+// content.css
+body {
+   background-color: blue !important;
+}
+
+Extension-Options
+-----------------
+allow us to set a config page for our extension. 
+
+(steps)
+1. create a options.html page and add some preferences inputs.
+2. register it in the manifest file under the 'options_page' section.
+3. save the user preferences to the storage.
+
+there are 2 ways to see the options page:
+1. go to 'chrome://extensions/' > click on 'Details' button
+2. right-click on the extension icon > options
+
+Permissions
+-----------
+to apply permissions to a service or a host, use the manifest 'permissions' section to provide the extension permissions. 
+
+sample:
+"permissions": [
+	"http://*/",
+	"https://*/"
+
+	"notifications",
+	"activeTab",
+	"tabs",
+	"storage",		
+]
+
+Storage
+-------
+permission: 
+"storage"
+
+syntax:
+chrome.storage.sync.set(<ANY>, () => { ... });	// set
+chrome.storage.sync.get(obj => { ... });		// get
+
+events:
+chrome.storage.onChanged.addListener((changes, namespace) => { ... }	// onChange
+
+note:
+can also use 'localStorage' instead. 
+
+sample:
+chrome.storage.sync.set({ p1: 'value1', p2: 'value2' }, () => {
+    console.log('object has added to storage');
+});
+
+chrome.storage.sync.get(obj => { 
+	console.log(obj.p1);	// value1
+});
+
+
+Runtime
+-------
+source:
+https://developer.chrome.com/apps/runtime
+
+methods:
+- getBackgroundPage(<callback>)
+- openOptionsPage(<callback>)
+- <object> getManifest()
+- <string> getURL(<path>)
+- reload()
+- restart()
+- <object> connect(<extensionId>, <connectInfo>)
+- <object> connectNative(<applicationId>)
+- sendMessage(<extensionId>, <message>, <options>, <callback>)
+- sendNativeMessage(<applicationId>, <message>, <callback>)
+- getPlatformInfo(<callback>)
+- getPackageDirectoryEntry(<callback>)
+
+
+events:
+- onStartup
+- onInstalled
+- onSuspend
+- onSuspendCanceled
+- onConnect
+- onConnectExternal
+- onConnectNative
+- onMessage
+- onMessageExternal
+
+samples:
+chrome.runtime.onInstalled.addListener(() => { 
+	console.log('extension installed!');
+});
+-
+chrome.runtime.getPlatformInfo(info => { console.log(info); })
+-
+let manifest = chrome.runtime.getManifest();
+console.log(manifest);
+
+
+Icons
+-----
+to set the extension icon, use the manifest 'icons' section to add references to the icons.
+
+sample:
+// manifest.json
+"icons": {
+    "16": "icon-16.png",
+    "24": "icon-24.png",
+    "64": "icon-64.png"
+}
+
+
+Tabs
+----
+source:
+https://developer.chrome.com/extensions/tabs
+
+allows us to make changes to a tab/s.
+use chrome.tabs to get reference to the chrome tabs. 
+use the query option to filter tabs as per need (e.g: currentWindow) 
+use the executeScript to apply some js code on a tab.
+
+
+permission:
+"activeTab"		// permit changes only to the active tab
+"tabs"			// permit changes to ALL tabs
+
+get tabs by query:
+chrome.tabs.query(<options>, tabs => { ... });
+
+execute code on a tab:
+chrome.tabs.executeScript(<tabId>, { code: <codeToExecute> });
+
+methods:
+- get(<tabId>, <callback>)
+- getCurrent(<callback>)
+- <object> connect(<tabId>, <connectInfo>)
+- sendMessage(<tabId>, <message>, <options>, <callback>)
+- create(<options>, <callback>)
+- duplicate(<tabId>, <callback>) 
+- query(<queryInfo>, <callback>)
+- update(<tabId>, <options>, <callback>)
+- move(<tabId>, <options>, <callback>)
+- reload(<callback>)
+- reload(<tabId>, <options>, <callback>)
+- remove(<tabId>, <callback>)
+- detectLanguage(<tabId>, <callback>)
+- captureVisibleTab(<callback>)
+- captureVisibleTab(<windowId>, <options>, <callback>)
+- executeScript(<tabId>, <options>, <callback>)
+- insertCSS(<tabId>, <options>, <callback>)
+- setZoom(<tabId>, <zoom>, <callback>)
+- getZoom(<tabId>, <callback>)
+- goForward(<tabId>, <callback>)
+- goBack(<tabId>, <callback>)
+
+events:
+- onCreated
+- onUpdated
+- onMoved
+- onActivated
+- onHighlighted
+- onDetached
+- onAttached
+- onRemoved
+- onReplaced
+- onZoomChange
+
+samples:
+// print all tabs ids from the current window
+chrome.tabs.query({ currentWindow: true }, tabs => { 
+	console.log(tabs.map(t => t.id));  // [3231, 3652, 3617, 3330, 3271]
+});
+-
+// change the bg-color of the current tab
+chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+	let activeTabId = tabs[0].id;
+	let codeToExexute = 'document.body.style.backgroundColor = "red";';
+    chrome.tabs.executeScript(activeTabId, { code: codeToExexute });
+});
+-
+// change the title of ALL tabs in the current window!
+chrome.tabs.query({ currentWindow: true }, function (tabs) {
+    let ids = tabs.map(x => x.id);
+    let codeToExecute = 'document.title = "SOME TITLE";';
+    ids.forEach(id => {
+        chrome.tabs.executeScript(id, { code: codeToExecute });
+    })    
+});
+
+Messages
+--------
+use the 'sendMessage' method in 'chrome.runtime' or 'chrome.tabs' to send messages to other components of the extension.
+use the 'sendMessageExternal' method in 'chrome.runtime' to send messages to other extensions.
+
+use the 'onMessage' event in 'chrome.runtime' to listen to messages coming from within the extension. 
+use the 'onMessageExternal' event in 'chrome.runtime' to listen to messages coming from outside of the extension.
+
+use the 'sendMessage' method in 'chrome.runtime' and pass the extension id to send messages from a webpage to the extension.
+
+note:
+when receiving a message, use the sendResponse method to send a response back to the sender.
+
+samples:
+// send message using chrome.runtime
+let message = { type: 'token', value: '#1234' };
+chrome.runtime.sendMessage(message, response => { ... });
+-
+// send message using chrome.tabs
+let message = { type: 'token', value: '#1234' };
+chrome.tabs.sendMessage(tabId, message, response => { ... });
+-
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => { 
+	console.log('incoming message from within the extension');
+});
+
+chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => { 
+	console.log('incoming message from outside');
+});
+-
+// send a message from a webpage into the specified extension
+<body>            
+    <script>                
+        let message = {
+            name: 'token',
+            value: 'ya29.a0AfH6SMDF9-qm2QGT1i4nyeTTTuTHzVhkJGvlmuIdVzwhnpZAJZ-VwUMh3h_EnmZTEzpSfH3dsm6gN_98ezaD_BQO74d-yMrJKnhNelFm0cn2ag8BqBv0_uDl8NbN67ffKV_IhJNBlzSLGd_vkJ_KrUMs1ykOH-7LF34'
+        };
+        chrome.runtime.sendMessage('kodallhpklbdekhpfnnaghbnijkgcahh', message);        
+    </script>
+</body>
+
+chrome.runtime.onMessageExternal.addListener((request, sender, sendResponse) => {
+    switch (request.name) {
+        case 'token':
+            let token = request.value;                        
+            break;
+    }
+
+Connect via Channel
+-------------------
+use the 'connect' method defined in 'chrome.runtime' or 'chrome.tabs' to create a channel between the extension page and scripts.
+
+let port = chrome.runtime.connect({name: "myPort"});
+port.postMessage(...);
+port.onMessage.addListener(msg => { ... });
+
+chrome.runtime.onConnect.addListener(port => {
+	port.onMessage.addListener(msg => { ... });
+});
+
+Samples
+-------
+see 'Chrome Extensions/TestEXT'
+
+BUGS
+----
+error:
+Extension manifest must request permission to access this host
+
+cause:
+no permissions
+
+solution:
+add permissions to the specific host or to ALL hosts 
+
+"permissions": [
+	"http://*/",
+	"https://*/"	
+]
+
+
+
+
+
