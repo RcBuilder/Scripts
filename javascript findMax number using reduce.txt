@@ -1,0 +1,36 @@
+javascript findMax number using reduce
+--------------------------------------
+
+findMax = (arr, propertyName) => {
+    if (!arr || arr.length == 0) return 0;
+    return arr.map(x => parseFloat(x[propertyName]) || x).reduce((a, x) => a > x ? a : x);
+};
+
+findMaxByKeys = (obj, propertyName) => {
+    if (!obj) return 0;
+    let arr = Object.keys(obj).map(k => obj[k]);    
+    return findMax(arr, propertyName);
+};
+
+let arr = [5,6,7,8,1,2,3,4];
+let max = findMax(arr);
+console.log(max);  // 8
+-
+let max = findMax([1,2,3,4,5,6,1,2,3,4]);
+console.log(max);  // 6
+-
+let max = findMax([1,2,3,4,5,6,1,2,3,4], 'n');
+console.log(max);  // 6
+-
+let max = findMax([{n:1},{n:2},{n:3},{n:2}],'n');
+console.log(max);  // 3 
+-
+let o = {}
+o['k1'] = { n: 10 };
+o['k2'] = { n: 20 };
+o['k3'] = { n: 30 };
+o['k4'] = { n: 40 };
+o['k5'] = { n: 15 };
+
+let max = findMaxByKeys(o, 'n');
+console.log(max);  // 40

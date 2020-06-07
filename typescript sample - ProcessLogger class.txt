@@ -1,6 +1,6 @@
 interface ILogger {
-    value: string;
-    processId: string;
+    readonly value: string;
+    readonly processId: string;
 
     append(format: string, params: [string]): void;    
     writeToScreen(): void;
@@ -42,6 +42,7 @@ export class ProcessLogger implements ILogger {
         console.log(this.value);
     };
 
+    // e.g: build('id: {0}, name: {1}', ['100', 'Roby']);
     public build(format: string, params?: string[]): string {
         try {
             let result = format;
@@ -55,6 +56,26 @@ export class ProcessLogger implements ILogger {
             return '[EX] method: ProcessLogger.build, ex: ' + e;
         }
     };
+
+    // e.g: appendAndPrint('calc: {0} + {1} = {2}', ['10', '20', '30']);
+    public appendAndPrint(format: string, params?: string[]): string {
+        let msg = this.build(format, params);
+        this.append(msg);
+        console.log(msg);
+        return msg;
+    }
+
+    // e.g: appendAndPrintArray('array: {0}', [{ a: 1, b: 2 }, { a: 10, b: 20 }, { a: 100, b: 200 }], x => x % 2 == 0, x => x.a);
+    public appendAndPrintArray(format: string, arr: any[], filter?: any, action?: any): string {
+        let temp = arr;
+        if (action) temp = (temp || []).map(action);
+        if (filter) temp = (temp || []).filter(filter);
+
+        let msg = this.build(format, [temp ? JSON.stringify(temp) : 'NULL']);
+        this.append(msg);
+        console.log(msg);
+        return msg;
+    }    
 }
 
 ------------

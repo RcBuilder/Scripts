@@ -1,0 +1,10 @@
+javascript XMLHttpRequest sync
+------------------------------
+
+let endpoint = CLCLP_API_URL.concat('/api/DropZone/GetActualURL?Url=', url);
+let http = new XMLHttpRequest();
+http.open('GET', endpoint, false);        
+http.send();
+
+if (http.status == 200) 
+  console.log(http.responseText);

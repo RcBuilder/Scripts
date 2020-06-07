@@ -1,0 +1,22 @@
+javascript parse URL params
+---------------------------
+
+function parseParamsFromURL(url) {
+    var result = {};
+    if (url.indexOf('?') == -1)
+        return result;
+
+    var query = url.split('?')[1];
+    var arr = query.split('&');
+    arr.forEach(function (p) {
+        var param = p.split('=');
+        result[param[0]] = param[1] || '';
+    });
+
+    return result;
+};
+
+var qsURL = parseParamsFromURL(document.URL);
+var qsReferer = parseParamsFromURL(document.referrer);
+
+console.log(qsURL['p1']);

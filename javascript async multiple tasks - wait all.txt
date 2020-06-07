@@ -1,0 +1,34 @@
+javascript async multiple tasks - wait all
+------------------------------------------
+
+var task1 = fun1Async('task1', 100);
+var task2 = fun1Async('task2', 3000);
+var task3 = fun1Async('task3', 1300);
+var taskResults = await Promise.all([task1, task2, task3]);
+      
+console.log(taskResults);
+
+---
+
+async function fun1Async(taskName, delay){
+	return new Promise(function(resolve, reject) {
+            try {
+		setTimeout(() => {
+			console.log(`${taskName} has completed`);
+			resolve(true);
+		}, delay);                
+            }
+            catch{
+                reject(false);
+            }
+        });
+}
+
+---
+
+output:
+task1 has completed
+task3 has completed
+task2 has completed
+
+[true, true, true]

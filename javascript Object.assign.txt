@@ -1,0 +1,50 @@
+javascript Object.assign
+------------------------
+copies all own properties from the provided <source> to the <target>.
+
+syntax:
+Object.assign(target, ...source);
+
+-----------
+
+// sample assign
+let source = { a: 1, b: 2 }; 
+let target = { c: 3, d: 4 };
+Object.assign(target, source); 
+console.log(target); // {c: 3, d: 4, a: 1, b: 2}
+
+-
+
+// assign reference type as property
+let address = { city: 'Tel-Aviv', street: 'Dan' };
+let user = { id: 100, name: 'Roby', address: address };
+Object.assign(user, { age: 40, hairColor: 'brown' });
+console.log(user); // {id: 100, name: "Roby", address: {…}, age: 40, hairColor: "brown"}
+
+address.city = 'Haifa';
+console.log(address.city); // Haifa
+console.log(user.address.city);  // Haifa (reference)
+
+-
+
+// copy properties from reference type 
+let address = { city: 'Tel-Aviv', street: 'Dan' };
+let user = { id: 100, name: 'Roby' };
+Object.assign(user, address); 
+console.log(user); // {id: 100, name: "Roby", city: "Tel-Aviv", street: "Dan"}
+
+address.city = 'Haifa';
+console.log(address.city); // Haifa
+console.log(user.city);  // Tel-Aviv (property copy)
+
+-
+
+// multiple assign
+let o = {};
+
+let a = { a1: 1, a2: 2 }
+let b = { b1: 10, b2: 20 }
+let c = { c1: 100, c2: 200 }
+
+Object.assign(o, a, b, c);
+console.log(o); // {a1: 1, a2: 2, b1: 10, b2: 20, c1: 100, c2: 200}

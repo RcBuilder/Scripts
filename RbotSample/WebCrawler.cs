@@ -23,6 +23,7 @@ namespace CliClap.Crawler.Rbot
             {
                 UseProxy = false
             }, false);
+	    this.client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.116 Safari/537.36");
         }
 
         protected void OnPageCrawlCompleted(CrawlEventArgs args)
@@ -49,10 +50,14 @@ namespace CliClap.Crawler.Rbot
                 var document = new HtmlDocument();
                 document.LoadHtml(response);
 
-                if(this.Config.IgnoreFooter)
+                if (this.Config.IgnoreFooter) {
                     document.DocumentNode.SelectSingleNode("//footer")?.RemoveAll();
-                if (this.Config.IgnoreHeader)
+                    document.DocumentNode.SelectSingleNode("//*[contains(@class, 'footer-')]")?.RemoveAll();
+                }
+                if (this.Config.IgnoreHeader) {
                     document.DocumentNode.SelectSingleNode("//header")?.RemoveAll();
+                    document.DocumentNode.SelectSingleNode("//*[contains(@class, 'header-')]")?.RemoveAll();
+                }
 
                 var links = document.DocumentNode.SelectNodes("//a")
                     ?.Select(x => x.Attributes["href"]?.Value)
