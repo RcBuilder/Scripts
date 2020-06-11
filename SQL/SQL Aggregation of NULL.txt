@@ -1,0 +1,25 @@
+SQL Aggregation of NULL
+-----------------------
+SQL engine omits all NULL values before aggregating the data. 
+once all NULLs were removed, it aggregates the result. 
+because this process is implicit, SQL also includes the following warning message along with the result
+"Warning: Null value is eliminated by an aggregate or other SET operation."
+
+---
+
+(Not Recommended)
+to remove the warning message use this statement:
+SET ANSI_WARNINGS <OFF|ON>;
+
+---
+
+CREATE TABLE #t1(Name CHAR(1), Value INT)
+INSERT INTO #t1 
+VALUES ('A', 10), ('B', 20), ('C', 30), ('D', NULL), ('E', NULL)
+
+SELECT COUNT(*) FROM #t1		-- 5
+SELECT COUNT(Name) FROM #t1		-- 5
+SELECT COUNT(Value) FROM #t1		-- 3    (D and E were removed!)
+
+SELECT SUM(Value) FROM #t1		-- 60   (D and E were removed!)
+SELECT AVG(Value) FROM #t1		-- 20   (D and E were removed!)

@@ -1,13 +1,15 @@
 SQL Joins
 ---------
-there are 3 tyeps of JOINs:
+there are 4 tyeps of JOINs:
 - A INNER JOIN B	// returns only rows exists in both A and B (shared)
 - A LEFT  JOIN B	// returns ALL rows in A and the corresponding from B or NULL if not exists
 - A RIGHT JOIN B	// returns ALL rows in B and the corresponding from A or NULL if not exists
+- A FULL  JOIN B	// returns ALL rows from both A and B and the corresponding rows or NULL if not exists (kind of LEST + RIGHT joins)
 
 note:
 LEFT OUTER JOIN is the same as LEFT JOIN
 RIGHT OUTER JOIN is the same as RIGHT JOIN
+FULL OUTER JOIN is the same as FULL JOIN
 
 ---
 
@@ -35,6 +37,16 @@ SELECT * FROM @t1 t1 RIGHT JOIN @t2 t2 ON(t1.id = t2.id)
 /*
 	3		3
 	4		4
-	NULL		5
-	NULL		6
+	NULL	5
+	NULL	6
+*/ 
+
+SELECT * FROM @t1 t1 FULL JOIN @t2 t2 ON(t1.id = t2.id)
+/*
+	1		NULL
+	2		NULL
+	3		3
+	4		4
+	NULL	5
+	NULL	6
 */ 

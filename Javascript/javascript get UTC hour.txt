@@ -1,0 +1,4 @@
+javascript get UTC hour
+-----------------------
+var now = new Date();
+var currentHourUTC = now.getUTCHours();

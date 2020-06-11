@@ -1,0 +1,23 @@
+SQL UNIQUE INDEX And NULL
+-------------------------
+when using a unique index and try to insert two NULL rows, we'll get the following exception:
+"Cannot insert duplicate key row in object 'xxx' with unique index 'xxx'. The duplicate key value is (<NULL>)" 
+
+---
+
+CREATE TABLE #t1(Name CHAR(1) NULL)
+CREATE UNIQUE NONCLUSTERED INDEX IX_Name ON #t1(Name)
+
+INSERT INTO #t1 VALUES('A')
+INSERT INTO #t1 VALUES('B')
+INSERT INTO #t1 VALUES('C')
+INSERT INTO #t1 VALUES(NULL)
+
+// Cannot insert duplicate key row in object 'dbo.#t1' with unique index 'IX_Name'. The duplicate key value is (<NULL>)
+INSERT INTO #t1 VALUES(NULL)
+
+---
+
+solution:
+use 'Filtered Index' to omit NULL values from the index 
+CREATE UNIQUE NONCLUSTERED INDEX IX_Name ON #t1(Name) WHERE Name IS NOT NULL

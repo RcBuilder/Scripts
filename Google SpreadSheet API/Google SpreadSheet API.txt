@@ -7,7 +7,7 @@ Enable 'Google Sheets API'
                                         
 API KEY:
 * GOOGLE DEVELOPERS -> Credential -> get the api key
-* e.g: AIzaSyApPPyBtRCgxaUj3Vxc1fcrSXtukUevatM
+* e.g: AIzaSyApPPyBtRCgxaUf4Vxc4fckRXtokUevatM
 * Read Only permission!! // use 'Service Account Key' instead for full permissions
         
 SERVICE ACCOUNT KEY:

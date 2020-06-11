@@ -15,7 +15,6 @@ This is usually cheaper overall and can literally scale infinitely.
 
 Scale-up vs Scale-out
 ---------------------
-
 Scale-up pros:
 - less challenging to implement.
 - less licensing costs.

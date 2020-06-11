@@ -14,9 +14,15 @@ B-Tree vs B+Tree vs Binary Tree
   linear search is a loop over an array and has a time complexity of O(n).
   binary search is more efficient and has a time complexity of O(log n), the list MUST be sorted.  
 
+Binary Tree
+-----------
+A node size is always 1 (a single entry).
+each node can have maximum 2 child nodes.
+see 'BinaryTree.jpeg' schema
+
 B-Tree
 ------
-A data structure that store data in its node in sorted order.
+A data structure that stores data in its node in sorted order.
 A node size can be of N keys (an array).
 each node of N keys can have maximum N+1 child nodes.
 can have different levels in each branch of the tree.
@@ -24,16 +30,10 @@ see 'B-Tree.jpeg' schema
 
 B+Tree
 ------
-A data structure that store data in its node in sorted order.
+A data structure that stores data in its node in sorted order.
 A node size can be of N keys (an array).
 each node of N keys can have maximum N+1 child nodes.
-has the same level for all branches of the tree (to achieve that, we duplicate some of the nodes values)
-store ALL data on the leaf nodes! (the lowest node of the branch which holds the actual data)
+has the same level for ALL branches of the tree (to achieve that, we duplicate some of the nodes values)
+stores ALL data on the leaf nodes! (the lowest node of the branch which holds the actual data)
 The leaf nodes of B+ trees are linked! - each leaf (value-node) has a pointer to the next leaf, this allows us to travel through all the values!
 see 'B+Tree.jpeg' schema
- 
-Binary Tree
------------
-A node size is always 1 (a single entry).
-each node can have maximum 2 child nodes.
-see 'BinaryTree.jpeg' schema

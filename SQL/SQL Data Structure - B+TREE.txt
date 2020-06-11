@@ -1,0 +1,24 @@
+SQL Data Structure - B+TREE
+---------------------------
+SQL uses B+TREE data structure to store the data.
+(see 'B-Tree vs B+Tree vs Binary Tree')
+
+-
+
+Non-Leaf vs Leaf Nodes:
+a leaf node includes the actual data whereas, a non-leaf node includes a refernce to another node (leaf or non-leaf). 
+
+in B+Tree, all data should be in the same level (which gives us the abillity to loop through all of the actual data) 
+so the last level nodes in a tree are those containing the actual data. 
+
+(see 'non-Leaf and leaf tree nodes.gif')
+
+-
+
+Page:
+
+
+---------------------------------------------------
+
+// TODO 
+Page node ???

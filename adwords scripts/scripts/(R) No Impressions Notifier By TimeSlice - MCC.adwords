@@ -1,0 +1,101 @@
+/*
+  this script notify whenever an account has NO impressions. 
+  the script is only executed for the specified hours-of-day.
+*/
+
+var EMAIL = 'rcbuilder@walla.com';
+var LABEL_FILTER = 'Test'
+var TIME_SLICE_H = [21, 23];  // from 9:00 to 12:00 (UTC)
+
+function main() {
+  var htmlBuilderService = HTMLBuilderService();
+  
+  var currentHourUTC = new Date().getUTCHours();
+  Logger.log('current hour (UTC): %s, config: from %s to %s', currentHourUTC, TIME_SLICE_H[0], TIME_SLICE_H[1]);
+  
+  if(!(currentHourUTC >= TIME_SLICE_H[0] && currentHourUTC <= TIME_SLICE_H[1]))
+    return;
+  
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + LABEL_FILTER + '"').get();    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    Logger.log('### account: %s ###', account.getName());  
+
+    MccApp.select(account);
+    ProcessAccount(htmlBuilderService);
+    
+    Logger.log('--------------------------');
+  }
+
+  try{                 
+    var emailBody = htmlBuilderService.get();
+    if(emailBody == '') return;
+    
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'No Impressions Notifier ', '', {
+      htmlBody: emailBody
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+function ProcessAccount(htmlBuilderService){     
+  var account = AdWordsApp.currentAccount();
+  var accountName = account.getName();
+  var stats = account.getStatsFor('TODAY');
+  if(stats.getImpressions() == 0) { 
+    Logger.log('account %s has no impressions!', accountName);
+    htmlBuilderService.add('<p>' + accountName + '</p>');  
+  }
+}
+
+// -----------------------------
+
+var HELPER = {
+  dateFormat: function (date) {
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+
+    return year + month + day;
+  },
+  dateAdd: function (date, value, type){      
+    type = type || 'dd';
+    
+    var newDate = new Date(date.getTime());
+    
+    if(type == 'dd')
+      newDate.setDate(newDate.getDate() + value);
+    else if(type == 'MM')
+      newDate.setMonth(newDate.getMonth() + value);
+    
+    return newDate;  
+  }
+}
+
+
+/* HTML BUILDER SERVICE */
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    },
+    toPDF: function(pdfName){          
+      var blob = Utilities.newBlob(_html, MimeType.HTML);
+      var pdf = blob.getAs(MimeType.PDF);  
+      pdf.setName(pdfName);
+      return pdf;
+    }  
+  };
+}

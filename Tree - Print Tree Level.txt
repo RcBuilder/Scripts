@@ -1,44 +1,44 @@
 public class TreeNode {
-        public string Value { get; set; }
-        public TreeNode Left { get; set; }
-        public TreeNode Right { get; set; }
-    }
+    public string Value { get; set; }
+    public TreeNode Left { get; set; }
+    public TreeNode Right { get; set; }
+}
 
 ----
 
 var tree = new TreeNode {
-                Value = "1",
-                Left = new TreeNode {
-                    Value = "2",
-                    Left = new TreeNode {
-                        Value = "4"
-                    },
-                    Right = new TreeNode {
-                        Value = "5"
-                    },
-                },
-                Right = new TreeNode {
-                    Value = "3",
-                    Left = new TreeNode {
-                        Value = "6"
-                    }
-                },
-            };
+    Value = "1",
+    Left = new TreeNode {
+        Value = "2",
+        Left = new TreeNode {
+            Value = "4"
+        },
+        Right = new TreeNode {
+            Value = "5"
+        },
+    },
+    Right = new TreeNode {
+        Value = "3",
+        Left = new TreeNode {
+            Value = "6"
+        }
+    },
+};
 
 ----
 
 static void PrintTreeLevel(TreeNode node, int level, int current = 1) {
-            if (node == null)
-                return;
+    if (node == null)
+        return;
 
-            if (level == current) {                
-                Console.Write("{0} ", node.Value);               
-                return;
-            }
+    if (level == current) {                
+        Console.Write("{0} ", node.Value);               
+        return;
+    }
 
-            PrintTreeLevel(node.Left, level, current + 1);
-            PrintTreeLevel(node.Right, level, current + 1);
-        }
+    PrintTreeLevel(node.Left, level, current + 1);
+    PrintTreeLevel(node.Right, level, current + 1);
+}
 
 ----
 

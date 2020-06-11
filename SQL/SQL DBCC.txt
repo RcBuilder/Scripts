@@ -10,3 +10,14 @@ Commands:
 
 - LOG(<db-name>)  // show transaction log 
 - 
+
+
+
+
+
+
+---
+
+// TODO
+Sp_who_2
+Dbcc inputbuffer(<pId>)

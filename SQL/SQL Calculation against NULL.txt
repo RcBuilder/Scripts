@@ -1,0 +1,10 @@
+SQL Calculation against NULL
+----------------------------
+NULL is a non-value. It is nothing. 
+therefore, any attempt to make calculation on NOTHING will end-up in NOTHING, hence NULL!
+
+all of the below statements returns NULL!
+SELECT 1 + NULL
+SELECT 1 - NULL
+SELECT 1 * NULL
+SELECT 1 / NULL

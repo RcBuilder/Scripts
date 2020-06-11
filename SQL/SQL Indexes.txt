@@ -10,10 +10,13 @@
 - Create An Index
 - Include Columns
 - Flags
-- Order
+- Columns Order By
+- Columns Order
 - Uniqueness
 - Filtered Index
+- Index With NULLs
 - STATISTICS PROFILE
+- Table Scan (instead of using an index)
 - Using Example
 - References
 
@@ -62,7 +65,10 @@ Tips
 1. use SQL Execution plan to find out where the engine works hard and try to solve it using indexes (see 'SQL Execution Plan')
 2. use SQL Profiler to find long-taking stored procedures and try to analyze them.
 3. keep in mind that indexed improves SELECT data but it also impacts the INSERT and UPDATE actions due to maintenance work that needed to be taken.
-4. (see 'Include Columns')
+4. include columns on the index leaf for better performance by saving the extra fetch to the clustered index (see 'Include Columns')
+5. use filtered index in cases when most searches only look for specific rows portion, it would make the index smaller so both read and update will perform better(see 'Filtered Index')
+6. order the index column efficiently (see 'Columns Order')
+7. remember that in some cases the Query Optimizer might choose a full table scan instead of using the index (see 'Table Scan (instead of using an index)')
 
 Create An Index
 ---------------
@@ -78,6 +84,7 @@ Create An Index
 
    e.g: 
    CREATE Index IX_Salary ON Employees (Salary ASC) 
+
 
 Include Columns
 ---------------
@@ -130,6 +137,7 @@ in this case, the SQL engine finds the matching rows using the index (the same a
 but because we've only requested the column 'Id' and 'UserName' and they exist on the index leaves, the data will be returned directly from the index 
 and no extra call to the data-table will be made!
 
+
 Flags
 -----
 - DROP_EXISTING		// ON|OFF (default: OFF)
@@ -138,8 +146,8 @@ Flags
 - ONLINE		// ON|OFF (default: OFF)
   when set to ON, related table and associated indexes will be available for queries and data modification.
   
-Order
------
+Columns Order By
+----------------
 - ASC		// default
 - DESC
 
@@ -165,6 +173,33 @@ due to the need of sorting the data (which in a different sort as the index!)
 sample:
 CREATE NONCLUSTERED INDEX [IX_Col1] ON [dbo].[MyTable] (Col1 ASC)
 CREATE NONCLUSTERED INDEX [IX_Col1_Col2] ON [dbo].[MyTable] (Col1 ASC, Col2 DESC)
+
+Columns Order
+-------------
+the order of the index column is matter! 
+try to define the column with the smallest portion as first if possible. 
+
+example:
+in the below example, there are only 5 items with IsPaid=1 so an index with 'IsPaid' column prior the 'Name' is better 
+so instead of searching all maching names and only then find their IsPaid values, the engine searches the IsPaid status at first and then checks only the 5 returned values for name match 
+
+-
+
+CREATE TABLE #t1(IsPaid BIT, Name VARCHAR(50))
+CREATE NONCLUSTERED INDEX IX_IsPaid_Name ON #t1(IsPaid, Name)
+CREATE NONCLUSTERED INDEX IX_Name_IsPaid ON #t1(Name, IsPaid)
+
+INSERT INTO #t1 VALUES(1, CONCAT('Item-', NEWID()))
+GO 5
+INSERT INTO #t1 VALUES(0, CONCAT('Item-', NEWID()))
+GO 5000
+
+-- Index Seek (IX_Name_IsPaid)
+SELECT * FROM #t1 WHERE IsPaid = 1 AND Name = 'NoItem'  
+
+-- Index Seek (IX_IsPaid_Name) 
+-- most chances that this option would be better cause we can slice those 5 rows with IsPaid=1 and only then look for the item name
+SELECT * FROM #t1 WITH(INDEX(IX_IsPaid_Name)) WHERE IsPaid = 1 AND Name = 'NoItem'  
 
 Uniqueness
 ----------
@@ -209,6 +244,24 @@ SELECT * FROM #t1 WHERE Name = 'A'	-- Index Seek
 SELECT * FROM #t1 WHERE Name = 'B' -- Table Scan!
 
 
+Index With NULLs
+----------------
+SQL stores NULL values in an index. 
+for cases when there are only few null rows, we can use filtered index to filter the nulls out.
+(see 'Filtered Index')
+
+
+Index On BIT Column
+-------------------
+SQL supports indexing on BIT columns.
+if the values are splitted by half, there's no need to add an index. 
+for cases when there are lots of TRUE or NULL values and only few FALSE values (or the opposite), an index might be helpful.
+
+for example, Transactions Table with millions of rows that have an IsPAID bit column, most of them were paid so only a small portion marked as FALSE.
+in this case an index for searches the PAID rows would improve performance.
+note: we can also use filtered index to apply the index only on this portion (see 'Filtered Index')
+
+
 STATISTICS PROFILE
 ------------------
 displays the profile information for a statement. 
@@ -224,6 +277,35 @@ SET STATISTICS PROFILE OFF
 
 // output
 |--Index Seek(OBJECT:([tempdb].[dbo].[#t1]), SEEK:([tempdb].[dbo].[#t1].[Name]='A') ORDERED FORWARD)
+
+
+Table Scan (instead of using an index)
+--------------------------------------
+when we have an index but most rows fit the WHERE criteria, the Query Optimizer might choose a full table scan instead of using the index.
+this saves the overhead of the index creation. 
+
+-
+
+CREATE TABLE #t1(IsPaid BIT, Name VARCHAR(50))
+CREATE NONCLUSTERED INDEX IX_IsPaid_Name ON #t1(IsPaid, Name)
+CREATE NONCLUSTERED INDEX IX_Name_IsPaid ON #t1(Name, IsPaid)
+
+INSERT INTO #t1 VALUES(1, CONCAT('Item-', NEWID()))
+GO 5
+INSERT INTO #t1 VALUES(0, CONCAT('Item-', NEWID()))
+GO 5000
+
+-- Table Scan
+SELECT * FROM #t1  
+
+-- Index Seek (IX_IsPaid_Name)
+-- only 5 rows match the criteria 
+SELECT * FROM #t1 WHERE IsPaid = 1  
+
+-- Table Scan! 
+-- most rows has IsPaid=0 and therefore the Query Optimizer has choosen to do a full table scan and save the overhead of using an index!
+SELECT * FROM #t1 WHERE IsPaid = 0  
+SELECT * FROM #t1 WITH(INDEX(IX_IsPaid_Name)) WHERE IsPaid = 0  -- index hint
 
 
 Using Example
@@ -279,17 +361,4 @@ References
 ----------
 see 'SQL CREATE INDEX'
 see 'SQL Statements'
-
-
-
----------------------------------------------------
-
-// TODO 
-Filtered Index --> test of range index + sample (by id etc.)
-
-
-Page node ???
-Leaf ???
-
-index with bit type?
-index with null?
+see 'SQL Data Structure - B+TREE'

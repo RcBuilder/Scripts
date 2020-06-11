@@ -1,0 +1,186 @@
+/*
+  this script compares X last days against the previous X days (e.g: last 7 days against prior 7 days)  
+  the script check the changes between those date-periods and send notifications based on a predefined criteria. 
+*/
+
+var EMAIL = 'rcbuilder@walla.com';
+var NUM_OF_DAYS_TO_COMPARE = 7;
+var LABEL_FILTER = 'Test'
+
+function main() {
+  var htmlBuilderService = HTMLBuilderService();
+  
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + LABEL_FILTER + '"').get();    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    Logger.log('### account: %s ###', account.getName());  
+
+    MccApp.select(account);
+    ProcessAccount(htmlBuilderService);
+    
+    Logger.log('--------------------------');
+  }
+
+  try{                 
+    var emailBody = htmlBuilderService.get();
+    if(emailBody == '') return;
+    
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Notification Script ', '', {
+      htmlBody: emailBody
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+function ProcessAccount(htmlBuilderService){     
+  var accountName = AdWordsApp.currentAccount().getName();
+  
+  var range1 = getDateRange(0, NUM_OF_DAYS_TO_COMPARE); 
+  var range2 = getDateRange(NUM_OF_DAYS_TO_COMPARE + 1, NUM_OF_DAYS_TO_COMPARE * 2 + 1);
+  Logger.log('[%s] vs [%s]', range1, range2);
+    
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition("Status IN [ENABLED]")
+  .forDateRange("ALL_TIME")
+  .get();
+  
+  var notifications = []; // {metric, range1Value, range2Value, ratio, changeRate}
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();    
+    var campaignName = campaign.getName();
+    Logger.log('campaign %s', campaignName);
+    
+    var statsRange1 = campaign.getStatsFor(range1.split(',')[0], range1.split(',')[1]);
+    var statsRange2 = campaign.getStatsFor(range2.split(',')[0], range2.split(',')[1]);
+    
+    var ratioCPC = statsRange2.getAverageCpc() == 0 ? 0 : (statsRange1.getAverageCpc() / statsRange2.getAverageCpc());
+    var changeRateCPC = ratioCPC < 1 ? -(1 - ratioCPC) : (ratioCPC - 1);
+    if(ratioCPC != 0 && changeRateCPC > 0.3) // 30% increase
+      notifications.push({
+        metric: 'CPC', 
+        range1Value: statsRange1.getAverageCpc(), 
+        range2Value: statsRange2.getAverageCpc(),
+        ratio: ratioCPC,
+        changeRate: changeRateCPC
+      });
+    
+    var ratioConversions = statsRange2.getConversions() == 0 ? 0 : (statsRange1.getConversions() / statsRange2.getConversions());
+    var changeRateConversions = ratioConversions < 1 ? -(1 - ratioConversions) : (ratioConversions - 1);
+    if(ratioConversions != 0 && changeRateConversions < -0.3) // 30% decline
+      notifications.push({
+        metric: 'Conversions', 
+        range1Value: statsRange1.getConversions(), 
+        range2Value: statsRange2.getConversions(),
+        ratio: ratioConversions,
+        changeRate: changeRateConversions
+      });
+    
+    var ratioCost = statsRange2.getCost() == 0 ? 0 : (statsRange1.getCost() / statsRange2.getCost());
+    var changeRateCost = ratioCost < 1 ? -(1 - ratioCost) : (ratioCost - 1);
+    if(ratioCost != 0 && ratioCost < -0.3) // 30% decline
+      notifications.push({
+        metric: 'Cost', 
+        range1Value: statsRange1.getCost(), 
+        range2Value: statsRange2.getCost(),
+        ratio: ratioCost,
+        changeRate: changeRateCost
+      });
+    
+    var ratioCTR = statsRange2.getCtr() == 0 ? 0 : (statsRange1.getCtr() / statsRange2.getCtr());
+    var changeRateCTR = ratioCTR < 1 ? -(1 - ratioCTR) : (ratioCTR - 1);
+    if(ratioCTR != 0 && ratioCTR < -0.3) // 30% decline
+      notifications.push({
+        metric: 'CTR', 
+        range1Value: statsRange1.getCtr(), 
+        range2Value: statsRange2.getCtr(),
+        ratio: ratioCTR,
+        changeRate: changeRateCTR
+      });
+  }
+  
+  Logger.log(notifications);
+  
+  if(notifications.length > 0){
+    htmlBuilderService.add('<h1>' + accountName + '</h1>');
+    htmlBuilderService.add('<table cellspacing="3" cellpadding="3" border="1">');
+    htmlBuilderService.add('<tr>'+                        
+                        '<th>campaign</th>'+                           
+                        '<th>metric</th>'+
+                        '<th>Last ' + NUM_OF_DAYS_TO_COMPARE + ' Days</th>'+
+                        '<th>Prev. ' + NUM_OF_DAYS_TO_COMPARE + ' Days</th>'+
+                        '<th>ratio</th>'+
+                        '<th>change</th>'+                        
+                        '</tr>');  
+    
+    for(i in notifications)
+      htmlBuilderService.add('<tr>'+                        
+                        '<td>' + campaignName + '</td>'+                           
+                        '<td>' + notifications[i].metric + '</td>'+
+                        '<td>' + notifications[i].range1Value + '</td>'+
+                        '<td>' + notifications[i].range2Value + '</td>'+
+                        '<td>' + notifications[i].ratio.toFixed(2) + '%</td>'+    
+                        '<td>' + (notifications[i].changeRate == 1.0 ? '' : (notifications[i].changeRate < 0) ? '-' : '+') + (Math.abs(notifications[i].changeRate) * 100).toFixed(0) + '%</td>'+                        
+                        '</tr>');  
+  
+    htmlBuilderService.add('</table>');
+  }
+}
+
+function getDateRange(fromDaysBack, toDaysBack){
+  var dt = new Date();
+  var to = HELPER.dateFormat(HELPER.dateAdd(dt, -fromDaysBack));
+  var from = HELPER.dateFormat(HELPER.dateAdd(dt, -toDaysBack));  
+  return from + ',' + to;
+}
+
+// -----------------------------
+
+var HELPER = {
+  dateFormat: function (date) {
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+
+    return year + month + day;
+  },
+  dateAdd: function (date, value, type){      
+    type = type || 'dd';
+    
+    var newDate = new Date(date.getTime());
+    
+    if(type == 'dd')
+      newDate.setDate(newDate.getDate() + value);
+    else if(type == 'MM')
+      newDate.setMonth(newDate.getMonth() + value);
+    
+    return newDate;  
+  }
+}
+
+
+/* HTML BUILDER SERVICE */
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    },
+    toPDF: function(pdfName){          
+      var blob = Utilities.newBlob(_html, MimeType.HTML);
+      var pdf = blob.getAs(MimeType.PDF);  
+      pdf.setName(pdfName);
+      return pdf;
+    }  
+  };
+}

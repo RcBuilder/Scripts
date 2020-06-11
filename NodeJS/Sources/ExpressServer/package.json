@@ -14,5 +14,8 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "webfiller": "^0.1.4"
+  },
+  "scripts": {
+    "start": "node server.js"
   }
 }

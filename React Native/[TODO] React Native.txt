@@ -2390,6 +2390,14 @@ use the adb tool to find all connected android devices (physical & emulators)
 > adb devices
 see 'Android Studio - Android Debug Bridge (ADB)'
 
+
+
+
+
+
+
+
+
 -------------------------------------------------------------
 // TODO
 
