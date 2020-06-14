@@ -1,3 +1,17 @@
+*** SQL DB Statements ***
+*************************
+
+=== [TOC] ==================
+- CREATE TABLE
+- DROP TABLE
+- ALTER TABLE
+- CREATE TYPE (TVP)
+- CREATE INDEX
+- CREATE FUNCTION (SCALAR)
+- CREATE FUNCTION (TABLE)
+// TODO
+============================
+
 CREATE TABLE
 ------------
 syntax:
@@ -145,4 +159,23 @@ SELECT [dbo].[fn_DeviceFromAgent](@UserAgent)
 
 CREATE FUNCTION (TABLE)
 -----------------------
+
+
+
+
+
+
+
+
+------------------------------------------------------------------------------------
 // TODO 
+[Temp.txt]
+[Temp1.txt]
+DROP FUNCTION
+DROP SP
+CREATE SP
+DROP INDEX
+...
+...
+
+

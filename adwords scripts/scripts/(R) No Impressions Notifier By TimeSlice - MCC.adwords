@@ -5,7 +5,7 @@
 
 var EMAIL = 'rcbuilder@walla.com';
 var LABEL_FILTER = 'Test'
-var TIME_SLICE_H = [21, 23];  // from 9:00 to 12:00 (UTC)
+var TIME_SLICE_H = [9, 12];  // from 9:00 to 12:00 (UTC)
 
 function main() {
   var htmlBuilderService = HTMLBuilderService();

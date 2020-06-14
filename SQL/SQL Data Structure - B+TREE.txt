@@ -16,9 +16,4 @@ so the last level nodes in a tree are those containing the actual data.
 -
 
 Page:
-
-
----------------------------------------------------
-
-// TODO 
-Page node ???
+sql uses pages to store the data on the leaf nodes (see 'SQL Pages')

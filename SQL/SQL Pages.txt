@@ -1,0 +1,187 @@
+﻿*** SQL Pages ***
+*****************
+
+=== [TOC] ==================
+- About
+- Page Types
+- IAM
+- Page Structure
+- Sizes
+- Calculate a Page Free Space
+- DBCC IND Command
+- DBCC PAGE Command
+- POC
+============================
+
+
+About
+-----
+SQL uses pages to store data. there are several types of pages. (see 'Page Types') 
+each Page is a 8kb (8192b) of storage capacity.
+once a page is filled, a new page will be created by the SQL engine.
+
+different kind of data stores on different location, 
+for example, data-pages are stored on the leaf nodes of the Index (Clustered/ Non-Clustered).
+
+
+Page Types
+----------
+1  – data page
+2  – index page
+3  - text pages
+4  - text pages
+8  – GAM page
+9  – SGAM page
+10 – IAM page
+11 – PFS page
+
+note! 
+(10 = IAM, 1 = DATA)
+types 1 and 10 are the most interesting ones and are used to monitor the actual data storage. 
+
+
+IAM
+---
+stands-for 'Index Allocation Map'.
+a mapping table to the data-pages. 
+
+
+Page Structure
+--------------
+a page composed of 3 sections:
+-HEADER - contains information about the Page
+-DATA - contains the data rows
+-OFFSET - contains the address of each data row
+
+use 'DBCC PAGE' command to get information about a specific page. (see 'DBCC PAGE Command')
+
+
+Sizes
+-----
+Page-Size is 8kb (8192b)
+- HEADER: 96b
+- DATA: <row-size> * <num-of-rows>  
+  (row-size -> e.g: a row with a single CHAR(10) column is 10b sized)
+- OFFSET: 2b * <num-of-rows>
+
+
+Calculate a Page Free Space
+---------------------------
+formula:
+[F] <page-size> - SUM(HEADER + DATA + OFFSET)
+
+note!
+there's an extra 7b added per row by the sql engine (for inner use)
+
+e.g:
+we have 2 row of CHAR(10) -> 8192b - (96b + (2*(10b + 7b)) + (2*2b)) 
+
+tip! 
+can be found in the page HEADER - 'm_freeCnt' property
+
+reminder:
+once a page is filled, a new page will be created by the SQL engine
+
+
+DBCC IND Command
+----------------
+get pages list for a specific table.
+
+syntax:
+DBCC IND('<dbName>', <table>, -1)
+
+e.g:
+// get pages list of table 'T1' in 'TEST' db
+DBCC IND('TEST', T1, -1)  
+
+properties:
+- PagePID			// the Id of the current row
+- IAMPID			// the Id of the mapping item
+- PageType			// the type of the page.
+
+
+DBCC PAGE Command
+-----------------
+get information about a specific page.
+
+syntax:
+DBCC PAGE('<dbName>', <fileNumber>, <PagePID>, <printOption>) 
+
+tip:
+use 'DBCC TRACEON(3604)' command to print the output to the query window
+
+e.g:
+// get information about page 432 in 'TEST' db
+DBCC TRACEON(3604) 
+DBCC PAGE('TEST', 1, 432, 1)
+DBCC TRACEOFF(3604)
+
+properties:
+- Record Type		// the type of the row -> INDEX_RECORD, PRIMARY_RECORD (actual data)
+- Record Size		// size of each row (in bytes)
+- m_freeCnt			// free space in bytes
+- m_type			// the type of the page
+- m_slotCnt			// number of stored rows
+- m_nextPage		// pointer to the next page
+- m_prevPage		// pointer to the previous page
+
+
+POC
+---
+Table: TEST
+
+-
+
+CREATE TABLE T1(C1 CHAR(1000))
+INSERT INTO T1 VALUES('A'), ('B'), ('C'), ('D'), ('E'), ('F'), ('G'), ('H')
+DBCC IND('TEST', T1, -1)  
+
+/*		
+	PagePID | IAMPID | PageType
+	145		  NULL	   10			// IAM
+	432		  145	   1			// DATA
+*/
+
+INSERT INTO T1 VALUES('I')
+DBCC IND('TEST', T1, -1)  
+
+/*
+	PagePID | IAMPID | PageType
+	145		  NULL	   10			// IAM
+	432		  145	   1			// DATA
+	433		  145	   1			// DATA
+*/
+
+
+DBCC TRACEON(3604)  -- print the output
+DBCC PAGE('TEST', 1, 432, 1)  -- rows A-H
+DBCC PAGE('TEST', 1, 433, 1)  -- rows I
+DBCC TRACEOFF(3604)
+
+-
+
+in the above sample, we've created a table with a single column of 1000 characters. 
+for demo purposes and easy calculation, we've used CHAR which represents a single byte. therefore each ROW is sized 1000b (1b per 1 char).
+
+at first, we added Rows A-H and then watched the table pages state (using the DBCC IND command)
+we got 2 rows, one of type 10 which represents the IAM page and the other of type 1 which represents the actual DATA. 
+we can also see that the DATA page (432) points to IAM page (145). 
+
+then, we added another row to the T1 table - Row I
+due to lack free space left on page 432, a new page was added (433).
+
+the space calculation is as follow: 
+// before inserting Row I 
+we had 8 rows of 1000b each plus the 7b overhead -> [F] 8192b - (96b + (8*1007b) + (8*2b)) -> 8192 - 8168‬ = 24b (free space)
+there's not enough space to add row I to this page, so the engine has created a new page (433) 
+// after inserting Row I
+a new data page was added (433) with the data of Row I.
+
+afterwards we've used the DBCC PAGE command to see the information about both DATA pages (432) and (433)
+
+the result is 2 data pages:
+- page (432) with 8 rows and free space of 24b
+  [F] 8192b - (96b + (8*1007b) + (8*2b)) -> 8192 - 8168‬ = 24b (free space)
+
+- page (433) with 1 row and free space of 7087b
+  [F] 8192b - (96b + (1*1007b) + (1*2b)) -> 8192 - 1105‬ = 7087b (free space)

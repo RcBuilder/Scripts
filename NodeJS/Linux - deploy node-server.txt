@@ -12,3 +12,7 @@ linux - deploy node-server
   > npm install
 - run your server! 
   > node server 
+
+  tip: 
+  use dockers to run your node-apps (see 'Dockers/')
+

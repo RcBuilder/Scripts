@@ -1,6 +1,6 @@
 *** DBCC ***
 ************
-Database Consistency Checker. 
+DataBase Console Command. 
 DBCC Commands are console commands used for maintenance.
 
 // TODO

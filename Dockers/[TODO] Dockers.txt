@@ -1,7 +1,27 @@
 ****** Dockers ******
 *********************
 
+=== [TOC] ==================
+- Install
+- Commands
+-
+-
+-
+-
+-
+-
+============================
 
+Install
+-------
+ON WINDOWS:
+
+
+ON LINUX:
+
+
+Commands
+--------
 
 
 
@@ -11,5 +31,40 @@
 https://hub.docker.com/
 
 [temp.txt]
+[Cliclap documents]
+
+https://docs.docker.com/compose/compose-file/
+
+install - other providers (ec2 etc.)
 
 
+
+> docker exec -ti <container_name> bash // enter into the docker
+> docker logs -f <container_name> --tail 1000  // show a docker console logs
+> docker start <container_name>  // start a docker
+> docker stop <container_name>   // stop a docker
+> docker restart <container_name>   // restart a docker
+> docker ps -a  // containers list 
+> docker ps  // running containers list 
+> docker inspect <container_name> // container related config
+
+---
+
+to complete:
+1. Dockers > How To Add a docker to DockerHub
+
+to document:
+1. DaVinci Research
+2. TestPorjects\TestNodeJS
+3. TestPorjects\TestNodeJS\Mongoose
+
+---
+
+> exit // exit a container
+
+---
+
+[MobaXterm]
+
+login to docker:
+Session > SSH > set credentials and docker ip (linux)

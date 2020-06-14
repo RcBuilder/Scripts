@@ -6,6 +6,7 @@
 - Syntax
 - Clustered Index
 - Non Clustered Index
+- IAM
 - Tips
 - Create An Index
 - Include Columns
@@ -59,6 +60,12 @@ Non Clustered Index
   2. when there IS a clustered index defined -> the pointer is the clustered index key!  
 - when an index is being used, the SQL engine collects the rows pointer from the matches and uses it to fetch the data from the actual data-table.  
 - can be multiple non-clustered indexes per table (up to 999)
+
+IAM
+---
+stands-for 'Index Allocation Map'.
+a mapping table to the data-pages. 
+see 'SQL Pages'
 
 Tips
 ----
