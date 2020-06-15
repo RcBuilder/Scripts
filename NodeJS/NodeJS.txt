@@ -329,6 +329,8 @@ load the node project to visual studio.
 once loaded: 
 use the known vs-debugger with all its features and capabilities.
 
+-
+
 [Chrome]
 1. go to chrome://inspect/
 2. Open dedicated DevTools for Node
