@@ -1,0 +1,23 @@
+nodemon
+-------
+auto refresh server. 
+it automatically restarts the node app when a file changes.
+
+source:
+https://www.npmjs.com/package/nodemon
+
+syntax:
+> nodemon <file>
+
+install:
+> npm install -g nodemon
+
+using:
+> nodemon server.js
+
+package.json:
+"scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  }
+> npm run dev

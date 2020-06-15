@@ -1,0 +1,13 @@
+javascript extension - trimChar 
+-------------------------------
+
+String.prototype.trimChar = function (char) {
+    var temp = this.split('');
+	while(temp[0] == char)
+	  temp.splice(0, 1);
+	while(temp[temp.length - 1] == char)
+	  temp.splice(temp.length - 1, 1);    
+	return temp.join('');
+}
+
+var trimmed = "---abc---".trimChar('-'); // abc

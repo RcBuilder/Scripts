@@ -1,0 +1,29 @@
+javascript dispatchEvent
+------------------------
+
+syntax:
+<elem>.dispatchEvent(<event>);
+
+---
+
+let elem = document.querySelector('#div1');
+
+let down = new MouseEvent('mousedown');
+let up = new MouseEvent('mouseup');
+let focus = new Event('focus');
+
+elem.dispatchEvent(down);
+elem.dispatchEvent(up);
+elem.dispatchEvent(focus);
+
+--- 
+
+// register event 
+let elem = document.getElementsByTagName('body')[0];
+elem.addEventListener('mousedown', () => { 
+	console.log('mousedown');
+});
+
+// fire event
+let down = new MouseEvent('mousedown');  
+elem.dispatchEvent(down); 

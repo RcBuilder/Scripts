@@ -1,0 +1,23 @@
+forever
+-------
+run node forever. revive it on failure.
+
+source:
+https://github.com/foreversd/forever
+
+install:
+> npm install -g forever
+
+syntax:
+> forever start <file>
+> forever stop <pId>
+
+using:
+> forever start server.js
+
+package.json:
+"scripts": {
+    "start": "node server.js",
+    "prod": "forever start server.js"
+  }
+> npm run prod

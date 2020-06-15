@@ -21,6 +21,9 @@ app.set('view engine', 'jsx');
 app.engine('pug', require('pug').__express);  // npm install --save pug
 app.set('view engine', 'pug');
 
+// add ejs engine
+app.set('view engine', 'ejs');
+
 // add body parser middleware
 const bodyParser = require('body-parser'); 
 app.use(bodyParser.json());  // npm install --save body-parser 
@@ -46,6 +49,15 @@ app.use(
     }
 );
 
+// params trigger
+app.param('p1', (request, response, next, value) => {
+    console.log(`p1 param trigegred with value ${value}`);      
+    next();
+});
+app.param(['p2', 'p3'], (request, response, next, value) => {
+    console.log(`p2 or p3 param trigegred with value ${value}`);  
+    next();
+});
 
 // text content
 app.get('/test1', (request, response) => {
@@ -125,18 +137,23 @@ app.get('/test13', (request, response) => {
     response.render('view1.pug', { title: 'page-title', name: 'Roby' });
 });
 
+// render ejs file
+app.get('/test14', (request, response) => {
+    response.render('view1.ejs', { title: 'page-title', name: 'Roby' });
+});
+
 // pipeline - inline filters
-app.get('/test14',
+app.get('/test15',
     (request, response, next) => {
-        console.log('test14-A');      
+        console.log('test15-A');      
         next();
     },
     (request, response, next) => {
-        console.log('test14-B');
+        console.log('test15-B');
         next();
     },
     (request, response) => {
-        console.log('test14=C');
+        console.log('test15=C');
         response.send('some content...');
 });
 
@@ -182,8 +199,8 @@ const authorize = (request, response, next) => {
 };
 
 // with authorization process 
-app.get('/test15', authorize, (request, response) => {
-    console.log('test15');
+app.get('/test16', authorize, (request, response) => {
+    console.log('test16');
     response.send('some content...');
 });
 
@@ -201,23 +218,29 @@ const filterC = (request, response, next) => {
 }
 
 // pipeline - external filters
-app.get('/test16', filterA, filterB, filterC, (request, response) => {
-    console.log('test16');
+app.get('/test17', filterA, filterB, filterC, (request, response) => {
+    console.log('test17');
     response.send(request.items);   // ["itemA","itemB","itemC"]
 });
 
 // headers
-app.get('/test17', (request, response) => {
-    console.log('test17');
+app.get('/test18', (request, response) => {
+    console.log('test18');
     response.send(request.headers);
 });
 
 // params
-app.post('/test18/:a/:b', (request, response) => {
-    console.log('test18');
+app.post('/test19/:a/:b', (request, response) => {
+    console.log('test19');
     console.log(request.body);      // { a: 1, b: 2 }    
     console.log(request.params);    // { a: 1, b: 2 }   
     console.log(request.query);     // { a: 1, b: 2 }  
+    response.send('OK');
+});
+
+// params trigger
+app.get('/test20/:p1/:p2', (request, response) => {
+    console.log('test20');    
     response.send('OK');
 });
 

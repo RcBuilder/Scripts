@@ -1,0 +1,35 @@
+dotenv
+-------
+loads environment variables from a .env file.
+once installed, we need to create a .env file in the root directory and add some variables in the NAME-VALUE format. 
+use the library 'config' method to append your variables to the 'process.env' object (see 'NodeJS express server/process.env' section)
+tip! add it to .gitignore. 
+
+source:
+https://www.npmjs.com/package/dotenv
+
+install:
+> npm install --save dotenv
+
+.env file syntax:
+<NAME-1>=<VALUE-1>
+<NAME-2>=<VALUE-2>
+...
+...
+<NAME-N>=<VALUE-N>
+
+syntax:
+require('dotenv').config();
+process.env.<NAME>
+
+note:
+to create a file with no name (only extension), open notepad > save as > choose all files > save
+
+using:
+require('dotenv').config();
+console.log(process.env.PARAM_1);	// VALUE_1
+
+// .env file
+PARAM_1=VALUE_1
+PARAM_3=VALUE_2
+PARAM_3=VALUE_3

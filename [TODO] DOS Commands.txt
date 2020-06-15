@@ -1,0 +1,22 @@
+DOS Commands
+------------
+
+// delete windows service
+> dc delete "[service name]" 	
+
+// ports state
+> netstat -ano			
+> netstat -ano | find "<state>" | find "<port>"
+
+// kill a process
+> taskkill /f /pid <pId>
+
+---
+
+samples:
+
+// find processes listening on port 3335 
+> netstat -ano | find "LISTENING" | find "3335"
+
+// kill process with id 14828 
+> taskkill /f /pid 14828

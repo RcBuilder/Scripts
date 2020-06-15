@@ -9,6 +9,7 @@
 - request object
 - response object
 - middlewares
+- params trigger
 - app pipline
 - route pipline
 - static content
@@ -22,7 +23,9 @@
 - render html using 'webfiller' view-engine
 - render views using react view-engine
 - render views using pug view-engine
-- config file
+- render views using ejs view-engine
+- custom config file
+- process.env
 - POC
 =============================================
 
@@ -231,6 +234,46 @@ app.<verb>(<route-path>, <middleware-1>, <middleware-2> ... <middleware-N>);
 using and samples:
 see 'app pipline'
 see 'route pipline'
+
+params trigger
+--------------
+once identified a param matches the criteria, the engine triggers the corresponding param event.
+we can add a single param trigger or an array of params (that uses OR logical operator)
+
+syntax:
+app.param(<paramName>, (request, response, next, value) => { ... });
+app.param(<[paramName]>, (request, response, next, value) => { ... });
+
+note:
+the statement
+app.param(['p1', 'p2', 'p3'] ... ) 
+means that either one of p1, p2 or p3 triggers the event. 
+OR logical operator (not AND)
+
+sample:
+app.param('p1', (request, response, next, value) => {
+    console.log(`p1 param trigegred with value ${value}`);      
+    next();
+});
+app.param(['p2', 'p3'], (request, response, next, value) => {
+    console.log(`p2 or p3 param trigegred with value ${value}`);  
+    next();
+});
+
+app.get('/test20/:p1/:p2', (request, response) => {
+    console.log('test20');    
+    response.send('OK');
+});
+
+-
+
+// using
+GET http://127.0.0.1:3333/test20/A/B   // will trigger both param-triggers 
+
+//output
+p1 param trigegred with value A
+p2 or p3 param trigegred with value B
+test20
 
 
 app pipline
@@ -721,6 +764,7 @@ samples:
 - render html using 'webfiller' view-engine
 - render views using react view-engine
 - render views using pug view-engine
+- render views using ejs view-engine
 
 
 render html using 'webfiller' view-engine
@@ -831,9 +875,54 @@ html
   p this is a paragraph
   div(style='color:red') Hello #{name}   
   
+render views using ejs view-engine
+----------------------------------
+ejs engine. (embedded javaScript templates)
 
-config file
+install:
+> npm install --save ejs
+
+schema:
+- root
+--- server.js
+--- views
+------ view1.ejs
+------ view2.ejs
+
+using:
+// add ejs engine
+app.set('view engine', 'ejs');
+
+// set views folder
+app.set('views', __dirname + '/views');
+
+app.get('/view1', (request, response) => {   
+    response.render('view1.ejs', { name: 'Roby' });
+});
+
+--
+
+// view1.ejs
+<div>Hello <%= name %></div> 
+
+process.env
 -----------
+a global variable which is injected by the node engine at runtime.
+it represents the state of the running system environment. 
+
+use it to gain access to ALL defined system variables (Path, OS etc.) 
+(windows) ThisPC > Properties > Advanced system settings > Environment Variables.
+
+samples:
+> process.env.Path
+> process.env.OS
+> process.env.PORT
+> process.env.MyVar1
+> process.env.DB_CONNECTION_STRING
+
+
+custom config file
+------------------
 we can create any json file to serves as our app configuration file. 
 
 (steps)
