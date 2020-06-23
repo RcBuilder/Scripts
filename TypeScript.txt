@@ -5,11 +5,13 @@ a strongly typed, object oriented, compiled language.
 a layer on top of javascript designed by Microsoft.
 a typeScript code is converted into its JavaScript equivalent for the purpose of execution.
 
------------------------------------------
+=============================
 - install
 - file extension
 - compile .ts file
+- tsconfig.json
 - visual studio
+- nodeJS
 - type annotations
 - type assertion
 - optional parameters
@@ -22,10 +24,9 @@ a typeScript code is converted into its JavaScript equivalent for the purpose of
 - ambient declarations
 - import
 - @ts-ignore
------------------------------------------
+=============================
 
-
-install:
+[install]
 1. via npm 
    > npm install -g typescript
   
@@ -33,18 +34,19 @@ install:
    https://www.typescriptlang.org/#download-links
    note: Visual Studio 2015 update3 and up include it by default.
    
----
+------------------------------------------
 
-file extension:
+[file extension]
 typeScript files use .ts extension.
 we can write either typeScript code or pure javascript code in those files. 
 browsers can't interpret .ts files so we need to compile them into .js files. (see 'compile .ts file')
 
----
+------------------------------------------
 
-compile .ts file:
+[compile .ts file]
 > tsc <fileName>.ts
 > tsc <fileName-1>.ts, <fileName-2>.ts ... <fileName-N>.ts
+> tsc	// look for the tsconfig.json for instructions (see 'tsconfig.json')  
 
 when compiling a .ts file, it is translated into a pure javascript code and saved as .js file (with the same name). 
 ANY pure javascript code within the .ts file is copied as is whereas ANY typeScript code is converted to javascript code!
@@ -81,15 +83,35 @@ https://github.com/niutech/typescript-compile/blob/gh-pages/README.md
         console.log(a.p1);
     </script>	
 
----
 
 a reminder:
 run .js file using the terminal 
 > node <fileName>.js
 
----
+------------------------------------------
 
-visual studio:
+[tsconfig.json]
+provides instructions for the ts compiler. specifies the ts compiler settings. 
+we can invoke the 'tsc' command without parameters to trigger this file.
+
+in visual-studio, this file is required for the auto-compilation of .ts files.
+in nodeJS, use the 'tsc' command to trigger this file and compile all .ts files. (tip: add it as a script execution in the package.json file)
+
+sample:
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5"
+  }
+}
+
+------------------------------------------
+
+[visual studio]
 vs supports an auto-compilation of .ts files  
 it uses Build Action of type TypeScriptCompile (properties window - F4).
 in the html page, we need to reference the file using a .js extension instead of .ts! 
@@ -115,25 +137,14 @@ window.onload = () => {
 	...    
 };
 
----
+-
 
 tsconfig.json:
 this file contains all settings relevant to typescript.
 without it the compilation of .ts files will NOT work!
+(see 'tsconfig.json')
 
-sample:
-{
-  "compileOnSave": false,
-  "compilerOptions": {
-    "noImplicitAny": false,
-    "noEmitOnError": true,
-    "removeComments": false,
-    "sourceMap": true,
-    "target": "es5"
-  }
-}
-
----
+-
 
 using in mvc:
 1. add .ts file to the scripts folder
@@ -156,11 +167,49 @@ c.print();
 // Layout.cshtml
 <script src="~/Scripts/file1.js"></script>
 
----
+-
 
 visual studio code:
 we can use vs-code to open .ts files and compile them manually using the terminal. 
-    
+   
+------------------------------------------ 
+
+[nodeJS]
+how to auto-compile all .ts files:
+1. add a tsconfig.json file (see 'tsconfig.json')
+2. add a script execution which invokes the tsc command (with no arguments)
+3. run the script in chapter 2.
+
+note! 
+we can just use 'tsc' command instead of steps 2 and 3
+> tsc
+
+sample:
+
+// tsconfig.json
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "noEmitOnError": true,
+    "removeComments": false,
+    "sourceMap": true,
+    "target": "es5"
+  }
+}
+
+// package.json
+{
+  ...
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start": "node app.js",
+    "compile": "tsc"
+  }
+}
+
+> npm run compile
+
 ------------------------------------------
 
 [type annotations]

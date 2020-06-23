@@ -25,8 +25,9 @@ app.set('view engine', 'pug');
 app.set('view engine', 'ejs');
 
 // add body parser middleware
-const bodyParser = require('body-parser'); 
-app.use(bodyParser.json());  // npm install --save body-parser 
+const bodyParser = require('body-parser'); // npm install --save body-parser 
+app.use(bodyParser.json()); // parse application/json 
+app.use(bodyParser.urlencoded({ extended: false })); // parse application/x-www-form-urlencoded 
 
 // map a route to static contents
 // in this example - the static contents defined under '/static' folder. 

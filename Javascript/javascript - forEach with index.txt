@@ -1,0 +1,14 @@
+javascript - forEach with index
+-------------------------------
+
+let arr = [10,20,30,40];
+
+arr.forEach((item, index) => { 
+	console.log(`index: ${index}, item: ${item}`); 
+});
+
+// output
+index: 0, item: 10
+index: 1, item: 20
+index: 2, item: 30
+index: 3, item: 40

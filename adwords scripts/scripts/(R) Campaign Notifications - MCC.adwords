@@ -39,16 +39,16 @@ function main() {
 function ProcessAccount(htmlBuilderService){     
   var accountName = AdWordsApp.currentAccount().getName();
   
-  var range1 = getDateRange(0, NUM_OF_DAYS_TO_COMPARE); 
-  var range2 = getDateRange(NUM_OF_DAYS_TO_COMPARE + 1, NUM_OF_DAYS_TO_COMPARE * 2 + 1);
+  var range1 = getDateRange(1, NUM_OF_DAYS_TO_COMPARE); 
+  var range2 = getDateRange(NUM_OF_DAYS_TO_COMPARE + 1, NUM_OF_DAYS_TO_COMPARE * 2);
   Logger.log('[%s] vs [%s]', range1, range2);
-    
+  
   var campaigns = AdWordsApp.campaigns()
   .withCondition("Status IN [ENABLED]")
   .forDateRange("ALL_TIME")
   .get();
   
-  var notifications = []; // {metric, range1Value, range2Value, ratio, changeRate}
+  var notifications = []; // {campaignName, metric, range1Value, range2Value, ratio, changeRate}
   while (campaigns.hasNext()) {
     var campaign = campaigns.next();    
     var campaignName = campaign.getName();
@@ -61,6 +61,7 @@ function ProcessAccount(htmlBuilderService){
     var changeRateCPC = ratioCPC < 1 ? -(1 - ratioCPC) : (ratioCPC - 1);
     if(ratioCPC != 0 && changeRateCPC > 0.3) // 30% increase
       notifications.push({
+        campaign: campaignName,
         metric: 'CPC', 
         range1Value: statsRange1.getAverageCpc(), 
         range2Value: statsRange2.getAverageCpc(),
@@ -72,6 +73,7 @@ function ProcessAccount(htmlBuilderService){
     var changeRateConversions = ratioConversions < 1 ? -(1 - ratioConversions) : (ratioConversions - 1);
     if(ratioConversions != 0 && changeRateConversions < -0.3) // 30% decline
       notifications.push({
+        campaign: campaignName,
         metric: 'Conversions', 
         range1Value: statsRange1.getConversions(), 
         range2Value: statsRange2.getConversions(),
@@ -83,6 +85,7 @@ function ProcessAccount(htmlBuilderService){
     var changeRateCost = ratioCost < 1 ? -(1 - ratioCost) : (ratioCost - 1);
     if(ratioCost != 0 && ratioCost < -0.3) // 30% decline
       notifications.push({
+        campaign: campaignName,
         metric: 'Cost', 
         range1Value: statsRange1.getCost(), 
         range2Value: statsRange2.getCost(),
@@ -94,11 +97,44 @@ function ProcessAccount(htmlBuilderService){
     var changeRateCTR = ratioCTR < 1 ? -(1 - ratioCTR) : (ratioCTR - 1);
     if(ratioCTR != 0 && ratioCTR < -0.3) // 30% decline
       notifications.push({
+        campaign: campaignName,
         metric: 'CTR', 
         range1Value: statsRange1.getCtr(), 
         range2Value: statsRange2.getCtr(),
         ratio: ratioCTR,
         changeRate: changeRateCTR
+      });
+    
+    
+    // ---
+       
+    var report1 = HELPER.getReport(
+      	'CAMPAIGN_PERFORMANCE_REPORT', 
+      	['SearchTopImpressionShare'], 
+      	['CampaignId = ' + campaign.getId()], 
+      	range1
+    );
+    
+    var report2 = HELPER.getReport(
+      	'CAMPAIGN_PERFORMANCE_REPORT', 
+      	['SearchTopImpressionShare'], 
+      	['CampaignId = ' + campaign.getId()], 
+      	range2
+    );
+    
+    var topImpressionShareRange1 = report1.rows().next()['SearchTopImpressionShare'];
+    var topImpressionShareRange2 = report2.rows().next()['SearchTopImpressionShare'];
+    
+    var ratioTopImpressionShare = topImpressionShareRange2 == 0 ? 0 : (topImpressionShareRange1 / topImpressionShareRange2);
+    var changeRateTopImpressionShare = ratioTopImpressionShare < 1 ? -(1 - ratioTopImpressionShare) : (ratioTopImpressionShare - 1);
+    if(ratioTopImpressionShare != 0 && ratioTopImpressionShare < -0.3) // 30% decline
+      notifications.push({
+        campaign: campaignName,
+        metric: 'TopImpressionShare', 
+        range1Value: topImpressionShareRange1, 
+        range2Value: topImpressionShareRange2,
+        ratio: ratioTopImpressionShare,
+        changeRate: changeRateTopImpressionShare
       });
   }
   
@@ -112,17 +148,17 @@ function ProcessAccount(htmlBuilderService){
                         '<th>metric</th>'+
                         '<th>Last ' + NUM_OF_DAYS_TO_COMPARE + ' Days</th>'+
                         '<th>Prev. ' + NUM_OF_DAYS_TO_COMPARE + ' Days</th>'+
-                        '<th>ratio</th>'+
+                        //'<th>ratio</th>'+
                         '<th>change</th>'+                        
                         '</tr>');  
     
     for(i in notifications)
       htmlBuilderService.add('<tr>'+                        
-                        '<td>' + campaignName + '</td>'+                           
+                        '<td>' + notifications[i].campaign + '</td>'+                           
                         '<td>' + notifications[i].metric + '</td>'+
-                        '<td>' + notifications[i].range1Value + '</td>'+
-                        '<td>' + notifications[i].range2Value + '</td>'+
-                        '<td>' + notifications[i].ratio.toFixed(2) + '%</td>'+    
+                        '<td>' + notifications[i].range1Value.toFixed(2) + '</td>'+
+                        '<td>' + notifications[i].range2Value.toFixed(2) + '</td>'+
+                        //'<td>' + notifications[i].ratio.toFixed(2) + '%</td>'+    
                         '<td>' + (notifications[i].changeRate == 1.0 ? '' : (notifications[i].changeRate < 0) ? '-' : '+') + (Math.abs(notifications[i].changeRate) * 100).toFixed(0) + '%</td>'+                        
                         '</tr>');  
   
@@ -161,7 +197,27 @@ var HELPER = {
       newDate.setMonth(newDate.getMonth() + value);
     
     return newDate;  
-  }
+  },
+  divide: function(numerator, denominator){
+    return denominator == 0 ? 0 : numerator / denominator;
+  },
+  getReport: function(reportName, reportFields, reportFilters, dateRange){
+    var reportConfig = {
+      includeZeroImpressions: true
+    };
+  
+    // {reportFields} FROM {reportName} WHERE {reportFilters} DURING {dateRange}
+    var query = 'SELECT ' + reportFields.join(', ') + ' ';  
+    query += 'FROM '+ reportName + ' ';
+  
+    if(reportFilters && reportFilters.length > 0)  
+      query += 'WHERE '+ reportFilters.join(' AND ') + ' ';
+  
+    query += 'DURING ' + dateRange;
+  
+    Logger.log(query);
+    return AdWordsApp.report(query, reportConfig); 
+  },
 }
 
 

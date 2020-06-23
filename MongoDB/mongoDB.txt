@@ -13,14 +13,19 @@ mongodb is a document-based database
 ---------------
 
 * installation:
-  > npm install mongodb --save
+  > npm install --save mongodb	// local 
+  > npm install -g mongodb		// global
+
+* npm:
+  see 'NodeJS\npm mongodb'
 
 * dependency:
   install mongo (SERVER) + compass (Managment Tools)
   mongodb-win32-x86_64-2012plus-4.2.0-signed.msi
 
-* reference:
-  also see 'mongoose'
+* references:  
+  see 'NodeJS\npm mongodb'
+  see 'NodeJS\Sources\MongoDB'
 
 * sources:
   https://www.mongodb.com/
@@ -161,5 +166,4 @@ catch (err) {};
 ---------------
 
 samples:
-see 'MongoDB/DAL.ts'
-see 'mongodb-sample.ts' 
+see 'NodeJS\Sources\MongoDB'

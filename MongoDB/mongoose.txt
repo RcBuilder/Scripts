@@ -3,11 +3,20 @@
 mongoose is a schema-based model for mongodb
 
 installation:
-> npm i mongoose
+> npm install --save mongoose	// local 
+> npm install -g mongoose		// global
+
+npm:
+see 'NodeJS\npm mongoose'
+
 
 dependency:
 install mongo (SERVER) + compass (Managment Tools)
 mongodb-win32-x86_64-2012plus-4.2.0-signed.msi
+
+reference:
+see 'NodeJS\npm mongoose'
+see 'NodeJS\Sources\Mongoose'
 
 ---------------
 
@@ -33,17 +42,204 @@ extend a schema:
 
 ---------------
 
-const mongoose = require('mongoose');
-let Schema = mongoose.Schema;
+connect:
+const config = {
+    connStr: 'mongodb://localhost:27017/testDB'
+}
 
-await mongoose.connect('mongodb://localhost:27017/testDB', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+// Important! MUST run the MongoDB server
+const mongoose = require('mongoose');  // npm install --save mongoose
+
+// connect to data base
+(async function () {
+    await mongoose.connect(config.connStr, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
+    console.log('connected to mongo');
+})();
+
+---------------
+
+invoke actions:
+two ways to communicate with the data base
+1. using the Model itself 
+   <model>.<methodName>
+2. using an instance of the model   
+   <instance>.<methodName>
+
+note that when using the instance approach, the data of the instance is the provided data to send to the server 
+whereas, using the model requires the data to be passed as arguments to the triggered method  
+
+---------------
+
+update:
+use 'set' action or use a key-value based object to update the stored object. 
+
+// set (instance approach)
+let newItem = new ItemModel();
+newItem.set({ name: 'item1', price: 20 });  
+let result = await newItem.save();
+
+// key-value (instance approach)
+let newItem = new ItemModel();
+newItem.price = 20;
+let result = await newItem.save();
+
+-
+
+// set (model approach)
+await ItemModel.updateOne({ _id: id }, { $set: { name: newName } });
+
+// key-value (model approach)
+await ItemModel.updateOne({ _id: id }, { name: newName });
+
+---------------
+
+populate:
+auto-bind of model-type properties! 
+
+(Steps)
+1. define a Schema property with 'Schema.ObjectId' type and 'ref' reference.
+2. on insert, add the built-in '_id' of the referenced model as it's value
+3. use 'populate' method to bind the data.
+
+-
+
+let Schema = mongoose.Schema;  // to generate Schemas
+
+// create a Schema to represents a User
+const UserSchema = new Schema({
+    name: String
 });
+const UserModel = mongoose.model('User', UserSchema); // create a User model
 
-console.log('connected!');
+// create a Schema to represents a Post
+const PostSchema = new Schema({
+    id: Number,
+    title: { type: String, default: 'Untitled Post' },    
+    createdDate: { type: Date, default: Date.now },
+    user: {
+        type: Schema.ObjectId,
+        ref: 'User'
+    }
+});
+const PostModel = mongoose.model('Post', PostSchema); // create a Post model
+
+// ---
+
+(async function () {
+    try {        
+        // add a user
+        let user = new UserModel({ name: 'Roby' });
+        await user.save();
+
+        // add some posts
+        let post1 = new PostModel({ id: 1, title: 'Post-1', user: user._id });
+        let post2 = new PostModel({ id: 2, title: 'Post-2', user: user._id });
+        let post3 = new PostModel({ id: 3, user: user._id });
+        await post1.save();
+        await post2.save();
+        await post3.save();        
+
+        // get populated posts
+        let posts = await PostModel.find();
+        let populated = await PostModel.populate(posts, { path: 'user' });
+        console.log(populated);
+    }
+    catch (error) {
+        console.error(error);
+    };
+})();
+
+// output
+[ 
+	{ 
+		_id: 5ef19b81ed614531c0739465,
+		title: 'Post-1',		
+		id: 1,
+		user: { 
+			_id: 5ef19b81ed614531c0739464, 
+			name: 'Roby'
+		},
+		createdDate: 2020-06-23T06:04:49.889Z,
+    },
+	{ 
+		_id: 5ef19b81ed614531c0739466,
+		title: 'Post-2',    
+		id: 2,
+		user: { 
+			_id: 5ef19b81ed614531c0739464, 
+			name: 'Roby'
+		},
+		createdDate: 2020-06-23T06:04:49.890Z,
+	},
+	{ 
+		_id: 5ef19b81ed614531c0739467,
+		title: 'Untitled Post',    
+		id: 3,
+		user: { 
+			_id: 5ef19b81ed614531c0739464, 
+			name: 'Roby'
+		},
+		createdDate: 2020-06-23T06:04:49.890Z,
+    } 
+]
+
+---------------
+
+using npm:
+const config = {    
+    connStr: 'mongodb://localhost:27017/testDB'
+}
+
+// Important! MUST run the MongoDB server
+const mongoose = require('mongoose');  // npm install --save mongoose
+let Schema = mongoose.Schema;  // to generate Schemas
+
+// create a Schema to represents an Item
+const ItemSchema = new Schema({
+    id: Number,
+    name: String,
+    price: { type: Number, default: 0 },    
+    createdDate: { type: Date, default: Date.now }
+});
+const ItemModel = mongoose.model('Item', ItemSchema); // create an Item model
+
+(async function () {
+    await mongoose.connect(config.connStr, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
+    console.log('connected to mongo');
+})();
+
+// get items
+let items = await ItemModel.find();
+
+// get item 
+let item = await ItemModel.findOne({ id: 100 });
+
+// delete item
+let item = await ItemModel.findOne({ id: 100 });
+let result = await item.deleteOne();   
+
+// update item
+let item = await ItemModel.findOne({ id: 100 });
+item.name = request.body.name;
+item.price = request.body.price;                
+let result = await item.save(); 
+
+// insert item
+let newItem = new ItemModel();
+newItem.set(request.body);       
+let result = await newItem.save();
+
+// insert many
+let arrItems = request.body;
+let result = await ItemModel.insertMany(arrItems); // use the Model itself!
 
 ---------------
 
 samples:
-see 'Mongoose/DAL.ts'
+see 'NodeJS\Sources\Mongoose'

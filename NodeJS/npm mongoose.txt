@@ -1,0 +1,65 @@
+mongoose
+--------
+mongoose is a schema-based model for mongodb.
+
+source:
+https://www.npmjs.com/package/mongoose
+
+install:
+> npm install --save mongoose	// local 
+> npm install -g mongoose		// global
+
+basic:
+const config = {    
+    connStr: 'mongodb://localhost:27017/testDB'
+}
+
+// Important! MUST run the MongoDB server
+const mongoose = require('mongoose');  // npm install --save mongoose
+let Schema = mongoose.Schema;  // to generate Schemas
+
+// create a Schema to represents an Item
+const ItemSchema = new Schema({
+    id: Number,
+    name: String,
+    price: { type: Number, default: 0 },    
+    createdDate: { type: Date, default: Date.now }
+});
+const ItemModel = mongoose.model('Item', ItemSchema); // create an Item model
+
+(async function () {
+    await mongoose.connect(config.connStr, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
+    console.log('connected to mongo');
+})();
+
+// get items
+let items = await ItemModel.find();
+
+// get item 
+let item = await ItemModel.findOne({ id: 100 });
+
+// delete item
+let item = await ItemModel.findOne({ id: 100 });
+let result = await item.deleteOne();   
+
+// update item
+let item = await ItemModel.findOne({ id: 100 });
+item.name = request.body.name;
+item.price = request.body.price;                
+let result = await item.save(); 
+
+// insert item
+let newItem = new ItemModel();
+newItem.set(request.body);       
+let result = await newItem.save();
+
+// insert many
+let arrItems = request.body;
+let result = await ItemModel.insertMany(arrItems); // use the Model itself!
+
+
+sample:
+see 'NodeJS\Sources\Mongoose'

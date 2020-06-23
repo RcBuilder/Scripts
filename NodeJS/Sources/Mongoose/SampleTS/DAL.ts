@@ -2,9 +2,9 @@
 // mongodb-win32-x86_64-2012plus-4.2.0-signed.msi
 // -----
 // mongoose is a schema-based model for mongodb
-// > npm i mongoose
+// > npm install --save mongoose
 
-const mongoose = require('mongoose');
+const mongoose = require('mongoose');  // npm install --save mongoose
 let Schema = mongoose.Schema;
 
 /*

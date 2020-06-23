@@ -302,6 +302,7 @@ common middlewares:
   using:
   const bodyParser = require('body-parser'); 
   app.use(bodyParser.json());  
+  app.use(bodyParser.urlencoded({ extended: false })); 
 
 - static-content
 	
@@ -338,6 +339,7 @@ app.use(
 
 app.use(express.static(__dirname + '/static'));
 app.use(require('body-parser').json());
+app.use(bodyParser.urlencoded({ extended: false })); 
 
 
 route pipline
@@ -492,6 +494,9 @@ url-encoded
 -----------
 a built-in middleware to url-decode incoming requests.
 
+reminder: 
+we can use ANY middleware as of a function level or app level.
+
 syntax:
 const urlencodedMiddleware = express.urlencoded(<options>)
 app.use(urlencodedMiddleware);  // use middleware
@@ -509,8 +514,11 @@ install:
 sample:
 const bodyParser = require('body-parser'); 
 
-// middleware -> json-payloads parser
+// middleware -> json-payloads parser (application/json)
 app.use(bodyParser.json()); 
+
+// middleware -> urlencoded-payloads parser (application/x-www-form-urlencoded)
+app.use(bodyParser.urlencoded({ extended: false })); 
 
 /*
 	POST http://127.0.0.1:3334/test/8837814803

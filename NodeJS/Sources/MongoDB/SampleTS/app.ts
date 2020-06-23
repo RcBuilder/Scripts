@@ -7,7 +7,7 @@ let item = new Item(3, 'item3');
 /*
 DAL.Callbacks.add(item);
 DAL.Callbacks.getById(item.id);
-DAL.Callbacks.getByName(item.name);
+DAL.Callbacks.getByName(item.name); 
 
 item.name = 'item3-updated';
 DAL.Callbacks.update(item);

@@ -1,0 +1,36 @@
+mongoDB
+-------
+no-sql data base.
+
+source:
+https://www.npmjs.com/package/redis
+
+install:
+> npm install --save mongodb	// local 
+> npm install -g mongodb		// global
+
+basic:
+const mongo = require('mongodb').MongoClient;  // npm install --save mongodb
+const config = {    
+    connStr: 'mongodb://localhost:27017'
+}
+
+try {
+    let client = await mongo.connect(config.connStr, { useNewUrlParser: true });
+
+    let db = client.db('testDB');
+    try {
+        let items = await db.collection('items').find().toArray() || [];                        
+        client.close();
+        response.send(items.map(x => x.id));  // array of ids
+    }
+    catch (error) {
+        console.error(error);
+    };
+}
+catch (error) {
+    console.log(`[ERROR] db.connect > ${error}`);
+}
+
+sample:
+see 'NodeJS\Sources\MongoDB'

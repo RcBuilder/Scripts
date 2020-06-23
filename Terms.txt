@@ -57,6 +57,11 @@
 * SSL = Secure Sockets Layer
 * HTTPS = Hyper Text Transfer Protocol Secure (HTTP Secure)
 * TCP = transmission control protocol
+* SSH = Secure SHell
+
+* IoC = Inversion of Control
+* DIP = Dependency Inversion Principle
+* DI =  Dependency Injection
 
 * NDA = Non-disclosure agreement
 * DBA – db administrator

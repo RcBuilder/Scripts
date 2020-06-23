@@ -1,0 +1,30 @@
+redis
+-----
+run node forever. revive it on failure.
+
+source:
+https://www.npmjs.com/package/redis
+
+install:
+> npm install --save redis  // local 
+> npm install -g redis		// global
+
+basic:
+// Important! MUST run the Redis server (redis-server.exe)
+const redis = require('redis');
+const client = redis.createClient(6379);
+
+client.on('error', (error) => {
+    console.error(error);
+});
+client.on('connect', (data) => {
+    console.log('connected to redis');
+});
+
+client.keys('*', (error, data) => {...});
+client.get(key,  (error, data) => {...});
+client.del(key,  (error, data) => {...});
+client.set(key, JSON.stringify(request.body), () => {...});
+
+sample:
+see 'NodeJS\Sources\Redis'

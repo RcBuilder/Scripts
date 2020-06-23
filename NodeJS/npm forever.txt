@@ -12,6 +12,9 @@ syntax:
 > forever start <file>
 > forever stop <pId>
 
+reminder:
+> pgrep node   // id list of running node instances 
+
 using:
 > forever start server.js
 

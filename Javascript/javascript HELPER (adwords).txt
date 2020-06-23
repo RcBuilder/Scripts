@@ -1,0 +1,193 @@
+javascript HELPER (adwords)
+---------------------------
+
+var HELPER = {
+  divide: function(numerator, denominator){
+    return denominator == 0 ? 0 : numerator / denominator;
+  },
+  replaceALL: function (value, toReplace, replacement) {
+    return value.split(toReplace).join(replacement);
+  },
+  forEachProperty: function(o, callback){
+  	for(var prop in o) 
+      if(o.hasOwnProperty(prop))
+        callback.call(o, prop);
+  },  
+  foreach: function (arr, callback) {
+    if (!(arr instanceof Array)) return;
+    for (var i = 0; i < arr.length; i++)
+      callback(arr[i]);
+  },
+  HTML2PDF: function(strHtml, pdfName){
+    var blob = Utilities.newBlob(strHtml, MimeType.HTML);
+    var pdf = blob.getAs(MimeType.PDF);  
+    pdf.setName(pdfName);
+    return pdf
+  },
+  containsLabel: function (labelName) { // call
+    return this.labels()
+    .withCondition('Name = "' + labelName + '"')
+    .get()
+    .hasNext();
+  },
+  generateRandomId: function(){
+    var result = '';
+    for(var i=0;i<8;i++)
+      result = result.concat(Math.round(Math.random() * 9));
+    return result;
+  },
+  dateSignature: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth()+1).toString();
+    
+    if(month.length == 1) month = '0' + month; 
+    
+    return parseInt(year + month); // return yyyyMM as int
+  },
+  dateDiff: function (date1, date2) {
+    var datediff = date1.getTime() - date2.getTime(); 
+    return parseInt(datediff / (24*60*60*1000));
+  },
+  dateFormat: function (date){
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  }, 
+  getTheNextSunday: function(date){
+    var newDate = new Date(date.getTime()); 
+    
+    var numOfweekDays = 7;         
+    if(newDate.getDay() > 0)
+      newDate.setDate(newDate.getDate() + (numOfweekDays - newDate.getDay()));
+    return newDate;  
+  },
+  getThePreviousSunday: function(date){
+    var newDate = new Date(date.getTime());                    
+    newDate.setDate(newDate.getDate() - newDate.getDay());
+    return newDate;  
+  },
+  dateAdd: function(date, value, type){      
+    type = type || 'dd';
+    
+    var newDate = new Date(date.getTime());
+    
+    if(type == 'dd')
+      newDate.setDate(newDate.getDate() + value);
+    else if(type == 'MM')
+      newDate.setMonth(newDate.getMonth() + value);
+    
+    return newDate;  
+  }, 
+  generateRange: function(daysFrom, daysTo){
+	var to = new Date();
+	to.setDate(to.getDate() + daysTo);
+  
+    var from = new Date();
+	from.setDate(from.getDate() + daysFrom);
+  
+	return this.dateFormat(from) + ',' + this.dateFormat(to);
+  },
+  getFirstDayOfMonth: function(date){
+    var newDate = new Date(date.getTime());
+    newDate.setDate(1);
+    return newDate;  
+  },
+  getLastDayOfMonth: function(date){
+    var newDate = new Date(date.getYear(), date.getMonth() + 1, 1);
+    newDate.setDate(newDate.getDate() - 1); // decrease one day from the first on the following month
+    return newDate;  
+  }, 
+  dateName: function(date){
+    // toDateString() -> Mon Feb 29 2016
+    var arrDateParts = date.toDateString().split(' '); 
+    return arrDateParts[1] + ' ' + arrDateParts[2];  // Feb 29
+  },
+  monthName: function(date){
+    // toDateString() -> Mon Feb 29 2016
+    var arrDateParts = date.toDateString().split(' '); 
+    return arrDateParts[1] + ', ' + arrDateParts[3];  // Feb, 2016
+  },
+  parseDate: function(strDate){ 
+	// strDate: yyyy-MM-dd
+    var arrDateParts = strDate.split('-');
+    return new Date(arrDateParts[0], parseInt(arrDateParts[1], 10) - 1, arrDateParts[2]);
+  }, 
+  toPercentageFormat: function(value){    
+    return (value * 100).toFixed(2).toString() + '%';
+  },
+
+  getReport: function(reportName, reportFields, reportFilters, dateRange){
+    var reportConfig = {
+      includeZeroImpressions: true
+    };
+  
+    // {reportFields} FROM {reportName} WHERE {reportFilters} DURING {dateRange}
+    var query = 'SELECT ' + reportFields.join(', ') + ' ';  
+    query += 'FROM '+ reportName + ' ';
+  
+    if(reportFilters && reportFilters.length > 0)  
+      query += 'WHERE '+ reportFilters.join(' AND ') + ' ';
+  
+    query += 'DURING ' + dateRange;
+  
+    Logger.log(query);
+    return AdWordsApp.report(query, reportConfig); 
+  },
+  getKeyWordsQuantity: function(filters, dateRange) {  
+    var selector = AdsApp.keywords();
+  
+    if(filters && filters.length > 0)  
+      for(i in filters)
+        selector.withCondition(filters[i]);
+  
+    if(dateRange)
+      selector.forDateRange(dateRange);
+  
+    var keywords = selector.get();
+    return keywords.totalNumEntities();
+  }
+};
+
+// using
+var target_start_time = ... 
+var target_end_time = ... 
+var target_dateRange = HELPER.dateFormat(target_start_time).concat(',', HELPER.dateFormat(target_end_time)); 
+
+// result e.g:
+'20150801,20150831'
+
+-----
+
+HELPER.foreach(['AAA', 'BBB', 'CCC'], function(item){
+	// code ...
+});
+
+-----
+
+var count = HELPER.getKeyWordsQuantity([
+    'CampaignStatus IN [ENABLED,PAUSED]', 
+    'AdGroupStatus IN [ENABLED,PAUSED]', 
+    'Status IN [ENABLED,PAUSED]'
+], 'ALL_TIME');
+    
+Logger.log(count);
+
+-----
+
+var report = GetReport(
+   'CAMPAIGN_PERFORMANCE_REPORT', 
+   ['CampaignName', 'AdvertisingChannelType'], 
+   ['CampaignStatus = ENABLED', 'AdvertisingChannelType = DISPLAY'], 
+   'LAST_30_DAYS'
+);
+   
+var rows = report.rows(); 
+while (rows.hasNext()) { 
+    var row = rows.next();
+    ...
+};

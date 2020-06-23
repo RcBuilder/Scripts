@@ -1,0 +1,56 @@
+cURL commands using CLI
+=======================
+
+syntax
+------
+> curl <flags>
+
+flags
+-----
+-I						// response headers only!
+-i						// include headers in the response
+-X <method>				// set request method
+-H <header> 			// add request header [supports multiple]
+-d <data>				// add request data [supports multiple]
+-d @<file> 				// pass data from file
+--data-binary @<file> 	// same as -d @<file>
+-v						// extra information 
+-o <file>				// save response to file
+-b <cookie>				// add cookie header to the request (e.g: -b "k1=v1;k2=v2" results in cookie="k1=v1;k2=v2")
+ 	
+using
+-----
+> curl -H "content-type: application/json" -X GET http://127.0.0.1:3333/test20/A/B
+> curl -H "content-type: application/json" -H "Accept: application/json" -X GET http://127.0.0.1:3333/test20/A/B
+> curl -X GET http://127.0.0.1:3333/test20/A/B
+> curl -I -X GET http://127.0.0.1:3333/test20/A/B
+> curl -i -X GET http://127.0.0.1:3333/test20/A/B
+> curl GET http://127.0.0.1:3333/test20/A/B
+> curl -H "content-type: application/json" -X POST http://127.0.0.1:3333/test19/A/B -d "{\"p1\":1, \"p2\":2}"
+> curl -v -X GET http://127.0.0.1:3333/test20/A/B
+> curl -o out.json -X GET http://127.0.0.1:3333/test20/A/B 
+> curl -H "content-type: application/json" -X POST http://127.0.0.1:3333/test19/A/B -d @data.json
+  (data.json: {"a1": 1, "a2": 2, "a3": 3})
+> curl -H "application/x-www-form-urlencoded" -X POST http://127.0.0.1:3333/test19/A/B -d @data.txt
+  (data.txt: a1=1&a2=2&a3=3)
+> curl -b "k1=v1;k2=v2" GET http://127.0.0.1:3333/test18
+  note! generates cookie="k1=v1;k2=v2" header
+
+
+using batch file
+----------------
+we can use curl command as a script using a batch file (.bat). 
+
+sample:
+// test-curl.bat
+@echo executing request-1
+curl -H "content-type: application/json" -X GET http://127.0.0.1:3333/test20/A/B
+
+@echo executing request-2
+curl -i -X GET http://127.0.0.1:3333/test20/A/B
+
+@echo executing request-3
+curl -b "k1=v1;k2=v2" GET http://127.0.0.1:3333/test18
+
+@echo executing request-4
+curl -H "content-type: application/json" -X POST http://127.0.0.1:3333/test19/A/B -d @data.json
