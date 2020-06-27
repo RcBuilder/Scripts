@@ -1,0 +1,23 @@
+[KnownType] Attribute
+======================
+allows us to specify, in advance, the types that should be considered during deserialization.
+
+[KnownType(typeof(BlackboardGroupInfo))]
+[KnownType(typeof(BlackboardAssignment))]
+[DataContract]
+public abstract class BlackboardContentItem {
+    [DataMember(Name = "@id")]
+    public string id { get; set; }
+    ....
+    ....
+}
+
+[DataContract]
+public class BlackboardGroupInfo : BlackboardContentItem {
+    ....
+}
+
+[DataContract]
+public class BlackboardAssignment : BlackboardContentItem {
+    ....
+}

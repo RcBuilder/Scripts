@@ -1,0 +1,29 @@
+Dynamic Cast/Convert (by Type)
+==============================
+convert object to specific type
+use Type.GetType to get type from name
+use Convert.ChangeType to cast dynamically objects to the specify type name
+
+structure:
+Type Type.GetType(typeName);
+T Convert.ChangeType(object, type);
+
+note:
+also see 'C# IConvertible Sample'
+
+---
+
+example:
+static object DynamicConvert(string TypeName, object Item) {
+      var entityType = Type.GetType(TypeName);
+      var entity = Convert.ChangeType(Item, entityType);
+	  return entity;       
+}
+
+-
+
+var converted = DynamicConvert(typeof(Int32).FullName, "1234");
+Console.WriteLine(converted.GetType());	// System.Int32
+Console.WriteLine(converted);	// 1234
+
+

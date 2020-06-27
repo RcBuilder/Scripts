@@ -1,0 +1,47 @@
+Newtonsoft JsonSerializer Settings
+==================================
+support:
+1. global settings
+2. single-serialization settings
+
+---
+
+// global settings
+JsonConvert.DefaultSettings = () => new JsonSerializerSettings {
+      	DateFormatHandling = DateFormatHandling.MicrosoftDateFormat // e.g: "\/Date(1356044400000+0100)\/"
+};
+
+var strJson = JsonConvert.SerializeObject(
+	new BBB { 
+		PropertyA = "A", 
+		PropertyB = DateTime.Now 
+	}
+);
+
+---
+
+// single-serialization
+var microsoftDateFormatSettings = new JsonSerializerSettings {
+      	DateFormatHandling = DateFormatHandling.MicrosoftDateFormat
+};
+
+var strJson = JsonConvert.SerializeObject(
+	new BBB { 
+		PropertyA = "A", 
+		PropertyB = DateTime.Now 
+	}, 
+	microsoftDateFormatSettings
+);
+
+---
+
+[DataContract]
+public class BBB {
+    [DataMember(Name = "AA")]
+    [JsonProperty("A")]
+    public string PropertyA { get; set; }
+
+    [DataMember(Name = "BB")]
+    [JsonProperty("B")]
+    public DateTime PropertyB { get; set; }
+}

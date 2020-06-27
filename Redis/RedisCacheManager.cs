@@ -19,11 +19,7 @@ namespace AWSCommon.Redis
                 //this.redisClient = new ServiceStackRedisClient(ConfigurationManager.AppSettings["RedisEndpoint"], Convert.ToInt32(ConfigurationManager.AppSettings["RedisPort"]));
                 this.redisClient = new StackExchangeRedisClient(ConfigurationManager.AppSettings["RedisEndpoint"], Convert.ToInt32(ConfigurationManager.AppSettings["RedisPort"]));
             }
-            catch
-            {
-               // TODO Log
-               // "Can't load redis Client"
-            }
+            catch {}
         }
 
         public bool Set<T>(string key, T value, DateTime? ExpiryDate = null)

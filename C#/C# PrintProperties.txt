@@ -1,0 +1,3 @@
+C# PrintProperties
+------------------
+see 'C# Reflection - Print Object Structure'

@@ -1,0 +1,84 @@
+<!doctype html>
+
+<html>
+    
+<head>
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="angular.treeview.css">
+</head>
+<body>
+    <div ng-app="myApp">
+      <div ng-controller="homeController">        
+          <div data-angular-treeview="true"
+               data-tree-id="abc"
+               data-tree-model="treedata"
+               data-node-id="id"
+               data-node-label="label"
+               data-node-children="children">
+          </div>
+    </div>  
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.8/angular.min.js"></script>
+    <script type="text/javascript" src="angular.treeview.js"></script>    
+</body>
+</html>
+
+<script>
+    // source : https://github.com/eu81273/angular.treeview
+    var app = angular.module('myApp', ['angularTreeview']);
+
+    app.controller('homeController', function ($scope) {
+        $scope.treedata =
+        [
+            {
+                "label": "User",
+                "id": "role1",
+                "children": [
+                    {
+                        "label": "subUser1",
+                        "id": "role11",
+                        "children": []
+                    },
+                    {
+                        "label": "subUser2",
+                        "id": "role12",
+                        "children": [
+                            {
+                                "label": "subUser2-1",
+                                "id": "role121",
+                                "children": [
+                                    {
+                                        "label": "subUser2-1-1",
+                                        "id": "role1211",
+                                        "children": []
+                                    },
+                                    {
+                                        "label": "subUser2-1-2",
+                                        "id": "role1212",
+                                        "children": []
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "label": "Admin",
+                "id": "role2",
+                "children": []
+            },
+            {
+                "label": "Guest",
+                "id": "role3",
+                "children": []
+            }
+        ];
+
+        $scope.$watch('abc.currentNode', function (newObj, oldObj) {
+            if ($scope.abc && angular.isObject($scope.abc.currentNode)) {
+                var selectedNode = $scope.abc.currentNode;
+                alert('Node Selected'); 
+            }
+        }, false);
+    });
+</script>

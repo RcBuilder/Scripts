@@ -1,0 +1,38 @@
+Using
+-----
+GET http://localhost:1166
+
+-
+
+POST http://localhost:1166/SendMessage/{queueKey}
+
+e.g:
+http://localhost:1166/SendMessage/1234
+  
+// can send any json item (JToken)
+{
+	a:1, 
+	b:2, 
+	c:"3"	
+}
+
+-
+
+GET http://localhost:1166/RecieveMessage/{queueKey}/{messageKey}
+  
+e.g:
+http://localhost:1166/RecieveMessage/1234/2eb9c8eb-fc10-45ff-b65f-b1e23ea7b273
+
+-
+
+GET http://localhost:1166/RecieveMessages/{queueKey}/{rowCount}
+ 
+e.g:
+http://localhost:1166/RecieveMessages/1234/20
+
+-
+
+DELETE http://localhost:1166/DeleteMessage/{queueKey}/{messageKey} 
+
+e.g:
+http://localhost:1166/DeleteMessage/1234/2eb9c8eb-fc10-45ff-b65f-b1e23ea7b273

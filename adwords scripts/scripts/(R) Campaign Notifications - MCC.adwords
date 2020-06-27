@@ -27,7 +27,8 @@ function main() {
     if(emailBody == '') return;
     
     Logger.log('send mail to %s', EMAIL);
-    MailApp.sendEmail(EMAIL, 'Notification Script ', '', {
+    MailApp.sendEmail(EMAIL, 'Weekly Notifications', '', {
+      name: 'adwords-script',
       htmlBody: emailBody
     });
   }
@@ -52,10 +53,21 @@ function ProcessAccount(htmlBuilderService){
   while (campaigns.hasNext()) {
     var campaign = campaigns.next();    
     var campaignName = campaign.getName();
-    Logger.log('campaign %s', campaignName);
-    
+
     var statsRange1 = campaign.getStatsFor(range1.split(',')[0], range1.split(',')[1]);
     var statsRange2 = campaign.getStatsFor(range2.split(',')[0], range2.split(',')[1]);
+
+    Logger.log('campaign %s | CPC: %s vs %s | Conversions : %s vs %s | Cost: %s vs %s | CTR: %s vs %s', 
+               campaignName, 
+               statsRange1.getAverageCpc(), 
+               statsRange2.getAverageCpc(),
+               statsRange1.getConversions(),
+               statsRange2.getConversions(),
+               statsRange1.getCost(), 
+               statsRange2.getCost(), 
+               statsRange1.getCtr(),
+               statsRange2.getCtr()
+    );
     
     var ratioCPC = statsRange2.getAverageCpc() == 0 ? 0 : (statsRange1.getAverageCpc() / statsRange2.getAverageCpc());
     var changeRateCPC = ratioCPC < 1 ? -(1 - ratioCPC) : (ratioCPC - 1);
@@ -83,7 +95,7 @@ function ProcessAccount(htmlBuilderService){
     
     var ratioCost = statsRange2.getCost() == 0 ? 0 : (statsRange1.getCost() / statsRange2.getCost());
     var changeRateCost = ratioCost < 1 ? -(1 - ratioCost) : (ratioCost - 1);
-    if(ratioCost != 0 && ratioCost < -0.3) // 30% decline
+    if(ratioCost != 0 && changeRateCost < -0.3) // 30% decline
       notifications.push({
         campaign: campaignName,
         metric: 'Cost', 
@@ -95,7 +107,7 @@ function ProcessAccount(htmlBuilderService){
     
     var ratioCTR = statsRange2.getCtr() == 0 ? 0 : (statsRange1.getCtr() / statsRange2.getCtr());
     var changeRateCTR = ratioCTR < 1 ? -(1 - ratioCTR) : (ratioCTR - 1);
-    if(ratioCTR != 0 && ratioCTR < -0.3) // 30% decline
+    if(ratioCTR != 0 && changeRateCTR < -0.3) // 30% decline
       notifications.push({
         campaign: campaignName,
         metric: 'CTR', 

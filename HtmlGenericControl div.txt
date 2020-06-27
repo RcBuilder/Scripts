@@ -1,0 +1,13 @@
+WebForms HtmlGenericControl Div
+-------------------------------
+
+namespace:
+System.Web.UI.HtmlControls
+
+sample:
+var div = new HtmlGenericControl("div");
+div.Attributes["class"] = "link";
+div.Controls.Add(new HtmlImage{ 
+	Alt = string.Empty, 
+	Src = ... 
+});

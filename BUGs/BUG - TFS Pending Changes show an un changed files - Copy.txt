@@ -1,0 +1,15 @@
+Bug:
+Visual Studio TFS shows unchanged files in the list of pending changes
+
+Issue:
+the TEAM EXPLORER pending changes window shows files with no actual change
+can be caused by a change that canceled and returns to its original state
+
+Solution:
+1. in VS (2012 and up)
+2. FILE -> Source Control -> Advanced -> Workplaces
+3. Edit the workplace 
+4. Advanced -> set Location to be Local (instead of server)
+
+this will create a local copy of the original file and It will then automatically hide 
+unchanged files from pending changes.

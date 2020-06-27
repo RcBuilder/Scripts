@@ -1,0 +1,11 @@
+C# Convert.ChangeType
+---------------------
+Switch between Types
+
+var string2int = Convert.ChangeType("1234", typeof(Int32));  // 1234 
+var int2string = Convert.ChangeType(1234, typeof(String));   // "1234"
+var float2int = Convert.ChangeType(1234.55, typeof(Int32));  // 1235
+
+note:
+also see 'Dynamic Cast (Convert) - by Type' 
+also see 'C# IConvertible Sample'

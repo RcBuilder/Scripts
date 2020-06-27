@@ -1086,6 +1086,9 @@ see 'Authorization.txt'
 		@Fun1("blue")
 	</div>
 
+* global @helper
+  see 'MVC Razor Global Helper'
+
 * route values
   // in the view 
   @Html.ActionLink("my link", "MyAction", new { Id = 2, ParentId = 5 })

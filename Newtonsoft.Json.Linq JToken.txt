@@ -1,0 +1,110 @@
+*** Newtonsoft.Json JToken ***
+******************************
+- raw json content
+- allows us to send ANY json content without defining a strong-type model!
+
+namespaces
+----------
+Newtonsoft.Json;
+Newtonsoft.Json.Linq		// JToken
+
+Using
+-----
+JToken.Parse(string json)	// generate jtoken from json string
+JToken.FromObject(object o) // generate jtoken from an object
+
+JToken.ToString()			// return a json string representation of the current jtoken
+
+e.g:
+var tokenFromString = JToken.Parse("{ a: 1, b: 2 }"); // jtoken: { a: 1, b: 2 }
+var tokenFromObject = JToken.FromObject(new { a = 1, b = 2 }); // jtoken: { a: 1, b: 2 }
+var strJson = tokenFromObject,ToString(); // jtoken: "{ a: 1, b: 2 }"
+
+---
+
+var classA_original = new ClassA { Id = 100, Name = "classA" }; 
+var classA_token = JToken.FromObject(classA_original); // { "id": 100, "name": "classA" }
+var classA_jsonStr = classA_token.ToString(); // "{ \"id\": 100, \"name\": \"classA\" }"
+var classA = JsonConvert.DeserializeObject<ClassA>(classA_jsonStr); 
+
+WebAPI binding
+--------------
+public class DefaultController : ApiController 
+{
+
+    [HttpPost]
+    [Route("SendMessage/{queueKey}")]
+    public string SendMessage(string queueKey, [FromBody]JToken message) // JToken = raw json content
+    {
+		...
+		...
+    }
+}
+
+-
+
+we can send any json as the request body 
+
+POST SendMessage/{queueKey}
+{
+  a:1, 
+  b:2
+}
+
+POST SendMessage/{queueKey}
+{
+  id: 20,
+  name: "user1",
+  age: 34
+}
+
+POST SendMessage/{queueKey}
+{
+  name: "product A",
+  price: 400,
+  currency: "USD",
+  stock: 3400
+}
+
+and so on......
+
+Build A Object From JTokens
+---------------------------
+var jsonTokens = new Dictionary<string, JToken>();
+jsonTokens.Add("a", JToken.FromObject(new { a = 1, b = 2 }));
+jsonTokens.Add("b", 1);
+jsonTokens.Add("c", "some value");
+jsonTokens.Add("d", JToken.FromObject(new ClassA { Id = 100, Name = "classA" }));
+
+Console.WriteLine(JsonConvert.SerializeObject(jsonTokens));
+
+output:
+{
+	"a":{
+		"a":1,
+		"b":2
+	},
+	"b":1,
+	"c":"some value",
+	"d":{
+		"id":100,
+		"name":"classA",
+		"classB":null
+	}
+}
+
+MVC Form Sample
+---------------
+@using (Html.BeginForm("IndexPost", "Home", FormMethod.Post))
+{
+    <input type="hidden" value="{ a: 1, b: 2 }" name="jsonValue" />
+    <input type="submit" value="post" />
+}
+
+[HttpPost]
+public ActionResult IndexPost() {
+
+    var value = Request.Form["jsonValue"];
+    var token = JToken.FromObject(value); // anonymous: { a: 1, b: 2 }
+    return View();
+}

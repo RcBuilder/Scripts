@@ -1,0 +1,69 @@
+DataTable Filters using DataView
+================================
+
+var dt = new DataTable("users");
+dt.Columns.AddRange(new DataColumn[] { 
+    new DataColumn("Id", typeof(System.Int32)),
+    new DataColumn("Name", typeof(System.String)),
+    new DataColumn("City", typeof(System.String))
+});
+
+dt.Rows.Add(1, "Roby", "Netanya");
+dt.Rows.Add(2, "Shirly", "Kfar-Saba");
+dt.Rows.Add(3, "Lior", "Kfar-Saba");
+dt.Rows.Add(4, "Avi", "Netanya");
+dt.Rows.Add(5, "Ronen", "Netanya");
+dt.Rows.Add(6, "Shiran", "Netanya");
+dt.Rows.Add(7, "Rami", "Kfar-Saba");
+dt.Rows.Add(8, "Shimrit", "Hadera");
+dt.Rows.Add(9, "Raanan", "Tel-Aviv");
+dt.Rows.Add(10, "Yaakov", "Tel-Aviv");
+dt.Rows.Add(11, "Haim", "Netanya");
+dt.Rows.Add(12, "Ben", "Tel-Aviv");
+
+var view = new DataView(dt);
+
+/*
+	NOTE! 2 RowFilters in a raw will always refer to the last one, 
+	use AND keyword for multiple conditions   
+*/
+
+view.RowFilter = "City = 'Netanya'"; // 5 rows (Roby, Avi, Ronen, Shiran, Haim)
+///view.RowFilter = "Name like 'A%'"; // 1 rows (Avi)
+///view.RowFilter = "City = 'Netanya' AND Name like 'R%'"; // 2 rows (Roby, Ronen)
+
+foreach (DataRow row in view.ToTable().Rows)
+    Console.WriteLine(row["Name"]);
+
+
+---
+
+private DataTable dataSource { set; get; }
+
+public CustomerUsersDeepExcel(CustomerUsersDeepExcelParams prms){
+    var table = CustomerData.GetCustomerUsers(prms.customerId, prms.from, prms.to, prms.filter, prms.verifyStatus);
+
+    if (table == null)
+        return;
+
+    // deep filters
+    var view = new DataView(table);
+
+    var strWhere = string.Empty;
+    if (!string.IsNullOrEmpty(prms.userId))
+        strWhere = string.Concat(strWhere, strWhere == string.Empty ? "": " AND ", string.Format("USER_ID = '{0}'", prms.userId));
+    if (!string.IsNullOrEmpty(prms.toolId))
+        strWhere = string.Concat(strWhere, strWhere == string.Empty ? "" : " AND ", string.Format("TOOL_ID = '{0}'", prms.toolId));
+    if (!string.IsNullOrEmpty(prms.externalId))
+        strWhere = string.Concat(strWhere, strWhere == string.Empty ? "" : " AND ", string.Format("EXTERNAL_USER_ID = '{0}'", prms.externalId));
+    if (!string.IsNullOrEmpty(prms.name))
+        strWhere = string.Concat(strWhere, strWhere == string.Empty ? "" : " AND ", string.Format("NAME Like '%{0}%'", prms.name));
+    if (!string.IsNullOrEmpty(prms.connectId))
+        strWhere = string.Concat(strWhere, strWhere == string.Empty ? "" : " AND ", string.Format("CONNECT_USER_ID = '{0}'", prms.connectId));
+
+    // set filters
+    if (strWhere != string.Empty)
+        view.RowFilter = strWhere;
+
+    this.dataSource = view.ToTable().AsEnumerable().Skip(prms.pageNum - 1).Take(prms.pageSize).CopyToDataTable();
+}

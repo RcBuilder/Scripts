@@ -1,0 +1,15 @@
+VirtualBox copy-paste and drag-drop
+-----------------------------------
+Settings -> General -> Advanced
+
+Shared Clipboard: 
+- Disabled
+- Host To Guest 
+- Guest To Host
+- BiDirectional
+
+Drag'n Drop:
+- Disabled
+- Host To Guest 
+- Guest To Host
+- BiDirectional

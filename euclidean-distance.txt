@@ -1,0 +1,33 @@
+euclidean-distance
+------------------
+graphA = [...N]
+graphB = [...N]
+
+Formula: 
+SquareRoot(
+	(graphA[0] - graphB[0])^2 + (graphA[1] - graphB[1])^2 + ... (graphA[N] - graphB[N])^2
+)
+
+note:
+can use N dimensional array!  
+
+calculation
+-----------
+a = [2, 2];
+b = [5, 4];
+
+(a -> b) 
+= SquareRoot((2 - 5)^2 + (2 - 4)^2)
+= SquareRoot(9 + 4)
+= SquareRoot(13)
+= 3.6
+
+using
+-----
+const distance = require('euclidean-distance'); // npm install --save euclidean-distance
+
+let graphA = [2, 2];
+let graphB = [5, 4];
+let graphC = [3, 5];
+console.log(`distance A -> B:  ${distance(graphA, graphB)}`);  // 3.60
+console.log(`distance A -> C:  ${distance(graphA, graphC)}`);  // 3.16

@@ -1,0 +1,25 @@
+Bug:
+Error 0x80070020 when you try to start a Web site in IIS 7.0
+
+Error:
+Internet Information Services (IIS) Manager
+The process cannot access the file because it is being used by another process.
+(Exception from HRESULT: 0x80070020)
+
+Cause:
+TCP port 80 and/or 443 is grabbed by a different service.
+
+Solution:
+* find out which process using those ports 
+  (cmd) netstat -aon | find ":80" 
+  (cmd) netstat -aon | find ":443"
+
+* find the PID from the presented list
+  // processId 4 listen on port 80
+  TCP    0.0.0.0:80             0.0.0.0:0              LISTENING       4
+  TCP    192.168.2.63:52034     192.118.82.226:80      ESTABLISHED     8228
+  TCP    192.168.2.63:52035     192.118.82.226:80      ESTABLISHED     8228
+
+* find the service using the PID  
+  open processHacker -> serach -> PID 
+

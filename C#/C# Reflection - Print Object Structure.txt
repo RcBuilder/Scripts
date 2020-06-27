@@ -1,0 +1,44 @@
+C# Reflection - Print Object Structure
+--------------------------------------
+
+using:
+PrintProperties(typeof(ObjToPrint_L0));
+
+output:
+ P100
+ P200
+ Lvl1
+- Id1
+- Lvl1
+-- Id2
+ DT
+
+--
+
+void PrintProperties(Type obj, int level = 0) {
+    var props = obj.GetProperties();
+    foreach (var p in props)
+    {
+        Console.WriteLine($"{new String('-', level)} {p.Name}");
+        if (!(p.PropertyType.IsValueType || p.PropertyType == typeof(string)))
+            PrintProperties(p.PropertyType, level + 1);
+    }
+}
+
+--
+
+class ObjToPrint_L0 {
+    public string P100 => "V100";
+    public int P200 => 200;
+    public ObjToPrint_L1 Lvl1 { set; get; }
+    public DateTime DT => DateTime.Now;
+}
+
+class ObjToPrint_L1 {
+    public int Id1 { set; get; }
+    public ObjToPrint_L2 Lvl1 { set; get; }
+}
+
+class ObjToPrint_L2 {
+    public int Id2 { set; get; }
+}

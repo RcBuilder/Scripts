@@ -1,0 +1,8 @@
+DataTable AsEnumerable - paging example
+---------------------------------------
+
+var dt = ....  // DataTable
+var view = new DataView(dt);
+view.RowFilter = "City = 'Netanya'"; 
+
+var dtFiltered = view.ToTable().AsEnumerable().Skip(prms.pageNum - 1).Take(prms.pageSize).CopyToDataTable();

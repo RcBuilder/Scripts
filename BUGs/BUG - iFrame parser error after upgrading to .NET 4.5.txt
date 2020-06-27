@@ -1,0 +1,26 @@
+Bug:
+iFrame parser error after upgrading to .NET 4.5
+
+Error:
+The base class includes the field 'frameName', but its type (System.Web.UI.HtmlControls.HtmlIframe) is not compatible with the type of control (System.Web.UI.HtmlControls.HtmlGenericControl)
+
+Reference:
+http://stackoverflow.com/questions/17809446/iframe-parser-error-after-upgrading-to-net-4-5
+
+Cause:
+the targetFramework on the web.config defined as 4.0 instead of 4.5
+<compilation targetFramework="4.0"/>
+
+Solution:
+change the targetFramework to the correct version (4.5 etc.)
+<compilation targetFramework="4.5"/>
+
+
+
+
+
+
+
+
+
+ 

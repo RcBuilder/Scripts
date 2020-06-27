@@ -1,0 +1,21 @@
+public interface IDBProxy
+{
+    string GetId();
+}
+
+public class DBProxy : IDBProxy{
+	public string GetId(){
+		....
+	}
+}
+
+public class MyClass{
+	public IDBProxy dbProxy;
+	public MyClass(IDBProxy dbProxy){
+		this.dbProxy = dbProxy;
+	}
+}
+
+unitests:
+var mockIDBProxy = new Mock<IDBProxy>();
+var a = new MyClass(mockIDBProxy);

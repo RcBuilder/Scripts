@@ -1,0 +1,30 @@
+using Newtonsoft.Json; 
+
+[Serializable]
+public class ClassA {
+    [JsonProperty("id")]
+    public int Id { get; set; }
+    [JsonProperty("name")]
+    public string Name { get; set; }
+
+    public ClassB classB { get; set; }
+}
+
+[Serializable]
+public class ClassB {
+    [JsonProperty("name")]
+    public string Name { get; set; }
+}
+
+
+----------------------------
+
+var strJson = JsonConvert.SerializeObject(new ClassA { 
+	Id = 1, 
+	Name = "AAA", 
+	classB = new ClassB {
+		Name = "BBB" 
+	} 
+});
+
+var a = JsonConvert.DeserializeObject(strJson, typeof(ClassA));

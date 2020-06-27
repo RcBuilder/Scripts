@@ -1,0 +1,25 @@
+XmlSerializer - Serialize as xml string
+---------------------------------------
+
+public class SomeClass
+{
+    [JsonProperty("id")]
+    public int Id { get; set; }
+    [JsonProperty("name")]
+    public string Name { get; set; }
+}
+
+---
+
+var ser = new XmlSerializer(typeof(SomeClass));
+var sb = new StringBuilder();
+using (var writer = new StringWriter(sb))
+{                
+    ser.Serialize(writer, new SomeClass { 
+		Id = 1, 
+		Name = "AAA" 
+	});
+
+    var strXML = sb.ToString();
+    Console.WriteLine(strXML);
+}

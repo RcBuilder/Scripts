@@ -1,0 +1,24 @@
+Bug:
+Newtonsoft.Json assembly versions conflict
+
+Error:
+Assembly 'XXX' uses 'Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed' which has a higher version than referenced assembly 'Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed'
+
+
+Cause:
+there's a newer version of Newtonsoft.Json dll in one of the depenencies projects
+
+Solution:
+update the Newtonsoft.Json versions to be alike
+
+important!
+use nuget console, DO NOT do it manually  
+
+e.g:
+
+// install a specific version 
+Install-Package Newtonsoft.Json -Version 9.0.1
+Install-Package Newtonsoft.Json -Version 8.0.3
+
+// uninstall a specific version 
+UnInstall-Package Newtonsoft.Json -Version 8.0.3

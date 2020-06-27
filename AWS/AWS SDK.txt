@@ -1,0 +1,140 @@
+AWS SDK
+-------
+documentation: 
+http://docs.aws.amazon.com/sdkfornet/v3/apidocs/Index.html
+
+MSI (including .Net AWS Explorer):
+AWSToolsAndSDKForNet_sdk-3.1.65.0_ps-3.1.65.0_tk-1.9.6.19.msi
+
+Nuget:
+- Install-Package AWSSDK
+
+can install specific services 
+- Install-Package AWSSDK.Core
+- Install-Package AWSSDK.S3
+- Install-Package AWSSDK.SQS
+etc. (see 'https://www.nuget.org/packages?q=Tags%3A%22aws-sdk-v3%22')
+
+
+API Credentials
+---------------
+get user key and secret:
+- IAM console (https://console.aws.amazon.com/iam/home?#home)
+- users -> choose user
+- Security Credentials 
+
+
+APP Configuration
+-----------------
+init options:
+1. inline
+   
+   e.g:
+   var client = new AmazonEC2Client("key", "secret", RegionEndpoint.USWest2);
+
+2. using config key and secret
+
+   e.g:
+   <appSettings>
+	  <add key="AWSAccessKey" value="key"/>
+	  <add key="AWSSecretKey" value="secret"/>
+	  <add key="AWSRegion" value="eu-west-2" />
+	</appSettings>
+
+	var client = new AmazonEC2Client(); // load from config
+
+3. using profile file
+
+   e.g:
+   <appSettings>
+    <add key="AWSProfileName" value="development"/>
+    <add key="AWSProfilesLocation" value="C:\aws_service_credentials\credentials"/>
+  </appSettings>
+
+  // credentials file (note! no extension!!)
+  [development]
+  aws_access_key_id=key
+  aws_secret_access_key=secret
+
+  var client = new AmazonEC2Client(); // load from config
+
+create an Instance:
+var client = new Amazon[Service]Client();
+var client = new Amazon[Service]Client(config);
+
+e.g:
+var client = new AmazonEC2Client();
+var client = new AmazonIdentityManagementServiceClient();
+var client = new AmazonElastiCacheClient();
+
+create an Instance using factory:
+var client = AWSClientFactory.CreateAmazon[Service]Client(); 
+
+e.g:
+var client = new AmazonEC2Client();
+var client = AWSClientFactory.CreateAmazonIdentityManagementServiceClient();
+var client = AWSClientFactory.CreateAmazonElastiCacheClient();
+
+
+IdentityManagementService (IAM)
+-------------------------------
+
+// e.g: print all users in a specific group
+var client = AWSClientFactory.CreateAmazonIdentityManagementServiceClient();
+var request = new GetGroupRequest("Admin");
+var response = client.GetGroup(request);
+Console.WriteLine("### {0} ###", response.Group.GroupName);
+
+foreach (var user in response.Users)
+    Console.WriteLine(user.UserName);
+
+
+AWS ElastiCache
+---------------
+note! 
+need to use a client utility in order to store and get items to and from the cluster via the app
+
+-
+
+access:
+- if the EC2 Instance is EC2-VPC the ElastiCache will be accessable only from within the VPC 
+- if the EC2 Instance is EC2-Classic and shared as public the ElastiCache will be accessable from anywhere 
+
+note! 
+we have to open the suitable ports in the security group 
+
+-
+
+Define a cache service:
+* open AWS console
+* choose 'ElastiCache' service
+* (menu item) Cache Clusters -> Launch cache cluster
+* choose 'Redis' engine -> next 
+  note! can also choose 'Memcached' engine
+* enable the 'Enable Replication' option and set a cluster name 
+* choose cache.t2.micro as the nodeType (free) -> next
+* set the security group (have to be accessable)
+
+-
+
+cluster endpoints:
+* open AWS console
+* choose 'ElastiCache' service
+* (menu item) Cache Clusters
+* Memcached: 
+  get the enpoint from the presented cluster list
+* Redis:
+  click on nodes -> and get the endpoint from the node level
+
+---
+
+Example:
+// get the clusters list
+var client_Cache = AWSClientFactory.CreateAmazonElastiCacheClient();
+var request = new DescribeCacheClustersRequest();
+var response = client_Cache.DescribeCacheClusters(request);
+
+Console.WriteLine("### Clusters ###");
+foreach (var cluster in response.CacheClusters)
+    Console.WriteLine("#{0} {1} (engine)", cluster.CacheClusterId, cluster.Engine);
+

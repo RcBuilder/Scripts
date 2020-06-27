@@ -34,6 +34,7 @@ function main() {
     
     Logger.log('send mail to %s', EMAIL);
     MailApp.sendEmail(EMAIL, 'No Impressions Notifier ', '', {
+      name: 'adwords-script',
       htmlBody: emailBody
     });
   }

@@ -1,0 +1,34 @@
+HTML Enter key handling
+-----------------------
+onEnter custom attribute:
+onEnter="[button Id]" // set the id of the button to trigger
+
+---
+
+<script>
+    $('body').bind('keypress', function (e) {
+        if (e.keyCode == 13) 
+            return false;
+    });
+
+    $('[onEnter]').bind('keydown', function (e) {
+        if (e.keyCode != 13) return;
+        e.stopPropagation();
+
+        var relatedButton = $(this).attr('onEnter');
+        $('#' + relatedButton).trigger('click');
+    });
+</script>
+
+
+---
+
+<p>
+	<asp:TextBox ID="txtGetItemsKeys" runat="server" onEnter="btnGetItems" />
+	<asp:Button ID="btnGetItems" runat="server" onclick="btnGetItems_Click" Text="Get" />
+</p>
+
+<p>
+	<asp:TextBox ID="txtDeleteKey" runat="server" onEnter="btnDelete" />
+	<asp:Button ID="btnDelete" runat="server" onclick="btnDelete_Click" Text="Delete" OnClientClick="return confirm('are you sure?');" />
+</p>

@@ -1,0 +1,6 @@
+notepad++ plugins - json viewer and xml Tools
+---------------------------------------------
+
+1.open notePad++ 
+2.menu -> plugins -> plugins manager
+3.enabled the JsonViewer and XMLTools plugins

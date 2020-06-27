@@ -1,0 +1,83 @@
+OAUTH SIGNATURE
+===============
+
+steps:
+------
+1. create a parameters list from the body Parameters + the OAuth Parameters
+2. order the parameters list (key, value) by the key name 
+3. create a baseString by concatenating the following data:   
+   (httpMethod&uri&parameters)
+   - http Method (POST, GET etc.)
+   - URL 
+   - parameters list
+4. perform a urlEncode on the baseString
+5. encode the baseString using the requested signature method - oauth_signature_method param (usually HMAC-SHA1)
+   note: use the customer sharedSecret unique key 
+6. compare the signature with the signature from the request
+
+example:
+--------
+1. parameters list:
+   [ 
+	{ p1: "1" }, 
+	{ p2: "2" }, 
+	{ p3: "3" }, 
+	{ oauth_version: "1.0" }, 
+	{ oauth_consumer_key: "key1234" }, 
+	{ oauth_signature_method: "HMAC-SHA1"},
+	{ oauth_token: "" },
+	{ oauth_timestamp: "1471777333" },
+ 	{ oauth_nonce: "NjM2MDczNTk3MzI5MTk5MzU4" }
+   ]
+
+2. order the list:
+   [ 
+	{ oauth_consumer_key: "key1234" },
+	{ oauth_nonce: "NjM2MDczNTk3MzI5MTk5MzU4" }
+	{ oauth_signature_method: "HMAC-SHA1"},
+	{ oauth_timestamp: "1471777333" },
+	{ oauth_token: "" },	
+	{ oauth_version: "1.0" },  
+	{ p1: "1" }, 
+	{ p2: "2" }, 
+	{ p3: "3" }, 
+   ]
+
+3. baseString:
+   POST&http://localhost/Handler.ashx&oauth_consumer_key=key1234&oauth_nonce=NjM2MDczNTk3MzI5MTk5MzU4&oauth_signature_method=HMAC-SHA1&oauth_timestamp=1471777333&oauth_token=&oauth_version=1.0&p1=1&p2=2&p3=3
+
+4. baseString after url encode:
+   POST%26http%3A%2F%2Flocalhost%2FHandler.ashx%26oauth_consumer_key%3Dkey1234%26oauth_nonce%3DNjM2MDczNTk3MzI5MTk5MzU4%26oauth_signature_method%3DHMAC-%20%20%20SHA1%26oauth_timestamp%3D1471777333%26oauth_token%3D   %26oauth_version%3D1.0%26p1%3D1%26p2%3D2%26p3%3D3
+
+5. hash the baseString using the supplied signature method and based on the unique secret 
+   var sha1 = new HMACSHA1();
+   sha1.Key = "A123B123"; // sharedSecret
+   var signature = ComputeHash(sha1, baseString);
+
+6. compare the signatures
+   if(signature == oauth_signature) ..
+
+extra:
+------
+* generate a nonce:
+  note: random hash
+
+  // e.g - using javascript
+  Math.floor(Math.random() * 1e9) 
+
+  // e.g - using c# 
+  new ASCIIEncoding().GetBytes(DateTime.Now.Ticks.ToString()); 
+
+* generate a timestamp:
+  note: random number 
+
+  // e.g - using javascript
+  Math.floor((new Date).getTime() / 1e3) 
+
+  // e.g - using c# 
+  TimeSpan ts = DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+
+using:
+------
+see 'launch with oauth using angular'
+see 'OAuthManager.cs'

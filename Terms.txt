@@ -59,6 +59,8 @@
 * TCP = transmission control protocol
 * SSH = Secure SHell
 
+* OOP = Object Oriented Programming
+* OOD = Object Oriented Design
 * IoC = Inversion of Control
 * DIP = Dependency Inversion Principle
 * DI =  Dependency Injection

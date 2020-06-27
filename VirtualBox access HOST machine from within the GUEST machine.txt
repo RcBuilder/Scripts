@@ -1,0 +1,7 @@
+VirtualBox 
+access HOST machine from within the GUEST machine
+
+Guest:
+1. cmd -> ipconfig 
+2. get the default gateway (usually 10.0.2.2)
+3. use this internal ip to reach the HOST machine

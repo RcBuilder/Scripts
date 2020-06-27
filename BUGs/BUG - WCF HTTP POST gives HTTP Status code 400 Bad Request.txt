@@ -1,0 +1,26 @@
+Bug:
+WCF HTTP POST gives HTTP Status code 400 : Bad Request (fiddler)
+
+Error:
+when using fiddler to perform a POST request to a WCF service with body (json)
+we got an 400 bad request response 
+
+note!
+works with no body  
+
+Solution:
+add Content-Type http header and set it as application/json
+ 
+e.g:
+
+POST http://localhost/myService  // OK (no-body)
+
+POST http://localhost/myService // ERROR
+body: { "Id": "1234"}
+
+POST http://localhost/myService // OK
+Content-Type: application/json
+body: { "Id": "1234"}
+
+
+

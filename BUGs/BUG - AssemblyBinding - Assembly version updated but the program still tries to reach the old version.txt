@@ -1,0 +1,29 @@
+Bug:
+Assembly version updated but the program still tries to reach the old version!
+
+Error:
+Assembly 'XXX' uses 'YYY, Version=X.X.X.X, Culture=neutral, PublicKeyToken=' which has a higher version than referenced assembly 'YYY, Version=Y.Y.Y.Y, Culture=neutral, PublicKeyToken='
+
+Cause:
+from some unknown reason (myybe cache of some sort), the program thinks that it still refer to the previous version of the dll 
+
+Solution:
+set an assembly binding redirect via the web.config
+
+location:
+runtime/assemblyBinding
+
+tag:
+dependentAssembly
+
+e.g:
+<runtime>
+   <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
+
+      <dependentAssembly>
+        <assemblyIdentity name="Newtonsoft.Json" publicKeyToken="30ad4fe6b2a6aeed" culture="neutral" />
+        <bindingRedirect oldVersion="0.0.0.0-10.0.0.0" newVersion="9.0.0.0" />
+      </dependentAssembly>       
+
+   </assemblyBinding>
+</runtime>

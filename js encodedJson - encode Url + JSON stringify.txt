@@ -1,0 +1,13 @@
+js encodedJson
+--------------
+
+encode url:
+encodeURIComponent(<string>);
+
+json 2 string:
+JSON.stringify(<object>);
+
+using:
+function encodedJson(obj){
+   return encodeURIComponent(JSON.stringify(obj));		
+}

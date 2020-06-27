@@ -27,6 +27,15 @@ mongodb is a document-based database
   see 'NodeJS\npm mongodb'
   see 'NodeJS\Sources\MongoDB'
 
+* export:
+  use the cli mongoexport command to export data as json
+
+  // source
+  https://docs.mongodb.com/manual/reference/program/mongoexport/
+
+  // sample
+  > mongoexport -d testDB -c items -o out.json --jsonArray
+
 * sources:
   https://www.mongodb.com/
   https://flaviocopes.com/node-mongodb/

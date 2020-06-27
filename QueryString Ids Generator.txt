@@ -1,0 +1,28 @@
+QueryString Ids Generator
+-------------------------
+
+static readonly string REPORT_FOLDER = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "\\");
+static Random rndGenerator = new Random();
+
+static void Main(string[] args)
+{
+    Console.WriteLine("*** QUERYSTRING IDS GENERATOR ***");
+
+    Console.Write("choose the Ids Quantity: ");
+    var idsQuantity = Convert.ToInt32(Console.ReadLine());
+    Console.WriteLine("Generating {0} Ids...", idsQuantity);
+
+    var paramsList = new List<string>();
+    Enumerable.Range(1, idsQuantity).ToList().AsParallel().ForAll((i) => {
+        lock(paramsList){
+            paramsList.Add(string.Format("p{0}={1}", i, rndGenerator.Next(100000))); 
+        }
+    });
+
+    var reportFile = string.Concat(REPORT_FOLDER, DateTime.Now.ToString("yyyyMMddHHmmss"), ".txt");
+    Console.WriteLine("report file: {0}", reportFile);
+    File.WriteAllText(reportFile, string.Join("&", paramsList));
+    Console.WriteLine("Done!");
+
+    Console.ReadKey();
+}

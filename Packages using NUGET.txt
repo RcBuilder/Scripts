@@ -1,0 +1,15 @@
+NUGET
+-----
+install:
+Install-Package [packageName]
+
+remove:
+Uninstall-Package [packageName]
+
+update:
+Update-Package [packageName]
+
+-------------------------
+
+install to a specific project:
+Install-Package [packageName] -Project [projectName]

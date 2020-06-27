@@ -1,0 +1,25 @@
+Serialization Parent & Child Question
+-------------------------------------
+
+public class Parent {
+    [JsonProperty("@id")]
+    public int Id { set; get; }
+}
+
+public class Child : Parent {
+    [JsonProperty("name")]
+    public string Name { set; get; }
+}
+
+// Parent reference
+Parent c = new Child() { 
+	Id = 1, 
+	Name = "abcd" 
+};
+Console.WriteLine(JsonConvert.SerializeObject(c));            
+
+result:
+{ @id: 1, name:"abcd" }
+
+reason:
+serializers use reflaction on the actual Type in runtime

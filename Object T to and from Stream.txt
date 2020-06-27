@@ -1,40 +1,42 @@
 Object T to and from Stream
 ===========================
 
-static Stream Object2Stream<T>(T obj) {
-     var stream = new MemoryStream();
-     var formatter = new BinaryFormatter();
-     formatter.Serialize(stream, obj);
-     return stream;
-}
-
-static T Stream2Object<T>(Stream stream) {
-     stream.Position = 0;
-
-     var formatter = new BinaryFormatter();
-     var obj = (T)formatter.Deserialize(stream);
-     return obj;
-}
-
-----
-
-[Serializable]
-public class ClassA {
-     public int P1 { get; set; }
-     public string P2 { get; set; }
-     public float P3 { get; set; }
-}
-
 var cA = new ClassA { P1 = 1, P2 = "2", P3 = 3.0F };
 
 var stream = Object2Stream(cA);
 var copy = Stream2Object<ClassA>(stream);
 stream.Dispose();
 
-Console.WriteLine(copy == cA);
-Console.WriteLine(copy.P1 + " " + copy.P2 + " " + copy.P3);
+Console.WriteLine(copy == cA);  // false
+Console.WriteLine(copy.P1 + " " + copy.P2 + " " + copy.P3);  // 1 2 3
 
-----
+---
+
+[Serializable]
+public class ClassA {
+    public int P1 { get; set; }
+    public string P2 { get; set; }
+    public float P3 { get; set; }
+}
+
+---
+
+static Stream Object2Stream<T>(T obj) {
+    var stream = new MemoryStream();
+    var formatter = new BinaryFormatter();
+    formatter.Serialize(stream, obj);
+    return stream;
+}
+
+static T Stream2Object<T>(Stream stream) {
+    stream.Position = 0;
+
+    var formatter = new BinaryFormatter();
+    var obj = (T)formatter.Deserialize(stream);
+    return obj;
+}
+
+---
 
 /* 
 using (var stream = new MemoryStream()) {

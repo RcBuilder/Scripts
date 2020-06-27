@@ -1,0 +1,23 @@
+RouteTable
+==========
+
+ServiceRoute
+------------
+structure:
+RouteTable.Routes.Add(new ServiceRoute([Name], [Factory], [Type]));
+
+e.g:
+RouteTable.Routes.Add(new ServiceRoute("swagger", new WebServiceHostFactory(), typeof(SwaggerWcfEndpoint)));
+RouteTable.Routes.Add(new ServiceRoute("v1/Rest", webSecuredServiceHost, typeof(Rest)));
+
+UrlRoute
+--------
+structure:
+RouteTable.Routes.Add(new Route([Name], [Handler]));
+
+handlers:
+PermanentRedirectRouteHandler // const url redirection
+
+e.g:
+RouteTable.Routes.Add("DILTID2L", new Route("SSO/DI/D2L/LTI/{tool}", new PermanentRedirectRouteHandler("/sso/di/D2l/Widget.aspx")));
+RouteTable.Routes.Add("AICC", new Route("sso/aicc", new PermanentRedirectRouteHandler("/sso/aicc.aspx")));

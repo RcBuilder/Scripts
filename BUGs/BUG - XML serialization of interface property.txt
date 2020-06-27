@@ -1,0 +1,41 @@
+Bug:
+XML serialization of interface property
+
+Error:
+Cannot serialize member Example.Model of type Example because it is an interface
+
+Reason:
+xml serializer can't serialize an interface members 
+
+Solution:
+decorate the interface members with [XmlIgnore] attribute
+
+exception:
+
+// when no [XmlIgnore] defined!
+var ser = new XmlSerializer(typeof(ClassWithInterface)); // exception!!
+...
+...
+ 
+e.g:
+public interface ISomething {
+    void fun1();
+}
+
+public class ClassWithInterface
+{
+    public int Id { get; set; }     
+    public string Name { get; set; }
+
+    [XmlIgnore]
+    public ISomething something { get; set; }
+}
+
+var ser = new XmlSerializer(typeof(ClassWithInterface)); 
+var sb = new StringBuilder();
+using (var writer = new StringWriter(sb))
+{                
+    ser.Serialize(writer, new ClassWithInterface { Id = 1, Name = "AAA" });
+    var strXML = sb.ToString();
+    Console.WriteLine(strXML);
+}

@@ -1,0 +1,56 @@
+Bug:
+WCF DateTime property serialization issue 
+
+Error:
+return 504 status code when make a wcf webGet call which returns an object with DateTime property 
+it seems as the wcf mechanism don't know how to serialize DateTime into json and the response is marked as partial
+
+Solution:
+make the DateTime property as nullable (DateTime?)
+
+e.g:
+[ServiceContract]
+public interface IBlackboardService{    
+        [OperationContract]
+        [WebGet(UriTemplate = "/GetGrades", RequestFormat = WebMessageFormat.Json, ResponseFormat = WebMessageFormat.Json)]
+        IEnumerable<BlackboardGrade> GetGrades();   
+}
+
+[AspNetCompatibilityRequirements(RequirementsMode = AspNetCompatibilityRequirementsMode.Allowed)]
+    [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerCall, ConcurrencyMode = ConcurrencyMode.Single)]
+    public class BlackboardService : IBlackboardService
+    {
+        private IBlackboardServiceBLL blackboardServiceBLL { set; get; }
+
+        public BlackboardService() : this(new BlackboardServiceBLL()) { }
+        public BlackboardService(IBlackboardServiceBLL blackboardServiceBLL)
+        {
+            this.blackboardServiceBLL = blackboardServiceBLL;
+        }
+
+        public IEnumerable<BlackboardGrade> GetGrades()
+        {
+            return new BlackboardGrade[] { 
+                new BlackboardGrade{ Id = "111", Score = 40 },
+                new BlackboardGrade{ Id = "222", Score = 60 },
+                new BlackboardGrade{ Id = "333", Score = 99 },
+                new BlackboardGrade{ Id = "444", Score = 95 },
+                new BlackboardGrade{ Id = "555", Score = 77 },
+                new BlackboardGrade{ Id = "666", Score = 69 }
+            }.ToList();
+        }
+    }
+
+
+public class BlackboardGrade
+    {
+        public string Id { set; get; }
+        public string Type { set; get; }
+        public string UserId { set; get; }
+        public float Score { set; get; }
+        public DateTime? AttemptDate { set; get; }
+        public string Status { set; get; }
+        public string InstructorComments { set; get; }
+        public bool Exempted { set; get; }
+        public int Duration { set; get; }
+    }

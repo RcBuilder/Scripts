@@ -1,0 +1,53 @@
+Bug:
+HttpUtility.UrlEncode lowercase issue
+
+Error:
+the UrlEncode method make ALL escaped characters as lowercase instead of upper. 
+when using an OAuth signature which depands on an encoded baseString, it usually breaks the OAuth signature equality due to the lower/upper case which supply a different signature.
+
+Example:
+POST&http://mydomain.com&p1=A&p2=B
+
+// lower 
+baseString: POST&http%3a%2f%2fmydomain.com&p1%3dA%26p2%3dB -> hash: 0c813b4073a32e3e710876fa44ed900eeec4365b
+
+// upper
+baseString: POST&http%3A%2F%2Fmydomain.com&p1%3DA%26p2%3DB -> hash: d9fc9d00ae05b28e16aebc96e083d2638f3affa3
+
+note! 
+using HMAC-SHA1 with same secretKey generates 2 different hash codes!!!
+
+Cause:
+the default case for the .Net HttpUtility is LOWERCASE!
+
+Solution:
+1. UPPERCASE the escaped characters using regEx:
+   var reg = new Regex(@"%[a-f0-9]{2}");
+   var upper = reg.Replace(lower, m => m.Value.ToUpperInvariant());
+
+2. UPPERCASE the escaped characters using a custom method:
+   public static string UpperCaseUrlEncode(string s)
+   {
+     char[] temp = HttpUtility.UrlEncode(s).ToCharArray();
+     for (int i = 0; i < temp.Length - 2; i++)
+     {
+       if (temp[i] == '%')
+       {
+         temp[i + 1] = char.ToUpper(temp[i + 1]);
+         temp[i + 2] = char.ToUpper(temp[i + 2]);
+       }
+     } 
+     return new string(temp);
+    }
+3. use WebUtility instead of HttpUtility 
+   same encoding but in uppercase 
+
+   var baseString = "http://mydomain.com&p1=A&p2=B";
+
+   // lowercase escaped characters  
+   // http%3a%2f%2fmydomain.com&p1%3dA%26p2%3dB
+   Console.WriteLine(HttpUtility.UrlEncode(baseString));
+
+   // uppercase escaped characters 
+   // POST&http%3A%2F%2Fmydomain.com&p1%3DA%26p2%3DB
+   Console.WriteLine(WebUtility.UrlEncode(baseString));

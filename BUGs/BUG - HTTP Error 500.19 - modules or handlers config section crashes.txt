@@ -1,0 +1,32 @@
+Bug:
+error while trying to point the IIS on a local project
+web.config Modules or Handlers section crashes
+
+note!
+occurs for every file is the project - even .txt
+
+Error:
+HTTP Error 500.19 - Internal Server Error
+the error message refer to the 'Modules' or 'Handlers' sections
+
+Reproduce:
+open IIS - create new application - point to some .net website 
+
+Cause:
+Modules and Handlers sections are locked by parent config
+
+Solution:
+- go to parent website (may be Default Web Site) 
+- Configuration Editor
+- choose the section from the top 'section' drop down
+- click on 'unlock session' at the right pane
+
+
+
+
+
+
+
+
+
+ 

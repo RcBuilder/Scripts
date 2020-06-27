@@ -1,0 +1,22 @@
+Bug:
+the HTTP POST postData variables are null (fiddler)
+
+Error:
+when using fiddler to perform a POST request with body (variables)
+all the variables are null when trying to fetch them via Request.Form[".."]
+
+Solution:
+add Content-Type http header and set it as application/x-www-form-urlencoded
+ 
+e.g:
+
+POST http://localhost/myPage  // null variables
+body: txt1=AAA&txt2=BBB
+
+POST http://localhost/myPage  // OK
+Content-Type: application/x-www-form-urlencoded 
+body: txt1=AAA&txt2=BBB
+
+// myPage
+var txt1 = Request.Form["txt1"]; // AAA
+var txt2 = Request.Form["txt2"]; // BBB

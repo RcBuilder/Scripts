@@ -1,0 +1,60 @@
+Newtonsoft JsonIgnore - non-serialized properties
+-------------------------------------------------
+
+[JsonIgnore] // non serialized property
+
+---
+
+namespace:
+using Newtonsoft.Json;
+
+---
+
+sample:
+public class SomeClass {
+    [JsonProperty]
+    public string P1 { set; get; }
+
+    [JsonProperty(PropertyName = "CustomName")]
+    public string P2  { set; get; }    
+
+    [JsonIgnore]
+    public string P3  { set; get; }    
+}
+
+var res = JsonConvert.SerializeObject(new SomeClass {
+	P1 = "V1",
+	P2 = "V2",
+	P3 = "V3"
+});
+Console.WriteLine(res);  // {"P1":"V1","CustomName":"V2"}
+
+---
+
+sample:
+public enum eGradeStatus { NULL, FAILURE, SUCCESS, UNCONFIRMED }
+public class GradeStatus {
+    [JsonProperty]
+    public string GradeRedisKey { set; get; }
+
+    [JsonProperty(PropertyName = "Status")]
+    public string __Status
+    {
+        set
+        {
+            try
+            {
+                this.Status = (eGradeStatus)Enum.Parse(typeof(eGradeStatus), value, true);
+            }
+            catch
+            {
+                this.Status = default(eGradeStatus);
+            }
+        }
+        get { return this.Status.ToString(); }
+    }
+
+    [JsonIgnore]
+    public eGradeStatus Status{ set; get; }
+}
+

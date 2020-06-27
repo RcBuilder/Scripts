@@ -1,0 +1,36 @@
+*** .Net debugger attributes ***
+********************************
+
+DebuggerDisplay // display content on hover
+DebuggerStepThrough // disable the F11 stepInto action
+DebuggerHidden // very similar to the DebuggerStepThrough attribute 
+
+---
+
+[DebuggerDisplay("my name is {Name}")]
+class Foo3 {        
+    public string Name = "Foo3 Name";
+
+    [DebuggerStepThrough]
+    public void DoSomthing() 
+    {
+        Console.WriteLine("calculating ...");    
+    }
+        
+    public void DoSomthingElse()
+    {
+        Console.WriteLine("processing ...");    
+    }
+
+    [DebuggerHidden] 
+    public void CountSomething() {            
+        Console.WriteLine("counting ...");    
+    }
+}
+
+---------------
+
+var foo = new Foo3();
+foo.DoSomthing();
+foo.DoSomthingElse();
+foo.CountSomething();

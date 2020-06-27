@@ -1,0 +1,47 @@
+POSTBACK refresh issue
+
+* Solution1
+  transfer the request from POST to GET using the Redirect clause 
+
+* Solution2
+  set shared unique key to an hidden field and a session (for each response)
+  and check for equalization 
+
+  note! similar to the CSRF MVC mechanism
+
+  implementation:
+  <asp:Button ID="btnClick" runat="server" OnClick="ClickMe" Text="ClickMe"/>
+  <input type="hidden" id="hdnRequestKey" runat="server" value="" />
+
+  protected void Page_Load(object sender, EventArgs e) {
+	if (IsPostBack) return;
+	Session["key"] = hdnRequestKey.Value = string.Empty;
+  }
+
+  protected override void OnPreRender(EventArgs e) {
+	Session["RequestKey"] = hdnRequestKey.Value = Guid.NewGuid().ToString();
+	base.OnPreRender(e);
+  }
+
+  protected void ClickMe(object sender, EventArgs e) {
+     if (Session["key"].ToString() != hdnRequestKey.Value) 
+	return;
+
+     // code here ...
+  }
+
+  important! 
+  when we do Refresh (F5) on a POSTBACK page, we actually send the previous request 
+  and NOT the current FORM, therefore, the hidden field value will not be matched to the session value
+
+  tip: 
+  if we'll look at the hidden value presented in the view source we'll be noticed that the existing value 
+  is NOT the one that sends on refresh but the previous value! 
+
+ 
+
+  
+
+  
+
+  

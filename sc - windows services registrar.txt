@@ -1,0 +1,28 @@
+Sc utility
+==========
+
+about
+-----
+windows built-in utility for services registration
+file: sc.exe
+
+source
+------
+https://technet.microsoft.com/en-us/library/cc754599(v=ws.11).aspx
+
+create
+------
+sc create [serviceName] binPath= [exePath] 
+// note: the space is required!
+
+delete
+------
+sc delete [serviceName]
+
+help
+----
+sc help
+sc create help
+
+e.g:
+sc create GBQueueConsumer3 binPath= C:\Users\RobiC\Desktop\Tegrity\Other\MessageQueue\MHCQueueConsumer2\GBQueueConsumer.exe

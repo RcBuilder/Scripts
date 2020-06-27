@@ -3,6 +3,7 @@ Interview Questions
 [Q] Question
 [G] Given
 [T] Tip
+[N] Note
 [A] Answer
 [R] Result
 -------------------
@@ -62,8 +63,8 @@ A,B...Z,AA,AB...AZ,BA,BB...ZZ
 Ascii value for 'A' is 65
 
 [A]
-var startIndex = 65; // 'A'
-var numOfLetters = 26; // 'A' - 'Z'
+var startIndex = 65;	// 'A'
+var numOfLetters = 26;	// 'A' - 'Z'
 
 string fun(char p1, int p2){
    var index = ((byte)p1 - startIndex) + p2;   
@@ -107,5 +108,37 @@ Id	Name
 103	Emp4
 104	Emp5
 106	Emp7
+
+-------
+
+[Q] OUTPUT
+Serialization of Parent & Child classes 
+
+[G]
+public class Parent {
+    [JsonProperty("@id")]
+    public int Id { set; get; }
+}
+
+public class Child : Parent {
+    [JsonProperty("name")]
+    public string Name { set; get; }
+}
+
+// Parent reference
+Parent c = new Child() { 
+	Id = 1, 
+	Name = "abcd" 
+};
+Console.WriteLine(JsonConvert.SerializeObject(c));  
+
+[N] 
+Parent reference to a Child instance
+
+[A] 
+serializers use reflaction on the actual Type in runtime
+
+[R] 
+{ @id: 1, name:"abcd" }
 
 -------

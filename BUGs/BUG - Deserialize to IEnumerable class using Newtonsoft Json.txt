@@ -1,0 +1,60 @@
+Bug:
+error while trying to Deserialize an object to IEnumerable class using Newtonsoft Json.Net
+
+note!
+classes that implemented IEnumerable or IEnumerable<T> interfaces
+
+Error:
+An unhandled exception of type 'Newtonsoft.Json.JsonSerializationException' occurred in Newtonsoft.Json.dll
+Additional information: Cannot deserialize the current JSON object (e.g. {"name":"value"}) into type 'xxx' because the type requires a JSON array (e.g. [1,2,3]) to deserialize correctly.
+To fix this error either change the JSON to a JSON array (e.g. [1,2,3]) or change the deserialized type so that it is a normal .NET type (e.g. not a primitive type like integer, not a collection type like an array or List<T>) that can be deserialized from a JSON object. JsonObjectAttribute can also be added to the type to force it to deserialize from a JSON object.
+Path 'xxx', line 1, position x.
+
+Cause:
+when we inherit from IEnumerable, our class mark as a .NET list
+so the json converter thinks the object is a list. 
+
+Solution:
+decorate the class with [JsonObject] - force the serialize and deserialize as a normal class.
+
+
+Example:
+var json = "{ \"@context\" : \"http://purl.imsglobal.org/ctx/lti/v1/ContentItem\", \"@graph\" : [] }";
+var res = JsonConvert.DeserializeObject<ContentItems>(json);
+
+[JsonObject]
+public class ContentItems : IEnumerable<ContentItemElement>
+{
+    [JsonProperty("@context")]
+    public string Context { get; set; }
+
+    [JsonProperty("@graph")]
+    public List<ContentItemElement> Items { get; set; }
+
+    public ContentItems()
+    {
+        this.Items = new List<ContentItemElement>();
+    }
+        
+    public IEnumerator<ContentItemElement> GetEnumerator()
+    {
+        return this.Items.GetEnumerator();
+    }
+
+    IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    {
+        return this.GetEnumerator();
+    }
+}
+
+public class ContentItemElement { }
+
+
+
+
+
+
+
+
+
+ 

@@ -1,0 +1,23 @@
+javascript history
+------------------
+
+methods:
+- back()		// go back
+- forward()		// go forward
+- go(<number>)	// to a specific page
+
+sample:
+window.history.back();
+<a href="#" onclick="window.history.back();">go back</a>
+
+window.history.go(-1);
+<a href="#" onclick="window.history.go(-1);">go back</a>
+
+window.history.go(-2);
+<a href="#" onclick="window.history.go(-2);">go 2 pages back</a>
+
+window.history.forward();
+<a href="#" onclick="window.history.forward();">go forward</a>
+
+window.history.go(1);
+<a href="#" onclick="window.history.go(1);">go forward</a>

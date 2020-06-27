@@ -1,0 +1,135 @@
+C# IConvertible Sample
+----------------------
+
+logic:
+IConvertible requires serveral methods to be implemented (all the primitive types plus a dynamic ToType method)
+we've created an abstract class 'CustomConvertible' which hides all non-relevant implementations and only exposes the 'ToType'. 
+every class implements this 'CustomConvertible' method should only implements it's own convert rules! 
+
+---
+
+sample:
+var a = new ClassA { 
+	Id = 1, 
+	Name = "SomeClass"
+};
+
+Console.WriteLine(a.ToType(typeof(ClassB), null));  // ClassB { Name = "SomeClass" } 
+Console.WriteLine(a.ToType(typeof(ClassC), null));  // ClassC { Id = 1 }
+
+-
+
+public class ClassA : CustomConvertible {
+    public int Id { get; set; }
+    public string Name { get; set; }
+	 
+	public override object ToType(Type conversionType, IFormatProvider provider)
+    {			
+		switch(conversionType.Name){
+			default: return this;
+
+			case "ClassB": return new ClassB{
+				Name = this.Name
+			};
+			case "ClassC": return new ClassC{
+				Id = this.Id
+			};
+
+			// more rules here...
+		}        
+    }
+}
+
+public class ClassB {    
+    public string Name { get; set; }
+}
+
+public class ClassC {    
+    public int Id { get; set; }
+}
+
+-
+
+public abstract class CustomConvertible : IConvertible {
+	public TypeCode GetTypeCode()
+    {
+        return TypeCode.Object;
+    }
+
+    bool IConvertible.ToBoolean(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+	
+    byte IConvertible.ToByte(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    char IConvertible.ToChar(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    DateTime IConvertible.ToDateTime(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    decimal IConvertible.ToDecimal(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    double IConvertible.ToDouble(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    short IConvertible.ToInt16(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    int IConvertible.ToInt32(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    long IConvertible.ToInt64(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    sbyte IConvertible.ToSByte(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    float IConvertible.ToSingle(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    string IConvertible.ToString(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    public abstract object ToType(Type conversionType, IFormatProvider provider);
+    
+    ushort IConvertible.ToUInt16(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    uint IConvertible.ToUInt32(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+
+    ulong IConvertible.ToUInt64(IFormatProvider provider)
+    {
+        throw new NotImplementedException();
+    }
+}
