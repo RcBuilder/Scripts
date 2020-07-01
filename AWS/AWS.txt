@@ -1,12 +1,11 @@
-
 ******** AWS ********
 *********************
 Amazon Web Services. 
-// TODO
 
------------------------------------------
+===============================
+- About
 - SDK
-
+- Services
 - S3 (Service)
 - EC2 (Service)
 - Elastic Beanstalk (Service)
@@ -16,9 +15,9 @@ Amazon Web Services.
 - Launch An App
 - Cost
 - AMI
-
 // TODO
------------------------------------------
+===============================
+
 
 SDK
 ---
@@ -174,3 +173,24 @@ software configuration (operating system, application server, and applications)
 
 commonly used with EC2 instances. we creating an EC2 instance, we need to choose the image to install. 
 e.g: 'Microsoft Windows Server 2019 with SQL Server 2017 Standard'
+
+
+
+
+
+
+
+---------------------------------------------------------------------------------
+// TODO ->>
+Aws AI בינה מלאכותית 
+Rekognition זיהוי תמונה
+Polly מתרגם טקסט
+Lex הבנת טקסט
+Cybereason 
+lambda
+Data center - az (availability zone) - region
+Ec2 instance - type, generation, size (e.g c4 large)
+IAM - identity manager
+Api gateway
+Aurora
+RDS שירות לניהול בסיסי נתונים רלציונים

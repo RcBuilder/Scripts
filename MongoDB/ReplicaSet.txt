@@ -1,0 +1,62 @@
+*** ReplicaSet ***
+******************
+related:
+- Read-Write splitting
+- Master-slave structure
+- Sharding
+
+a replica-set is a set of db instances which share the same data content.
+if uses master-slave structure with an extra capabilities (see 'Master-slave structure').
+a replica-set can only have one Master node and must have an ODD number of nodes totally.
+
+node-roles:
+1. Master
+2. Slave
+3. Arbiter
+
+replica set mechanism is used for the listed purposes:
+1. disaster recovery
+2. read-write splitting (see 'Read-Write splitting')
+
+how it works?
+once we've created a few instances and define each with its role (see 'node-roles') and set the correct 
+permissions (a READ-WRITE for the Master and only READ for each Slave), the replica-set engine 
+adds the ability to switch roles between nodes, so any Slave can become Master if needed. 
+this allows us to recover from a disaster when one node fails by transferring its operations to another node.
+the engine also updates the 'sync-target' of each slave once a new Master has elected.
+
+note that, if a Master has failed, once restored, its role would be switched to Slave 
+and it's sync-target would be the newly elected Master!
+
+node election:
+any node can serve as a Master or Slave. 
+only a single Master can exists in a replica-set.
+once a Master has failed, the engine performs an election process between all other nodes. 
+any of the nodes can be elected and switched to be a Master. 
+once a Master has elected, the engine rearranges the sync-target for all the nodes. 
+note that one can be synced from a Slave node and not necessarily from the Master.
+important! a replica-set MUST have an ODD number of nodes with minimum of 3 - one master and two nodes (Slave/ Arbiter)
+
+Arbiter node:
+this kind of node is a shell, an empty node with no data and its whole purpose is the "break the tie"
+of the election process.
+an Arbiter node can't be elected but it participates in the voting!
+a dummy-node.
+
+tip:
+to scale-out your data-base, its best-practice to use Sharding along-with replica-sets (see 'Sharding')
+
+
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------
+// TODO ->> 

@@ -118,6 +118,7 @@ Console.WriteLine($"1 {{ {"2"} }} 3"); // 1 { 2 } 3
 // e.g: C = Currency
 Console.WriteLine($"{234.567:C}"); // $234.57
 
+
 Exception Filters
 -----------------
 syntax:
@@ -310,6 +311,7 @@ Console.WriteLine($"price for 41 km -> {GroupPriceByDistance(41)}");     // pric
 Console.WriteLine($"price for 70 km -> {GroupPriceByDistance(70)}");     // price 320
 Console.WriteLine($"price for 150 km -> {GroupPriceByDistance(150)}");   // price 500
 
+
 Local-Scope Functions
 ---------------------
 allows us to declare methods inside the context of another method!
@@ -423,6 +425,7 @@ var items = new List<(int, string)>{
 };
 	
 var result = items.Where(whereClause);
+
 
 private protected
 -----------------
@@ -584,6 +587,7 @@ await foreach (var n in Sequence1()) {
     Console.WriteLine(n);
 }
 
+
 "^" Index From End operator
 ---------------------------
 ^n = arr.Length - n
@@ -599,6 +603,7 @@ var letters = new string[] {
 
 // letters[^1] = F
 Console.WriteLine($"first item: {letters[0]}, last item: {letters[^1]}");
+
 
 ".." Range operator 
 -------------------
@@ -620,6 +625,7 @@ var all = letters[..];    // ALL
 var def = letters[^3..];  // D,E,F
 var ab = letters[..2];    // A,B
 
+
 Range variable
 --------------
 reference:
@@ -631,6 +637,7 @@ Range <name> = <range>
 sample:
 Range top4range = 0..4;
 var top4 = letters[top4range]; // A,B,C,D
+
 
 "??=" operator
 --------------

@@ -1,0 +1,33 @@
+C# IEqualityComparer T to Compare 2 objects
+-------------------------------------------
+var personA = new Person{ 
+	FullName = new Name { 
+		FirstName = "JOHN",
+		LastName = "DOE"
+	},
+	Age = 35,
+	City = "Tel-Aviv"
+};
+
+var personB = new Person{ 
+	FullName = new Name { 
+		FirstName = "JOHN",
+		LastName = "DOE"
+	},
+	Age = 40,
+	City = "Herzliya" 
+};
+	
+Console.WriteLine(new PersonNameComparer().Equals(personA, personB));	// true
+
+---
+
+public class PersonNameComparer : IEqualityComparer<Person> {
+    public bool Equals(Person x, Person y) {
+        return (x.FullName.ToString() == y.FullName.ToString());
+    }
+
+    public int GetHashCode(Person obj) {
+        return obj.FullName.ToString().GetHashCode();
+    }
+}

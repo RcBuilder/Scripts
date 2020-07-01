@@ -1,0 +1,32 @@
+Read-Write splitting
+====================
+related:
+- Master-slave structure
+- ReplicaSet
+- Sharding
+
+this technique uses the Master-slave structure to split the DB operations into READ and WRITE
+(see 'Master-slave structure')
+
+in this approach a few nodes are created with one of the following roles: 
+1. Master
+2. Slave 
+
+the 'Master' can READ and WRITE data and the 'Slave' can only READ data (readonly) 
+each 'Slave' monitors the changes-log on the 'Master' and syncs itself to the latest state.
+
+this technique provides us the following benefits: 
+1. horizontal scaling (aka Scale-Out) 
+   instead of a single data-base node, we use multiple nodes
+2. high-availability
+   if one node is down, we can funnel the traffic to the other nodes available 
+3. backup (only in a specific case)
+   each 'Slave' node is, in fact, a copy of the 'Master' so we can restore data if the 'Master' fails.
+   this only works if the 'Master' is down so the 'Slaves' can't sync themselfs and the data hasn't changed.
+   for full backup and disaster recovery use Replica-Set ('see ReplicaSet')
+
+note! 
+its best-practice to use replica-Set instead ('see ReplicaSet')
+
+
+

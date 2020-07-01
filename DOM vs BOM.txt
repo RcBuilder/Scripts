@@ -1,0 +1,7 @@
+DOM vs BOM
+----------
+DOM - Document Object Model
+BOM - Browser Object Model
+
+DOM refers to the object model under the 'document' node (the content of the page)
+BOM refers to the object model related to the browser (navigator, history, screen, location etc.)

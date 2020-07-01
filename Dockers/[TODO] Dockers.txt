@@ -38,6 +38,9 @@ https://docs.docker.com/compose/compose-file/
 install - other providers (ec2 etc.)
 
 
+install (windows)
+Docker Desktop Installer.exe
+
 
 > docker exec -ti <container_name> bash // enter into the docker
 > docker logs -f <container_name> --tail 1000  // show a docker console logs

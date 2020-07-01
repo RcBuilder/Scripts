@@ -4,7 +4,7 @@ server-side javascript. based on the V8 engine (by google)
 an environment to execute javascript code outside the browser.
 
 =========================
-- website
+- sources
 - installation
 - code execution
 - file execution
@@ -18,7 +18,7 @@ an environment to execute javascript code outside the browser.
 - debugging
 =========================
 
-website
+sources
 -------
 https://nodejs.org/en/
 

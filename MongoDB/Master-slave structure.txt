@@ -1,0 +1,25 @@
+Master-slave structure
+======================
+
+related:
+- Read-Write splitting
+- ReplicaSet
+- Sharding
+
+in this approach a few nodes are created with one of the following roles: 
+1. Master
+2. Slave 
+
+the 'Master' is the source-node for all the related 'Slave' nodes
+each 'Slave' node monitors the changes-log on the 'Master' and syncs itself to the latest state.
+
+this provides us high-availability,
+if one node is down, we can funnel the traffic to the other nodes available. 
+
+approaches:
+- Asymmetric:   1 Master - N Slave
+- Dual Mode:    2 Master - N Slave
+- Cluster Mode: N Master - N Slave
+
+
+

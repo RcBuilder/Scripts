@@ -14,6 +14,7 @@
 * Node.js = an open source, cross-platform runtime environment for server-side and networking applications. Node.js applications are written in JavaScript
 * SPA = Single Page Application 
 * DOM = Document Object Model
+* BOM = Browser Object Model
 * TPL = Task Parallel Library
 * SaaS = Software As A Service
 * SaaP = Software As A Product
@@ -67,6 +68,8 @@
 
 * NDA = Non-disclosure agreement
 * DBA – db administrator
+* VP = Vice President סמנכ"ל
+* VP R&D - VP Research & Development סמנכ"ל  מחקר ופיתוח
 * CTO - Chief Technology Officer 
 * CEO - Chief Executive Officer
 
@@ -141,6 +144,7 @@
 (phrases)
 * TDLR = Too Damn Lazy to Reply
 * TLDR = Too Long, Didn't Read (אמל"ק)
+* TLDW = Too Long, Didn’t Watch
 * K.T = Knowledge Transfer
 * M.O = (Latin) Modus Operandi ("Method of Operating") דרך פעולה 
 * 10x = Thanks

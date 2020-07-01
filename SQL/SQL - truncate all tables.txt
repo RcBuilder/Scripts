@@ -1,0 +1,27 @@
+SQL - truncate all tables
+-------------------------
+
+-- truncate all data excepts of the provided tables --
+CREATE TABLE #tablesToDelete(name NVARCHAR(MAX)) 
+INSERT INTO #tablesToDelete
+	SELECT	name --, object_id 
+	FROM	sys.tables
+	WHERE	name NOT IN(
+		'ContentTypes',
+		'GroupTypes',
+		'TagTypes',
+		'TrafficFilterTypes',
+		'ViewPermissionType',
+		'WidgetTypes',
+		'SummaryTypes'
+	)
+		
+WHILE(EXISTS(SELECT 1 FROM #tablesToDelete))
+BEGIN 
+	DECLARE @name NVARCHAR(MAX) = (SELECT TOP 1 name FROM #tablesToDelete);	
+	PRINT(@name)
+	EXEC('TRUNCATE TABLE ' + @name)
+	DELETE FROM #tablesToDelete WHERE name = @name;
+END 
+
+-- DROP TABLE #tablesToDelete

@@ -1,0 +1,11 @@
+safe divide function
+-------------------- 
+
+const divide = (numerator, denominator) => {
+    return denominator == 0 ? 0 : numerator / denominator;
+};
+
+divide(300, 100);
+divide(100, 300);
+divide(300, 0);
+divide(0, 300);

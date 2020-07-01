@@ -1,0 +1,36 @@
+*** Sharding ***
+****************
+this technology ....
+
+
+
+
+
+
+
+
+
+
+
+--------------------------------------------------------------------------
+
+// TODO ->> 
+Shard (database architecture)
+A database shard is a horizontal partition of data in a database or search engine. Each individual partition is referred to as a shard or database shard. Each shard is held on a separate database server instance, to spread load. 
+
+-
+
+use sharding for big-data databases, it shards the data accross different machines to reduce the CPU, memory and IO pressure. 
+
+-
+
+N mongos routers
+config server + replica-set
+N shards + replica-set each
+
+-
+
+schema image (google)
+
+-
+see 'ReplicaSet'

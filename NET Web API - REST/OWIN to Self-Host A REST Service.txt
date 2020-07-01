@@ -1,0 +1,44 @@
+OWIN to Self-Host A REST Service
+================================
+(steps)
+1. create a self-host server using WebApp.
+2. implement a 'Startup' bootstrap class.
+3. register an API controller.
+
+using
+-----
+static string server = "http://localhost:1166";
+static void Main(string[] _args)
+{
+    WebApp.Start<Startup>(server);
+    Console.WriteLine("Server is Running on port 1166 .... ");            
+    Console.ReadKey(); 
+}
+
+public class Startup
+{
+    public void Configuration(IAppBuilder app)
+    {        
+        var config = new HttpConfiguration();        
+        config.MapHttpAttributeRoutes();  // attribute routing
+        app.UseWebApi(config);  // add web api middleware          
+    }
+}
+
+public class DefaultController : ApiController 
+{
+	[HttpGet]
+    [Route("")]
+    public List<string> Index() { ... }
+
+   	[HttpGet]
+    [Route("message/{queueKey}/{messageKey}")]
+    public Message RecieveMessage(string queueKey, string messageKey){ ... }
+
+ 	...
+	...
+}
+
+implementation
+--------------
+see 'MessageQueueProject'
