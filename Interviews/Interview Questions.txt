@@ -142,3 +142,28 @@ serializers use reflaction on the actual Type in runtime
 { @id: 1, name:"abcd" }
 
 -------
+
+[Q] LOGIC
+check whether a number is a pow of 2
+
+[G]
+best-practice and with least complexity.
+
+[A]
+use bitwise OR to check the provided number.
+if the flag is ON, its a pow of 2. 
+
+[R]
+Console.WriteLine(255&8);
+Console.WriteLine((int)0b11111111&8);
+Console.WriteLine(0b11111111&0b00001000);
+
+------- 	
+
+[Q] 
+Strings similarity
+
+[R]
+see 'Strings similarity Sample'	
+
+------- 

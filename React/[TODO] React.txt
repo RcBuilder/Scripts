@@ -20,11 +20,14 @@
 
 -------------------------------------------
 // TODO
+react with .Net (MVC, WebApi etc.)
 
+- 
 
 [react]
 escape curly brackets -> '{' and '}' 
 {'{...}'}
+
 -
 
 ReactDOM.render

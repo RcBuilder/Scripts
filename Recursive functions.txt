@@ -1,0 +1,38 @@
+Recursive functions
+-------------------
+
+static int Atzeret(int num) {
+    if (num == 0) return 1;
+    return Atzeret(num-1) * num;
+}
+
+static int Fibonacci(int step, int prev = 1, int curr = 1)
+{
+    if (step == 0) return curr;            
+    return Fibonacci(step-1, curr, prev + curr);
+}
+
+static int SumOfDigits(int num) {
+    if (num == 0) return 0;
+    return num % 10 + SumOfDigits(num / 10);
+}
+
+static (bool result, int steps) IsPOW_2(int num) {
+	return IsPOW_X(num, 2);
+}
+
+static (bool result, int steps) IsPOW_X(int num, int pow, int current = 0, int steps = 0) {
+	if(current == 0) current = pow;
+	if(current == num) return (true, steps);
+	if(current > num) return (false, steps);
+	return IsPOW_X(num, pow, current * pow, steps + 1);
+}
+
+static void Main(string[] args)
+{
+    Console.WriteLine(Atzeret(8));			// 40320
+    Console.WriteLine(Fibonacci(8));		// 55
+	Console.WriteLine(SumOfDigits(349801)); // 3+4+9+8+0+1 = 25
+	Console.WriteLine(IsPOW_2(256));		// is 256 a pow of 2 -> (true, 7)
+	Console.WriteLine(IsPOW_X(256, 3));		// is 256 a pow of 3 -> (false, 5)
+}

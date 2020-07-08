@@ -1,0 +1,9 @@
+static int Atzeret(int num) {
+    if (num == 0) return 1;
+    return Atzeret(num-1) * num;
+}
+
+static void Main(string[] args)
+{
+    Console.WriteLine(Atzeret(8));			// 40320    
+}

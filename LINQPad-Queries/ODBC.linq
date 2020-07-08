@@ -3,7 +3,7 @@
 </Query>
 
 //var connetionString = "Driver={Pervasive ODBC Client Interface};ServerName=CREATIVE-TEST;dbq=NONAME1r2517db;";
-// var query = "select top 10 * from AccTrs";
+//var query = "select top 10 * from AccTrs";
 
 var connetionString = "Driver={Microsoft Access Driver (*.mdb)};Dbq=D:\\testDB.mdb;";
 var query = "select top 10 * from Campaign_Table";

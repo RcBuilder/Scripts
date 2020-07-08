@@ -1,0 +1,21 @@
+public sealed class Singleton
+{
+    private static Singleton _instance;
+    private static object syncRoot = new Object();
+
+    private Singleton() { }
+
+    public static Singleton Instance {
+        get {
+	    // double check to save unnecessary lock action
+            if (_instance == null)  { 
+                lock (syncRoot) { // expensive action
+                    if (_instance == null)
+                        _instance = new Singleton();
+                }
+            }
+
+            return _instance;
+        }
+    }
+}

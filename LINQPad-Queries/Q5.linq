@@ -10,7 +10,13 @@
 </Query>
 
 void Main()
-{
+{	
+	// check whether a number is a POW of 2
+	Console.WriteLine(255&8);
+	Console.WriteLine((int)0b11111111&8);
+	Console.WriteLine(0b11111111&0b00001000); 		
+	
+	
 	var personA = new Person{ 
 		FullName = new Name { 
 			FirstName = "JOHN",

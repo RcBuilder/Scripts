@@ -1,0 +1,53 @@
+javascript Map
+--------------
+
+methods:
+T get(<key>);
+<map> set(<key>, <value>);
+bool has();
+bool delete(<key>);
+int size();
+object entries();
+object keys();
+object values()
+
+---
+
+init:
+
+const map = new Map([
+    [<key>, <value>],
+    [<key>, <value>],
+	[<key>, <value>],
+	...
+]);
+
+---
+
+using:
+
+const map = new Map([
+    [1, { name: 'itemA' }],
+    [2, { name: 'itemB' }],
+    [3, { name: 'itemC' }],
+    [4, { name: 'itemD' }],
+]);
+
+console.log(map.get(1));    // { name: 'itemA' }
+console.log(map.get(4));    // { name: 'itemD' }
+
+console.log(map.has(5));       // false
+map.set(5, { name: 'itemE' }); // returns the map
+console.log(map.has(5));       // true
+
+map.entries();  // get keys + values (full map)
+map.values();   // get values
+map.keys();     // get keys
+
+// ignore those statements - unique
+map.keys();  // { 1, 2, 3, 4, 5 }
+
+map.set(5, { name: 'itemE' }); 
+map.set(5, { name: 'itemE' }); 
+
+map.keys();  // { 1, 2, 3, 4, 5 }

@@ -1,0 +1,7 @@
+CSS truncate class
+------------------
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

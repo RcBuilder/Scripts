@@ -18,12 +18,18 @@ a typeScript code is converted into its JavaScript equivalent for the purpose of
 - enums
 - tuples
 - interfaces
+- interfacesT
 - classes
+- prototypes
 - namespaces 
 - modules
 - ambient declarations
 - import
 - @ts-ignore
+- use DOM objects
+- casting
+- BUGS
+- implementations
 =============================
 
 [install]
@@ -593,7 +599,24 @@ var roby = { name: 'Roby', id: 100 };
 console.log(classB(roby));
 
 ------------------------------------------
- 
+
+[interfacesT]
+
+syntax:
+interface <name> <T> {
+	<properties>
+	<functions>
+}
+
+---
+
+interface Array<T> {
+    findByProperty(propName: string, value: any): T;
+    findIndexByProperty(propName: string, value: any): number;
+    removeByProperty(propName: string, value: any): boolean;
+}
+
+------------------------------------------
 [classes]
 
 syntax:
@@ -785,6 +808,62 @@ console.log(employee.sayHi());
 
 ------------------------------------------
 
+[prototypes]
+to combine prototypes within a .ts file, we need to generate an interface.
+
+---
+
+(steps)
+1. create an interface 
+2. implement the interface using the 'prototype' keyword
+
+---
+
+sample:
+
+// Interfaces.ts
+interface Array<T> {
+    findByProperty(propName: string, value: any): T;
+    findIndexByProperty(propName: string, value: any): number;
+    removeByProperty(propName: string, value: any): boolean;
+}
+
+interface Date {
+    dateFormat(): string;
+}
+
+// Extensions.ts
+Array.prototype.findByProperty = function (propName: string, value: any): Item {
+    return this.find(x => x[propName] === value) || null;
+}
+
+Array.prototype.findIndexByProperty = function (propName: string, value: any): number {
+    return this.findIndex(x => x[propName] === value); // -1 = not exists
+}
+
+Array.prototype.removeByProperty = function (propName: string, value: any): boolean {
+    let index = this.findIndex(x => x[propName] === value);
+    if (index == -1) return false;
+    this.splice(index, 1);
+    return true;
+}
+
+Date.prototype.dateFormat = function () {
+    try {
+        let year = this.getFullYear().toString();
+        let month = (this.getMonth() + 1).toString();
+        let day = this.getDate().toString();
+
+        if (month.length == 1) month = '0' + month;
+        if (day.length == 1) day = '0' + day;
+
+        return year + '-' + month + '-' + day;
+    }
+    catch{ return ''; }
+}
+
+------------------------------------------
+
 [namespaces]
 to access classes and interfaces defined within a namespace from outside of it, use the 'export' keywork.
 a class which hasn't exported, will not be accessible outside of the namespace scope!
@@ -914,3 +993,121 @@ sample:
 // @ts-ignore
 let str: string = false;
 
+------------------------------------------
+
+[casting]
+type-casting
+
+syntax:
+<obj> as <type>
+
+using:
+(x as any)
+(x as HTMLElement)
+(x as string)
+(e.target as HTMLSelectElement)
+
+tip: 
+when we're dealing with unknown type, we can cast it as ANY to pass the compiler errors.
+for example, when using a DOM-related event 
+
+samples:
+this.document.querySelector('#btnSaveItem').addEventListener('click', async (e: any) => {
+    let node: HTMLElement = this.document.querySelector('#popupSaveItem div.modal-body');
+
+    let code: number = parseInt((node.querySelector('#code') as any).value);
+    let name: string = (node.querySelector('#name') as any).value;    
+}); 
+
+-
+
+this.document.querySelector('[data-role="add"]').addEventListener('click', (e: any) => {
+    let node: HTMLElement = this.document.querySelector('#popupSaveItem div.modal-body');
+    
+    (node.querySelector('#code') as any).value = 0;
+    (node.querySelector('#saleDate') as any).value = '2020-01-01';
+});
+
+-
+
+this.document.querySelector('#ddlSort').addEventListener('change', (e: any) => {
+    let ddl = (e.target as HTMLSelectElement);
+    let selectedValue = ddl.options[ddl.selectedIndex].value;    
+});
+
+------------------------------------------
+
+[use DOM objects]
+in order to use DOM objects such as 'document' or 'window'
+we have to "tell" the ts engine to use this library. 
+add the 'dom' to the 'lib' section in the 'tsconfig.json' file 
+
+e.g:
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "lib": [ "es6", "dom" ],
+    "sourceMap": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
+
+
+------------------------------------------
+
+[BUGS]
+
+issue:
+compilation error
+
+error:
+Typescript cannot find name window or document
+
+cause:
+missing library in the tsconfig.json
+
+solution:
+"lib": [ "es6", "dom" ],
+
+sample:
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "lib": [ "es6", "dom" ],
+    "sourceMap": true
+  },
+  "exclude": [
+    "node_modules"
+  ]
+}
+
+---
+
+issue:
+exports is not defined
+
+error:
+Object.defineProperty(exports, "__esModule" ...)
+
+cause: 
+export and import are not supported on pure HTML project (with no server)
+
+solution:
+DO NOT use export nor import, instead, a references to those scripts in the HTML
+
+sample:
+<body>
+    ...
+    <script src="models/Item.js"></script>
+    <script src="app.js"></script>
+</body>
+
+------------------------------------------
+
+[implementations]
+
+- Sources/StoreSample

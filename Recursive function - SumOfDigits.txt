@@ -1,0 +1,9 @@
+static int SumOfDigits(int num) {
+    if (num == 0) return 0;
+    return num % 10 + SumOfDigits(num / 10);
+}
+
+static void Main(string[] args)
+{
+	Console.WriteLine(SumOfDigits(349801)); // 3+4+9+8+0+1 = 25
+}

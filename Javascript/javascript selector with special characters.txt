@@ -1,0 +1,20 @@
+javascript selector with special characters
+-------------------------------------------
+there are some special signs which have a special meaning when using selectors. 
+to select an element with special character as part of its name, we need to use '\\'
+to escape the sign and treat it as a character.
+
+signs:
+- dot (.)
+- hash (#)
+- brackets ([])
+
+e.g:
+<input type="text" id="new.name" value="1234" />
+<input type="text" id="new#name" value="2345" />
+<input type="text" id="[new-name]" value="3456" />
+
+document.querySelector('#new\\.name');
+document.querySelector('#new\\#name');
+document.querySelector('#\\[new-name\\]');
+

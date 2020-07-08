@@ -1,0 +1,15 @@
+javascript find best item using reduce
+--------------------------------------
+
+let arr = [ 
+	{ cpa: 20 }, 
+	{ cpa: 15 },
+ 	{ cpa: 18 } 
+];
+
+let bestPerformingAd = arr.reduce(function(acc, x) {    
+    if(!acc.cpa) return x;
+    return x.cpa < acc.cpa ? x : acc; 
+}, { }); 
+
+console.log(bestPerformingAd) // { cpa: 15 }

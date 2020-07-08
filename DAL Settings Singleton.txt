@@ -1,0 +1,78 @@
+DAL Settings Singleton
+----------------------
+
+using System;
+using System.Configuration;
+
+namespace DAL
+{
+    public class Settings
+    {
+        private static volatile Settings _instance;
+        private static object syncRoot = new Object();
+
+        public string StoreConnectionString { get; private set; }
+
+        private Settings() { 
+            this.StoreConnectionString = ConfigurationManager.ConnectionStrings["StoreConnectionString"].ConnectionString;
+        }
+
+        public static Settings Instance
+        {
+            get
+            {                
+                if (_instance == null)
+                {
+                    lock (syncRoot)
+                    { 
+                        if (_instance == null)
+                            _instance = new Settings();
+                    }
+                }
+
+                return _instance;
+            }
+        }
+    }
+}
+
+--
+
+// App.config
+<configuration>
+  <connectionStrings configSource="Connections.config" />
+</configuration>
+
+// Connections.config
+<connectionStrings>
+  <add name="StoreConnectionString" connectionString="Data Source=RCBUILDER-PC\RCBUILDERSQL2012;Initial Catalog=KeterTEST;Trusted_Connection=true" providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+--
+
+using System.Collections.Generic;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using Dapper;
+
+namespace DAL
+{
+    public class Items : Entities.IItemsDAL
+    {
+        public IEnumerable<Entities.Item> Get()
+        {
+            using (var conn = new SqlConnection(Settings.Instance.StoreConnectionString)) {
+                return conn.Query<Entities.Item>("sp_Items_Get", commandType: CommandType.StoredProcedure);
+            }
+        }
+
+        public int Save(Entities.Item Item)
+        {
+            using (var conn = new SqlConnection(Settings.Instance.StoreConnectionString))
+            {
+                return conn.Query<int>("sp_Item_Save", param: Item, commandType: CommandType.StoredProcedure).FirstOrDefault();
+            }
+        }
+    }
+}

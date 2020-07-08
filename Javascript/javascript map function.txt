@@ -1,5 +1,5 @@
-javascript map
---------------
+javascript map function
+-----------------------
 map calls a provided callback function once for each element in an array, in order.
 then it constructs a new array from the results.
 

@@ -11,6 +11,7 @@ an environment to execute javascript code outside the browser.
 - global objects
 - export & import
 - package.json
+- node commands
 - npm
 - deploy
 - auto-refresh
@@ -195,6 +196,16 @@ add the packages to the .json and use the 'install' command
 }
 > npm install
 
+
+node commands
+-------------
+> node 				// launch the node engine (allows us to write js statements)
+> node --print "process"     	// get information about the process 
+> node --print "process.arch"	// get the target platform (32bit or 64bit)
+> node --print "process.<property>" 	// get process <property> value
+
+list:
+https://nodejs.org/api/cli.html
 
 npm
 ---

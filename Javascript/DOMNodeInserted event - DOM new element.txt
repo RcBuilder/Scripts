@@ -1,0 +1,31 @@
+DOMNodeInserted event - DOM new element
+---------------------------------------
+
+event:
+DOMNodeInserted
+
+syntax:
+addEventListener('DOMNodeInserted', e => { ... });
+
+sample:
+// monitor DOM new elements
+// process by custom attribute (data-role)
+
+node.addEventListener('DOMNodeInserted', (e: any) => {
+    let rolesToProcess: HTMLElement[] = e.target.querySelectorAll('[data-role]');
+
+    rolesToProcess.forEach(x => {
+        switch (x.attributes['data-role'].value) {
+            case 'delete':
+                x.addEventListener('click', async (eInner: any) => {
+                    ...
+                });
+            break;
+        case 'edit':
+                x.addEventListener('click', (eInner: any) => {
+                    ...
+                });
+            break;            
+        }
+    });
+}, false)

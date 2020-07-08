@@ -1,0 +1,22 @@
+static (bool result, int steps) IsPOW_2(int num) {
+	return IsPOW_X(num, 2);
+}
+
+static (bool result, int steps) IsPOW_X(int num, int pow, int current = 0, int steps = 0) {
+	if(current == 0) current = pow;
+	if(current == num) return (true, steps);
+	if(current > num) return (false, steps);
+	return IsPOW_X(num, pow, current * pow, steps + 1);
+}
+
+static void Main(string[] args)
+{
+	Console.WriteLine(IsPOW_2(256));		// is 256 a pow of 2 -> (true, 7)
+	Console.WriteLine(IsPOW_X(256, 3));		// is 256 a pow of 3 -> (false, 5)
+}
+
+-- 
+
+note:
+in case of the POW is 2, we can also use bitwise
+see 'POW of 2 using Bitwise'  

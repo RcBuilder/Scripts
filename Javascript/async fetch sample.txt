@@ -1,0 +1,78 @@
+async fetch sample 
+------------------
+
+const server = 'http://localhost:1166/';
+const endpoints = new Map([
+    ['getItems', 'store/items'],
+    ['addItem', 'store/item'],
+    ['updateItem', 'store/item'],
+    ['removeItem', 'store/item/{code}'],
+]);
+
+async function getItems() {
+    let options = {
+        method: 'GET',
+    }
+
+    try {            
+        let response = await fetch(ShopService.server.concat(ShopService.endpoints.get('getItems')), options);
+        return await response.json();          
+    }
+    catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
+async function addItem(item) {
+    let options = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(item)
+    }
+
+    try {
+        let response = await fetch(ShopService.server.concat(ShopService.endpoints.get('addItem')), options);
+        return response.json();
+    }
+    catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
+async function updateItem(item) {                
+    let options = {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(item)
+    }
+
+    try {
+        let response = await fetch(ShopService.server.concat(ShopService.endpoints.get('updateItem')), options);
+        return response.json(); 
+    }
+    catch (e) {
+        console.error(e);
+        return null;
+    }
+}
+
+async function removeItem(code) {
+    let options = {
+        method: 'DELETE',         
+    }
+
+    try {
+        let response = await fetch(ShopService.server.concat(ShopService.endpoints.get('removeItem')).replace('{code}', String(code)), options);
+        return response.json();       
+    }
+    catch (e) {
+        console.error(e);
+        return false;
+    }
+}

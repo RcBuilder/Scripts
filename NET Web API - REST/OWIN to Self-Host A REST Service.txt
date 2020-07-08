@@ -1,9 +1,17 @@
 OWIN to Self-Host A REST Service
 ================================
 (steps)
-1. create a self-host server using WebApp.
-2. implement a 'Startup' bootstrap class.
-3. register an API controller.
+1. install packages (see 'packages')
+2. create a self-host server using WebApp.
+3. implement a 'Startup' bootstrap class.
+4. register an API controller.
+
+packages:
+- install cors package 
+  > Install-Package Microsoft.Owin.Cors
+
+- install owin self-host package 
+  > Microsoft.AspNet.WebApi.OwinSelfHost
 
 using
 -----
@@ -14,31 +22,53 @@ static void Main(string[] _args)
     Console.WriteLine("Server is Running on port 1166 .... ");            
     Console.ReadKey(); 
 }
-
+-
 public class Startup
 {
     public void Configuration(IAppBuilder app)
     {        
-        var config = new HttpConfiguration();        
-        config.MapHttpAttributeRoutes();  // attribute routing
+		var config = new HttpConfiguration();
+        config.MapHttpAttributeRoutes();  // attribute routing     
+        app.UseCors(CorsOptions.AllowAll);  // Install-Package Microsoft.Owin.Cors
         app.UseWebApi(config);  // add web api middleware          
     }
 }
+-
+public class ItemsController : ApiController
+{                
+    [HttpGet]
+    [Route("store/items")]
+    public async Task<IHttpActionResult> Get() {
+        ...
+        return Ok<T>(<data>);
+    }
 
-public class DefaultController : ApiController 
-{
-	[HttpGet]
-    [Route("")]
-    public List<string> Index() { ... }
+    [HttpPost]
+    [Route("store/item")]
+    public async Task<IHttpActionResult> Add(Entities.Item Item)
+    {        
+		...
+        return Ok<T>(<data>);         
+    }
 
-   	[HttpGet]
-    [Route("message/{queueKey}/{messageKey}")]
-    public Message RecieveMessage(string queueKey, string messageKey){ ... }
+    [HttpPut]
+    [Route("store/item")]
+    public async Task<IHttpActionResult> Update(Entities.Item Item)
+    {
+		...
+        return Ok<T>(<data>);
+    }
 
- 	...
-	...
+    [HttpDelete]
+    [Route("store/item/{code}")]
+    public async Task<IHttpActionResult> Update(int Code)
+    {
+		...
+        return Ok<T>(<data>);
+    }
 }
 
 implementation
 --------------
-see 'MessageQueueProject'
+see '/MessageQueueProject'
+see 'Sources/StoreServerSample'

@@ -1,0 +1,175 @@
+/*    
+  adgroup level of ads and then alerts if ads should be paused
+  if CPA is (15%) more than the ad best performing CPA
+       
+*/
+
+var EMAIL = 'rcbuilder@walla.com';
+var LABEL_FILTER = 'Test'
+var NUM_OF_DAYS_TO_COMPARE = 7;
+var PERCENTAGE_THRESHOLD = 0.15;
+
+function main() {  
+  var htmlBuilderService = HTMLBuilderService();
+  
+  var accounts = MccApp.accounts().withCondition('LabelNames CONTAINS "' + LABEL_FILTER + '"').get();    
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    Logger.log('### account: %s ###', account.getName());  
+
+    MccApp.select(account);
+    ProcessAccount(htmlBuilderService);
+    
+    Logger.log('--------------------------');
+  }
+  
+  try{                 
+    var emailBody = htmlBuilderService.get();
+    if(emailBody == '') return;
+    
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Adwords Account Notifications', '', {
+      name: 'adwords-script',
+      htmlBody: emailBody
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+function ProcessAccount(htmlBuilderService){   
+  var account = AdWordsApp.currentAccount();
+  var accountName = account.getName();
+  
+  var now = new Date();  
+  var lastXdays = HELPER.dateFormat(HELPER.dateAdd(now, -(NUM_OF_DAYS_TO_COMPARE - 1), 'dd')) + ',' + HELPER.dateFormat(now);  
+  Logger.log('period: %s', lastXdays);
+  
+   
+  var adGroups = AdsApp.adGroups()
+  .withCondition('Status IN [ENABLED]')
+  .withCondition('CampaignStatus IN [ENABLED]')
+  .get();
+  
+  while(adGroups.hasNext())    
+    ProcessAdGroup(htmlBuilderService, adGroups.next(), lastXdays);  
+}
+
+function ProcessAdGroup(htmlBuilderService, adGroup, lastXdays){      
+  Logger.log('processing adGroup %s', adGroup.getName());      
+  
+  var ads = adGroup.ads()
+  .withCondition('Status IN [ENABLED]')  
+  .withCondition('Type = EXPANDED_TEXT_AD')  
+  .get();
+  
+  // { adId, adTitle, adCPA, adCost, adConversions }
+  var arrAds = [];
+  while(ads.hasNext()){
+    var ad = ads.next();
+    var stats = ad.getStatsFor(lastXdays.split(',')[0], lastXdays.split(',')[1]);
+    
+    arrAds.push({
+      adId: ad.getId(), 
+      adTitle: ad.asType().expandedTextAd().getHeadlinePart1(), 
+      adCPA: HELPER.divide(stats.getCost(), stats.getConversions()), 
+      adCost: stats.getCost(),
+      adConversions: stats.getConversions(),
+    });    
+  }
+  
+  Logger.log(arrAds);  
+  if(arrAds.length == 0) return;
+  
+  var bestPerformingAd = arrAds.reduce(function(acc, x) {    
+    if(!acc.adCPA) return x;
+    return x.adCPA < acc.adCPA && x.adConversions > 1 ? x : acc; // lowest CPA with at least 2 conv. 
+  }, {});
+  
+  var bestPerformingAdCPA = bestPerformingAd.adCPA || 0;
+  Logger.log('best CPA: %s', bestPerformingAdCPA);    
+  
+  if(bestPerformingAdCPA = 0) return; 
+  
+  for(i in arrAds){
+    var ratio = HELPER.divide(arrAds[i], bestPerformingAdCPA);
+    var changeRate = ratio < 1 ? -(1 - ratio) : (ratio - 1);
+
+    if(changeRate > 0 && changeRate > PERCENTAGE_THRESHOLD)
+      Logger.log('ad #{0} ({2}) has CPA of {1} more than the best perfoming ad.'
+        .replace('{0}', arrAds[i].adId)
+        .replace('{1}', changeRate)
+        .replace('{2}', arrAds[i].adTitle)
+      );
+  } 
+}
+
+// -----------------------------
+
+var HELPER = {
+  dateFormat: function (date) {
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+
+    return year + month + day;
+  },
+  dateAdd: function (date, value, type){      
+    type = type || 'dd';
+    
+    var newDate = new Date(date.getTime());
+    
+    if(type == 'dd')
+      newDate.setDate(newDate.getDate() + value);
+    else if(type == 'MM')
+      newDate.setMonth(newDate.getMonth() + value);
+    
+    return newDate;  
+  },
+  divide: function(numerator, denominator){    
+    return denominator == 0 ? 0 : numerator / denominator;
+  },
+  getReport: function(reportName, reportFields, reportFilters, dateRange){
+    var reportConfig = {
+      includeZeroImpressions: true
+    };
+  
+    // {reportFields} FROM {reportName} WHERE {reportFilters} DURING {dateRange}
+    var query = 'SELECT ' + reportFields.join(', ') + ' ';  
+    query += 'FROM '+ reportName + ' ';
+  
+    if(reportFilters && reportFilters.length > 0)  
+      query += 'WHERE '+ reportFilters.join(' AND ') + ' ';
+  
+    query += 'DURING ' + dateRange;
+  
+    Logger.log(query);
+    return AdWordsApp.report(query, reportConfig); 
+  },
+}
+
+
+/* HTML BUILDER SERVICE */
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    },
+    toPDF: function(pdfName){          
+      var blob = Utilities.newBlob(_html, MimeType.HTML);
+      var pdf = blob.getAs(MimeType.PDF);  
+      pdf.setName(pdfName);
+      return pdf;
+    }  
+  };
+}

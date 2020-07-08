@@ -1,0 +1,44 @@
+CSS - bootstrap modal sample
+----------------------------
+
+// modal
+<div class="modal fade" id="popupSaveItem" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Save Item</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="code" value="0" />
+
+                <div>
+                    <h6>name</h6>
+                    <input type="text" value="" id="name" placeholder="item name" class="form-control" required />
+                </div>                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button id="btnSaveItem" type="button" data-dismiss="modal" class="btn btn-success">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+---
+
+// data-target="#popupSaveItem" to open the above modal 
+// data-role="edit" to register event before opening the modal
+// data-id="${item.code}" to identify which id triggered the modal (and inject it into a hidden field within the modal)
+<button class="btn btn-primary btn-sm" data-id="${item.code}" data-role="edit" data-toggle="modal" data-target="#popupSaveItem">Edit</button>
+
+---
+
+node.addEventListener('['data-role']', e => {	
+    let selected = parseInt(e.target.attributes['data-id'].value);
+    let item = _items.findByProperty('code', selected);
+    node.querySelector('#name').value = item.name;    
+    node.querySelector('#code').value = item.code;
+}, false)

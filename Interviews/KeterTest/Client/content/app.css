@@ -1,0 +1,75 @@
+﻿body {}
+
+div#wrapper {
+    padding: 20px;
+}
+
+.modal-body h6 {
+    padding-top: 6px;
+}
+
+.item {
+    width: 300px;
+    height: 300px;
+    border: solid 1px #808080;
+    border-radius: 6px;
+    padding: 10px;
+    background-color: #e0dcdc;
+    margin: 10px 10px 10px 0;    
+    float: left;
+}
+
+.item img {
+    width: 105px;
+    height: 105px;
+}
+
+.item > p:nth-child(2) {    
+    color: #676363;
+    font-size: 11px;
+    margin: 0px;
+    font-style:italic;
+}
+
+.item > p:nth-child(3) {
+    font-size: 12px;
+    overflow-y: auto;
+    height: 50px;
+}
+
+div#content::after {
+    content: "";
+    clear: both;
+    height: auto;
+    display: block;
+}
+
+input.invalid {
+    background-color: #fb8383;
+    color: #fff;
+}
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+select#ddlSort, input#txtSearch {
+    max-width: 300px;
+}
+
+.P8 {
+    padding-top: 8px;
+    padding-bottom: 8px;
+}
+
+.inline-block {
+    display: inline-block !important;
+}
+
+#btnSearch {
+    margin-left: -40px;
+    margin-top: -7px;
+    vertical-align: middle;
+}

@@ -1,0 +1,4 @@
+DBCC SHRINKDATABASE
+-------------------
+DBCC SHRINKDATABASE (<db> , <sizeInMb>)
+see 'SQL Clear Transaction Log File (.ldf)'

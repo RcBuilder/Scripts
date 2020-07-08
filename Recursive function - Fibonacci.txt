@@ -1,0 +1,10 @@
+static int Fibonacci(int step, int prev = 1, int curr = 1)
+{
+    if (step == 0) return curr;            
+    return Fibonacci(step-1, curr, prev + curr);
+}
+
+static void Main(string[] args)
+{    
+    Console.WriteLine(Fibonacci(8));		// 55
+}

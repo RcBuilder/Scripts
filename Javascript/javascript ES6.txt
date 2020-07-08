@@ -114,6 +114,8 @@ for(let key of keys)
 
 Map Data-Structure
 ------------------
+also see 'javascript ES6 Map Data-Structure'
+
 for mapping purposes.
 
 syntax:

@@ -149,6 +149,7 @@
 * M.O = (Latin) Modus Operandi ("Method of Operating") דרך פעולה 
 * 10x = Thanks
 * Gr8 = Great
+* LML = love my life
 
 (commands)
 * > TSC = TypeScript Compile

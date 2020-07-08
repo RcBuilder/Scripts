@@ -1,0 +1,17 @@
+javascript Array extension
+--------------------------
+
+Array.prototype.findByProperty = function (propName: string, value: any): Item {
+    return this.find(x => x[propName] === value) || null;
+}
+
+Array.prototype.findIndexByProperty = function (propName: string, value: any): number {
+    return this.findIndex(x => x[propName] === value); // -1 = not exists
+}
+
+Array.prototype.removeByProperty = function (propName: string, value: any): boolean {
+    let index = this.findIndex(x => x[propName] === value);
+    if (index == -1) return false;
+    this.splice(index, 1);
+    return true;
+}

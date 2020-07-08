@@ -1,0 +1,11 @@
+POW of 2 using Bitwise
+----------------------
+Console.WriteLine(255&8);
+Console.WriteLine((int)0b11111111&8);
+Console.WriteLine(0b11111111&0b00001000);
+
+--
+
+note:
+another option is by using a recursive function
+see 'Recursive function - IsPOW'

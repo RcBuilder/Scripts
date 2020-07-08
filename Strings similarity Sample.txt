@@ -1,0 +1,6 @@
+strings similarity
+------------------
+only a single word has changed
+
+implementation:
+see 'LINQPad-Queries\SimilarStrings.linq'
