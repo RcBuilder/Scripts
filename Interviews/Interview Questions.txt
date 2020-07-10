@@ -160,10 +160,30 @@ Console.WriteLine(0b11111111&0b00001000);
 
 ------- 	
 
-[Q] 
+[Q] Algorithm 
 Strings similarity
 
 [R]
 see 'Strings similarity Sample'	
+see 'LINQPad-Queries/SimilarStrings.linq'
 
 ------- 
+
+[Q] Algorithm 
+Find Pair With Given Sum 
+
+[R]
+see 'LINQPad-Queries/SumPairAlgorithm.linq'	
+
+------- 
+
+[Q] Algorithm 
+Number of levels in a Tree (Tree Height)
+
+[R]
+see 'LINQPad-Queries/TreeNumOfLevels.linq'	
+
+------- 
+
+
+

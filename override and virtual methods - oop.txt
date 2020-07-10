@@ -10,7 +10,8 @@
     if has override - refer to the last method override till the object level
     if has new - refer to the last override method that are not new(hidden) till the object level - cancel all overrides till the current point
 
-    also see 'override vs new.txt'
+    also see 'override vs new'
+    also see 'sealed override'
 */
 
 ======================================================================================================

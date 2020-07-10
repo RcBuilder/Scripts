@@ -1,0 +1,8 @@
+// Pervasive, Access, Dummy
+var DBProvider="Dummy";
+
+var dbProvider = new DAL.DBProviderFactory().Produce(ConfigurationManager.AppSettings["DBProvider"]);
+var transactions = dbProvider.GetTransactions();
+
+var dbProvider = new DAL.DBProviderFactory().Produce(ConfigurationManager.AppSettings["DBProvider"]);
+var details = dbProvider.GetTransactionDetails(Id);

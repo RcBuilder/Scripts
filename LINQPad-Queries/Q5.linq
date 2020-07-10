@@ -16,6 +16,23 @@ void Main()
 	Console.WriteLine((int)0b11111111&8);
 	Console.WriteLine(0b11111111&0b00001000); 		
 	
+	// --
+	
+	// Deserialize AnonymousType
+	var ModelSchema = new { 
+		Id = 0,
+		Name = "" 
+	};
+	
+	var requestPayload = @"{ 
+		'Id': 100,
+		'Name': 'John Doe'
+	}";
+	
+	var result = JsonConvert.DeserializeAnonymousType(requestPayload, ModelSchema);
+	Console.WriteLine(result.Name);
+	
+	// --
 	
 	var personA = new Person{ 
 		FullName = new Name { 

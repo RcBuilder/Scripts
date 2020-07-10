@@ -1,0 +1,20 @@
+sealed override
+---------------
+
+public class A {
+    public virtual void X() {
+        Console.WriteLine("A"); 
+    }
+}
+
+public class B : A {
+    public sealed override void X() {
+        Console.WriteLine("B"); 
+    }
+}
+
+public class C : B{
+    public override void X(){  // Compiler Error "cannot override sealed member"
+        Console.WriteLine("C");
+    }
+}

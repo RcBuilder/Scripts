@@ -1,0 +1,60 @@
+*** ODBC ***
+************
+Open Database Connectivity. 
+A specification for a database API. 
+Any database can implement this interface to allow standard access using SQL. 
+odbc uses drivers to interact with the database. 
+
+-
+
+ODBC Drivers manager:
+Administrative Tools
+-- ODBC Data Sources (32-bit)
+-- ODBC Data Sources (64-bit)
+
+To manage a data source that connects to a 32-bit driver under 64-bit platform, use c:\windows\sysWOW64\odbcad32.exe. 
+To manage a data source that connects to a 64-bit driver, use c:\windows\system32\odbcad32.exe. 
+
+-
+
+Supported Databases:
+https://web.synametrics.com/odbcdrivervendors.htm
+- Access
+- Excel
+- CSV
+- MySQL
+- Oracle
+- SQL Server
+- IBM DB2
+- Pervasive
+....
+....
+
+-
+
+Connection String:
+- Driver={<driverName>};Server=<server>;Trusted_Connection=Yes;Database=<databaseName>;
+- Driver={<driverName>};DBQ=<filePath>
+- Driver={<driverName>};DBQ=<folderPath>
+- DSN=<dsnName>
+
+// samples
+"Driver={ODBC Driver 13 for SQL Server};server=(local);database=MySQLDatabase;trusted_connection=Yes;"
+"Driver={Microsoft ODBC for Oracle};Server=MyServer;Persist Security Info=False;Trusted_Connection=Yes"  
+"Driver={Microsoft Access Driver (*.mdb)};DBQ=c:\bin\MyAccessFile.mdb"  
+"Driver={Microsoft Excel Driver (*.xls)};DBQ=c:\bin\MyExcelFile.xls"  
+"Driver={Microsoft Text Driver (*.txt; *.csv)};DBQ=C:\SomeFolder"  
+"DSN=MyDsn"  
+
+-
+
+using:
+- Samples
+- Sources
+- NodeJS/Sources/OdbcSample
+- Interviews/CreativeTest
+
+
+
+
+

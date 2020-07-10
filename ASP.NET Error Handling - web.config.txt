@@ -1,0 +1,56 @@
+ASP.NET Error Handling - web.config
+-----------------------------------
+
+OPTION-1 (legacy)
+<system.web>
+    <customErrors mode="On" redirectMode="ResponseRedirect" defaultRedirect="~/Errors/Index">
+      <error statusCode="400" redirect="~/Errors/BadRequest" />
+      <error statusCode="404" redirect="~/Errors/NotFound" />
+      <error statusCode="500" redirect="~/Errors/InternalError" />
+    </customErrors>
+</system.web>
+
+---
+
+OPTION-2 (IIS-7 and up)
+<system.webServer>
+	<httpErrors errorMode="Custom" existingResponse="Replace" defaultPath="/Errors/Index">
+		  <remove statusCode="400" />
+		  <remove statusCode="404" />
+		  <remove statusCode="500" />
+		  <error statusCode="400" responseMode="Redirect" path="/Errors/BadRequest" />
+		  <error statusCode="404" responseMode="Redirect" path="/Errors/NotFound" />
+		  <error statusCode="500" responseMode="Redirect" path="/Errors/InternalError" />
+	</httpErrors>
+</system.webServer>
+
+-----------------------
+
+public class ErrorsController : Controller
+{
+    public ActionResult Index()
+    {            
+        return View();
+    }
+
+    public ActionResult BadRequest()
+    {
+        Response.StatusCode = 400;
+	Response.TrySkipIisCustomErrors = true;
+        return View();
+    }
+
+    public ActionResult NotFound()
+    {
+        Response.StatusCode = 404;
+	Response.TrySkipIisCustomErrors = true;
+        return View();
+    }
+
+    public ActionResult InternalError()
+    {
+        Response.StatusCode = 500;
+	Response.TrySkipIisCustomErrors = true;
+        return View();
+    }
+}

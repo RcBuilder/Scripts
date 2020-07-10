@@ -1,0 +1,20 @@
+﻿@model IEnumerable<Entities.Transaction>
+@{
+    ViewBag.Title = "Creative";
+}
+
+<div class="jumbotron">
+    <h1>Creative Test</h1>
+</div>
+
+<div>
+    <div>
+        <h2>Transactions</h2>
+        <div class="items">
+            @foreach (var item in Model)
+            {
+                @Html.Partial("_Transaction", item);
+            }
+        </div>
+    </div>
+</div>

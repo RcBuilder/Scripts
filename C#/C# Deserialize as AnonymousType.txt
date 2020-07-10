@@ -1,0 +1,15 @@
+C# Deserialize as AnonymousType
+-------------------------------
+
+var ModelSchema = new { 
+	Id = 0,
+	Name = "" 
+};
+
+var requestPayload = @"{ 
+	"Id": 100,
+	"Name": "John Doe"
+}";
+
+var result = JsonConvert.DeserializeAnonymousType(requestPayload, ModelSchema);
+Console.WriteLine(result.Name);
