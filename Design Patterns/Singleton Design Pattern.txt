@@ -1,5 +1,5 @@
-Singleton Design Patterns
-=========================
+Singleton Design Pattern
+------------------------
 one instance of an object with a global reference point.
 basically, the object is a regular class with static single instance. 
 

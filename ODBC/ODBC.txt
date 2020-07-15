@@ -48,11 +48,11 @@ Connection String:
 
 -
 
-using:
-- Samples
-- Sources
-- NodeJS/Sources/OdbcSample
-- Interviews/CreativeTest
+samples:
+- see 'Samples' folder				// C# LinqPad Scripts
+- see 'Sources' folder				// C# Code
+- see 'NodeJS/Sources/OdbcSample'	// NodeJS
+- see 'Interviews/CreativeTest'		// MVC.Net
 
 
 

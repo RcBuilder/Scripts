@@ -143,7 +143,7 @@ serializers use reflaction on the actual Type in runtime
 
 -------
 
-[Q] LOGIC
+[Q] Algorithm
 check whether a number is a pow of 2
 
 [G]
@@ -173,7 +173,8 @@ see 'LINQPad-Queries/SimilarStrings.linq'
 Find Pair With Given Sum 
 
 [R]
-see 'LINQPad-Queries/SumPairAlgorithm.linq'	
+see 'LINQPad-Queries/SumPairAlgorithm.linq'
+see 'Algorithm - Find Pair With Given Sum'	
 
 ------- 
 
@@ -185,5 +186,77 @@ see 'LINQPad-Queries/TreeNumOfLevels.linq'
 
 ------- 
 
+[Q] Algorithm 
+Print all possible combinations in a given array
 
+[R]
+see 'Algorithm - Print Array Permutations'	
+see 'LINQPad-Queries/PrintPermutations.linq'
 
+------- 
+
+[Q] Algorithm 
+Find a missing number in a given array of 0......N
+
+[R]
+see 'Algorithm - Find Missing Number in array'	
+
+------- 
+
+[Q] Algorithm 
+Find a duplicate number in a given array of 0......N
+
+[R]
+see 'Algorithm - Find Duplicate Number in array'	
+
+------- 
+
+[Q] Algorithm 
+Find 2 Numbers adds-up to a given target. 
+e.g: target 7 matches 4 and 3
+
+[R]
+see 'Algorithm - Find 2 Numbers adds-up to a given target'	
+
+------- 
+
+[Q] Algorithm 
+Print Sorted Array using flags 
+
+[R]
+see 'Algorithm - Print Sorted Array using flags'	
+
+------- 
+
+[Q] Algorithm 
+Check If a given Expression is Valid
+
+[R]
+see 'Algorithm - Check If a given Expression is Valid'	
+
+-------
+
+[Q] Algorithm 
+Number ToString
+
+[R]
+see 'Algorithm - Number ToString'	
+
+-------
+
+[Q] Algorithm 
+Is Mirror String
+e.g: "abcddcba"
+
+[R]
+see 'Algorithm - Is Mirror String'	
+
+------- 
+
+[Q] Algorithm 
+Find Shared Minimum Number
+
+[R]
+see 'Algorithm - Find Shared Minimum Number'	
+
+------- 

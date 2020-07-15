@@ -1,0 +1,63 @@
+Algorithm - Check If a given Expression is Valid
+------------------------------------------------
+valid: 
+"{[(abc)]}", "(abc)", "[(abc)]" and etc.
+
+invalid: 
+"{[(abc)]}}", "[abc)", "([abc)]" and etc.
+
+--
+
+void Main()
+{
+	var expr = "ab + c {[(d + e) + k] * (f + (g - t))} zz";
+	var stack = new Stack<char>();
+	
+	var left = new List<char> { '{', '[', '('};
+	var right = new List<char> { '}', ']', ')'};
+	
+	for(var i = 0; i < expr.Length; i++) {	
+		if(left.Contains(expr[i])) {
+			stack.Push(expr[i]);
+			continue;
+		}
+		
+		if(right.Contains(expr[i])) {
+			var leftSign = stack.Count() == 0 ? '-' : stack.Pop();							
+			if(flip(expr[i]) != leftSign)
+				throw new Exception($"Invalid Expression!");
+		}		
+	}
+	
+	if(stack.Count() > 0)  // for cases of a left-sign without a closure (e.g: "{{abc}")
+		throw new Exception($"Invalid Expression!");
+	Console.WriteLine("Expression is Valid");
+}
+
+	
+
+char flip(char c) {
+	switch(c) {
+		case '}': return '{';
+		case ']': return '[';
+		case ')': return '(';
+		default: return '-';
+	}
+}
+
+/*
+	process
+	-------
+	use a stack data-structure to store all signs allowed from the left 
+	for each sign exists in the right, pop an item from the stack, flip it and match it to the current (right) sign 
+	(should be correspond to the current item)
+	
+	e.g: 
+	for "{[(abc)]}" before any pop execution, the stack should look like 
+	['(']
+	['[']
+	['{']
+	
+	first sign match from the right is ')', second is ']' and third is '}'
+	first stack.pop returns '(', second '[' and lastly '{'	
+*/

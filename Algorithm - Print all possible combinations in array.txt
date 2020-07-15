@@ -1,0 +1,5 @@
+Algorithm - Print all possible combinations in array
+----------------------------------------------------
+see 'Algorithm - Print Array Permutations'
+
+

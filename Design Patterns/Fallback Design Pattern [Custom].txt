@@ -1,0 +1,61 @@
+Fallback Design Pattern [Custom] 
+--------------------------------
+
+public interface IFileDownloader {
+        void DownloadToDisk(string FileURL, string FolderPath);
+}
+
+---
+
+public class FileDownloader
+{
+	private List<IFileDownloader> Downloaders { set; get; }
+	private int DownloaderInUseIndex = 0;
+
+	private IFileDownloader Downloader {
+		get {
+            if (this.Downloaders.Count <= this.DownloaderInUseIndex) // index of of bounds
+                    return null;
+            return this.Downloaders[this.DownloaderInUseIndex];
+		}
+	}
+
+	public FileDownloader() {
+        this.Downloaders = new List<IFileDownloader>();
+
+        AddDownloader(new WebClientFileDownloader());            
+        AddDownloader(new SocketFileDownloader());
+        AddDownloader(new WebClientFileDownloader("127.0.0.1:24000"));
+    }
+
+	public void AddDownloader(IFileDownloader downloader) {
+        this.Downloaders.Add(downloader);
+    }
+
+	public void DownloadFile(string FileURL, string LocalFilePath) {
+        if (this.Downloader == null)
+            return;
+
+        try {                
+            this.Downloader.DownloadToDisk(FileURL, LocalFilePath);                
+        }
+        catch (Exception ex) {
+            ex.Data.Add("Downloader", this.Downloader.GetType().Name);
+            ex.Data.Add("FileURL", FileURL);
+            Logger.Instance.Error(ex);
+
+            MoveNext();
+            DownloadFile(FileURL, LocalFilePath);
+        }            
+    }
+
+	private void MoveNext() {
+        DownloaderInUseIndex++;
+    }
+}
+
+---
+
+using:
+var fileDownloader = new FileDownloader();
+var fileName = fileDownloader.Download("http://example.com/dummy.jpg", "C:\\");

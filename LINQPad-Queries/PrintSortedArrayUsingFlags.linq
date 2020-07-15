@@ -1,0 +1,26 @@
+<Query Kind="Statements" />
+
+var arr = new int[] { 3, 8, 1, 2, 4, 6 };
+
+var arrBits = new int[9];
+
+for(var i = 0; i < arr.Length; i++)	
+	arrBits[arr[i]] = 1;		
+	
+/// Console.Write(arrBits);
+
+for(var i = 0; i < arrBits.Length; i++)	
+	if(arrBits[i] == 1)	
+		Console.Write($"{i},");
+
+/*
+	process
+	-------
+	use flags array to mark existing numbers, use the number value as the index! 
+	loop through the bits-array and print all organs which are ON (value=1) 
+	
+	arrBits: [0, 1, 1, 1, 1, 0, 1, 0, 1]
+	
+	flags are ON in the listed indexes:
+	1, 2, 3, 4, 6, 8
+*/

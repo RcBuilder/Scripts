@@ -1,0 +1,7 @@
+Read Payload
+------------
+string sBody;
+            using (var stream = new StreamReader(actionContext.Request.Content.ReadAsStreamAsync().Result)) {
+                stream.BaseStream.Position = 0;
+                sBody = stream.ReadToEnd();
+            }
