@@ -49,3 +49,16 @@ void Print(int[] arr){
     if(arr.Length > 0) 
         Console.WriteLine(arr[arr.Length - 1]);
 }
+
+/*
+	process
+	-------
+	all permutations of N sized array.	
+	-
+	number of options:
+	N = 3 -> 6 options (3 x 2 x 1)
+	N = 4 -> 24 options (4 x 3 x 2 x 1)
+	
+	// stats trick view
+	[4 options] [3 options] [2 options] [1 options] = 24		
+*/

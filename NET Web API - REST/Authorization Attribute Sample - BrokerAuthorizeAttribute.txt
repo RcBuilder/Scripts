@@ -1,0 +1,37 @@
+using System.Security.Principal;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Controllers;
+
+[AttributeUsage(AttributeTargets.Class)]
+public class BrokerAuthorizeAttribute : AuthorizeAttribute
+    {
+        public override Task OnAuthorizationAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+        {
+            var currentIdentity = actionContext.RequestContext.Principal.Identity;
+
+	    ...
+  	    ...
+            
+            var identity = new GenericIdentity("SomeBrokerName", "BrokerName");
+            actionContext.RequestContext.Principal = new GenericPrincipal(identity, new string[] {
+                "Broker" // roles
+            }); 
+
+            return base.OnAuthorizationAsync(actionContext, cancellationToken);
+        }
+    }
+
+---
+
+public string ExtractBrokerName(HttpActionContext actionContext)
+{
+            return actionContext.RequestContext.Principal.Identity.Name;
+}
+
+---
+
+[BrokerAuthorize(Roles = "Broker")]
+[BrokerProcessor(typeof(BrokerFactory))]
+public class AccountController : ApiController { ... }

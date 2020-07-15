@@ -260,3 +260,36 @@ Find Shared Minimum Number
 see 'Algorithm - Find Shared Minimum Number'	
 
 ------- 
+
+[Q] Algorithm 
+Random Permutation of N numbers
+
+[R]
+see 'Algorithm - Random Permutation of N - rnd-perm'	
+
+-------
+
+[Q] Algorithm 
+Sort 4 Numbers with least comparisons
+
+[R]
+see 'Algorithm - Sort 4 Numbers with least comparisons'	
+
+-------
+
+[Q] Algorithm 
+Sorting a Bit Array
+
+[R]
+see 'Algorithm - Sorting a Bit Array'	
+
+-------
+
+[Q] Algorithm 
+Max time from 4 digits.
+1234 => 23:41
+
+[R]
+see 'Algorithm - Max time from 4 digits'	
+
+-------
