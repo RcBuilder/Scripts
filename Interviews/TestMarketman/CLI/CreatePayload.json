@@ -1,0 +1,9 @@
+{
+    "id":"123456",
+    "name":"Roby Cohen",
+    "profile":"https://picsum.photos/140/209?random=1",
+    "type":"Developer",
+    "knownArtwork":"McGrawHill Education",
+    "desc":"bla bla bla",
+    "birthDate":"1980-01-01T00:00:00"
+}

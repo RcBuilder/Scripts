@@ -1,0 +1,3 @@
+@echo creating a celebrity card...
+curl -H "Content-Type: application/json" -X POST http://localhost:1166/celebrities -d @CreatePayload.json
+@echo done

@@ -1,0 +1,3 @@
+@echo updating an existing celebrity card...
+curl -H "Content-Type: application/json" -X PUT http://localhost:1166/celebrities -d @UpdatePayload.json
+@echo done
