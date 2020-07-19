@@ -1,0 +1,24 @@
+C# FileSystemWatcher - Watch File Changes
+-----------------------------------------
+
+using System.IO;
+using System.Security.Permissions;
+
+[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+static void Main(string[] args)
+{
+	var watcher = new FileSystemWatcher(@"C:\Users\RcBuilder\Desktop\Creative\CreativeMQ\", "*.txt");
+            
+    watcher.NotifyFilter = NotifyFilters.LastAccess | NotifyFilters.LastWrite | NotifyFilters.FileName | NotifyFilters.DirectoryName;                
+    watcher.EnableRaisingEvents = true;
+
+    watcher.Changed += (s, e) => { Console.WriteLine($"File: {e.Name} has Changed"); };
+    watcher.Created += (s, e) => { Console.WriteLine($"File: {e.Name} has Created"); };
+    watcher.Deleted += (s, e) => { Console.WriteLine($"File: {e.Name} has Deleted"); };
+    watcher.Renamed += (s, e) => { Console.WriteLine($"File: {e.OldName} has Renamed to {e.Name}"); };
+            
+
+    Console.ReadKey();
+    watcher.Dispose();
+
+}

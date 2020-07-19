@@ -1,0 +1,40 @@
+javascript - create dynamic Form
+--------------------------------
+
+function createElement(tag, attributes) {
+    let newElement = document.createElement(tag);
+    Object.keys(attributes || {}).forEach(a => {
+        newElement[a] = attributes[a];
+    });
+    return newElement;
+}
+
+--
+
+function removeDynamicForm() {
+    let form = document.querySelector('form#frmD');
+    form.remove();
+}
+
+function createDynamicForm() {
+    let newForm = createElement('form', {
+        id: 'frmD',
+        action: 'HookForms.html?P=D',
+        method: 'post',
+        style: 'padding: 8px 0'
+    });
+
+    let submit = createElement('input', {
+        type: 'submit',
+        value: 'send'
+    });
+
+    let br = createElement('br');
+    let text = document.createTextNode('dynamic form');
+
+    newForm.appendChild(text);
+    newForm.appendChild(br);
+    newForm.appendChild(submit);
+
+    document.body.appendChild(newForm);
+}

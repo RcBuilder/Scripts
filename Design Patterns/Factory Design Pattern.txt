@@ -1,0 +1,128 @@
+Factory Design Pattern
+----------------------
+
+// Interfaces
+public interface IFactory<TIn, TOut>
+{
+        TOut Produce(TIn MetaData);
+}
+
+public interface IDocumentLoader {
+	HtmlDocument Load(string URL);       
+        HtmlDocument LoadHtml(string Input);
+}
+
+---
+
+// Concrete
+public class WebClientLoader : IDocumentLoader
+{
+	...
+	...            
+}
+
+public class AgilityPackLoader : IDocumentLoader
+{
+	...
+	...
+}
+
+public class HttpClientLoader : IAsyncDocumentLoader
+{
+	...
+	...
+}
+
+---
+
+// Model
+public class DocumentLoaderMetaData
+{
+        public string Name { get; set; }
+        public string Properties { get; set; }        
+}
+
+---
+
+// Factory
+public class DocumentLoaderFactory : IFactory<DocumentLoaderMetaData, IDocumentLoader>
+{
+        public IDocumentLoader Produce(DocumentLoaderMetaData MetaData) {
+            var Name = MetaData == null ? "" : MetaData.Name;
+            switch (Name) {
+                default:                
+                case "HttpClientLoader": return new HttpClientLoader();
+                case "WebClientLoader": return new WebClientLoader();
+                case "AgilityPackLoader": return new AgilityPackLoader();                         
+            }
+        }
+}
+
+---
+
+// Using 
+var documentLoaderFactory = new DocumentLoaderFactory();
+var documentLoader = documentLoaderFactory.Produce(new DocumentLoaderMetaData { 
+	Name = "AgilityPackLoader" 
+});
+
+document = documentLoader.Load("...");
+
+
+---------------------------------------------------------------------------
+
+// Interfaces
+public abstract class Page { }
+
+---
+
+// Model
+public class PageA : Page { }
+public class PageB : Page { }
+public class PageC : Page { }
+public class PageD : Page { }
+public class PageE : Page { }
+
+---
+
+public abstract class Document {
+	public List<Page> Pages { get; protected set; } = new List<Page>();
+
+	public Document() {
+		this.CreatePages();
+	}
+
+	// Factory method
+	public abstract void CreatePages();	
+}
+
+---
+
+// Concrete
+public class DocumentA : Document {
+
+	// Factory method
+	public override void CreatePages()
+    {
+      Pages.Add(new PageA());
+      Pages.Add(new PageB());      
+    }
+}
+
+public class DocumentB : Document {
+
+	// Factory method
+	public override void CreatePages()
+    {
+      Pages.Add(new PageC());
+      Pages.Add(new PageD());      
+	  Pages.Add(new PageE());      
+    }
+}
+
+---
+
+// Using
+var doc = new DocumentA();
+	foreach (var page in doc.Pages)
+    	Console.WriteLine(" " + page.GetType().Name);
