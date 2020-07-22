@@ -9,7 +9,7 @@ namespace Scrapper
     public class IMDBScrapper : Scrapper<List<CelebrityCard>>
     {
         protected const string DATA_URL = "https://www.imdb.com/list/ls052283250/";
-        public IMDBScrapper(IDocumentLoader DocumentLoader) : base(DocumentLoader) { }
+        public IMDBScrapper(IDocumentLoader DocumentLoader) : base(DocumentLoader) { }        
         
         public override HtmlDocument Load()
         {
@@ -35,6 +35,9 @@ namespace Scrapper
                     Desc = new XPathParser(".//p[2]").Parse(cardNode),
                     Type = new XPathParser(".//h3/following-sibling::p/text()").Parse(cardNode),
                 };
+
+                // TODO ->> extruct gender
+                /// card.Gender = card.Type == "Actor" ? "male" : "female";  
 
                 var idHref = new XPathAttributeParser(".//h3/a", "href").Parse(cardNode);
                 card.Id = new RegexParser("(?<=/name/)[A-Za-z0-9]+(?=\\?)").Parse(idHref);

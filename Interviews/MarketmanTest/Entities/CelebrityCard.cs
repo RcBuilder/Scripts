@@ -25,5 +25,8 @@ namespace Entities
 
         [JsonProperty(PropertyName = "birthDate")]
         public DateTime? BirthDate { get; set; }
+
+        [JsonProperty(PropertyName = "gender")]
+        public string Gender { get; set; }
     }
 }

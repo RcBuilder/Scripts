@@ -25,7 +25,7 @@
             let node = document.createElement('div');                 
             node.innerHTML = `<div class="card">
 	            <h3 class="truncate">${card.name}</h3>		                
-	            <p class="truncate">${card.type} | ${card.birthDate ? card.birthDate.dateFormat() : 'NoDate'} | ${card.knownArtwork}</p>                  
+	            <p class="truncate">${card.type} | ${card.gender} | ${card.birthDate ? card.birthDate.dateFormat() : 'NoDate'} | ${card.knownArtwork}</p>                  
                 <p>
                     <image class="img-thumbnail" src="${card.profile}" /> 
                     ${card.desc}

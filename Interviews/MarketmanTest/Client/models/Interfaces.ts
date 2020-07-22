@@ -9,7 +9,8 @@ interface ICelebrityCard {
     desc: string,
     birthDate: Date,
     profile: string,
-    knownArtwork: string
+    knownArtwork: string,
+    gender: string
 };
 
 interface ICelebritiesService {

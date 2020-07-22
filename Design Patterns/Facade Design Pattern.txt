@@ -1,0 +1,62 @@
+Facade Design Pattern
+---------------------
+
+// using 
+var facade = new Facade();
+facade.FunA();
+facade.FunB();
+
+---
+
+// Facada layer
+class Facade {
+	private SystemA SA { get; set; } = new SystemA();
+	private SystemB SB { get; set; } = new SystemB();
+	private SystemC SC { get; set; } = new SystemC();
+
+	public void FunA() { 
+		SA.FunA();
+		SB.FunA();
+		SC.FunA();
+	}
+	
+	public void FunB() { 
+		SA.FunB();
+		SB.FunB();
+		SC.FunB();
+	}
+}
+
+---
+
+// Systems/ Services definition   
+class SystemA { 
+	public void FunA() { 
+		Console.WriteLine("SystemA > FunA");
+	}
+	
+	public void FunB() { 
+		Console.WriteLine("SystemA > FunB");
+	}
+}
+
+class SystemB { 
+	public void FunA() { 
+		Console.WriteLine("SystemB > FunA");
+	}
+	
+	public void FunB() { 
+		Console.WriteLine("SystemB > FunB");
+	}
+}
+
+class SystemC { 
+	public void FunA() { 
+		Console.WriteLine("SystemC > FunA");
+	}
+	
+	public void FunB() { 
+		Console.WriteLine("SystemC > FunB");
+	}
+}
+

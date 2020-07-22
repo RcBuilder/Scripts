@@ -14,7 +14,7 @@ class CelebritiesService {
         let date = x.birthDate;
         if (date)
             date = new Date(x.birthDate);
-        return new CelebrityCard(x.id, x.name, x.type, x.desc, date, x.profile, x.knownArtwork);
+        return new CelebrityCard(x.id, x.name, x.type, x.desc, date, x.profile, x.knownArtwork, x.gender);
     }
     get() {
         return __awaiter(this, void 0, void 0, function* () {

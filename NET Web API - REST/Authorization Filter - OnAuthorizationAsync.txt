@@ -1,0 +1,44 @@
+namespace Authorization
+{
+    [AttributeUsage(AttributeTargets.Class)]
+    public class MyAuthorizeAttribute : AuthorizeAttribute
+    {        
+        public CreativeAuthorizeAttribute() { }
+
+        public override Task OnAuthorizationAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+        {
+            try
+            {
+                // [AllowAnonymous]
+                if (actionContext.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any())
+                    return base.OnAuthorizationAsync(actionContext, cancellationToken);
+
+                var authorization = actionContext.Request.Headers.Authorization;
+                if (authorization == null)
+                    throw new Exception("No Authorization Header");
+
+                if (authorization.Scheme != "Bearer")
+                    throw new Exception("Not a Bearer Authorization");
+
+                ...
+		...
+
+                // -- OK (Authorized) --
+                var identity = new GenericIdentity("SomeValue", "SomeName");
+                actionContext.RequestContext.Principal = new GenericPrincipal(identity, new string[] {
+                    "SomeRole" 
+                });
+
+                var contextIdentity = actionContext.RequestContext.Principal.Identity;
+                Debug.WriteLine($"Context Identity -> {contextIdentity.Name}");
+
+                return base.OnAuthorizationAsync(actionContext, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.Message);
+                return Task.CompletedTask;
+            }
+        }
+    }
+}

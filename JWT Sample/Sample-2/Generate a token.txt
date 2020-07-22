@@ -1,0 +1,12 @@
+﻿(steps)
+1. Go to https://jwt.io/
+2. set the following payload:
+   {  
+	  "brokerName": "<Your broker name>",
+	  "role": "Broker"
+   }
+3. use the secret-key to sign the request 
+4. copy the generated token and send it to the corresponding client (based on the value you've set as the "brokerName")
+-
+5 using:
+  H: Authorization: Bearer <access_token>

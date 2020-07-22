@@ -11,7 +11,7 @@
     private parse(x: any): CelebrityCard {
         let date = x.birthDate;
         if (date) date = new Date(x.birthDate);
-        return new CelebrityCard(x.id, x.name, x.type, x.desc, date, x.profile, x.knownArtwork);
+        return new CelebrityCard(x.id, x.name, x.type, x.desc, date, x.profile, x.knownArtwork, x.gender);
     }
 
     async get(): Promise<CelebrityCard[]> {

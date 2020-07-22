@@ -293,3 +293,12 @@ Max time from 4 digits.
 see 'Algorithm - Max time from 4 digits'	
 
 -------
+
+[Q] Algorithm 
+set all Even numbers at first and only then, the Odd numbers.
+[1,2,3,5,4,7,10] => [10,2,4,5,3,7,1]
+
+[R]
+see 'Algorithm - Even Numbers at first then Odds'	
+
+-------

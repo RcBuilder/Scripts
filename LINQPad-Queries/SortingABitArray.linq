@@ -29,7 +29,7 @@ void swap(int[] arr, int index1, int index2) {
 	-------
 	sort bit array so all 1's should be after all 0's.
 	-
-	allocate 2 pointer, one at index 0 and the second at the very first 0 from the last.
+	allocate 2 pointers, one at index 0 and the second at the very first 0 from the last.
 	the first index is a "fast" index whereas the second is a "slow" index, which means it's only promoted when there's a swap. 
 	once a '1' bit value is found, swap it.
 */

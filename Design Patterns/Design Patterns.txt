@@ -8,6 +8,7 @@ common:
 - Pipes and Filters
 - Message Router
 - Factory
+- Facade
 
 // TODO
 
@@ -19,5 +20,6 @@ references:
 - Mediator Design Pattern
 - Pipes and Filters Design Pattern
 - Factory Design Pattern
+- Facade Design Pattern
 
 - Fallback Design Pattern [Custom]

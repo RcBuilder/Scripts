@@ -1,0 +1,35 @@
+ApiController Custom Properties
+-------------------------------
+
+[BrokerProcessor]
+public abstract class BrokerApiController : ApiController
+{
+    public IBroker Broker { get; set; }
+}
+
+[AttributeUsage(AttributeTargets.Class)]
+public class BrokerProcessor : ActionFilterAttribute{
+	public sealed override Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+        {
+		var controller = actionContext.ControllerContext.Controller as BrokerApiController;
+		controller.Broker = new DefaultBroker();
+	}	
+}
+
+
+public class AccountController : BrokerApiController
+{
+    [HttpPost]
+    [Route("account")]
+    public HttpResponseMessage CreateAccount([FromBody]Account account)
+    {
+        var bll = new AccountsBLL(this.Broker); // use the broker anywhere within the controller boundaries
+        var userId = bll.SaveAccount(account);
+     
+        File.WriteAllText($"D:\\account-payload-{userId}.txt", JsonConvert.SerializeObject(account));
+
+        var response = Request.CreateResponse(HttpStatusCode.Created, userId);            
+        response.Headers.Add("Created", userId.ToString());
+        return response;            
+    }
+}
