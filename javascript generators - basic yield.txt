@@ -1,0 +1,14 @@
+javascript basic yield 
+----------------------
+
+function * f1() {
+    yield 1;
+    yield 2;
+    yield 3;
+}
+
+const iterator = f1();
+iterator.next().value; // 1  ( {value: 1, done: false} )
+iterator.next().value; // 2
+iterator.next().value; // 3
+iterator.next().value; // undefined

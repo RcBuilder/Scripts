@@ -1,6 +1,6 @@
 <!doctype html>
 
-<html ng-app>
+<html ng-app="my-app">
 
 <head>
     <title>AngularJS</title>
@@ -25,7 +25,7 @@
             <li ng-repeat="user in users | filter: name_filter | orderBy: 'age'">{{ user.name | lowercase }} ({{ user.age }})</li>
         </ul>
     </div>
-    <div ng-controller="my_controller">
+    <div ng-controller="myController">
         <ul>
             <li ng-repeat="friend in friends">{{ $index + 1 }} {{ friend.name }}</li>
         </ul>
@@ -35,25 +35,26 @@
 	    <button ng-click="addFriend()">add Friend</button>
     </div>
 
-    <script type="text/javascript" src="angular.min.js"></script>
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.8/angular.min.js"></script>
+    <script>
+        var app = angular.module('my-app', []);
+
+        app.controller('myController', function ($scope, $http) {
+            $scope.friends = [
+                { name: 'RON', age: 39 },
+                { name: 'LITAL', age: 26 },
+                { name: 'EREZ', age: 35 },
+                { name: 'MAAYAN', age: 34 },
+                { name: 'RICKI', age: 28 }
+            ];
+
+            $scope.addFriend = function () {
+                $scope.friends.push({
+                    name: $scope.new_friend.name,
+                    age: $scope.new_friend.age
+                });
+            };
+        });
+    </script>
 </body>
 </html>
-
-<script>
-    function my_controller($scope, $http) {
-        $scope.friends = [
-            { name: 'RON', age: 39 },
-            { name: 'LITAL', age: 26 },
-            { name: 'EREZ', age: 35 },
-            { name: 'MAAYAN', age: 34 },
-            { name: 'RICKI', age: 28 }
-        ];
-
-        $scope.addFriend = function () {
-            $scope.friends.push({
-                name: $scope.new_friend.name,
-                age: $scope.new_friend.age
-            });
-        };
-    } 
-</script>

@@ -1,0 +1,200 @@
+Basic Scrapper - IMDBScrapper
+-----------------------------
+
+namespace Entities
+{
+    public interface IDocumentLoader
+    {
+        HtmlDocument Load(string URL);        
+        HtmlDocument LoadHtml(string Input);
+    }
+
+    public interface IAsyncDocumentLoader : IDocumentLoader
+    {
+        Task<HtmlDocument> LoadAsync(string URL);        
+    }
+
+    public interface IScrapper<T>
+    {
+        T Value { get; set; }
+        void Run();
+    }
+
+    public interface IAsyncScrapper<T> : IScrapper<T> 
+    {
+        Task RunAsync();
+    }
+
+    public interface IExpression 
+    {
+        string Expression { get; }
+    }
+
+    public interface IParser<TIn, TOut>
+    {
+        TOut Parse(TIn Input);
+    }
+
+    public interface INodeParser<T> : IParser<HtmlNode, T> { }
+}
+
+---
+
+namespace Scrapper
+{
+    public abstract class Scrapper<T> : IAsyncScrapper<T>
+    {
+        protected IDocumentLoader DocumentLoader { get; set; }
+
+        public T Value { get; set; }        
+        
+        public Scrapper(IDocumentLoader DocumentLoader) {
+            this.DocumentLoader = DocumentLoader;
+        }
+
+        public void Run() {
+            var documet = this.Load();
+            this.Parse(documet);
+        }
+
+        public async Task RunAsync()
+        {
+            var documet = await this.LoadAsync();
+            this.Parse(documet);
+        }
+
+        public abstract HtmlDocument Load();
+        public abstract Task<HtmlDocument> LoadAsync();
+        public abstract void Parse(HtmlDocument Document);
+    }
+}
+
+---
+
+namespace Scrapper
+{
+    public class IMDBScrapper : Scrapper<List<CelebrityCard>>
+    {
+        protected const string DATA_URL = "https://www.imdb.com/list/ls052283250/";
+        public IMDBScrapper(IDocumentLoader DocumentLoader) : base(DocumentLoader) { }        
+        
+        public override HtmlDocument Load()
+        {
+            return this.DocumentLoader.Load(IMDBScrapper.DATA_URL);                     
+        }
+
+        public override async Task<HtmlDocument> LoadAsync() {
+            if (this.DocumentLoader is IAsyncDocumentLoader)            
+                return await (this.DocumentLoader as IAsyncDocumentLoader).LoadAsync(IMDBScrapper.DATA_URL);
+            return this.Load();
+        }
+
+        public override void Parse(HtmlDocument Document) {
+            this.Value = new List<CelebrityCard>();
+            var cardNodes = new XPathNodesParser("//div[@class=\"lister-item mode-detail\"]").Parse(Document);
+            foreach (var cardNode in cardNodes)
+            {
+                var card = new CelebrityCard
+                {
+                    Name = new XPathParser(".//h3/a").Parse(cardNode),
+                    KnownArtwork = new XPathParser(".//p[1]/a").Parse(cardNode),
+                    Profile = new XPathAttributeParser(".//div[@class=\"lister-item-image\"]/a/img", "src").Parse(cardNode),
+                    Desc = new XPathParser(".//p[2]").Parse(cardNode),
+                    Type = new XPathParser(".//h3/following-sibling::p/text()").Parse(cardNode),
+                };
+
+                var idHref = new XPathAttributeParser(".//h3/a", "href").Parse(cardNode);
+                card.Id = new RegexParser("(?<=/name/)[A-Za-z0-9]+(?=\\?)").Parse(idHref);
+
+                var sBirthDate = new DateParser().Parse(card.Desc);
+                if(!string.IsNullOrEmpty(sBirthDate))
+                    card.BirthDate = DateTime.Parse(sBirthDate);
+
+                this.Value.Add(card);
+            }
+        }        
+    }
+}
+
+---
+
+namespace Scrapper
+{
+    public class AgilityPackLoader : IAsyncDocumentLoader
+    {
+        private const double TimeOutSec = 30;
+
+        public HtmlDocument Load(string URL)
+        {
+            return new HtmlWeb().Load(URL);
+        }
+
+        public Task<HtmlDocument> LoadAsync(string URL)
+        {
+            return new HtmlWeb().LoadFromWebAsync(URL);
+        }
+
+        public HtmlDocument LoadHtml(string Input)
+        {
+            var document = new HtmlDocument();
+            document.LoadHtml(Input);
+            return document;
+        }
+    }
+
+	-
+
+	public class HttpClientLoader : IDocumentLoader
+    {
+        private const double TimeOutSec = 30;
+        private HttpClientHandler settings { get; } = new HttpClientHandler {
+            UseProxy = false  // to improve velocity (skipping the proxy seek)
+        };
+
+        public HtmlDocument Load(string URL)
+        {
+            var result = string.Empty;
+            using (var client = new HttpClient(this.settings, false))
+            {
+                client.Timeout = TimeSpan.FromSeconds(TimeOutSec);
+                using (var resonse = client.GetAsync(URL).Result)
+                    result = resonse.Content.ReadAsStringAsync().Result;
+            }
+
+            return LoadHtml(result);
+        }
+
+        public HtmlDocument LoadHtml(string Input)
+        {
+            var document = new HtmlDocument();
+            document.LoadHtml(Input);
+            return document;
+        }
+    }
+}
+
+---
+
+namespace Scrapper
+{
+    public class XPathParser : INodeParser<string>, IExpression
+    {
+        public string Expression { get; set; }
+
+        public XPathParser(string Expression) {
+            this.Expression = Expression;
+        }
+
+        public string Parse(HtmlNode Input)
+        {
+            if (Input == null || string.IsNullOrEmpty(this.Expression))
+                return null;
+            return Input.SelectSingleNode(this.Expression)?.InnerText.Trim();
+        }
+    }
+}
+
+------------------------------ 
+
+full sample:
+see 'Interviews/MarketmanTest/Scrapper'

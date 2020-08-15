@@ -1,4 +1,4 @@
-
+// HTML
 <div ng-app="service-app">
     <div ng-controller="homeController">
         <ul>
@@ -7,7 +7,7 @@
     </div>
 </div>
 
-@section scripts{ 
+// SCRIPTS
 <script type="text/javascript" src="https://code.angularjs.org/1.4.8/angular.min.js"></script>
 <script>
     var app = angular.module('service-app', []);
@@ -28,8 +28,10 @@
         }
     });
 </script>
-}
 
+--
+
+// SERVER REST
 public class ServiceController : ApiController
 {
     [HttpGet]

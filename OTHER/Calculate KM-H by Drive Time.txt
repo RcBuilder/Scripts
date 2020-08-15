@@ -1,0 +1,21 @@
+Calculate KM/H by Drive Time
+----------------------------
+
+Formula:
+(Distance In KM / Time In Minutes) * 60 = speed (KM/H)
+
+---
+
+samples:
+john drove 90 minutes to reach a distance of 60 KM
+60/90 * 60 = 40
+speed 40 KM/H
+-
+john drove 90 minutes to reach a distance of 120 KM
+120/90 * 60 = 80
+speed 80 KM/H
+-
+bolt run 10 seconds to reach a 100 meters distance
+(100/1000) / (10/60)	// convert to KM and Min
+0.1/0.166 * 60 = 36
+speed 36 KM/H

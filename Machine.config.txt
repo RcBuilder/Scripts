@@ -1,0 +1,12 @@
+Machine.config
+--------------
+a master configuration file on a system-level. 
+includes default settings which are applied to all asp.net applications.
+use the web.config to add/ override settings to a specific app.
+
+location:
+- 32bit apps
+  C:\Windows\Microsoft.NET\Framework\v4.0.30319\Config
+
+- 64bit apps:
+  C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config

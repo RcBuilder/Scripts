@@ -1,0 +1,26 @@
+ODBC Transaction
+----------------
+
+using System.Data.Odbc;
+
+using (var connection = new OdbcConnection(this.ConnetionString))
+{
+    connection.Open();
+    transaction = connection.BeginTransaction();
+
+    var query1 = $@"...";
+    var query2 = $@"...";
+
+    var command = new OdbcCommand();
+
+    command.Connection = connection;
+    command.Transaction = transaction;
+
+    command.CommandText = query1;
+    command.ExecuteNonQuery();
+
+    command.CommandText = query2;
+    command.ExecuteNonQuery();
+
+    transaction.Commit();
+}

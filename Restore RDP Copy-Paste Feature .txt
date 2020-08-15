@@ -1,0 +1,3 @@
+Restore RDP Copy-Paste Feature 
+------------------------------
+kill process 'rdpclip.exe' and start it again 

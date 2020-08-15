@@ -1,0 +1,19 @@
+HTTP vs TCP vs IP
+-----------------
+HTTP is a protocol commonly used for browsing the NET. 
+it based on the TCP protocol.
+
+-
+
+TCP is a protocol which provides a reliable connection between 2 machines.
+if a packet is lost, it re-send it again. 
+it based on the IP protocol.
+
+-
+
+IP is a protocol which provides unified assresses.
+ 
+-
+
+TCP/IP is the basis for most networks including the internet.
+

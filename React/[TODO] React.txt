@@ -11,18 +11,195 @@
 ============================
 
 
-
-
-
+// TODO 
+merge with React Native
+see 'React Native.txt'
 
 
 
 
 -------------------------------------------
-// TODO
-react with .Net (MVC, WebApi etc.)
+
+ReactJS.NET
+react with .Net (ASP.NET MVC)
+
+sources:
+https://reactjs.net/
+https://reactjs.net/getting-started/aspnet.html
+
+(steps)
+1. open an MVC project (blank)
+2. install react
+   > Install-Package React.Web.Mvc4 -Version 5.2.7
+   > JavaScriptEngineSwitcher.V8
+   > Install-Package JavaScriptEngineSwitcher.V8.Native.win-x64
+3. add Controller and a View
+4. import react namespace to the created view 
+   @using React.Web.Mvc;
+5. render a component in the view
+   @Html.React("TestReact", new {
+		name = "Roby"
+	})
+6. create a new .js file and implement the react component 
+   // Scripts/app.jsx
+   class TestReact extends React.Component {
+		render() {
+			return (
+				<div>
+					<h1>Hello React</h1>
+					<p>{this.props.name}</p>
+				</div>
+			)
+		}
+	}
+7. App_Start > ReactConfig > set configuration for react
+   public static class ReactConfig {
+		public static void Configure() {
+            ReactSiteConfiguration.Configuration
+                .AddScript("~/Scripts/app.jsx");
+			JsEngineSwitcher.Current.DefaultEngineName = V8JsEngine.EngineName;
+            JsEngineSwitcher.Current.EngineFactories.AddV8();
+        }
+    }
+8. Build
+
+note:
+see 'ReactJS.NET render using @Html.React'
+see 'ReactJS.NET render using js libraries'
+see 'ReactJS.NET component in component'
 
 - 
+
+ReactJS.NET component in component:
+
+notes:
+use the ReactConfig to import all related jsx files. 
+do not use the keyword 'import' within the jsx files (its already imported)
+
+// ReactConfig.cs
+using JavaScriptEngineSwitcher.Core;
+using JavaScriptEngineSwitcher.V8;
+using React;
+
+public static class ReactConfig {
+	public static void Configure() {
+        ReactSiteConfiguration.Configuration                
+            .AddScript("~/Scripts/comp.jsx")
+            .AddScript("~/Scripts/app.jsx");  
+
+        JsEngineSwitcher.Current.DefaultEngineName = V8JsEngine.EngineName;
+        JsEngineSwitcher.Current.EngineFactories.AddV8();
+    }
+}
+
+// comp.jsx
+class TestComp extends React.Component {
+    render() {
+        return (<h1>Hello Component</h1>)
+    }
+}
+
+// app.jsx
+class TestReact extends React.Component {
+    render() {
+        return (
+            <div>
+                <h1>Hello React</h1>
+                <p>{this.props.name}</p>   
+				<TestComp />
+            </div>
+        )
+    }
+}
+
+-
+
+ReactJS.NET render using @Html.React:
+
+// ReactConfig.cs
+using JavaScriptEngineSwitcher.Core;
+using JavaScriptEngineSwitcher.V8;
+using React;
+
+public static class ReactConfig {
+	public static void Configure() {
+        ReactSiteConfiguration.Configuration                
+            .AddScript("~/Scripts/app.jsx");            
+
+        JsEngineSwitcher.Current.DefaultEngineName = V8JsEngine.EngineName;
+        JsEngineSwitcher.Current.EngineFactories.AddV8();
+    }
+}
+
+// Index.cshtml
+@Html.React("TestReact", new {
+    name = "Roby"
+})
+
+// app.jsx
+class TestReact extends React.Component {
+    render() {
+        return (
+            <div>
+                <h1>Hello React</h1>
+                <p>{this.props.name}</p>                
+            </div>
+        )
+    }
+}
+
+-
+
+ReactJS.NET render using js libraries:
+
+// _Layout.cshtml
+@RenderSection("scripts", required: false)
+
+// Index.cshtml
+<div id="root"></div>
+@section scripts{
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/16.13.0/umd/react.development.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.13.0/umd/react-dom.development.js"></script>
+    <script src="~/Scripts/app.jsx"></script>    
+}
+
+// app.jsx
+class TestReact extends React.Component {
+    render() {
+        return (
+            <div>
+                <h1>Hello React</h1>
+                <p>{this.props.name}</p>
+            </div>
+        )
+    }
+}
+ReactDOM.render(<TestReact name="Roby" />, document.getElementById('root'));
+
+-
+
+BUG:
+ReactJS.NET
+Ex -> Cannot use import statement outside a module 
+cause -> can't use the keyword 'import' within a jsx file.
+solution -> remove all 'import' caluses, use the 'ReactConfig.cs' to register all jsx files. this will auto-import them so they all would be available to use.
+see 'ReactJS.NET component in component'
+
+BUG:
+ReactJS.NET
+Ex -> React is not defined
+cause -> there are no react libraries imported 
+solution -> add reference to react client engine 
+see 'ReactJS.NET render using js libraries'
+
+- 
+
+about:
+React is a JavaScript library created by Facebook.
+it creates a virtual DOM (in memory), apply the changes there and only then update the actual DOM. 
+React library uses JSX which stands for 'JavaScript XML' and allows us to add HTML tags within the script. 
+
+-
 
 [react]
 escape curly brackets -> '{' and '}' 
@@ -30,5 +207,527 @@ escape curly brackets -> '{' and '}'
 
 -
 
+cra - multiple pages ???
+
+-
+
+client routing ???
+
+-
+
 ReactDOM.render
 https://www.pluralsight.com/guides/just-plain-react
+
+- 
+
+render using express server 
+
+-
+
+cra = create-react-app 
+
+// install app-creator (globally)
+> npm install -g create-react-app
+
+-
+
+// create an app using npx
+> npx create-react-app test-react
+-OR-
+// create an app using npm
+> npm init react-app test-react
+
+// run 
+// start and launch server 
+> npm start
+
+// build (for deployment)
+// creates a minified bundle
+> npm run build
+
+-
+
+syntax:
+--template <template-name>
+
+templates:
+https://www.npmjs.com/search?q=cra-template-*
+
+e.g:
+> npx create-react-app my-app --template typescript
+
+-
+
+[typescript]
+
+new project:
+// use template
+> npx create-react-app my-app --template typescript
+
+existing project:
+1. > npm install --save typescript @types/node @types/react @types/react-dom @types/jest
+2. change any .js file to .tsx
+3. restart your development server!
+
+- 
+
+Blank-app???
+
+-
+ 
+%PUBLIC_URL%/favicon.ico ???
+
+-
+
+[react with no server]
+
+// in HTML
+<script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+<div id="root"></div>
+
+<script type="text/babel">
+    class TestReact extends React.Component {
+		render() {
+			return (<h1>Hello World!</h1>)
+		}
+    }
+
+    ReactDOM.render(<TestReact />, document.getElementById('root'));
+</script>
+
+-
+
+basic sample using 'create-react-app':
+
+// index.js
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import './index.css';
+
+class Test extends Component {
+    constructor() {
+        super();
+        this.state = {
+            p1: 'value-1', 
+            p2: 'value-2'
+        };
+    }
+    
+    changeP1 = e => {
+        this.state.p1 = `value-${Math.floor(Math.random() * 1000)}`;
+        this.setState(this.state);
+    }
+
+    render() {
+        return (<div>
+            <h1 className="blue">Hello World</h1>
+            <p>{this.state.p1}</p>
+            <p>{this.state.p2}</p>
+            <p><button onClick={this.changeP1}>change-p1</button></p>
+        </div>)
+    }
+}
+
+ReactDOM.render(<Test />, document.getElementById('root'));
+
+-
+
+[render]
+
+note: 
+MUST include root element (like a valid XML)!
+
+
+// render a class (component)
+class ClassA extends React.Component {
+	render() {
+		return (<h1>Hello World!</h1>)
+	}
+}
+ReactDOM.render(<ClassA />, document.getElementById('root'));
+
+// render a function (component)
+function FunA() {	
+	return (<h1>Hello World!</h1>);	
+}
+ReactDOM.render(<FunA />, document.getElementById('root'));
+
+// render an element
+const elem = (<h1 className="red">Hello World</h1>);
+ReactDOM.render(elem, document.getElementById('root'));
+
+// direct rendering 
+ReactDOM.render(<h1 className="red">Hello World</h1>, document.getElementById('root'));
+
+// render content
+const content = ((<div>
+    <h1 className="blue">Hello World</h1>
+    <p>P1</p>
+    <p>P2</p>    
+</div>));
+ReactDOM.render(content, document.getElementById('root'));
+
+- 
+
+render multiple: 
+<div id="root1"></div>
+<div id="root2"></div>
+
+ReactDOM.render(<h1>Hello Root 1</h1>, document.getElementById('root1'));
+ReactDOM.render(<h1>Hello Root 2</h1>, document.getElementById('root2'));
+
+-
+
+// bind an processed element
+class Test extends Component {    
+    render() {
+        let arr = ['Random-Header-1', 'Random-Header-2', 'Random-Header-3', 'Random-Header-4', 'Random-Header-5'];
+        let header = <h1>{arr[Math.floor(Math.random() * arr.length)]}</h1>;
+
+        return (
+            <div>
+                {header}
+				<p>Paragraph</p>
+				<p>Paragraph</p>
+            </div>
+        )
+    }
+}
+
+-
+
+[props]
+passing arguments using tag attributes syntax.
+we can pass any type as props (string, number, object etc.)
+
+recommendation:
+always pass the props to the parent component.
+
+using:
+class ClassA extends React.Component {
+	constructor(props) {
+		super(props);   
+	}
+
+	render() {
+		return (<h1>Hello {this.props.name}!</h1>)
+	}
+}
+ReactDOM.render(<ClassA name="Roby" />, document.getElementById('root'));
+
+-
+
+[component in component]
+class ClassA extends React.Component {
+    render() {
+        return (
+            <div>
+                <h1>Hello {this.props.name}!</h1>
+                <ClassB />
+            </div>
+		)
+    }
+}
+
+class ClassB extends React.Component {
+    render() {
+        return (
+            <div>
+                <p>Paragraph 1</p>
+                <p>Paragraph 2</p>
+            </div>
+		)
+    }
+}
+
+ReactDOM.render(<ClassA name="Roby" />, document.getElementById('root'));
+
+-
+
+[external components]
+use 'export' keyword to expose the component to be able to use it from other files.
+
+// ComponentA.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+
+class ComponentA extends React.Component {
+	render() {
+		return <h2>Hi ComponentA</h2>;	 
+	}
+}
+export default ComponentA;
+
+
+// index.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+import ComponentA from './ComponentA.js';
+
+ReactDOM.render(<ComponentA />, document.getElementById('root'));
+
+-
+
+[state]
+- init the state in the constructor.
+- use state.<propName> anywhere within the component.
+- use setState to update the state. setState method allows us to update the full state object or only partial properties. 
+
+setState(<newState>);  // full update 
+setState({ <propName>: <value>});  // partial update
+
+sample:
+class Test extends Component {
+    constructor() {
+        super();
+        this.state = {
+            p1: 'value-1', 
+            p2: 'value-2'
+        };
+    }
+    
+    changeP1 = e => {
+        this.state.p1 = `value-${Math.floor(Math.random() * 100)}`;
+        this.setState(this.state);
+    }
+
+    render() {
+        return (<div>
+            <h1 className="blue">Hello World</h1>
+            <p>{this.state.p1}</p>
+            <p>{this.state.p2}</p>
+            <p><button onClick={this.changeP1}>change-p1</button></p>
+        </div>)
+    }
+}
+
+-
+
+[Lifecycle]
+the component's lifecycle. 
+
+operations:
+1. Mounting	   
+   occurs when a component is created.
+
+2. Updating	
+   occurs when a component is updated (there's a change in the state or props)
+
+3. Unmounting
+   occurs when a component is removed from the DOM.
+
+Mounting lifecycle:
+- constructor				// init component 
+- getDerivedStateFromProps	// pre-render. signature: getDerivedStateFromProps(props, state);  
+- render					// render 
+- componentDidMount			// post-render
+
+Updating lifecycle:
+- getDerivedStateFromProps	// pre-render. signature: getDerivedStateFromProps(props, state);  
+- shouldComponentUpdate		// determine whether to continue with the update process or not (default: true)
+- render					// render
+- getSnapshotBeforeUpdate	// get access to the state and props before the changes. signature: getSnapshotBeforeUpdate(prevProps, prevState);
+- componentDidUpdate		// post-render
+
+Unmounting lifecycle:
+- componentWillUnmount		// pre-remove. right before removing the component. 
+
+using:
+// the value of 'p1' will be updated after 2 seconds.
+class Test extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            p1: 'value-1'
+        };       
+    }
+
+	componentDidMount() {
+		setTimeout(() => {
+			this.setState({ p1: "value-1-updated" })
+		}, 2000)
+	}
+
+	render() {
+        return (<p>{this.state.p1}</p>)
+    }
+}
+
+-
+
+[Events]
+React supports the same events as HTML.
+it uses the same evente name but in camelcase mode (onclick -> onClick etc.)
+
+tip: 
+use arrow functions to refer 'this' always as the component. 
+
+important! 
+when using regular functions instead of arrows, we MUST bind the function using the 'bind' method.
+this.fun1 = this.fun1.bind(this);
+
+sample:
+class Test extends Component {    
+	constructor(props) {
+		super(props)
+		this.fun1 = this.fun1.bind(this);  // bind method (for regular functions)
+	}	
+
+	fun1 = e => { ... }    // arrow function - no binding is required! 'this' refers to the component.
+    fun2(e) { ... }  // regular function - binding is required!
+
+    render() {
+        return (
+			<div>
+				<button onClick={this.fun1}>clickMe</button>
+				<button onClick={this.fun2}>clickMe</button>
+			</div>
+		)
+    }
+}
+
+-
+
+[Forms]
+when using forms in react, we need to update the component's state on each change. 
+we do that using the 'onChange' event of the input.
+we can also use 'onSubmit' event to be triggered when the form is about to be submitted.
+to revoke the actual submit action, we can call 'preventDefault' method of the event.
+
+validations:
+we can handle validations as part of each change or when submitting the form. 
+we can use the state to collect errors and present them as a summary in the html.
+
+textarea tag:
+unlike in HTML, in React, the value of a TextArea is set using a 'value' attribute and NOT as innerText.
+// e.g 
+<textarea value={this.state.description} />
+<textarea value="some description..." />
+
+select tag:
+unlike in HTML, in React, the selected value is controlled by a 'value' attribute of the 'select' tag and NOT as the option's 'selected'.
+// e.g
+<select value={this.state.selectedValue}>
+    <option value="1">Value1</option>
+    <option value="2">Value2</option>
+    <option value="3">Value3</option>
+</select>
+<select value="2">
+    <option value="1">Value1</option>
+    <option value="2">Value2</option>
+    <option value="3">Value3</option>
+</select>
+
+using:
+class TestForm extends Component {
+    constructor() {
+        super();
+        this.state = {
+            input1: '',
+            input2: ''
+        };
+    }
+
+    setInput1 = e => {
+        this.setState({
+            input1: e.target.value
+        });
+    }
+
+    setInput2 = e => {
+        this.setState({
+            input2: e.target.value
+        });
+    }
+
+	submitForm = e => {
+		e.preventDefault();
+		// code here...
+	}
+
+    render() {
+        return (
+            <form onSubmit={this.submitForm}>
+                <h1>Test Form</h1>
+                <input type="text" placeholder="input-1" onChange={this.setInput1} />
+                &nbsp;&nbsp;<span>{this.state.input1}</span>
+                <br /><br />
+                <input type="text" placeholder="input-2" onChange={this.setInput2} />                                
+                &nbsp;&nbsp;<span>{this.state.input2}</span>
+				<br /><br />
+				<input type="submit" />
+            </form>
+        )
+    }
+}
+
+ReactDOM.render(<TestForm />, document.getElementById('root'));
+
+-
+
+[CSS]
+- inline 
+- inline using a js-object 
+- css file
+
+inline:
+style={{ <name>:<value>... }}
+
+inline using a js-object:
+style={ <stylesObject> }
+
+css file:
+import <cssFile>;
+className="<className>"
+
+
+sample:
+import './index.css';
+
+class TestStyles extends Component {
+    render() {
+		const p2Styles = {
+			color: "yellow", 
+			backgroundColor: "blue"
+		};
+
+        return (<div>            
+            <p style={{color: "blue", backgroundColor: "yellow"}}>Paragraph 1</p>
+            <p style={p2Styles}>Paragraph 2</p>
+            <p className="red">Paragraph 3</p>            
+        </div>)
+    }
+}
+
+-
+
+[Sass]
+CSS pre-processor. 
+files with .scss extension.
+
+install:
+> npm install --save node-sass
+
+sample:
+import './index.scss';
+
+// jsx
+<h6 className="title">Hello World</h6>
+
+// scss
+$size: 20px;
+$color: purple;
+
+h6.title {
+    font-size: $size;
+    color: $color;
+    border:dashed 1px #808080;
+    padding: 8px;
+    margin: 0px;
+}
+
+- 
+

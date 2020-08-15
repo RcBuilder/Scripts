@@ -1,0 +1,16 @@
+ODBC Usage In DotNet
+--------------------
+
+using System.Data.Odbc;
+
+using (var connection = new OdbcConnection(this.ConnetionString))
+{
+    connection.Open();
+
+    var query = $@"...";    
+
+    var command = new OdbcCommand();
+    command.Connection = connection;    
+    command.CommandText = query;
+    command.ExecuteNonQuery();
+}

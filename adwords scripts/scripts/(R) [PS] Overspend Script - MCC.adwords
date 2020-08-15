@@ -75,7 +75,10 @@ function ProcessCampaign(campaign, overspendCampaigns){
   var campaignName = campaign.getName();
   
   var startDate = campaign.getStartDate(); // {year, month, day}
-  var endDate = campaign.getEndDate(); // {year, month, day}
+  var endDate = campaign.getEndDate(); // {year, month, day}  
+  ///Logger.log('BEFORE %s', date2string(endDate)); 
+  endDate = fixEndDate(endDate);
+  ///Logger.log('AFTER %s', date2string(endDate));
   
   if(!endDate) {
   	Logger.log('%s', 'NO END DATE! skip...')
@@ -83,6 +86,9 @@ function ProcessCampaign(campaign, overspendCampaigns){
   }
   
   var dateRange = date2string(startDate) + ' to ' + date2string(endDate);
+  ///Logger.log(dateRange);
+  ///Logger.log('%s -> %s', date2string(endDate), date2string(fixEndDate(endDate)));
+  ///return; 
   
   var numOfDays = dateDiffInDays(startDate, endDate);
   ///Logger.log(numOfDays);
@@ -111,6 +117,19 @@ function ProcessCampaign(campaign, overspendCampaigns){
     cost: cost, 
     budget: budget 
   });
+}
+
+function fixEndDate(endDate){
+  try{
+    // {year, month, day} 
+    var dt = new Date(endDate.year, endDate.month, endDate.day); 
+    dt.setDate(dt.getDate() + 1); // add 1 day
+    return {year: dt.getFullYear(), month: dt.getMonth(), day: dt.getDate()};
+  }
+  catch(e){
+    ///Logger.log('ERROR: %s', e);
+    return endDate; 
+  }
 }
 
 function date2string(dt){

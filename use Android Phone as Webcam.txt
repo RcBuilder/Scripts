@@ -1,0 +1,21 @@
+use Android Phone as Webcam
+---------------------------
+[WIFI]
+1. connect the the WIFI in the same LAN as the computer.
+2. download phone app 'IP Webcam'.
+3. open the app > Start Server 
+4. use the provided internal IP to reach the camera feed over the net. 
+   e.g: http://192.168.1.14:8080
+
+[USB]
+1. set phone to debugging mode 
+   Settings > Developmer Options > USB debugging
+2. connect phone using the USB port 
+3. download phone app 'DroidCam'.
+4. install windows 'DroidCam' client on the computer to communicate with the phone
+   go to 'http://www.dev47apps.com/' > choose 'Download Windows Client'
+5. start the 'DroidCam' windows client > choose USB option
+
+note:
+can use this app to reach the camera via WIFI 
+e.g: http://192.168.1.14:4747

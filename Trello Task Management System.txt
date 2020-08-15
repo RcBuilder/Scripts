@@ -1,0 +1,31 @@
+Trello Task Management System
+-----------------------------
+https://trello.com
+
+operations-tree:
+- board  
+  - list 
+    - card
+      - add description
+      - assign members
+      - add labels
+      - add due-date
+      - add checklist
+      - add comments
+
+basic:
+- drag-drop a card to switch it's location.
+- drag-drop a member into a card to assign him.
+
+board menu:
+- show menu > change background 
+- show menu > stickers
+- show menu > search cards
+- show menu > more > Settings > Permissions
+- show menu > more > Archived items 
+- show menu > power-ups  // extra features as addons (calendar view etc.)
+
+privacy settings:
+1. Private   	// only visible for invited members
+2. Team		// only visible for team members
+3. Public	// visible to Anyone

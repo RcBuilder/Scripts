@@ -1,0 +1,27 @@
+Swagger extra documentation using XML Comments
+----------------------------------------------
+1. Project > Properties > Build > Output > check 'XML documentation file' > set file path
+2. add the file path from chapter 1 to the swagger configuration (IncludeXmlComments)
+3. use xml comments in the code
+
+---
+
+// step 1 - enable asp.net comments output
+// e.g: ServiceComments.xml
+
+// step 2 - swagger config
+c.IncludeXmlComments($@"{AppDomain.CurrentDomain.BaseDirectory}\bin\ServiceComments.xml");
+
+// step 3 - add comments in your code
+
+/// <summary>
+/// summary 1
+/// </summary>
+/// <remarks>
+/// remarks 1
+/// </remarks>
+[HttpGet]
+[Route("ping")]
+public HttpResponseMessage Index() {
+     return Request.CreateResponse("PONG");
+}

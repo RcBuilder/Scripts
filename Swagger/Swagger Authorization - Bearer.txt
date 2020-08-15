@@ -1,0 +1,42 @@
+Swagger API_KEY
+---------------
+Configuration
+.EnableSwagger(c => {                       
+    c.SingleApiVersion("v1", "Documents Service");
+	c.OperationFilter<AuthorizationHeaderParameterOperationFilter>();  
+})
+.EnableSwaggerUi(c => {
+                        
+});
+
+---
+
+using System.Web.Http.Description;
+using System.Collections.Generic;
+using Swashbuckle.Swagger;
+
+public class AuthorizationHeaderParameterOperationFilter : IOperationFilter
+{
+    public void Apply(Operation operation, SchemaRegistry schemaRegistry, ApiDescription apiDescription)
+    {
+        if (operation.parameters == null)
+            operation.parameters = new List<Parameter>();
+
+        operation.parameters.Add(new Parameter
+        {
+            name = "Authorization",
+            @in = "header",
+            description = "access token",
+            required = false,
+            type = "string",
+            @default = "Bearer "
+        });
+
+    }
+}    
+
+---
+
+note:
+we've used IOperationFilter to add another swagger parameter for each endpoint. a new column will be added to the UI.
+the above api_key text-input will not be in-use anymore, we'll have to provide the bearer token as part of the endpoint parameters.

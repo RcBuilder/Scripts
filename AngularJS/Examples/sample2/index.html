@@ -5,7 +5,7 @@
         <title></title>
         <link href="styles/site.css" rel="stylesheet" type="text/css" />
     </head>
-    <body>  
+    <body>
         <div ng-controller="home_controller">
             <h4>using ng-click</h4>
             <div><input type="button" ng-click="changeSomeName();" value="clickMe" /> {{ someName }}</div>
@@ -38,7 +38,7 @@
             <h4>ng-repeat - $first, $middle and $last | $odd and $even</h4>
             <div>
                 <div ng-repeat="number in arr_numbers">
-                    {{ number }} 
+                    {{ number }}
                     <span ng-show="$first">[first]</span>
                     <span ng-show="$middle">[middle]</span>
                     <span ng-show="$last">[last]</span>
@@ -50,7 +50,7 @@
 
             <h4>ng-repeat on object attributes</h4>
             <div><span ng-repeat="attr in user">{{ attr }}&nbsp;&nbsp;</span></div>
-        
+
             <h4>using ng-class</h4>
             <div>
                 <span ng-class="'greenTitle'">HELLO ANGULAR</span>
@@ -106,14 +106,14 @@
 
             <h4>using consts</h4>
             <div>{{ constValue }}</div>
-            
+
             <h4>using directives</h4>
 
             <h5>link function</h5>
             <somedirective a1="some attribute" a2="another attribute"></somedirective>
 
             <h5>attributes</h5>
-            <input type="button" value="change Name"  ng-click="changeSomeName();" />
+            <input type="button" value="change Name" ng-click="changeSomeName();" />
             <mydirective byval="{{ someName }}" byref="someName"></mydirective>
 
             <h5>functions</h5>
@@ -178,16 +178,16 @@
         </script>
         <script type="text/ng-template" id="view2.partial">
             view2.partial
-        </script> 
+        </script>
+
+        <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+
+        <script src="scripts/angular.min.js" type="text/javascript"></script>
+        <script src="scripts/angular-animate.min.js" type="text/javascript"></script>
+        <script src="scripts/angular-route.min.js" type="text/javascript"></script>
+
+        <script src="app/modules/my_module.js" type="text/javascript"></script>
+        <script src="app/app.js" type="text/javascript"></script>
+        <script src="app/config.js" type="text/javascript"></script>
     </body>
-
-    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
-
-    <script src="scripts/angular.min.js" type="text/javascript"></script>
-    <script src="scripts/angular-animate.min.js" type="text/javascript"></script>
-    <script src="scripts/angular-route.min.js" type="text/javascript"></script>
-
-    <script src="app/modules/my_module.js" type="text/javascript"></script>
-    <script src="app/app.js" type="text/javascript"></script>    
-    <script src="app/config.js" type="text/javascript"></script>
 </html>

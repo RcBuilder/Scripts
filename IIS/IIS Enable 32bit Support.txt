@@ -1,0 +1,7 @@
+IIS Enable 32bit Support
+------------------------
+
+- Open IIS 
+- choose 'Application Pools' > choose the relevant one 
+- click 'Advanced Settings' (right pane) > General > set 'Enable 32-Bit Application' to True
+- Restart IIS

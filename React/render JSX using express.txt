@@ -1,5 +1,5 @@
-JSX Samples
------------
+render JSX using express
+------------------------
 
 // render jsx files
 const express = require('express');

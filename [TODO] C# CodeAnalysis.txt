@@ -1,0 +1,230 @@
+*** C# CodeAnalysis *** 
+***********************
+
+Prerequisites
+------------- 
+install '.NET Compiler Platform SDK'
+
+(steps)
+1. Run VS Installer > Modify
+2. check 'Visual Studio extension development'
+3. add '.NET Compiler Platform SDK'
+
+Nuget
+-----
+> Install-Package Microsoft.CodeAnalysis -Version 3.6.0
+> Install-Package Microsoft.CodeAnalysis.Workspaces.MSBuild -Version 3.6.0
+> Install-Package Microsoft.Build.Tasks.Core -Version 16.6.0
+
+Using
+-----
+using Microsoft.CodeAnalysis;  
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.MSBuild;
+using Microsoft.CodeAnalysis.Text; // SourceText
+
+-------
+
+TODO ->> to document
+TestConsole8
+
+-
+
+// SyntaxTree (option 1)
+var tree = CSharpSyntaxTree.ParseText(@"
+    using System;
+    public class MyClass
+    {
+        public void MyMethod() { }
+        public void MyMethod(int n) { }
+    }");
+
+CompilationUnitSyntax root = tree.GetCompilationUnitRoot();            
+var members = root.Members;
+
+var usingStatements = root.Usings;
+usingStatements.ToList().ForEach(x =>
+{
+    Console.WriteLine($"{x.Name}");
+});
+            
+-
+
+// SyntaxTree (option 2)	
+var tree = CSharpSyntaxTree.ParseText(@"
+    using System;
+    public class MyClass
+    {
+        public void MyMethod() { }
+        public void MyMethod(int n) { }
+    }");
+         	 
+var syntaxRoot = tree.GetRoot();
+var MyMethod = syntaxRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().Where(n => n.ParameterList.Parameters.Any()).First();            
+var containingType = MyMethod.Ancestors().OfType<TypeDeclarationSyntax>().First();
+
+var diagnostics = tree.GetDiagnostics();
+var errors = diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error);
+var warnings = diagnostics.Where(x => x.Severity == DiagnosticSeverity.Warning);
+
+Console.WriteLine(containingType.Identifier.ToString());
+Console.WriteLine(MyMethod.ToString());
+
+-
+
+// ms-build workspace
+var msbws = MSBuildWorkspace.Create();  // create an ms-build workspace
+var project = msbws.OpenProjectAsync(@"C:\Users\RcBuilder\Desktop\TestProjects\TestConsole7\TestConsole7.csproj").Result; // load project
+var workspaceDiagnostics = msbws.Diagnostics; 
+
+Console.WriteLine($"project {project.Name} has the following documents:");
+foreach (var doc in project.Documents)
+    Console.WriteLine($"-- {doc.Name}");  
+
+// TODO ->> how to apply changes
+var adhoc = new AdhocWorkspace();
+var projectInfo = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Default, "myPRG1", "myPRG1", "C#");
+var newProject = adhoc.AddProject(projectInfo);
+var documentInfo = DocumentInfo.Create(DocumentId.CreateNewId(projectInfo.Id), "myDoc1.cs");
+adhoc.AddDocument(documentInfo);
+adhoc.AddDocument(projectInfo.Id, "myDoc2.cs", SourceText.From("bla bla bla"));
+var result = adhoc.TryApplyChanges(newProject.Solution);
+
+///adhoc.AddSolution(<solutionInfo>)
+///adhoc.AddProject(<projectInfo>)
+///adhoc.AddDocument(<documentInfo>)     
+
+
+
+
+-------------------------------------------------------------------------
+// TODO 
+
+Syntax Tree API provides access to the data structures that describe a C# program.
+the API creates a tree structure with the compilation unit as its root.
+
+compilation unit    	// a single source code
+using directives  	// the top 'using' namespaces 
+namespace declaration	// a 'namespace' 
+class declaration	// a 'class' object
+method declaration	// a function 
+
+
+// compilation unit
+using System;	    // using directives
+using System.Linq;  // using directives
+
+namespace SomeNamespace   // namespace declaration
+{
+    class Program   // class declaration
+    {
+        static void Main(string[] args)  // method declaration
+	{ 
+	}
+    }
+}
+
+
+--
+
+[The Roslyn Project]
+exposes the compiler core as layer of APIs 
+
+Compiler Pipeline: 
+Parser > Symbols & Metadata Import > Binder > IL Emitter
+
+Compiler API:
+Syntax Tree API > Symbol API > Binding API > Emit API
+
+--
+
+// Create a Syntax Tree from a C# code string content
+var tree = CSharpSyntaxTree.ParseText(<content: string>); 
+
+note: can use File.ReadAllText(<path>) to load and parse .cs files
+-
+Syntax Tree - a tree of nodes which represents C# code. 
+it parses code into pieces which later can be explored and analyzed. 
+each piece represents a code logic unit (method, classs and etc.)
+supports LINQ
+-
+The Roslyn Project - Exposing the C# and VB compiler’s code analysis
+see 'Desktop/Roslyn Project Overview.docx' 
+-
+a great tool to read source code automatically and analyze it 
+-
+tree.GetDiagnostics() // get errors and warnings
+
+var diagnostics = tree.GetDiagnostics();
+var errors = diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error);
+var warnings = diagnostics.Where(x => x.Severity == DiagnosticSeverity.Warning);
+-
+// syntax creator
+SyntaxFactory 
+SyntaxFactory.ParseTypeName("string"); 
+-
+change tree nodes:
+use the 'SyntaxFactory' to create new content
+
+var newValue = SyntaxFactory...();
+node.With....(newValue);
+
+// e.g: change if statement code-block
+var body = node.Statement; 
+var block = SyntaxFactory.Block(body);
+ver newBody = node.WithStatement(block);
+
+// e.g: update a method to have a 'string' return type
+var myMethod = syntaxRoot.DescendantNodes().OfType<MethodDeclarationSyntax>().First();
+var returnType = SyntaxFactory.ParseTypeName("string");
+var myMethodNew = myMethod.WithReturnType(returnType);
+-
+// c# syntax walker
+class MyWalker : CSharpSyntaxWalker {
+	class MyWalker() : base(SyntaxWalkerDepth.Token) {}	// SyntaxWalkerDepth - set the travel depth	
+	// use override methods
+}
+
+// using 
+var walker = new MyWalker();
+walker.Visit(tree.GetRoot());
+
+// how to...
+// e.g: collect all methods in a source-code file 
+create a walker > add a List<string> as a property > override the "VisitMethodDeclaration" method > add node to the list.
+-
+View > Other Windows > Syntax Visualizer
+-
+statements:
+- MethodDeclarationSyntax
+- ClassDeclarationSyntax
+- TypeDeclarationSyntax
+- TryStatementSyntax
+...
+...
+-
+// rewrite source-code
+// c# syntax walker
+class MyRewriter : CSharpSyntaxRewriter {
+	// use override methods
+}
+
+// using 
+var rewriter = new MyRewriter();
+rewriter.Visit(tree.GetRoot());
+
+// how to...
+// e.g: change any "if" statement within the source-code
+create a rewriter > override the "VisitIfStatement" method > change code per need
+-
+// update a node using a replace action
+// best practice: use 'rewriter'
+var originalNode = ... 
+var newNode = originalNode.With.....(SyntaxFactory...(<newValue>));
+root = root.ReplaceNode(originalNode, newNode);
+-
+var msbws = MSBuildWorkspace.Create();  // create an ms-build workspace
+var project = msbws.OpenProjectAsync(<path-csproj>); // load project
+var solution = msbws.OpenSolutionAsync(<path-sln>); // load solution
+-

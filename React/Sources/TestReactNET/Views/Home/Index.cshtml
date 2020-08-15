@@ -1,0 +1,18 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+@Html.React("TestReact", new {
+    name = "Roby"
+})
+
+<div id="root">React Root</div>
+@section scripts{
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/16.13.0/umd/react.development.js"></script>
+    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.13.0/umd/react-dom.development.js"></script>
+    <script src="~/Scripts/test.jsx"></script>       
+}

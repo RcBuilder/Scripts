@@ -1,0 +1,59 @@
+Swagger adding Custom Parameters
+--------------------------------
+
+Configuration
+.EnableSwagger(c => {                       
+    ...
+	...
+	c.OperationFilter<TestParameterOperationFilter>();  
+	c.OperationFilter<AnotherTestParameterOperationFilter>();  
+})
+.EnableSwaggerUi(c => {
+                        
+});
+
+---
+
+using System.Web.Http.Description;
+using System.Collections.Generic;
+using Swashbuckle.Swagger;
+
+public class TestParameterOperationFilter : IOperationFilter
+{
+    public void Apply(Operation operation, SchemaRegistry schemaRegistry, ApiDescription apiDescription)
+    {            
+        operation.parameters.Add(new Parameter
+        {
+            name = "TestInput1",
+            @in = "header",
+            description = "test parameter 1",
+            required = true,
+            type = "string",
+            @default = ""
+        });
+
+    }
+}
+
+public class AnotherTestParameterOperationFilter : IOperationFilter
+{
+    public void Apply(Operation operation, SchemaRegistry schemaRegistry, ApiDescription apiDescription)
+    {            
+        operation.parameters.Add(new Parameter
+        {
+            name = "TestInput2",
+            @in = "query",
+            description = "test parameter 2",
+            required = true,
+            type = "number",
+            @default = ""
+        });
+
+    }
+}
+
+---
+
+note:
+we've used IOperationFilter to add another swagger parameter for each endpoint. two new columns will be added to the UI.
+the value of 'TestInput1' will be passed via the header and the 'TestInput2' via the querystring.

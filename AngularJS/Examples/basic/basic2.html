@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>   
+</head>
+<body>
+    <div ng-app="service-app">
+        <div ng-controller="homeController">
+            <ul>
+                <li ng-repeat="user in users">
+                    <ng-user />
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://code.angularjs.org/1.4.8/angular.min.js"></script>
+    <script>
+        var app = angular.module('service-app', []);
+
+        app.controller('homeController', function ($scope, usersService) {
+            usersService.getUsers().success(function (result) {
+                $scope.users = result;
+            });
+        });
+
+        app.factory('usersService', ($http) => {
+            return {
+                getUsers: () => {
+                    return $http.get('https://jsonplaceholder.typicode.com/users', {
+                        headers: {
+                            accept: 'application/json'
+                        }
+                    });
+                }
+            }
+        });
+
+        app.directive('ngUser', () => {
+            return {
+                restrict: 'E',
+                transclude: true,
+                template: `{{ user.name | userNameFilter }}`
+            }
+        });
+
+        app.filter('userNameFilter', () => {
+	        return userName => {
+		        return userName.concat(' [F]');
+	        };
+        });
+    </script>
+</body>
+</html>

@@ -6,7 +6,7 @@ steps:
 1. create a custom 'ActionResult' named 'SitemapResult' which writes the sitemap content as XML to the response.
 2. create a new controller 'SitemapController' with 'Index' action which uses the 'SitemapResult' from chapter 1
 3. within the 'Index' action, generate a list of 'SitemapResultItem' based on your site data. 
-4. map new route in the 'RouteConfig' file to trigger the 'SitemapController'
+4. add ignore rule to the RouteConfig
 5. go to <your-domain>/Sitemap 
 
 note:
@@ -18,11 +18,25 @@ note:
 [Web.config]
 
 <system.webServer>
-	  <handlers>
-		...
-		<add name="siteMap" path="SiteMap.xml" verb="GET" type="BLL.HttpHandlers.SiteMap" preCondition="integratedMode,runtimeVersionv4.0" />
-    </handlers> 
-</system.webServer>
+            <handlers>      
+              <add name="siteMap" path="SiteMap.xml" verb="GET" type="BLL.HttpHandlers.SiteMap" preCondition="integratedMode,runtimeVersionv4.0" />
+            </handlers> 
+        </system.webServer>
+
+        <system.web>
+            <handlers>      
+              <add path="SiteMap.xml" type="BLL.HttpHandlers.SiteMap" verb="GET" validate="false" />
+            </handlers> 
+        </system.web>   
+
+---
+
+[RouteConfig.cs]
+public class RouteConfig {
+            public static void RegisterRoutes(RouteCollection routes) {
+                routes.IgnoreRoute("SiteMap.xml");
+            }
+        }
 
 ---
 

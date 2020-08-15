@@ -1,0 +1,10 @@
+$size: 20px;
+$color: purple;
+
+h6.title {
+    font-size: $size;
+    color: $color;
+    border:dashed 1px #808080;
+    padding: 8px;
+    margin: 0px;
+}

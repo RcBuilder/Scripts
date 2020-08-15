@@ -1,0 +1,36 @@
+Swagger-Engine
+--------------
+shared-swagger-config-engine.
+based on custom metadata.
+
+
+Using:
+1. Install-Package Swashbuckle
+2. App_Start > SwaggerConfig > Register > Execute the 'Register' method in 'SwaggerEngine' project
+3. Global.asax > Application_Start > call local SwaggerConfig.Register
+   
+---
+
+// Global.asax
+protected void Application_Start()
+{
+    GlobalConfiguration.Configure(WebApiConfig.Register);
+    GlobalConfiguration.Configure(SwaggerConfig.Register);
+}
+
+// App_Start > SwaggerConfig
+using SwaggerEngine;
+using System.Web.Http;
+
+public class SwaggerConfig
+{
+    public static void Register(HttpConfiguration config)
+    {
+        SwaggerEngine.SwaggerConfig.Register(config, new SwaggerConfigDefaultMetaData("v1", "Service Name"));
+    }
+}
+
+---
+
+Engine:
+see 'SwaggerEngine'

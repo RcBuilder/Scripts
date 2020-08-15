@@ -45,6 +45,9 @@
 * CRM = Customer-Relationship Management
 * WASM = WebAssembly
 
+* OLAP = Online Analytical Processing (analysis of data)
+* OLTP = Online Transaction Processing (transaction-oriented application)
+
 * DBS = Database System
 * ESB = Enterprise Service Bus (אינטגרציה בין רכיבי תוכנה בארגון)
 
@@ -108,6 +111,7 @@
 
 * VPC = Virtual Private Cloud
 
+(marketing)
 * CPC = Cost per Click
 * CPM = Cost per Thousand Impressions (aka: Cost per Mille)
 * CTR = Click through rate

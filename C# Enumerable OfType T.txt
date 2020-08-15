@@ -1,0 +1,35 @@
+C# Enumerable OfType<T>
+-----------------------
+
+var lst = new List<IProduct>{
+	new ProductA(),
+	new ProductA(),
+	new ProductB(),
+	new ProductC()		
+};
+
+var a = lst.OfType<ProductA>();
+var b = lst.OfType<ProductB>();
+var c = lst.OfType<ProductC>();
+var d = lst.OfType<ProductD>();
+
+Console.WriteLine($"found {a.Count()} items of type ProductA");
+Console.WriteLine($"found {b.Count()} items of type ProductB");
+Console.WriteLine($"found {c.Count()} items of type ProductC");
+Console.WriteLine($"found {d.Count()} items of type ProductD");
+
+---
+
+interface IProduct{}
+class ProductA : IProduct{}
+class ProductB : IProduct{}
+class ProductC : IProduct{}
+class ProductD : IProduct{}
+
+---------------
+
+output:
+found 2 items of type ProductA
+found 1 items of type ProductB
+found 1 items of type ProductC
+found 0 items of type ProductD

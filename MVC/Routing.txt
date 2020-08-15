@@ -56,3 +56,7 @@ public static class WebApiConfig {
 
 note:
 in the above example, we are registering both routes for REST and MVC actions!
+
+Attributes
+----------
+routes.MapMvcAttributeRoutes();

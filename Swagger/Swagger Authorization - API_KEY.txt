@@ -1,0 +1,79 @@
+Swagger API_KEY
+---------------
+Configuration
+.EnableSwagger(c => {                       
+    c.SingleApiVersion("v1", "PropertySuiteAPI");
+})
+.EnableSwaggerUi(c => {
+                        
+});
+
+---
+
+ [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+public class AuthorizeRequestAttribute : AuthorizationFilterAttribute //ActionFilterAttribute
+{
+    private const string KEY = "api_key";
+    public override void OnAuthorization(HttpActionContext context)
+    {
+        /*
+            [Header]
+            Authorization: api_key <token>
+
+            - OR -
+
+            [Query]
+            ?api_key=<token>
+        */
+
+        try
+        {
+            // [AllowAnonymous]
+            if (context.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any()) {
+                base.OnAuthorization(context);
+                return;
+            }
+                
+            var apiKey = GetFromQuery(); // [from Query] swagger UI
+            if (string.IsNullOrEmpty(apiKey))
+                apiKey = GetFromHeader(context); // [from Header] 
+
+            if (string.IsNullOrEmpty(apiKey) || apiKey != Config.Keys.AuthorizationKey)                    
+                throw new HttpException((int)HttpStatusCode.Unauthorized, "Unauthorized Access");
+
+            base.OnAuthorization(context);
+        }
+        catch (HttpException ex)
+        {
+            context.Response = new HttpResponseMessage((HttpStatusCode)ex.GetHttpCode())
+            {
+                Content = new StringContent(ex.Message)
+            };
+        }
+        catch (Exception ex)
+        {
+            context.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+            {
+                Content = new StringContent(ex.Message)
+            };
+        }
+    }
+
+    private string GetFromHeader(HttpActionContext context) {
+        var authorization = context.Request.Headers.Authorization;
+        if (authorization == null)
+            throw new HttpException((int)HttpStatusCode.Unauthorized, "No Authorization Header");
+
+        if (authorization.Scheme != KEY)
+            throw new HttpException((int)HttpStatusCode.Unauthorized, string.Format("Not a {0} Authorization Scheme", KEY));
+
+        var apiKey = authorization.Parameter;
+        return apiKey;
+    }
+
+    private string GetFromQuery() {
+        var apiKey = HttpContext.Current.Request.QueryString[KEY];
+        return apiKey;
+    }
+}
+
