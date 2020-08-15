@@ -4,15 +4,30 @@
     ViewBag.Title = "Index";
 }
 
+<br />
+
+<p>page content</p>
 <h2>Index</h2>
 
+<hr />
+
+<p>using @@Html.React (server rendering)</p>
 @Html.React("TestReact", new {
     name = "Roby"
 })
 
+<hr />
+
+<p>component in component</p>
+@Html.React("TestReact2", new {})
+
+<hr />
+
+<p>using ReactDOM injector (client rendering)</p>
 <div id="root">React Root</div>
 @section scripts{
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/16.13.0/umd/react.development.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.13.0/umd/react-dom.development.js"></script>
-    <script src="~/Scripts/test.jsx"></script>       
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="~/Scripts/React/testReact3.jsx"></script>       
 }

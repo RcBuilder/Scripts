@@ -12,5 +12,15 @@ namespace TestReactNET.Controllers
         {
             return View();
         }
+
+        public ActionResult Css()
+        {
+            return View();
+        }
+
+        public ActionResult Lifecycle()
+        {
+            return View();
+        }
     }
 }

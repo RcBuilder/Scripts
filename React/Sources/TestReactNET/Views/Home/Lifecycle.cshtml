@@ -1,0 +1,72 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "Lifecycle";
+}
+
+@section headerScripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>    
+    <script src="~/Scripts/React/testLifecycle.jsx"></script>
+}
+
+<br />
+
+<p>page content</p>
+<h2>Lifecycle</h2>
+
+<hr />
+
+<p>Mounting</p>
+<p>occurs when a component is created.</p>
+@Html.React("TestMounting", new {})
+<pre>
+    [TestMounting] constructor
+    [TestMounting] pre-render
+    [TestMounting] render
+    [TestMounting] post-render    
+</pre>
+
+<hr />
+
+<p>Updating</p>
+<p>occurs when a component is updated (there was a change in the state or props).</p>
+@Html.React("TestUpdating", new { })
+<pre>
+    [TestUpdating] onstructor
+    [TestUpdating] pre-render
+    [TestUpdating] render
+
+    -- after click --
+
+    [TestUpdating] executing doSomeChange method..
+    [TestUpdating] pre-render
+    [TestUpdating] should perform the update
+    [TestUpdating] render
+    [TestUpdating] get the state before the change
+    [TestUpdating] post-render
+</pre>
+
+<hr />
+
+<p>Unmounting</p>
+<p>occurs when a component is removed from the DOM.</p>
+@Html.React("TestUnmounting", new { })
+<pre>
+    [TestUnmounting] constructor
+    [TestUnmounting] render
+    [ChildComponent] constructor
+    [ChildComponent] render
+
+    -- after click --
+
+    [TestUnmounting] executing removeComponent method..
+    [TestUnmounting] render
+    [ChildComponent] pre-remove
+</pre>
+
+<hr />
+
+<!-- render react components in the client -->
+@Html.ReactInitJavaScript()

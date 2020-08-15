@@ -1,0 +1,40 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "Css";
+}
+
+<br />
+
+<p>page content</p>
+<h2>Css</h2>
+
+<hr />
+
+<p>using inline styles</p>
+@Html.React("TestCss1", new {
+    headerColor = "red"
+})
+
+<hr />
+
+<p>using inline styles with a js-object</p>
+@Html.React("TestCss2", new
+{
+    headerColor = "purple"
+})
+
+<hr />
+
+<p>using css class</p>
+<style type="text/css">
+    .classA {
+        color: #fff;
+        background-color: mediumvioletred;
+    }
+</style>
+
+@Html.React("TestCss3", new
+{
+    headerClass = "classA"
+})

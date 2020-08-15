@@ -40,7 +40,7 @@ https://reactjs.net/getting-started/aspnet.html
    @Html.React("TestReact", new {
 		name = "Roby"
 	})
-6. create a new .js file and implement the react component 
+6. create a new .jsx file and implement the react component 
    // Scripts/app.jsx
    class TestReact extends React.Component {
 		render() {
@@ -63,10 +63,35 @@ https://reactjs.net/getting-started/aspnet.html
     }
 8. Build
 
-note:
+references:
+see 'ReactJS.NET server & client rendering'
 see 'ReactJS.NET render using @Html.React'
 see 'ReactJS.NET render using js libraries'
 see 'ReactJS.NET component in component'
+
+-
+
+ReactJS.NET server & client rendering:
+
+important! 
+when using server react rendering (using @Html.React) 
+the jsx files are NOT being rendered to the client and therefore, client events, logs and etc will not work!!
+to perform a client rendering we need to add client reference to the jsx files (at the header) and call the @Html.ReactInitJavaScript method (at the bottom)
+
+// note
+alternatively, we can use the 'ReactDOM.render' to inject the component to a DOM element.
+see 'ReactJS.NET render using js libraries'
+
+
+// using
+<script src="~/Scripts/React/component1.jsx"></script>
+<script src="~/Scripts/React/component2.jsx"></script>
+
+@Html.React("component1", new {})
+@Html.React("component2", new {})
+
+<!-- render react components in the client -->
+@Html.ReactInitJavaScript()
 
 - 
 
@@ -115,6 +140,11 @@ class TestReact extends React.Component {
 -
 
 ReactJS.NET render using @Html.React:
+server rendering.
+
+note!
+only server rendering. 
+this technique renders the components in the server and does NOT pull them into the client (see 'ReactJS.NET server & client rendering')
 
 // ReactConfig.cs
 using JavaScriptEngineSwitcher.Core;
@@ -151,6 +181,7 @@ class TestReact extends React.Component {
 -
 
 ReactJS.NET render using js libraries:
+client rendering.
 
 // _Layout.cshtml
 @RenderSection("scripts", required: false)
@@ -158,8 +189,10 @@ ReactJS.NET render using js libraries:
 // Index.cshtml
 <div id="root"></div>
 @section scripts{
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/16.13.0/umd/react.development.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/16.13.0/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
     <script src="~/Scripts/app.jsx"></script>    
 }
 
@@ -178,6 +211,262 @@ ReactDOM.render(<TestReact name="Roby" />, document.getElementById('root'));
 
 -
 
+ReactJS.NET styles
+
+// ReactConfig.cs
+ReactSiteConfiguration.Configuration                
+            .AddScript("~/Scripts/testCss.jsx");
+
+// Index.cshtml
+<p>using inline styles</p>
+@Html.React("TestCss1", new {
+    headerColor = "red"
+})
+
+<p>using inline styles with a js-object</p>
+@Html.React("TestCss2", new
+{
+    headerColor = "purple"
+})
+
+<p>using css class</p>
+<style type="text/css">
+    .classA {
+        color: #fff;
+        background-color: mediumvioletred;
+    }
+</style>
+
+@Html.React("TestCss3", new
+{
+    headerClass = "classA"
+})
+
+// testCss.jsx
+class TestCss1 extends React.Component {
+    render() {
+        return (
+            <div>
+                <h1 style={{ color: this.props.headerColor }}>Hello Css 1</h1>
+                <p>props: {this.props.headerColor}</p>                                   
+            </div>
+        )
+    }
+}
+
+class TestCss2 extends React.Component {
+    render() {
+        const headerStyles = {
+            color: this.props.headerColor,
+            textDecoration: 'underline'
+        };
+
+        return (
+            <div>
+                <h1 style={headerStyles}>Hello Css 2</h1>
+                <p>props: {this.props.headerColor}</p>
+            </div>
+        )
+    }
+}
+
+class TestCss3 extends React.Component {
+    render() {
+        return (
+            <div>
+                <h1 className={this.props.headerClass}>Hello Css 3</h1>
+                <p>props: {this.props.headerClass}</p>
+            </div>
+        )
+    }
+}
+
+-
+
+ReactJS.NET Lifecycle:
+
+// ReactConfig.cs
+ReactSiteConfiguration.Configuration                
+            .AddScript("~/Scripts/React/testLifecycle.jsx");
+
+// Index.cshtml
+@section headerScripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>    
+    <script src="~/Scripts/React/testLifecycle.jsx"></script>
+}
+
+<p>Mounting</p>
+<p>occurs when a component is created.</p>
+@Html.React("TestMounting", new {})
+<pre>
+    [TestMounting] constructor
+    [TestMounting] pre-render
+    [TestMounting] render
+    [TestMounting] post-render    
+</pre>
+
+<p>Updating</p>
+<p>occurs when a component is updated (there was a change in the state or props).</p>
+@Html.React("TestUpdating", new { })
+<pre>
+    [TestUpdating] onstructor
+    [TestUpdating] pre-render
+    [TestUpdating] render
+
+    -- after click --
+
+    [TestUpdating] executing doSomeChange method..
+    [TestUpdating] pre-render
+    [TestUpdating] should perform the update
+    [TestUpdating] render
+    [TestUpdating] get the state before the change
+    [TestUpdating] post-render
+</pre>
+
+<p>Unmounting</p>
+<p>occurs when a component is removed from the DOM.</p>
+@Html.React("TestUnmounting", new { })
+<pre>
+    [TestUnmounting] constructor
+    [TestUnmounting] render
+    [ChildComponent] constructor
+    [ChildComponent] render
+
+    -- after click --
+
+    [TestUnmounting] executing removeComponent method..
+    [TestUnmounting] render
+    [ChildComponent] pre-remove
+</pre>
+
+<!-- render react components in the client -->
+@Html.ReactInitJavaScript()
+
+
+// testLifecycle.jsx
+class TestMounting extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {};
+        
+        console.log('[TestMounting] constructor');
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        console.log('[TestMounting] pre-render');        
+    }
+
+    componentDidMount() {                
+        console.log('[TestMounting] post-render');
+    } 
+    
+    render() {
+        console.log('[TestMounting] render');
+        
+        return (
+            <div>
+                <h1>Hello Lifecycle</h1>
+                <p>see console output</p>                
+            </div>
+        )
+    }
+}
+
+class TestUpdating extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            someValue: 1
+        };
+        
+        console.log('[TestUpdating] onstructor');
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        console.log('[TestUpdating] pre-render');
+    }
+
+    shouldComponentUpdate() {
+        console.log('[TestUpdating] should perform the update');
+        return true;
+    }
+
+    getSnapshotBeforeUpdate(prevProps, prevState) {
+        console.log('[TestUpdating] get the state before the change');
+    }
+
+    componentDidUpdate() {
+        console.log('[TestUpdating] post-render');
+    } 
+
+    doSomeChange = e => {
+        console.log('[TestUpdating] executing doSomeChange method..');
+        this.setState({ someValue: 2 });
+    }
+
+    render() {
+        console.log('[TestUpdating] render');
+
+        return (
+            <div>
+                <h1>Hello Lifecycle</h1>
+                <p>see console output</p>
+                <p><button onClick={this.doSomeChange}>clickMe</button></p>
+            </div>
+        )
+    }
+}
+
+class TestUnmounting extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            render: true
+        };
+
+        console.log('[TestUnmounting] constructor');
+    }
+
+    removeComponent = e => {
+        console.log('[TestUnmounting] executing removeComponent method..');
+        this.setState({ render: false });
+    }
+    
+    render() {
+        console.log('[TestUnmounting] render');
+
+        let childComponent = this.state.render ? <ChildComponent /> : null;
+
+        return (
+            <div>
+                {childComponent}
+                <p>see console output</p>
+                <p><button onClick={this.removeComponent}>clickMe</button></p>
+            </div>
+        )
+    }
+}
+
+class ChildComponent extends React.Component {
+    constructor(props) {
+        super(props);
+        console.log('[ChildComponent] constructor');
+    }
+
+    componentWillUnmount() {
+        console.log('[ChildComponent] pre-remove')
+    }
+
+    render() {
+        console.log('[ChildComponent] render');
+        return <h1>Hello Lifecycle</h1>;
+    }
+}
+
+-
+
 BUG:
 ReactJS.NET
 Ex -> Cannot use import statement outside a module 
@@ -191,6 +480,13 @@ Ex -> React is not defined
 cause -> there are no react libraries imported 
 solution -> add reference to react client engine 
 see 'ReactJS.NET render using js libraries'
+
+BUG:
+ReactJS.NET
+Issue -> No Client events nor console log
+cause -> server rendering only!
+solution -> render react in the client 
+see 'ReactJS.NET server & client rendering'
 
 - 
 
@@ -280,6 +576,7 @@ Blank-app???
 -
 
 [react with no server]
+ReactDOM.render
 
 // in HTML
 <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
@@ -514,19 +811,19 @@ operations:
    occurs when a component is created.
 
 2. Updating	
-   occurs when a component is updated (there's a change in the state or props)
+   occurs when a component is updated (there was a change in the state or props)
 
 3. Unmounting
    occurs when a component is removed from the DOM.
 
 Mounting lifecycle:
 - constructor				// init component 
-- getDerivedStateFromProps	// pre-render. signature: getDerivedStateFromProps(props, state);  
+- getDerivedStateFromProps	// pre-render. signature: static getDerivedStateFromProps(props, state);  
 - render					// render 
 - componentDidMount			// post-render
 
 Updating lifecycle:
-- getDerivedStateFromProps	// pre-render. signature: getDerivedStateFromProps(props, state);  
+- getDerivedStateFromProps	// pre-render. signature: static getDerivedStateFromProps(props, state);  
 - shouldComponentUpdate		// determine whether to continue with the update process or not (default: true)
 - render					// render
 - getSnapshotBeforeUpdate	// get access to the state and props before the changes. signature: getSnapshotBeforeUpdate(prevProps, prevState);
@@ -576,7 +873,7 @@ class Test extends Component {
 		this.fun1 = this.fun1.bind(this);  // bind method (for regular functions)
 	}	
 
-	fun1 = e => { ... }    // arrow function - no binding is required! 'this' refers to the component.
+	fun1 = e => { ... }  // arrow function - no binding is required! 'this' refers to the component.
     fun2(e) { ... }  // regular function - binding is required!
 
     render() {
