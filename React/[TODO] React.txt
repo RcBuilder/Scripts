@@ -1,24 +1,247 @@
 ****** React ******
 *******************
 
+// TODO
 === [TOC] ==================
--
--
--
--
--
--
+- Sources
+- Install
+- Npx Commands
+- Using React
+- CRA (Create-React-App)  
+- Serverless
+- NodeJS Express
+- ReactJS.NET
+- React Templates
+- JSX
+- File Structure
+- CSS
+- State
+- Lifecycle
+- Binding a Function
+- Dynamic Content
 ============================
 
 
-// TODO 
-merge with React Native
-see 'React Native.txt'
+Sources
+-------
+// TODO
+
+Install
+-------
+// TODO
+
+Npx Commands
+------------
+// TODO
+
+Using React
+-----------
+to use react with the built-in CRA framework (NodeJS based): 
+see 'CRA (Create-React-App)'
+-
+to use react with NO SERVER, directly in the HTML:
+see 'Serverless'
+-
+to use react with NodeJS & Express server: 
+see 'NodeJS Express'
+-
+to use react in .Net MVC:
+see 'ReactJS.NET'
+
+
+CRA (Create-React-App)
+----------------------
+// TODO
+
+Serverless
+----------
+// TODO
+
+NodeJS Express
+--------------
+// TODO
+
+ReactJS.NET
+-----------
+// TODO
+
+React Templates
+---------------
+// TODO
+
+JSX
+---
+// TODO
+
+CSS
+---
+// TODO
+
+multiple styles:
+render() {
+    let stylesA = { color: '#fff' }
+	let stylesB = { backgroundColor: 'mediumvioletred' }
+	let stylesC = { fontStyle: 'italic' }
+        
+    return (
+        <>
+            <h1 style={{ ...stylesA, ...stylesB, ...stylesC }}>Hello React</h1>
+        </>
+    )
+}
+
+-
+
+multiple classes:
+render() {
+    let classA = 'cssClassA';
+	let classB = 'cssClassB';
+	let classC = 'cssClassC';
+        
+    return (
+        <>
+            <h1 className={`${classA} ${classB} ${classC}`}>Hello React</h1>
+        </>
+    )
+}
+
+State
+-----
+// TODO ->> check
+[inheritance]
+when using inheritance, by extending the 'Component' class, we have access to the base class 'State' object. 
+use 'this.state' to get the current state. 
+use 'this.setState' method to update the current state.
+
+the state object can be of any type.
+note that we don't have to provide the 'state' object structure beforehand. we can define it as an empty object and add properties to it on the fly.
+ANY change to the 'state' - re-renders the view! (see 'Lifecycle')
+
+a reminder - when using functions, do not forget to bind them to the component (see 'Binding a Function')
+
+[useState model]
+// TODO
+
+Lifecycle
+---------
+// TODO
+
+Binding a Function
+------------------
+in some cases, we lose the context of 'this' keyword so it refers to a different object than our class.
+a common case is event callback (onPress, onChange etc.). to solve this issue, we need to bind 'this' to those callbacks.
+the bind process is usually performed within the class constructor. 
+
+tip: 
+as a thumb-rule, it's better to bind any NON-arrow defined function.
+note that the 'this' in arrow-functions always refer to the component so there's no need to bind them!
+
+to recap:
+regular function requires a binding to the component.
+arrow function does NOT require a binding process.
+
+example:
+class TestEvents extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            value: ''
+        };
+
+        this.fun2 = this.fun2.bind(this);  // bind method (for regular functions)
+    }
+    
+    fun1 = e => {
+        this.setState({
+            value: Math.floor(Math.random() * 1000)
+        });
+    }  
+    
+    fun2(e) {
+        this.setState({
+            value: Math.floor(Math.random() * 1000)
+        });
+    }  
+
+    render() {
+        return (
+            <>
+                <h5>{this.state.value}</h5>
+                <p>
+                    <button onClick={this.fun1}>clickMe</button>                    
+                    <button onClick={this.fun2}>clickMe</button>
+                </p>
+            </>
+        )
+    }
+}
+
+
+
+Dynamic Content
+---------------
+we can embed content within the js code to generate a dynamic content.
+we can use any of the available modules as part of our js code. (see 'JSX')
+
+we have 2 options to do so: 
+1. using code within the 'render' function.
+2. using a function as a class member. 
+
+e.g: 
+// option 2
+renderContent(){
+    return <h1>Hello React</h1>;
+}
+
+render() {
+	// option 1
+    let dynamicContent = [];
+        dynamicContent.push(<p>dynamic 1</p>);
+        dynamicContent.push(<p>dynamic 2</p>);   
+
+	return (
+		<>
+            {this.renderContent()}
+            {dynamicContent}                
+        </>
+	);
+}
+
+
+
 
 
 
 
 -------------------------------------------
+
+merge with React Native
+see 'React Native.txt'
+
+-
+
+empty root node:
+
+// syntax
+<>...</>
+
+// sample
+return (
+	<>
+		<h1>header</h1>
+		<p>body</p>
+    </>
+)
+
+-
+
+// wrapper component
+use 'children' to create a wrapper component. ????
+{this.props.children}
+sample idea - colored boxes
+
+-
 
 ReactJS.NET
 react with .Net (ASP.NET MVC)
@@ -68,6 +291,11 @@ see 'ReactJS.NET server & client rendering'
 see 'ReactJS.NET render using @Html.React'
 see 'ReactJS.NET render using js libraries'
 see 'ReactJS.NET component in component'
+
+-
+
+react-bundle:
+System.Web.Optimization.React  ???
 
 -
 
@@ -231,7 +459,7 @@ ReactSiteConfiguration.Configuration
 
 <p>using css class</p>
 <style type="text/css">
-    .classA {
+    .header {
         color: #fff;
         background-color: mediumvioletred;
     }
@@ -239,7 +467,7 @@ ReactSiteConfiguration.Configuration
 
 @Html.React("TestCss3", new
 {
-    headerClass = "classA"
+    headerClass = "header"
 })
 
 // testCss.jsx
@@ -281,6 +509,62 @@ class TestCss3 extends React.Component {
     }
 }
 
+class TestCss4 extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            classA: 'classA'
+        };
+    }
+
+    getClassB = () => {
+        return 'classB';
+    }
+
+    render() {
+        let classC = 'classC';
+
+        return (
+            <>
+                <h1 className={`${this.state.classA} ${this.getClassB()} ${classC}`}>Hello Css 4</h1>
+                <p>multiple classes</p>
+            </>
+        )
+    }
+}
+
+class TestCss5 extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            stylesA: {
+                color: '#fff'
+            }
+        };
+    }
+
+    getStylesB = () => {
+        return {
+            backgroundColor: 'mediumvioletred'
+        };
+    }
+
+    render() {
+        let stylesC = {
+            fontStyle: 'italic'
+        };
+        
+        return (
+            <>
+                <h1 style={{ ...this.state.stylesA, ...this.getStylesB(), ...stylesC }}>Hello Css 5</h1>
+                <p>multiple styles</p>
+            </>
+        )
+    }
+}
+
 -
 
 ReactJS.NET Lifecycle:
@@ -290,12 +574,6 @@ ReactSiteConfiguration.Configuration
             .AddScript("~/Scripts/React/testLifecycle.jsx");
 
 // Index.cshtml
-@section headerScripts{
-    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>    
-    <script src="~/Scripts/React/testLifecycle.jsx"></script>
-}
 
 <p>Mounting</p>
 <p>occurs when a component is created.</p>
@@ -341,8 +619,15 @@ ReactSiteConfiguration.Configuration
     [ChildComponent] pre-remove
 </pre>
 
-<!-- render react components in the client -->
-@Html.ReactInitJavaScript()
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>    
+    <script src="~/Scripts/React/testLifecycle.jsx"></script>
+
+	<!-- render react components in the client -->
+	@Html.ReactInitJavaScript()
+}
 
 
 // testLifecycle.jsx
@@ -462,6 +747,290 @@ class ChildComponent extends React.Component {
     render() {
         console.log('[ChildComponent] render');
         return <h1>Hello Lifecycle</h1>;
+    }
+}
+
+-
+
+ReactJS.NET State:
+
+// ReactConfig.cs
+ReactSiteConfiguration.Configuration                
+            .AddScript("~/Scripts/React/testState.jsx");
+
+// Index.cshtml
+<p>change state</p>
+@Html.React("TestState", new { })
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>    
+    <script src="~/Scripts/React/testState.jsx"></script>
+
+	<!-- render react components in the client -->
+	@Html.ReactInitJavaScript()
+}
+
+// testState.jsx
+class TestState extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            p1: 'value-1',
+            p2: 'value-2'
+        };        
+    }
+
+    changeP1 = e => {
+		// option1 to update a state
+        this.state.p1 = `value-${Math.floor(Math.random() * 1000)}`;
+        this.setState(this.state);
+    }
+
+    changeP2 = e => {        
+		// option2 to update a state
+        this.setState({
+            p2: `value-${Math.floor(Math.random() * 1000)}`
+        });
+    }
+
+    render() {
+        return (
+            <div>
+                <p>{this.state.p1}</p>
+                <p>{this.state.p2}</p>
+                <p>
+                    <button onClick={this.changeP1}>change-p1</button>                    
+                    <button onClick={this.changeP2}>change-p2</button>
+                </p>
+            </div>
+        )
+    }
+}
+
+-
+
+ReactJS.NET Events:
+
+notes:
+- for arrow function - no binding is required! 'this' refers to the component.
+- for regular function - binding is required!
+
+// ReactConfig.cs
+ReactSiteConfiguration.Configuration                
+            .AddScript("~/Scripts/React/testEvents.jsx");
+
+
+// Index.cshtml
+<p>arrow & regular functions</p>
+@Html.React("TestEvents", new { })
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>    
+    <script src="~/Scripts/React/testEvents.jsx"></script>
+		
+	<!-- render react components in the client -->
+	@Html.ReactInitJavaScript()
+}
+
+
+// testEvents.jsx
+class TestEvents extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: ''
+        };
+
+        this.fun2 = this.fun2.bind(this);  // bind method (for regular functions)
+    }
+    
+    fun1 = e => {
+        this.setState({
+            value: Math.floor(Math.random() * 1000)
+        });
+    }  
+    
+    fun2(e) {
+        this.setState({
+            value: Math.floor(Math.random() * 1000)
+        });
+    }  
+
+    render() {
+        return (
+            <div>
+                <h5>{this.state.value}</h5>
+                <p>
+                    <button onClick={this.fun1}>clickMe</button>                    
+                    <button onClick={this.fun2}>clickMe</button>
+                </p>
+            </div>
+        )
+    }
+}
+
+-
+
+ReactJS.NET Forms:
+
+// ReactConfig.cs
+ReactSiteConfiguration.Configuration                
+            .AddScript("~/Scripts/React/testForms.jsx");
+
+// Index.cshtml
+<p>onChange and onSubmit</p>
+@Html.React("TestForm1", new {})
+
+<p>setInput using name</p>
+@Html.React("TestForm2", new { })
+
+<p>special tags</p>
+@Html.React("TestForm3", new { })
+
+<p>React ref</p>
+@Html.React("TestForm4", new { })
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>    
+    <script src="~/Scripts/React/testForms.jsx"></script>
+
+	<!-- render react components in the client -->
+	@Html.ReactInitJavaScript()
+}
+
+
+// testForms.jsx
+class TestForm1 extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            input1: '',
+            input2: ''
+        };
+    }
+
+    setInput1 = e => {
+        this.setState({
+            input1: e.target.value
+        });
+    }
+
+    setInput2 = e => {
+        this.setState({
+            input2: e.target.value
+        });
+    }
+
+    submitForm = e => {
+        e.preventDefault();
+        // code here...
+    }
+
+    render() {
+        return (
+            <form onSubmit={this.submitForm}>
+                <h1>Test Form 1</h1>
+                <input type="text" placeholder="input-1" onChange={this.setInput1} />
+                &nbsp;&nbsp;<span>{this.state.input1}</span>
+                <br /><br />
+                <input type="text" placeholder="input-2" onChange={this.setInput2} />
+                &nbsp;&nbsp;<span>{this.state.input2}</span>
+                <br /><br />
+                <p><input type="submit" value="SUBMIT" /></p>
+            </form>
+        )
+    }
+}
+
+class TestForm2 extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            input1: '',
+            input2: ''
+        };
+    }
+
+    setInput = e => {
+        this.setState({
+            [e.target.name]: e.target.value
+        });
+    }
+
+    render() {
+        return (
+            <form>
+                <h1>Test Form 2</h1>
+                <input type="text" placeholder="input-1" onChange={this.setInput} name="input1" />
+                &nbsp;&nbsp;<span>{this.state.input1}</span>
+                <br /><br />
+                <input type="text" placeholder="input-2" onChange={this.setInput} name="input2" />
+                &nbsp;&nbsp;<span>{this.state.input2}</span>              
+                <br /><br />
+            </form>
+        )
+    }
+}
+
+class TestForm3 extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            selectedValue: '2',
+            description: 'bla bla bla...'
+        };
+    }
+
+    setSelectedValue = e => {
+        this.setState({
+            selectedValue: e.target.value
+        });
+    }
+
+    render() {        
+        return (
+            <form>
+                <h1>Test Form 3</h1>
+                <select value={this.state.selectedValue} onChange={this.setSelectedValue}>
+                    <option value="1">Value1</option>
+                    <option value="2">Value2</option>
+                    <option value="3">Value3</option>
+                </select>
+                <br /><br />
+                select value is {this.state.selectedValue}                
+                <br /><br />
+                <textarea value={this.state.description} />
+                <br /><br />
+            </form>
+        )
+    }
+}
+
+class TestForm4 extends React.Component {
+    constructor() {
+        super();
+        this.form = React.createRef();        
+    }
+
+    submitForm = e => {
+        e.preventDefault();
+        console.log(this.form.current);  // reference to the current form!
+        // code here...
+    }
+
+    render() {
+        return (
+            <form ref={this.form} onSubmit={this.submitForm}>
+                <h1>Test Form 4</h1>
+                <p><input type="submit" value="SUBMIT" /></p>
+            </form>
+        )
     }
 }
 
@@ -870,7 +1439,7 @@ sample:
 class Test extends Component {    
 	constructor(props) {
 		super(props)
-		this.fun1 = this.fun1.bind(this);  // bind method (for regular functions)
+		this.fun2 = this.fun2.bind(this);  // bind method (for regular functions)
 	}	
 
 	fun1 = e => { ... }  // arrow function - no binding is required! 'this' refers to the component.
@@ -1028,3 +1597,20 @@ h6.title {
 
 - 
 
+React ref:
+// declare a ref
+constructor(props) {
+    super(props);    
+    this.textInput = React.createRef();    
+  }
+
+ // bind a ref
+ <input type="text" ref={this.textInput} />
+
+ // access  
+ this.textInput.current;
+
+ -
+
+ React.createRef
+ see 'React ref'

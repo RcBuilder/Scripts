@@ -1,0 +1,27 @@
+javascript - merge objects
+--------------------------
+use the spread operator. (...object)
+
+syntax: 
+let newObject = { ...object1, ...object2, ...objectN }
+
+using:
+let object1 = { a: 1 }
+let object2 = { b: 1 }
+let object3 = { c: 1 }
+let all = { ...object1, ...object2, ...object3 }
+console.log(all); // { a: 1, b: 1, c: 1 }
+
+sample:
+render() {
+    let stylesA = { color: '#fff' }
+	let stylesB = { backgroundColor: 'mediumvioletred' }
+	let stylesC = { fontStyle: 'italic' }
+        
+    return (
+        <>
+            <h1 style={{ ...stylesA, ...stylesB, ...stylesC }}>Hello React</h1>
+        </>
+    )
+}
+

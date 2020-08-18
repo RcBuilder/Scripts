@@ -1,0 +1,110 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "Forms";
+}
+
+<br />
+
+<p>page content</p>
+<h2>Forms</h2>
+
+<hr />
+
+<p>onChange and onSubmit</p>
+@Html.React("TestForm1", new {})
+<pre>
+    setInput1 = e =&gt; {
+        this.setState({
+            input1: e.target.value
+        });
+    }
+    submitForm = e =&gt; {
+        e.preventDefault();
+        // code here...
+    }
+
+    &lt;input type=&quot;text&quot; placeholder=&quot;input-1&quot; onChange={this.setInput1} /&gt;
+    &lt;span&gt;{this.state.input1}&lt;/span&gt;
+    &lt;input type=&quot;submit&quot; value=&quot;SUBMIT&quot; /&gt;
+</pre>
+
+<hr />
+
+<p>setInput using name</p>
+@Html.React("TestForm2", new { })
+<pre>
+    setInput = e =&gt; {
+        this.setState({
+            [e.target.name]: e.target.value
+        });
+    }
+
+    &lt;input type=&quot;text&quot; placeholder=&quot;input-1&quot; onChange={this.setInput} name=&quot;input1&quot; /&gt;
+    &lt;span&gt;{this.state.input1}&lt;/span&gt;
+</pre>
+
+<hr />
+
+<p>special tags</p>
+@Html.React("TestForm3", new { })
+<pre>
+    constructor() {
+        super();
+        this.state = {
+            selectedValue: &#39;2&#39;,
+            description: &#39;bla bla bla...&#39;
+        };
+    }
+
+    setSelectedValue = e =&gt; {
+        this.setState({
+            selectedValue: e.target.value
+        });
+    }
+
+    &lt;select value={this.state.selectedValue} onChange={this.setSelectedValue}&gt;
+        &lt;option value=&quot;1&quot;&gt;Value1&lt;/option&gt;
+        &lt;option value=&quot;2&quot;&gt;Value2&lt;/option&gt;
+        &lt;option value=&quot;3&quot;&gt;Value3&lt;/option&gt;
+    &lt;/select&gt;
+    &lt;textarea value={this.state.description} /&gt;
+</pre>
+
+<hr />
+
+<p>React ref</p>
+@Html.React("TestForm4", new { })
+<pre>
+    constructor() {
+        super();
+        this.form = React.createRef();        
+    }
+
+    submitForm = e =&gt; {
+        e.preventDefault();
+        console.log(this.form.current);  // reference to the current form!
+        // code here...
+    }
+
+    render() {
+        return (
+            &lt;form ref={this.form} onSubmit={this.submitForm}&gt;
+                &lt;h1&gt;Test Form 4&lt;/h1&gt;
+                &lt;p&gt;&lt;input type=&quot;submit&quot; value=&quot;SUBMIT&quot; /&gt;&lt;/p&gt;
+            &lt;/form&gt;
+        )
+    }
+</pre>
+
+<hr />
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="~/Scripts/React/testForms.jsx"></script>
+
+    <!-- render react components in the client -->
+    @Html.ReactInitJavaScript()
+}

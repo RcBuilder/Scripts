@@ -1,0 +1,94 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "Render";
+}
+
+<br />
+
+<p>page content</p>
+<h2>Render</h2>
+
+<hr />
+
+<p>using @@Html.React (server rendering)</p>
+@Html.React("TestReact", new {
+    name = "Roby"
+})
+<pre>
+    render() {
+        return (
+            &lt;div&gt;
+                &lt;h1&gt;Hello React&lt;/h1&gt;
+                &lt;p&gt;props: {this.props.name}&lt;/p&gt;                   
+            &lt;/div&gt;
+        )
+    }
+</pre>
+
+<hr />
+
+<p>component in component</p>
+@Html.React("TestReact2", new {})
+<pre>    
+    render() {
+        return (
+            &lt;div&gt;
+                &lt;h1&gt;Hello React 2&lt;/h1&gt;                
+                &lt;TestComponent1 /&gt;
+            &lt;/div&gt;
+        )
+    }
+
+    // TestComponent1
+    render() {
+        return &lt;h2&gt;Hello Component&lt;/h2&gt;
+    }
+</pre>
+
+<hr />
+
+<p>using Dynamic Content</p>
+@Html.React("TestReact3", new { })
+<pre>
+    renderContent = () =&gt; {
+        return &lt;h1&gt;Hello React 4&lt;/h1&gt;;
+    }
+
+    render() {
+        let dynamicContent = [];
+        dynamicContent.push(&lt;p&gt;dynamic 1&lt;/p&gt;);
+        dynamicContent.push(&lt;p&gt;dynamic 2&lt;/p&gt;);        
+
+        return (
+            &lt;&gt;
+                {this.renderContent()}
+                {dynamicContent}                
+            &lt;/&gt;
+        )
+    }
+</pre>
+
+<hr />
+
+<p>using ReactDOM injector (client rendering)</p>
+<div id="root">React Root</div>
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+    <script src="~/Scripts/React/testReactDOM.jsx"></script>       
+}
+<pre>    
+    render() {
+        return (
+            &lt;div&gt;
+                &lt;h1&gt;Hello React 3&lt;/h1&gt;
+                &lt;p&gt;props: {this.props.name}&lt;/p&gt;
+            &lt;/div&gt;
+        )
+    }
+
+    ReactDOM.render(&lt;TestReactDOM name=&quot;Roby&quot; /&gt;, document.getElementById(&#39;root&#39;));
+</pre>

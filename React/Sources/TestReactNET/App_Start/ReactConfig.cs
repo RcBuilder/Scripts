@@ -11,11 +11,13 @@ namespace TestReactNET
 		public static void Configure()
 		{
             ReactSiteConfiguration.Configuration                
-                .AddScript("~/Scripts/React/testReact.jsx")
-                .AddScript("~/Scripts/React/testReact2.jsx")                
+                .AddScript("~/Scripts/React/testReact.jsx")                            
                 .AddScript("~/Scripts/React/component1.jsx")
                 .AddScript("~/Scripts/React/testCss.jsx")
                 .AddScript("~/Scripts/React/testLifecycle.jsx")
+                .AddScript("~/Scripts/React/testForms.jsx")
+                .AddScript("~/Scripts/React/testEvents.jsx")
+                .AddScript("~/Scripts/React/testState.jsx")
                 ;
 
             JsEngineSwitcher.Current.DefaultEngineName = V8JsEngine.EngineName;

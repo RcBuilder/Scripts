@@ -1,0 +1,58 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "State";
+}
+
+<br />
+
+<p>page content</p>
+<h2>State</h2>
+
+<hr />
+
+<p>change state</p>
+@Html.React("TestState", new { })
+<pre>
+    constructor(props) {
+        super(props);
+        this.state = {
+            p1: &#39;value-1&#39;,
+            p2: &#39;value-2&#39;
+        };        
+    }
+
+    changeP1 = e =&gt; {
+        this.state.p1 = `value-${Math.floor(Math.random() * 1000)}`;
+        this.setState(this.state);
+    }
+
+    changeP2 = e =&gt; {        
+        this.setState({
+            p2: `value-${Math.floor(Math.random() * 1000)}`
+        });
+    }
+
+    render() {
+        return (
+            &lt;div&gt;
+                &lt;p&gt;{this.state.p1}&lt;/p&gt;
+                &lt;p&gt;{this.state.p2}&lt;/p&gt;
+                &lt;p&gt;
+                    &lt;button onClick={this.changeP1}&gt;change-p1&lt;/button&gt;                    
+                    &lt;button onClick={this.changeP2}&gt;change-p2&lt;/button&gt;
+                &lt;/p&gt;
+            &lt;/div&gt;
+        )
+    }
+</pre>
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="~/Scripts/React/testState.jsx"></script>
+
+    <!-- render react components in the client -->
+    @Html.ReactInitJavaScript()
+}

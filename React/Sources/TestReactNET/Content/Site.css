@@ -15,3 +15,8 @@ select,
 textarea {
     max-width: 280px;
 }
+
+.linksWrapper {
+    margin-top: 40px;
+    color: #428bca;
+}

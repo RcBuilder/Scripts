@@ -1,0 +1,59 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "Events";
+}
+
+<br />
+
+<p>page content</p>
+<h2>Events</h2>
+
+<hr />
+
+<p>arrow & regular functions</p>
+@Html.React("TestEvents", new { })
+<pre>
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: &#39;&#39;
+        };
+        this.fun2 = this.fun2.bind(this);  // bind method (for regular functions)
+    }
+
+    // arrow function - no binding is required! &#39;this&#39; refers to the component.
+    fun1 = e =&gt; {
+        this.setState({
+            value: Math.floor(Math.random() * 1000)
+        });
+    }  
+    // regular function - binding is required!
+    fun2(e) {
+        this.setState({
+            value: Math.floor(Math.random() * 1000)
+        });
+    }  
+
+    render() {
+        return (
+            &lt;div&gt;
+                &lt;h5&gt;{this.state.value}&lt;/h5&gt;
+                &lt;p&gt;
+                    &lt;button onClick={this.fun1}&gt;clickMe&lt;/button&gt;       
+                    &lt;button onClick={this.fun2}&gt;clickMe&lt;/button&gt;
+                &lt;/p&gt;
+            &lt;/div&gt;
+        )
+    }
+</pre>
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="~/Scripts/React/testEvents.jsx"></script>
+
+    <!-- render react components in the client -->
+    @Html.ReactInitJavaScript()
+}

@@ -15,6 +15,9 @@
 @Html.React("TestCss1", new {
     headerColor = "red"
 })
+<pre>
+    &lt;h1 style={{ color: this.props.headerColor }}&gt;Hello Css 1&lt;/h1&gt;
+</pre>
 
 <hr />
 
@@ -23,12 +26,20 @@
 {
     headerColor = "purple"
 })
+<pre>
+    const headerStyles = {
+        color: this.props.headerColor,
+        textDecoration: 'underline'
+    };
+
+    &lt;h1 style={headerStyles}&gt;Hello Css 2&lt;/h1&gt;
+</pre>
 
 <hr />
 
 <p>using css class</p>
 <style type="text/css">
-    .classA {
+    .header {
         color: #fff;
         background-color: mediumvioletred;
     }
@@ -36,5 +47,107 @@
 
 @Html.React("TestCss3", new
 {
-    headerClass = "classA"
+    headerClass = "header"
 })
+<pre>
+    &lt;style type=&quot;text/css&quot;&gt;
+        .header {
+            color: #fff;
+            background-color: mediumvioletred;
+        }
+    &lt;/style&gt;
+
+    @@Html.React(&quot;TestCss3&quot;, new {
+        headerClass = &quot;header&quot;
+    })
+
+    &lt;h1 className={this.props.headerClass}&gt;Hello Css 3&lt;/h1&gt;
+</pre>
+
+<hr />
+
+<p>using css multiple classes</p>
+<style type="text/css">
+    .classA {
+        color: #fff;        
+    }
+    .classB {
+        background-color: mediumvioletred;
+    }
+    .classC {
+        text-decoration: line-through;        
+    }
+</style>
+
+@Html.React("TestCss4", new { })
+<pre>
+    &lt;style type=&quot;text/css&quot;&gt;
+        .classA {
+            color: #fff;        
+        }
+        .classB {
+            background-color: mediumvioletred;
+        }
+        .classC {
+            text-decoration: line-through;
+        }
+    &lt;/style&gt;
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            classA: &#39;classA&#39;
+        };
+    }
+
+    getClassB = () =&gt; {
+        return &#39;classB&#39;;
+    }
+
+    render() {
+        let classC = &#39;classC&#39;;
+
+        return (
+            &lt;&gt;
+                &lt;h1 className={`${this.state.classA} ${this.getClassB()} ${classC}`}&gt;Hello Css 4&lt;/h1&gt;
+                &lt;p&gt;multiple classes&lt;/p&gt;
+            &lt;/&gt;
+        )
+    }
+</pre>
+
+<hr />
+
+<p>using css multiple styles</p>
+@Html.React("TestCss5", new { })
+<pre>
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            stylesA: {
+                color: &#39;#fff&#39;
+            }
+        };
+    }
+
+    getStylesB = () =&gt; {
+        return {
+            backgroundColor: &#39;mediumvioletred&#39;
+        };
+    }
+
+    render() {
+        let stylesC = {
+            fontStyle: &#39;italic&#39;
+        };
+        
+        return (
+            &lt;&gt;
+                &lt;h1 style={{ ...this.state.stylesA, ...this.getStylesB(), ...stylesC }}&gt;Hello Css 5&lt;/h1&gt;
+                &lt;p&gt;multiple styles&lt;/p&gt;
+            &lt;/&gt;
+        )
+    }
+</pre>
