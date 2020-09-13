@@ -1,0 +1,14 @@
+WOFF/ WOFF2 
+-----------
+in order to be able to load .woff or .woff2 files, we MUST add mime-types to the IIS.  
+
+extension: .woff
+mimeType: application/x-font-woff
+
+extension: .woff2
+mimeType: application/x-font-woff2
+
+-
+
+note! 
+can be added in the web.config instead.

@@ -5,6 +5,8 @@
 === [TOC] ==================
 - Sources
 - Install
+- About
+- CDN
 - Npx Commands
 - Using React
 - CRA (Create-React-App)  
@@ -14,11 +16,17 @@
 - React Templates
 - JSX
 - File Structure
+- Router
 - CSS
 - State
 - Lifecycle
 - Binding a Function
 - Dynamic Content
+- Render arrays inline
+- Empty Root node
+- Escape Curly-Brackets 
+- TODO App
+- BUGS
 ============================
 
 
@@ -29,6 +37,25 @@ Sources
 Install
 -------
 // TODO
+
+About
+-----
+React is a JavaScript library created by Facebook.
+it creates a virtual DOM (in memory), apply the changes there and only then update the actual DOM. 
+React library uses JSX which stands for 'JavaScript XML' and allows us to add HTML tags within the script. 
+React uses Virtual-DOM to track changes in the components, and then apply only those changes on the actual DOM.
+
+CDN
+---
+DEV:
+<script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+
+PROD:
+<script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
 
 Npx Commands
 ------------
@@ -71,6 +98,14 @@ React Templates
 
 JSX
 ---
+// TODO
+
+File Structure
+--------------
+// TODO
+
+Router
+------
 // TODO
 
 CSS
@@ -208,25 +243,29 @@ render() {
 	);
 }
 
+Render arrays inline
+--------------------
+we can render arrays inline using the the known es6 functions -> map, filter and reduce.
 
+e.g: 
+render() {
+    const arr = ['A', 'B', 'C', 'D'];
+    return (
+        <>              
+            <h1>Hello React</h1>
+            <ul>
+                {arr.map(x => <li>{x}</li>)}
+            </ul>
+        </>
+    )
+}
 
-
-
-
-
--------------------------------------------
-
-merge with React Native
-see 'React Native.txt'
-
--
-
-empty root node:
-
-// syntax
+Empty Root node
+---------------
+syntax:
 <>...</>
 
-// sample
+sample:
 return (
 	<>
 		<h1>header</h1>
@@ -234,14 +273,144 @@ return (
     </>
 )
 
+Escape Curly-Brackets
+---------------------
+use apostrophe sign (') to escape curly brackets -> '{' and '}' 
+
+syntax:
+{'{...}'}
+
+sample:
+// the value "{ 123 }" is printed 
+return <p>{'{ 123 }'}</p>  
+
+
+TODO App
+--------
+
+// available actions (enum)
+const eTodoActionType = Object.freeze({
+    CHANGE_STATUS: Symbol("CHANGE_STATUS"),
+    ADD: Symbol("ADD"),
+    REMOVE: Symbol("REMOVE")
+});
+
+// action: { type, payload }
+const TodoReducer = (state, action) => {
+    console.log(action);
+
+    let current = action.payload;
+
+    switch (action.type) {
+        case eTodoActionType.ADD:
+            return [...state, current];
+
+        case eTodoActionType.REMOVE:
+            return state.filter(x => x.id != current.id);
+
+        case eTodoActionType.CHANGE_STATUS:
+            return state.map(x => {
+                if (x.id == current.id)
+                    return x;
+                return { ...x, complete: x.complete }
+            });
+
+        default: return state;
+    }
+
+    return state;    
+}
+
+const TodoApp = () => {        
+    const [todos, dispatch] = useReducer(TodoReducer, []);
+
+    return (
+        <>
+            <h4>TODO APP</h4>
+            <ul>
+                {todos.map(todo => <Todo todo={todo} dispatch={dispatch} />)}
+            </ul>
+            <NewTodo dispatch={dispatch} />
+        </>
+    )    
+}
+
+const Todo = ({ todo, dispatch }) => {
+
+    const statusChanged = (e) => {
+        todo.complete = e.target.checked;
+        dispatch({ type: eTodoActionType.CHANGE_STATUS, payload: todo })
+    }
+
+    return (
+        <li key={todo.id}>
+            <label>
+                <input type="checkbox" checked={todo.complete} onChange={statusChanged} />
+                {todo.task}
+            </label>
+            <img src={closeIcon} style={{ width: '16px', margin: '0 10px' }} onClick={() => {
+                dispatch({ type: eTodoActionType.REMOVE, payload: todo })
+            }} />            
+        </li>
+    );
+}
+
+const NewTodo = ({ dispatch }) => {
+    const taskInput = React.createRef();
+    const submitForm = e => {
+        e.preventDefault();
+
+        let todo = {
+            id: uuid(),
+            task: taskInput.current.value || 'EMPTY',
+            complete: false
+        };
+        
+        dispatch({ type: eTodoActionType.ADD, payload: todo });
+        taskInput.current.value = '';
+    }
+
+    return (
+        <form onSubmit={submitForm}>   
+            <input type="text" placeholder="task" ref={taskInput} />
+            <input type="submit" />
+        </form>
+    )
+}
+
+
+
+BUGS
+----
+BUG:
+ReactJS.NET
+Ex -> Cannot use import statement outside a module 
+cause -> can't use the keyword 'import' within a jsx file.
+solution -> remove all 'import' caluses, use the 'ReactConfig.cs' to register all jsx files. this will auto-import them so they all would be available to use.
+see 'ReactJS.NET > component in component'
+
 -
 
-// wrapper component
-use 'children' to create a wrapper component. ????
-{this.props.children}
-sample idea - colored boxes
+BUG:
+ReactJS.NET
+Ex -> React is not defined
+cause -> there are no react libraries imported 
+solution -> add reference to react client engine 
+see 'ReactJS.NET > render using js libraries'
 
 -
+
+BUG:
+ReactJS.NET
+Issue -> No Client events nor console log
+cause -> server rendering only!
+solution -> render react in the client 
+see 'ReactJS.NET > server & client rendering'
+
+
+
+-------------------------------------------
+
 
 ReactJS.NET
 react with .Net (ASP.NET MVC)
@@ -256,13 +425,16 @@ https://reactjs.net/getting-started/aspnet.html
    > Install-Package React.Web.Mvc4 -Version 5.2.7
    > JavaScriptEngineSwitcher.V8
    > Install-Package JavaScriptEngineSwitcher.V8.Native.win-x64
+
 3. add Controller and a View
 4. import react namespace to the created view 
    @using React.Web.Mvc;
+
 5. render a component in the view
    @Html.React("TestReact", new {
 		name = "Roby"
 	})
+
 6. create a new .jsx file and implement the react component 
    // Scripts/app.jsx
    class TestReact extends React.Component {
@@ -275,6 +447,7 @@ https://reactjs.net/getting-started/aspnet.html
 			)
 		}
 	}
+
 7. App_Start > ReactConfig > set configuration for react
    public static class ReactConfig {
 		public static void Configure() {
@@ -284,6 +457,7 @@ https://reactjs.net/getting-started/aspnet.html
             JsEngineSwitcher.Current.EngineFactories.AddV8();
         }
     }
+
 8. Build
 
 references:
@@ -567,6 +741,146 @@ class TestCss5 extends React.Component {
 
 -
 
+ReactJS.NET Wrapper Component:
+
+// ReactConfig.cs
+ReactSiteConfiguration.Configuration                
+            .AddScript("~/Scripts/React/testWrapper.jsx");
+
+// Index.cshtml
+<p>wrapper box</p>
+@Html.React("TestWrapper1", new { })
+<p>use {this.props.children}</p>
+
+// testWrapper.jsx
+class Wrapper1 extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const box = {
+            backgroundColor: '#666',
+            color: '#fff',
+            padding: '12px',
+            border: 'solid 1px #000',
+            marginBottom: '10px'
+        };
+
+        return (
+            <div style={box}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+class TestWrapper1 extends React.Component {
+
+    render() {
+        return (
+            <Wrapper1>
+                <p>Paragraph 1</p>
+                <p>Paragraph 2</p>
+                <p>Paragraph 3</p>
+            </Wrapper1>    
+        )
+    }
+}
+
+-
+
+ReactJS.NET API Data:
+
+// tip
+we can use a flag to specify whether the data was loaded or not. 
+use this flag to conditionally render a "Loading..." icon. 
+the default flag value should be FALSE and once the data was loaded, set it to TRUE.
+
+// best practices
+fetch data on the componentDidMount stage (post-render)
+
+// ReactConfig.cs
+ReactSiteConfiguration.Configuration                
+            .AddScript("~/Scripts/React/testAPI.jsx");
+
+// Index.cshtml
+<p>using promise fetch/p>
+@Html.React("TestAPI", new { })
+
+<p>using async fetch</p>
+@Html.React("TestAPIAsync", new { })
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>    
+    <script src="~/Scripts/React/testAPI.jsx"></script>
+
+	<!-- render react components in the client -->
+	@Html.ReactInitJavaScript()
+}
+
+// testAPI.jsx
+class TestAPI extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            customers: []
+        }
+    }
+
+    // post-render
+    componentDidMount() {
+        const service = 'https://www.w3schools.com/js/customers_mysql.php';
+        fetch(service)
+            .then(data => data.json())
+            .then(json => this.setState({
+                customers: json
+            }));
+    }
+
+    render() {                
+        return (
+            <ul>
+                {this.state.customers.map(x => <li>{x.Name}</li>)}
+            </ul>
+        )
+    }
+}
+
+class TestAPIAsync extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            customers: []
+        }
+    }
+
+    // post-render
+    async componentDidMount() {
+        const service = 'https://www.w3schools.com/js/customers_mysql.php';
+        let data = await fetch(service)
+        let json = await data.json();
+
+        this.setState({
+            customers: json
+        });
+    }
+
+    render() {
+        return (
+            <ul>
+                {this.state.customers.map(x => <li>{x.Name}</li>)}
+            </ul>
+        )
+    }
+}
+
+-
+
 ReactJS.NET Lifecycle:
 
 // ReactConfig.cs
@@ -574,7 +888,6 @@ ReactSiteConfiguration.Configuration
             .AddScript("~/Scripts/React/testLifecycle.jsx");
 
 // Index.cshtml
-
 <p>Mounting</p>
 <p>occurs when a component is created.</p>
 @Html.React("TestMounting", new {})
@@ -1036,47 +1349,18 @@ class TestForm4 extends React.Component {
 
 -
 
-BUG:
-ReactJS.NET
-Ex -> Cannot use import statement outside a module 
-cause -> can't use the keyword 'import' within a jsx file.
-solution -> remove all 'import' caluses, use the 'ReactConfig.cs' to register all jsx files. this will auto-import them so they all would be available to use.
-see 'ReactJS.NET component in component'
 
-BUG:
-ReactJS.NET
-Ex -> React is not defined
-cause -> there are no react libraries imported 
-solution -> add reference to react client engine 
-see 'ReactJS.NET render using js libraries'
-
-BUG:
-ReactJS.NET
-Issue -> No Client events nor console log
-cause -> server rendering only!
-solution -> render react in the client 
-see 'ReactJS.NET server & client rendering'
-
-- 
-
-about:
-React is a JavaScript library created by Facebook.
-it creates a virtual DOM (in memory), apply the changes there and only then update the actual DOM. 
-React library uses JSX which stands for 'JavaScript XML' and allows us to add HTML tags within the script. 
-
--
-
-[react]
-escape curly brackets -> '{' and '}' 
-{'{...}'}
-
--
 
 cra - multiple pages ???
 
 -
 
 client routing ???
+.Net React Router ???
+
+-
+
+.Net Typescript
 
 -
 
@@ -1182,9 +1466,10 @@ class Test extends Component {
         };
     }
     
-    changeP1 = e => {
-        this.state.p1 = `value-${Math.floor(Math.random() * 1000)}`;
-        this.setState(this.state);
+    changeP1 = e => {        
+        this.setState({
+			p1: `value-${Math.floor(Math.random() * 1000)}`
+		});
     }
 
     render() {
@@ -1272,6 +1557,17 @@ we can pass any type as props (string, number, object etc.)
 recommendation:
 always pass the props to the parent component.
 
+props accessibility:
+the 'props' object is available for us within the component even if we haden't declared it explicitly! 
+the best practice is to declare it in the constructor and pass it through to the parent using the super function.
+we can use js destructuring to extract specific properties from the props object. (see 'using destructuring') 
+
+using destructuring:
+// extracts only the 'name' property from the props object. 
+// note that we can still access all properties via the 'props' object
+constructor({ name }){ ... } // name is accessible within the constructor, props also available.
+constructor(props, { name }){ ... } // same as above but explicit (props)
+
 using:
 class ClassA extends React.Component {
 	constructor(props) {
@@ -1283,6 +1579,27 @@ class ClassA extends React.Component {
 	}
 }
 ReactDOM.render(<ClassA name="Roby" />, document.getElementById('root'));
+
+-
+
+class Test extends React.Component {
+	constructor({ name }) {
+		super();  
+		this.state = {
+			o_name: name
+		}
+	}
+
+	render() {
+		return (
+			<>
+				<p>{JSON.stringify(this.props)}</p>
+				<p>{this.props.name}</p>
+				<p>{this.state.o_name}</p>
+			</>
+		)
+	}
+}
 
 -
 
@@ -1344,6 +1661,10 @@ ReactDOM.render(<ComponentA />, document.getElementById('root'));
 
 setState(<newState>);  // full update 
 setState({ <propName>: <value>});  // partial update
+
+tip:
+best practice is to NOT do changes directly on the state and then pass it to the 'setState' function! 
+try to always use the partial update approach.
 
 sample:
 class Test extends Component {
@@ -1487,6 +1808,17 @@ unlike in HTML, in React, the selected value is controlled by a 'value' attribut
     <option value="3">Value3</option>
 </select>
 
+generic setInput function:
+in js, we can use the array-like syntax to create object properties dynamically. 
+obj[<key>] = <value>
+
+// e.g
+setInput = e => {
+    this.setState({
+        [e.target.name]: e.target.value
+    });
+}
+
 using:
 class TestForm extends Component {
     constructor() {
@@ -1614,3 +1946,1059 @@ constructor(props) {
 
  React.createRef
  see 'React ref'
+
+ -
+
+ wrapper component:
+ use {this.props.children} to render the inner content! 
+
+ // sample
+ class Wrapper1 extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const box = {
+            backgroundColor: '#666',
+            color: '#fff',
+            padding: '12px',
+            border: 'solid 1px #000',
+            marginBottom: '10px'
+        };
+
+        return (
+            <div style={box}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+class TestWrapper1 extends React.Component {
+    render() {
+        return (
+            <Wrapper1>
+                <p>Paragraph 1</p>
+                <p>Paragraph 2</p>
+                <p>Paragraph 3</p>
+            </Wrapper1>    
+        )
+    }
+}
+
+-
+
+// using map to render an array 
+render() {   
+    const arr = ['A', 'B', 'C', 'D'];
+    return (
+        <ul>
+            {arr.map(x => <li>{x}</li>)}
+        </ul>
+    )
+}
+
+-
+
+arrays and the 'key' property.
+commonly used when returning a JSX of component arrays.
+must be unique. allows REACT engine to render only the changed array items by identifying the item by its key.
+
+// sample
+class Test extends React.Component {
+    render() {
+        const arr = [
+            { id: 1, name: 'Roby' },
+            { id: 2, name: 'Roby' },
+            { id: 3, name: 'Avi' },
+            { id: 4, name: 'Avi' }
+        ];
+        return (
+            arr.map(x => {
+                return <Component1 key={x.id} name={x.name} />
+            })
+        )
+    }
+}
+
+class Component1 extends React.Component {
+    render() {
+        return <p>{this.props.name}</p>
+    }
+}
+
+-
+
+useEffect ???
+
+-
+
+sample
+localStorage 
+getItem, setItem
+
+-
+
+// state with no constructor
+class Test extends React.Component {
+    state = { ... };
+}
+
+-
+
+[debugging]
+
+chrome EXT:
+React Developer Tools
+https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?hl=en
+
+// using
+open dev tools (F12) > a new tab is added to the right (React or Components).
+we would see all the defined components on the page. 
+once click on a component, a new pane appears from the right with the selected component's props and state.  
+we can change the state or props and it will be reflected on the page immediately.
+
+// note
+we MUST use the client version to use the React tools! there are 2 versions: PROD and DEV (see 'CDN')
+
+
+-
+
+Supported Events:
+- Clipboard
+	- onCopy 
+	- onCut 
+	- onPaste
+- Composition
+	- onCompositionEnd 
+	- onCompositionStart 
+	- onCompositionUpdate
+- Keyboard 
+	- onKeyDown 
+	- onKeyPress 
+	- onKeyUp
+- Focus 
+	- onFocus 
+	- onBlur
+- Form 
+	- onChange 
+	- onInput 
+	- onInvalid 
+	- onReset 
+	- onSubmit 
+Generic 
+	- onError 
+	- onLoad
+Mouse 
+	- onClick 
+	- onContextMenu 
+	- onDoubleClick 
+	- onDrag 
+	- onDragEnd 
+	- onDragEnter 
+	- onDragExit
+	- onDragLeave 
+	- onDragOver 
+	- onDragStart 
+	- onDrop 
+	- onMouseDown 
+	- onMouseEnter 
+	- onMouseLeave
+	- onMouseMove 
+	- onMouseOut 
+	- onMouseOver 
+	- onMouseUp
+Pointer 
+	- onPointerDown 
+	- onPointerMove 
+	- onPointerUp 
+	- onPointerCancel 
+	- onGotPointerCapture
+	- onLostPointerCapture 
+	- onPointerEnter 
+	- onPointerLeave 
+	- onPointerOver 
+	- onPointerOut
+Selection 
+	- onSelect
+Touch 
+	- onTouchCancel
+	- onTouchEnd 
+	- onTouchMove 
+	- onTouchStart
+UI 
+	- onScroll
+Wheel 
+	- onWheel
+Media 
+	- onAbort 
+	- onCanPlay 
+	- onCanPlayThrough 
+	- onDurationChange 
+	- onEmptied 
+	- onEncrypted
+	- onEnded 
+	- onError 
+	- onLoadedData 
+	- onLoadedMetadata 
+	- onLoadStart 
+	- onPause 
+	- onPlay
+	- onPlaying 
+	- onProgress 
+	- onRateChange 
+	- onSeeked 
+	- onSeeking 
+	- onStalled 
+	- onSuspend
+	- onTimeUpdate 
+	- onVolumeChange 
+	- onWaiting
+Image 
+	- onLoad 
+	- onError
+Animation 
+	- onAnimationStart 
+	- onAnimationEnd 
+	- onAnimationIteration
+Transition 
+	- onTransitionEnd
+
+- 
+
+function-based components:
+commonly used for UI components when there's no state required! 
+
+import React from 'react'
+const TestComponent = (props) => {
+	return (
+		<h1>Hello React</h1>
+	)
+}
+
+- 
+
+best practices to get access to the parent state is by creating a function which makes the desired changes to the state 
+and pass this function as prop to the child component.
+
+// use form as the child component
+class ParentComponent extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            users: [
+                { name: 'User-A' },
+                { name: 'User-B' }
+            ]
+        }
+    }
+
+    addUser = (user) => {
+        let newUsers = [...this.state.users, user];
+        this.setState({
+            users: newUsers
+        });
+    }
+
+    render() {
+        return (
+            <>
+                <h1>Test React</h1>
+                {this.state.users.map(u => <div>{u.name}</div>)}
+                <ChildComponent fnAddUser={this.addUser} />                
+            </>
+        )
+    }
+}
+
+class ChildComponent extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            name: ''
+        };
+    }
+
+    setName = e => {
+        this.setState({
+            name: e.target.value
+        });
+    }
+
+    submitForm = e => {
+        e.preventDefault();
+
+		// code... (send to server etc.)
+
+		// update the parent with the new user        
+		this.props.fnAddUser({ name: this.state.name });
+    }
+
+    render() {
+        return (
+            <form onSubmit={this.submitForm}>
+                <h5>new user</h5>
+                <p>
+					<input type="text" placeholder="user-name" onChange={this.setName} />
+					<input type="submit" value="SUBMIT" />
+				</p>
+            </form>
+        )
+    }
+}
+
+// extra
+// create a child without a form, it uses js events to call the parent 'fnAddUser' 
+class ChildComponentNoForm extends React.Component {       
+    addUser = e => {
+        this.props.fnAddUser({ name: this.userName.current.value });  // call the parent fn
+    }
+
+    render() {
+        this.userName = React.createRef();  // create ref to the input
+
+        return (
+            <>
+                <input ref={this.userName} type="text" placeholder="user-name"  />
+                <button onClick={this.addUser}>add</button>
+            </>
+        )
+    }
+}
+
+-
+
+install:
+> npm install --save react-router-dom
+
+import:
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+
+syntax:
+<Router>    
+    <Route path="[path]" component={component} />
+    ...
+	...
+</Router>
+
+BrowserRouter properties:
+- basename		// base path
+- forceRefresh	// determine whether to use full-page-refresh
+
+Route properties:
+- path			// route relative path
+- exact			// see 'Route exact property'
+
+Route parameters:
+use the :<parameter> syntax (similar to node express)
+to get the parameter value, use the 'match' object from the component props.
+
+// syntax
+<Route path="[path]/:[parameter]" ... />	// define route with parameter
+this.props.match.params.<paramName>			// get parameter
+
+//e.g 
+<Route path="/users/:id" ... />
+let userId = this.props.match.params.id;
+
+Route exact property:
+by default, the route path uses 'contains' match-type, to set an exact match use 'exact' route property.
+note that for these 2 routes '/' and '/a' with no 'exact', when routing to '/a' we'll see the content of both route '/' and route '/a' cause '/a' contains the value '/' !
+
+Link module:
+generates an a tag
+
+NavLink module:
+same as the 'Link' module with extra 'active' css-class for the active link.
+
+Link module vs a-href:
+its best practices to use 'Link' module always instead of regular HTML a tag. 
+using 'Link' prevents the default behavior so it disables the request and only load (client-side) the route component. 
+hence, the performance is better and the transition is smoother!
+
+props:
+all of the listed object are added to the props collection
+- match object
+- location object
+- history object
+
+params
+see 'Route parameters'
+
+note! 
+to import these props to a non-route component (e.g: NavBar) we must wrap it using the 'withRouter' module 
+
+import { withRouter } from 'react-router-dom';
+const NavBar = withRouter((props) => { ... });
+
+Switch module:
+grab ONLY the first (route) match from top to bottom!
+
+import { Switch } from 'react-router-dom';
+<Router>
+    <NavBar />
+	<Switch>		
+		<Route path="/page" component={Component1} />                    		
+		<Route path="/:name" component={Component2} />                                   
+	</Switch>
+</Router>
+
+in the above example, the URL '/page' matches both routes! ('name' is a parameter which can also takes 'page' as a value)
+without the 'Switch' module, both 'Component1' and 'Component2' will be rendered. whereas, using a 'Switch' will only render 'Component1' cause it is the first match from the top!
+
+
+sample:
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
+import { BrowserRouter as Router, Route, Link } from 'react-router-dom';
+
+const NavBar = () => {
+    return (
+        <ul>
+            <li><Link to="/">Home</Link></li>
+			<li><Link to="/a">PageA</Link></li>
+			<li><Link to="/b">PageB</Link></li>            
+        </ul>
+    )
+}
+
+class Index extends Component {
+    render() {
+        return (
+            <Router>
+                <NavBar />
+                <Route exact path="/" component={Home} />
+                <Route path="/a" component={PageA} />                    
+                <Route path="/b" component={PageB} />
+                <Route path="/c/:id" component={PageC} />                                   
+            </Router>
+        )
+    }
+}
+
+class Home extends Component {
+    render() {
+        return (
+            <>
+                <h1>Hello Home</h1>
+            </>
+        )
+    }
+}
+
+class PageA extends Component {
+    render() {
+        return (
+            <>                
+                <h1>Hello Page A</h1>
+            </>            
+        )
+    }
+}
+
+class PageB extends Component {
+    render() {
+        return (
+            <>             
+                <h1>Hello Page B</h1>
+            </>
+        )
+    }
+}
+
+class PageC extends Component {        
+    render() {        
+        return (
+            <>
+                <h1>Hello Page C</h1>
+                <p>{this.props.match.params.id}</p>
+            </>
+        )
+    }
+}
+
+ReactDOM.render(<Index />, document.getElementById('root'));
+
+-
+
+// change state after X seconds
+constructor(props) {
+    super(props);
+    this.state = {
+        value: ''
+    };       
+}
+    
+render() {        
+	setTimeout(() => {
+		this.setState({
+            value: 'some-value'
+        });
+	}, 5000);
+
+    return (           
+        <p>{this.state.value}</p>            
+    )
+}
+
+- 
+
+Higher Order Component:
+aka wrapper-component.
+
+note! 
+we can also create a component which renders the children (this.props.children) 
+and consume it by wrapping content in the JSX returning value. (see 'wrapper component using children rendering')
+
+creation of an Higher Order Component requires 3 steps
+- create a component which gets an inner-component as a parameter
+- create a wrapped-version of the inner-component by wrapping it with the wrapper.
+- render the wrapped-version 
+
+// sample
+// wrapper component - gets a component to wrap as a parameter
+const WrapperComponent = InnerComponent => {
+    let styles = {
+        backgroundColor: 'yellow',
+        color: 'red',
+        padding: '12px'
+    }
+
+    return class extends Component {
+        render() {
+            return (
+                <div style={styles}>
+                    <InnerComponent {...this.props} />
+                </div>
+            )
+        }
+    }
+}
+
+// inner component - a component to be wrapped
+const SomeComponent = props => {
+    return <h4>Hello {props.name || 'Anonymous'}</h4>
+}
+
+// wrapped version of the inner component
+const SomeComponentWrapped = WrapperComponent(SomeComponent);
+
+// using
+<SomeComponentWrapped name="roby" />
+
+- 
+
+Wrapper-component using children rendering:
+use {this.props.children} within the wrapper JSX to render the children. 
+
+tip:
+another alternative is to use Higher Order Component as a wrapper (see 'Higher Order Component')
+
+// sample
+class Wrapper1 extends Component {    
+    render() {        
+        const box = {
+            backgroundColor: '#666',
+            color: '#fff',
+            padding: '12px',
+            border: 'solid 1px #000',
+            marginBottom: '10px'
+        };
+
+        return (
+            <div style={box}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+class TestWrapper1 extends Component {
+    render() {
+        return (
+            <Wrapper1>
+                <p>Paragraph 1</p>
+                <p>Paragraph 2</p>
+                <p>Paragraph 3</p>
+            </Wrapper1>    
+        )
+    }
+}
+
+-
+
+conditional JSX:
+
+render(){
+	... 
+	...
+	let jsxToRender = users.length == 0 ? (
+		<h4>No Users!</h4>
+	) : (
+		users.map(u => { 
+			return <div>{u.name}</div>
+		})
+	)
+
+	return (
+		<>
+			{jsxToRender}
+		</>
+	)
+}
+
+-
+
+images:
+import image1 from './237-300x200.jpg';
+
+render(){	
+	return (<img src={image1} />)
+}
+
+-
+
+// TODO ->> document + sample test
+[React Context]
+context to share across the app. a global state.
+serves as a global data for a tree of react components.
+an alternative to the REDUX engine (see 'REDUX') 
+can also be replaced with useContext (see 'React Hooks') - better approach.
+
+update context:
+to update the context outside of the provider, we need to create a function which performs the update and pass it to the context value. 
+
+// e.g:
+this.state = { value: 'value1' };
+updateValue = (newValue) => { 
+	this.SetState({ value: newValue }) 
+}
+<MyContext.Provider value={{ ...this.state, updateValue }}>
+	{ this.props.children }
+</MyContext.Provider>
+
+
+process:
+// TODO 
+
+// using
+// myContext.jsx
+import React, { createContext } from 'react';
+const MyContext = createContext();
+
+class MyContextProvider extends Component { 
+	constructor(props) {
+		super(props);
+		this.state = {
+			p1: 'value1',
+			p2: 'value2'
+		};       
+	}
+
+	fun = () => { }
+	foo = () => { }
+
+	render(){
+		return (
+			// the 'value' property holds the context which will be available to the children components.
+			// passing the current state as the context (using spread operator) plus adding 'fun' and 'foo' to the context.
+			<MyContext.Provider value={{ ...this.state, fun, foo }}>
+				{ this.props.children }
+			</MyContext.Provider>
+		)
+	}
+}
+
+export default MyContextProvider;
+
+// index.jsx
+// wrap the root component with the ContextProvider.
+import MyContextProvider from './myContext';
+
+class Index extends Component { 
+	render() {
+		return(
+			<MyContextProvider>
+				<h4>Hello React</h4>
+				<Component1 />
+				<Component2 />
+				<Component3 />
+			</MyContextProvider>
+		)
+	}
+}
+
+// (option-1) static contextType
+// consume a context using static pre-defined type
+// supports ONLY a single context
+// supports ONLY class-based components
+class Component1 extends Component { 
+	static contextType = MyContext;  // set the contextType to consume as static and use the this.context to access it!
+	render() {
+		// context is now exposed (of type MyContext)
+		// react engine bubbles-up the tree to find the first match based on the context-type defined as static to this component. it then sets it to the 'context' property. 
+		console.log(this.context);
+		return(...)
+	}
+}
+
+// (option-2) Context.Consumer
+// consume a context using Context Consumer
+// supports multiple (see 'React Multiple Contexts')
+// supports both class and function-based components 
+class Component1 extends Component { 	
+	render() {
+		return (
+			// uses a function to render a new JSX. gets the context as parameter. 
+			<MyContext.Consumer> { 
+				(context) => {
+					console.log(this.context);
+					return(...)
+				}
+			}
+			</MyContext.Consumer>
+		);		
+	}
+}
+
+ReactDOM.render(<Index />, document.getElementById('root'));
+
+-
+
+// TODO ->> document + sample test
+[React Multiple Contexts]
+only the Context.Consumer approach supports multiple contexts. the 'contextType' can only use a single context. 
+by wrapping a context in another context we get access to both contexts.
+
+syntax:
+return (
+	<MyContext1.Consumer> { 
+		(context1) => {
+
+			<MyContext2.Consumer> { 
+				(context2) => {					
+					
+					<MyContextN.Consumer> { 
+						(contextN) => {					
+							return(<JSX>)
+						}
+					}
+					</MyContextN.Consumer>
+
+				}
+			}
+			</MyContext2.Consumer>
+
+		}
+	}
+	</MyContext1.Consumer>
+)
+
+sample:
+// Context.Consumer with multiple contexts
+// wrap one context with the other to gain access to both contexts
+class Component1 extends Component { 	
+	render() {
+		return (			
+			<MyContext1.Consumer> { 
+				(context1) => {
+					<MyContext2.Consumer> { 
+						(context2) => {
+							console.log(this.context1);
+							console.log(this.context2);
+
+							return(...)
+						}
+					}
+					</MyContext2.Consumer>
+				}
+			}
+			</MyContext1.Consumer>
+		);		
+	}
+}
+
+-
+
+// TODO ->> document + sample test
+[React Hooks]
+
+hooks:
+- useState
+- useEffect
+- useContext
+- useReducer
+
+
+useState:
+use it to create a state for a component (class or a function).  
+when invoking the 'useState' method, we'll receive the current state value and a function to update the state with a new value.
+
+// syntax 
+const [value, setValue] = useState(<init-value>);
+
+// using 
+import React, { useState } from 'react';
+const [str, setStr] = useState(''); // string-value state
+const [obj, setObj] = useState({}); // object-value state
+const [arr, setArr] = useState([]); // array-value state
+
+
+useEffect:
+occurs every time the component is being rendered. 
+its a function which will be fired on-render.  
+
+// syntax
+useEffect(() => { ... });
+useEffect(() => { ... }, [ <filter> ]); // filter = data to monitor
+
+// note
+we can use multiple 'useEffect' functions in the same component. 
+can also add different filter each (data to monitor)
+
+// using 
+import React, { useEffect } from 'react';
+useEffect(() => { 
+	console.log('useEffect hook is triggered');
+});
+
+// using (multiple with filters)
+const [name, setName] = useState('');
+const [users, setUsers] = useState([]);
+
+useEffect(() => { 
+	console.log('some change has occurred in name');
+}, [name]);
+useEffect(() => { 
+	console.log('some change has occurred in users');
+}, [users]);
+
+
+useContext:
+another (cleaner) way to consume react contexts. see ('React Context').
+supports multiple contexts, supports both class and function-based components.
+the creation of the context provider is identical to the React Context approach, the only thing that changes is the way we consume it. 
+when using the 'useContext' function, we consume it via hook instead of a static instance lookup.
+
+// syntax 
+const context = useContext(<contextName>);
+
+// using 
+// myContext.jsx
+import React, { createContext, useContext } from 'react';
+
+// create a context and a context-provider
+const MyContext = createContext();
+class MyContextProvider extends Component { 
+	constructor(props) {
+		super(props);
+		this.state = {
+			p1: 'value1',
+			p2: 'value2'
+		};       
+	}
+
+	fun = () => { }
+	foo = () => { }
+
+	render(){
+		return (			
+			<MyContext.Provider value={{ ...this.state, fun, foo }}>
+				{ this.props.children }
+			</MyContext.Provider>
+		)
+	}
+}
+
+export default MyContextProvider;
+
+// index.jsx
+// wrap the root component with the ContextProvider.
+import MyContextProvider from './myContext';
+
+class Index extends Component { 
+	render() {
+		return(
+			<MyContextProvider>
+				<h4>Hello React</h4>
+				<Component1 />
+				<Component2 />
+				<Component3 />
+			</MyContextProvider>
+		)
+	}
+}
+
+// consume a context
+class Component1 extends Component { 	
+	render() {
+		// const context = useContext(MyContext);		
+		const { p1, p2, fun, foo } = useContext(MyContext);		
+		return(...)
+	}
+}
+
+
+useReducer:
+reducer is an event handler. it listens to actions coming-in and interacts with the component's state.
+the reducer is usually defined within the root-component and can be consumed by any other component down the components-tree.
+
+useReducer vs REDUX:
+REDUX creates one global state container for the whole app and uses a single dispatch function to trigger all events. it also a "Single source of truth".
+useReducer is an independent component located within the component it has been defined in and shares the same state. there are multiple reducers and each has its own dispatch function.
+redux can be defined in a new file whereas useReducer depends on a component (usually the root but it may be defined at the middle of the component-tree as well) // TODO ->> check
+
+// syntax 
+import React, { useReducer } from "react";
+const [state, dispatch] = useReducer(<reducer>, <init-state>);
+dispatch({ type, payload });
+
+init-state-function:
+when using the 3rd argument of the useReducer hook, it ignores the init-state from the 2nd argument and apply as init-value the return value from the init-state-function.
+const [state, dispatch] = useReducer(<reducer>, <init-state>, <init-state-function>);
+
+process:
+a reducer function is created in a component (usually the root component). 
+the reducer function is the event handler for incoming actions. it interacts with the component's state. it gets 2 parameters - the 'state' and the 'action' and returns the updated state.
+a dispatch function fires an action from any component down the tree which then be caught and processed by a reducer function. 
+
+note: 
+we need to pass the dispatch function through the context.
+
+// using 
+import React, { useReducer } from "react";
+const fnReducer = (state, action) => {
+	switch(action.type){
+		case 'action1' return 'value-1';
+		case 'action2' return 'value-2';
+		case 'action3' return 'value-3';		
+		case 'actionN' return `value-${action.payload.value}`;
+		default: return state;
+	}
+}
+const [state, dispatch] = useReducer(fnReducer, 'default-value');
+dispatch({ type: 'action1' });
+dispatch({ type: 'action2' });
+dispatch({ type: 'action1', payload: null });
+dispatch({ type: 'actionN', payload: { value: 20 } });
+
+
+// example
+// myContext.jsx
+import React, { createContext, useReducer } from 'react';
+
+// create a context and a context-provider
+const MyContext = createContext();
+
+// create a reducer
+const fnReducer = (state, action) => {
+	switch(action.type){
+		case 'action1' return 'value-1';
+		case 'action2' return 'value-2';
+		case 'action3' return 'value-3';		
+		case 'actionN' return `value-${action.payload.value}`;
+		default: return state;
+	}
+}
+
+class MyContextProvider extends Component { 
+	const [state, dispatch] = useReducer(fnReducer, 'default-value');
+
+	render(){
+		return (			
+			<MyContext.Provider value={{ state, dispatch }}>
+				{ this.props.children }
+			</MyContext.Provider>
+		)
+	}
+}
+export default MyContextProvider;
+
+// index.jsx
+// wrap the root component with the ContextProvider.
+import MyContextProvider from './myContext';
+
+class Index extends Component { 
+	render() {
+		return(
+			<MyContextProvider>
+				<h4>Hello React</h4>
+				<Component1 />
+				<Component2 />
+				<Component3 />
+			</MyContextProvider>
+		)
+	}
+}
+
+// access the dispatch function from another component down the tree
+class Component1 extends Component { 	
+	render() {		
+		const { dispatch } = useContext(MyContext);		
+		return(...)
+	}
+}
+
+-
+
+// TODO ->> document + sample test
+[REDUX]
+a central data store for the app. 
+commonly used as a shared state across the whole app.
+also see 'React Context' and 'React Hooks'
+ 
+source:
+https://redux.js.org/introduction/getting-started
+
+
+install:
+> npm install --save redux react-redux
+
+process:
+// TODO 
+
+sample:
+// index.jsx
+import { createStore } from 'redux';
+import { Provider } from 'react-redux';
+
+// reducer is kind of an handler to process actions coming from any component in the app
+// and sets the redux-state accordingly 
+const initState = {}
+const reducer = (state = initState, action) => { 
+	switch(action.type){
+		...
+	}
+}
+const store = createStore();
+ReactDOM.render(<Provider store={store}><Index /></Provider>, document.getElementById('root'));
+
+
+// someComponent.js
+import { connect } from 'react-redux';
+
+class SomeComponent extends Component{ 
+	render(){
+		return <p>{this.props.p1}</p>
+	}
+}
+
+// 'connect' module adds data to the current component's props. it has access to the redux-state object and redux-dispatch function.
+// in the below example, 'p1' and 'fun1' will be added to the current component's props object.
+// note that, when invoking the 'fun1' function, the 'fnDispatch' function is being called so the 'reducer' defined in the root component (index.js) could catch it and process the action!
+
+const mapReduxState2Props = (reduxState, componentProps) => { 
+	return { p1: reduxState.p1 } 
+}
+const mapReduxDispatch2Props = (fnDispatch) => { 
+	return { 
+		fun1: () => { 
+			fnDispatch({ type: 'SomeAction' ... })  // fnDispatch(<action>)
+		}
+	} 
+}
+export default connect(mapReduxState2Props, mapReduxDispatch2Props)(SomeComponent);
+
+-
+

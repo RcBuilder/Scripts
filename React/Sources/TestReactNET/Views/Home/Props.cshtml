@@ -1,0 +1,108 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "Props";
+}
+
+<br />
+
+<p>page content</p>
+<h2>Props</h2>
+
+<hr />
+
+<p>no constructor</p>
+@Html.React("TestProps1", new { p1 = "value-1" })
+<pre>
+    @@Html.React("Test", new { p1 = "value-1" })
+    -
+    class Test extends React.Component {    
+        render() {        
+            return (
+                &lt;&gt;
+                    &lt;p&gt;props = {JSON.stringify(this.props)}&lt;/p&gt;
+                    &lt;p&gt;p1 = {this.props.p1}&lt;/p&gt;
+                &lt;/&gt;
+            )
+        }
+    }
+</pre>
+
+<hr />
+
+<p>with constructor</p>
+@Html.React("TestProps2", new { p1 = "value-1", p2 = "value-2" })
+<pre>
+    @@Html.React("Test", new { p1 = "value-1", p2 = "value-2" })
+    - 
+    class Test extends React.Component {    
+        constructor(props) {
+            super(props);
+        }
+
+        render() {        
+            return (
+                &lt;&gt;
+                    &lt;p&gt;props = {JSON.stringify(this.props)}&lt;/p&gt;
+                    &lt;p&gt;p1 = {this.props.p1}&lt;/p&gt;
+                &lt;/&gt;
+            )
+        }
+    }
+</pre>
+
+<hr />
+
+<p>props as object</p>
+@{ 
+    var props = new { p1 = "value-1", p2 = "value-2" };
+}
+@Html.React("TestProps3", props)
+<pre>
+    @@{ 
+        var props = new { p1 = "value-1", p2 = "value-2" };
+    }
+    @@Html.React("Test", props)
+    -
+    class Test extends React.Component {    
+        constructor(props) {
+            super(props);
+        }
+
+        render() {        
+            return (
+                &lt;&gt;
+                    &lt;p&gt;props = {JSON.stringify(this.props)}&lt;/p&gt;
+                    &lt;p&gt;p1 = {this.props.p1}&lt;/p&gt;
+                &lt;/&gt;
+            )
+        }
+    }
+</pre>
+
+<hr />
+
+<p>using js destructuring</p>
+@Html.React("TestProps4", new { p1 = "value-1", p2 = "value-2", p3 = 100 })
+<pre>
+    @@Html.React("Test", new { p1 = "value-1", p2 = "value-2", p3 = 100 })
+    - 
+    class Test extends React.Component {
+        constructor({ p1 }) {
+            super();
+            this.state = {
+                o_p1: p1
+            }
+        }
+
+        render() {
+            return (
+                &lt;&gt;
+                    &lt;p&gt;props = {JSON.stringify(this.props)}&lt;/p&gt;
+                    &lt;p&gt;p1 = {this.props.p1}&lt;/p&gt;
+                    &lt;p&gt;state p1 = {this.state.o_p1}&lt;/p&gt;
+                &lt;/&gt;
+            )
+        }
+    }
+</pre>

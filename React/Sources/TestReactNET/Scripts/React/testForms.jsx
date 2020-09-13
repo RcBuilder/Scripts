@@ -125,3 +125,82 @@ class TestForm4 extends React.Component {
         )
     }
 }
+
+class TestForm5 extends React.Component {
+    constructor() {
+        super();
+        this.state = {
+            users: [
+                { name: 'User-A' },
+                { name: 'User-B' }
+            ]
+        }
+    }
+
+    addUser = (user) => {        
+        let newUsers = [...this.state.users, user];
+        this.setState({
+            users: newUsers
+        });
+    }
+
+    render() {
+        return (
+            <>
+                <h1>Test Form 5</h1>
+                {this.state.users.map(u => <div>{u.name}</div>)}
+                <TestForm5Child fnAddUser={this.addUser} />
+                <p>use a child component as a form to add new user, update the parent state from the child component</p>
+            </>
+        )
+    }
+}
+
+class TestForm5Child extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            name: ''
+        };
+    }
+
+    setName = e => {
+        this.setState({
+            name: e.target.value
+        });
+    }
+
+    submitForm = e => {
+        e.preventDefault();
+        this.props.fnAddUser({ name: this.state.name });
+    }
+
+    render() {
+        return (
+            <form onSubmit={this.submitForm}>
+                <h5>new user</h5>
+                <p>
+                    <input type="text" placeholder="user-name" onChange={this.setName} />
+                    <input type="submit" value="SUBMIT" />
+                </p>
+            </form>
+        )
+    }
+}
+
+class TestForm5ChildNoForm extends React.Component {       
+    addUser = e => {
+        this.props.fnAddUser(this.userName.current.value);  // call the parent fn
+    }
+
+    render() {
+        this.userName = React.createRef();  // create ref to the input
+
+        return (
+            <>
+                <input ref={this.userName}  type="text" placeholder="user-name"  />
+                <button onClick={this.addUser}>add</button>
+            </>
+        )
+    }
+}

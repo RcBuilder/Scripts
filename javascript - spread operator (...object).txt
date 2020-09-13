@@ -1,0 +1,27 @@
+javascript - spread operator (...object)
+----------------------------------------
+spread the object properties.
+
+syntax: 
+let newObject = { ...<object1>, ...<object2>, ...<objectN> }
+
+using:
+let object1 = { a: 1 }
+let object2 = { b: 1 }
+let object3 = { c: 1 }
+let all = { ...object1, ...object2, ...object3 }
+console.log(all); // { a: 1, b: 1, c: 1 }
+
+- 
+
+// can be used to override values
+let obj = { a:1, b: 2, c: 3 }
+let obj2 = { ...obj, c: 10 } 
+console.log(obj2) // {a: 1, b: 2, c: 10}
+
+- 
+
+// can be used to add properties
+let obj = { a:1, b: 2, c: 3 }
+let obj2 = { ...obj, d: 4 } 
+console.log(obj2) // {a: 1, b: 2, c: 3, d: 4}

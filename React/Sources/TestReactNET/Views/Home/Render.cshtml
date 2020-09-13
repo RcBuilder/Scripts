@@ -12,7 +12,7 @@
 <hr />
 
 <p>using @@Html.React (server rendering)</p>
-@Html.React("TestReact", new {
+@Html.React("TestReact1", new {
     name = "Roby"
 })
 <pre>
@@ -52,7 +52,7 @@
 @Html.React("TestReact3", new { })
 <pre>
     renderContent = () =&gt; {
-        return &lt;h1&gt;Hello React 4&lt;/h1&gt;;
+        return &lt;h1&gt;Hello React 3&lt;/h1&gt;;
     }
 
     render() {
@@ -71,20 +71,38 @@
 
 <hr />
 
+<p>render array using map</p>
+@Html.React("TestReact4", new { })
+<pre>
+    render() {
+        const arr = [&#39;A&#39;, &#39;B&#39;, &#39;C&#39;, &#39;D&#39;];
+        return (
+            &lt;&gt;              
+                &lt;h1&gt;Hello React 4&lt;/h1&gt;
+                &lt;ul&gt;
+                    {arr.map(x =&gt; &lt;li&gt;{x}&lt;/li&gt;)}
+                &lt;/ul&gt;
+            &lt;/&gt;
+        )
+    }
+</pre>
+
+<hr />
+
 <p>using ReactDOM injector (client rendering)</p>
 <div id="root">React Root</div>
 @section scripts{
-    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+<script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
 
-    <script src="~/Scripts/React/testReactDOM.jsx"></script>       
+<script src="~/Scripts/React/testReactDOM.jsx"></script>       
 }
 <pre>    
     render() {
         return (
             &lt;div&gt;
-                &lt;h1&gt;Hello React 3&lt;/h1&gt;
+                &lt;h1&gt;Hello React DOM&lt;/h1&gt;
                 &lt;p&gt;props: {this.props.name}&lt;/p&gt;
             &lt;/div&gt;
         )

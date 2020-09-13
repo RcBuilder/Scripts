@@ -2348,6 +2348,8 @@ see 'Android Studio - Android Debug Bridge (ADB)'
 
 android > local.properties
 
+react-native-alarm-notification:
+https://www.npmjs.com/package/react-native-alarm-notification
 
 Platform (react-native)
 const device = Platform.select({

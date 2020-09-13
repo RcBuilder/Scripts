@@ -1,0 +1,14 @@
+javascript copy an array
+------------------------
+
+option 1 - using slice
+option 2 - using spread operator
+option 3 - using Array.from
+
+-
+
+let arr = [1,2,3,4];
+let arrCopy = arr.slice(0);
+let arrCopy = [...arr]; // es6
+let arrCopy = Array.from(arr);
+let newArr = [...arr,5,6]; // 1,2,3,4,5,6

@@ -3,8 +3,13 @@ Visual Studio Keys Shortcuts
 Alt (press) + UP/DOWN keys // switch between lines
 Alt (press) + Shift (press) + ARROWS // mark a group
 
-Ctrl + M + O // collapse all regions
-Ctrl + M + P // open all regions
+Ctrl + M + O // collapse all regions (C#)
+Ctrl + M + P // open all regions (C#)
+
+Ctrl + M, CTRL + A // collapse all regions (HTML, XML)
+Ctrl + M, CTRL + X // open all regions (HTML, XML)
+Ctrl + M, CTRL + S // collapse select regions (HTML, XML)
+Ctrl + M, CTRL + E // open select regions (HTML, XML)
 
 Shift (press) + End // mark line
 Shift (press) + Home // mark line (backwards)

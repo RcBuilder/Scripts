@@ -1,0 +1,23 @@
+C# Connect to MySQL 
+-------------------
+
+nuget:
+Install-Package MySql.Web -Version 8.0.21
+
+using:
+var connStr = $"Server=<ServerName>; database=<DBName>; UID=<UserId>; password='<Password>'";
+using (var connection = new MySqlConnection(connStr))
+{
+    connection.Open();
+
+    string query = "SELECT ......";
+    var cmd = new MySqlCommand(query, connection);
+    using (var reader = cmd.ExecuteReader())
+    {
+        if (reader.HasRows)
+            while (reader.Read())
+                Console.WriteLine(reader[0]);
+    }
+}
+
+Console.ReadKey();

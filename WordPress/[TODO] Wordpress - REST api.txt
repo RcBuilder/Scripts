@@ -1,0 +1,51 @@
+Wordpress - REST api
+--------------------
+integrate with WP via REST service! 
+
+(steps)
+1. install the following plugins in the WP site:
+   - https://github.com/WP-API/WP-API
+   - https://wordpress.org/plugins/jwt-authentication-for-wp-rest-api/
+
+2. modify .htaaccess file:
+   // enable HTTP Authorization
+   RewriteEngine on
+   RewriteCond %{HTTP:Authorization} ^(.*)
+   RewriteRule ^(.*) - [E=HTTP_AUTHORIZATION:%1]
+
+   // enable the WP-ENGINE
+   SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+
+3. modify wp-config.php file:
+   define('JWT_AUTH_SECRET_KEY', 'your-top-secrect-key');
+
+4. install WordPressPCL package from nuget:
+   > Install-Package WordPressPCL -Version 1.7.1
+
+   source:
+   https://github.com/wp-net/WordPressPCL
+
+5. sample C# code to access WP site:
+   see 'Integrate With WP using C# and WordPressPCL'
+
+--
+
+Integrate With WP using C# and WordPressPCL:
+
+private static async Task<WordPressClient> GetClient() {
+    var client = new WordPressClient("http://wordpress-domain.com/wp-json/");
+    client.AuthMethod = AuthMethod.JWT;
+    await client.RequestJWToken("user", "password");
+    return client;
+}
+
+var client = GetClient();
+var posts = await client.Posts.GetAll();
+var post1 = await client.Posts.GetByID(1);
+
+if (await client.IsValidJWToken()) {
+    await client.Posts.Create(new Post {
+	Title = new Title("Some Title"),
+	Content = new Content("Bla bla bla...")
+    });
+}

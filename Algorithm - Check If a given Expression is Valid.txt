@@ -13,8 +13,8 @@ void Main()
 	var expr = "ab + c {[(d + e) + k] * (f + (g - t))} zz";
 	var stack = new Stack<char>();
 	
-	var left = new List<char> { '{', '[', '('};
-	var right = new List<char> { '}', ']', ')'};
+	var left = new List<char> { '{', '[', '(' };
+	var right = new List<char> { '}', ']', ')' };
 	
 	for(var i = 0; i < expr.Length; i++) {	
 		if(left.Contains(expr[i])) {

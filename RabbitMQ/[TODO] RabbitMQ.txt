@@ -1,0 +1,107 @@
+*** RabbitMQ ***
+****************
+
+
+-------------------------------------------------
+// TODO 
+
+default ports:
+amqp - 5672   // queue port
+http - 15672  // dashboard
+
+server installation:
+https://www.rabbitmq.com/download.html
+
+server installation (docker):
+https://registry.hub.docker.com/_/rabbitmq/
+
+server installation (direct):
+https://www.rabbitmq.com/install-windows.html
+
+server:
+rabbitmq-server-3.8.7.exe
+
+// note
+installed as a windows service
+
+// dependencies
+erlang 
+otp_win64_23.0.exe
+https://www.erlang.org/downloads
+
+client (nuget):
+> Install-Package RabbitMQ.Client
+
+namespaces:
+using RabbitMQ.Client; 
+using RabbitMQ.Client.Events;   // client
+
+server CLI tools:
+C:\Program Files\RabbitMQ Server\<version>\sbin
+C:\Program Files\RabbitMQ Server\rabbitmq_server-3.8.7\sbin
+
+- rabbitmqctl.bat
+- rabbitmq-server.bat
+- rabbitmq-service.bat
+- rabbitmq-plugins.bat
+
+server CLI Commands:
+> rabbitmqctl status	  // get rabbitMQ status
+
+> rabbitmq-service stop   // stop the service 
+> rabbitmq-service start  // start the service 
+
+> rabbitmq-plugins enable <pluginName>			// enbale a plugin 
+> rabbitmq-plugins enable rabbitmq_management   // enbale the dashboard plugin 
+
+-
+
+dashboard:
+disabled by default! 
+use the 'rabbitmq-plugins' tool to activate it.
+rabbitmq_management plugin 
+
+// enable dashboard 
+// use the status to grab the http listening port (e.g: 15672)
+> rabbitmq-plugins enable rabbitmq_management  
+> rabbitmqctl status	
+
+http://localhost:15672/
+default credentials: guest/ guest 
+
+-
+
+should i use "using" for connection and channel??  
+
+-
+
+threadsafe??
+
+-
+
+Patterns:
+1. one producer, one consumer
+(P) -> [] -> (C)
+
+2. one producer, multiple consumers
+(P)-> [] -> (C-1) 
+			(C-2)
+			...
+			...
+			(C-N)
+
+3. one producer, multiple queue having single consumer each
+(P) -> (Q-1) -> [] -> (C-1)
+	   (Q-2) -> [] -> (C-2)
+	   ...
+	   ...
+	   (Q-N) -> [] -> (C-N)
+
+-
+
+consumer:
+channel.BasicQos(<bufferSize>, <bufferCount>, <isGlobal>); 
+
+// sample 
+channel.BasicQos(0, 3, false);  // buffer of 3 messages at a time
+channel.BasicConsume(Consumer.QueueName, true, consumer);  // read messages 

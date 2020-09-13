@@ -19,6 +19,7 @@
         this.state = {
             value: &#39;&#39;
         };
+
         this.fun2 = this.fun2.bind(this);  // bind method (for regular functions)
     }
 
@@ -28,6 +29,7 @@
             value: Math.floor(Math.random() * 1000)
         });
     }  
+
     // regular function - binding is required!
     fun2(e) {
         this.setState({
@@ -40,19 +42,53 @@
             &lt;div&gt;
                 &lt;h5&gt;{this.state.value}&lt;/h5&gt;
                 &lt;p&gt;
-                    &lt;button onClick={this.fun1}&gt;clickMe&lt;/button&gt;       
+                    &lt;button onClick={this.fun1}&gt;clickMe&lt;/button&gt;
+                    &amp;nbsp;&amp;nbsp;
                     &lt;button onClick={this.fun2}&gt;clickMe&lt;/button&gt;
+                    &amp;nbsp;&amp;nbsp;
+                    &lt;button onMouseOver={this.fun2}&gt;hoverMe&lt;/button&gt;
                 &lt;/p&gt;
             &lt;/div&gt;
         )
     }
 </pre>
 
+<hr />
+<p>onCopy event</p>
+@Html.React("TestEvents2", new { })
+<pre>
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: &#39;&#39;
+        };
+    }
+    
+    fun1 = e =&gt; {
+        let selection = document.getSelection();
+        this.setState({
+            value: selection.toString()
+        });
+    }
+
+    render() {
+        return (
+            &lt;div&gt;
+                &lt;h5&gt;{this.state.value}&lt;/h5&gt;                                
+                &lt;p onCopy={this.fun1}&gt;
+                    Lorem Ipsum is ...
+                &lt;/p&gt;
+            &lt;/div&gt;
+        )
+    }
+</pre>
+
+
 @section scripts{
-    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
-    <script src="~/Scripts/React/testEvents.jsx"></script>
+<script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+<script src="~/Scripts/React/testEvents.jsx"></script>
 
     <!-- render react components in the client -->
     @Html.ReactInitJavaScript()

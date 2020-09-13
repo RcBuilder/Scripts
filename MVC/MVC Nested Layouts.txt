@@ -1,0 +1,38 @@
+MVC Nested Layouts
+------------------
+
+// _Layout.cshtml
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>@Page.Title</title>       
+    </head>
+    <body>
+	<header>...</header>
+	<h1>BASE LAYOUT</h1>
+	<div class="wrapper">@RenderBody()</div>
+	<footer>...</footer>       
+    </body>
+</html>
+
+--
+
+// _HomeLayout.cshtml
+@{
+    Layout = "_Layout.cshtml";
+}
+
+<h1>HOME LAYOUT</h1>
+<div class="home">
+	@RenderBody()
+</div>
+
+--
+
+// Index.cshtml
+@{
+    Layout = "~/Shared/_HomeLayout.cshtml";
+}
+
+<h1>HOME PAGE</h1>

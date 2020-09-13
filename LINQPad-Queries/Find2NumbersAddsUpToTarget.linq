@@ -16,9 +16,9 @@ for(var i = 0; i < arr.Length; i++) {
 /*
 	process
 	-------
-	index 0 > 7 - 3 > contains(4) > NO > add(4)
-	index 1 > 7 - 8 > contains(-1) > NO > add(-1)	
-	index 2 > 7 - 1 > contains(6) > NO > add(6)	
-	index 3 > 7 - 2 > contains(5) > NO > add(5)	
+	index 0 > 7 - 3 > contains(4) > NO > add(3)
+	index 1 > 7 - 8 > contains(-1) > NO > add(8)	
+	index 2 > 7 - 1 > contains(6) > NO > add(1)	
+	index 3 > 7 - 2 > contains(5) > NO > add(2)	
 	index 4 > 7 - 4 > contains(3) > YES > [4, 3] > break	
 */

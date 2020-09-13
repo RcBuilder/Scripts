@@ -18,6 +18,8 @@ namespace TestReactNET
                 .AddScript("~/Scripts/React/testForms.jsx")
                 .AddScript("~/Scripts/React/testEvents.jsx")
                 .AddScript("~/Scripts/React/testState.jsx")
+                .AddScript("~/Scripts/React/testWrapper.jsx")
+                .AddScript("~/Scripts/React/testProps.jsx")
                 ;
 
             JsEngineSwitcher.Current.DefaultEngineName = V8JsEngine.EngineName;

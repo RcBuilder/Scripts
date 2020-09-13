@@ -1,0 +1,27 @@
+Wordpress - Connect To DB using C# code
+---------------------------------------
+referece: 
+'C# Connect to MySQL'
+
+--
+
+[sample]
+
+using MySql.Data;
+using MySql.Data.MySqlClient;
+var connStr = $"Server=MYSQL6002.site4now.net; database=db_a673d8_mml_db_1; UID=; password=''";
+using (var connection = new MySqlConnection(connStr))
+{
+    connection.Open();
+
+    string query = "SELECT post_title FROM wp_posts LIMIT 20";
+    var cmd = new MySqlCommand(query, connection);
+    using (var reader = cmd.ExecuteReader())
+    {
+        if (reader.HasRows)
+            while (reader.Read())
+                Console.WriteLine(reader[0]);
+    }
+}
+
+Console.ReadKey();

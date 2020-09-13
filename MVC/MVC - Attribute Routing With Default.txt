@@ -1,0 +1,34 @@
+MVC - Attribute Routing With Default
+------------------------------------
+
+
+[AllowAnonymous]
+public class LPController : Controller
+{
+    [HttpGet]
+    [Route("lp/{name}")]
+    public ActionResult Index(string name)
+    {
+        return View();
+    }
+
+    [HttpGet]
+    [Route("lp/page1")]
+    public ActionResult Page1()
+    {
+        return View();
+    }
+
+    [HttpGet]
+    [Route("lp/page2")]
+    public ActionResult Page2()
+    {
+        return View();
+    }
+}
+
+-
+
+url 'lp/page1' loads the 'Page1' view
+url 'lp/page2' loads the 'Page2' view
+any other url loads the default 'Index' view

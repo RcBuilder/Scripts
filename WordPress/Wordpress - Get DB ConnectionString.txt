@@ -1,0 +1,19 @@
+Wordpress - Get DB ConnectionString 
+-----------------------------------
+
+(steps)
+1. use FTP to reach the WP actual files 
+2. open "wp-config.php" file
+3. grab the following variables:
+   - DB_NAME
+   - DB_USER
+   - DB_PASSWORD 
+   - DB_HOST
+
+e.g:
+define( 'DB_NAME', 'xxxxxxx' );
+define( 'DB_USER', 'xxxxxxx' );
+define( 'DB_PASSWORD', 'xxxxxxx' );
+define( 'DB_HOST', 'xxxxxxx' );
+define( 'DB_CHARSET', 'utf8mb4' );
+define( 'DB_COLLATE', '' );

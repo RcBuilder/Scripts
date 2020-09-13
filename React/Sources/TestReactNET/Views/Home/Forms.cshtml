@@ -99,6 +99,72 @@
 
 <hr />
 
+<p>Parent-Child state</p>
+@Html.React("TestForm5", new { })
+<pre>
+    class TestForm5 extends React.Component {
+        constructor() {
+            super();
+            this.state = {
+                users: [
+                    { name: &#39;User-A&#39; },
+                    { name: &#39;User-B&#39; }
+                ]
+            }
+        }
+
+        addUser = (user) =&gt; {
+            let newUsers = [...this.state.users, user];
+            this.setState({
+                users: newUsers
+            });
+        }
+
+        render() {
+            return (
+                &lt;&gt;
+                    &lt;h1&gt;Test Form 5&lt;/h1&gt;
+                    {this.state.users.map(u =&gt; &lt;div&gt;{u.name}&lt;/div&gt;)}
+                    &lt;TestForm5Child fnAddUser={this.addUser} /&gt;
+                    &lt;p&gt;use a child component as a form to add new user, update the parent state from the child component&lt;/p&gt;
+                &lt;/&gt;
+            )
+        }
+    }
+
+    class TestForm5Child extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                name: &#39;&#39;
+            };
+        }
+
+        setName = e =&gt; {
+            this.setState({
+                name: e.target.value
+            });
+        }
+
+        submitForm = e =&gt; {
+            e.preventDefault();
+            this.props.fnAddUser({ name: this.state.name });
+        }
+
+        render() {
+            return (
+                &lt;form onSubmit={this.submitForm}&gt;
+                    &lt;h5&gt;new user&lt;/h5&gt;
+                    &lt;p&gt;
+                        &lt;input type=&quot;text&quot; placeholder=&quot;user-name&quot; onChange={this.setName} /&gt;
+                        &lt;input type=&quot;submit&quot; value=&quot;SUBMIT&quot; /&gt;
+                    &lt;/p&gt;
+                &lt;/form&gt;
+            )
+        }
+    }
+</pre>
+
 @section scripts{
     <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>

@@ -1,0 +1,48 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "Wrapper";
+}
+
+<br />
+
+<p>page content</p>
+<h2>Wrapper</h2>
+
+<hr />
+
+<p>wrapper box</p>
+@Html.React("TestWrapper1", new { })
+<p>use {this.props.children}</p>
+<pre>
+    render() {
+        return (
+            &lt;Wrapper1&gt;
+                &lt;p&gt;Paragraph 1&lt;/p&gt;
+                &lt;p&gt;Paragraph 2&lt;/p&gt;
+                &lt;p&gt;Paragraph 3&lt;/p&gt;
+            &lt;/Wrapper1&gt;    
+        )
+    }
+
+    // Wrapper1    
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        const box = {
+            backgroundColor: &#39;#666&#39;,
+            color: &#39;#fff&#39;,
+            padding: &#39;12px&#39;,
+            border: &#39;solid 1px #000&#39;,
+            marginBottom: &#39;10px&#39;
+        };
+
+        return (
+            &lt;div style={box}&gt;
+                {this.props.children}
+            &lt;/div&gt;
+        )
+    }    
+</pre>

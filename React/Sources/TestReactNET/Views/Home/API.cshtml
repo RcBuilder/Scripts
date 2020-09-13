@@ -1,0 +1,87 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "API";
+}
+
+<br />
+
+<p>page content</p>
+<h2>API</h2>
+
+<hr />
+
+<p>using promise fetch/p>
+@Html.React("TestAPI", new { })
+<p>load data from an endpoint</p>
+<pre>
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            customers: []
+        }
+    }
+
+    // post-render
+    componentDidMount() {
+        const service = &#39;https://www.w3schools.com/js/customers_mysql.php&#39;;
+        fetch(service)
+            .then(data =&gt; data.json())
+            .then(json =&gt; this.setState({
+                customers: json
+            }));
+    }
+
+    render() {                
+        return (
+            &lt;ul&gt;
+                {this.state.customers.map(x =&gt; &lt;li&gt;{x.Name}&lt;/li&gt;)}
+            &lt;/ul&gt;
+        )
+    }
+</pre>
+
+<hr />
+
+<p>using async fetch</p>
+@Html.React("TestAPIAsync", new { })
+<p>load data from an endpoint</p>
+<pre>
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            customers: []
+        }
+    }
+
+    // post-render
+    async componentDidMount() {
+        const service = &#39;https://www.w3schools.com/js/customers_mysql.php&#39;;
+        let data = await fetch(service)
+        let json = await data.json();
+
+        this.setState({
+            customers: json
+        });
+    }
+
+    render() {
+        return (
+            &lt;ul&gt;
+                {this.state.customers.map(x =&gt; &lt;li&gt;{x.Name}&lt;/li&gt;)}
+            &lt;/ul&gt;
+        )
+    } 
+</pre>
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="~/Scripts/React/testAPI.jsx"></script>
+
+    <!-- render react components in the client -->
+    @Html.ReactInitJavaScript()
+}

@@ -71,7 +71,19 @@ see 'Authorization.txt'
 --------------------------------------------------------------
 // TODO Document 
 
+* error message
 
+  try { ... }
+  catch (Exception ex) {
+    ModelState.AddModelError("CustomError", ex.Message);
+  }
+  return View();
+
+  -			
+
+  <p class="error-message">
+      @Html.ValidationMessage("CustomError")
+  </p>
 
 * Partial View
   add -> view -> create as a partial view

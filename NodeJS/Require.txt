@@ -16,6 +16,9 @@ require('<path>');
   note: use npm to install the package first.
   require('module1');  // nodes_modules > module1
 
+- alias - use ':' sign 
+  const { v4: uuid } = require('uuid');
+
 ---
 
 // test.js

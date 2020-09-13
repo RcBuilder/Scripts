@@ -2,7 +2,7 @@
     render() {
         return (
             <div>
-                <h1 style={{ color: this.props.headerColor }}>Hello Css 1</h1>
+                <h1 style={{ color: this.props.headerColor }}>Hello Css 1</h1>                
                 <p>props: {this.props.headerColor}</p>                                   
             </div>
         )

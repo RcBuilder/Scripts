@@ -42,5 +42,20 @@ namespace TestReactNET.Controllers
         {
             return View();
         }
+
+        public ActionResult Wrapper()
+        {
+            return View();
+        }
+
+        public ActionResult Props()
+        {
+            return View();
+        }
+
+        public ActionResult API()
+        {
+            return View();
+        }
     }
 }

@@ -1,0 +1,18 @@
+nodemon
+-------
+unique id (guid)
+
+source:
+https://www.npmjs.com/package/uuid
+
+install:
+> npm install --save uuid
+
+import:
+import { v4 as uuid } from 'uuid';
+const { v4: uuid } = require('uuid');
+
+using:
+const { v4: uuid } = require('uuid');
+for (let i = 0; i < 5; i++)
+    console.log(`uuid:  ${uuid()}`);
