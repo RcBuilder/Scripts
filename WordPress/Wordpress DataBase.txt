@@ -1,0 +1,13 @@
+Wordpress DataBase
+------------------
+WP uses MySQL as its DB provider. 
+
+connection:
+see 'Wordpress - Get DB ConnectionString'
+
+console:
+MySQL Workbench
+(mysql-workbench-community-8.0.21-winx64.msi)
+
+connect from .NET:
+see 'Wordpress - Connect To DB using C# code'

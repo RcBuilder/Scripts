@@ -1,0 +1,138 @@
+** ESLint **
+************
+
+about
+-----
+ESLint is an open source JavaScript linting utility. 
+it provides analysis about our code (no build required) and allows us to set rules 
+which identifies code errors/ issues.
+
+source
+------
+https://eslint.org/
+
+install
+-------
+> npm install --save eslint
+
+init
+----
+// ./node_modules/.bin/eslint --init
+> npx eslint --init
+
+config file
+-----------
+.eslintrc.json
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+    }
+}
+
+cli
+---
+> npx eslint --init	// init eslist (create a config file)
+> npx eslint app.js    	// print eslist analysis report (specific file) 
+> npx eslint .    	// print eslist analysis report (all files)
+
+VSCode extension
+----------------
+'extensions' > eslint > settings > eslint: Enable 
+
+note! 
+we can see the issues list on the 'PROBLEMS' window
+
+rules
+-----
+use eslint rules to monitor code issues. there are lots of built-in rules 
+and we can also add our own custom rules. 
+rules are a great way to identify errors/ issues before we publish the code to PROD env. 
+it helps use to write clean and consistent code.
+to turn rules on, we need to add them to the config file (.eslintrc.json)
+
+- built-in rules // see 'built-in rules'
+- custom rules   // see 'custom rules'
+
+set rules
+---------
+open the '.eslintrc.json' config file > 'rules' section 
+
+syntax:
+"name": ["mode", "value-1", "value-2".... "value-N"]  // see 'rule modes'
+
+sample:
+
+// .eslintrc.json
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        "no-alert": ["error"],
+        "quotes": ["warn", "single"],
+        "space-before-function-paren": ["warn", "never"],
+        "func-names": ["warn"],
+        "comma-dangle": ["warn", "never"],
+        "semi": ["warn", "always"]
+    }
+}
+
+// app.js
+let var1 = 1;
+let var2 = 2;  // eslint: 'var2' is assigned a value but never used (no-unused-vars)
+console.log(var1);
+
+function some_func (x, y) // eslint: Unexpected space before function parentheses (space-before-function-paren)
+{  
+    console.log(`x: ${x}, y: ${y}`);    
+}
+some_func(10,20);
+
+let arr = ['a', 'b', "c"];    // eslint: Strings must use singlequote (quotes))
+console.log(arr);
+
+let obj = {
+    id: 1,
+    name: 'joe', // eslint: Strings must use singlequote (comma-dangle)
+};    
+console.log(obj);
+
+alert('abc');  // eslint: Unexpected alert (no-alert)
+
+
+rule modes
+----------
+- error
+- warn
+- off
+
+
+built-in rules
+--------------
+https://eslint.org/docs/rules/
+
+set rules:
+see 'set rules'
+
+custom rules
+------------
+// TODO 
+
+set rules:
+see 'set rules'
+
+

@@ -1,0 +1,19 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true
+    },
+    "extends": "eslint:recommended",
+    "parserOptions": {
+        "ecmaVersion": 12
+    },
+    "rules": {
+        "no-alert": ["error"],
+        "quotes": ["warn", "single"],
+        "space-before-function-paren": ["warn", "never"],
+        "func-names": ["warn"],
+        "comma-dangle": ["warn", "never"],
+        "semi": ["warn", "always"]
+    }
+}

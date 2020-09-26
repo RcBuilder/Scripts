@@ -1,5 +1,6 @@
 javascript Array Init size
 --------------------------
+also see 'javascript Array fill'
 
 syntax:
 new Array(<size>);

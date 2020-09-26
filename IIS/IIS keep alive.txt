@@ -1,7 +1,0 @@
-IIS keep alive
---------------
-(steps)
-1. open "IIS Manager"
-2. select the 'Application Pool' to manage
-3. select 'Advanced settings'
-4. (section) Recycling > set 'Regular Time Interval' to 0 (no app recycle)

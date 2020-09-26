@@ -1,0 +1,235 @@
+let vs var vs const
+===================
+const variable is a constant variable which can only be set once! 
+const is a block scope.
+
+we can't set a new value to a const variable, we'll get an 'Assignment to constant variable' exception
+we can however, change the properties of a constant variable.
+const declaration is not hoisted.
+-
+var variable is globally to an entire enclosing function regardless of block scope. 
+var is a function scope (or global if the variable is declared outside of a function).
+
+var declaration is hoisted and get the default value of 'undefined'
+we can declare the same var variable several times with no errors, the last one overrides its predecessors.
+-
+let variable is limited in scope to the block, statement, or expression on which it is used. 
+let is a block scope.
+
+we can't declare twice the same variable using let. 
+the following exception will be thrown:
+Uncaught SyntaxError: Identifier 'x' has already been declared
+see 'same variable declaration'
+
+we can't use a variable defined using let out of its scope. 
+the following exception will be thrown:
+Uncaught ReferenceError: x is not defined 
+see 'out of scope variable'
+
+let doesn't add a property to the window object 
+see 'window object'
+
+let declaration is not hoisted.
+see 'hoisted variables'
+
+-------
+
+// same variable declaration
+
+var a = 1;
+var a = 2; // ok (a=2)
+
+- vs -
+
+let b = 1;
+let b = 2; // exception ('b' has already been declared)
+
+-------
+
+// function and block same-name variables
+// inner 'for' block using same local variable name
+// with both function level and block level declarations
+
+var i = 20;
+for (var i = 0; i < 4; i++);
+console.log(i); // 4
+
+- vs -
+
+var i = 20;
+for (let i = 0; i < 4; i++);
+console.log(i); // 20
+
+-------
+
+// out of scope variable 
+// inner 'for' block using new local variable
+// without a function level declarations
+// note: 'i' has defined in the block and still recognize in the function 
+
+for (var i = 0; i < 4; i++);
+console.log(i); // 4
+
+- vs -
+
+for (let i = 0; i < 4; i++);
+console.log(i); // i is not defined   
+
+-------
+
+// function and block same-name variables
+
+var x = 1;
+if (x === 1) {
+  var x = 2;
+  console.log(x); // 2
+}
+console.log(x); // 2
+
+- vs -
+
+let x = 1;
+if (x === 1) {
+  let x = 2;
+  console.log(x); // 2
+}
+console.log(x); // 1
+
+-------
+
+// window object
+// let doesn't add a property to the window object 
+
+var a = 'global';
+let b = 'global';
+
+console.log(this.a); // 'global'
+console.log(this.b); // undefined
+
+-------
+
+// hoisted variables
+// let is not hoisted as opposed to var
+
+function fun() {
+  console.log(a); // undefined  
+  var a = 1;  
+}
+
+/*
+	function fun() {
+	  var a;
+	  console.log(a); 	  
+	  a = 1;	  
+	}
+*/
+
+- vs -
+
+function fun() {  
+  console.log(b); // Reference Error (b is not defined)  
+  let b = 2;
+}
+
+/*
+	function fun() {	  	   
+	  console.log(b); 	  
+	  let b = 2;
+	}
+*/
+
+-------
+
+const a = { id: 1 };
+a = { id: 2 };  // ex: Assignment to constant variable
+a.id = 2;  	// OK 
+
+------------------------------------------------------------
+
+[Samples]
+
+// var is hoisted with default 'undefined' value 
+function foo() { 
+    console.log(o); 
+    var o = 3;
+}
+foo();  // undefined 
+
+/*
+	function foo() {
+	  var o;
+	  console.log(o); 	  
+	  o = 3;	  
+	}
+*/
+
+
+- vs -
+
+// let is NOT hoisted
+function foo() { 
+    console.log(o); 
+    let o = 3;
+}
+foo();  // o is not defined
+
+/*
+	function foo() {	  	   
+	  console.log(o); 	  
+	  let o = 3;
+	}
+*/
+
+-------
+
+// var - global scoping 
+const arr = [];
+for(var i=1;i<=5;i++)
+  arr.push(() => console.log(i));
+arr.forEach(x => x());  // 6, 6, 6, 6, 6
+
+/*
+	arr			// [f,f,f,f,f]
+	arr[0]		// () => console.log(i)
+	i 			// 6
+	arr[1]()	// 6  (global scope)
+*/
+
+- vs -
+
+// let - local scoping 
+const arr = [];
+for(let i=1;i<=5;i++)
+  arr.push(() => console.log(i));
+arr.forEach(x => x()); // 1, 2, 3, 4, 5
+
+/*
+	arr			// [f,f,f,f,f]
+	arr[0]		// () => console.log(i)
+	i 			// i is not defined (no global scope)
+	arr[0]()	// 1  (local scope)
+*/
+
+-------
+
+for(var i=1;i<=5;i++)
+  setTimeout(() => console.log(i), 0);  // also see 'javascript event loop'
+
+/*
+	i 		// 6 (global scope)
+
+	output:
+	6, 6, 6, 6, 6 (global scope)
+*/
+
+- vs -
+
+for(let i=1;i<=5;i++)
+  setTimeout(() => console.log(i), 0);
+
+/*
+	i 	// i is not defined (no global scope)
+
+	output:
+	1, 2, 3, 4, 5 (local scope)
+*/

@@ -1,0 +1,40 @@
+javascript Array fill 
+---------------------
+also see 'javascript Array Init size'
+
+syntax:
+<array>.fill(<default_value>);
+
+-----
+
+// value type 
+var arr = new Array(100).fill('A');
+arr.length // 100
+arr[99]    // A
+
+---
+
+// reference type 
+var arr = new Array(100).fill({ id: 1 });
+arr.length // 100
+arr[99]    // { id: 1 }
+
+arr[99].id = 2 
+arr[99]    // { id: 2 }
+arr[98]    // { id: 2 }
+arr[0]     // { id: 2 }
+
+---
+
+// reference type - same as the above! 
+const defaultObj = { id: 1 };
+var arr = new Array(100).fill(defaultObj);
+
+---
+
+// reference type - matrix!
+var mat = new Array(3).fill([])
+mat 	   // [ [], [], [] ] 
+
+mat[0].push('A')
+mat 	   // [ ['A'], ['A'], ['A'] ] 

@@ -1,0 +1,104 @@
+javascript Array splice 
+-----------------------
+
+allows us to remove items from an array starting the provided index 
+and, in addition, add new items instead (in the specified index)
+
+syntax:
+<array>.splice(<index>);
+<array>.splice(<index>, <count>);
+<array>.splice(<index>, <count>, <item-1>, <item-2>...<item-N>);
+
+note! 
+returns the removed items.
+
+-----
+
+// only start index
+// all items from the provided starting index
+let arr = [1,2,3,4];
+let result = arr.splice(0);
+
+result	// [1,2,3,4]
+arr 	// []
+
+---
+
+// only start index
+let arr = [1,2,3,4];
+let result = arr.splice(2);  
+
+result	// [3,4]
+arr 	// [1,2]
+
+---
+
+// with count
+let arr = [1,2,3,4];
+let result = arr.splice(0,1);
+
+result	// [1]
+arr 	// [2,3,4]
+
+---
+
+// with count
+let arr = [1,2,3,4];
+let result = arr.splice(0,3);
+
+result	// [1,2,3]
+arr 	// [4]
+
+---
+
+// with count
+let arr = [1,2,3,4];
+let result = arr.splice(2,1);
+
+result	// [3]
+arr 	// [1,2,4]
+
+---
+
+// with count
+let arr = [1,2,3,4];
+let result = arr.splice(0,1);
+
+result	// [1]
+arr 	// [2,3,4]
+
+---
+
+// inject new item
+let arr = [1,2,3,4];
+let result = arr.splice(0,1,5);
+
+result	// [1]
+arr 	// [5,2,3,4]
+
+---
+
+// inject new items
+let arr = [1,2,3,4];
+let result = arr.splice(0,1,5,6,7);
+
+result	// [1]
+arr 	// [5,6,7,2,3,4]
+
+---
+
+// inject new item
+let arr = [1,2,3,4];
+let result = arr.splice(0,3,5);
+
+result	// [1,2,3]
+arr 	// [5,4]
+
+---
+
+// inject new item
+let arr = [1,2,3,4];
+let result = arr.splice(3,1,5);
+
+result	// [4]
+arr 	// [1,2,3,5]

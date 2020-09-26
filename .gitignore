@@ -4,8 +4,12 @@ Publish/
 packages/
 Payments/
 Design/
+General/
+node_modules/
 bin/
 obj/
 .vs/
 .svn/
-node_modules/
+Working Hours*.txt
+*.rar
+TODO.txt

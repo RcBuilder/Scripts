@@ -12,6 +12,8 @@ using (var connection = new MySqlConnection(connStr))
 
     string query = "SELECT ......";
     var cmd = new MySqlCommand(query, connection);
+    /// cmd.CommandType = CommandType.Text;  // StoredProcedure
+
     using (var reader = cmd.ExecuteReader())
     {
         if (reader.HasRows)

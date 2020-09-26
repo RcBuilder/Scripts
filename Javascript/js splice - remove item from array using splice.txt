@@ -1,5 +1,7 @@
-// remove item from array
+js splice - remove item from array using splice
+-----------------------------------------------
 
+// remove item from array
 var products = ['A','B','C','D','E','F'];
 
 var itemToRemoveIndex = 2; // C

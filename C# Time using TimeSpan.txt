@@ -1,0 +1,13 @@
+C# Time using TimeSpan
+----------------------
+
+var time1 = new TimeSpan(7, 2, 0);
+var time2 = TimeSpan.Parse("07:02");
+
+// 07:02:00
+Console.WriteLine(time1);            
+Console.WriteLine(time2);
+
+// 7 2 0
+Console.WriteLine($"{time1.Hours} {time1.Minutes} {time1.Seconds}");
+Console.WriteLine($"{time2.Hours} {time2.Minutes} {time2.Seconds}");

@@ -1,0 +1,47 @@
+C# Config Class
+---------------
+
+// app.config
+<appSettings>
+	<add key="Key1" value="Value1" />
+	<add key="Key2" value="Value2" />
+	<add key="Key3" value="Value3" />
+</appSettings>
+<connectionStrings>
+	<add name="ConnStr1" connectionString="" />
+	<add name="ConnStr2" connectionString="" />
+</connectionStrings>
+
+---
+
+using System.Configuration;
+
+namespace DistributionServiceBLL
+{
+    public sealed class Config
+    {
+        private static Config _Instance = null;
+        public static Config Instance {
+            get {
+                if (_Instance == null)
+                    _Instance = new Config();  // lazy loading 
+                return _Instance;
+            }
+        }
+
+        private Config() {
+            this.Key1 = ConfigurationManager.AppSettings["Key1"].Trim();
+            this.Key2 = ConfigurationManager.AppSettings["Key2"].Trim();
+            this.Key3 = ConfigurationManager.AppSettings["Key3"].Trim();
+            this.ConnStr1 = ConfigurationManager.ConnectionStrings["ConnStr1"].ConnectionString.Trim();
+			this.ConnStr2 = ConfigurationManager.ConnectionStrings["ConnStr2"].ConnectionString.Trim();
+        }
+
+        // ---------------------------
+
+        public string TwilioAccountSid { get; set; }
+        public string TwilioAuthToken { get; set; }
+        public string TwilioPhoneNumber { get; set; }        
+        public string WPConnStr { get; set; }
+    }
+}

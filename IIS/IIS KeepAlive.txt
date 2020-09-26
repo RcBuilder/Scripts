@@ -1,7 +1,0 @@
-IIS KeepAlive 
----------------
-
-- Open IIS 
-- choose 'HTTP Response Headers'
-- click 'Set Common Headers' > choose 'Enable HTTP keep-alive'
-- Restart IIS

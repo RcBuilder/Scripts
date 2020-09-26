@@ -1,0 +1,22 @@
+IIS KeepAlive - Always Running
+------------------------------
+
+[option-1]
+- Open IIS 
+- choose 'HTTP Response Headers'
+- click 'Set Common Headers' > choose 'Enable HTTP keep-alive'
+- Restart IIS
+
+
+[option-2]
+- open "IIS Manager"
+- select the 'Application Pool' to manage
+- select 'Advanced settings'
+- (section) general > set 'AlwaysRunning' as the Start Mode.
+
+
+[option-3]
+- open "IIS Manager"
+- select the 'Application Pool' to manage
+- select 'Advanced settings'
+- (section) Recycling > set 'Regular Time Interval' to 0 (no app recycle)

@@ -1,0 +1,28 @@
+CREATE TABLE Temp
+(
+    Id int,
+    `Key` VARCHAR(50),
+    `Value` VARCHAR(200)
+);
+ 
+INSERT INTO Temp 
+VALUES
+(1, 'Key1', 'Value1'),
+(1, 'Key2', 'Value2'),
+(1, 'Key3', 'Value3'),
+(2, 'Key1', 'Value1'),
+(2, 'Key2', 'Value2'),
+(3, 'Key1', 'Value1'),
+(4, 'Key1', 'Value1'),
+(4, 'Key2', 'Value2'),
+(4, 'Key3', 'Value3'),
+(5, 'Key1', 'Value1');
+
+
+SELECT	Id,
+	MAX(CASE WHEN `Key` = 'Key1' THEN `Value` END) as 'Key1',
+	MAX(CASE WHEN `Key` = 'Key2' THEN `Value` END) as 'Key2',
+	MAX(CASE WHEN `Key` = 'Key3' THEN `Value` END) as 'Key3'
+FROM	Temp
+GROUP BY Id
+ORDER BY Id

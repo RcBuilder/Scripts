@@ -3,7 +3,7 @@ Source
 Installation
 What is Git?
 Console Types
-How to start
+Init a New Project
 Git Commands 
 Navigation
 Navigation CMD Keys
@@ -87,17 +87,32 @@ Console Types
 - Git GUI
   git engine with no command line involes.
 
-How to start
-------------
-1. create a folder and add files to it 
-2. (git cmd) direct to the folder path 
-   e.g 
-   > cd C:\Users\RobiC\Desktop\GitHub\LyndaCourse
-3. > git init 
--
-4. > git add .  // staging index
-5. > git commit -m "first commit"  // repository
-6. > git push -u GitHubServer master // remote
+Init a New Project
+------------------
+1. go to gitLab/ gitHub server and create a new empty project
+2. navigate to the local folder 
+3. add .gitignore file
+4. use 'git init' command to initialize a git project on your file-system
+5. use 'git add .' command to add all files to the staging index
+6. use 'git commit -m' to create the first commit in your local repository
+7. use 'git remote add <git-server> <git-path>' to define a remote repository 
+8. use 'git push -u <git-server> master' command to push the commit to the remote repository
+
+note: 
+we can use alias for the push commands
+> git config --global alias.pushhub "push -u GitHubServer master"   // define global alias 
+> git config --global alias.pushlab "push -u GitLabServer master"   // define global alias 
+
+> git pushLab   		// use
+> git config --list --global    // list
+
+sample:
+> git init
+> git remote add GitLabServer https://gitlab.com/RcBuilder/mymorninglove.git 
+> git add .
+> git commit -m "Init"
+> git pushLab  // alias
+> git status
 
 Git Commands 
 ------------

@@ -40,9 +40,12 @@ console.log(map.has(5));       // false
 map.set(5, { name: 'itemE' }); // returns the map
 console.log(map.has(5));       // true
 
-map.entries();  // get keys + values (full map)
-map.values();   // get values
-map.keys();     // get keys
+map.entries();  // get keys + values iterator (full map)
+map.values();   // get values iterator
+map.keys();     // get keys iterator
+
+map.values().next();  // { value: { name: 'itemA' }, done: false }
+map.values().next();  // { value: { name: 'itemB' }, done: false }
 
 // ignore those statements - unique
 map.keys();  // { 1, 2, 3, 4, 5 }

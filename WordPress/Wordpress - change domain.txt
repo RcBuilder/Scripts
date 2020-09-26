@@ -1,0 +1,7 @@
+Wordpress - change domain
+-------------------------
+once domain has changed in the DNS level, we MUST update the wordpress routing. 
+to do so, follow these steps: 
+1. go to the wp-admin 
+2. settings > general
+3. set both 'Site Address (URL)' and 'WordPress Address (URL)' to the MEW domain
