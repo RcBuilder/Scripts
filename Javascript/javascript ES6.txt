@@ -121,6 +121,9 @@ for mapping purposes.
 syntax:
 var <name> = new Map();
 
+loop:
+<map>.forEach((v, k) => {});
+
 methods:
 Map set(<key>);
 Any get(<key>);
@@ -128,6 +131,15 @@ IEnumerable entries();
 
 properties:
 size // items count
+length
+
+init:
+new Map([ 
+    [key, value],
+    [key, value]
+    ...
+    ... 
+])
 
 e.g:
 var mapObject = new Map();
@@ -142,6 +154,19 @@ console.log(mapObject.get(3)); // C
 var entries = mapObject.entries();
 for(let entry of entries)
     console.log(entry[0] + ' = ' + entry[1]); 
+
+-
+
+const someMap = new Map([
+    ['k1', 'v1'],
+    ['k2', 'v2'],
+    ['k3', 'v3'],
+    ['k4', 'v4']
+]);
+
+someMap.forEach((v, k) => { 
+	console.log(`${k} = ${v}`); 
+}); 
 
 Array find
 ----------

@@ -6,13 +6,17 @@ MVC Nested Layouts
 <html lang="en">
     <head>
         <meta charset="utf-8" />
-        <title>@Page.Title</title>       
+        <title>@Page.Title</title>     
+		
+		@RenderSection("HEADER_SCRIPTS", false)
     </head>
     <body>
-	<header>...</header>
-	<h1>BASE LAYOUT</h1>
-	<div class="wrapper">@RenderBody()</div>
-	<footer>...</footer>       
+		<header>...</header>
+		<h1>BASE LAYOUT</h1>
+		<div class="wrapper">@RenderBody()</div>
+		<footer>...</footer>       
+
+		@RenderSection("FOOTER_SCRIPTS", required: false)
     </body>
 </html>
 
@@ -27,6 +31,14 @@ MVC Nested Layouts
 <div class="home">
 	@RenderBody()
 </div>
+
+@section HEADER_SCRIPTS{
+    @RenderSection("HEADER_SCRIPTS", false)
+}
+
+@section FOOTER_SCRIPTS{
+    @RenderSection("FOOTER_SCRIPTS", false)
+}
 
 --
 

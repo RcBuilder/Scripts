@@ -1,9 +1,12 @@
 javascript Promise object
 -------------------------
+A Promise has 3 states: pending, fulfilled or rejected. 
+A Promise is eager. it begins to do the task once invoked.
+
+reference:
 also see 'javascript deferred and promise'
 
 syntax:
-
 // create a promise
 <promise> Promise( (<resolve>, <reject>) => {});
 <promise>.then(<result> => {}).catch(<error> => {});

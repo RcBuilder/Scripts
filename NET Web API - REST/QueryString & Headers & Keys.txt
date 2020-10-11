@@ -1,0 +1,12 @@
+QueryString & Headers & Keys
+----------------------------
+var prms = Request.GetQueryNameValuePairs();
+
+var name = prms.LastOrDefault(x => x.Key == "name").Value;
+var email = prms.LastOrDefault(x => x.Key == "email").Value; 
+var phone = prms.LastOrDefault(x => x.Key == "phone").Value; 
+
+--
+
+var header1 = Request.Headers.GetValues("name1").FirstOrDefault();
+var header2 = Request.Headers.GetValues("name2").FirstOrDefault();

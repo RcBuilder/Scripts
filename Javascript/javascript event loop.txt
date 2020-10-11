@@ -1,0 +1,323 @@
+javascript Event Loop
+=====================
+javascript is a single threaded process. there is just one thing happening at a time!
+the event loop is the mechanism which handles asynchronous actions. it monitors the call-stack and the message queues (micro & macro), 
+once the call-stack is empty, it pulls events from the queue and push it to the call-stack.
+most modern browsers have an event loop per tab to prevent one tab to block all others.
+
+Web APIs:
+are kind of utilities provided by the environment (e.g: the browser).  
+Web APIs use their own threads and NOT the main one. 
+the common APIs include DOM, Ajax, Timers and etc.
+once completed, these APIs place the callback to the message queue so the event-loop can pull them and send them to be executed.
+
+schema:
+see 'javascript event-loop schema.png'
+
+entities
+--------
+- call stack 
+  controls the code to be executed. highest priority.
+
+- message queue (micro)
+  controls the callbacks to be executed. second priority. this queue includes callbacks from async actions (promises, MutationObserver etc.)
+
+- message queue (macro) 
+  controls the callbacks to be executed. lowest priority. this queue includes callbacks from timer API (setTimeout,  setInterval, I/O etc.)
+
+process
+-------
+the event-loop continuously checks the call stack and executes the next statement until the c.
+once the call stack is empty, the event-loop checks the queue, it pop items from the quere and add them to the call stack. 
+there are 2 different queues (macro and micro) whereas the micro queue gets priority. 
+assuming the call-stack is empty, after each macro task, the engine checks the micro queue and executes the tasks there before moving forward to the next macro task!
+all UI events (click, keyup, keydown etc.) also use these queues. 
+
+setTimeout
+----------
+is an api provided by the browser to set-up a timer, once the timer expires - it adds the callback to the macro queue. 
+
+promise
+-------
+is a technique to make async code, once it resolved or rejected - it adds the callback to the micro queue. 
+
+settimeout vs promise
+---------------------
+promises add their related callbacks into the micro queue whereas, timer adds it to the macro queue which has lower priority. 
+the event loop checks the micro queue prior the macro one, and therefore, a result from promise will be executed earlier. 
+hence, the following sample will print 'main', then 'promise' and only then 'timer':
+
+setTimeout(() => {
+	console.log('timer');
+}, 0);			
+									
+new Promise((resolve, reject) =>	
+    resolve()
+).then(() => console.log('promise'));
+
+console.log('main');
+
+
+call stack view
+---------------
+below, you'll find code snippets and their corresponding view in the call stack.
+at any given point, you can find the stack state by tracing the numbers alongside each code-line.
+
+tip: 
+when drawing a call-stack, push the function on the declaration and pull it out once it reaches the closing '}'
+
+function foo() { // push into the stack
+	...
+} // pull out from the stack
+
+--
+
+[basic]
+const fun1 = () => {		// [8]
+	console.log('fun1');	// [9]
+							// [10]
+}							// [11]
+const fun2 = () => {		// [4]
+	console.log('fun2');	// [5]	
+							// [6]
+}							// [7]
+const fun3 = () => {		// [1]
+  console.log('fun3');		// [2]
+							// [3]
+  fun2();											
+  fun1();											
+}							// [12]
+fun3();						
+						
+
+output:
+fun3
+fun2
+fun1
+
+stack: 
+- [1]
+  fun3
+
+- [2]
+  console.log('fun3')
+  fun3
+
+- [3]
+  fun3
+
+- [4]
+  fun2
+  fun3
+
+- [5]
+  console.log('fun2')
+  fun2
+  fun3
+
+- [6]
+  fun2
+  fun3
+
+- [7]
+  fun3
+
+- [8]
+  fun1
+  fun3
+
+- [9]
+  console.log('fun1')
+  fun1
+  fun3
+
+- [10]
+  fun1
+  fun3
+
+- [11]
+  fun3
+
+- [12]
+  EMPTY
+
+--
+
+[setTimeout]
+const fun1 = () => {		// [6]
+	console.log('fun1');	// [7]
+							// [8]
+}							// [9]
+const fun2 = () => {		// [11]
+	console.log('fun2');	// [12]
+							// [13]
+}							// [14]
+const fun3 = () => {		// [1]
+  console.log('fun3');		// [2]
+							// [3]
+  setTimeout(fun2, 0);		// [4]						
+							// [5]						
+  fun1();					
+}							// [10]
+fun3();						
+						
+
+output:
+fun3
+fun1
+fun2
+
+stack: 
+- [1]
+  fun3
+
+- [2]
+  console.log('fun3')
+  fun3
+
+- [3]
+  fun3
+
+- [4]
+  setTimeout > add fun2 to the queue
+  fun3
+
+- [5]    
+  fun3
+
+- [6]
+  fun1
+  fun3
+
+- [7]
+  console.log('fun1')
+  fun1
+  fun3
+
+- [8]
+  fun1
+  fun3
+
+- [9]
+  fun3
+
+- [10]
+  EMPTY > check the queue > fun2
+
+- [11] > pop from queue and push to the call stack
+  fun2
+
+- [12]
+  console.log('fun2');
+  fun2
+
+- [13]
+  fun2
+
+- [14]
+  EMPTY
+
+--
+
+[setTimeout & promise]
+const fun1 = () => {				// [8]	
+	console.log('fun1');			// [9]
+									// [10]
+}									// [11]
+const fun2 = () => {				// [17]
+	console.log('fun2');			// [18]
+									// [19]
+}									// [20]
+const fun4 = () => {				// [13]	
+	console.log('fun4');			// [14]
+									// [15]
+}									// [16]
+const fun3 = () => {				// [1]
+  console.log('fun3');				// [2]	
+									// [3]
+  setTimeout(fun2, 0);				// [4]
+									// [5]
+  new Promise((resolve, reject) =>	// [6]
+    resolve()
+  ).then(() => fun4());
+									// [7]		
+  fun1();							
+}							
+fun3();												
+						
+
+output:
+fun3
+fun1
+fun4
+fun2
+
+stack: 
+- [1]
+  fun3
+
+- [2]
+  console.log('fun3')
+  fun3
+
+- [3]
+  fun3
+
+- [4]
+  setTimeout > add fun2 to the queue (macro)
+  fun3
+
+- [5]    
+  fun3
+
+- [6]
+  promise > add fun4 to the queue (micro)
+  fun3
+
+- [7]
+  fun3
+
+- [8]
+  fun1
+  fun3
+
+- [9]
+  console.log('fun1')
+  fun1
+  fun3
+
+- [10]
+  fun1
+  fun3
+
+- [11]
+  fun3
+
+- [12]
+  EMPTY > check the queue (micro) > fun4
+
+- [13] > pop from queue and push to the call stack
+  fun4
+
+- [14]
+  console.log('fun4');
+  fun4
+
+- [15]  
+  fun4
+
+- [16]
+  EMPTY > check the queue (macro) > fun2
+
+- [17] > pop from queue and push to the call stack
+  fun2
+
+- [18]
+  console.log('fun2');
+  fun2
+
+- [19]  
+  fun2
+
+- [20]
+  EMPTY

@@ -1,6 +1,5 @@
 ******** AWS ********
 *********************
-Amazon Web Services. 
 
 ===============================
 - About
@@ -11,6 +10,7 @@ Amazon Web Services.
 - Elastic Beanstalk (Service)
 - EBS (Service)
 - VPC (Service)
+- CloudFront (Service)
 
 - Launch An App
 - Cost
@@ -18,10 +18,23 @@ Amazon Web Services.
 // TODO
 ===============================
 
+About
+-----
+AWS = Amazon Web Services.  
+provides lots of cloud-based services.
 
 SDK
 ---
 see 'AWS SDK'
+
+Services
+--------
+- S3	// see 'S3 (Service)'
+-
+-
+-
+-
+- 
 
 S3 (Service)
 ------------
@@ -139,6 +152,17 @@ VPC = Virtual Private Cloud
 console:
 Services > (Group) Networking & Content Delivery > VPC
 
+
+CloudFront (Service)
+--------------------
+CDN Service
+
+// TODO
+
+console:
+Services > (Group) Networking & Content Delivery > CloudFront
+
+
 // TODO
 
 Launch An App
@@ -194,3 +218,26 @@ IAM - identity manager
 Api gateway
 Aurora
 RDS שירות לניהול בסיסי נתונים רלציונים
+
+--
+
+CloudFront:
+create a distribution of S3 bucket.
+
+> Console > S3 > Create bucket 
+> add content to the bucket
+> Console > CloudFront > Create Distribution > (tab) Web > Get Started
+> properties: 
+  Origin Domain Name -> choose the bucket to use 
+  Restrict Bucket Access -> Yes
+  Create a New Identity -> set new identity
+  Grant Read Permissions on Bucket -> Yes
+
+--
+
+CloudFront:
+supports S3 buckets 
+supports static files 
+supports html files 
+
+--

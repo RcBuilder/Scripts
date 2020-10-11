@@ -10,6 +10,16 @@ namespace MHCommon
 {
     public class Helper
     {
+        public static string GetFileContentFromWeb(string httpFilePath)
+        {
+            using (var client = new System.Net.WebClient())
+            {
+                client.Encoding = Encoding.UTF8;
+                var response = client.DownloadString(httpFilePath);
+                return response;
+            }
+        }
+
         public static T ConvertToEnum<T>(string value) where T : struct
         {
             try

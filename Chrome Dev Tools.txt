@@ -1,0 +1,10 @@
+Chrome Dev Tools
+================
+open:
+right click > inspect 
+- or -
+F12
+
+---
+
+> $0    // get the selected element (in the Elements tab)

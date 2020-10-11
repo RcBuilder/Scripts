@@ -302,3 +302,19 @@ set all Even numbers at first and only then, the Odd numbers.
 see 'Algorithm - Even Numbers at first then Odds'	
 
 -------
+
+[Q] Javascript
+var vs let vs const 
+
+[R]
+see 'javascript let vs var vs const'
+
+-------
+
+[Q] Javascript
+event loop
+
+[R]
+see 'javascript event loop'
+
+-------

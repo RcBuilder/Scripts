@@ -1,0 +1,29 @@
+html5 video - set speed
+-----------------------
+
+<video id="my_video" controls oncontextmenu="return false;">
+    <source src="https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.mp4" type="video/mp4" />
+	<source src="https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.ogv" type="video/ogg" />
+	<source src="https://www.learningcontainer.com/wp-content/uploads/2020/05/sample-mp4-file.wbem" type="video/webm" />
+    <div>Your browser does not support the video tag.</div>
+</video>
+
+---
+
+<button data-speed="1">x1</button>
+<button data-speed="1.5">x1.5</button>
+<button data-speed="2">x2</button>
+<button data-speed="2.5">x2.5</button>
+<button data-speed="3">x3</button>
+<button data-speed="3.5">x3.5</button>
+<button data-speed="4">x4</button>
+
+<script>       
+    const video = document.querySelector('#my_video');
+    document.querySelectorAll('button[data-speed]').forEach(x => {
+        x.addEventListener('click', e => {
+            let speed = parseFloat(e.target.attributes['data-speed'].value || '1');
+            video.playbackRate = speed;
+        });
+    });
+</script>

@@ -1,0 +1,19 @@
+javascript - translator using es6 Map 
+-------------------------------------
+
+sample:
+
+const translator = new Map([
+    [ 'seconds', 'שניות' ],
+    [ 'mins', 'דקות' ], 
+    [ 'hours', 'שעות' ],
+    [ 'days', 'ימים' ],    
+]);
+
+/// translator.get("days");
+let cells = document.querySelectorAll('table.subscription_details td');
+cells.forEach(td => {
+   translator.forEach((v, k) => {
+	td.innerText = td.innerText.replace(k, v);
+   }); 
+}); 

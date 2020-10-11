@@ -1,0 +1,12 @@
+Download File
+-------------
+reference: 
+'Download Files using MVC'
+
+
+sample:
+public FileResult Download() {
+	byte[] fileBytes = File.ReadAllBytes(AppDomain.CurrentDomain.BaseDirectory + @"\Download\Setup.msi");
+	string fileName = "Setup.msi";
+	return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, fileName);
+}

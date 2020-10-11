@@ -1,0 +1,28 @@
+BUG - jquery ajax with status 200 and json input error
+------------------------------------------------------
+
+error:
+$.ajax() returns syntax error: Unexpected end of json input
+
+cause:
+the dataType is json but the service returns text or html
+
+solution:
+change the dataType
+
+sample:
+$.ajax({
+        type: 'POST',
+        url: '/api/Utilities/SendFAQ',
+        dataType: 'text',
+        data: {
+            "onlineMovieId": onlineMovieId,
+            "question": question.toString()
+        },
+        success: function (data) {
+            callback();
+        },
+        error: function (request, status, error) {
+            console.log(`[${error}], ex: ${request.responseText}`);            
+        }
+    });

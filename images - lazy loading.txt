@@ -1,0 +1,28 @@
+images - lazy loading
+---------------------
+lazy-loader for images.
+
+source:
+https://github.com/aFarkas/lazysizes
+
+how to use:
+use 'data-src' attribute instead of 'src' and apply the 'lazyload' class. 
+the script will be set the 'src' dynamically later when needed and based on the 'data-src' provided value. 
+therefore, when loading, no image exists so the page is loaded faster!
+
+using:
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="lazysizes.min.js" async=""></script>
+</head>
+<body>
+    <img data-src="image1.jpg" class="lazyload" />
+    
+    <script>
+        window.onload = () => {
+            console.log('Loaded');
+        }
+    </script>
+</body>
+</html>

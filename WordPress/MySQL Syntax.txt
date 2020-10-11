@@ -1,0 +1,55 @@
+CREATE TABLE Temp
+(
+    Id int,
+    `Key` VARCHAR(50),
+    `Value` VARCHAR(200)
+);
+
+--
+ 
+INSERT INTO Temp 
+VALUES
+(1, 'Key1', 'Value1'),
+(1, 'Key2', 'Value2'),
+(1, 'Key3', 'Value3'),
+(2, 'Key1', 'Value1'),
+(2, 'Key2', 'Value2'),
+(3, 'Key1', 'Value1'),
+(4, 'Key1', 'Value1'),
+(4, 'Key2', 'Value2'),
+(4, 'Key3', 'Value3'),
+(5, 'Key1', 'Value1');
+
+--
+
+SELECT * FROM wp_users order by Id desc LIMIT 40;
+SELECT * FROM wp_users where user_email like 'admin@%';
+SELECT NOW();
+
+--
+
+UPDATE wp_usermeta 
+SET meta_value = REPLACE(meta_value, ' Voice', '') 
+WHERE meta_key = 'afreg_additional_47' 
+
+--
+
+CREATE TABLE tbl_Logs(
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	logName NVARCHAR(100) NOT NULL, 
+        createdDate DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, 
+        message NVARCHAR(1000) NOT NULL DEFAULT '', 
+        error NVARCHAR(1000) NOT NULL DEFAULT '' 
+)
+
+--
+
+SET SQL_SAFE_UPDATES=0;
+show variables like "max_user_connections";
+show variables like "max_connections";
+
+--
+
+SELECT 	CURRENT_TIMESTAMP, 
+	UTC_TIMESTAMP, 
+	TIMEDIFF(CURRENT_TIMESTAMP, UTC_TIMESTAMP);

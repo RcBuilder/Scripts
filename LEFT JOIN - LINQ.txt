@@ -63,3 +63,26 @@ foreach (var i in res)
     Id=3, Name = "SHARON UPDATED"
     Id=4, Name = "STEVE"
 */
+
+------------------------------------------------------------
+
+// all files with no reference in the db resources
+var videosRootFolder = new DirectoryInfo(ConfigurationManager.AppSettings["MOVIES_FOLDER"].Trim());
+var booksRootFolder = new DirectoryInfo(ConfigurationManager.AppSettings["BOOKS_FOLDER"].Trim());
+
+var bll = new App_Code.BLL();
+var videoResources = bll.GetVideoResources();
+var bookResources = bll.GetBookResources();
+
+var namePattern = @"^[a-zA-Z0-9]{32}\.";
+
+var noReferenceVideos = from file in videosRootFolder.GetFiles()
+                        join resource in videoResources on file.Name equals resource.FileName                                    
+                        into tbl
+                        from item in tbl.DefaultIfEmpty()
+                        where item == null
+                        where Regex.IsMatch(file.Name, namePattern)
+                        select file;
+
+foreach (var file in noReferenceVideos)
+    Console.WriteLine(file.FullName);

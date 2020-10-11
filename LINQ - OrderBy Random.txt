@@ -1,0 +1,20 @@
+LINQ - OrderBy Random
+---------------------
+
+var products = new [] { 
+    new { Id = 101, Name = "Product A" },
+    new { Id = 102, Name = "Product B" },
+    new { Id = 103, Name = "Product C" },
+    new { Id = 104, Name = "Product D" },
+    new { Id = 105, Name = "Product E" },
+    new { Id = 106, Name = "Product F" },
+    new { Id = 107, Name = "Product G" },
+    new { Id = 108, Name = "Product H" },
+    new { Id = 109, Name = "Product I" }
+}.ToList();
+
+var selectedProducts = products.OrderBy(x => Guid.NewGuid()).Take(2);
+
+Console.WriteLine($"Selected Products:");
+foreach (var p in selectedProducts)
+    Console.WriteLine(p.Name);

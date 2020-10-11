@@ -1,0 +1,103 @@
+javascript Promises chain using then 
+------------------------------------
+
+const delay = time => {
+    return new Promise((resolve, reject) => {
+        setTimeout(resolve, time);
+    });
+}
+
+delay(1000).then(function(){
+    console.log("after 1 sec");
+    return delay(2000);
+}).then(function(){
+    console.log("after another 2 sec");
+}).then(function(){
+    console.log("do some work");
+    return delay(3000);
+}).then(function(){
+    console.log("after 3 sec");
+    console.log("do some other work");
+});
+
+output:
+after 1 sec
+after another 2 sec
+do some work
+after 3 sec
+do some other work
+
+
+----
+
+const delay = time => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+		resolve(time);
+	}, time);
+    });
+}
+
+const print = result => {
+	console.log(`${result} ms`);
+}
+
+let p1 = delay(8000);
+let p2 = delay(1500);
+let p3 = delay(1800);
+let p4 = delay(2000);
+
+p1.then(print);
+p2.then(print);
+p3.then(print);
+p4.then(print);
+
+console.log('end');
+
+output:
+end
+1500 ms
+1800 ms
+2000 ms
+8000 ms
+
+----
+
+const add10 = (time, value) => {
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {		
+		resolve((value || 0) + 10);
+	}, time);
+    });
+}
+
+
+add10(8000)
+.then(value => add10(1500, value))
+.then(value => add10(1000, value))
+.then(value => console.log(value));  // 30  (after 10 sec)
+
+----
+
+const add10 = value => {
+    return new Promise((resolve, reject) => {
+        resolve((value || 0) + 10);
+    });
+}
+
+
+add10()
+.then(value => add10(value))
+.then(value => add10(value))
+.then(value => console.log(value));  // 30 
+
+----
+
+loadScript("one.js")
+  .then(script => loadScript("two.js"))
+  .then(script => loadScript("three.js"))
+  .then(script => {
+    	console.log('scripts were loaded!')
+  });
+
+----

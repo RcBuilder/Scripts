@@ -1,0 +1,14 @@
+SQL Kill Connections
+--------------------
+master..sysprocesses
+
+--
+
+USE master;
+
+DECLARE @query VARCHAR(8000) = ''; 
+SELECT @query = @query + 'kill ' + CONVERT(VARCAHR(5), spid) + ';'  
+FROM master..sysprocesses  
+WHERE dbid = db_id('MyWatcher')
+
+EXEC(@query); 

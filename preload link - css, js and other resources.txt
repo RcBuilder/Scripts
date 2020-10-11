@@ -1,0 +1,62 @@
+preload link - css, js and other resources
+------------------------------------------
+used for improving the page load velocity.  
+this keyword signal the browser to download this resource as soon as possible.  
+very handy in cases where a file might block the DOM rendering if it hasn't loaded prior to the render step.
+
+important! 
+the 'preload' and 'prefetch' keywords only fetch the resource without applying it! 
+it stores it in memory and applies when it reaches the resource declaration.
+
+<link rel="preload" href="some-script" as="script">
+...
+...
+<script>
+  var script = document.createElement('script');
+  script.src = 'some-script.js';
+  document.body.appendChild(script);
+</script>
+...
+...
+
+-
+
+supports:
+style
+script 
+font
+image
+media
+document
+
+-
+
+using:
+<head>
+  <link rel="preload" as="font"   href="font.woff2">
+  <link rel="preload" as="style"  href="styles.css">
+  <link rel="preload" as="script" href="site.js">
+</head>
+
+-
+
+prefetch: 
+there is also the 'prefetch' keyword which is similar to the 'preload' but with lower priority.
+
+-
+
+case sample:
+lets say we have an 'index.html' page that calls 'app.js' file which dynamically downloads 'styles.css' and 'ui.js'  files. 
+in this case, these 'styles.css' and 'ui.js' files will be requested and rendered only after the 'app.js' has been downloaded, parsed, and executed! 
+(in the Waterfall tab you'll see that they start their work only after 'app.js' was completed) 
+
+index.html
+| -- app.js
+     | -- styles.css
+     | -- site.js	 
+
+by using the following links in the page head, these files will be pre-downloaded 
+without waiting for the app.js to complete its processing: 
+<link rel="preload" as="style"  href="styles.css">
+<link rel="preload" as="script" href="site.js">
+

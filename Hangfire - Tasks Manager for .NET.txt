@@ -1,0 +1,431 @@
+*** Hangfire - Tasks Manager for .NET ***
+*****************************************
+Reference:
+see 'Quartz.NET - Tasks Manager in ASP.NET'
+see 'TPL - QueueBackgroundWorkItem'
+
+== TOC =====================
+- About
+- Sources
+- Bootstrap
+- Nuget
+- Storage
+- Hangfire Dashboard
+- Supported Application Types
+- Supported Jobs
+- BackgroundJob
+- ScheduledJob
+- RecurringJob
+- ContinuousJob
+- Cron options
+- Authorization
+- Using OWIN
+- Using Global.asax
+============================
+
+About
+-----
+Tasks Manager for .NET.
+an open source library to perform background tasks in .NET!
+a great tool for scheduling background jobs. 
+supports timer-based background processing (aka Recurring Jobs). 
+hangfire uses the request pipeline so there's no need of a Windows Service.
+Hangfire has a built-in dashboard! (see 'Hangfire Dashboard')
+
+Sources
+-------
+https://www.hangfire.io/
+https://docs.hangfire.io/en/latest/
+https://docs.hangfire.io/en/latest/configuration/using-dashboard.html
+
+Bootstrap
+---------
+to get start with hangfire we must install the 'Core' package and a 'Storage' package (see Supported Storages).
+if we also want the use the hangfire dashboard, we nedd to install the 'Owin.Host.SystemWeb' package.
+if we need to support old ASP.NET framework with no OWIN support, we need to install 'Hangfire.AspNet' package.
+
+e.g:
+> Install-Package Hangfire.Core
+> Install-Package Hangfire.SqlServer
+> Install-Package Microsoft.Owin.Host.SystemWeb
+
+Nuget
+-----
+// core 
+> Install-Package Hangfire.Core
+
+// to support OWIN interface
+> Install-Package Microsoft.Owin.Host.SystemWeb
+
+// to support ASP.NET framework 
+> Install-Package Hangfire.AspNet
+
+// to support MS-SQL server storage (see 'Storage')
+> Install-Package Hangfire.SqlServer
+
+Storage
+-------
+Supported Storages
+
+- SqlServer  
+  https://www.nuget.org/packages/Hangfire.SqlServer/
+  > Install-Package HangFire.SqlServer
+
+- Redis 
+  https://github.com/marcoCasamento/Hangfire.Redis.StackExchange
+  > Install-Package HangFire.Redis.StackExchange
+
+- MemoryStorage
+  https://github.com/perrich/Hangfire.MemoryStorage
+  > Install-Package Hangfire.MemoryStorage
+
+- Mongo
+  https://github.com/sergeyzwezdin/Hangfire.Mongo
+  > Install-Package Hangfire.Mongo
+
+- Couchbase
+  https://github.com/imranmomin/Hangfire.Couchbase
+  > Install-Package Hangfire.Couchbase
+
+- Firebase
+  https://github.com/imranmomin/Hangfire.Firebase
+  > Install-Package Hangfire.Firebase
+
+- MySqlStorage
+  https://github.com/arnoldasgudas/Hangfire.MySqlStorage
+  > Install-Package Hangfire.MySqlStorage
+
+note! 
+Hangfire creates the required DB tables automatically so there's no need to define them manually.
+
+
+Hangfire Dashboard
+------------------
+install (OWIN based): 
+> Install-Package Microsoft.Owin.Host.SystemWeb
+
+note! 
+the dashboard is written as an OWIN middleware so we must use the OWIN approach to apply it.
+
+default route: 
+<domain>/hangfire
+http://localhost/hangfire
+
+
+Supported Application Types
+---------------------------
+- ASP.NET
+- WEB API
+- MVC
+- Console
+- Windows Service
+- Web Forms
+- Win Forms
+
+requirement!
+.NET Framework 4.5 and up
+
+Supported Jobs
+--------------
+- Background Job			// see 'BackgroundJob'
+- ScheduledJob				// see 'ScheduledJob'
+- RecurringJob				// see 'RecurringJob'
+- ContinuousJob				// see 'ContinuousJob'
+
+note!
+there are 2 different approaches to use hangfire jobs 
+1. via the static classes 'BackgroundJob' and 'RecurringJob'  
+2. via the non-static class 'BackgroundJobClient' 
+   var client = new BackgroundJobClient();
+
+BackgroundJob
+-------------
+a job that runs in the background.
+aka Fire-and-forget.
+
+syntax:
+BackgroundJob.Enqueue(<Action>);
+
+sample:
+BackgroundJob.Enqueue(
+	() => Console.WriteLine("Background Job")
+);
+
+ScheduledJob
+------------
+a job that runs in the background after a delay.
+aka 'Delayed Job'
+
+syntax:
+BackgroundJob.Schedule(<Action>, <TimeSpan>);
+
+sample:
+BackgroundJob.Schedule(
+	() => Console.WriteLine("Background Job with Delay"), 
+	TimeSpan.FromMilliseconds(1000)
+);
+
+RecurringJob
+------------
+a job that keeps running by an interval
+aka 'Timer Job'
+
+syntax:
+RecurringJob.AddOrUpdate(<Action>, <Interval>);
+
+sample:
+RecurringJob.AddOrUpdate(
+	() => Console.WriteLine("Recurring Job - runs every minute"), 
+	Cron.Minutely   // see 'Cron options'
+);
+
+ContinuousJob
+-------------
+job to execute after the specified other job has completed.
+
+syntax:
+BackgroundJob.ContinueJobWith(<jobId>, <Action>);
+
+sample:
+var jobId = '1234';
+BackgroundJob.ContinueJobWith(
+	jobId,
+	() => Console.WriteLine($"Continuous Job after job ${jobId}");	
+);
+
+Cron options
+------------
+a commands scheduler.
+
+- Yearly(<month>?, <day>?, <hour>?, <minute>?)
+- Monthly(<day>?, <hour>?, <minute>?) 
+- MonthInterval(<interval>)
+- Weekly(<dayOfWeek>?, <hour>?, <minute>?)
+- Daily(<hour>, <minute>?)
+- DayInterval(<interval>)
+- Hourly(<minute>?)
+- HourInterval(<interval>)
+- Minutely()
+- MinuteInterval(<interval>)
+- Never()
+
+
+Authorization 
+-------------
+how to Authorize access to the dashboard?
+(steps)
+1. create a class which implements 'IDashboardAuthorizationFilter' to serve as an authorization filter.
+2. set the 'Authorization' property of the 'DashboardOptions' class in the 'UseHangfireDashboard' middleware.
+
+using:
+// AuthorizationFilter
+public class DashboardAuthorizationFilter : IDashboardAuthorizationFilter {
+    public bool Authorize(DashboardContext dashboardContext) {
+        var owinContext = new OwinContext(dashboardContext.GetOwinEnvironment());		
+	Debug.WriteLine(owinContext.Authentication.User.Identity.Name);	
+	/// Debug.WriteLine(HttpContext.Current.User.Identity.Name);	
+	...
+	...
+        return true;
+    }
+}
+
+// add dashboard                
+app.UseHangfireDashboard("/hangfire", new DashboardOptions
+{
+    IgnoreAntiforgeryToken = true,
+	IsReadOnlyFunc = (DashboardContext context) => true,  // readOnly dashboard
+    Authorization = new[] { 
+		new DashboardAuthorizationFilter() 
+	}                  
+});
+
+Using OWIN
+----------
+(steps)
+1. install owin host 
+   > Install-Package Microsoft.Owin.Host.SystemWeb
+
+2. add > OWIN Startup Class 
+3. configure hangfire 
+
+-
+
+example:
+
+// Startup1.cs
+using Microsoft.Owin;
+using Owin;
+
+using Microsoft.Owin;
+using Owin;
+
+[assembly: OwinStartup(typeof(DistributionService.Startup1))]
+public class Startup1 {
+    public void Configuration(IAppBuilder app) {        
+        HangfireManager.Init(app);
+        HangfireManager.Start();
+    }
+}
+
+-
+
+// HangfireManager.cs
+using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.SqlServer;
+using Owin;
+
+public class HangfireManager
+{
+    public class DashboardNoAuthorizationFilter : IDashboardAuthorizationFilter {
+        public bool Authorize(DashboardContext dashboardContext) {
+            return true;
+        }
+    }
+
+    public static bool Init(IAppBuilder app) {
+        try {
+            var config = GlobalConfiguration.Configuration;
+                
+            // basic config 
+            config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings();
+
+            // use MS-SQL Storage
+            config.UseSqlServerStorage(Config.Instance.HangfireConnStr);  // connection-string or name
+
+            // add dashboard                
+            app.UseHangfireDashboard("/hangfire", new DashboardOptions
+            {
+                IgnoreAntiforgeryToken = true,
+				IsReadOnlyFunc = (DashboardContext context) => true,  // readOnly dashboard
+                Authorization = new[] { new DashboardNoAuthorizationFilter() }                  
+            });
+                
+            // add background server
+            app.UseHangfireServer(new BackgroundJobServerOptions { WorkerCount = 1 });
+                
+            return true;
+        }
+        catch (AggregateException aex) {
+            Debug.WriteLine($"[ERROR] HangfireManager.Init. ex: {aex.Message}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ERROR] HangfireManager.Init. ex: {ex.Message}");
+            return false;
+        } 
+    }
+
+    public static bool Start() {
+        try
+        {                
+            var p = new NotificationsProcess();
+            RecurringJob.AddOrUpdate("NotificationsProcess", () => p.Run(), Cron.Minutely);
+            return true;
+        }
+        catch (AggregateException aex)
+        {
+            Debug.WriteLine($"[ERROR] HangfireManager.Start. ex: {aex.Message}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ERROR] HangfireManager.Start. ex: {ex.Message}");
+            return false;
+        }
+    }
+
+    public static void Stop() {}
+}
+
+-
+
+// NotificationsProcess.cs
+public class NotificationsProcess : IProcess {
+	public bool IsRunning { protected set; get; }
+
+	public void Run() {		
+		if (this.IsRunning) return;
+            
+		try {
+			this.IsRunning = true;
+		}
+		catch(Exception ex) {
+			Debug.WriteLine($"[ERROR] NotificationsProcess.Run. ex: {ex.Message}");
+		}
+		finally {
+			this.IsRunning = false;
+		}
+	}
+}
+
+
+Using Global.asax
+-----------------
+for best practices, use OWIN (see 'Using OWIN')
+to support older versions, we need to install an extra package 'Hangfire.AspNet'
+
+install in old ASP.NET apps (no OWIN): 
+> Install-Package Hangfire.AspNet
+
+note!
+for modern apps with OWIN Startup class (OwinStartup) - use the OWIN version
+for older apps with no OWIN support - use the 'AspNet' package and bootstrap the hangfire in the global.asax file.
+
+-
+
+example:
+
+// global.asax
+protected void Application_Start() {               
+	HangfireManager.Init();     
+    HangfireManager.Start();            
+}
+
+protected void Application_End(object sender, EventArgs e) {
+    HangfireManager.Stop();
+}
+
+-
+
+// HangfireManager.cs
+using Hangfire;
+using Hangfire.SqlServer;
+
+public class HangfireManager {
+    private static BackgroundJobServer _backgroundJobServer;
+
+    public static bool Init() {
+        try
+        {
+            var config = GlobalConfiguration.Configuration;
+                
+            // basic config 
+            config.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings();
+
+            // use MS-SQL Storage
+            config.UseSqlServerStorage(Config.Instance.HangfireConnStr);
+
+            // define a new background server
+            _backgroundJobServer = new BackgroundJobServer(new BackgroundJobServerOptions { WorkerCount = 1 });            
+            HangfireAspNet.Use(() => new List<BackgroundJobServer> { _backgroundJobServer });
+    
+            return true;
+        }
+        catch (AggregateException aex) {
+            Debug.WriteLine($"[ERROR] HangfireManager.Init. ex: {aex.Message}");
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Debug.WriteLine($"[ERROR] HangfireManager.Init. ex: {ex.Message}");
+            return false;
+        } 
+    }
+}

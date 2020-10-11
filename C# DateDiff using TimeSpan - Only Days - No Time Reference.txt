@@ -1,0 +1,14 @@
+C# DateDiff using TimeSpan - Only Days - No Time Reference
+----------------------------------------------------------
+timespan creates the span between 2 Date objects. 
+the difference for Days property is based on floating value and, by default, takes into considuration 
+the time of day. so, the difference between 23:00 PM of day1 to 01:00 AM of day2 is 2 hours, which means 0.0833 in days! (formula: 2 hours/ 24 hours)
+in some cases, we need to refer these 2 dates only by day, with no reference to the time of day. 
+to achieve that, we need to compare the 'Date' property of each object! 
+
+--
+
+var d1 = new DateTime(2020, 10, 03, 22, 0, 0);
+var d2 = new DateTime(2020, 10, 04, 01, 0, 0);
+Console.WriteLine((d1 - d2).TotalDays);  // -0.125  (Days = 0)
+Console.WriteLine((d1.Date - d2.Date).TotalDays);  // -1 (no time reference)

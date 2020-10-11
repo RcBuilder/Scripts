@@ -1,0 +1,30 @@
+SQL Syntax Samples
+------------------
+
+ALTER TABLE [OnlineMovies] 
+ADD MovieType TINYINT DEFAULT 0 NOT NULL
+
+--
+
+CREATE TABLE OnlineMovieFAQ(
+	Id INT IDENTITY(1,1) PRIMARY KEY, 
+	OnlineMovieId INT NOT NULL FOREIGN KEY REFERENCES OnlineMovies(Id), 
+	StudentId INT NOT NULL DEFAULT -1,
+	Title NVARCHAR(100) NOT NULL DEFAULT '',
+	Question NVARCHAR(MAX) NOT NULL DEFAULT '',
+	Answer NVARCHAR(MAX) NOT NULL DEFAULT '',
+	CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+	IsPublish BIT NOT NULL DEFAULT 0,
+	IsDeleted BIT NOT NULL DEFAULT 0
+) 
+
+-- 
+
+INSERT INTO OnlineMovieFAQ(OnlineMovieId, Title, Question, Answer, IsPublish) 
+VALUES
+(10, N'שאלה 1', N'תוכן שאלה', N'תוכן תשובה', 1),
+(10, N'שאלה 2', N'תוכן שאלה', N'תוכן תשובה', 1),
+(10, N'שאלה 3', N'תוכן שאלה', N'תוכן תשובה', 1),
+(10, N'שאלה 4', N'תוכן שאלה', N'תוכן תשובה', 1),
+(10, N'שאלה 5', N'תוכן שאלה', N'תוכן תשובה', 1),
+(10, N'שאלה 6', N'תוכן שאלה', N'תוכן תשובה', 1)
