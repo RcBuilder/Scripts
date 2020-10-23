@@ -20,6 +20,7 @@
 - CSS
 - State
 - Lifecycle
+- HTML Raw
 - Binding a Function
 - Dynamic Content
 - Render arrays inline
@@ -160,6 +161,24 @@ a reminder - when using functions, do not forget to bind them to the component (
 Lifecycle
 ---------
 // TODO
+
+HTML Raw
+--------
+use 'dangerouslySetInnerHTML' property to inject raw html content.
+
+example:
+render() {
+    const html = `
+        <h3>Title</h3>
+        <h4>Title</h4>
+        <h5>Title</h5>
+    `;
+    return (
+        <>                              
+            <div dangerouslySetInnerHTML={{ __html: html }} />
+        </>
+    )
+}
 
 Binding a Function
 ------------------
@@ -407,7 +426,11 @@ cause -> server rendering only!
 solution -> render react in the client 
 see 'ReactJS.NET > server & client rendering'
 
-
+BUG:
+ReactJS.NET
+Issue -> Cannot load V8 interface assembly.
+cause -> no v8 engine files (in the bin folder), the IIS express might use a 32bit version and the 64bit was installed.
+solution -> change IIS target or install the correct version (32bit or 64bit) 
 
 -------------------------------------------
 
@@ -423,8 +446,9 @@ https://reactjs.net/getting-started/aspnet.html
 1. open an MVC project (blank)
 2. install react
    > Install-Package React.Web.Mvc4 -Version 5.2.7
-   > JavaScriptEngineSwitcher.V8
+   > Install-Package JavaScriptEngineSwitcher.V8
    > Install-Package JavaScriptEngineSwitcher.V8.Native.win-x64
+   // > Install-Package JavaScriptEngineSwitcher.V8.Native.win-x86
 
 3. add Controller and a View
 4. import react namespace to the created view 
@@ -576,6 +600,115 @@ class TestReact extends React.Component {
                 <h1>Hello React</h1>
                 <p>{this.props.name}</p>                
             </div>
+        )
+    }
+}
+
+-
+
+ReactJS.NET work with MVC Models:
+
+// SomeModel.cs
+public class SomeModel
+{
+    [JsonProperty(PropertyName = "id")]
+    public int Id { get; set; }
+
+    [JsonProperty(PropertyName = "name")]
+    [Required(ErrorMessage = "Name is Required")]
+    [MinLength(10, ErrorMessage = "Name is too short")]
+    public string Name { get; set; }
+
+    [JsonProperty(PropertyName = "price")]
+    public float Price { get; set; }
+
+    [JsonProperty(PropertyName = "expiry")]
+    public DateTime Expiry { get; set; }
+}
+
+// Controller
+public ActionResult Model() {
+    return View(new Models.SomeModel {
+        Id = 100,
+        Name = "Test Model",
+        Price = 99.9F,
+        Expiry = DateTime.Now
+    });
+}
+
+[HttpPost]
+public ActionResult CheckModel(Models.SomeModel SomeModel)
+{            
+    if (ModelState.IsValid)
+        return Json(new { Status = "OK" });
+    return Json(new { Status = "ERROR", State = ModelStateToJson(ModelState) });
+}
+
+// Helper
+public static dynamic ModelStateToJson(ModelStateDictionary ModelState) {
+    var errorList = (
+        from item in ModelState
+        where item.Value.Errors.Any()
+        select new
+        {
+            key = item.Key,
+            errors = item.Value.Errors.Select(e => e.ErrorMessage)
+        }
+    );
+
+    return errorList;
+}
+
+// Index.cshtml
+@model Models.SomeModel
+
+<p>pass Model as props</p>
+@Html.React("TestModel", Model)
+
+<p>model error state</p>
+@Html.React("TestModel2", Model)
+
+// testModel.jsx
+class TestModel extends React.Component {
+    constructor(props) {
+        super(props);        
+    }
+   
+    render() {
+        return (
+            <>
+                <p>{this.props.id}</p>
+                <p>{this.props.name}</p>
+                <p>{this.props.price}</p>
+                <p>{this.props.expiry}</p>
+            </>
+        )
+    }
+}
+
+class TestModel2 extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    checkModel = async e => {
+        this.props.name = 'short';
+
+        var result = await fetch('CheckModel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.props)
+        }).then(result => result.json());
+        console.log(result);
+    }
+
+    render() {
+        return (
+            <>
+                <button onClick={this.checkModel}>clickMe</button>
+            </>
         )
     }
 }
@@ -1356,7 +1489,12 @@ cra - multiple pages ???
 -
 
 client routing ???
-.Net React Router ???
+
+-
+
+.Net React Router
+> Install-Package React.Router.Mvc4 -Version 5.2.7
+DOES NOT WORK!!
 
 -
 
@@ -3002,3 +3140,239 @@ export default connect(mapReduxState2Props, mapReduxDispatch2Props)(SomeComponen
 
 -
 
+custom-made views router:
+class HomeRouter extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            module: <Home />
+        }
+    }
+
+    changeView = e => {        
+        let selected;
+        switch (e.target.getAttribute('component')) {
+            default:
+            case 'Home': selected = <Home />;
+                break;
+            case 'ContactUs': selected = <ContactUs />;
+                break;
+            case 'AboutUs': selected = <AboutUs />;
+                break;
+        }
+
+        this.setState({
+            module: selected
+        });
+    }
+
+    render() {
+        return (
+            <>                
+                <HomeNAV changeView={this.changeView} />
+                {this.state.module}
+            </> 
+        )
+    }
+}
+
+class HomeNAV extends React.Component {
+    render() {
+        return (
+            <>
+                <button onClick={this.props.changeView} component="Home">Home</button>
+                <button onClick={this.props.changeView} component="ContactUs">ContactUs</button>
+                <button onClick={this.props.changeView} component="AboutUs">AboutUs</button>
+            </>
+        )
+    }
+}
+
+class Home extends React.Component {
+    render() {
+        return <h1>Home</h1>
+    }
+}
+
+class ContactUs extends React.Component {
+    render() {
+        return <h1>ContactUs</h1>
+    }
+}
+
+class AboutUs extends React.Component {
+    render() {
+        return <h1>AboutUs</h1>
+    }
+}
+
+-
+
+How to update parent state from child?
+pass the function as prop to the child component. 
+
+// sample
+class Parent extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = { name: 'None' }
+    }
+
+    setName = e => {
+        this.setState({
+            name: e.target.getAttribute('data-name')
+        })
+    }
+
+    render() {
+        return (
+            <>
+                <p>{this.state.name}</p>
+                <Child setName={this.setName} />
+            </>
+        )
+    }
+}
+
+class Child extends React.Component {
+    render() {
+        return (
+            <>
+                <button onClick={this.props.setName} data-name="Roby">Roby</button>
+                <button onClick={this.props.setName} data-name="John">John</button>
+            </>
+        )
+    }
+}
+
+-
+
+override base state:
+
+class StepBase extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            nextStep: ''            
+        }
+    }
+}
+
+class Step1 extends StepBase {
+    constructor(props) {
+        super(props);
+        this.state.nextStep = 'Step2';        
+    }
+
+    render() {
+        return <h1>Step1</h1>
+    }
+}
+
+class Step2 extends StepBase {
+    constructor(props) {
+        super(props);
+        this.state.nextStep = 'Step3';        
+    }
+
+    render() {
+        return <h1>Step2</h1>
+    }
+}
+
+-
+
+convert html-form to json payload:
+
+class StepBase extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            nextStep: '',               
+        }
+
+        this.form = React.createRef();
+    }    
+
+    form2Json = form => {
+        let elements = form.current.elements;
+        let filtered = [].filter.call(elements, e => e.name && e.name != '');
+
+        return [].reduce.call(filtered, (acc, x) => {
+            acc[x.name] = x.value;
+            return acc;
+        }, {});          
+    };
+
+    saveForm = async (e) => {
+        e.preventDefault();
+
+        let postURI = this.form.current.getAttribute('action');
+        if (postURI == '') return;
+
+        let payload = this.form2Json(this.form);        
+        let response = await this.props.postChanges(postURI, payload);      
+        if (response.Status == 'OK')
+            this.props.changeView(this.state.nextStep);
+        else
+            alert('ERROR');
+    }
+}
+
+class Step1 extends StepBase {
+    constructor(props) {
+        super(props);
+        this.state.nextStep = 'Step2';              
+    }
+    
+    render() {
+        return (
+            <>           
+                <h1>Step1</h1>
+                <p>{this.state.nextStep}</p>
+
+                <form ref={this.form} onSubmit={this.saveForm} action="Forms/RegistrationStep1">
+                    <input type="text" name="input1" /><br />
+                    <input type="text" name="input2" /><br />
+                    <button type="submit">щоеш</button>
+                </form>
+            </>
+        )
+    }
+}
+
+-
+
+passing-on all props:
+
+@Html.React("Parent", new { 
+	p1: 'v1', 
+	p2: 'v2' 
+})
+
+class Parent extends React.Component {
+    constructor(props) {
+        super(props);        
+    }
+
+    render() {
+        return (
+            <>
+                <Child {...this.props} />                
+            </>
+        )
+    }
+}
+
+class Child extends React.Component {
+    constructor(props) {
+        super(props);         
+    }
+
+    render() {
+        return <h1>{this.props.p1}</h1>
+    }
+}
+
+-

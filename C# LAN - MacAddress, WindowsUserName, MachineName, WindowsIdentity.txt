@@ -1,0 +1,80 @@
+C# LAN - MacAddress, WindowsUser, MachineName, WindowsIdentity
+--------------------------------------------------------------
+
+public static string GetMacAddress()
+{
+    try
+    {
+        var macAddress =
+                        (
+                            from nic in NetworkInterface.GetAllNetworkInterfaces()
+                            where nic.OperationalStatus == OperationalStatus.Up
+                            select nic.GetPhysicalAddress().ToString()
+                        ).FirstOrDefault();
+        return string.Concat("MAC-", macAddress);
+    }
+    catch
+    {
+        return string.Empty;
+    }
+}
+
+---
+
+public static string GetMachineName()
+{
+    try
+    {
+        if (!string.IsNullOrEmpty(Environment.MachineName))
+            return Environment.MachineName;
+
+        if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("ComputerName")))
+            return Environment.GetEnvironmentVariable("ComputerName");
+
+        var searcher = new ManagementObjectSearcher("SELECT Name from Win32_ComputerSystem");
+        var collection = searcher.Get();
+        return (string)collection.Cast<ManagementBaseObject>().First()["Name"];
+    }
+    catch
+    {
+        return string.Empty;
+    }
+}
+
+---
+
+public static WindowsIdentity GetWindowsIdentity()
+{             
+    if (HttpContext.Current == null)
+        return WindowsIdentity.GetCurrent();            
+    return HttpContext.Current.User.Identity as WindowsIdentity;
+}
+
+---
+
+public static string GetWindowsUserIdentity()
+{
+    var identity = GetWindowsIdentity();
+
+    string SID = identity.User.Value;
+    return SID;
+}
+
+---
+
+public static string GetWindowsUserName()
+{
+    try
+    {
+        if (!string.IsNullOrEmpty(Environment.UserName))
+            return Environment.UserName;
+
+        var searcher = new ManagementObjectSearcher("SELECT UserName from Win32_ComputerSystem");
+        var collection = searcher.Get();
+        return (string)collection.Cast<ManagementBaseObject>().First()["UserName"];
+    }
+    catch
+    {
+        return string.Empty;
+    }
+}

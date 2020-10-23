@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -56,6 +58,45 @@ namespace TestReactNET.Controllers
         public ActionResult API()
         {
             return View();
+        }
+
+        public ActionResult Model()
+        {
+            return View(new Models.SomeModel {
+                Id = 100,
+                Name = "Test Model",
+                Price = 99.9F,
+                Expiry = DateTime.Now
+            });
+        }
+
+        [HttpPost]
+        public ActionResult CheckModel(Models.SomeModel SomeModel)
+        {            
+            if (ModelState.IsValid)
+                return Json(new { Status = "OK" });
+            return Json(new { Status = "ERROR", State = ModelStateToJson(ModelState) });
+        }
+
+        public ActionResult CustomRouter()
+        {
+            return View();
+        }
+
+        // ------- 
+
+        private static dynamic ModelStateToJson(ModelStateDictionary ModelState) {
+            var errorList = (
+                from item in ModelState
+                where item.Value.Errors.Any()
+                select new
+                {
+                    key = item.Key,
+                    errors = item.Value.Errors.Select(e => e.ErrorMessage)
+                }
+            );
+
+            return errorList;
         }
     }
 }

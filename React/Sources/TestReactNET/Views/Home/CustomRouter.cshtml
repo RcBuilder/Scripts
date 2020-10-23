@@ -1,0 +1,93 @@
+﻿@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "CustomRouter";
+}
+
+<br />
+
+<p>page content</p>
+<h2>Custom Router</h2>
+
+<hr />
+
+<p>custom-made views router</p>
+@Html.React("HomeRouter", new { })
+<pre>
+    class HomeRouter extends React.Component {
+        constructor(props) {
+            super(props);
+            this.state = {
+                module: &lt;Home /&gt;
+            }
+        }
+
+        changeView = e =&gt; {
+            let selected;
+            switch (e.target.getAttribute(&#39;component&#39;)) {
+                default:
+                case &#39;Home&#39;: selected = &lt;Home /&gt;;
+                    break;
+                case &#39;ContactUs&#39;: selected = &lt;ContactUs /&gt;;
+                    break;
+                case &#39;AboutUs&#39;: selected = &lt;AboutUs /&gt;;
+                    break;
+            }
+
+            this.setState({
+                module: selected
+            });
+        }
+
+        render() {
+            return (
+                &lt;&gt;
+                    &lt;HomeNAV changeView={this.changeView} /&gt;
+                    {this.state.module}
+                &lt;/&gt;
+            )
+        }
+    }
+
+    class HomeNAV extends React.Component {
+        render() {
+            return (
+                &lt;&gt;
+                    &lt;button onClick={this.props.changeView} component=&quot;Home&quot;&gt;Home&lt;/button&gt;
+                    &lt;button onClick={this.props.changeView} component=&quot;ContactUs&quot;&gt;ContactUs&lt;/button&gt;
+                    &lt;button onClick={this.props.changeView} component=&quot;AboutUs&quot;&gt;AboutUs&lt;/button&gt;
+                &lt;/&gt;
+            )
+        }
+    }
+
+    class Home extends React.Component {
+        render() {
+            return &lt;h1&gt;Home&lt;/h1&gt;
+        }
+    }
+
+    class ContactUs extends React.Component {
+        render() {
+            return &lt;h1&gt;ContactUs&lt;/h1&gt;
+        }
+    }
+
+    class AboutUs extends React.Component {
+        render() {
+            return &lt;h1&gt;AboutUs&lt;/h1&gt;
+        }
+    }
+</pre>
+
+<hr />
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="~/Scripts/React/testCustomRouter.jsx"></script>
+
+    <!-- render react components in the client -->
+    @Html.ReactInitJavaScript()
+}

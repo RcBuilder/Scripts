@@ -1,0 +1,7 @@
+TraceSingleTon.Instance.Append("Initialize Timers");
+var timers = new List<BaseTimer> {
+    new Test1Timer(),
+    new Test2Timer()
+};
+
+timers.ForEach(t => t.Start());

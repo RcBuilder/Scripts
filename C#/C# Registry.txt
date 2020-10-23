@@ -1,0 +1,35 @@
+C# Registry
+===========
+using Microsoft.Win32;
+
+read
+----
+var registryValue = Registry.GetValue(<registry-path>, <key>, <default-value>);
+
+e.g:
+var registryValue = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\WindowsScreen", "activationKey", "");
+
+write
+----- 
+Registry.SetValue(<registry-path>, <key>, <value>);
+
+e.g:
+Registry.SetValue(@"HKEY_LOCAL_MACHINE\SOFTWARE\MyApp", "activationKey", activationKey);
+
+open sub-key
+------------
+var subKey = Registry.LocalMachine.OpenSubKey(<registry-path>);
+
+e.g:
+string subKey = @"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\" + netInterface.Id;
+var result = Registry.LocalMachine.OpenSubKey(subKey);
+if (result != null) metric = Convert.ToInt32(result.GetValue("InterfaceMetric"));
+
+add-to-run
+----------
+var registry = Registry.LocalMachine.OpenSubKey(<registry-path>, true);
+registry.SetValue(<key>, <value>);
+
+e.g:
+var registry = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\Run", true);
+registryKey.SetValue("MyApp", "C:\MyApp.exe");

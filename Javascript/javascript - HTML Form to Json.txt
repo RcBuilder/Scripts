@@ -1,0 +1,47 @@
+javascript HTML Form to Json
+----------------------------
+
+steps:
+let elements = form.current.elements;  // extract the form elements 
+let filtered = [].filter.call(elements, e => e.name && e.name != '');  // filter out empty inputs (button with no name etc.)
+
+// use reduce to add each input data as property to an object.
+let payload =  [].reduce.call(filtered, (acc, x) => {  
+	acc[x.name] = x.value;
+	return acc;
+}, {});
+
+---
+
+constructor(props) {
+    super(props);
+    this.form = React.createRef();
+}   
+
+form2Json = form => {
+    let elements = form.current.elements;
+    let filtered = [].filter.call(elements, e => e.name && e.name != '');
+
+    return [].reduce.call(filtered, (acc, x) => {
+        acc[x.name] = x.value;
+        return acc;
+    }, {});          
+};
+
+saveForm = e => {
+    e.preventDefault();
+
+    let postURI = this.form.current.getAttribute('action');
+    if (postURI == '') return;
+
+    let payload = this.form2Json(this.form);
+    console.log(payload);
+    ...
+	...
+}
+
+<form ref={this.form} onSubmit={this.saveForm} action="Forms/RegistrationStep1">
+    <input type="text" name="input1" /><br />
+    <input type="text" name="input2" /><br />
+    <button onClick={this.saveForm}>save</button>
+</form>

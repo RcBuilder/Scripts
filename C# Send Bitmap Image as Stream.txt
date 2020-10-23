@@ -1,0 +1,55 @@
+C# Send Bitmap Image as Stream
+------------------------------
+public static string SendImage(string postToURL, Bitmap bitmap, string MachineName, string Account)
+{
+    HttpStatusCode STATUS;
+    return SendImage(postToURL, bitmap, MachineName, Account, out STATUS);
+}
+
+public static string SendImage(string postToURL, Bitmap bitmap, string MachineName, string Account, out HttpStatusCode STATUS)
+{
+    try
+    {
+        STATUS = HttpStatusCode.OK;
+
+        var WebReq = (HttpWebRequest)WebRequest.Create(postToURL);
+
+        WebReq.Accept = "*/*";
+        WebReq.Method = "POST";
+        WebReq.ContentType = "application/x-www-form-urlencoded;charset=UTF-8";
+        
+        WebReq.Headers.Add("machineName", MachineName);
+        WebReq.Headers.Add("account", Account);
+
+        using (var ms = new MemoryStream())
+        {
+            bitmap.Save(ms, ImageFormat.Jpeg);
+            ms.Position = 0;
+
+            int Length = 8 * 1024;
+            int bytesRead = 0;
+
+            byte[] buffer = new byte[Length];
+            using (var RequestStream = WebReq.GetRequestStream())
+            {
+                while ((bytesRead = ms.Read(buffer, 0, Length)) > 0)
+                    RequestStream.Write(buffer, 0, bytesRead);
+            }
+        }
+
+        var WebResp = (HttpWebResponse)WebReq.GetResponse();
+        using (var stream = WebResp.GetResponseStream())
+        using (var sr = new StreamReader(stream))
+            return sr.ReadToEnd();
+    }
+    catch (WebException ex)
+    {
+        if (ex.Response != null)
+            STATUS = ((HttpWebResponse)ex.Response).StatusCode;
+        else
+            STATUS = HttpStatusCode.ExpectationFailed;
+
+        return string.Empty;
+    }
+    finally { }
+}

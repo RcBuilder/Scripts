@@ -2346,6 +2346,11 @@ see 'Android Studio - Android Debug Bridge (ADB)'
 -------------------------------------------------------------
 // TODO
 
+Setting up the development environment
+https://reactnative.dev/docs/environment-setup
+
+--
+
 android > local.properties
 
 react-native-alarm-notification:

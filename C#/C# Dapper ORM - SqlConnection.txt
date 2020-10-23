@@ -16,6 +16,14 @@ QueryFirst<T>
 QueryMultiple<T>
 QuerySingle<T>
 QueryFirstOrDefault<T>
+int Execute		// rows updated
+object ExecuteScalar
+
+QueryAsync
+...
+...
+ExecuteAsync
+ExecuteScalarAsync
 
 signature:
 IEnumerable<T> conn.Query<T>(<query>, <param>, <transaction>, <buffered>, <commandTimeout>, <commandType>);
@@ -386,6 +394,83 @@ protected BrandSetting LoadBrandSetting(SqlMapper.GridReader reader) {
     }
 
     return brandSetting;
+}
+
+-------
+
+[Async]
+
+protected string ConnStr { get; set; }
+public SubscriptionsDAL(string ConnStr) {
+    this.ConnStr = ConnStr;
+}
+
+public async Task<bool> Delete(int Id)
+{
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        var result = await conn.ExecuteAsync(
+            "sp_Subscription_delete",
+            commandType: CommandType.StoredProcedure,
+            param: new { Id }
+        );
+
+        return result > 0;
+    }
+}
+
+public async Task<Subscription> Get(int Id)
+{
+    using (var conn = new SqlConnection(ConnStr)){                
+        var result = await conn.QueryAsync<Subscription>(
+            "sp_Subscription_get", 
+            commandType: CommandType.StoredProcedure, 
+            param: new { Id }
+        );
+
+        return result?.FirstOrDefault();
+    }
+}
+
+public async Task<List<Subscription>> Get()
+{
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        var result = await conn.QueryAsync<Subscription>(
+            "sp_Subscriptions_get",
+            commandType: CommandType.StoredProcedure
+        );
+
+        return result?.ToList();
+    }
+}
+
+public async Task<int> Save(Subscription Subscription)
+{
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        var result = await conn.ExecuteScalarAsync(
+            "sp_Subscription_save",
+            commandType: CommandType.StoredProcedure,
+            param: Subscription
+        );
+
+        return Convert.ToInt32(result);
+    }
+}
+
+public async Task<bool> SetPassword(int Id, string Password)
+{
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        var result = await conn.ExecuteAsync(
+            "sp_Subscription_Password_save",
+            commandType: CommandType.StoredProcedure,
+            param: new { Id, Password }
+        );
+
+        return result > 0;
+    }
 }
 
 -------

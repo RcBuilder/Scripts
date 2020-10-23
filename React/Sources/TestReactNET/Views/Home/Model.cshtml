@@ -1,0 +1,92 @@
+﻿@model Models.SomeModel
+@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = "Model";
+}
+
+<br />
+
+<p>page content</p>
+<h2>Model</h2>
+
+<hr />
+
+<p>pass Model as props</p>
+@Html.React("TestModel", Model)
+<pre>
+    @@model Models.SomeModel
+    -
+    @@Html.React("TestModel", Model)
+    -
+    class TestModel extends React.Component {
+        constructor(props) {
+            super(props);        
+        }
+   
+        render() {
+            return (
+                &lt;&gt;
+                    &lt;p&gt;{this.props.id}&lt;/p&gt;
+                    &lt;p&gt;{this.props.name}&lt;/p&gt;
+                    &lt;p&gt;{this.props.price}&lt;/p&gt;
+                    &lt;p&gt;{this.props.expiry}&lt;/p&gt;
+                &lt;/&gt;
+            )
+        }
+    }
+</pre>
+
+<hr />
+ 
+<p>model error state</p>
+@Html.React("TestModel2", Model)
+<pre>
+    @@model Models.SomeModel
+    -
+    @@Html.React("TestModel2", Model)
+    -
+    class TestModel extends React.Component {
+        constructor(props) {
+            super(props);
+        }
+
+        checkModel = async e =&gt; {
+            this.props.name = &#39;short&#39;;
+
+            var result = await fetch(&#39;CheckModel&#39;, {
+                method: &#39;POST&#39;,
+                headers: {
+                    &#39;Content-Type&#39;: &#39;application/json&#39; 
+                },
+                body: JSON.stringify(this.props)
+            }).then(result =&gt; result.json());
+            console.log(result);
+        }
+
+        render() {
+            return (
+                &lt;p&gt;
+                    &lt;button onClick={this.checkModel}&gt;clickMe&lt;/button&gt;
+                &lt;/p&gt;
+            )
+        }
+    }
+    -
+    public ActionResult CheckModel(Models.SomeModel SomeModel)
+    {            
+        if (ModelState.IsValid)
+            return Json(new { Status = &quot;OK&quot; });
+        return Json(new { Status = &quot;ERROR&quot;, State = ModelStateToJson(ModelState) });
+    }
+</pre>
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="~/Scripts/React/testModel.jsx"></script>
+
+    <!-- render react components in the client -->
+    @Html.ReactInitJavaScript()
+}

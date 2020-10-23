@@ -27,3 +27,11 @@ elem.addEventListener('mousedown', () => {
 // fire event
 let down = new MouseEvent('mousedown');  
 elem.dispatchEvent(down); 
+
+---
+
+var elem = document.querySelector('a.subscription-auto-renew-toggle--off');
+if (elem) {
+    var event = new Event('click'); 
+    elem.dispatchEvent(event);
+}

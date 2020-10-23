@@ -68,6 +68,9 @@ to give public access to a file, we need to do as follow
 note!
 turn Off 'Block Public Access' option of the containing bucket!
 
+text files encoding:
+Properties > Metadata > Content-Type: text/plain; charset=utf-8
+
 EC2 (Service)
 -------------
 EC2 = Elastic Compute Cloud.

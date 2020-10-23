@@ -1,0 +1,127 @@
+Mandrill (Mailchimp) API
+------------------------
+a service from mailchimp to create and send email templates 
+
+sources:
+https://mandrillapp.com/
+https://mandrillapp.com/api/docs/
+https://mandrillapp.com/api/docs/messages.JSON.html
+https://github.com/shawnmclean/Mandrill-dotnet
+https://mailchimp.com/help/all-the-merge-tags-cheat-sheet/
+https://mailchimp.com/developer/api/transactional/exports/
+
+
+---
+
+configuration:
+- manage api keys
+  Settings > API > API Keys
+
+- manage domains
+  Settings > Domains > Add Domain > Verify it and set DKIM & SPF DNS records
+
+- manage email tempaltes
+  Outbound > Templates 
+
+---
+
+merge Tags:
+aka variables or place-holders in the email template.
+
+// syntax
+*|<name>|*
+
+// sample
+<h1>Welcome *|FNAME|* *|LNAME|*</h1>
+<p>    
+	bla bla bla bla ...
+</p>
+
+// using the api
+"global_merge_vars": [
+    {
+        "name": "FNAME",
+        "content": "John"
+    },
+    {
+        "name": "LNAME",
+        "content": "Doe"
+    }
+],
+
+
+---
+
+POST https://mandrillapp.com/api/1.0/users/ping
+H: Content-Type: application/json
+{
+  "key": "xxxxxxxxxxxxx"
+}
+
+---
+
+POST https://mandrillapp.com/api/1.0/messages/send-template
+H: Content-Type: application/json
+{
+  "key": "xxxxxxxxxxxxx",
+  "template_name": "Test1",
+  "template_content": [],
+    "message": {
+        "to": [
+            {
+                "email": "info@mymorninglove.com",
+                "name": "Roby",
+                "type": "to"
+            }
+        ],
+    "headers": {},
+        "important": false,        
+        "bcc_address": "",
+        "merge": true,
+        "merge_language": "mailchimp",
+        "global_merge_vars": [
+           {
+                "name": "FNAME",
+                "content": "Roby"
+            },
+            {
+                "name": "LNAME",
+                "content": "Cohen"
+            }
+        ],
+        "merge_vars": [],
+        "tags": [
+            "welcome"
+        ],
+        "metadata": {},
+        "recipient_metadata": [],
+        "attachments": [],
+        "images": []
+    },
+    "async": false,
+    "ip_pool": "Main Pool"
+}
+
+---
+
+.NET:
+> Install-Package Mandrill
+
+// using
+using Mandrill;
+using Mandrill.Models;
+using Mandrill.Requests.Messages;
+
+var api = new MandrillApi("WNrtMqcv1OcamuiGyXb93A");
+var info = await api.UserInfo();
+                       
+var email = new EmailMessage();
+email.AddGlobalVariable("FNAME", "John");
+email.AddGlobalVariable("LNAME", "Doe");            
+email.To = new List<EmailAddress>() {
+    new EmailAddress("info@mymorninglove.com")
+};
+
+var TemplateName = "Test1";
+var objTemp = new SendMessageTemplateRequest(email, TemplateName);
+var results = await api.SendMessageTemplate(objTemp);

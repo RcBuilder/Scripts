@@ -541,6 +541,18 @@ see 'Authorization.txt'
   @Html.ActionLink("Delete", string.Concat("Delete", "/", Model.Id), null, new { onclick = "return confirm('Are you sure ?');" })
 
 
+* ModelState as json result
+  see 'ModelState To Json'
+
+  sample using:
+  [HttpPost]	
+  public JsonResult CheckModel(Models.SomeModel SomeModel)
+  {
+      if (ModelState.IsValid)
+          return Json(new { Status = "OK" });
+      return Json(new { Status = "ERROR", State = ModelStateToJson(ModelState) });
+  }
+
 * Ajax and JsonResult
   for cases when we want to enforce the return of a json schema. 
 
@@ -1280,16 +1292,18 @@ see 'Authorization.txt'
   - see also 'custom validators'
 
   - types:
-	[Required] // required property validation   
-	[StringLength] // property length validation
-	[Range] // property range validation
-	[CustomValidation] // see 'CustomValidation Attribute'
+	[Required]		// required property validation   
+	[StringLength]	// property length validation
+	[MinLength]		// property length validation
+	[MaxLength]		// property length validation
+	[Range]			// property range validation
+	[CustomValidation]	// see 'CustomValidation Attribute'
 	[RegularExpression] // see 'RegularExpression Attribute'
-	[EmailAddress] // email property validation    
-	[Url] // url property validation   
-	[Phone] // phone property validation
-	[Remote] // see 'Remote Validation Attribute (Client)' 
-	[Compare] // comparison property validation   
+	[EmailAddress]		// email property validation    
+	[Url]			// url property validation   
+	[Phone]			// phone property validation
+	[Remote]		// see 'Remote Validation Attribute (Client)' 
+	[Compare]		// comparison property validation   
 	
 
   - using:
@@ -2560,6 +2574,63 @@ see 'Authorization.txt'
   <p>@Model.FirstNameEN</p>
   <p>@Model.LastNameEN</p>
   <p>@RenderGender(Model.Gender)</p>
+
+
+
+* validators - using 
+
+	public class Affiliate
+    {
+        [JsonProperty(PropertyName = "id")]
+        [Required(ErrorMessage = "שדה חובה")]
+        public int Id { get; set; }
+
+        [JsonProperty(PropertyName = "name")]
+        [Required(ErrorMessage = "שדה חובה")]
+        [StringLength(100, MinimumLength = 5, ErrorMessage = "שם לא תקני")]
+        public string Name { get; set; }
+
+        [JsonProperty(PropertyName = "email")]
+        [Required(ErrorMessage = "שדה חובה")]
+        [EmailAddress(ErrorMessage = "מייל לא תקני")]
+        public string Email { get; set; }
+
+        [JsonProperty(PropertyName = "phone")]
+        [Required(ErrorMessage = "שדה חובה")]
+        [RegularExpression(@"[0-9\-]+", ErrorMessage = "טלפון לא תקני")]
+        public string Phone { get; set; }
+
+        [JsonProperty(PropertyName = "profitPercentage")]
+        [Required(ErrorMessage = "שדה חובה")]
+        public float ProfitPercentage { get; set; }       
+    }
+
+	public class ChargeDetails
+    {
+        [JsonProperty(PropertyName = "subscriptionId")]
+        [Required(ErrorMessage = "שדה חובה")]
+        public int SubscriptionId { get; set; }
+
+        [JsonProperty(PropertyName = "token")]
+        [Required(ErrorMessage = "שדה חובה")]
+        [MinLength(10, ErrorMessage = "טוקן לא תקני")]
+        public string Token { get; set; }
+
+        [JsonProperty(PropertyName = "cardExpiry")]
+        [Required(ErrorMessage = "שדה חובה")]
+        [StringLength(4, MinimumLength = 4, ErrorMessage = "תוקף כרטיס לא תקני")]
+        public string CardExpiry { get; set; }
+
+        [JsonProperty(PropertyName = "cardSuffix")]
+        [Required(ErrorMessage = "שדה חובה")]
+        [StringLength(4, MinimumLength = 4, ErrorMessage = "כרטיס לא תקני")]
+        public string CardSuffix { get; set; }
+
+        [JsonProperty(PropertyName = "cardCVV")]
+        [Required(ErrorMessage = "שדה חובה")]
+        [StringLength(3, MinimumLength = 3, ErrorMessage = "CVV לא תקני")]
+        public string CardCVV { get; set; }
+    }
 
 --------------------------------------------------------------
 // TODO Research

@@ -110,3 +110,24 @@
 
     ReactDOM.render(&lt;TestReactDOM name=&quot;Roby&quot; /&gt;, document.getElementById(&#39;root&#39;));
 </pre>
+
+<hr />
+
+<p>html raw</p>
+@Html.React("TestReact5", new { })
+<pre>
+    render() {
+        const html = `
+            &lt;h3&gt;Title&lt;/h3&gt;
+            &lt;h4&gt;Title&lt;/h4&gt;
+            &lt;h5&gt;Title&lt;/h5&gt;
+        `;
+        return (
+            &lt;&gt;                              
+                &lt;div dangerouslySetInnerHTML={{ __html: html }} /&gt;
+            &lt;/&gt;
+        )
+    }
+</pre>
+
+<hr />

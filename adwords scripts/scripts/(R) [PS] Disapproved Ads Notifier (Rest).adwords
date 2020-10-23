@@ -1,4 +1,6 @@
 var MIDDLEWARE = 'http://ec2-52-62-203-30.ap-southeast-2.compute.amazonaws.com/api';
+var PS_KEY = 'xxxxxxxxxxxx';
+var X_KEY = 'xxxxxxxxx';
 
 function main() {
   var accounts = MccApp.accounts().withCondition('LabelNames DOES_NOT_CONTAIN "Cancelled"').get();  
@@ -57,7 +59,7 @@ function NotifyPS(callbackURL, entityName, entityId, status, reason, notes){
   
   /// callbackURL = 'https://webhook.site/f97dceb3-9133-496a-a69a-390a7dde68eb';
   
-  var response = MakeRequest(callbackURL, 'post', 'application/json', payload, { 'X-apikey': 'w&82ps#Sh!Xt' });
+  var response = MakeRequest(callbackURL, 'post', 'application/json', payload, { 'X-apikey': X_KEY });
   if(!response) return null;
   
   response = Utilities.jsonParse(response);
@@ -68,7 +70,7 @@ function NotifyPS(callbackURL, entityName, entityId, status, reason, notes){
 
 function GetCallbackURL(campaignName){    
   try{
-    var response = MakeRequest(MIDDLEWARE.concat('/properties/list/', campaignName, '?api_key=d7133010-4de1-437e-9f7c-083531aaf67a'), 'get', 'application/json');    
+    var response = MakeRequest(MIDDLEWARE.concat('/properties/list/', campaignName, '?api_key=', PS_KEY), 'get', 'application/json');    
     if(!response) return null;  
     
     response = Utilities.jsonParse(response);

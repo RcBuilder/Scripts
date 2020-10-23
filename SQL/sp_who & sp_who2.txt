@@ -1,0 +1,39 @@
+sp_who & sp_who2
+----------------
+built-in stored procedures which provide details about the connected db sessions (aka SPIDS) 
+SPID = Server Process ID.
+both sp_who and sp_who2 are used for the same porpuse but sp_who2 returns extra information (CPUTime, DiskIO etc.)
+sp_who2 is commonly used for monitoring sessions to find how much CPU and IOs each consumes.
+
+---
+
+exec sp_who
+exec sp_who2
+
+---
+
+sp_who:
+- spid	
+- ecid	
+- status	
+- loginame	
+- hostname	
+- blk	
+- dbname	
+- cmd	
+- request_id
+
+sp_who2:
+- SPID	
+- Status	
+- Login	
+- HostName	
+- BlkBy	
+- DBName	
+- Command	
+- CPUTime	
+ -DiskIO	
+- LastBatch	
+- ProgramName	
+- SPID	
+- REQUESTID

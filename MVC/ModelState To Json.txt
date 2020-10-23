@@ -1,0 +1,74 @@
+ModelState To Json
+------------------
+
+[HttpPost]
+public ActionResult CheckModel(Models.SomeModel SomeModel)
+{            
+    if (ModelState.IsValid)
+        return Json(new { Status = "OK" });
+    return Json(new { Status = "ERROR", State = ModelStateToJson(ModelState) });
+}
+
+private static dynamic ModelStateToJson(ModelStateDictionary ModelState) {
+    var errorList = (
+        from item in ModelState
+        where item.Value.Errors.Any()
+        select new
+        {
+            key = item.Key,
+            errors = item.Value.Errors.Select(e => e.ErrorMessage)
+        }
+    );
+
+    return errorList;
+}
+
+public class SomeModel
+{
+    [JsonProperty(PropertyName = "id")]
+    public int Id { get; set; }
+
+    [JsonProperty(PropertyName = "name")]
+    [Required(ErrorMessage = "Name is Required")]
+    [MinLength(10, ErrorMessage = "Name is too short")]
+    public string Name { get; set; }
+
+    [JsonProperty(PropertyName = "price")]
+    public float Price { get; set; }
+
+    [JsonProperty(PropertyName = "expiry")]
+    public DateTime Expiry { get; set; }
+}
+
+---
+
+@model Models.SomeModel
+@using React.Web.Mvc;
+@Html.React("TestModel", Model)
+
+---
+
+class TestModel extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    checkModel = async e => {        
+        var result = await fetch('CheckModel', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(this.props)
+        }).then(result => result.json());
+        console.log(result);
+    }
+
+    render() {
+        return (
+            <>
+                <button onClick={this.checkModel}>clickMe</button>
+            </>
+        )
+    }
+}

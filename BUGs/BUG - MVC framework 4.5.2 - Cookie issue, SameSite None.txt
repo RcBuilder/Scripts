@@ -1,0 +1,33 @@
+Bug:
+MVC framework 4.5.2 - cookie issue, SameSite None
+
+Find:
+use the Chrome devTools (F12) > Network tab > choose the relevant url > Response headers
+
+Error:
+the set cookie was blocked SameSite=None
+
+Cause:
+security update in chrome 
+
+Solution:
+use outbound rewrite rule to set the cookie mode. 
+
+    <rewrite>
+      <outboundRules>
+        <rule name="Add SameSite" preCondition="No SameSite">
+          <match serverVariable="RESPONSE_Set_Cookie" pattern=".*" negate="false" />
+          <action type="Rewrite" value="{R:0}; SameSite=None" />
+          <conditions>
+          </conditions>
+        </rule>
+        <preConditions>
+          <preCondition name="No SameSite">
+            <add input="{RESPONSE_Set_Cookie}" pattern="." />
+            <add input="{RESPONSE_Set_Cookie}" pattern="; SameSite=None" negate="true" />
+          </preCondition>
+        </preConditions>
+      </outboundRules>
+    </rewrite>
+
+
