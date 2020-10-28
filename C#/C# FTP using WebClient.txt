@@ -1,0 +1,27 @@
+C# FTP using WebClient
+----------------------
+also see 'C# FTP using FluentFTP library'
+
+---
+
+upload:
+client.UploadFile("<serverPath>/<fileName>", "<localFilePath>");
+
+download:
+client.DownloadFile("<serverPath>/<fileName>", "<localFilePath>");
+
+---
+
+// UPLOAD 
+using (var client = new WebClient())
+{
+    client.Credentials = new NetworkCredential("morningloveUser", "xxxxxxxxxx");
+    client.UploadFile("ftp://ftp-eu.site4now.net/test.txt", "D:\\test1.txt");
+}
+
+// DOWNLOAD
+using (var client = new WebClient())
+{
+    client.Credentials = new NetworkCredential("morningloveUser", "xxxxxxxxxx");
+    client.DownloadFile("ftp://ftp-eu.site4now.net/test.txt", "D:\\test1_copy.txt");
+}

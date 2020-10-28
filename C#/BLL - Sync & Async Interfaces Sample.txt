@@ -1,0 +1,29 @@
+BLL - Sync & Async Interfaces Sample
+------------------------------------
+public interface ICelebritiesBLL {
+    List<CelebrityCard> Get();    
+    bool Delete(string CardId);    
+    bool Create(CelebrityCard Card);
+    bool Update(CelebrityCard Card);
+}
+
+public interface ICelebritiesAsyncBLL {
+    Task<List<CelebrityCard>> GetAsync();    
+    Task<bool> DeleteAsync(string CardId);    
+    Task<bool> CreateAsync(CelebrityCard Card);
+    Task<bool> UpdateAsync(CelebrityCard Card);
+}
+
+
+public class CelebritiesBLL : ICelebritiesBLL, ICelebritiesAsyncBLL {
+    public ICelebritiesDAL DAL { get; set; }
+    public IAsyncScrapper<List<CelebrityCard>> Scrapper { get; set; }
+
+    public CelebritiesBLL() : this(new JsonCelebritiesDAL()) { }
+    public CelebritiesBLL(ICelebritiesDAL DAL) {
+        this.DAL = DAL;         
+    }
+	
+	...
+	...
+}

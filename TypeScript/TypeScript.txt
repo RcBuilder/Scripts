@@ -21,7 +21,8 @@ a typeScript code is converted into its JavaScript equivalent for the purpose of
 - interfacesT
 - classes
 - prototypes
-- namespaces 
+- namespaces
+- decorators 
 - modules
 - ambient declarations
 - import
@@ -943,6 +944,32 @@ var ns2;
 
 var ns1c1 = ns1.c1;
 var ns2c1 = ns2.c1;
+
+------------------------------------------
+
+[decorators]
+a decorator is a wrapper. 
+it wraps some code with another code to extend its functionality.
+
+function logDecorator(target, name, descriptor) {
+  console.log(`hello from decorator`);
+  return descriptor;
+}
+
+class Example {  
+  @logDecorator
+  a() { console.log('a');}  
+  b() { console.log('b');}
+}
+
+const e = new Example();
+e.a();
+e.b();
+
+output:
+hello from decorator
+a
+b
 
 ------------------------------------------
 

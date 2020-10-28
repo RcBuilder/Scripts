@@ -1,0 +1,31 @@
+Extension - String
+------------------
+
+using System;
+using System.Linq;
+
+public static class Extensions
+{
+    public static string AddAsQuery(this string me, string paramName, int paramVlaue) {
+        return me.AddAsQuery(paramName, paramVlaue.ToString());
+    }
+
+    public static string AddAsQuery(this string me, string paramName, string paramVlaue) {
+        return string.Concat(me, me.Contains("?") ? "&" : "?", paramName, "=", paramVlaue);
+    }
+
+    public static bool hasUppercaseLetter(this string me)
+    {
+        return me.Any(x => Char.IsUpper(x) && Char.IsLetter(x));
+    }
+
+    public static bool hasLowercaseLetter(this string me)
+    {
+        return me.Any(x => Char.IsLower(x) && Char.IsLetter(x));
+    }
+
+    public static bool hasNumber(this string me)
+    {
+        return me.Any(x => Char.IsNumber(x));
+    }
+}

@@ -1,0 +1,97 @@
+C# FTP using FluentFTP library
+------------------------------
+also see 'C# FTP using WebClient'
+
+---
+
+sources:
+https://github.com/robinrodricks/FluentFTP
+https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example
+https://github.com/robinrodricks/FluentFTP/tree/master/FluentFTP.CSharpExamples
+https://www.nuget.org/packages/FluentFTP
+
+nuget:
+> Install-Package FluentFTP -Version 33.0.2
+
+supports:
+- Sync
+- Async  // .NET 4.5+
+
+base usage:
+var client = new FtpClient(<ip>);
+client.Credentials = new NetworkCredential(<user>, <password>);
+await client.ConnectAsync();
+...
+...
+await client.DisconnectAsync();
+
+methods:
+- void Connect()
+- void Disconnect()
+- bool CreateDirectory(<path>, <force>)
+- void DeleteDirectory(<path>, <options>)
+- void DeleteFile(<path>)
+- bool DirectoryExists(<path>)
+- bool FileExists(<path>)
+- list<result> DownloadDirectory(<localFolder>, <remoteFolder>, <actionMode>)
+- list<result> DownloadDirectory(<localFolder>, <remoteFolder>, <actionMode>, <existsMode>, <verifyOptions>, <rules>, <progress>)
+- status DownloadFile(<localPath>, <remotePath>)
+- status DownloadFile(<localPath>, <remotePath>, <existsMode>, <verifyOptions>, <progress>)
+- int DownloadFiles(<localPath>, <remotePaths[]>, <existsMode>)
+- int DownloadFiles(<localPath>, <remotePaths[]>, <existsMode>, <verifyOptions>, <errorHandling>, <progress>)
+- list<result> UploadDirectory(<localFolder>, <remoteFolder>, <syncMode>)
+- list<result> UploadDirectory(<localFolder>, <remoteFolder>, <syncMode>, <existsMode>, <verifyOptions>, <rules>, <progress>)
+- status UploadFile(<localPath>, <remotePath>)
+- status UploadFile(<localPath>, <remotePath>, <existsMode>, <createFolder>)
+- status UploadFile(<localPath>, <remotePath>, <existsMode>, <createFolder>, <verifyOptions>, <progress>)
+- int UploadFiles(<localFiles[]>, <remoteFolder>, <existsMode>, <createFolder>, <verifyOptions>, <errorHandling>, <progress>)
+- item[] GetListing(<path>, <options>)
+- string[] GetNameListing(<path>) 
+- long GetFileSize(<path>)
+- dateTime GetModifiedTime(<path>)
+- reply Execute(<command>)
+- void Rename(<path>, <dest>)
+- string GetWorkingDirectory()
+- void SetWorkingDirectory(<path>)
+- stream OpenAppend(<path>)
+- stream OpenAppend(<path>, <dataType>)
+- stream OpenAppend(<path>, <dataType>, <checkIfFileExists>)
+- stream OpenWrite(<path>)
+- stream OpenWrite(<path>, <dataType>)
+- stream OpenWrite(<path>, <dataType>, <checkIfFileExists>)
+
+---
+
+using System;
+using System.Net;
+using FluentFTP;
+
+public class FTPSample {        
+    public async static void Run() {
+        var client = new FtpClient("ftp://ftp-eu.site4now.net");
+        client.Credentials = new NetworkCredential("morningloveUser", "xxxxxxxxxxxx");
+        await client.ConnectAsync();
+
+        var exists = await client.FileExistsAsync("/test.txt");
+        Console.WriteLine(exists);
+
+        var downloadStatus = await client.DownloadFileAsync(@"D:\\test_downloaded.txt", "/test.txt");
+        Console.WriteLine(downloadStatus);
+            
+        var uploadStatus1 = await client.UploadFileAsync("D:\\tbl1.txt", $"/test_uploaded_1.txt");
+        Console.WriteLine(uploadStatus1);
+
+        var uploadStatus2 = await client.UploadFileAsync("D:\\tbl1.txt", $"/test_uploaded_2.txt");
+        Console.WriteLine(uploadStatus2);
+
+        await client.RenameAsync("/test_uploaded_1.txt", "/test_uploaded_renamed.txt");
+
+        await client.DeleteFileAsync("/test_uploaded_2.txt");
+
+		var files = await client.GetListingAsync("/", FtpListOption.Recursive);
+            foreach (var f in files)
+                Console.WriteLine(f.FullName);
+
+        await client.DisconnectAsync();
+    }
+}

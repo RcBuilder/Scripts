@@ -1,0 +1,96 @@
+javascript Decorators
+---------------------
+a decorator is a wrapper. 
+it wraps some code with another code to extend its functionality.
+
+---
+
+note!
+typescript: 
+there's a better syntax of decorators using the '@' prefix in typescript. 
+
+e.g: 
+@log
+class Example {}
+
+---
+
+syntax:
+
+function decorator(action) {
+    return function() {
+    	...
+    	action.apply(this, arguments);
+    	...
+    }
+}
+let decoratorInstance = decorator(action);
+
+---
+
+samples:
+
+function doSomething() {
+    console.log(`hello world`);
+}
+
+function logDecorator(action){
+    return function() {
+    	console.log(`pre-execute action`);	
+    	action.apply(this, arguments);
+    	console.log(`post-execute action`);	
+    }
+}
+
+let wrapped = logDecorator(doSomething);
+wrapped();
+
+-
+
+// arrow function as action 
+function logDecorator(action){
+    return function() {
+    	console.log(`pre-execute action`);	
+    	action.apply(this, arguments);
+    	console.log(`post-execute action`);	
+    }
+}
+
+let wrapped = logDecorator(() => console.log(`hello world`));
+wrapped();
+
+-
+
+// with arguments
+function doSomething(p1, p2) {
+    console.log(`p1: ${p1}, p2: ${p2}`);
+}
+
+function logDecorator(action){
+    return function() {
+    	console.log(`pre-execute action`);	
+    	action.apply(this, arguments);
+    	console.log(`post-execute action`);	
+    }
+}
+
+let wrapped = logDecorator(doSomething);
+wrapped('A', 'B');
+
+-
+
+// with return value
+function doSomething(n1, n2) {
+    return n1 * n2;
+}
+
+function logDecorator(action){
+    return function() {
+    	console.log(`pre-execute action`);	
+    	let result = action.apply(this, arguments);
+    	console.log(`post-execute action > result: ${result}`);
+    }    	
+}
+
+let wrapped = logDecorator(doSomething);
+wrapped(10, 20);

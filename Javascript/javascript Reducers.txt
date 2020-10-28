@@ -1,0 +1,85 @@
+javascript Reducers
+-------------------
+- reducer is an event handler. 
+  it listens to actions coming-in and interacts with the component's state. 
+  it gets the current state and an action and returns a new state. 
+
+- pseudo code: 
+  (state, action) => newState
+
+- the 'action' usually comprised of 2 properties:
+  { type, payload }
+
+- immutable state: 
+  The state processed by a reducer function is immutable
+
+- reducer of a complex state:
+  preserve the current state and only override a specific property.
+  use spread operator '...state' to preserve the current state and only then, override the property 'count'
+
+  // samples
+  { ...state, count: state.count + 1 }  
+  { ...state, firstName: action.payload.firstName, lastName: action.payload.lastName }
+
+---
+
+// basic reducer (es5)
+function counterReducer(state, action) {
+  return state + 1;
+}
+
+-
+
+// basic reducer (es6)
+const counterReducer = (state, action) => {
+  return state + 1;
+}
+
+-
+
+// multi actions reducer
+const counterReducer = (state, action) => {
+  switch (action.type) {
+    case 'INCREASE':
+      return { ...state, count: state.count + 1 };
+    case 'DECREASE':
+      return { ...state, count: state.count - 1 };
+    default:
+      return state;
+  }
+};
+
+-
+
+// full example
+const personReducer = (state, action) => {
+  switch (action.type) {
+    case 'INCREASE_AGE':
+      return { ...state, age: state.age + 1 };
+    case 'CHANGE_LASTNAME':
+      return { ...state, lastName: action.payload.lastName };
+    default:
+      return state;
+  }
+};
+
+let personState = {
+  firstName: 'Roby',
+  lastName: 'Cohen',
+  age: 40,
+};
+ 
+const action1 = {
+  type: 'CHANGE_LASTNAME',
+  payload: {
+    lastName: 'CCC',
+  },
+};
+
+const action2 = {
+  type: 'INCREASE_AGE',
+  payload: {},
+};
+
+personState = personReducer(personState, action1);
+personState = personReducer(personState, action2);

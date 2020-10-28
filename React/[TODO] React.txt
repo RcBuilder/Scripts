@@ -1495,6 +1495,7 @@ client routing ???
 .Net React Router
 > Install-Package React.Router.Mvc4 -Version 5.2.7
 DOES NOT WORK!!
+https://reactjs.net/features/react-router.html#:~:text=React%20Router%20is%20a%20Javascript,by%20deferring%20to%20React%20Router
 
 -
 
@@ -2859,7 +2860,8 @@ class Component1 extends Component {
 
 -
 
-// TODO ->> document + sample test
+// TODO ->> document + sample test (optional: https://www.simplethread.com/cant-replace-redux-with-hooks/)
+
 [React Hooks]
 
 hooks:
@@ -2979,13 +2981,16 @@ class Component1 extends Component {
 
 
 useReducer:
-reducer is an event handler. it listens to actions coming-in and interacts with the component's state.
+reducer is an event handler. it listens to actions coming-in and interacts with the component's state. it gets the current state and an action and returns a new state. 
+(pseudo code -> (state, action) => newState)
 the reducer is usually defined within the root-component and can be consumed by any other component down the components-tree.
+the 'action' usually comprised of 2 properties -> { type, payload }
+note! The state processed by a reducer function is immutable
 
 useReducer vs REDUX:
-REDUX creates one global state container for the whole app and uses a single dispatch function to trigger all events. it also a "Single source of truth".
+REDUX creates one global state container for the whole app (store) and uses a single dispatch function to trigger all events. it also a "Single source of truth".
 useReducer is an independent component located within the component it has been defined in and shares the same state. there are multiple reducers and each has its own dispatch function.
-redux can be defined in a new file whereas useReducer depends on a component (usually the root but it may be defined at the middle of the component-tree as well) // TODO ->> check
+REDUX uses useReducer under-the-hood.
 
 // syntax 
 import React, { useReducer } from "react";
@@ -3376,3 +3381,57 @@ class Child extends React.Component {
 }
 
 -
+
+Reducer:
+see 'javascript Reducers'
+
+// example
+// reducer of a complex state, preserve the current state and only override a specific property.
+// use spread operator '...state' to preserve the current state and only then, override the property 'count'
+const counterReducer = (state, action) => {
+  switch (action.type) {
+    case 'INCREASE':
+      return { ...state, count: state.count + 1 };
+    case 'DECREASE':
+      return { ...state, count: state.count - 1 };
+    default:
+      return state;
+  }
+};
+
+// example
+const personReducer = (state, action) => {
+  switch (action.type) {
+    case 'INCREASE_AGE':
+      return { ...state, age: state.age + 1 };
+    case 'CHANGE_LASTNAME':
+      return { ...state, lastName: action.payload.lastName };
+    default:
+      return state;
+  }
+};
+
+let personState = {
+  firstName: 'Roby',
+  lastName: 'Cohen',
+  age: 40,
+};
+ 
+const action1 = {
+  type: 'CHANGE_LASTNAME',
+  payload: {
+    lastName: 'CCC',
+  },
+};
+
+const action2 = {
+  type: 'INCREASE_AGE',
+  payload: {},
+};
+
+personState = personReducer(personState, action1);
+personState = personReducer(personState, action2);
+
+-
+
+React Hooks vs Redux:

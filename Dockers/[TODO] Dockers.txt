@@ -41,15 +41,56 @@ install - other providers (ec2 etc.)
 install (windows)
 Docker Desktop Installer.exe
 
+---
 
-> docker exec -ti <container_name> bash // enter into the docker
-> docker logs -f <container_name> --tail 1000  // show a docker console logs
-> docker start <container_name>  // start a docker
-> docker stop <container_name>   // stop a docker
-> docker restart <container_name>   // restart a docker
-> docker ps -a  // containers list 
-> docker ps  // running containers list 
-> docker inspect <container_name> // container related config
+TODO ->> enter a running container (exec bash??)
+commands:
+
+> docker			// docker help
+> docker help		// print list of options and commands
+> docker <command> --help	// get help about a specific command (usage)
+> docker info		// docker information + summary
+> docker -v			// docker version
+> docker version	// docker version extended
+> docker system df	// disk usage (images, containers etc.)
+> docker login		// login to docker-Hub
+> docker exec -ti <containerId> bash			// enter into the docker
+> docker logs -f <containerId> --tail 1000	// show a docker console logs
+> docker start <containerId>  // start a docker
+> docker stop <containerId>   // stop a docker
+> docker restart <containerId>	// restart a docker
+> docker build -t <imageName> .			// build an image from a Dockerfile (current folder)
+> docker build -t <imageName>:<tag> .	// build an image from a Dockerfile (with tag name) - e.g: MyImage:1.0
+> docker build -t <imageName> "<path>"	// build an image from a Dockerfile (specific path)
+> docker images --help		// get help about 'images' command (usage)
+> docker images		// images list
+> docker images -q  // images-ids list
+> docker images -f <filter>	// filtered images list
+> docker pull <imageName>   // pull an image from the docker-Hub repository
+> docker rmi <imageId>		// delete an image
+> docker history <imageId>	// image history
+> docker inspect <imageName> // inspect an image
+> docker ps --help			// get help about 'ps' command (usage)
+> docker ps -a		// containers list 
+> docker ps			// running containers list 
+> docker inspect <containerId> // container related config
+> docker run --help			// get help about 'run' command (usage)
+> docker run <imageName>  // create a container (create a running instance)
+> docker run --name "<name>" <imageName>  // create a container and specify a name to it
+> docker run -p <port>:<port> <imageName>  // create a container with port mapping
+> docker run -p <port>:<port> -v "<folder>":"<folder>" <imageName>  // create a container with local physical folder mapping
+> docker run -p <port>:<port> -v "<volumName>":"<folder>" <imageName>  // create a container with local volume mapping
+> docker top <containerId>		// process-list (similar to the task-manager in windows)
+> docker stats <containerId>	// container stats (memory, IO, CPU and etc.)
+> docker kill <containerId>		// kil a container instance
+> docker pause <containerId>	// pause a container instance
+> docker unpause <containerId>	// un-pause a container instance
+> docker rm <containerId>		// delete a container
+> docker volume --help			// get help about 'volume' command (usage)
+> docker volume ls				// volume list
+> docker volume create <volumeName>		// create a new volume
+> docker volume inspect <volumeName>	// inspect a volume (get information about the volume including the physical path)
+> docker volume rm <volumeName>			// delete a volume
 
 ---
 
@@ -71,3 +112,259 @@ to document:
 
 login to docker:
 Session > SSH > set credentials and docker ip (linux)
+
+---
+
+about:
+a container platform.
+similar to containers in the shipping industry, a container is a standard package for all platforms. hence, the logo.
+docker is a tool for running applications in an isolated environment. isolation allows us to run multiple applications with no interference between them.
+docker makes the app deployment process easier and most stable. once packaged, if it works on your machine, it'll work on ANY computer!
+
+
+|  APP   |  APP   | ->
+|  Bins  |  Bins  | -> containers
+|	 ENGINE		  |	
+|    HOST OS      |
+|    SERVER       |
+
+Container is a running instance of an Image. (command: run)
+an Image is a snapshot of an app with all its dependencies (OS, Software and Application Code)
+an Image is created using a DockerFile. (see 'DockerFile')
+
+
+
+---
+
+static html website:
+
+note! 
+nginx [engine x] is an HTTP and reverse proxy server.
+
+// Dockerfile
+FROM nginx:1.19.3-alpine
+COPY . /usr/share/nginx/html/
+EXPOSE 80
+
+// index.html
+<!DOCTYPE html>
+<html>
+<body>
+    <h1>Hello World</h1>
+</body>
+</html>
+
+> docker build -t hello-world .
+
+/// to map a local folder to the docker
+/// any change in html files will be reflected without the need to re-build the image
+> docker run -p 8080:80 -v "C:\Users\RcBuilder\Desktop\TO_DELETE\testDocker":"/usr/share/nginx/html/" hello-world
+
+go to http://localhost:8080
+
+---
+
+dockerHub:
+a platform which provides to store and download docker images. 
+commonly used for pulling images as base-image in the Dockerfile. 
+we can publish our own images to the hub. 
+
+---
+
+Virtualization vs Containerization:
+
+// Virtualization (VMs)
+SERVER > Host OS > Hypervisor > Guest OS > App-1
+							  > Guest OS > App-2
+							  > Guest OS > App-3
+
+// Containerization
+SERVER > Host OS > Container ENGINE > Bins > App-1
+									> Bins > App-2
+									> Bins > App-3
+
+note! 
+we can combine VM with Containers. 
+for example, in cases when we need to set windows-based containers in linux server. 
+
+---
+
+the docker-server (aka daemon) and the docker-client communicate via CLI or REST Service.
+
+---
+
+playground:
+https://labs.play-with-docker.com/
+
+
+install docker in AWS ECS:
+https://docs.aws.amazon.com/AmazonECS/latest/developerguide/docker-basics.html
+---
+
+TODO ->> (HO) Deploy a static website to a server as a container.
+
+---
+
+docker linux vs windows:
+
+LINUX (DOCKER_HOST)
+- Docker Client
+- Docker daemon
+- Container-1
+- Container-2
+- Container-N
+
+WINDOWS 
+- Docker Client
+- Linux VM (DOCKER_HOST)
+--- Docker daemon
+---	Container-1
+---	Container-2
+---	Container-N
+
+---
+
+Docker Components:
+
+1. DOCKER_CLIENT	
+  - CLI
+
+2. DOCKER_HOST
+   - DOCKER_SERVER (Daemon)
+   - Containers
+   --- Container-1
+   --- Container-2
+   --- Container-N
+   - Images
+   --- Image-1
+   --- Image-2
+   --- Image-N
+
+3. REPOSITORY
+   - docker-hub 
+   
+--- 
+
+Container lifetime:
+once the main thread completes, the container is terminated.
+an unhandled exception will cause the main thread to crash and hence, the container to be shut down.
+tip: we can also use containers for tasks. 
+
+---
+
+docker volumes:
+use volumes to share data between containers.
+TODO ->> how to?
+
+---
+
+// TODO ->> check - .NET Console app
+
+// Dockerfile
+# some comments 
+FROM mcr.microsoft.com/dotnet/framework/runtime:4.8-windowsservercore-ltsc2019
+MAINTAINER RcBuilder <rcbuilder@walla.com>
+WORKDIR /app
+RUN @echo exposing port 80
+EXPOSE 80
+COPY /bin/Debug . 
+ENTRYPOINT ["FrameworkConsoleApp.exe"] 
+
+---
+
+Dockerfile:
+DockerFile is a text file including instructions on how to generate a docker-image.
+the default file name is 'Dockerfile' with no extension.
+build a DockerFile to create the Image. (command: build)
+
+https://docs.docker.com/engine/reference/builder/
+
+// TODO ->> create Dockerfile with custom name 
+
+// TODO ->> instructions
+- FROM <image>				// use base image (images can be found in dockerHub)
+- FROM SCRATCH				// empty image as base, starting from scratch
+- WORKDIR /<folderName>		// make a working directory within the docker
+- EXPOSE <port>				// expose a port
+- ENTRYPOINT ["<command>"]  // command/s to execute once the image was built 
+- MAINTAINER 
+- RUN <command>				// run a command 
+- CMD
+
+
+- # <text>					// add comment
+
+note!
+to create a Dockerfile with no base image > FROM SCRATCH
+SCRATCH is an empty image exists in the docker-hub repository
+
+---
+
+// TODO
+Docker Compose:
+a tool for defining and running multi-container Docker applications.
+YAML file (docker-compose.yml)
+
+Docker-Compose vs Dockerfile:
+use Dockerfile for a single container app. 
+use Compose for multi containers app. (e.g: multi-services based app)
+// TODO 
+
+> docker-compose			// see '--help'
+> docker-compose --help		// list of commands and options
+> docker-compose version	
+> docker-compose config		// validate a docker-compose.yml file
+> docker-compose down		// shutdown all applications
+> docker-compose up	-d		// launch all applications (run docker-compose.yml), -d to run in the background
+> docker-compose up -d --scale <serviceName>=<numberOfInstances>   // scale-out a service (e.g: database=4 to generate 4 containers of 'database' service)
+
+// TODO ->> instructions
+...
+...
+
+// TODO ->> environment (variables)		
+// TODO ->> check example
+// docker-compose.yml
+// in this example, we added instructions to create 2 services (the 1st called 'web' and uses 'nginx' image and the 2nd called 'database' which uses 'redis' image)
+version: '3.0'
+services:
+	web:
+		image: nginx
+		ports:
+		- 8080:80	
+	database:
+		image: redis
+
+---
+
+// TODO ->> how to map a folder or adding files to a volume
+// TODO ->> check example
+shared volume:
+
+// create a new volume
+> docker volume create myVolume
+
+// create 3 containers and map them to the same volume
+> docker run -v "myVolume":"/usr/share/nginx/html/" --name "container1" hello-world
+> docker run -v "myVolume":"/usr/share/nginx/html/" --name "container2" hello-world
+> docker run -v "myVolume":"/usr/share/nginx/html/" --name "container3" hello-world
+
+---
+
+TODO ->> task container example + batch file to run it + windows task scheduler
+
+---
+
+how to? transfer params into container? env variables? global/ shared variables?
+
+---
+
+Dockerfile > (command) docker buid > Docker Image > (command) docker run > Docker Container.
+												  > (command) docker push > Docker hub (repository)
+
+---
+
+docker architecture:
+see chart 'docker_architecture.svg' 
+
+---

@@ -1,0 +1,24 @@
+javascript - email scrambler
+----------------------------
+add a random character after every character in the email value. 
+
+e.g: 
+roby -> r<c>o<c>b<c>y<c> -> char=a -> raoabaya
+
+---
+
+function processEmail(email){
+    var chars = 'abcdefghijklmnopqrstuvwxyz';
+    var value = email.split('@')[0];
+    var domain = email.split('@')[1] || '';
+    return value.replace(/(\S{1})/g,'$1' + chars[Math.floor(Math.random() * chars.length)]).concat('@', domain);
+};
+
+using:
+processEmail('roby@gmail.com');
+
+output:
+rfofbfyf@gmail.com
+reoebeye@gmail.com
+...
+...
