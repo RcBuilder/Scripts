@@ -67,6 +67,13 @@ class StepBase extends React.Component {
         let filtered = [].filter.call(elements, e => e.name && e.name != '');
 
         return [].reduce.call(filtered, (acc, x) => {
+            // handle radio and checkbox - collect only checked
+            if (x.tagName.toLowerCase() == 'input' && (x.getAttribute('type') == 'checkbox' || x.getAttribute('type') == 'radio') && x.checked == false)
+                return acc;
+            // fix checkbox 'ON' value
+            if (x.tagName.toLowerCase() == 'input' && x.getAttribute('type') == 'checkbox' && x.value == 'on')
+                x.value = true;
+
             acc[x.name] = x.value;
             return acc;
         }, {});          

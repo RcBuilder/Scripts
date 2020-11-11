@@ -1,0 +1,47 @@
+form2Json
+---------
+constructor(props) {
+    super(props);
+
+    this.form = React.createRef();
+}
+
+form2Json = form => {
+    let elements = form.current.elements;
+    let filtered = [].filter.call(elements, e => e.name && e.name != '');
+
+    return [].reduce.call(filtered, (acc, x) => {
+	// handle radio and checkbox - collect only checked
+        if (x.tagName.toLowerCase() == 'input' && (x.getAttribute('type') == 'checkbox' || x.getAttribute('type') == 'radio') && x.checked == false)
+            return acc;
+	// fix checkbox 'ON' value
+	if (x.tagName.toLowerCase() == 'input' && x.getAttribute('type') == 'checkbox' && x.value == 'on')
+            x.value = true;
+
+        acc[x.name] = x.value;
+        return acc;
+    }, {});
+};
+
+saveForm = async (e) => {
+    e.preventDefault();
+
+    let postURI = this.form.current.getAttribute('action');
+    if (postURI == '') return;        
+
+    let payload = this.form2Json(this.form);
+    ...
+	...
+};
+
+render() {
+    return (
+        <>                       
+            <form ref={this.form} onSubmit={this.saveForm} action="...">
+                <input type="text" name="input1" /><br />                    
+                <input type="text" name="input2" /><br /> 
+                <button type="submit">SAVE</button>
+            </form>            
+        </>
+    )
+}

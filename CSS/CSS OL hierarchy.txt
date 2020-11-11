@@ -1,0 +1,72 @@
+CSS OL hierarchy
+----------------
+hierarchy for organized list with several levels.
+
+[css]
+ol {
+    counter-reset: item;    
+}
+
+ol li {
+    display: block;
+}
+
+ol li:before {
+    content: counters(item, ".") " ";
+    counter-increment: item;    
+}
+
+ol > li {
+    margin-right: 10px;
+}
+
+ol.root > li {
+    padding-bottom: 20px;
+}
+
+
+[html]
+<ol class="root">
+	<li>
+		A
+		<ol>
+			<li>AA</li>
+			<li>AB</li>
+			<li>AC</li>
+		</ol>
+	</li>
+	<li>
+		B
+		<ol>
+			<li>
+				BA
+				<ol>
+					<li>BAA</li>
+					<li>BAB</li>
+					<li>BAC</li>
+				</ol>
+			</li>
+			<li>
+				BB
+				<ol>
+					<li>BBA</li>
+				</ol>
+			</li>			
+		</ol>
+	</li>
+	<li>C</li>
+</ol>
+
+[output]
+1 A
+  1.1 AA
+  1.2 AB
+  1.3 AC
+2 B
+  2.1 BA
+    2.1.1 BAA
+    2.1.2 BAB
+    2.1.3 BAC
+  2.2 BB
+    2.2.1 BBA
+3 C

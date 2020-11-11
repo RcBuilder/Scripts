@@ -1,0 +1,15 @@
+CSS Background Image with Opacity Overlay
+-----------------------------------------
+
+.wake-with-mml-bg{
+	background: linear-gradient(0deg, rgba(255, 211, 110, 0.3), rgba(255, 211, 110, 0.3)), url(/images/wakeup_with_mml.jpg);
+	background-size: cover;
+	background-position: 0px -350px;
+	min-height: 500px;
+}
+
+@media (max-width: 991.98px) {    
+    .wake-with-mml-bg {
+        background-position: 0px 0px;
+    }
+}

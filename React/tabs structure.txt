@@ -1,0 +1,225 @@
+
+
+
+// Index.cshtml
+@using React.Web.Mvc;
+@Html.React("SomeComponent", new {})
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="~/React/someComponent.jsx"></script>
+
+    <!-- render react components in the client -->
+    @Html.ReactInitJavaScript()
+}
+
+---
+
+// someComponent.jsx
+class SomeComponent extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            module: <Component1 {...this.props} />
+        }
+    }
+
+    changeView = e => {
+        let selected;
+        switch (e.target.getAttribute('component')) {
+            default:
+            case 'Component1': selected = <Component1 {...this.props} />;
+                break;
+            case 'Component2': selected = <Component2 {...this.props} />;
+                break;     
+            case 'Component3': selected = <Component3 {...this.props} />;
+                break;     
+        }
+
+        this.setState({
+            module: selected
+        });
+    }
+
+    render() {
+        return (
+            <>
+                <SomeComponentNAV changeView={this.changeView} />
+                {this.state.module}                
+            </>
+        )
+    }
+}
+
+class SomeComponentNAV extends React.Component {
+    render() {
+        return (
+            <>
+                <button onClick={this.props.changeView} component="Component1">Tab-1</button>
+                <button onClick={this.props.changeView} component="Component2">Tab-2</button>  
+                <button onClick={this.props.changeView} component="Component3">Tab-3</button>                               
+            </>
+        )
+    }
+}
+
+class SomeComponentTabBase extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {            
+            validationSummary: []
+        }
+
+        this.form = React.createRef();
+    }
+
+    form2Json = form => {
+        let elements = form.current.elements;
+        let filtered = [].filter.call(elements, e => e.name && e.name != '');
+
+        return [].reduce.call(filtered, (acc, x) => {
+            acc[x.name] = x.value;
+            return acc;
+        }, {});
+    };
+
+    postChanges = async (postURI, payload) => {
+        console.log(`
+            POST ${postURI}
+            ${JSON.stringify(payload)}
+        `);
+
+        let response = await fetch(postURI, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        }).then(result => result.json());
+
+        console.log(response);
+        return response;
+    }
+
+    saveForm = async (e) => {
+        e.preventDefault();
+
+        let postURI = this.form.current.getAttribute('action');
+        if (postURI == '') return;        
+
+        let payload = this.form2Json(this.form);
+        let response = await this.postChanges(postURI, payload);
+        if (response.Status == 'OK') {
+            alert('OK');
+            return;
+        }
+
+        this.state2ValidationSummary(response.State);
+    };
+
+    state2ValidationSummary = state => {
+        let validationSummary = [];
+        (state || []).forEach(field => {
+            field.errors.forEach(error => {
+                validationSummary.push(error);
+            });
+        });
+
+        this.setState({ validationSummary });
+    };
+}
+
+class Component1 extends SomeComponentTabBase {
+    render() {
+        return (
+            <>
+                <form ref={this.form} onSubmit={this.saveForm} action="Api/Test">
+					<input type="text" name="name" />
+                    ...
+					...
+                    <button type="submit">SAVE</button>
+                </form>
+
+                {this.state.validationSummary.map(x => <p>{x}</p>)}
+            </>
+        )
+    }
+}
+
+class Component2 extends SomeComponentTabBase {
+    render() {
+        return (
+            <>
+                <form ref={this.form} onSubmit={this.saveForm} action="Api/Test">
+					<input type="text" name="name" />
+                    ...
+					...
+                    <button type="submit">SAVE</button>
+                </form>
+
+                {this.state.validationSummary.map(x => <p>{x}</p>)}
+            </>
+        )
+    }
+}
+
+class Component3 extends SomeComponentTabBase {
+    render() {
+        return (
+            <>
+                <form ref={this.form} onSubmit={this.saveForm} action="Api/Test">
+					<input type="text" name="name" />
+                    ...
+					...
+                    <button type="submit">SAVE</button>
+                </form>
+
+                {this.state.validationSummary.map(x => <p>{x}</p>)}
+            </>
+        )
+    }
+}
+
+---
+
+// ApiController.cs
+[HttpPost]
+public JsonResult Test(SomeModel Model)
+{
+    if (!ModelState.IsValid)
+        return Json(new { Status = "ERROR", State = Helper.ModelStateToJson(ModelState) });
+	...
+	...
+	...
+    return Json(new { Status = "OK" });
+}
+
+// Helper.cs
+using System.Web.Mvc;
+public static dynamic ModelStateToJson(ModelStateDictionary ModelState) {
+    var errorList = (
+        from item in ModelState
+        where item.Value.Errors.Any()
+        select new 
+        {
+            key = item.Key,
+            errors = item.Value.Errors.Select(e => e.ErrorMessage)
+        }
+    );
+
+    return errorList;
+}
+
+// SomeModel.cs
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
+
+public class SomeModel {
+    [JsonProperty(PropertyName = "name")]
+    [Required(ErrorMessage = "שם חובה")]
+    [StringLength(50, MinimumLength = 3, ErrorMessage = "שם לא תקני")]
+    public string Name { get; set; }
+}

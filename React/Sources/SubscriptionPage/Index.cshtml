@@ -1,0 +1,18 @@
+﻿@model Entities.Subscription
+@using React.Web.Mvc;
+
+@{
+    ViewBag.Title = $"{Model.FullName}";
+}
+
+@Html.React("Subscription", Model)
+
+@section scripts{
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+    <script src="~/React/subscription.jsx"></script>
+
+    <!-- render react components in the client -->
+    @Html.ReactInitJavaScript()
+}

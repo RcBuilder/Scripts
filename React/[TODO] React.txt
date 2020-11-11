@@ -2179,6 +2179,40 @@ getItem, setItem
 
 -
 
+localStorage exception in react.NET:
+an attempt to use 'localStorage' before the component was rendered will throw an exception! 
+use the 'componentDidMount' to access the storage after the component was created!
+best practices - use setState to preserve the value on any react re-rendering actions.
+
+example-1:
+componentDidMount = () => {
+    const affiliateId = localStorage.getItem('affiliateId') || 0;
+    if(affiliateId) document.querySelector('#affiliateId').value = affiliateId;
+}
+<input type="text" name="affiliateId" id="affiliateId" defaultValue="0" />
+
+example-2:
+constructor(props) {
+    super(props);
+    this.state = {
+        selectedIndex: 0
+    }
+}
+
+componentDidMount = () => {
+    const stepIndex = localStorage.getItem('stepIndex');
+    if (stepIndex) this.setState({ selectedIndex: stepIndex });
+}
+
+changeView = componentIndex => {        
+    this.setState({
+        selectedIndex: componentIndex
+    });
+    localStorage.setItem('stepIndex', componentIndex);
+}
+
+-
+
 // state with no constructor
 class Test extends React.Component {
     state = { ... };
@@ -3305,6 +3339,13 @@ class StepBase extends React.Component {
         let filtered = [].filter.call(elements, e => e.name && e.name != '');
 
         return [].reduce.call(filtered, (acc, x) => {
+			// handle radio and checkbox - collect only checked
+            if (x.tagName.toLowerCase() == 'input' && (x.getAttribute('type') == 'checkbox' || x.getAttribute('type') == 'radio') && x.checked == false)
+                return acc;
+			// fix checkbox 'ON' value
+            if (x.tagName.toLowerCase() == 'input' && x.getAttribute('type') == 'checkbox' && x.value == 'on')
+                x.value = true;
+
             acc[x.name] = x.value;
             return acc;
         }, {});          
@@ -3434,4 +3475,111 @@ personState = personReducer(personState, action2);
 
 -
 
+// example: module list using selected-index + navigator
+class Subscription extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            selectedIndex: 0
+        }
+    }
+
+    changeView = e => {       
+        this.setState({
+            selectedIndex: parseInt(e.target.getAttribute('componentIndex'))
+        });
+    }
+
+    render() {
+        const modules = [
+            <SubscriptionDetails {...this.props} />,
+            <SubscriptionWakeupSettings {...this.props} />,
+            <SubscriptionChangePassword {...this.props} />,
+            <SubscriptionWakeupCancelation {...this.props} />
+        ];
+
+        return (
+            <>
+                <SubscriptionNAV changeView={this.changeView} selectedIndex={this.state.selectedIndex} />
+                {modules[this.state.selectedIndex]}                
+            </>
+        )
+    }
+}
+
+class SubscriptionNAV extends React.Component {
+    render() {
+        return (
+            <div class="tabs tabs-alt clearfix" id="tabs-profile">
+                <ul class="tab-nav clearfix">                            
+                    <li><a onClick={this.props.changeView} componentIndex="0" title="החשבון שלי"><i class="icon-users"></i> החשבון שלי</a></li>
+                    <li><a onClick={this.props.changeView} componentIndex="1" title="הגדרות השקמה"><i class="icon-pencil2"></i> הגדרות השקמה</a></li>
+                    <li><a onClick={this.props.changeView} componentIndex="2" title="עדכון סיסמה"><i class="icon-user-lock"></i> עדכון סיסמה</a></li>
+                    <li><a onClick={this.props.changeView} componentIndex="3" title="ביטול השירות"><i class="icon-remove"></i> ביטול השירות</a></li>
+                    <li><a href="subscription/logOut" title="יציאה"><i class="icon-line2-logout"></i> יציאה</a></li>
+                </ul>
+            </div>
+        )
+    }
+}
+
+-
+
+// class library
+class Functions {
+    fun = () => { console.log('fun'); }
+    foo = p1 => { console.log(`foo ${p1}`); }
+    bar = (p1, p2) => { console.log(`foo ${p1} ${p2}`); }
+} 
+
+class ComponentA extends React.Component {
+	constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
+	render() {
+        var f = new Functions();
+        f.fun();
+        f.foo('A');
+        f.bar('A', 'B');
+
+        return <h1>ComponentA</h1>
+	}
+}
+
+-
+
+conditional rendering:
+// inline
+render() {
+	return (
+		<div>		
+			{diffInDays > 0 ? <>המנוי שלך פעיל לעוד {diffInDays} ימים</> : <button type="submit" class="btn btn-dark m-0">לתשלום</button>}
+		</div>
+	);
+}
+
+// variable
+render() {
+	let tagToRender;
+	if (diffInDays > 0)
+		tagToRender = <>המנוי שלך פעיל לעוד {diffInDays} ימים</>;
+	else
+		tagToRender = <button type="submit" class="btn btn-dark m-0">לתשלום</button>;
+
+	return (
+		<div>		
+			{tagToRender}
+		</div>
+	);
+}
+-
+
 React Hooks vs Redux:
+// TODO
+
+-
+
+BundleConfig - jsx (.NET)
+// TODO 

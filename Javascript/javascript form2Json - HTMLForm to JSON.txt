@@ -1,0 +1,40 @@
+javascript form2Json - HTMLForm to JSON
+---------------------------------------
+also see 'React/form2Json'
+
+-
+
+form2Json = form => {
+    let elements = form.current.elements;
+    let filtered = [].filter.call(elements, e => e.name && e.name != '');
+
+    return [].reduce.call(filtered, (acc, x) => {
+ 	// handle radio and checkbox - collect only checked
+	if (x.tagName.toLowerCase() == 'input' && (x.getAttribute('type') == 'checkbox' || x.getAttribute('type') == 'radio') && x.checked == false)
+	    return acc;
+	// fix checkbox 'ON' value
+	if (x.tagName.toLowerCase() == 'input' && x.getAttribute('type') == 'checkbox' && x.value == 'on')
+            x.value = true;
+
+        acc[x.name] = x.value;
+        return acc;
+    }, {});
+};
+
+-
+
+using:
+
+<form id="frm1" action="...">
+      <input type="text" name="input1" value="value1" /><br />                    
+      <input type="text" name="input2" value="value2" /><br /> 
+</form>   
+
+let payload = form2Json(document.querySelector('#frm1')); 
+
+// payload
+{ 
+    input1: 'value1', 
+    input2: 'value1'
+}
+

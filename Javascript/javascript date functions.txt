@@ -87,4 +87,28 @@
     var newDate = new Date(date.getYear(), date.getMonth() + 1, 1);
     newDate.setDate(newDate.getDate() - 1); // decrease one day from the first on the following month
     return newDate;  
-  }
+  },
+dateTimeFormat = (date, useDate = true, useTime = true) => {
+        if (!(date instanceof Date)) return '';
+
+        // date 
+        let year = date.getFullYear().toString();
+        let month = (date.getMonth() + 1).toString();
+        let day = date.getDate().toString();
+
+        if (month.length == 1) month = '0' + month; // return yyyyMMdd
+        if (day.length == 1) day = '0' + day;
+
+        let sDate = ''.concat(year, '-', month, '-', day);
+
+        // time
+        let hours = date.getHours().toString();
+        let minutes = date.getMinutes().toString();
+
+        if (hours.length == 1) hours = '0' + hours;
+        if (minutes.length == 1) minutes = '0' + minutes;
+
+        let sTime = hours + ':' + minutes;
+
+        return useDate && useTime ? ''.concat(sDate, ' ', sTime) : useDate ? sDate : useTime ? sTime : '';
+    };

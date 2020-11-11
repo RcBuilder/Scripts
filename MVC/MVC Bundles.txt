@@ -1,0 +1,35 @@
+MVC Bundles
+-----------
+
+// Global.asax.cs
+using System.Web.Optimization;
+protected void Application_Start() {	
+	BundleConfig.RegisterBundles(BundleTable.Bundles);
+}
+
+// BundleConfig.cs
+using System.Web.Optimization;
+public class BundleConfig {
+        public static void RegisterBundles(BundleCollection bundles)
+        {
+            bundles.Add(new Bundle("~/bundle-scripts/site", new JsMinify())
+                .Include("~/Scripts/file1.js")               
+                .Include("~/Scripts/file2.js")               
+                .Include("~/Scripts/file3.js")               
+            );
+
+            bundles.Add(new Bundle("~/bundle-css/site", new CssMinify())
+                .Include("~/Styles/file1.css")                
+                .Include("~/Styles/file2.css")                
+                .Include("~/Styles/file3.css")                
+            );
+        }
+    }
+
+// _Layout.cshtml
+<head>
+	<link rel="stylesheet" href="~/bundle-css/site?ver=1" />
+</head>
+<body>
+	<script src="~/bundle-scripts/site?ver=1" type="text/javascript"></script>
+</body>

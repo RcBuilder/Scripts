@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html>
+<head>    
+    <style>
+	.card {
+		 width: 300px;
+		 height: 100px;
+		 position: relative;
+		 box-shadow: 1px 2px 6px rgba(0, 0, 0, 0.2);
+		 margin: 10px auto;
+	}    
+		
+	.card-text, .card-scratch {
+		cursor: default;
+		height: 100px;
+		width: 300px;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
+
+	.card-text {
+	    line-height: 100px;
+	    text-align: center;
+        font-size: 40px;
+	}	 
+
+    .noselect {
+        -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+        -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+        user-select: none; /* Non-prefixed version, currently */
+    }
+
+    </style>
+</head>
+<body>
+		
+    <section>
+        <div class="card">
+            <div class="card-text noselect">WIN</div>
+            <canvas class="card-scratch" width="300" height="60"></canvas>
+        </div>
+    </section>
+          
+     <script src="scratch.js"></script>    
+	</body>
+</html>

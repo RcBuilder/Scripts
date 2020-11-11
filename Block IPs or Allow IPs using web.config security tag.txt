@@ -1,0 +1,27 @@
+Block IPs/ Allow IPs using web.config security tag
+--------------------------------------------------
+
+Block IPs:
+<system.webServer>
+<security>
+   <ipSecurity allowUnlisted="true">          
+       <clear/>               
+       <add ipAddress="127.0.0.1"/>          
+   </ipSecurity>
+</security>
+</system.webServer>
+
+Allow IPs:
+<system.webServer>
+<security>
+   <ipSecurity allowUnlisted="false">          
+       <clear/>               
+       <add ipAddress="127.0.0.1" allowed="true" />          
+   </ipSecurity>
+</security>
+</system.webServer>
+
+---
+
+note:
+we can also use 'MVC Global filters' or 'IIS URL Rewriter' to achieve the same goal.

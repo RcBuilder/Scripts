@@ -1,0 +1,72 @@
+LoggerSingleton as wrapper to a Logger instance
+-----------------------------------------------
+
+public sealed class LoggerSingleton
+    {
+        private static SQLDBLogger _Instance = null;
+        public static SQLDBLogger Instance
+        {
+            get
+            {
+                if (_Instance == null)
+                    _Instance = new SQLDBLogger(ConfigSingleton.Instance.ConnStr);  // lazy loading 
+                return _Instance;
+            }
+        }
+
+        private LoggerSingleton(){ }
+    }
+
+namespace Logger
+{
+    public interface ILogger
+    {
+        void Error(string logName, Exception Ex);
+        void Info(string logName, string Message, List<string> Params);
+    }
+}
+
+namespace Logger
+{
+    public abstract class BaseLogger : ILogger
+    {
+        public void Info(string logName, string Format, params object[] Placeholders)
+        {
+            this.Info(logName, string.Format(Format, Placeholders));
+        }
+
+        public void Info(string logName, string Message)
+        {
+            this.Info(logName, Message, new List<string>());
+        }
+
+        public void Info(string Message)
+        {
+            this.Info(string.Empty, Message);
+        }
+
+        public void Error(Exception Ex)
+        {
+            this.Error(string.Empty, Ex);
+        }
+
+        public abstract void Error(string logName, Exception Ex);
+        public abstract void Info(string logName, string Message, List<string> Params);
+    }
+}
+
+namespace Logger
+{
+    public class DebugLogger : BaseLogger
+    {
+        public override void Error(string logName, Exception Ex)
+        {
+            Debug.WriteLine("{0} [ERROR] {1}", Thread.CurrentThread.ManagedThreadId, Ex.Message);
+        }
+
+        public override void Info(string logName, string Message, List<string> Params)
+        {
+            Debug.WriteLine("{0} {1}", Thread.CurrentThread.ManagedThreadId, Message);
+        }
+    }
+}

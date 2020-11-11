@@ -4,6 +4,11 @@ also see 'C# FTP using WebClient'
 
 ---
 
+code example: 
+see 'FTPConnector.cs'
+
+---
+
 sources:
 https://github.com/robinrodricks/FluentFTP
 https://github.com/robinrodricks/FluentFTP/wiki/Quick-Start-Example

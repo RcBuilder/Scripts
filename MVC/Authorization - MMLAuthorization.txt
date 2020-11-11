@@ -1,0 +1,35 @@
+using System.Collections.Generic;
+using System.Security.Principal;
+using System.Web;
+using System.Web.Mvc;
+
+public class MMLAuthorization : AuthorizeAttribute
+    {
+        public override void OnAuthorization(AuthorizationContext filterContext)
+        {                        
+            var context = HttpContext.Current;
+            var accountSession = SessionsManager.GetAccount(context);
+
+            if (accountSession != null)
+            {
+                GenericIdentity identity = null;
+                var roles = new List<string>();
+
+                switch (accountSession.AccountType) {
+                    case Entities.eAccountType.Subscription:
+                        identity = new GenericIdentity(accountSession.AccountId.ToString(), "Subscription");
+                        roles.Add("Subscription");
+                        break;
+                    case Entities.eAccountType.Affiliate:
+                        identity = new GenericIdentity(accountSession.AccountId.ToString(), "Affiliate");
+                        roles.Add("Affiliate");
+                        break;
+                }
+                
+                if (roles.Count > 0)
+                    context.User = new GenericPrincipal(identity, roles.ToArray());
+            }
+            
+            base.OnAuthorization(filterContext);
+        }
+    }

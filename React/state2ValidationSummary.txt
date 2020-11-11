@@ -1,0 +1,68 @@
+state2ValidationSummary
+-----------------------
+parse MVC ModelState into js errors array.
+
+---
+
+constructor(props) {
+    this.state = {            
+        validationSummary: []
+    }
+}
+
+saveForm = async (e) => {
+    e.preventDefault();
+	...
+	...
+    let response = await this.props.postChanges(postURI, payload);
+    if (response.Status == 'OK')
+        return;        
+
+    this.state2ValidationSummary(response.State);
+};
+
+state2ValidationSummary = state => {
+    let validationSummary = [];
+    (state || []).forEach(field => {
+        field.errors.forEach(error => {
+            validationSummary.push(error);
+        });
+    });
+
+    this.setState({ validationSummary });
+};
+
+render() {
+    return (
+        <>          
+			...
+			...
+            {this.state.validationSummary.map(x => <p>{x}</p>)}          
+        </>
+    )
+}
+
+---
+
+[HttpPost]
+public JsonResult SomeAction(Models.SomeModel Model)
+if (!ModelState.IsValid)
+    return Json(new { Status = "ERROR", State = Helper.ModelStateToJson(ModelState) });
+return Json(new { Status = "OK" });
+
+
+using System.Web.Mvc;
+public static dynamic ModelStateToJson(ModelStateDictionary ModelState)
+{
+    var errorList = (
+        from item in ModelState
+        where item.Value.Errors.Any()
+        select new 
+        {
+            key = item.Key,
+            errors = item.Value.Errors.Select(e => e.ErrorMessage)
+        }
+    );
+
+    return errorList;
+}

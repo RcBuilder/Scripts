@@ -1,0 +1,18 @@
+SQL - Is Exists
+---------------
+
+CREATE PROCEDURE [dbo].[sp_Subscription_ByEmail_exists]	
+	@Email VARCHAR(200)	
+AS
+BEGIN	
+	SET NOCOUNT ON;
+
+	DECLARE @IsExists BIT = 0;
+
+	SELECT	@IsExists = 1
+	FROM	[dbo].[Subscriptions] WITH(NOLOCK)	
+	WHERE	Email = @Email
+	AND		IsDeleted = 0
+
+	SELECT @IsExists as 'Res'
+END

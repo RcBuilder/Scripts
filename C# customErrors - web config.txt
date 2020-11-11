@@ -1,0 +1,25 @@
+C# customErrors - web config
+---------------------------- 
+
+<system.web>    
+    <customErrors mode="On" redirectMode="ResponseRedirect" defaultRedirect="~/Errors/Index">      
+      <error statusCode="404" redirect="~/Errors/NotFound" />
+      <error statusCode="500" redirect="~/Errors/InternalError" />
+    </customErrors>
+ </system.web>    
+
+--
+
+public class ErrorsController : Controller {        
+    public ActionResult Index() {
+        return View();
+    }
+
+    public ActionResult NotFound() {
+        return View();
+    }
+
+    public ActionResult InternalError() {
+        return View();
+    }
+}

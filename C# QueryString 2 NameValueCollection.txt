@@ -1,0 +1,10 @@
+C# QueryString 2 NameValueCollection
+------------------------------------
+
+using System.Collections.Specialized;
+using System.Web;
+
+var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString("p1=1&p2=2&p3=3"));
+Console.WriteLine(responseParsed["p1"]);
+Console.WriteLine(responseParsed["p2"]);
+Console.WriteLine(responseParsed["p3"]);

@@ -474,3 +474,72 @@ public async Task<bool> SetPassword(int Id, string Password)
 }
 
 -------
+
+Dynamic result:
+in the following example, the dapper result is a dynamic object which consists of a flat table representing a Subscription row.
+the app strong-type class is not flat but a more complex type so we must parse the flat row into this complex object manually. 
+
+// sample using 
+public async Task<Subscription> Get(int Id)
+{
+    using (var conn = new SqlConnection(ConnStr)){                
+        var result = await conn.QueryAsync<dynamic>(
+            "sp_Subscription_get", 
+            commandType: CommandType.StoredProcedure, 
+            param: new { Id }
+        );
+
+        var dataItem = result?.FirstOrDefault();
+        if (dataItem == null) return null;
+        return DALHelper.ConvertToSubscription(dataItem);
+    }
+}
+
+public async Task<List<Subscription>> Get()
+{
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        var result = await conn.QueryAsync<dynamic>(
+            "sp_Subscriptions_get",
+            commandType: CommandType.StoredProcedure
+        );
+
+        var data = new List<Subscription>();                
+        foreach(var dataItem in result)
+            data.Add(DALHelper.ConvertToSubscription(dataItem));
+        return data;
+    }
+}
+
+public class DALHelper
+{
+    public static Subscription ConvertToSubscription(dynamic dataItem) {
+        return new Subscription
+        {
+            Details = new SubscriptionDetails { 
+                Id = dataItem.Id,
+                AffiliateId = dataItem.AffiliateId,
+                Email = dataItem.Email,
+                FirstName = dataItem.FirstName,
+                LastName = dataItem.LastName,
+                Phone = dataItem.Phone,
+                RegistrationStep = dataItem.RegistrationStep,
+                ValidUntil = dataItem.ValidUntil
+            },
+            WakeupSettings = new SubscriptionWakeupSettings { 
+                Gender = (eGender)dataItem.Gender,
+                VoiceGender = (eGender)dataItem.VoiceGender,
+                WakeupTime = TimeSpan.Parse(dataItem.WakeupTime),
+                WakeupState = (eWakeupState)dataItem.WakeupState,
+                UseAudioMessage = dataItem.UseAudioMessage,
+                UseTextMessage = dataItem.UseTextMessage,
+                IsServiceActive = dataItem.IsServiceActive
+            },
+            SystemSettings = new SubscriptionSystemSettings { 
+                LastReceivedMessage = dataItem.LastReceivedMessage,
+                IndexFemale = dataItem.IndexFemale,
+                IndexMale = dataItem.IndexMale
+            }
+        };
+    }
+}

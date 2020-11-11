@@ -1285,6 +1285,10 @@ see 'Authorization.txt'
   [HttpPost]
   public ActionResult Test(int p1, string p2) { }
 
+* Validate checkbox:  
+  [RegularExpression("True", ErrorMessage = "חובה לאשר את התקנון")]
+  public bool PolicyApproved { get; set; }    
+
 * Validation Attributes
   - use Data Annotations to decorate the model with the validations attributes to apply
   - use Html.ValidationMessageFor to display the error messages for property
@@ -1330,6 +1334,9 @@ see 'Authorization.txt'
 
 	[Compare("Email", ErrorMessage = "EmailConfirmation do Not Match Email")]
     public string EmailConfirmation { get; set; }
+       
+        [RegularExpression("True", ErrorMessage = "חובה לאשר את התקנון")]
+        public bool PolicyApproved { get; set; }    
 
 * [EnumDataType] // enums validators
 
@@ -2575,7 +2582,9 @@ see 'Authorization.txt'
   <p>@Model.LastNameEN</p>
   <p>@RenderGender(Model.Gender)</p>
 
-
+* HttpContext
+  System.Web.HttpContext.Current
+  ControllerContext.HttpContext	
 
 * validators - using 
 
