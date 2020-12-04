@@ -1,0 +1,138 @@
+Html5 video stream - camera & file
+----------------------------------
+- reading a stream using 'getUserMedia' requires HTTPS!
+
+- to capture a screenshot, use hidden canvas to copy the presenting frame from the video tag. then, generate a local-data-uri from the canvas and set it as image source.
+
+- to add more layers to a frame, use several times the 'drawImage' method of the canvas context.
+  ctx.drawImage(video, 0, 0, video.width, video.height);			// layer-1
+  ctx.drawImage(video, 50, 50, video.width / 2, video.height / 2);	// layer-2
+  ...
+  ...
+
+- we can stream a video or a camera feed to a 'video' or 'canvas' elements. 
+  use canvas destination to get the ability to add layers on top of the live feed or modify the incoming stream. 
+  use the built-in setInterval method to draw the frames.
+
+---
+
+full example can be found at 
+Html5/Video.html
+
+---
+
+[sample-1] copy video stream from a file:
+
+<video id="my_video" width="320" height="240" controls oncontextmenu="return false;">
+    <source src="Resources/sample-mp4-file.mp4" type="video/mp4" />
+    <source src="Resources/sample-mp4-file.ogv" type="video/ogg" />
+    <source src="Resources/sample-mp4-file.wbem" type="video/webm" />
+    <div>Your browser does not support the video tag.</div>
+</video>
+
+<video id="video_copy" width="320" height="240" playsinline controls autoplay></video>
+
+const videoMaster = document.querySelector('#my_video');
+const videoCopy = document.querySelector('#video_copy');
+
+// copy stream to slave
+videoMaster.addEventListener('play', () => {
+    let stream = videoMaster.captureStream();
+    videoCopy.srcObject = stream;
+    videoCopy.play();
+});
+
+videoMaster.addEventListener('pause', () => {
+    videoCopy.pause();
+});
+
+-
+
+[sample-2] copy live stream from camera to video
+
+<p>
+    <button id="camera_start">start</button>
+    <button id="camera_stop">stop</button>   
+</p>
+
+// start/ stop camera recording
+// note! 'getUserMedia' requires HTTPS
+const btnStartCamera = document.querySelector('#camera_start');
+const btnStopCamera = document.querySelector('#camera_stop');
+const btnCapture = document.querySelector('#capture');
+const btnClearCapture = document.querySelector('#capture_clear');
+
+let cameraStream = null;
+btnStartCamera.addEventListener('click', async e => {                        
+    cameraStream = await navigator.mediaDevices.getUserMedia(
+        {
+            video: true,
+            audio: false
+        });
+        
+    videoCopy.srcObject = cameraStream;
+    videoCopy.play();                        
+});
+
+btnStopCamera.addEventListener('click', e => {
+    cameraStream.getTracks().forEach(function (track) {
+        if (track.readyState == 'live')
+            track.stop();
+    });
+});
+
+-
+
+[sample-3] capture a screenshot from a video
+
+<p>    
+    <button id="capture">capture</button>
+    <button id="capture_clear">clear</button>
+</p>
+
+<canvas id="cvs1" style="display: none;"></canvas>
+<div id="divScreenshots"></div>
+
+// capture a screenshot
+// use hidden canvas to copy the presenting frame from the video tag. then, generate a local-data-uri from the canvas and set it as image source.        
+const canvas = document.querySelector('#cvs1');
+const canvasCtx = canvas.getContext('2d');    
+const canvasWidth = 320;
+
+const divScreenshots = document.querySelector('#divScreenshots');
+
+btnCapture.addEventListener('click', e => {   
+    let relativeHeight = (canvasWidth / videoCopy.videoWidth) * videoCopy.videoHeight;
+
+    canvas.width = canvasWidth;
+    canvas.height = relativeHeight;
+    canvasCtx.drawImage(videoCopy, 0, 0, canvasWidth, relativeHeight);            
+
+    let img = new Image();            
+    img.src = canvas.toDataURL('image/webp');
+    divScreenshots.appendChild(img);            
+});
+
+btnClearCapture.addEventListener('click', e => {
+    divScreenshots.innerHTML = '';
+});
+
+-
+
+[sample-4] stream to canvas 
+
+<video id="video_copy" width="320" height="240" playsinline controls autoplay></video>
+<canvas id="cvs2"></canvas>
+
+const videoCopy = document.querySelector('#video_copy');
+const canvasLive = document.querySelector('#cvs2');
+const canvasLiveCtx = canvasLive.getContext('2d');
+
+videoCopy.addEventListener('canplay', () => {
+    canvasLive.width = videoCopy.videoWidth;
+    canvasLive.height = videoCopy.videoHeight;
+
+    setInterval(() => {
+        canvasLiveCtx.drawImage(videoCopy, 0, 0, videoCopy.videoWidth, videoCopy.videoHeight);
+    }, 10);
+});

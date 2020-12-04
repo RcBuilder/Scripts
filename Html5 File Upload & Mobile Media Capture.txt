@@ -1,0 +1,90 @@
+Html5 File Upload & Mobile Media Capture
+----------------------------------------
+overloads the file input tag by adding 2 new attributes - 'accept' and 'capture'.
+use 'accept' to set a filter of the allowed file types. 
+use 'capture' to get the source from the camera and not the album (create it on the spot)
+
+full example can be found at 
+Html5/MobileUploadFile.html
+
+---
+
+[using]
+in this example we let the user capture an image using his mobile camera or choose an image from the album.
+once selected, we read the uploaded image stream and draw it on canvas and set it as an image source by grabbing it's local-generated url.
+
+by using 'accept' with 'image/*' filter - we can only select images. 
+to select other media types use different filter ('video' or 'audio' and etc.)
+<input type="file" accept="video/*" /><br />
+<input type="file" accept="audio/*" /><br />
+
+-
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<input type="file" accept="image/*" capture /><br />
+<input type="file" accept="image/*;capture=camera" /><br />  
+<input type="file" accept="image/*;capture=album" /><br />
+<input type="file" /><br />
+
+<table style="margin: 20px 0; border: solid 1px #000;">
+    <tr>
+        <th width="300px">canvas</th>
+        <td width="50px">|</td>
+        <th width="300px">image</th>
+    </tr>
+    <tr>
+        <td>
+            <canvas id="cvsSelected"></canvas>
+        </td>
+        <td></td>
+        <td>
+            <img id="imgSelected" />
+        </td>
+    </tr>
+</table>
+    
+-
+
+<script>               
+    const canvas = document.querySelector('#cvsSelected');
+    const canvasCtx = canvas.getContext('2d');
+    const canvasWidth = 300;
+
+    // register any file input to 'onchange' event
+    const fileInputs = document.querySelectorAll('[type="file"]');
+    fileInputs.forEach(fileInput => {
+        fileInput.onchange = e => {
+            var file = e.target.files[0];                
+            setCanvas(file);   
+            setImage(file); 
+        };
+    });
+
+    // draw selected file on a canvas
+    setCanvas = file => {
+        let reader = new FileReader();
+        reader.onload = e => {
+            let dataURL = e.target.result;
+
+            let img = new Image();
+            img.onload = () => {
+                let relativeHeight = (canvasWidth / img.width) * img.height;
+
+                canvas.width = canvasWidth;
+                canvas.height = relativeHeight;
+                canvasCtx.drawImage(img, 0, 0, canvasWidth, relativeHeight);
+            };
+            img.src = dataURL;
+        };
+
+        reader.readAsDataURL(file);
+    };
+
+    // set selected file as image source
+    setImage = file => {
+        const image = document.querySelector('#imgSelected');            
+        image.width = canvasWidth;
+        image.src = URL.createObjectURL(file);            
+    };
+</script>

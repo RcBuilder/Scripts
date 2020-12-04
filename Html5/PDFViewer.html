@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        #adobe-view {
+            height: 500px;
+            width: 800px;
+            margin: 0 auto;
+            position:relative;
+        }
+
+        #adobe-events {
+            position: fixed;
+            left: 20px;
+            height: 400px;
+            width: 300px;
+            overflow-y:auto;
+            overflow-x: hidden;
+        }
+
+        #adobe-operations {
+            position: fixed;
+            right: 20px;
+            height: 400px;
+            width: 300px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <div id="adobe-operations">
+        <button id="btnTogglePhoto">Toggle Photo</button>        
+    </div>
+
+    <ul id="adobe-events">
+
+    </ul>
+
+    <div id="adobe-view"></div>
+
+    <!-- TODO -->
+    <script src="https://documentcloud.adobe.com/view-sdk/main.js"></script>
+    <script type="text/javascript">
+        document.addEventListener("adobe_dc_view_sdk.ready", () => {
+            InitPDF();
+        });
+
+        async function InitPDF() {
+            var adobeDCView = new AdobeDC.View({
+                clientId: '82a98c32c53d4453990fe147bcf5d648',
+                divId: 'adobe-view'
+            });
+
+            let adobeViewer = await adobeDCView.previewFile({
+                content: { location: { url: 'https://documentcloud.adobe.com/view-sdk-demo/PDFs/Bodea%20Brochure.pdf' } },
+                metaData: { fileName: 'Bodea Brochure.pdf' }
+            },
+            {
+                embedMode: 'SIZED_CONTAINER'  // FULL_WINDOW, SIZED_CONTAINER, IN_LINE, LIGHT_BOX
+            });
+
+            let adobeViewerAPIs = await adobeViewer.getAPIs();
+            let metadata = await adobeViewerAPIs.getPDFMetadata();           
+            console.log(`${metadata.pdfTitle} -> ${metadata.numPages} pages`);
+            /*
+                result = await getPDFMetadata()
+                result = await getXMPMetadata(<fields: [string]>, <includeRawStream: bool>)
+                result = await getSelectedContent()
+                setCursor(<cursor: string>)   // https://developer.mozilla.org/en-US/docs/Web/CSS/cursor
+                resetCursor()
+                result = await getCurrentPage()
+                result = await getPageZoom(<PageNumber: int>)
+                result = await gotoLocation(<PageNumber: int>, <x: int>, <y: int>)
+                result = await clearPageSelection(<PageNumber: int>)
+                result = await enableTextSelection(state: bool)
+            */
+
+
+            const eventOptions = {                
+                listenOn: [
+                    // app events
+                    AdobeDC.View.Enum.Events.APP_RENDERING_START,
+                    AdobeDC.View.Enum.Events.APP_RENDERING_FAILED,
+                    AdobeDC.View.Enum.Events.APP_RENDERING_DONE,
+                    AdobeDC.View.Enum.Events.PDF_VIEWER_OPEN,
+                    AdobeDC.View.Enum.Events.PDF_VIEWER_CLOSE,
+
+                    // file events
+                    AdobeDC.View.Enum.FilePreviewEvents.PREVIEW_DOCUMENT_CLICK,
+                    AdobeDC.View.Enum.FilePreviewEvents.PREVIEW_PAGE_CLICK,
+                    AdobeDC.View.Enum.FilePreviewEvents.PREVIEW_ZOOM,
+                    AdobeDC.View.Enum.FilePreviewEvents.CURRENT_ACTIVE_PAGE,
+
+                    /*
+                        PREVIEW_KEY_DOWN
+                        PREVIEW_PAGE_VIEW_SCROLLED
+                        PREVIEW_DOCUMENT_CLICK
+                        PREVIEW_PAGE_CLICK
+                        PREVIEW_PAGE_DOUBLE_CLICK
+                        PREVIEW_PAGE_MOUSE_ENTER
+                        PREVIEW_PAGE_MOUSE_LEAVE
+                        CURRENT_ACTIVE_PAGE
+                        PREVIEW_SELECTION_END
+                        PREVIEW_ZOOM
+                        PAGES_IN_VIEW_CHANGE
+                    */
+                ],                   
+                enableFilePreviewEvents: true
+            }
+
+            adobeDCView.registerCallback(
+                AdobeDC.View.Enum.CallbackType.EVENT_LISTENER,
+                function (event) {
+                    console.log(event);
+
+                    let li = document.createElement('li');
+                    li.innerHTML = event.type;
+                    document.querySelector('#adobe-events').appendChild(li);                    
+                },
+                eventOptions
+            );
+
+            document.querySelector('#btnTogglePhoto').addEventListener('click', e => {
+                let viewer = document.querySelector('#adobe-view');
+                let img = viewer.querySelector('img');
+                if (img) {
+                    img.remove();
+                }
+                else {
+                    img = document.createElement('img');
+                    img.src = 'https://picsum.photos/id/237/300/200';
+                    img.alt = 'dynamic content injection';
+                    img.style.position = 'absolute';
+                    img.style.zIndex = 1000;
+                    img.style.width = '100%';
+                    viewer.prepend(img);
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

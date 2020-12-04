@@ -1,0 +1,13 @@
+Bug:
+C# Console App async Main
+
+Error:
+Can't specify the 'async' modifier on the 'Main' method of a console app.
+
+Cause:
+Main method has the following signature 
+static async void Main(string[] args) {}
+
+Solution:
+change void to Task
+static async Task Main(string[] args) {}

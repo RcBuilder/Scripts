@@ -1,0 +1,42 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <script>
+        (async () => {
+            let permission = await Notification.requestPermission();
+            console.log(permission);  // granted, denied
+            Notification.permission = permission;
+
+            setTimeout(() => {
+                if (Notification.permission != 'granted') return;
+                
+                console.log('create notification');                
+                let notification = new Notification('Test', {
+                    body: 'hello world!',
+                    icon: 'https://picsum.photos/seed/picsum/200/200'
+                });
+
+                notification.onshow = e => {                    
+                    console.log('notification show event');
+                }                
+                notification.onclose = e => {
+                    console.log('notification close event');
+                }   
+                notification.onclick = e => {
+                    console.log('notification click event');
+                }
+                notification.onerror = e => {
+                    console.log('notification error event');
+                }
+
+            }, 3000);            
+        })();           
+    </script>
+</body>
+</html>

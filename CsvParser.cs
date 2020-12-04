@@ -8,12 +8,17 @@ using System.Threading.Tasks;
 
 namespace LagojaMarketingServices
 {
-    /*  USING:
-               
+    /*  
+        Obsolete:
+        Use CsvConnector.cs Instead (see 'CsvConnector.cs')
+        
+        ----
+
+        USING:               
         Parse(string strCSV)
         Load(string filePath)
 
-        ---------------------
+        ----
 
         // source.csv
         Email,Domain,PH1,PH2,PH3
@@ -22,7 +27,7 @@ namespace LagojaMarketingServices
         c@c.com,http://c.com,c1,c2,c3
         d@d.com,http://d.com,d1,d2,d3
         
-        ---
+        -
         
         var csvFile = string.Concat(AppDomain.CurrentDomain.BaseDirectory, "\\", "source.csv");
         var csvContent = App_Code.CsvParser.Load(csvFile);
@@ -34,7 +39,8 @@ namespace LagojaMarketingServices
             Console.WriteLine("domain:{0}", row["Domain"].Value);
         }
     */
-    
+
+    [Obsolete("Use CsvConnector.cs Instead")]
     public class CsvParser {
         
         public class CsvContent {

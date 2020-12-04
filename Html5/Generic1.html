@@ -1,0 +1,146 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <button id="btn1">ClickMe</button>
+    <button id="btn2">ClickMe</button>
+    <br />
+    <input type="hidden" id="new.name" value="1234" />
+    <input type="hidden" id="new#name" value="2345" />
+    <input type="hidden" id="[new-name]" value="3456" />
+
+    <script>
+        // special characters
+        console.log(document.querySelector('#new\\.name'));
+        console.log(document.querySelector('#new\\#name'));
+        console.log(document.querySelector('#\\[new-name\\]'));
+
+        // event registration - reference function vs inline function
+        let btn1 = document.querySelector('#btn1');
+        let fnClick = (e) => {
+            console.log(`${e.target.id} was clicked`);
+        };
+
+        btn1.addEventListener('click', fnClick);
+        btn1.addEventListener('click', fnClick);
+        btn1.addEventListener('click', fnClick);
+
+
+        let btn2 = document.querySelector('#btn2');
+        btn2.addEventListener('click', (e) => {
+            console.log(`${e.target.id} was clicked`);
+        });
+        btn2.addEventListener('click', (e) => {
+            console.log(`${e.target.id} was clicked`);
+        });
+        btn2.addEventListener('click', (e) => {
+            console.log(`${e.target.id} was clicked`);
+        });
+ 
+        //------------------------------
+
+        function foo(callback) {
+            console.log('in foo');
+            setTimeout(() => {
+                callback(Math.random() * 100);
+            }, 2000);
+        }
+
+        function fooAsync() {
+            console.log('in fooAsync');
+            return new Promise((resolve, reject) => {
+                try {
+                    foo(result => { resolve(result); });
+                }
+                catch{
+                    reject(-1);
+                }
+            });
+        }
+
+        (async function () {
+            foo(result => {
+                console.log('foo result: ' + result);
+            });
+            console.log('do some other work ...');
+
+            var result = await fooAsync();
+            console.log('foo result: ' + result);
+        })();
+
+
+        
+
+        function fun1(callback) {
+            console.log('in fun1');
+            setTimeout(() => {
+                callback(Math.random() * 100);
+            }, 2000);
+        }
+
+        function fun1Async() {
+            console.log('in fun1Async');
+            return new Promise((resolve, reject) => {
+                try {
+                    fun1(res => { resolve(res); });
+                }
+                catch{
+                    reject(-1);
+                }
+            });
+        };
+
+        async function fun2() {
+            console.log('in fun2');
+            var res = await fun1Async();
+            console.log('fun2 result: ' + res);
+        };
+
+        console.log('call fun2...');
+        fun2();
+
+        /*
+        fun1(res => {
+            console.log('fun1 result: ' + res);
+        });
+        */
+        console.log('do some other work ...');
+
+        // ---------------------------------
+
+        function makeRequest() {
+            try {
+                var http = new XMLHttpRequest();
+                var url = 'https://go.skillsurvey.com/EBK-045-2020RecruitingTrends';
+                var params = ''
+                http.open("GET", url, true);
+
+                /// http.setRequestHeader('Content-type', '');
+                http.setRequestHeader('Access-Control-Allow-Origin', '*');
+
+                http.onreadystatechange = function () {
+                    var data = http.responseText;
+                    if (http.readyState == 4 && http.status == 200)
+                    {
+                        console.log('done');
+                        if (data && data != undefined)
+                            var jsonData = JSON.parse(data);                                                    
+                    } else {
+                        if (http.readyState == 4) {
+                            console.log('...');
+                        }
+                    }
+                }
+
+                http.send(params);
+
+            } catch (e) { }
+        }
+        ///makeRequest();
+    </script>
+</body>
+</html>

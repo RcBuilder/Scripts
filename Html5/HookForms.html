@@ -1,0 +1,138 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        form {
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        a.btn {
+            display: inline-block;
+            border: solid 1px #808080;
+            padding: 2px 8px;
+            cursor: pointer;
+            background-color: silver;
+        }
+    </style>    
+</head>
+<body>  
+    <form id="frm1" action="HookForms.html?P=1" method="post">
+        <button id="btn1" type="submit">send</button>
+    </form>
+    <form id="frm2" action="HookForms.html?P=2" method="post">
+        <input id="btn2" type="submit" value="send" />
+    </form>
+    <form id="frm3" action="HookForms.html?P=3" method="post">
+        <input id="btn3" type="button" onclick="send('frm3')" value="send" />
+    </form>
+    <form id="frm4" action="HookForms.html?P=4" method="post">
+        <a id="btn4" class="btn" onclick="send('frm4')">send</a>
+    </form>
+    <hr />
+    <input type="button" value="create dynamic form" onclick="createDynamicForm()" />
+    <input type="button" value="remove dynamic form" onclick="removeDynamicForm()" />
+    <hr />
+
+    <script>
+        function send(formId) {
+            console.log(new Date().getTime());
+            let form = document.getElementById(formId);
+            form.submit();
+        }
+
+        // -------
+
+        function createElement(tag, attributes) {
+            let newElement = document.createElement(tag);
+            Object.keys(attributes || {}).forEach(a => {
+                newElement[a] = attributes[a];
+            });
+            return newElement;
+        }
+
+        function removeDynamicForm() {
+            let form = document.querySelector('form#frmD');
+            form.remove();
+        }
+
+        function createDynamicForm() {
+            let newForm = createElement('form', {
+                id: 'frmD',
+                action: 'HookForms.html?P=D',
+                method: 'post',
+                style: 'padding: 8px 0'
+            });
+
+            let submit = createElement('input', {
+                type: 'submit',
+                value: 'send'
+            });
+
+            let br = createElement('br');
+            let text = document.createTextNode('dynamic form');
+
+            newForm.appendChild(text);
+            newForm.appendChild(br);
+            newForm.appendChild(submit);
+
+            document.body.appendChild(newForm);
+        }
+
+        // -------
+
+        (function () {
+
+            /*
+            var inputTags = document.getElementsByTagName('input');
+            var arrInputTags = Array.prototype.slice.call(inputTags, 0);
+            var submit = arrInputTags.filter(x => x.type == 'submit');
+
+            var buttonTags = document.getElementsByTagName('button');
+            var arrButtonTags = Array.prototype.slice.call(buttonTags, 0);
+            submit = submit.concat(arrButtonTags.filter(x => x.type == 'submit'));
+
+            submit.map(b => {
+                b.addEventListener('click', e => {
+                    var buttonsClicked = JSON.parse(localStorage.getItem('buttonsClicked')) || [];
+                    buttonsClicked.push(b.id);
+                    localStorage.setItem('buttonsClicked', JSON.stringify(buttonsClicked));
+                }, false);
+            });
+            */
+
+            let action = f => {
+                console.log('hook form #' + f.id || '');
+
+                var originalSubmit = f.submit;
+
+                f.submit = function () {
+                    f.dispatchEvent(new Event('submit')); // trigger submit event
+                    originalSubmit.call(f); // execute the original-submit call
+                };
+
+                f.addEventListener('submit', e => {
+                    var formsClicked = JSON.parse(localStorage.getItem('formsClicked')) || [];
+                    formsClicked.push(f.id);
+                    localStorage.setItem('formsClicked', JSON.stringify(formsClicked));
+                }, false);
+            };
+
+            var formTags = document.getElementsByTagName('form');
+            var forms = Array.prototype.slice.call(formTags, 0);
+            forms.map(action);
+
+            document.addEventListener('DOMNodeInserted', e => {
+                var element = e.target;
+                if (element.tagName.toUpperCase() != 'FORM') return;
+
+                console.log('new form was injected into the DOM #' + element.id || '');
+                action(element);
+            }, false)
+        })();
+    </script>
+</body>
+</html>

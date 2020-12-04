@@ -1,0 +1,11 @@
+GDI+ Add Image as Layer
+-----------------------
+var bitmap = new Bitmap(ImagePath);
+var bitmapLayer = new Bitmap(LayerPath);
+
+var gs = Graphics.FromImage(bitmap);
+
+gs.DrawImage(bitmap, 0, 0);
+gs.DrawImage(itmapLayer, 100, 100);
+
+bitmap.Save(@"C:\output.jpg");

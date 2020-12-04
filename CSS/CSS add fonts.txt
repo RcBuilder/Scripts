@@ -1,0 +1,20 @@
+CSS add fonts
+-------------
+1. download the fonts (.ttf files)
+2. add them to your project (fonts folder)
+3. declare the fonts
+   
+   @font-face {
+    font-family: Alef;
+    src: url('fonts/Alef-Regular.ttf');
+  }
+
+  @font-face {
+    font-family: AlefBold;
+    src: url('fonts/Alef-Bold.ttf');
+  }
+
+4. apply
+   body {
+      font-family: 'Alef', 'Lato', sans-serif !important;
+   }

@@ -1,0 +1,3 @@
+Html5 mobile upload from camera
+-------------------------------
+see 'Html5 File Upload & Mobile Media Capture'

@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            margin-top: 50px; 
+        }
+        #board 
+        {
+            border: solid 1px #000;
+            background-color: #FFF;
+            margin: 0 auto;
+        }
+
+        #board tr:nth-child(odd) > td:nth-child(even), #board tr:nth-child(even) > td:nth-child(odd) {
+            background-color: brown;
+        }
+
+        #board td 
+        {
+            width: 60px;
+            height: 60px;            
+        }
+
+        .piece {
+            display: block;
+            border-radius: 50px;
+            height: 70%;
+            width: 70%;
+            margin: 0 auto;
+        }
+
+        .piece.selected {
+            background-color: darkorange;
+        }
+
+        .piece-black {
+            background-color: #000;
+        }
+        .piece-white {
+            background-color: #FFF;
+        }
+    </style>
+</head>
+<body>
+    <h1>TODO ->> COMPLETE</h1>
+    <table id="board">        
+    </table>
+
+    <script>
+        function Piece(color) {
+            var that = this;
+
+            this.color = color;
+            this.isLegalMove = (from, to, direction, hasMiddlePiece) => {}
+        }
+
+        function Player(name) {
+            this.name = name;
+
+            this.toString = () => name;
+        }
+
+        function Board() {
+            var that = this;
+
+            // mat[8][8]
+            this.slots = new Array(
+                new Array(8),
+                new Array(8),
+                new Array(8),
+                new Array(8),
+                new Array(8),
+                new Array(8),
+                new Array(8),
+                new Array(8),
+            );
+
+            this.pieces = [];
+            this.pieceSlotMap = {};
+            this.remvoePiece = piece => {};
+            this.addPiece = (piece, to) => {
+                that.slots[to.x][to.y] = piece;
+                that.pieceSlotMap[piece] = to;
+            };
+            this.movePiece = (piece, to) => {};
+            this.isLegalMove = () => {}
+        }
+
+        function Position(x, y) {
+            this.x = x;
+            this.y = y;
+
+            this.toString = () => ''.concat(this.x, '_', this.y);
+        }
+
+        function Game() {
+            var that = this;
+
+            var board = new Board();
+            var player1 = new Player('roby');
+            var player2 = new Player('avi');
+            var activePlayerRef = null;
+            var playerPiecesMap = {};
+
+            var switchActivePlayer = () => {
+                if (that.activePlayerRef == player1)
+                    that.activePlayerRef = player2;
+                else
+                    that.activePlayerRef = player1;
+            }
+
+            var selected = null;
+            var handleClick = e => {
+                let dataPos = e.currentTarget.attributes['data-pos'].value; // x-y
+                
+                let pieceUI = e.currentTarget.querySelector('div.piece');
+                let piece = board.slots[dataPos.split('-')[0]][dataPos.split('-')[1]]
+
+                if (selected) {
+                    selected.className = selected.className.replace(' selected', '');
+                    selected = null;
+
+                    let selectedDataPos = selected.attributes['data-pos'].value; // x-y
+                    let selectedPiece = board.slots[selectedDataPos.split('-')[0]][selectedDataPos.split('-')[1]];
+                    /// selectedPiece.isLegalMove(from, to, direction, hasMiddlePiece);
+                }
+                else {
+                    pieceUI.className = pieceUI.className + ' selected';                    
+                    selected = pieceUI;
+                }
+            };
+
+            this.choosePieceToMove = () => {}
+            this.chooseSlotToMoveTo = () => {}
+            this.movePiece = () => {}
+
+            (function () {
+                // init players
+                switchActivePlayer();
+                playerPiecesMap[player1] = [
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black'),
+                    new Piece('black')
+                ];
+
+                playerPiecesMap[player2] = [
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white'),
+                    new Piece('white')
+                ];
+
+                // init board
+                board.addPiece(playerPiecesMap[player1][0],  new Position(0, 1));
+                board.addPiece(playerPiecesMap[player1][1],  new Position(0, 3));
+                board.addPiece(playerPiecesMap[player1][2],  new Position(0, 5));
+                board.addPiece(playerPiecesMap[player1][3],  new Position(0, 7));
+                board.addPiece(playerPiecesMap[player1][4],  new Position(1, 0));
+                board.addPiece(playerPiecesMap[player1][5],  new Position(1, 2));
+                board.addPiece(playerPiecesMap[player1][6],  new Position(1, 4));
+                board.addPiece(playerPiecesMap[player1][7],  new Position(1, 6));
+                board.addPiece(playerPiecesMap[player1][8],  new Position(2, 1));
+                board.addPiece(playerPiecesMap[player1][9],  new Position(2, 3));
+                board.addPiece(playerPiecesMap[player1][10], new Position(2, 5));
+                board.addPiece(playerPiecesMap[player1][11], new Position(2, 7));
+
+                board.addPiece(playerPiecesMap[player2][0],  new Position(5, 0));
+                board.addPiece(playerPiecesMap[player2][1],  new Position(5, 2));
+                board.addPiece(playerPiecesMap[player2][2],  new Position(5, 4));
+                board.addPiece(playerPiecesMap[player2][3],  new Position(5, 6));
+                board.addPiece(playerPiecesMap[player2][4],  new Position(6, 1));
+                board.addPiece(playerPiecesMap[player2][5],  new Position(6, 3));
+                board.addPiece(playerPiecesMap[player2][6],  new Position(6, 5));
+                board.addPiece(playerPiecesMap[player2][7],  new Position(6, 7));
+                board.addPiece(playerPiecesMap[player2][8],  new Position(7, 0));
+                board.addPiece(playerPiecesMap[player2][9],  new Position(7, 2));
+                board.addPiece(playerPiecesMap[player2][10], new Position(7, 4));
+                board.addPiece(playerPiecesMap[player2][11], new Position(7, 6));
+
+                // draw board
+                var boardUI = document.querySelector('#board');
+                for (r = 0; r < board.slots.length; r++)
+                {
+                    let slotRow = board.slots[r]; 
+                    let boardRowUI = document.createElement('tr');
+                    for (c = 0; c < slotRow.length; c++){                        
+                        let boardColUI = document.createElement('td');
+                        boardColUI.setAttribute('data-pos', `${r}-${c}`);
+                        if (slotRow[c])
+                            boardColUI.innerHTML = '<div class="piece piece-{0}"></div>'.replace('{0}', slotRow[c].color);
+                        boardColUI.addEventListener('click', handleClick);
+                        boardRowUI.append(boardColUI);
+                    };
+
+                    boardUI.append(boardRowUI);
+                };
+            })();
+        }
+
+        let game = new Game();
+    </script>
+</body>
+</html>

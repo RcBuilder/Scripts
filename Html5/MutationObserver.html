@@ -1,0 +1,172 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Mutation Observer</title>
+    <style>
+        div.box {
+            margin-bottom: 20px;
+            padding: 6px 0;
+            text-align: center;
+            background-color: #eae7e7;
+        }
+    </style>
+</head>
+<body>  
+    <div id="div1" class="box" data-att-1="c1" title="some-title" style="color: red;">1</div>
+    <button id="btn1-1">Change Style</button>
+    <button id="btn1-2">Change Attribute</button>
+    <button id="btn1-3">Add Attribute</button>
+    <hr />
+    <div id="div2" class="box">
+        <p>P1</p>
+        <p>P2</p>
+    </div>
+    <button id="btn2-1">Add P Element</button>
+    <button id="btn2-2">Remove P Element</button>
+    <hr />
+    <div id="div3" contentEditable class="box">
+        Some Content
+    </div>
+    <button id="btn3-1">Change Content</button>    
+    <hr />
+
+    <script>       
+        var observerFactory = {
+            // listen to style-attribute changes 
+            observeStyles: target => {
+                let stylesObserver = new MutationObserver(mutations => {                    
+                    mutations.forEach(record => {
+                        console.log(`[stylesObserver] change type: ${record.type}, attribute: ${record.attributeName}, old value: ${record.oldValue}`);
+                    });
+                });
+
+                stylesObserver.observe(target, {
+                    childList: false,
+                    subtree: false,
+                    characterData: false,
+                    characterDataOldValue: false,
+                    attributes: true,
+                    attributeOldValue: true,     
+                    attributeFilter: ['style']   // only 'style' attribute
+                });
+            },
+
+            // listen to any-attribute chnages
+            observeAttributes: target => {
+                let attributesObserver = new MutationObserver(mutations => {                    
+                    mutations.forEach(record => {
+                        console.log(`[attributesObserver] change type: ${record.type}, attribute: ${record.attributeName}, old value: ${record.oldValue}`);
+                    });
+                });
+
+                attributesObserver.observe(target, {
+                    childList: false,
+                    subtree: false,
+                    characterData: false,
+                    characterDataOldValue: false,
+                    attributes: true,                    
+                    attributeOldValue: true                    
+                });
+            },
+
+            // listen to child-element changes
+            observeChildElements: target => {
+                let childElementsObserver = new MutationObserver(mutations => {                    
+                    mutations.forEach(record => {
+                        console.log(`[childElementsObserver] change type: ${record.type}, added nodes: ${record.addedNodes.length}, removed nodes: ${record.removedNodes.length}`);
+                    });
+                });
+
+                childElementsObserver.observe(target, {
+                    childList: true,
+                    subtree: false,
+                    characterData: false,
+                    characterDataOldValue: false,
+                    attributes: false,
+                    attributeOldValue: false
+                });
+            },
+
+            // listen to text content changes
+            observeContent: target => {
+                let contentObserver = new MutationObserver(mutations => {
+                    mutations.forEach(record => {
+                        console.log(`[contentObserver] change type: ${record.type}, old value: ${record.oldValue}`);
+                    });
+                });
+
+                contentObserver.observe(target, {
+                    childList: false,
+                    subtree: true,
+                    characterData: true,
+                    characterDataOldValue: true,
+                    attributes: false,
+                    attributeOldValue: false
+                });
+            }
+        };
+
+
+        (function () {            
+            observerFactory.observeStyles(document.querySelector('#div1'));
+            observerFactory.observeAttributes(document.querySelector('#div1'));
+            observerFactory.observeChildElements(document.querySelector('#div2'));
+            observerFactory.observeContent(document.querySelector('#div3'));
+
+            document.querySelector('#btn1-1').addEventListener('click', e => {
+                document.querySelector('#div1').style.color = 'blue';                
+            });
+
+            document.querySelector('#btn1-2').addEventListener('click', e => {
+                document.querySelector('#div1').title = 'new-title';    
+                document.querySelector('#div1').setAttribute('data-att-1', 'c1 updated');
+            });
+
+            document.querySelector('#btn1-3').addEventListener('click', e => {                
+                document.querySelector('#div1').setAttribute('data-att-2', 'c2 new');
+            });
+
+            document.querySelector('#btn2-1').addEventListener('click', e => {
+                let p = document.createElement('p');
+                p.innerHTML = Math.floor(Math.random() * 100);
+                document.querySelector('#div2').appendChild(p);
+            });
+
+            document.querySelector('#btn2-2').addEventListener('click', e => {
+                let p = document.querySelector('#div2 > p');
+                document.querySelector('#div2').removeChild(p);
+            });
+
+            document.querySelector('#btn3-1').addEventListener('click', e => {
+                document.querySelector('#div3').innerHTML = 'new Content';
+            });
+        })();
+
+        /*
+            syntax:
+            var observer = new MutationObserver(callback);
+            attributesObserver.observe(target, options);
+            observer.disconnect();
+
+            options:
+            - childList: bool               // add or remove elements 
+            - attributes: bool              // changes to attributes
+            - characterData: bool           // chnages to content (text)
+            - subtree: bool                 // include sub-folders
+            - attributeFilter: [string]     // observe specific attributes
+            - attributeOldValue: bool       // include the old attribute value in the event
+            - characterDataOldValue: bool   // include the old content value in the event
+
+            mutation-record:
+            target                          // target DOM element 
+            type                            // childList|characterData|attributes
+            attributeName   
+            oldValue                        // old value (attribute or content)           
+            removedNodes                    // list of removed elements 
+            addedNodes                      // list of added elements
+        */
+    </script>
+</body>
+</html>

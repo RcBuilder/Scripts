@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6.15.0/babel.min.js"></script>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        class Test extends React.Component {
+            constructor() {
+                super();
+                this.state = {
+                    p1: 'value-1',
+                    p2: 'value-2'
+                };
+
+                this.changeP1 = this.changeP1.bind(this);
+            }
+
+            changeP1 = e => {
+                this.state.p1 = `value-${Math.floor(Math.random() * 1000)}`;
+                this.setState(this.state);
+            }
+
+            render() {
+                return (
+                    <div>
+                        <h1 className="blue">Hello World</h1>
+                        <p>{this.state.p1}</p>
+                        <p>{this.state.p2}</p>
+                        <p><button onClick={this.changeP1}>change-p1</button></p>
+                    </div>
+                )
+            }
+        }
+
+        ReactDOM.render(<Test />, document.getElementById('root'));
+    </script>
+</body>
+</html>

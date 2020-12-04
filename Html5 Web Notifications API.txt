@@ -1,0 +1,49 @@
+Html5 Web Notifications API
+---------------------------
+use this built-in html5 API to generate notifications. 
+in windows, you'll see a popup on the right-bottom corner for a few seconds and then, it will move to the windows notifications center.
+
+-
+
+notes:
+1. requires an HTTPS or localhost.
+2. best practices - use service worker to send a notification (see 'javaScript Service Workers')
+ 
+-
+
+[using]
+
+<script>
+    (async () => {
+	// ask for permissions
+        let permission = await Notification.requestPermission();
+        console.log(permission);  // granted, denied
+        Notification.permission = permission;
+
+		// delay
+		setTimeout(() => {
+			if (Notification.permission != 'granted') return;
+                
+			// create notification
+            console.log('create notification');                
+            let notification = new Notification('Test', {
+                body: 'hello world!',
+                icon: 'https://picsum.photos/seed/picsum/200/200'
+            });
+
+            notification.onshow = e => {                    
+                console.log('notification show event');
+            }                
+            notification.onclose = e => {
+                console.log('notification close event');
+            }   
+            notification.onclick = e => {
+                console.log('notification click event');
+            }
+            notification.onerror = e => {
+                console.log('notification error event');
+            }
+
+        }, 3000);            
+    })();           
+</script>

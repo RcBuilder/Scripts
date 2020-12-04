@@ -543,3 +543,20 @@ public class DALHelper
         };
     }
 }
+
+
+----
+
+// Connection overload 
+public async Task<int> Save(User User) {
+            using (var conn = new SqlConnection(ConnStr))            
+                return await this.Save(User, conn);            
+}
+
+public async Task<int> Save(User User, SqlConnection Conn) {
+            return await Conn.ExecuteScalarAsync<int>(
+                "sp_User_Save",
+                commandType: CommandType.StoredProcedure,
+                param: User
+            );
+}

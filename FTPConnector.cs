@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -32,6 +33,10 @@ namespace FilesProcessorBLL
 
         var listInF1 = await ftpConnector.GetFileList("F1");            // get file-list (specified folder as root) 
         listInF1.ToList().ForEach(x => Console.WriteLine(x));
+
+        var filter = $"*-2020-11-08.*";
+        var downloaded = await ftpConnector.DownloadFiles(filter, LOCAL_TEMP_FOLDER);  // download files by filter
+        var deleted = await ftpConnector.DeleteFiles(filter);                          // delete files by filter
     */
 
     public interface IFTPConnector {
@@ -42,12 +47,14 @@ namespace FilesProcessorBLL
         Task<bool> IsFileExists(string RemotePath, FtpClient client = null);
         Task<bool> DownloadFile(string RemotePath, string LocalPath, FtpClient client = null);
         Task<int> DownloadFiles(IEnumerable<string> RemotePaths, string LocalFolder, FtpClient client = null);
-        Task<int> DownloadFiles(string Filter, string LocalFolder, FtpClient client = null);
+        Task<int> DownloadFiles(string RootFolder, string Filter, string LocalFolder, FtpClient client = null);
         Task<bool> UploadFile(string RemotePath, string LocalPath, FtpClient client = null);
         Task<bool> UploadString(string RemotePath, string Content, FtpClient client = null);
         Task<bool> ShiftFile(string RemotePathSource, string RemotePathDest, FtpClient client = null);
         Task<bool> RenameFile(string RemotePathSource, string RemotePathDest, FtpClient client = null);
         Task<bool> Delete(string RemotePath, FtpClient client = null);
+        Task<int> DeleteFiles(IEnumerable<string> RemotePaths, FtpClient client = null);
+        Task<int> DeleteFiles(string RootFolder, string Filter, FtpClient client = null);
     }
 
     public class FTPConnector : IFTPConnector
@@ -82,7 +89,7 @@ namespace FilesProcessorBLL
             
             var result = new List<string>();            
             var files = await client.GetListingAsync(RootFolder, FtpListOption.Recursive);
-            var filterPattern = Regex.Escape(Filter).Replace("\\*", ".*?"); // Wildcard-to-Regex
+            var filterPattern = Regex.Escape(Filter).Replace("\\*", ".*?").Replace("\\[", "["); // Wildcard-to-Regex
 
             foreach (var f in files) {
                 if (f.Type != FtpFileSystemObjectType.File) continue;
@@ -124,9 +131,9 @@ namespace FilesProcessorBLL
             return successes;
         }
 
-        public async Task<int> DownloadFiles(string Filter, string LocalFolder, FtpClient client = null)
+        public async Task<int> DownloadFiles(string RootFolder, string Filter, string LocalFolder, FtpClient client = null)
         {
-            var filtered = await this.GetFileList("/", Filter, client);
+            var filtered = await this.GetFileList(RootFolder, Filter, client);
             return await this.DownloadFiles(filtered, LocalFolder, client);
         }
 
@@ -156,6 +163,22 @@ namespace FilesProcessorBLL
             client = client ?? await this.Connect();
             await client.DeleteFileAsync(RemotePath);
             return true;
+        }
+
+        public async Task<int> DeleteFiles(IEnumerable<string> RemotePaths, FtpClient client = null)
+        {
+            client = client ?? await this.Connect();
+
+            var successes = 0;
+            foreach(var remotePath in RemotePaths)            
+                successes += (await this.Delete(remotePath, client)) ? 1 : 0;                        
+            return successes;
+        }
+
+        public async Task<int> DeleteFiles(string RootFolder, string Filter, FtpClient client = null)
+        {
+            var filtered = await this.GetFileList(RootFolder, Filter, client);
+            return await this.DeleteFiles(filtered, client);
         }
     }
 }

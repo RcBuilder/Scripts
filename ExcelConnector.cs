@@ -87,12 +87,12 @@ namespace FilesProcessorBLL
         protected string ReadAsJson(DbDataReader dr) {
             if (dr == null || !dr.HasRows) return "[]";
 
-            var results = new List<Dictionary<string, object>>();
+            var results = new List<Dictionary<string, string>>();
             while (dr.Read())
             {
-                var result = new Dictionary<string, object>();
+                var result = new Dictionary<string, string>();
                 for (var i = 0; i < dr.VisibleFieldCount; i++)
-                    result.Add(dr.GetName(i), dr[i]);
+                    result.Add(dr.GetName(i), dr[i].ToString().Trim());
                 results.Add(result);
             }
 

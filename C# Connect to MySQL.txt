@@ -1,10 +1,16 @@
 C# Connect to MySQL 
--------------------
+===================
 
-nuget:
+nuget
+-----
 Install-Package MySql.Web -Version 8.0.21
 
-using:
+using
+-----
+using MySql.Data;
+using MySql.Data.MySqlClient;
+using System.Data;
+
 var connStr = $"Server=<ServerName>; database=<DBName>; UID=<UserId>; password='<Password>'";
 using (var connection = new MySqlConnection(connStr))
 {
@@ -23,3 +29,12 @@ using (var connection = new MySqlConnection(connStr))
 }
 
 Console.ReadKey();
+
+MySQL dashboard
+---------------
+use 'MySQL Workbench' desktop app to connect to an instance of a MySQL engine. 
+similar to the MSSQL managment studio.
+
+implementation
+--------------
+see 'MySQLNotificationsDAL.cs'

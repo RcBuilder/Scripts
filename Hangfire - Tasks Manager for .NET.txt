@@ -17,6 +17,7 @@ see 'TPL - QueueBackgroundWorkItem'
 - ScheduledJob
 - RecurringJob
 - ContinuousJob
+- Using Async Action
 - Cron options
 - Authorization
 - Using OWIN
@@ -192,6 +193,23 @@ BackgroundJob.ContinueJobWith(
 	jobId,
 	() => Console.WriteLine($"Continuous Job after job ${jobId}");	
 );
+
+Using Async Action
+------------------
+add a sync method as a wrapper to an async action and set it as the hangfire action to execute.
+
+sample:
+public class NotificationsProcess{
+	public void Run() {
+		this.RunAsync().Wait();
+	}
+
+	public async Task RunAsync() { ... }
+}
+-
+var p = new NotificationsProcess();
+RecurringJob.AddOrUpdate("NotificationsProcess", () => p.RunAsync(), Cron.Minutely);
+
 
 Cron options
 ------------

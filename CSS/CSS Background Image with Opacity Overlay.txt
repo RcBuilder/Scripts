@@ -1,6 +1,5 @@
 CSS Background Image with Opacity Overlay
 -----------------------------------------
-
 .wake-with-mml-bg{
 	background: linear-gradient(0deg, rgba(255, 211, 110, 0.3), rgba(255, 211, 110, 0.3)), url(/images/wakeup_with_mml.jpg);
 	background-size: cover;
@@ -13,3 +12,14 @@ CSS Background Image with Opacity Overlay
         background-position: 0px 0px;
     }
 }
+
+----
+
+// white overlay with 2 levels of gradient (each 50%) 
+// the 1st half is fully transparent (0 alpha)
+// the 2nd half is 35% alpha
+background: 
+	linear-gradient(rgba(255, 255, 255, 0), rgba(0, 0, 0, 0.35)), 
+	url(images/home-main-1.jpg) 
+	no-repeat 
+	center center;

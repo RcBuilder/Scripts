@@ -61,7 +61,7 @@ namespace Logger
                                 Type = "INFO",
                                 Name = logName,
                                 Message,
-                                Params = string.Join(", ", Params)
+                                Params = string.Join(", ", Params ?? new List<string>())
                             }
                         );
                     }

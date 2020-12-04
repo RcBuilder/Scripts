@@ -1,0 +1,7 @@
+Html5 video - capture a screenshot
+----------------------------------
+technique:
+use hidden canvas to copy the presenting frame from the video tag. then, generate a local-data-uri from the canvas and set it as image source.        
+
+sample:
+see 'Html5 video stream - camera & file'

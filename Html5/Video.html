@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+</head>
+<body>
+    <h4>Master</h4>
+    <video id="my_video" width="320" height="240" controls oncontextmenu="return false;">
+        <source src="Resources/sample-mp4-file.mp4" type="video/mp4" />
+        <source src="Resources/sample-mp4-file.ogv" type="video/ogg" />
+        <source src="Resources/sample-mp4-file.wbem" type="video/webm" />
+        <div>Your browser does not support the video tag.</div>
+    </video>
+    <p>
+        <button data-speed="1">x1</button>
+        <button data-speed="1.5">x1.5</button>
+        <button data-speed="2">x2</button>
+        <button data-speed="2.5">x2.5</button>
+        <button data-speed="3">x3</button>
+        <button data-speed="3.5">x3.5</button>
+        <button data-speed="4">x4</button>
+    </p>
+    <hr />
+
+    <h4>Slave</h4>
+    <video id="video_copy" width="320" height="240" playsinline controls autoplay></video>
+
+    <hr />
+
+    <h4>Camera</h4>
+    <p>
+        <button id="camera_start">start</button>
+        <button id="camera_stop">stop</button>
+        <button id="capture">capture</button>
+        <button id="capture_clear">clear</button>
+    </p>
+
+    <canvas id="cvs1" style="display: none;"></canvas>    
+    <div id="divScreenshots"></div>
+
+    <hr />
+
+    <h4>Stream To Canvas</h4>
+    <canvas id="cvs2"></canvas>
+
+    <br /><br />
+    
+    <script>
+
+        const videoMaster = document.querySelector('#my_video');
+        const videoCopy = document.querySelector('#video_copy');
+
+        // set speed
+        document.querySelectorAll('button[data-speed]').forEach(x => {
+            x.addEventListener('click', e => {
+                let speed = parseFloat(e.target.attributes['data-speed'].value || '1');
+                videoMaster.playbackRate = speed;
+            });
+        });
+
+        // ---
+
+        // copy stream to slave        
+        videoMaster.addEventListener('play', () => {
+            let stream = videoMaster.captureStream();
+            videoCopy.srcObject = stream;
+            videoCopy.play();                
+        });
+
+        videoMaster.addEventListener('pause', () => {
+            videoCopy.pause();
+        });
+
+        // ---
+
+        // start/ stop camera recording
+        // note! 'getUserMedia' requires HTTPS
+        const btnStartCamera = document.querySelector('#camera_start');
+        const btnStopCamera = document.querySelector('#camera_stop');
+        const btnCapture = document.querySelector('#capture');
+        const btnClearCapture = document.querySelector('#capture_clear');
+
+        let cameraStream = null;
+        btnStartCamera.addEventListener('click', async e => {                        
+            cameraStream = await navigator.mediaDevices.getUserMedia(
+                {
+                    video: true,
+                    audio: false
+                });
+        
+            videoCopy.srcObject = cameraStream;
+            videoCopy.play();                        
+        });
+
+        btnStopCamera.addEventListener('click', e => {
+            cameraStream.getTracks().forEach(function (track) {
+                if (track.readyState == 'live')
+                    track.stop();
+            });
+        });
+
+        // ---
+
+        // capture a screenshot
+        // use hidden canvas to copy the presenting frame from the video tag. then, generate a local-data-uri from the canvas and set it as image source.        
+        const canvas = document.querySelector('#cvs1');
+        const canvasCtx = canvas.getContext('2d');    
+        const canvasWidth = 320;
+
+        const divScreenshots = document.querySelector('#divScreenshots');
+
+        btnCapture.addEventListener('click', e => {   
+            let relativeHeight = (canvasWidth / videoCopy.videoWidth) * videoCopy.videoHeight;
+
+            canvas.width = canvasWidth;
+            canvas.height = relativeHeight;
+            canvasCtx.drawImage(videoCopy, 0, 0, canvasWidth, relativeHeight);            
+
+            let img = new Image();            
+            img.src = canvas.toDataURL('image/webp');
+            divScreenshots.appendChild(img);            
+        });
+
+        btnClearCapture.addEventListener('click', e => {
+            divScreenshots.innerHTML = '';
+        });    
+
+        // ---
+
+        const canvasLive = document.querySelector('#cvs2');
+        const canvasLiveCtx = canvasLive.getContext('2d');
+
+        videoCopy.addEventListener('canplay', () => {
+            canvasLive.width = videoCopy.videoWidth;
+            canvasLive.height = videoCopy.videoHeight;
+
+            setInterval(() => {
+                canvasLiveCtx.drawImage(videoCopy, 0, 0, videoCopy.videoWidth, videoCopy.videoHeight);
+            }, 10);
+        });
+
+    </script>
+</body>
+</html>

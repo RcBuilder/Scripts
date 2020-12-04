@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+</head>
+<body>     
+    <h4>upload Image</h4>   
+    
+    <p>accept="image/*" capture</p>
+    <input type="file" accept="image/*" capture /><br />
+
+    <p>image/*;capture=camera</p>
+    <input type="file" accept="image/*;capture=camera" /><br />
+    
+    <p>image/*;capture=album</p>
+    <input type="file" accept="image/*;capture=album" /><br />
+
+    <p>accept="video/*"</p>
+    <input type="file" accept="video/*" /><br />
+
+    <p>accept="audio/*"</p>
+    <input type="file" accept="audio/*" /><br />
+
+    <p>none</p>
+    <input type="file" /><br />
+
+    <table style="margin: 20px 0; border: solid 1px #000;">
+        <tr>
+            <th width="300px">canvas</th>
+            <td width="50px" align="center">|</td>
+            <th width="300px">image</th>
+        </tr>
+        <tr>
+            <td>
+                <canvas id="cvsSelected"></canvas>
+            </td>
+            <td></td>
+            <td>
+                <img id="imgSelected" />
+            </td>
+        </tr>
+    </table>
+    
+    <hr />
+
+    <script>               
+        const canvas = document.querySelector('#cvsSelected');
+        const canvasCtx = canvas.getContext('2d');
+        const canvasWidth = 300;
+
+        // register any file input to 'onchange' event
+        const fileInputs = document.querySelectorAll('[type="file"]');
+        fileInputs.forEach(fileInput => {
+            fileInput.onchange = e => {
+                var file = e.target.files[0];                
+                setCanvas(file);   
+                setImage(file); 
+            };
+        });
+
+        // draw selected file on a canvas
+        setCanvas = file => {
+            let reader = new FileReader();
+            reader.onload = e => {
+                let dataURL = e.target.result;
+
+                let img = new Image();
+                img.onload = () => {
+                    let relativeHeight = (canvasWidth / img.width) * img.height;
+
+                    canvas.width = canvasWidth;
+                    canvas.height = relativeHeight;
+                    canvasCtx.drawImage(img, 0, 0, canvasWidth, relativeHeight);
+                };
+                img.src = dataURL;
+            };
+
+            reader.readAsDataURL(file);
+        };
+
+        // set selected file as image source
+        setImage = file => {
+            const image = document.querySelector('#imgSelected');            
+            image.width = canvasWidth;
+            image.src = URL.createObjectURL(file);            
+        };
+
+    </script>
+</body>
+</html>

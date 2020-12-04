@@ -1,0 +1,72 @@
+C# QR Code Reader and Writer
+----------------------------
+
+option 1 - using ZXing
+option 2 - using QRCoder
+
+---
+
+using System;
+using System.Drawing;
+using System.Threading;
+
+// [QR Code Reader + Writer]
+// Install-Package ZXing.Net
+// https://github.com/micjahn/ZXing.Net/
+using ZXing;
+
+// Install-Package QRCoder
+// https://github.com/codebude/QRCoder
+using QRCoder;
+
+public class QRSample {        
+    public static void Run() {
+        EncodeViaZXing(@"D:\qr-sample-3.png", "RcBuilder QR Code (ZXing)");
+        EncodeViaQRCoder(@"D:\qr-sample-4.png", "RcBuilder QR Code (QRCoder)");
+
+        DecodeViaZXing(@"D:\qr-sample.png");
+        DecodeViaZXing(@"D:\qr-sample-2.png");
+        DecodeViaZXing(@"D:\qr-sample-3.png");
+        DecodeViaZXing(@"D:\qr-sample-4.png");
+    }
+
+    private static void EncodeViaQRCoder(string QRImagePath, string Content) {
+        var qrGenerator = new QRCodeGenerator();
+        var qrCodeData = qrGenerator.CreateQrCode(Content, QRCodeGenerator.ECCLevel.Q);
+        var qrCode = new QRCode(qrCodeData);
+        var bitmap = qrCode.GetGraphic(20);
+        bitmap.Save(QRImagePath);
+    }
+
+    private static void EncodeViaZXing(string QRImagePath, string Content) {            
+        var writer = new BarcodeWriter
+        {
+            Format = BarcodeFormat.QR_CODE,
+            Options = new ZXing.Common.EncodingOptions {
+                Height = 300,
+                Width = 300                   
+            }
+        };
+
+        var bitmap = writer.Write(Content);
+        bitmap.Save(QRImagePath);            
+    }
+
+    private static void DecodeViaZXing(string QRImagePath) {
+        var bitmap = new Bitmap(QRImagePath);
+
+        var reader = new BarcodeReader
+        {
+            AutoRotate = true,
+            Options = new ZXing.Common.DecodingOptions {
+                TryHarder = true
+            }
+        };
+
+        var result = reader.Decode(bitmap);
+        if (result != null) {
+            var decoded = result.ToString().Trim();
+            Console.WriteLine(decoded);
+        }
+    }
+}

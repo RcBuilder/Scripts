@@ -1,0 +1,290 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        pre {
+            margin: 0;            
+        }
+
+        article {
+            display:inline-block;
+            vertical-align:top;
+            margin-right: 50px;
+            border-right: dashed 1px #d3d3d3;
+            padding-right:30px;
+        }
+
+        ul {
+            margin: 0;
+            padding: 0;
+            list-style-type: none;
+        }
+
+        ul.base-circles li {
+            text-align:center;
+            vertical-align:middle;
+            color: #fff;              
+
+            border-radius: 50%;
+            height: 50px;
+            line-height:50px;     
+            width: 50px;            
+        }
+
+        .wrapper {
+            width: 800px;
+            margin: 0 auto;
+            display:inline-block;
+        }
+
+        /* circles1 */
+        .wrapper:hover ul.circles1 li {
+            transform: translateX(400px);         
+        }
+
+        ul.circles1 li {            
+            margin: 8px;                 
+        }
+
+        /* circles2 */
+        .wrapper:hover ul.circles2 li {
+            transform: scale(1.7);         
+        }
+
+        ul.circles2 li {
+            display: inline-block;
+            margin: 20px;                 
+        }
+
+        /* circles3 */
+        .wrapper:hover ul.circles3 li {
+            transform: scale(1.7);         
+        }
+
+        ul.circles3 li {
+            display: inline-block; 
+            margin: 20px;                 
+        }
+
+        /* circles4 */
+        .wrapper:hover ul.circles4 li {
+            transform: rotate(720deg);         
+        }
+
+        ul.circles4 li {
+            display: inline-block; 
+            margin: 20px;                 
+        }
+
+        /* transitions */
+        .linear { transition: all 1.5s linear; }
+        .ease { transition: all 1.5s ease; }
+        .ease-in { transition: all 1.5s ease-in; }
+        .ease-out { transition: all 1.5s ease-out; }
+        .ease-in-out { transition: all 1.5s ease-in-out; }
+        .cubic-bezier { transition: all 1.5s cubic-bezier(0, 1, 0.98, 0);  }
+
+        .ease-1s { transition: all 1s ease; }
+        .ease-2s { transition: all 2s ease; }
+        .ease-3s { transition: all 3s ease; }
+
+        .ease-delay-200ms { transition-delay: 200ms; }
+        .ease-delay-400ms { transition-delay: 400ms; }
+        .ease-delay-600ms { transition-delay: 600ms; }
+        .ease-delay-1s { transition-delay: 1s; }
+
+        /* colors */
+        .bg-red { background-color: red; }
+        .bg-green { background-color: green; }
+        .bg-blue { background-color: blue; }
+        .bg-orangered { background-color: orangered; }
+        .bg-purple { background-color: purple; }
+        .bg-gray { background-color: gray; }
+    </style>
+</head>
+<body>
+    
+    <article>
+        <pre>  
+        transform:          
+        - matrix(n,n,n,n,n,n)	
+        - matrix3d(n,n,n,n,n,n,n,n,n,n,n,n,n,n,n,n)
+        - translate(x,y)
+        - translate3d(x,y,z)
+        - translateX(x)
+        - translateY(y)
+        - translateZ(z)
+        - scale(x,y)
+        - scale3d(x,y,z)
+        - scaleX(x)
+        - scaleY(y)
+        - scaleZ(z)
+        - rotate(angle)
+        - rotate3d(x,y,z,angle)
+        - rotateX(angle)
+        - rotateY(angle)
+        - rotateZ(angle)
+        - skew(x-angle,y-angle)
+        - skewX(angle)
+        - skewY(angle)
+        - perspective(n)
+
+        note!
+        supports multiple (e.g: transform: rotate(180deg) scale(1.7);)
+
+        --- 
+
+        transition: [property] [duration] [timing-function] [delay];
+        -OR-
+        transition-property
+        transition-duration
+        transition-timing
+        transition-delay
+
+        timing-function:
+        - linear
+        - ease
+        - ease-in
+        - ease-out
+        - ease-in-out            
+        - cubic-bezier(x1, y1, x2, y2)
+    </pre>
+    </article>
+
+    <div class="wrapper">
+        <pre>   
+            how to:  
+            1. create css circles 
+            2. set transform to move all circles on the x axis
+            3. set different background-color for each circle 
+            4. set transitions using different timing-function for each circle
+
+            circle:
+            &lt;li class="bg-red linear"&gt;1&lt;/li&gt;
+
+            css:            
+            .wrapper:hover ul.circles1 li {
+                transform: translateX(400px);         
+            }  
+
+            .linear { transition: all 1.5s linear; }
+            .ease { transition: all 1.5s ease; }
+            .ease-in { transition: all 1.5s ease-in; }
+            .ease-out { transition: all 1.5s ease-out; }
+            .ease-in-out { transition: all 1.5s ease-in-out; }
+            .cubic-bezier { transition: all 1.5s cubic-bezier(0, 1, 0.98, 0);  }          
+        </pre>
+        <ul class="base-circles circles1">
+            <li class="bg-red linear">1</li>
+            <li class="bg-green ease">2</li>
+            <li class="bg-blue ease-in">3</li>
+            <li class="bg-orangered ease-out">4</li>
+            <li class="bg-purple ease-in-out">5</li>
+            <li class="bg-gray cubic-bezier">6</li>
+        </ul>
+
+        <hr />
+        <pre>   
+            how to:  
+            1. create css circles 
+            2. set transform to scale all circles
+            3. set different background-color for each circle 
+            4. set transitions using different duration for each circle
+
+            circle:
+            &lt;li class="bg-red ease-1s"&gt;1&lt;/li&gt;
+
+            css:            
+            .wrapper:hover ul.circles2 li {
+                transform: scale(1.7);         
+            }
+
+            ul.circles2 li {
+                display: inline-block;
+                margin: 20px;                 
+            }
+
+            .ease-1s { transition: all 1s ease; }
+            .ease-2s { transition: all 2s ease; }
+            .ease-3s { transition: all 3s ease; }
+        </pre>
+        <ul class="base-circles circles2">
+            <li class="bg-red ease-1s">1</li>
+            <li class="bg-green ease-2s">2</li>
+            <li class="bg-blue ease-3s">3</li>
+            <li class="bg-orangered ease-1s">4</li>
+            <li class="bg-purple ease-2s">5</li>
+            <li class="bg-gray ease-3s">6</li>
+        </ul>
+
+        <hr />
+        <pre>   
+            how to:  
+            1. create css circles 
+            2. set transform to scale all circles
+            3. set different background-color for each circle 
+            4. set transitions using different delay for each circle
+
+            circle:
+            &lt;li class="bg-red ease-1s ease-delay-200ms"&gt;1&lt;/li&gt;
+
+            css:            
+            .wrapper:hover ul.circles2 li {
+                transform: scale(1.7);         
+            }
+
+            ul.circles2 li {
+                display: inline-block;
+                margin: 20px;                 
+            }
+            
+            .ease-delay-200ms { transition-delay: 200ms; }
+            .ease-delay-400ms { transition-delay: 400ms; }
+            .ease-delay-600ms { transition-delay: 600ms; }
+            .ease-delay-1s { transition-delay: 1s; }     
+        </pre>
+        <ul class="base-circles circles3">
+            <li class="bg-red ease-1s ease-delay-200ms">1</li>
+            <li class="bg-green ease-1s ease-delay-400ms">2</li>
+            <li class="bg-blue ease-1s ease-delay-600ms">3</li>
+            <li class="bg-orangered ease-1s ease-delay-1s">4</li>
+        </ul>
+
+        <hr />
+        <pre>   
+            how to:  
+            1. create css circles 
+            2. set transform to rotate all circles (by 720deg in this sample)
+            3. set different background-color for each circle 
+            4. set transitions using different delay for each circle
+
+            circle:
+            &lt;li class="bg-red ease-1s ease-delay-200ms"&gt;1&lt;/li&gt;
+
+            css:            
+            .wrapper:hover ul.circles2 li {
+                transform: scale(1.7);         
+            }
+
+            ul.circles2 li {
+                display: inline-block;
+                margin: 20px;                 
+            }
+            
+            .ease-delay-200ms { transition-delay: 200ms; }
+            .ease-delay-400ms { transition-delay: 400ms; }
+            .ease-delay-600ms { transition-delay: 600ms; }
+            .ease-delay-1s { transition-delay: 1s; }            
+        </pre>
+        <ul class="base-circles circles4">
+            <li class="bg-red ease-1s ease-delay-200ms">1</li>
+            <li class="bg-green ease-1s ease-delay-400ms">2</li>
+            <li class="bg-blue ease-1s ease-delay-600ms">3</li>
+        </ul>
+    </div>
+    <div style="clear:both;"></div>
+</body>
+</html>

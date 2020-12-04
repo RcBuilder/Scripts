@@ -11,7 +11,26 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace FilesProcessorBLL
 {
-    // TODO ->> Implement (replace the CsvParser)
+    /*
+        USING
+        -----        
+        // get as json string
+        var csvConnector = new CsvConnector(@"C:\test-stars_coupon.csv");
+        var sJson = await csvConnector.GetAsJson();
+            
+        ---
+
+        // get as data-table
+        var csvConnector = new CsvConnector(@"C:\test-stars_coupon.csv");        
+        var dt = await csvConnector.GetAsDataTable();
+
+        ---
+
+        // get as T object (generic) 
+        var csvConnector = new CsvConnector(@"C:\test-stars_coupon.csv");
+        var lst = await csvConnector.GetAsT<IEnumerable<SomeModel>>();
+    */
+
     public interface ICsvConnector
     {
         string FilePath { get; set; }                

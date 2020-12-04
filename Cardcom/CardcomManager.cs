@@ -3,21 +3,18 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Net;
+using System.Text;
 using System.Web;
 
 namespace WebsiteBLL
 {
-    // TODO ->> document + check steps
     /*
         SOURCES:
         http://kb.cardcom.co.il/article/AA-00402/0/
         http://kb.cardcom.co.il/article/AA-00240/0
         http://kb.cardcom.co.il/article/AA-00253/0/
         http://kb.cardcom.co.il/article/AA-00444/0/
-
-        REQUEST:
-        http://kb.cardcom.co.il/article/AA-00402/0/
-
+        
         IPN:
         - terminalnumber
         - lowprofilecode
@@ -29,35 +26,91 @@ namespace WebsiteBLL
         - OperationResponseText
         - ReturnValue
 
-        TRANSACTION-DETAILS:
-        http://kb.cardcom.co.il/article/AA-00240/0
+        GENERATE-IFRAME-SOURCE:
+        http://kb.cardcom.co.il/article/AA-00402/0/
 
+        TRANSACTION-DETAILS:
+        http://kb.cardcom.co.il/article/AA-00240/0/
+
+        ACTIONS-USING-TOKEN:
+        http://kb.cardcom.co.il/article/AA-00253/0/
+
+        RECURRING-AUTO-PAYMENTS:
+        http://kb.cardcom.co.il/article/AA-00444/0/
+        
         PROCESS:
         (steps)
-        1. create a collection of the required parameters (prms)
+        1. create a collection of the required parameters (see 'GENERATE-IFRAME-SOURCE')
         2. generate url 
+
             POST https://secure.cardcom.co.il/Interface/LowProfile.aspx 
             H: ContentType: application/x-www-form-urlencoded
             B: <prms-from-chapter-1>   
+
         3. check the response 
             param 'ResponseCode' should be 0
         4. extract the iframe generated url 
             param 'url'
         5. set the returned url from the chapter-4 as the iframe 'src' attribute
         -
-        6. IPN - parse the response and extract the 'lowprofilecode' param
-        7. get transaction details
+        6. IPN - parse the response and extract the code ('lowprofilecode' param) and store it (see 'IPN')
+        7. DETAILS - get transaction details
+
            GET https://secure.cardcom.solutions/Interface/BillGoldGetLowProfileIndicator.aspx
            Q: ?terminalnumber=&username=&lowprofilecode=
-        8. store the token (and other details) received from the reqeust in chapter-7
 
-        REPORT:
+        8. store the token (and other details) received from the reqeust in chapter-7
+        -
+        (optional)
+        9. create a collection of the required parameters (see 'RECURRING-AUTO-PAYMENTS')
+        10.RECURRING PAYMENTS - use the received 'code' from chapter 6 to set a recurring auto-payments (monthly, weekly, yearly and etc.)
+           use the TimeIntervalId to schedule the payments mode, these values are custom values defined in cardcom dashboard (e.g: 1 = monthly, 2 = weekly, 3 = yearly)
+           we can also set the starting date and the number of times to charge the user
+           note! requires a terminal with No cvv. 
+
+           POST https://secure.cardcom.solutions/interface/RecurringPayment.aspx 
+            H: ContentType: application/x-www-form-urlencoded
+            B: <prms-from-chapter-9> 
+
+        11.parse the reponse and store the 'RecurringId' (in order to cancel the recurring payments process if needed)
+        -
+        (optional)
+        12. create a collection of the required parameters (see 'RECURRING-AUTO-PAYMENTS')
+        13.CANCEL-RECURRING PAYMENTS - to cancel recurring payments process use the following endpoint 
+           this method requires the 'RecurringId' from chapter 11 and the 'code' from chapter 6
+           note! requires a terminal with No cvv. 
+
+           POST https://secure.cardcom.solutions/interface/RecurringPayment.aspx
+           H: ContentType: application/x-www-form-urlencoded
+           B: <prms-from-chapter-12> 
+
+        PROCESS (Summary):
+        1. generate an iframe source 
+        2. create a listener for requests comming from cardcom servers after each transaction (aka IPN)
+        3. extract both the code + token and store them
+        4. use the code to get the transaction details (extended)
+        5. store the transaction details.         
+
+        (optional)
+        6. use the code to create a recurring-auto-payments process 
+        7. use the code + recurringId to cancel a recurring-auto-payments process
+        8. use the token to make direct (no iframe) debit/ credit actions using a token
+
+        PAYMENTS REPORT:
         1. go to the dashboard and login 
             https://secure.cardcom.solutions/
             note! can use the sandbox account 
         2. menu 'דוחות סליקת אשראי'
         3. option-7 'דוח עסקאות פרופיל נמוך' 
         4. find the transaction > click on 'מידע למפתח'
+
+        RECURRING PAYMENTS REPORT:
+        1. go to the dashboard and login 
+            https://secure.cardcom.solutions/
+            note! can use the sandbox account 
+        2. menu 'הוראת קבע'
+        3. option-2 'רשימת לקוחות' 
+        4. find the user > click on '...' > 'הוראות לחיוב'
 
         SANDBOX:
         Terminal: 1000
@@ -276,7 +329,8 @@ namespace WebsiteBLL
             }
 
             using (var client = new WebClient())
-            {                
+            {
+                client.Encoding = Encoding.UTF8;
                 var response = client.UploadString(GENERATE_URL_ENDPOINT, string.Join("&", prms.Select(x => $"{x.Key}={x.Value}")));
                 var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
 
@@ -371,6 +425,7 @@ namespace WebsiteBLL
                 */
                 #endregion
 
+                client.Encoding = Encoding.UTF8;
                 var query = $"terminalnumber={this.Terminal}&username={this.UserName}&lowprofilecode={Code}";
                 var response = client.DownloadString($"{TRANSACTION_DETAILS_ENDPOINT}?{query}");
                 var responseText = HttpUtility.UrlDecode(response);
@@ -472,6 +527,7 @@ namespace WebsiteBLL
                 */
                 #endregion
 
+                client.Encoding = Encoding.UTF8;
                 var response = client.UploadString(TOKEN_CHARGE_ENDPOINT, string.Join("&", prms.Select(x => $"{x.Key}={x.Value}")));
                 var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
                 var responseText = HttpUtility.UrlDecode(response);
@@ -484,8 +540,7 @@ namespace WebsiteBLL
             }
         }
         #endregion
-
-        // TODO ->> check
+        
         #region SetRecurringCharge
         public (string Raw, NameValueCollection Details) SetRecurringCharge(
             string Code,
@@ -514,6 +569,7 @@ namespace WebsiteBLL
             prms["Account.CompanyName"] = InvoiceDetails.CustomerName;
             prms["Account.RegisteredBusinessNumber"] = InvoiceDetails.CustomerId;
             prms["Account.SiteUniqueId"] = InvoiceDetails.CustomerId;
+
             prms["Account.Email"] = InvoiceDetails.Email;
 
             prms["TimeIntervalId"] = TimeIntervalId.ToString();  // 1 = monthly, 2 = weekly, 3 = yearly (note! custom values defined in cardcom dashboard)
@@ -548,6 +604,7 @@ namespace WebsiteBLL
                 */
                 #endregion
 
+                client.Encoding = Encoding.UTF8;
                 var response = client.UploadString(RECURRING_PAYMENT_ENDPOINT, string.Join("&", prms.Select(x => $"{x.Key}={x.Value}")));
                 var responseText = HttpUtility.UrlDecode(response);
                 var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
@@ -560,8 +617,7 @@ namespace WebsiteBLL
             }
         }
         #endregion
-
-        // TODO ->> check
+        
         #region CancelRecurringCharge
         public (string Raw, NameValueCollection Details) CancelRecurringCharge(
             string Code,
@@ -587,13 +643,12 @@ namespace WebsiteBLL
             prms["Account.CompanyName"] = InvoiceDetails.CustomerName;
             prms["Account.RegisteredBusinessNumber"] = InvoiceDetails.CustomerId;
             prms["Account.SiteUniqueId"] = InvoiceDetails.CustomerId;
-            prms["Account.Email"] = InvoiceDetails.Email;
+            prms["Account.Email"] = InvoiceDetails.Email;            
 
             prms["RecurringPayments.FlexItem.Price"] = "0"; // Sum To Bill;            
             prms["RecurringPayments.TotalNumOfBills"] = "1";
             prms["RecurringPayments.InternalDecription"] = ProductName;
-            prms["RecurringPayments.FlexItem.InvoiceDescription"] = ProductName;
-            prms["RecurringPayments.NextDateToBill"] = DateTime.MaxValue.ToString("dd/MM/yyyy"); // format: dd/MM/yyyy
+            prms["RecurringPayments.FlexItem.InvoiceDescription"] = ProductName;           
 
             // CANCEL!
             prms["RecurringPayments.IsActive"] = "false";  // boolean: false = no charges, true = recurring charges
@@ -609,17 +664,20 @@ namespace WebsiteBLL
             {
                 #region ### Response Parameters ###
                 /*
-                    // TODO ->> response params
+                    ResponseCode
                 */
                 #endregion
 
+                client.Encoding = Encoding.UTF8;
                 var response = client.UploadString(RECURRING_PAYMENT_ENDPOINT, string.Join("&", prms.Select(x => $"{x.Key}={x.Value}")));
                 var responseText = HttpUtility.UrlDecode(response);
                 var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
 
                 var StatusCode = Convert.ToInt32(responseParsed["ResponseCode"]);
                 if (StatusCode != 0)
-                    LoggerSingleton.Instance.Info("Cardcom", $"CancelRecurringCharge #{Code} Failed With Code {StatusCode}", new List<string> { responseText });
+                    LoggerSingleton.Instance.Info("Cardcom", $"CancelRecurringCharge #{Code} Failed With Code {StatusCode}", new List<string> { 
+                        responseText 
+                    });
 
                 return (responseText, responseParsed);
             }
