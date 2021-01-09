@@ -1,0 +1,15 @@
+SQL Heap Tables
+---------------
+A table without a clustered index is called Heap.
+
+
+-- heap tables
+SELECT	s.[name] + '.' + t.[name] AS 'TableName'
+FROM	sys.tables t
+		INNER JOIN 
+		sys.schemas s 
+		ON (s.[schema_id] = t.[schema_id])
+		INNER JOIN 
+		sys.indexes i 
+		ON (i.[object_id] = t.[object_id] AND i.[type] = 0)
+ORDER BY TableName

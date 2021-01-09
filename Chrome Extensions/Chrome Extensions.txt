@@ -127,7 +127,7 @@ Reload:
 use the refresh icon (on the right near the disable switch) to reload the extension.
 
 PROD:
-1. zip the extension files.
+1. zip the extension files. (zip - not rar)
 2. go to https://chrome.google.com/webstore/devconsole
 2. upload the zipped files from chapter 1
 3. (store listing) provide information about the extension (title, screenshots and etc.)

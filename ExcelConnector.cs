@@ -11,8 +11,14 @@ using Newtonsoft.Json;
 namespace FilesProcessorBLL
 {
     /*
+        INSTANCES
+        ---------
+        * ExcelOdbcConnector    // using Odbc
+        * ExcelOleDbConnector   // using OleDB
+
+
         USING
-        -----
+        -----        
         // get sheet-list
         var excelConnector = new ExcelConnector(@"C:\test.xlsx");
         var sheetList = excelConnector.GetSheetList();                   
@@ -182,7 +188,7 @@ namespace FilesProcessorBLL
     /*                
         [Odbc]
         Engines:
-        - 32bit   // c:\Windows\System32\odbcad32.exe
+        - 32bit   // C:\Windows\System32\odbcad32.exe
         - 64bit   // C:\Windows\SysWOW64\odbcad32.exe
 
         var connectionString = $"Driver={{Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)}};Dbq={this.FilePath}";

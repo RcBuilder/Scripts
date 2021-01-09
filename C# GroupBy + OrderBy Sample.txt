@@ -1,0 +1,41 @@
+C# GroupBy + OrderBy Sample
+---------------------------
+
+var Model = new [] {
+	new { Manufacturer = "MAZDA", Model = "3", Engine = "1600", DateFrom = DateTime.Parse("1994-01-01") },
+	new { Manufacturer = "MAZDA", Model = "2", Engine = "1200",DateFrom = DateTime.Parse("2001-01-01") },
+	new { Manufacturer = "HONDA", Model = "ACCORD", Engine = "2000",DateFrom = DateTime.Parse("2000-01-01") },
+	new { Manufacturer = "PEUGEOT", Model = "208", Engine = "1200T",DateFrom = DateTime.Parse("2002-01-01") },
+	new { Manufacturer = "MAZDA", Model = "3", Engine = "2000", DateFrom = DateTime.Parse("1994-01-01") },
+	new { Manufacturer = "MAZDA", Model = "2", Engine = "1400", DateFrom = DateTime.Parse("2001-01-01") },
+	new { Manufacturer = "PEUGEOT", Model = "208", Engine = "1600", DateFrom = DateTime.Parse("2002-01-01") },
+	new { Manufacturer = "PEUGEOT", Model = "308", Engine = "1600", DateFrom = DateTime.Parse("2006-01-01") },
+	new { Manufacturer = "HONDA", Model = "CIVIC", Engine = "1800", DateFrom = DateTime.Parse("1992-01-01") },
+	new { Manufacturer = "HONDA", Model = "ACCORD", Engine = "2000",DateFrom = DateTime.Parse("2003-01-01") },
+};
+
+var groups = Model.GroupBy(x => x.Manufacturer);
+foreach (var group in groups){	
+	Console.WriteLine(group.Key);
+	foreach (var item in group.OrderBy(x => x.Model).ThenBy(x => x.Engine).ThenByDescending(x => x.DateFrom))		
+		Console.WriteLine($"--- {item.Model} | {item.Engine} | {item.DateFrom.ToString("yyyy")}");	
+	Console.WriteLine("");
+}
+
+---
+
+MAZDA
+--- 2 | 1200 | 2001
+--- 2 | 1400 | 2001
+--- 3 | 1600 | 1994
+--- 3 | 2000 | 1994
+
+HONDA
+--- ACCORD | 2000 | 2003
+--- ACCORD | 2000 | 2000
+--- CIVIC | 1800 | 1992
+
+PEUGEOT
+--- 208 | 1200T | 2002
+--- 208 | 1600 | 2002
+--- 308 | 1600 | 2006

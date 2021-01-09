@@ -1,0 +1,79 @@
+Windows Service + Installer
+---------------------------
+
+1. File > New > Project > Windows Service
+2. Service1.cs > View Code > implement your service (see sample below) 
+3. Service1.cs (designer) > Right click > Add Installer
+4. ProjectInstaller.cs (designer) > serviceProjectInstaller1 > Properties 
+   - Account > set as 'LocalSystem'
+5. ProjectInstaller.cs (designer) > serviceInstaller1 > Properties 
+   - ServiceName > set service name  
+   - StartType > set as 'Automatic'
+
+6. Build 
+7. VS > Tools (menu) > Command Line > Developer Command Prompt
+   - can also copy the utility and exexute it from anywhere (see 'InstallUtil tool path')   
+   - can also add it to the service project and auto-copy it to the 'bin' folder for easier deployment 
+   
+8. install a service: 
+   > cd <bin-folder>
+   > InstallUtil.exe <exe-file>
+
+   sample:
+   > cd C:\Users\RcBuilder\Desktop\Creative\CreativeSLN\ReportsService\bin\Debug
+   > InstallUtil.exe SystemReportsService.exe
+
+9. go to Services > Start the service! 
+10.uninstall a service: 
+   > cd <bin-folder>
+   > InstallUtil.exe -u <exe-file>
+
+---
+
+InstallUtil tool path:
+C:\Windows\Microsoft.NET\Framework64\<framework-version>
+
+// e.g
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319
+
+// install
+> InstallUtil.exe <exe-file>
+
+// uninstall
+> InstallUtil.exe -u <exe-file>
+
+tip! 
+can be copied into the service project, then set it's 'Copy to Output Directory' property to 'Copy Always'.
+
+---
+
+// service implementation sample 
+public partial class Service1 : ServiceBase
+    {
+        private const int MINUTE = (60 * 1000);
+        private Timer _Timer = null;
+        private int _IntervalInMin = 5;
+
+        public Service1()
+        {
+            InitializeComponent();
+        }
+
+        protected override void OnStart(string[] args)
+        {
+            this._Timer = new Timer();
+            this._Timer.Interval = this._IntervalInMin * MINUTE;
+            this._Timer.Elapsed += (sender, e) =>
+            {
+                // TODO ->> code here...
+            };
+            this._Timer.Enabled = true;
+            Console.WriteLine("Timer has started");
+        }
+
+        protected override void OnStop()
+        {
+            this._Timer.Enabled = false;
+            Console.WriteLine("Timer has stopped");
+        }
+    }

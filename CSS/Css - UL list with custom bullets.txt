@@ -1,0 +1,23 @@
+Css - UL list with custom bullets
+--------------------------------- 
+ul.red-bullets {
+        padding: 0;
+        margin: 0;
+        margin-right: 20px;
+        list-style: none;
+    }
+
+    ul.red-bullets li::before {
+        content: "\2022"; 
+        color: #ee6b6f !important;
+        font-weight: bold; 
+        display: inline-block; 
+        width: 1em; 
+    
+    }
+
+<ul class="red-bullets">
+        <li>Option-1</li>
+        <li>Option-2</li>
+        <li>Option-3</li>
+    </ul>

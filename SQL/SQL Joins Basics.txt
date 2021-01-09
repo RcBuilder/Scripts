@@ -1,0 +1,55 @@
+SQL Joins Basics
+----------------
+
+DECLARE @a TABLE(V INT)
+DECLARE @b TABLE(V INT)
+
+INSERT INTO @a VALUES(1),(2),(3)
+INSERT INTO @b VALUES(3),(4),(5)
+
+SELECT * FROM @a, @b
+/*
+	V		V
+	1		3
+	2		3
+	3		3
+	1		4
+	2		4
+	3		4
+	1		5
+	2		5
+	3		5
+*/
+
+
+SELECT * FROM @a a JOIN @b b ON (a.V = b.V)
+/*
+	V		V
+	3		3
+*/
+
+SELECT * FROM @a a RIGHT JOIN @b b ON (a.V = b.V)
+/*
+	V		V
+	3		3
+	NULL	4
+	NULL	5
+*/
+
+SELECT * FROM @a a LEFT JOIN @b b ON (a.V = b.V)
+/*
+	V		V
+	1		NULL
+	2		NULL
+	3		3
+*/
+
+SELECT * FROM @a a FULL JOIN @b b ON (a.V = b.V)
+/*
+	V		V
+	1		NULL
+	2		NULL
+	3		3
+	NULL	4
+	NULL	5
+*/

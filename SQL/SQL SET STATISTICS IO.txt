@@ -1,7 +1,19 @@
+SQL SET STATISTICS IO
+---------------------
+enable/disable execution statistics.
+provides information about the amount of disk activity (I/O) caused by the query.
 
-// enable execution statistics
-// when enabling statistics, the result will be shown on the Messages tab in the result window
+note:
+when enabling statistics, the result will be shown on the 'Messages' tab in the result window
+
+synta:
+SET STATISTICS IO { ON | OFF }
+
+sample:
 SET STATISTICS IO ON
+SELECT * FROM [dbo].[Products] WHERE Id > 1
+--SET STATISTICS IO OFF
 
-// disable execution statistics
-SET STATISTICS IO OFF
+output: [messages tab]
+(4 rows affected)
+Table 'Products'. Scan count 1, logical reads 2, physical reads 0, read-ahead reads 0, lob logical reads 0, lob physical reads 0, lob read-ahead reads 0.

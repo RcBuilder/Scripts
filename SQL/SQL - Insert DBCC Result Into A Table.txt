@@ -1,0 +1,16 @@
+SQL - Insert DBCC Result Into A Table
+-------------------------------------
+
+DECLARE @t TABLE(
+		[Database] VARCHAR(MAX),
+		[LogSize] DECIMAL(18, 1),	
+		[LogSpaceUsed] DECIMAL(18, 1),
+		[Status] INT
+	)
+	INSERT INTO @t
+		EXEC ('DBCC SQLPERF(LOGSPACE)')		
+
+	SELECT	[Database], [LogSize], [LogSpaceUsed]
+	FROM	@t 
+	WHERE	[Database] NOT IN('master', 'tempdb', 'model', 'msdb')
+	ORDER BY LogSize DESC

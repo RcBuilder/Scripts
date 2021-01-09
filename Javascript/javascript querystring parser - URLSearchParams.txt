@@ -42,3 +42,9 @@ for(value of prms.values())
 
 for(entry of prms.entries()) 
    console.log(entry);
+
+--
+
+let prms = new URLSearchParams(window.location.search);
+if (prms.has('aId'))
+	localStorage.setItem('affiliateId', prms.get('aId'));

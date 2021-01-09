@@ -1,3 +1,6 @@
-RegEx Domain
-
+RegEx Domain:
 (https?)://(www.)?([\w-]+\.)+[a-zA-Z]{2,6}
+
+With Params:
+(?<domain>https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256})(?<params>[-a-zA-Z0-9()@:%_\+.~#?&//=]*)
+(?<domain>https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6})\b(?<params>[-a-zA-Z0-9()@:%_\+.~#?&//=]*)

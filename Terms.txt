@@ -44,6 +44,7 @@
 * CMS = Content Management System
 * CRM = Customer-Relationship Management
 * WASM = WebAssembly
+* NLP = Natural Language Processing
 
 * OLAP = Online Analytical Processing (analysis of data)
 * OLTP = Online Transaction Processing (transaction-oriented application)
