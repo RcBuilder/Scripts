@@ -63,6 +63,39 @@ public class MyClass{
 the above example will not be compiled due to an attempt to decorate a property 
 with 'only classes' attribute.
 
+inject objects using constructor
+--------------------------------
+attribute constructor only supports simple types(string, int, Type and etc.)
+to inject a more complicated type such as class, we need to pass the Type of the object and the args 
+and create an instance using reflection within the constructor!
+ 
+[AttributeUsage(AttributeTargets.Class)]
+public class BrokerProcessor : ActionFilterAttribute{
+    public IBrokerFactory BrokerFactory { get; protected set; }
+
+    public BrokerProcessor(Type brokerFactoryType, params string[] args) {
+        this.BrokerFactory = Activator.CreateInstance(brokerFactoryType, args) as IBrokerFactory;                       
+    }
+
+    public sealed override Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+    {
+        try
+        {
+            ...
+			...
+        }
+        catch (Exception ex) {
+            actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        }
+
+        return base.OnActionExecutingAsync(actionContext, cancellationToken);
+    }
+}
+
+note!
+see full example at 
+'NET Web API - REST\Sources\BrokersEngine'
+
 example
 -------
 [AttributeUsage(AttributeTargets.Class)] // restrict attribute only for classes

@@ -42,6 +42,8 @@ install (windows)
 Docker Desktop Installer.exe
 
 ---
+also see 'DOCKER & Containers'
+---
 
 TODO ->> enter a running container (exec bash??)
 commands:

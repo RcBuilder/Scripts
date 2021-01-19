@@ -1,0 +1,57 @@
+passing a class into an attribute-constructor 
+---------------------------------------------
+attribute constructor only supports simple types(string, int, Type and etc.)
+to inject a more complicated type such as class, we need to pass the Type of the object and the args 
+and create an instance using reflection within the constructor!
+
+------ 
+
+[AttributeUsage(AttributeTargets.Class)]
+public class BrokerProcessor : ActionFilterAttribute{
+    public IBrokerFactory BrokerFactory { get; protected set; }
+
+    public sealed override Task OnActionExecutingAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
+    {
+        try
+        {
+            this.BrokerFactory = Activator.CreateInstance(brokerFactoryType, args) as IBrokerFactory;
+        }
+        catch (Exception ex) {
+            actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        }
+
+        return base.OnActionExecutingAsync(actionContext, cancellationToken);
+    }
+}
+
+-
+
+public interface IFactory<TIn, TOut>
+{
+        TOut Produce(TIn metadata);
+}
+
+public interface IBrokerFactory : IFactory<string, Broker> { }
+
+-
+
+public class ProxyBrokerFactory : IBrokerFactory
+{
+    public string SystemBrokersServiceURI { get; set; }
+
+    public ProxyBrokerFactory(string SystemBrokersServiceURI) {
+        this.SystemBrokersServiceURI = SystemBrokersServiceURI;
+    }
+
+    public Broker Produce(string BrokerName) {             
+        ...
+    }
+}
+
+[Obsolete("Use ProxyBrokerFactory Instead")]
+public class BrokerFactory : IBrokerFactory
+{
+    public Broker Produce(string BrokerName) {
+        ...
+    }
+}

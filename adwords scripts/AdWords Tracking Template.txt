@@ -3,6 +3,18 @@ AdWords Tracking Template
 
 [Tracking Template]
 
+available levels:
+account (recommended) 
+campaign
+adgroup
+ad
+
+set:
+account > settings > account settings > Tracking template
+
+note: 
+if we have 'Tracking Templates' on multiple levels - the most specific one overrides the others.
+
 convention:
 utm_medium = adwords
 utm_campaign = campaign
@@ -15,36 +27,109 @@ utm_medium
 utm_campaign
 utm_source
 
-available levels:
-account 
-campaign
-adgroup
-ad
-
-note: 
-if we have 'Tracking Templates' on multiple levels - the most specific one overrides the others.
+sample:
+{lpurl}?param1={_P1}&param2={_P2}&param3={campaignId}&param4=1234
 
 ---
 
 [AdWords parameters]
 
-value-track parameters:
-lpurl  // represents the final url
-creative // represents the id of the ad
-keyword  // represents the keyword which triggered the ad 
-network
-placement
-etc.
+types:
+- constant
+- custom (see 'Custom parameters')
+- valueTrack (see 'ValueTrack parameters')
 
-custome parameters:
-_campaign  // we need to define at campaign level
-_adgroup  // we need to define at adgroup level
-etc.
+sample:
+param1={_P1}&param2={_P2}&param3={campaignId}&param4=1234
+custom params:
+_P1 = V1
+_P2 = V2
+
+notes:
+- up to 8 custom parameters at any level
+- supports same param in different levels 
+- uses the most specific version 
+
+e.g: 
+_level=adgroup in the adgroup and _level=ad1 in one of the ads 
+in the above case, for the ad - google passes "ad1" and for all other ads google passes "adgroup"
+
+sources:
+https://support.google.com/google-ads/answer/6325879
+
+---
+
+[ValueTrack parameters]
+built-in values used in URL parameter.
+
+values:
+- lpurl		// represents the final url
+- campaignId 
+- adgroupid
+- keyword	// represents the keyword which triggered the ad 
+- device
+- placement
+- devicemodel
+- matchType
+- feeditemid
+- targetid
+- creative	// represents the id of the ad
+- network
+- target
+- random
+- adposition
+- ignore
+- loc_interest_ms
+- loc_physical_ms
+- ifmobile:[value]
+- ifnotmobile:[value]
+- ifsearch:[value]
+- ifcontent:[value]
+
+sample:
+param1={device}&param2={matchType}&param3={campaignId}
+
+sources:
+https://support.google.com/google-ads/answer/2375447
+https://www.karooya.com/blog/list-of-all-valuetrack-parameters-in-google-adwords/
+
+
+---
+
+[Custom parameters]
+
+set:
+- campaign > settings > URL options > set
+- ad > edit > URL options > set
+- adGroup > settings > URL options > set
+- campaign > Modify columns > Attributes > Custom parameter > apply >> edit
+- adGroup > Modify columns > Attributes > Custom parameter > apply >> edit
+- keyword > Modify columns > Attributes > Custom parameter > apply >> edit
+
+
+available levels:
+- campaign
+- adgroup
+- ad
+- keyword
+
+note!
+all custom parameters starts-with '_' 
 
 important: 
 parameters are being represented using the curly brackets '{}'
 custom parameters have a prefixed underscore '_'
 value-track parameters are those with NO prefix '_'
+
+---
+
+[landing page url]
+
+we can use this valueTrack parameter in a tracking-template to get each ad final url
+{lpurl}
+
+sample:
+{lpurl}?device={device}
 
 --- 
 
@@ -77,7 +162,25 @@ steps:
 8. click 'Test' to confirm it works properly
    note: this button generates randomly x scenarios based on the account data
 
+---
+
+[usage best practice] 
+
+(steps)
+1. create an account level tracking-template
+2. set template by using the {lpurl} value + some url parameters 
+  {lpurl}?param1={_P1}&param2={_P2}&param3={campaignId}&param4=1234
+3. define custom parametes in any level
+  _P1 = V1
+  _P2 = V2
+4. go back to the account tracking-template > click on TEST > review the results
+
 --- 
 
 reminder:
 we can use the same logic to add custom parameters to the ads and keywords.
+
+---
+
+scripts:
+see '(R) Auto-Apply URL Custom Parameters - MCC (byCampaign)'

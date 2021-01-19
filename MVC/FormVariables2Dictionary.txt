@@ -1,0 +1,18 @@
+FormVariables 2 Dictionary
+--------------------------
+see 'RequestHelper.cs'
+
+public static Dictionary<string, string> Form2Dictionary(HttpRequestBase Request)
+        {
+            try
+            {
+                return Request.Form.AllKeys
+                    .Select(x => new { key = x, value = Request.Form[x].ToString() })
+                    .Distinct()
+                    .ToDictionary(x => x.key, x => x.value);
+            }
+            catch
+            {
+                return null;
+            }
+        }

@@ -1,0 +1,29 @@
+Bug:
+Attribute constructor parameter type
+
+Error:
+Attribute constructor parameter is not a valid attribute parameter type
+
+Cause:
+Attribute constructor doesn't support any parameter type but has some restrictions. 
+supports only constant values.
+
+Solution:
+use supported parameters. 
+for class type parameters, use Type and create concrete instance it using Activator (reflection)
+
+reference:
+see 'passing a class into an attribute-constructor'
+
+example:
+[AttributeUsage(AttributeTargets.Class)]
+public class BrokerProcessor : ActionFilterAttribute{
+	public IBrokerFactory BrokerFactory { get; protected set; }
+
+	public BrokerProcessor(Type brokerFactoryType) {        
+        this.BrokerFactory = Activator.CreateInstance(brokerFactoryType) as IBrokerFactory;                       
+    }
+}
+
+[BrokerProcessor(typeof(BrokerFactory))]        
+public abstract class BrokerApiController : ApiController { } 

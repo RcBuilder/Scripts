@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Net;
 using System.Web;
+using System.Web.Mvc;
 
 namespace MHCommon
 {
@@ -33,21 +35,88 @@ namespace MHCommon
             }
         }
 
-        public static Dictionary<string, string> Query2Dictionary(string query)
+        // MVC Model To Json State
+        #region ModelStateToJson:
+        public static dynamic ModelStateToJson(ModelStateDictionary ModelState)
+        {
+            var errorList = (
+                from item in ModelState
+                where item.Value.Errors.Any()
+                select new
+                {
+                    key = item.Key,
+                    errors = item.Value.Errors.Select(e => e.ErrorMessage)
+                }
+            );
+
+            return errorList;
+        }
+        #endregion 
+
+        #region Html2String:
+        public static string Html2String(string filePath)
+        {
+            return Html2String(filePath, Encoding.UTF8);
+        }
+        public static string Html2String(string filePath, Encoding encoding)
+        {
+            if (filePath == string.Empty) return string.Empty;
+            using (var sr = new StreamReader(filePath, encoding))
+                return sr.ReadToEnd();
+        }
+        #endregion 
+
+        #region Query2Dictionary:
+        public static Dictionary<string, string> Query2Dictionary(HttpRequestBase Request)
         {
             try
             {
-                query = query.Replace("?", string.Empty);
+                var query = Request.QueryString.ToString().Replace("?", string.Empty);
 
                 return query.Split('&')
                     .Select(x => new { key = x.Split('=')[0], value = x.Split('=')[1] })
                     .Distinct()
                     .ToDictionary(x => x.key, x => x.value);
             }
-            catch {
+            catch
+            {
                 return null;
             }
         }
+        #endregion 
+
+        #region Form2Dictionary:
+        public static Dictionary<string, string> Form2Dictionary(HttpRequestBase Request)
+        {
+            try
+            {
+                return Request.Form.AllKeys
+                    .Select(x => new { key = x, value = Request.Form[x].ToString() })
+                    .Distinct()
+                    .ToDictionary(x => x.key, x => x.value);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        #endregion 
+
+        #region ParseResponse:
+        public static NameValueCollection ParseResponse(string sResponse)
+        {
+            try
+            {
+                var responseText = HttpUtility.UrlDecode(sResponse);
+                var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(sResponse));
+                return responseParsed;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        #endregion 
 
         #region POST:
         public static string POST(string url, string vars, CookieContainer COOKIES)

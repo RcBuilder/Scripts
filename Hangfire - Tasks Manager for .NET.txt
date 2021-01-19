@@ -19,7 +19,9 @@ see 'TPL - QueueBackgroundWorkItem'
 - ContinuousJob
 - Using Async Action
 - Cron options
+- Cron Expression
 - Authorization
+- Interface & Tasks
 - Using OWIN
 - Using Global.asax
 ============================
@@ -227,6 +229,18 @@ a commands scheduler.
 - MinuteInterval(<interval>)
 - Never()
 
+also see 'Cron Expression'
+
+Cron Expression
+---------------
+syntax:
+"<minute> <hour> <dayOfMonth> <month> <dayOfWeek>"
+
+note:
+replace unset with *
+
+samples:
+"/15 * * * *"   // every 15 minutes
 
 Authorization 
 -------------
@@ -257,6 +271,45 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions
 		new DashboardAuthorizationFilter() 
 	}                  
 });
+
+
+Interface & Tasks
+-----------------
+namespace BLL.HangfireTasks
+{
+    public interface IHangfireTask
+    {
+        string CronExpressions { get; }
+        void Exexute();
+    }
+
+	public class SomeTask : IHangfireTask
+    {
+        public string CronExpressions { get; private set; } = "/15 * * * *";       
+        public void Exexute() {
+            Debug.WriteLine("In SomeTask");
+        }
+    }
+
+	public class OtherTask : IHangfireTask
+    {
+        public string CronExpressions { get; private set; } = "/1 * * * *";       
+        public void Exexute() {
+            Debug.WriteLine("In OtherTask");
+        }
+    }
+}
+
+// using 
+var tasks = new List<BLL.HangfireTasks.IHangfireTask>() {
+    new BLL.HangfireTasks.SomeTask(),
+	new BLL.HangfireTasks.OtherTask()
+};
+
+tasks.ForEach(task => {                    
+    RecurringJob.AddOrUpdate(task.GetType().Name, () => task.Exexute(), task.CronExpressions);
+});
+
 
 Using OWIN
 ----------
@@ -447,3 +500,10 @@ public class HangfireManager {
         } 
     }
 }
+
+-
+
+projects:
+- MyMorningLove
+- OpenBook
+- PropertySuiteAPI

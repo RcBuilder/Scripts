@@ -22,3 +22,5 @@ Alt (press) + Shift (press) + F10  // add missing reference
 Shift + Alt + F  // format document
 
 Ctrl + Shift + L // delete a line
+
+ALT + B + A  // cancel a build

@@ -1,0 +1,13 @@
+C# ToUnixTimeStamp 
+------------------
+
+long ToUnixTimeStamp(DateTime date)
+{
+	DateTime point = new DateTime(1970, 1, 1);
+	TimeSpan time = date.Subtract(point);
+	return (long)time.TotalMilliseconds;
+}
+
+--
+
+var timestamp = ToUnixTimeStamp(DateTime.UtcNow);

@@ -1,0 +1,84 @@
+/*
+  this script auto-apply custom parameters for the specified campaigns and their adgroups 
+  a URL custom parameter will be added to the selected campaign -> _campaign = <name>
+  a URL custom parameter will be added to each adgroup -> _adgroup = <name>
+  a URL custom parameter will be added to each keyword -> _keyword = <name>
+  
+  prerequisite:
+  add a Tracking template to the account with the embedded 'campaign', 'adgroup' and 'keyword' parameters.
+  {lpurl}?campaign={_campaign}&adgroup={_adgroup}&keyword={_keyword}
+*/
+
+var AccountId = 9058113159;
+var CampaignIds = [390383480, 390383720];
+
+function main() {      
+  /*
+  Logger.log(fixURLCustomParam('+בדיקת +דאון'));
+  return;
+  */
+  var accounts = MccApp.accounts().withIds([AccountId]).get();    
+  
+  while(accounts.hasNext())
+  {
+    var account = accounts.next();
+    Logger.log('### account: %s ###', account.getName());  
+
+    MccApp.select(account);
+    ProcessAccount();
+    
+    Logger.log('--------------------------');
+  }
+}
+
+function ProcessAccount(){   
+  try{                 
+    var campaigns = AdsApp.campaigns()
+    .withIds(CampaignIds)    
+    .get();
+    
+    while(campaigns.hasNext())
+    {
+      var campaign = campaigns.next();
+      Logger.log('campaign: %s', campaign.getName());
+      campaign.urls().setCustomParameters({
+        campaign: fixURLCustomParam(campaign.getName())
+      });      
+      
+      var adgroups = campaign.adGroups()
+      .withCondition('Status IN [ENABLED, PAUSED]')
+      .get();
+      
+      while(adgroups.hasNext()){
+        var adgroup = adgroups.next();
+        Logger.log('adgroup: %s', adgroup.getName());
+        adgroup.urls().setCustomParameters({
+          adgroup: fixURLCustomParam(adgroup.getName())
+        });       
+        
+        var keywords = adgroup.keywords()
+        .withCondition('Status IN [ENABLED, PAUSED]')
+        .withCondition('AdGroupStatus IN [ENABLED, PAUSED]')
+        .get();
+
+        while(keywords.hasNext()){
+          var keyword = keywords.next();
+          Logger.log('keyword: %s', keyword.getText());
+          keyword.urls().setCustomParameters({
+            keyword: fixURLCustomParam(keyword.getText())
+          });
+        }  
+      }      
+    }    
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+function fixURLCustomParam(p){
+  p = (p || '');
+  p = p.split('+').join(' ');  // replace all
+  p = p.split(' ').join('%20');   // replace all  
+  return p;
+}

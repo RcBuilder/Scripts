@@ -1,0 +1,23 @@
+C# HMACSHA256 - Hash
+--------------------
+
+(string signature, string signatureBase64) SignThis(string Key, string Value)
+{      
+    using (var hmacSha256 = new HMACSHA256(Encoding.ASCII.GetBytes(Key)))
+    {
+        byte[] dataToHmac = Encoding.ASCII.GetBytes(Value);
+		var hash = hmacSha256.ComputeHash(dataToHmac);		
+		var signature = HashEncode(hash);
+		return (signature, Convert.ToBase64String(hash));     
+    }
+}
+
+string HashEncode(byte[] hash)
+{
+    return BitConverter.ToString(hash).Replace("-", "").ToLower();
+}
+
+--
+
+var signature = SignThis("Key1", "Some Content To Hash").signature;	
+Console.WriteLine(signature);

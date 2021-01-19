@@ -1,0 +1,50 @@
+Reflection - Activator CreateInstance
+-------------------------------------
+
+void Main()
+{
+	new FooProcessor(typeof(FooA));
+	new FooProcessor(typeof(FooB), "V1");
+	new FooProcessor(typeof(FooC), "V1", "V2");
+}
+
+public class FooProcessor {
+	public FooProcessor(Type fooType, params string[] args){
+		var concreteFoo = Activator.CreateInstance(fooType, args) as IFoo;
+		concreteFoo.Fun1();
+	}
+}
+
+public interface IFoo {
+	void Fun1();	
+}
+
+public class FooA : IFoo
+{    
+    public FooA() {}
+	public void Fun1(){ Console.WriteLine("FooA");}
+}
+
+public class FooB : IFoo
+{
+    public string P1 { get; set; }	
+
+    public FooB(string P1) {
+        this.P1 = P1;		
+    }
+	
+	public void Fun1(){ Console.WriteLine($"FooB {this.P1}");}
+}
+
+public class FooC : IFoo
+{
+    public string P1 { get; set; }
+	public string P2 { get; set; }
+
+    public FooC(string P1, string P2) {
+        this.P1 = P1;
+		this.P2 = P2;
+    }
+	
+	public void Fun1(){ Console.WriteLine($"FooC {this.P1} {this.P2}");}
+}

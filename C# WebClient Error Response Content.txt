@@ -1,0 +1,15 @@
+C# WebClient Error Response Content
+-----------------------------------
+using (var client = new WebClient()) {
+	try{			
+		// code here ...
+	}
+	catch(WebException ex){
+	 	var stream = ex.Response.GetResponseStream();
+		using (var reader = new StreamReader(stream))			
+			Console.WriteLine($"WebException: {ex.Message} {reader.ReadToEnd()}");
+	}
+	catch(Exception ex){
+		Console.WriteLine($"Exception: {ex.Message}");
+	}
+}

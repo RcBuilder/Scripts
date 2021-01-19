@@ -1,0 +1,39 @@
+Reflection CreateInstance with args
+-----------------------------------
+
+public class FooProcessor {
+	public FooProcessor(Type fooType, params string[] args){
+		var concreteFoo = Activator.CreateInstance(fooType, args) as IFoo;
+		concreteFoo.Fun1();
+	}
+}
+
+public interface IFoo {
+	void Fun1();
+	void Fun2();
+}
+
+public class FooA : IFoo
+{    
+    public FooA() {}
+}
+
+public class FooB : IFoo
+{
+    public string P1 { get; set; }	
+
+    public FooB(string P1) {
+        this.P1 = P1;		
+    }
+}
+
+public class FooC : IFoo
+{
+    public string P1 { get; set; }
+	public string P2 { get; set; }
+
+    public FooC(string P1, string P2) {
+        this.P1 = P1;
+		this.P2 = P2;
+    }
+}
