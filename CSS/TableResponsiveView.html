@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style type="text/css">
+        table {
+            width: 100%;
+            max-width: 100%;
+            background-color: transparent;
+            border-spacing: 0;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            direction: rtl;
+        }
+
+        table td, table th {
+            padding: 8px;
+            line-height: 1.42857143;
+            border-top: 1px solid #ddd;
+            vertical-align: top;
+            text-align: right;
+        }
+
+        @media only screen and (max-width: 480px) {
+            /* Responsive Table View */
+            table.responsive-view {
+                border: none !important;
+            }
+
+            table.responsive-view thead {
+                position: absolute;
+                height: 0px;
+                width: 0px;
+                border: none;
+                overflow: hidden;
+                visibility: hidden;
+            }
+
+            table.responsive-view tr {
+                display: block;
+                border: 1px solid #ddd;
+                border-top: 2px solid #92be67;
+                background-color: #f8f8f8;
+                margin-bottom: .625em;
+                border-radius: 0 0 6px 6px;
+            }
+
+            table.responsive-view td {
+                display: block;
+                font-size: .8em;
+                text-align: right;
+            }
+
+            table.responsive-view td::before {
+                content: attr(data-label);
+                float: right;
+                font-weight: bold;
+                text-transform: uppercase;
+                width: 50px;
+            }
+
+            table.responsive-view td[data-hide] {
+                visibility: hidden;
+                position: absolute;
+                height: 0px;
+            }
+
+            table.responsive-view td:first-child {
+                border-top: 0px;
+            }
+            /* End of Responsive Table View */
+        }
+    </style>
+</head>
+<body>
+    <table class="table responsive-view">
+        <thead class="green">
+            <tr>
+                <th>מוצר</th>
+                <th>נושא</th>
+                <th>תוקף</th>                
+                <th>מחיר</th>               
+            </tr>
+        </thead>
+        <tbody>            
+            <tr>
+                <td data-label="מוצר">
+                    פרק אונליין
+                </td>
+                <td data-label="נושא">
+                    פרק 1
+                </td>
+                <td data-label="תוקף">
+                    25/01/2021
+                </td>                
+                <td data-label="מחיר">45 &#8362;</td>                
+            </tr>
+            <tr>
+                <td data-label="מוצר">
+                    פרק אונליין
+                </td>
+                <td data-label="נושא">
+                    פרק 2
+                </td>
+                <td data-label="תוקף">
+                    25/01/2021
+                </td>
+                <td data-label="מחיר">30 &#8362;</td>
+            </tr>
+            <tr>
+                <td data-label="מוצר">
+                    פרק אונליין
+                </td>
+                <td data-label="נושא">
+                    פרק 3
+                </td>
+                <td data-label="תוקף">
+                    24/01/2021
+                </td>
+                <td data-label="מחיר">52 &#8362;</td>
+            </tr>
+            
+            <tr>
+                <td data-hide colspan="3">&nbsp;</td>
+                <td data-label="סה''כ"><strong>127 &#8362;</strong></td>                
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

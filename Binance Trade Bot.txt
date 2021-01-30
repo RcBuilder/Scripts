@@ -1,0 +1,7 @@
+Binance Trade Bot
+-----------------
+reference:
+PROJECT 'BinanceTradeBot'
+
+also see 
+'BinanceConnector.cs'

@@ -217,17 +217,17 @@ Cron options
 ------------
 a commands scheduler.
 
-- Yearly(<month>?, <day>?, <hour>?, <minute>?)
-- Monthly(<day>?, <hour>?, <minute>?) 
-- MonthInterval(<interval>)
-- Weekly(<dayOfWeek>?, <hour>?, <minute>?)
-- Daily(<hour>, <minute>?)
-- DayInterval(<interval>)
-- Hourly(<minute>?)
-- HourInterval(<interval>)
-- Minutely()
-- MinuteInterval(<interval>)
-- Never()
+- Cron.Yearly(<month>?, <day>?, <hour>?, <minute>?)
+- Cron.Monthly(<day>?, <hour>?, <minute>?) 
+- Cron.MonthInterval(<interval>)
+- Cron.Weekly(<dayOfWeek>?, <hour>?, <minute>?)
+- Cron.Daily(<hour>, <minute>?)
+- Cron.DayInterval(<interval>)
+- Cron.Hourly(<minute>?)
+- Cron.HourInterval(<interval>)
+- Cron.Minutely()
+- Cron.MinuteInterval(<interval>)
+- Cron.Never()
 
 also see 'Cron Expression'
 
@@ -240,7 +240,13 @@ note:
 replace unset with *
 
 samples:
-"/15 * * * *"   // every 15 minutes
+"*/15 * * * *"  // every 15 minutes
+"*/1 * * * *"   // every 1 minute
+"* */1 * * *"   // every 1 hour
+
+important notice!
+"/15 * * * *"   // at 15 minutes past the hour
+"*/15 * * * *"  // every 15 minutes
 
 Authorization 
 -------------
@@ -285,7 +291,7 @@ namespace BLL.HangfireTasks
 
 	public class SomeTask : IHangfireTask
     {
-        public string CronExpressions { get; private set; } = "/15 * * * *";       
+        public string CronExpressions { get; private set; } = "*/15 * * * *";       
         public void Exexute() {
             Debug.WriteLine("In SomeTask");
         }
@@ -293,7 +299,7 @@ namespace BLL.HangfireTasks
 
 	public class OtherTask : IHangfireTask
     {
-        public string CronExpressions { get; private set; } = "/1 * * * *";       
+        public string CronExpressions { get; private set; } = "*/1 * * * *";       
         public void Exexute() {
             Debug.WriteLine("In OtherTask");
         }

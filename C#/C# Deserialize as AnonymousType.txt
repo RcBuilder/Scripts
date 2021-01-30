@@ -1,6 +1,7 @@
 C# Deserialize as AnonymousType
 -------------------------------
 
+// basic
 var ModelSchema = new { 
 	Id = 0,
 	Name = "" 
@@ -13,3 +14,58 @@ var requestPayload = @"{
 
 var result = JsonConvert.DeserializeAnonymousType(requestPayload, ModelSchema);
 Console.WriteLine(result.Name);
+
+--
+
+var schema = new
+{
+    orderId = 0,
+    clientOrderId = "",
+    transactTime = 0,
+    status = "",
+    type = "",
+    side = ""
+};
+
+var model = JsonConvert.DeserializeAnonymousType(response.Content, schema);
+Console.WriteLine(model.orderId);
+
+----
+
+// multiple schemas
+var CartItemSchema = new { 		
+	Name = "",
+	Price = 0.0F,
+	Units = 0
+};
+	
+var CartSchema = new { 
+	CartId = 0,
+	Items = new[]{ CartItemSchema }		
+};
+	
+var cartPayload = @"{ 
+	'CartId': 100,
+	'Items': [
+		{
+			'Name': 'Item-A',
+			'Price': 35.9,
+			'Units': 3
+		},
+		{
+			'Name': 'Item-B',
+			'Price': 210,
+			'Units': 1
+		},
+		{
+			'Name': 'Item-C',
+			'Price': 83,
+			'Units': 12
+		},
+	]
+}";
+	
+var cart = JsonConvert.DeserializeAnonymousType(cartPayload, CartSchema);
+Console.WriteLine(cart.CartId);
+foreach(var item in cart.Items)
+	Console.WriteLine($"{item.Name} -> Units: {item.Units}, Price:{item.Price}");

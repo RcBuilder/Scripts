@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Web;
-using System.Web.Mvc;
+//using System.Web.ModelBinding;
+using System.Web.Http.ModelBinding;
 
 namespace Helpers
 {
@@ -69,6 +71,32 @@ namespace Helpers
             {
                 return null;
             }
+        }
+
+        public static dynamic ModelStateToJson(ModelStateDictionary ModelState)
+        {
+            var errorList = (
+                from item in ModelState
+                where item.Value.Errors.Any()
+                select new
+                {
+                    key = item.Key,
+                    errors = item.Value.Errors.Select(e => e.ErrorMessage)
+                }
+            );
+
+            return errorList;
+        }
+
+        public static IEnumerable<(string Key, List<string> Errors)> ModelStateToList(ModelStateDictionary ModelState)
+        {
+            var errorList = (
+                from item in ModelState
+                where item.Value.Errors.Any()
+                select (item.Key, item.Value.Errors.Select(e => e.ErrorMessage).ToList())
+            );
+
+            return errorList;
         }
     }
 }

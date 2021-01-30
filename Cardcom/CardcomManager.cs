@@ -572,7 +572,7 @@ namespace WebsiteBLL
 
             prms["Account.Email"] = InvoiceDetails.Email;
 
-            prms["TimeIntervalId"] = TimeIntervalId.ToString();  // 1 = monthly, 2 = weekly, 3 = yearly (note! custom values defined in cardcom dashboard)
+            prms["RecurringPayments.TimeIntervalId"] = TimeIntervalId.ToString();  // 1 = monthly, 2 = weekly, 3 = yearly (note! custom values defined in cardcom dashboard)
             prms["RecurringPayments.FlexItem.Price"] = Items.Sum(x => x.Price * x.Quantity).ToString(); // Sum To Bill;            
             prms["RecurringPayments.TotalNumOfBills"] = NumOfPayments.ToString(); // number of payments, one per week/month/year (depends on the TimeIntervalId)
             prms["RecurringPayments.InternalDecription"] = ProductName;

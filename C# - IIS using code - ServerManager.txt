@@ -1,0 +1,63 @@
+C# - IIS using code - ServerManager
+-----------------------------------
+nuget:
+Install-Package Microsoft.Web.Administration -Version 11.1.0
+
+api:
+https://docs.microsoft.com/en-us/dotnet/api/microsoft.web.administration?redirectedfrom=MSDN&view=iis-dotnet
+
+--
+
+using Microsoft.Web.Administration;
+
+using (var serverManager = new ServerManager()) {
+    var appPoolName = "MyNewPool";
+    var pool = serverManager.ApplicationPools.FirstOrDefault(x => string.Equals(x.Name, appPoolName, StringComparison.OrdinalIgnoreCase));
+
+    // delete application-pool
+    if (pool != null) {
+        serverManager.ApplicationPools.Remove(pool);
+        serverManager.CommitChanges();
+        pool = null;
+    }
+
+    // create application-pool
+    if (pool == null) 
+    {
+        pool = serverManager.ApplicationPools.Add(appPoolName);
+        pool.ManagedRuntimeVersion = "v4.0";                    
+        serverManager.CommitChanges();
+        Thread.Sleep(2000);
+    }
+
+    if(pool.State == ObjectState.Stopped)
+        pool.Start();
+    serverManager.CommitChanges();
+
+    // ---- 
+
+
+    var siteName = "MyNewSite";
+    var site = serverManager.Sites.FirstOrDefault(x => string.Equals(x.Name, siteName, StringComparison.OrdinalIgnoreCase));
+
+    // delete website
+    if (site != null) {
+        serverManager.Sites.Remove(site);
+        serverManager.CommitChanges();
+        site = null;
+    }
+
+    // create website
+    if (site == null) {
+        site = serverManager.Sites.Add(siteName, @"%SystemDrive%\inetpub\wwwroot", 1010);
+        // bindingInformation = IP address:Port:Host Name
+        /// site.Bindings.Add("*:443:", "https");
+        site.ApplicationDefaults.ApplicationPoolName = pool.Name;
+        serverManager.CommitChanges();
+        Thread.Sleep(2000);
+    }
+                
+    if (site.State == ObjectState.Stopped)
+        site.Start();
+    serverManager.CommitChanges();
+}

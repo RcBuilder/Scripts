@@ -85,7 +85,8 @@ namespace DistributionServiceBLL
                 // https://www.twilio.com/docs/voice/answering-machine-detection
                 machineDetection: useMachineDetection ? "Enable" : null,                  
 
-                from: new Twilio.Types.PhoneNumber(sTwilioPhone),
+                // phone must include country prefix (e.g: +972)
+                from: new Twilio.Types.PhoneNumber(sTwilioPhone),  
                 to: new Twilio.Types.PhoneNumber(sToPhone)
 
                 /// status callback

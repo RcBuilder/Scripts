@@ -6,6 +6,11 @@ https://www.connectionstrings.com/pervasive/
 
 -
 
+reference:
+see 'ODBC'
+
+-
+
 obdc sample:
 
 var connetionString = "Driver={Pervasive ODBC Client Interface};ServerName=CREATIVE-TEST;dbq=NONAME1r2517db;";

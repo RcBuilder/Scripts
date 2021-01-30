@@ -1,0 +1,11 @@
+C# Change Encoding
+------------------
+
+public static string ChangeEncoding(string value) {
+    var sourceEncoding = Encoding.GetEncoding("windows-1255");
+    var targetEncoding = Encoding.GetEncoding(862);
+
+    byte[] valueBytes = sourceEncoding.GetBytes(value);
+    value = targetEncoding.GetString(valueBytes);
+    return value;
+}

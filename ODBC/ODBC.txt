@@ -54,7 +54,8 @@ samples:
 - see 'NodeJS/Sources/OdbcSample'	// NodeJS
 - see 'Interviews/CreativeTest'		// MVC.Net
 
-
+pervasive implementation:
+see PROJECT 'Creative'
 
 
 

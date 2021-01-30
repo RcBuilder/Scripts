@@ -1,0 +1,43 @@
+ModelState To List
+------------------
+also see 'ModelState To Json'
+
+[HttpPost]
+public ActionResult CheckModel(Models.SomeModel SomeModel)
+{            
+    if (ModelState.IsValid){
+	var errorList = ModelStateToList(ModelState)
+        ...
+	...
+    }
+
+    ...
+    ...
+}
+
+private static IEnumerable<(string Key, List<string> Errors)> ModelStateToList(ModelStateDictionary ModelState){
+    var errorList = (
+        from item in ModelState
+        where item.Value.Errors.Any()
+        select (item.Key, item.Value.Errors.Select(e => e.ErrorMessage).ToList())                
+    );
+
+    return errorList;
+}
+
+public class SomeModel
+{
+    [JsonProperty(PropertyName = "id")]
+    public int Id { get; set; }
+
+    [JsonProperty(PropertyName = "name")]
+    [Required(ErrorMessage = "Name is Required")]
+    [MinLength(10, ErrorMessage = "Name is too short")]
+    public string Name { get; set; }
+
+    [JsonProperty(PropertyName = "price")]
+    public float Price { get; set; }
+
+    [JsonProperty(PropertyName = "expiry")]
+    public DateTime Expiry { get; set; }
+}
