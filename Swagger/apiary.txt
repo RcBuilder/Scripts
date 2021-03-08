@@ -1,0 +1,65 @@
+** apiary **
+
+about
+-----
+API Documentation Tool
+
+site:
+https://apiary.io/
+
+supports swagger integration:
+dashboard > create > new api > choose swagger
+> editor (tab) > copy-paste swagger json content
+
+sample json
+-----------
+swagger: '2.0'
+info:
+  version: v1
+  title: Some Service
+host: 'services.com'
+schemes:
+  - http
+paths:  
+    post:
+      tags:
+        - testService1
+      operationId: Test_Service
+      consumes:
+        - application/json
+        - text/json
+        - application/xml
+        - text/xml
+        - application/x-www-form-urlencoded
+      produces:
+        - application/json
+        - text/json
+        - application/xml
+        - text/xml
+      parameters:
+        - name: model1
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SomeModel'
+        - name: Authorization
+          in: header
+          description: access token
+          required: false
+          type: string
+          default: 'Bearer '
+      responses:
+        '200':
+          description: OK
+          schema:
+            type: object  
+definitions:
+  SomeModel:
+    type: object
+    properties:
+      id:
+        format: int32
+        type: integer
+      name:
+        type: string      
+	description: 'name of the object'

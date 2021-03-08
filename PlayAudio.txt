@@ -1,0 +1,10 @@
+function PlayAudio(file, callback) {
+    var audio = new Audio(file);
+    audio.play();
+    /// audio.pause();
+    audio.onended = callback;
+}
+--
+PlayAudio(file, () => {
+    ...
+});

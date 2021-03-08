@@ -1,0 +1,34 @@
+Query2Dictionary & Form2Dictionary
+----------------------------------
+
+public static Dictionary<string, string> Query2Dictionary(HttpRequestBase Request)
+{
+    try
+    {
+        var query = Request.QueryString.ToString().Replace("?", string.Empty);
+
+        return query.Split('&')
+            .Select(x => new { key = x.Split('=')[0], value = x.Split('=')[1] })
+            .Distinct()
+            .ToDictionary(x => x.key, x => x.value);
+    }
+    catch
+    {
+        return null;
+    }
+}
+
+public static Dictionary<string, string> Form2Dictionary(HttpRequestBase Request)
+{
+    try
+    {
+        return Request.Form.AllKeys
+            .Select(x => new { key = x, value = Request.Form[x].ToString() })
+            .Distinct()
+            .ToDictionary(x => x.key, x => x.value);
+    }
+    catch
+    {
+        return null;
+    }
+}

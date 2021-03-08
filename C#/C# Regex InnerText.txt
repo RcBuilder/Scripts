@@ -1,4 +1,6 @@
 
+
+// return Regex.Replace(val, "<.*?>", string.Empty);
 public static string GetInnerText(string HTML)
 {
     string pattern_body = "<body [^>]*>(?<Content>.*)</body>";

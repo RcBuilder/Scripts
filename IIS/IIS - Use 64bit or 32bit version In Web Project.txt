@@ -1,0 +1,6 @@
+IIS - Use 64bit or 32bit version In Web Project
+-----------------------------------------------
+1. open visual studio
+2. Tools > Options > Projects and Solutions > Web Projects 
+3. check/ uncheck 'Use the 64 bit version of IIS Express'.
+

@@ -1,0 +1,94 @@
+function main() {    
+  /*
+      reference:
+      https://developers.google.com/youtube/v3/docs
+      
+      syntax:      
+      YouTube.<entity>.list(<fieldsToReturn>, <requestFilter>);
+      
+      samples:
+      YouTube.Videos.list('id,snippet', { id: 'cfp63Q7ql5s,nzT5YPAIGZA' });
+      YouTube.Search.list('id,snippet', { channelId: 'UCerYyxoFp9Ln-zgxvM7X_0w' });
+      YouTube.Channels.list('id,snippet', { id: 'UCerYyxoFp9Ln-zgxvM7X_0w' });
+      
+      schema sample:
+      {
+        kind, 
+        pageInfo { 
+          totalResults, 
+          resultsPerPage 
+        },
+        etag,
+        items: [
+          {
+            snippet {
+              defaultLanguage,
+              publishedAt,
+              defaultAudioLanguage,
+              description,
+              title,
+              thumbnails {
+                standard,
+                default,
+                high,
+                maxres,
+                medium
+              },
+              channelId,
+              categoryId,
+              channelTitle,
+              liveBroadcastContent
+            },
+            kind,
+            etag,
+            id
+          }
+        ]
+      }
+  */
+
+  
+  // get videos
+  // https://developers.google.com/youtube/v3/docs/videos/list
+  var result1 = YouTube.Videos.list('id,snippet', { id: 'cfp63Q7ql5s,nzT5YPAIGZA' });
+  Logger.log(result1.pageInfo.totalResults);
+  for(i in result1.items)
+    Logger.log(result1.items[i].snippet.title);
+    
+  // search 
+  // https://developers.google.com/youtube/v3/docs/search/list
+  
+  var filterByList = {
+    playlistId: 'RDBJXgdneKJTY',
+    maxResults: 10
+  }
+  
+  // https://gist.github.com/stpe/2951130dfc8f1d0d1a2ad736bef3b703
+  var filterByTopic = {
+    topicId: '/m/07yv9', 
+    maxResults: 10
+  }
+  
+  var filterByKW = {
+    q: 'funny cats', 
+    maxResults: 10
+  }
+  
+  var filterByChannel = {
+    channelId: 'UCerYyxoFp9Ln-zgxvM7X_0w', 
+    maxResults: 10
+  }
+  
+  var result2 = YouTube.Search.list('id,snippet', filterByChannel);  
+  Logger.log(result2.pageInfo.totalResults);
+  for(i in result2.items)
+    Logger.log(result2.items[i].snippet.title);
+  
+  // get channels
+  // https://developers.google.com/youtube/v3/docs/channels/list
+  // https://developers.google.com/youtube/v3/docs/channels#resource
+  var result3 = YouTube.Channels.list('id,snippet', { id: 'UCerYyxoFp9Ln-zgxvM7X_0w' });
+  Logger.log(result3.pageInfo.totalResults);
+  for(i in result3.items)
+    Logger.log(result3.items[i].snippet.title);
+}

@@ -560,3 +560,41 @@ public async Task<int> Save(User User, SqlConnection Conn) {
                 param: User
             );
 }
+
+----
+
+// load from multiple results
+public async Task<Restaurant> Get(int Id)
+{
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        var reader = await conn.QueryMultipleAsync(
+            "sp_Restaurant_Get",
+            commandType: CommandType.StoredProcedure,
+            param: new { Id }
+        );
+
+        return DALHelper.LoadRestaurant(reader);
+    }
+}
+
+public class DALHelper
+{    
+    public static Restaurant LoadRestaurant(SqlMapper.GridReader reader)           
+    {        
+        //-- 1st table: details --                
+        var details = reader.Read<RestaurantDetails>().FirstOrDefault();
+        
+        //-- 2nd table: gallery --
+        var gallery = reader.Read<RestaurantGallery>();
+
+        //-- 3rd table: menu --
+        var menu = reader.Read<RestaurantMenu>();
+
+		...
+		...
+		...
+
+        return new Restaurant(details, gallery, menu);
+    }
+}

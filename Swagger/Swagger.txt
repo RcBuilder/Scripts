@@ -15,6 +15,8 @@ creates the RESTful contract for your API, detailing all of its resources and op
 http://swagger.io/
 http://swagger.io/specification/
 http://swagger.io/swagger-ui/
+https://docs.microsoft.com/en-us/aspnet/core/tutorials/getting-started-with-swashbuckle
+https://github.com/domaindrivendev/Swashbuckle.AspNetCore#include-descriptions-from-xml-comments
 
 demo:
 http://petstore.swagger.io/

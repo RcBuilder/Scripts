@@ -1,0 +1,3 @@
+Visual Studio 32bit or 64bit version
+------------------------------------
+see 'IIS - Use 64bit or 32bit version In Web Project'

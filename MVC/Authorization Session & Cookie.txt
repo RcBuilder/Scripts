@@ -1,0 +1,144 @@
+Authorization Session & Cookie
+------------------------------
+
+public class MyAuthorization : AuthorizeAttribute
+{        
+    public override void OnAuthorization(AuthorizationContext filterContext)
+    {                        
+        var context = HttpContext.Current;
+        var accountSession = SessionsManager.GetAccount(context);
+
+        // no session - try to load cookie
+        if (accountSession == null)
+        {
+            var accountCookie = CookiesManager.GetAccount(context);
+            if (accountCookie != null) {
+                // update session
+                SessionsManager.SetAccount(context, accountCookie);
+                accountSession = accountCookie; 
+            }
+        }
+
+        if (accountSession != null)
+        {
+            GenericIdentity identity = null;
+            var roles = new List<string>();
+
+            switch (accountSession.AccountType) {
+                case Entities.eAccountType.Subscription:
+                    identity = new GenericIdentity(accountSession.AccountId.ToString(), "Subscription");
+                    roles.Add("Subscription");
+                    break;
+                case Entities.eAccountType.Affiliate:
+                    identity = new GenericIdentity(accountSession.AccountId.ToString(), "Affiliate");
+                    roles.Add("Affiliate");
+                    break;
+            }
+                
+            if (roles.Count > 0)
+                context.User = new GenericPrincipal(identity, roles.ToArray());
+        }
+            
+        base.OnAuthorization(filterContext);
+    }
+}
+
+--
+
+public class CookiesManager
+{
+    public const string KEY_ACCOUNT = "Account";
+
+    public static void SetAccount(HttpContext Context, Entities.LoggedInAccount Account) {
+        Context.Response.Cookies.Add(new HttpCookie(KEY_ACCOUNT, JsonConvert.SerializeObject(Account))
+        {
+            Expires = DateTime.Now.AddDays(60),
+            Secure = true,
+        });
+    }
+
+    public static void ClearAccount(HttpContext Context)
+    {
+        var cookie = Context.Request.Cookies[KEY_ACCOUNT];
+        if (cookie == null) return;
+        cookie.Value = null;
+        cookie.Expires = DateTime.Now.AddDays(-1);
+        Context.Response.Cookies.Add(cookie);
+    }
+
+    public static Entities.LoggedInAccount GetAccount(HttpContext Context)
+    {
+        var cookie = Context.Request.Cookies[KEY_ACCOUNT];
+        if (cookie == null) return null;
+        return JsonConvert.DeserializeObject<Entities.LoggedInAccount>(cookie.Value);
+    }
+}
+
+--
+
+public class SessionsManager
+{
+    public const string KEY_ACCOUNT = "Account";
+
+    public static void SetAccount(HttpContext Context, Entities.LoggedInAccount Account) {
+        Context.Session[KEY_ACCOUNT] = Account;            
+    }
+
+    public static Entities.LoggedInAccount GetAccount(HttpContext Context)
+    {
+        try
+        {
+            // get from session
+            var accountSession = Context.Session[KEY_ACCOUNT];
+            if (accountSession != null) return (Entities.LoggedInAccount)accountSession;
+
+            return null;
+        }
+        catch { return null; }
+    }
+    
+    public static void ClearAccount(HttpContext Context)
+    {
+        Context.Session[KEY_ACCOUNT] = "";
+        Context.Session.Remove(KEY_ACCOUNT);           
+    }
+}
+
+--
+
+// SubscriptionController
+[AllowAnonymous]
+
+public ActionResult LogOut() {
+    var context = System.Web.HttpContext.Current;
+    SessionsManager.ClearAccount(context);
+    CookiesManager.ClearAccount(context);
+
+    return RedirectToAction("Index");
+}
+
+[AllowAnonymous]
+[HttpPost]
+public async Task<ActionResult> LogIn(Models.LoginData Data)
+{
+    if (!ModelState.IsValid)
+        return View();
+
+    try
+    {
+        var subscription = await new SubscriptionsBLL().Login(Data.Email, Data.Password);
+        if (subscription == null)
+            throw new Exception("שם משתמש או סיסמה לא נכונים");
+
+        var context = System.Web.HttpContext.Current;
+        var account = new Entities.LoggedInAccount(Entities.eAccountType.Subscription, subscription.Details.Id);
+        SessionsManager.SetAccount(context, account);
+        CookiesManager.SetAccount(context, account);
+
+        return RedirectToAction("Index");
+    }
+    catch(Exception ex) {
+        ModelState.AddModelError("Exception", ex.Message);
+        return View();
+    }
+}

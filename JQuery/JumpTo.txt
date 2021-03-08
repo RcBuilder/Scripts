@@ -1,0 +1,5 @@
+function JumpTo(anchorName) {
+    //document.location = '#' + anchorName;
+    var top = $('a[name="' + anchorName + '"]').offset().top;
+    $("html:not(:animated), body:not(:animated)").animate({ scrollTop: top }, 1100, null);
+}

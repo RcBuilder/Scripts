@@ -1,0 +1,11 @@
+Math Round Sample
+-----------------
+calculate each item's relative price when using a coupon with 3 items combination.
+
+double p1 = 100, p2 = 80, p3 = 60;
+var CouponValue = 120;
+var totalBeforeDiscount = new List<double> { p1, p2, p3 }.Sum(); // 240
+p1 = Math.Round((p1 / totalBeforeDiscount) * CouponValue, 0); // 50
+p2 = Math.Round((p2 / totalBeforeDiscount) * CouponValue, 0); // 40
+p3 = CouponValue - p1 - p2;  // 30
+Console.WriteLine($"{p1} + {p2} + {p3} = {CouponValue}");  // 50 + 40 + 30 = 120

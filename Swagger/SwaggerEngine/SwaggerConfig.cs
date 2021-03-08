@@ -252,7 +252,13 @@ namespace SwaggerEngine
         {
             Action<SwaggerDocsConfig> swaggerDocsConfigAction = c => {
                 c.SingleApiVersion(Metadata.Version, Metadata.Title);
-                c.OperationFilter<AuthorizationHeaderParameterOperationFilter>();                
+                c.OperationFilter<AuthorizationHeaderParameterOperationFilter>();
+
+                /* 
+                    enable comments (Properties > Build > Output)
+                    see 'Swagger extra documentation using XML Comments'
+                */
+                //c.IncludeXmlComments($@"{AppDomain.CurrentDomain.BaseDirectory}\bin\ServiceComments.xml"); 
             };
 
             Action<SwaggerUiConfig> swaggerUiConfigAction = c => {     

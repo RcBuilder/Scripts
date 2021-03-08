@@ -12,6 +12,7 @@ namespace MHCommon
 {
     public class Helper
     {
+        #region GetFileContentFromWeb:
         public static string GetFileContentFromWeb(string httpFilePath)
         {
             using (var client = new System.Net.WebClient())
@@ -21,7 +22,9 @@ namespace MHCommon
                 return response;
             }
         }
+        #endregion 
 
+        #region ConvertToEnum:
         public static T ConvertToEnum<T>(string value) where T : struct
         {
             try
@@ -34,6 +37,7 @@ namespace MHCommon
                 return default(T);
             }
         }
+        #endregion
 
         // MVC Model To Json State
         #region ModelStateToJson:
@@ -118,6 +122,17 @@ namespace MHCommon
         }
         #endregion 
 
+        #region FixPhoneNumber:
+        // fix phone numer if necessary (+972 instead of prefix 0)
+        public static string FixPhoneNumber(string phone)
+        {
+            if (phone.StartsWith("0"))
+                return $"+972{phone.Remove(0, 1)}";
+            return phone;
+        }
+        #endregion 
+
+        // -- also see 'HttpServiceHelper'
         #region POST:
         public static string POST(string url, string vars, CookieContainer COOKIES)
         {

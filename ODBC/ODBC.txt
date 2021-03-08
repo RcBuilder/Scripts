@@ -17,6 +17,13 @@ To manage a data source that connects to a 64-bit driver, use c:\windows\system3
 
 -
 
+Visual Studio:
+to work with 32bit ODBC drivers in VS, we need to set the local IIS server as 32bit
+Tools > Options > Projects and Solutions > Web Projects > 'Use the 64 bit version of IIS Express'.
+see 'IIS - Use 64bit or 32bit version In Web Project'
+
+-
+
 Supported Databases:
 https://web.synametrics.com/odbcdrivervendors.htm
 - Access

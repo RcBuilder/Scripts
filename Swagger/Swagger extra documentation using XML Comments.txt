@@ -25,3 +25,20 @@ c.IncludeXmlComments($@"{AppDomain.CurrentDomain.BaseDirectory}\bin\ServiceComme
 public HttpResponseMessage Index() {
      return Request.CreateResponse("PONG");
 }
+
+/// <summary>
+/// some test service 
+/// </summary>
+/// <remarks>
+/// sample:
+/// POST /test
+/// {
+///     "id": 100,
+///     "name": "Some Item",
+///  }   
+/// </remarks>
+[HttpPost]
+[Route("test")]
+public HttpResponseMessage Test(TestModel model) {
+     return Request.CreateResponse("OK");
+}

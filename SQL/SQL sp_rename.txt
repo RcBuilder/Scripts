@@ -12,3 +12,10 @@ EXEC sp_rename '<schemaName>.<tableName>.<columnName>', '<newName>'
 
 rename constraint name:
 EXEC sp_rename '<schemaName>.<constraintName>', '<newName>'
+
+
+-
+
+samples:
+SP_RENAME 'Coupons.ItemId', 'ItemId1'
+SP_RENAME 'Coupons.ItemType', 'ItemType1'

@@ -1,0 +1,7 @@
+JS Copy To Clipboard
+--------------------
+
+document.execCommand('Copy');
+
+// only for IE
+//window.clipboardData.setData('Text', code);

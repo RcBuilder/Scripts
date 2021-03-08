@@ -279,7 +279,7 @@ namespace WebsiteBLL
             
             // billing coin: 1 - NIS, 2 - USD...
             // list: http://kb.cardcom.co.il/article/AA-00247/0
-            prms["CoinID"] = Currency.ToString(); 
+            prms["CoinID"] = Currency.ToString();
 
             prms["Language"] = LANGUAGE_CODE; // he, en, ru, ar
             prms["SumToBill"] = Items.Sum(x => x.Price * x.Quantity).ToString(); // Sum To Bill 
@@ -529,9 +529,9 @@ namespace WebsiteBLL
 
                 client.Encoding = Encoding.UTF8;
                 var response = client.UploadString(TOKEN_CHARGE_ENDPOINT, string.Join("&", prms.Select(x => $"{x.Key}={x.Value}")));
-                var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
                 var responseText = HttpUtility.UrlDecode(response);
-                
+                var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
+
                 var StatusCode = Convert.ToInt32(responseParsed["ResponseCode"]);
                 if (StatusCode != 0)
                     LoggerSingleton.Instance.Info("Cardcom", $"ChargeWithToken #{Token} Failed With Code {StatusCode}", new List<string> { responseText });

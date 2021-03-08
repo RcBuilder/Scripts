@@ -1647,20 +1647,23 @@ see 'Authorization.txt'
    - example:
     // in the below example we use global filter + a custom filter
 
+    // global.asax
+    FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
+
     [MyActionFilterAttribute]
     public ActionResult Index() {            
         return View();
     }
 
-	public class FilterConfig {
+    public class FilterConfig {
         public static void RegisterGlobalFilters(GlobalFilterCollection filters) {
 			// register 'MyGlobalActionFilter' filter for all actions 
             filters.Add(new MyGlobalActionFilterAttribute());
         }
     }
 
-	// filters
-	public class MyGlobalActionFilterAttribute : FilterAttribute, IActionFilter {
+	// filters 
+    public class MyGlobalActionFilterAttribute : FilterAttribute, IActionFilter {
         public void OnActionExecuted(ActionExecutedContext filterContext) {
             filterContext.HttpContext.Response.Write("<div>GlobalActionFilter - OnActionExecuted</div>");
         }

@@ -1,0 +1,10 @@
+JQuery background-image animate
+-------------------------------
+function ChangeMainImage(index) {
+    ///$('#page-title').css('background-image', "url('/images/home-main-{0}.jpg')".replace("{0}", index));
+
+    $("#page-title").stop().animate({ opacity: 0 }, 500, function () {
+        $(this).css({ 'background-image': "url('/images/home-main-{0}.jpg')".replace("{0}", index) })
+            .animate({ opacity: 1 }, { duration: 500 });
+    });
+} 

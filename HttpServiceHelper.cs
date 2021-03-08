@@ -30,12 +30,14 @@ namespace Helpers
                 return (true, client.DownloadString(url));
             }
             catch (WebException ex)
-            {
-                var stream = ex.Response.GetResponseStream();
+            {                
+                var stream = ex?.Response?.GetResponseStream();
+                if(stream == null) return (false, $"{ex.Message}");
+
                 using (var reader = new StreamReader(stream))
                     return (false, $"{ex.Message} {reader.ReadToEnd()}");
             }
-            catch (Exception ex) {
+            catch (Exception ex) {                
                 return (false, ex.Message);
             }
         }
@@ -45,8 +47,9 @@ namespace Helpers
             try
             {
                 client.Headers.Clear();
-                foreach (var header in headers)
-                    client.Headers.Add(header.Key, header.Value);
+                if (headers != null)
+                    foreach (var header in headers)
+                        client.Headers.Add(header.Key, header.Value);
 
                 if (!string.IsNullOrEmpty(querystring))
                     url = string.Concat(url, "?", querystring);
@@ -55,8 +58,10 @@ namespace Helpers
                 return (true, content, JsonConvert.DeserializeObject<T>(content));
             }
             catch (WebException ex)
-            {
-                var stream = ex.Response.GetResponseStream();
+            {                
+                var stream = ex?.Response?.GetResponseStream();
+                if (stream == null) return (false, $"{ex.Message}", default(T));
+
                 using (var reader = new StreamReader(stream))
                     return (false, $"{ex.Message} {reader.ReadToEnd()}", default(T));
             }

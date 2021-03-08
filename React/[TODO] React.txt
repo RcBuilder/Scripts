@@ -1850,6 +1850,7 @@ Mounting lifecycle:
 - getDerivedStateFromProps	// pre-render. signature: static getDerivedStateFromProps(props, state);  
 - render					// render 
 - componentDidMount			// post-render
+  note: componentWillMount is the same as componentDidMount but is called twice (instead of once) - once in the server and once in the client (instead of only in the client)
 
 Updating lifecycle:
 - getDerivedStateFromProps	// pre-render. signature: static getDerivedStateFromProps(props, state);  

@@ -1,37 +1,53 @@
 HttpResponseMessage basics 
 --------------------------
 public class DefaultController : ApiController
+{
+    [HttpGet]
+    [Route("account")]
+    public HttpResponseMessage Index()
     {
-        [HttpGet]
-        [Route("account")]
-        public HttpResponseMessage Index()
-        {
-            return Request.CreateResponse("AccountsService");
-        }
-
-        [HttpPost]
-        [Route("account")]
-        public HttpResponseMessage CreateAccount([FromBody]Account account)
-        {
-            var userId = new Random().Next(10000);            
-            File.WriteAllText($"D:\\payload-{userId}.txt", JsonConvert.SerializeObject(account));
-
-            var response = Request.CreateResponse(HttpStatusCode.Created, userId);            
-            response.Headers.Add("Created", userId.ToString());
-            return response;            
-        }
-
-        [HttpGet]
-        [Route("test1")]
-        public HttpResponseMessage Test1()
-        {
-            return Request.CreateResponse(HttpStatusCode.OK, "Test1");
-        }
-
-        [HttpGet]
-        [Route("test2")]
-        public HttpResponseMessage Test2()
-        {
-            return Request.CreateResponse(HttpStatusCode.OK, "Test2");
-        }
+        return Request.CreateResponse("AccountsService");
     }
+
+    [HttpPost]
+    [Route("account")]
+    public HttpResponseMessage CreateAccount([FromBody]Account account)
+    {
+        var userId = new Random().Next(10000);            
+        File.WriteAllText($"D:\\payload-{userId}.txt", JsonConvert.SerializeObject(account));
+
+        var response = Request.CreateResponse(HttpStatusCode.Created, userId);            
+        response.Headers.Add("Created", userId.ToString());
+        return response;            
+    }
+
+    [HttpGet]
+    [Route("test1")]
+    public HttpResponseMessage Test1()
+    {
+        return Request.CreateResponse(HttpStatusCode.OK, "Test1");
+    }
+
+    [HttpGet]
+    [Route("test2")]
+    public HttpResponseMessage Test2()
+    {
+        return Request.CreateResponse(HttpStatusCode.OK, "Test2");
+    }
+}
+
+---
+
+[HttpPost]
+public HttpResponseMessage SomeService(Entities.SomeServiceRequest request)
+{
+    try
+    {
+        ...
+		...
+        return Request.CreateResponse(HttpStatusCode.OK, "Some Data");   // Generic <T>             
+    }
+    catch (Exception ex) {
+        return Request.CreateResponse(HttpStatusCode.InternalServerError, $"Error: {ex.Message}");           
+    }
+}
