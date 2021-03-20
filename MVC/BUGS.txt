@@ -30,4 +30,32 @@ in addition, in the VIEWS folder - update the razor version !!!
 
 ---------------------
 
+- issue -
+mvc partial view with null model type exception
+using Html.Partial with null model passes the wrong type (the current view model type)
 
+- exception -
+The model item passed into the dictionary is of type 'xxxx', but this dictionary requires a model item of type 'yyyy'.
+
+// e.g: exception
+// The model item passed into the dictionary is of type 'Entities.Restaurant', but this dictionary requires a model item of type 'Entities.WorkingHours'.
+@Html.Partial("Partial/WorkingHours", Model.WorkingHours)  
+
+- fix -
+wrap the model with new ViewDataDictionary(<Model>)
+
+- e.g -
+// Restaurant.cshtml
+@model Entities.Restaurant
+@Html.Partial("Partial/WorkingHours", new ViewDataDictionary(Model.WorkingHours))
+
+// WorkingHours.cshtml
+@model Entities.WorkingHours
+@if (Model == null) {
+    <p>No Working Hours</p>
+}
+else {
+    <p>...</p>
+} 
+
+---------------------

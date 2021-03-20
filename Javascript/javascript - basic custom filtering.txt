@@ -1,0 +1,37 @@
+javascript - basic custom filtering
+-----------------------------------
+
+<div class="food-card" data-category-id="1"></div>
+<div class="food-card" data-category-id="1"></div>
+<div class="food-card" data-category-id="2"></div>
+<div class="food-card" data-category-id="2"></div>
+<div class="food-card" data-category-id="3"></div>
+<div class="food-card" data-category-id="3"></div>
+<div class="food-card" data-category-id="4"></div>
+<div class="food-card" data-category-id="4"></div>
+<div class="food-card" data-category-id="4"></div>
+
+--
+
+<div class="buttons-section">
+	<button class="buttons-section__item" data-id="0">הכל</button>
+	<button class="buttons-section__item" data-id="1">ראשונות</button>
+	<button class="buttons-section__item" data-id="2">עיקריות</button>
+	<button class="buttons-section__item" data-id="3">קינוחים</button>
+	<button class="buttons-section__item" data-id="4">תוספות</button>
+</div>
+--
+
+$('.buttons-section > button').on('click', function (e) {
+        var id = $(e.currentTarget).attr('data-id');     
+
+        if (id > 0) {
+            // filter by id
+            $('.food-card').not('[data-category-id="{0}"]'.replace('{0}', id)).hide();
+            $('.food-card').filter('[data-category-id="{0}"]'.replace('{0}', id)).show();
+        }
+        else {
+            // show all
+            $('.food-card[data-category-id]').show();
+        }
+    });

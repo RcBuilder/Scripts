@@ -1,9 +1,12 @@
-Razor Global Helper
--------------------
+MVC Razor Global Helper
+-----------------------
+add > new item > Helper (Razor vX)
 
-note!
-Must locate within the 'App_Code' asp Folder
+notes:
+* Must locate within the 'App_Code' asp Folder
+* cshtml file
 
+// App_Code/MyHelper.cshtml
 @using System.Web.Mvc
 @using System.Web.Mvc.Html
 
@@ -18,12 +21,5 @@ Must locate within the 'App_Code' asp Folder
 -------------------
 
 using:
-@{
-    ViewBag.Title = "Index";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
-
-<h2>Index</h2>
-
 @MyHelper.Fun1()
 @MyHelper.Fun2(this)

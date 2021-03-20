@@ -1,0 +1,10 @@
+IIS - ASP Support 
+-----------------
+1. Server Manager > Manage > Add Roles and Features
+2. Application Development > check 'ASP' and 'ISAPI Extensions' options
+3. Install
+4. Open IIS > Handler Mapping 
+5. Add
+   - Request Path: *.asp
+   - Executable: C:\Windows\system32\inetsrv\asp.dll
+   - Name: Classic ASP 

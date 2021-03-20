@@ -66,7 +66,9 @@ Custom Authorize Attribute
 --------------------------
 see 'Authorization.txt'
 
-
+FromURI
+-------
+see 'MVC FromURI binding'
 
 --------------------------------------------------------------
 // TODO Document 
@@ -346,6 +348,17 @@ see 'Authorization.txt'
   ...
   ...
 
+* using @Html.Partial with null model or viewbag-based model
+
+  syntax: 
+  @Html.Partial(<path>, new ViewDataDictionary(<model>))
+
+  sample:
+  // controller 
+  ViewBag.FoodCategories = await new BLL.CategoriesBLL().GetByType(Entities.eCategoryType.MENU);
+
+  // view
+  @Html.Partial("Partial/FoodCategories", new ViewDataDictionary(ViewBag.FoodCategories))
 
 
 * TextBoxFor with css class attribute
@@ -860,6 +873,10 @@ see 'Authorization.txt'
         return View();
   }
 
+* Export & Import ModelState
+  to pass the modelState object between actions.
+  see 'ExportModelStateAttribute' and 'ImportModelStateAttribute'
+
 * ActionFilter Attributes
   * in order to add a custom attribute which perform some logic, you have to use action filters! 
   * types of FilterAttribute (see 'Filter Attributes')  
@@ -913,7 +930,7 @@ see 'Authorization.txt'
     [ExportModelStateAttribute]
     public ActionResult AAA()
     {
-		ModelState.AddModelError("myError", "some error from mvc action AAA");
+	ModelState.AddModelError("myError", "some error from mvc action AAA");
         return RedirectToAction("BBB");
     }
 

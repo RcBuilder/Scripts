@@ -376,3 +376,27 @@ you have NO limitation on the number of scripts to use so you can add as many as
 8. ברשימת הסקריפטים, יש למצוא את הסקריפט וללחוץ על options ואז Run (הרצה ראשונה)
 9. יש לתת הרשאות מתאימות (יקפוץ חלון בעת נסיון ההרצה הראשון) 
 10.לאחר מכן יש לתזמן את הסקריפט כרצונך (לחיצה על frequency בתפריט הסקריפטים) 
+
+
+------------------
+
+
+hi buddy, hope you are well
+
+here's a short video explaining how it works and how to implement scripts:
+https://www.fiverr.com/adwordsscripts/write-a-script-to-track-your-adwords-account
+
+to recap,
+adwords scripts are automation scripts to ease the maintenance of your account by doing most of the manual-recurring actions automatically so you gets a better and more accurate results and in addition, saving lots of manpower.
+almost anything you can do manually - I can convert to an automatic process.
+we can send mails, reports, set bids, create ads, work with drive spreadsheets, call to external services, create negative entities, excluded placements, dynamic adgroups and more and more...
+
+few examples for simple but very-effective scripts are:
+- set non-converting queries as negative keywords
+- pause ads with broken final-url
+- converting converting search-terms into actual keywords
+- get daily report to your mail
+...
+...
+
+hope it helps

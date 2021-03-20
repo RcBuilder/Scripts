@@ -1,0 +1,53 @@
+Cancel Event in Console Application
+-----------------------------------
+use this technique to cancel and close the app with an event. 
+use the CTRL + BREAK or CTRL + C hotkeys to trigger the CANCEL event which then triggers the EXIT event!
+
+note!
+we can also use HotKeys to trigger events based on keys combination: 
+see 'Global HotKeys in Console Application'
+
+--
+
+class Program
+{
+    static async Task Main(string[] args)
+    {        
+        ITradeBot tradeBot = new DummyBot();
+
+        AppDomain.CurrentDomain.ProcessExit += (s, e) => {
+            Console.WriteLine("EXIT EVENT WAS TRIGGERED!");
+            (tradeBot as IDisposable)?.Dispose();               
+        };
+            
+        Console.CancelKeyPress += (s, e) => {
+            Console.WriteLine("CANCEL EVENT WAS TRIGGERED!");
+            Environment.Exit(0);  // close app + trigger the ProcessExit event
+        };
+
+        try
+        {
+			...
+			...
+            await tradeBot.Run();
+			...
+			...
+        }
+        catch (Exception ex) {
+            Console.WriteLine($"UNHANDLED EXCEPTION {ex.Message}");
+        }
+        finally
+        {
+            Console.WriteLine("Press any key to exit");
+            Console.ReadKey();
+        }
+    }
+}
+
+public class DummyBot : ITradeBot, IDisposable {
+	public void Dispose() {
+        Console.WriteLine($"DISPOSING {this.GetType().Name}");
+    }
+
+	public async Task<bool> Run() { ... }
+}

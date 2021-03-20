@@ -1,0 +1,23 @@
+Global HotKeys in Console Application
+-------------------------------------
+
+Reference:
+see 'HotKeyManager.cs'
+
+--
+
+Using:
+HotKeyManager.RegisterHotKey(Keys.A, KeyModifiers.Alt);
+HotKeyManager.HotKeyPressed += (s, e) => {
+    Console.WriteLine("HOTKEYS A + ALT WAS TRIGGERED!");
+    /// Environment.Exit(0); // close the process
+};
+
+var i = 0;
+while (i < 100) {
+    Console.Write(".");
+    Thread.Sleep(1000);
+    i++;
+}
+
+Console.ReadKey();

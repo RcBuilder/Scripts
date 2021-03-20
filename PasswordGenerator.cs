@@ -29,7 +29,7 @@ namespace Common
         public PasswordGenerator(int Length, string Policy)
         {
             this.Length = Length;
-            this.Policy = Policy; //empty = no policy inforcement
+            this.Policy = Policy; //empty = no policy enforcement
             this.rnd = new Random();
         }
         

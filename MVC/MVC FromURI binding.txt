@@ -1,0 +1,21 @@
+MVC FromURI binding 
+-------------------
+MVC auto-bind query parameters into model. 
+it doesn't use the Newtonsoft dll so we can't use some of it's serialize features (JsonProperty etc.)
+
+-
+
+[HttpGet]
+public async Task<ActionResult> Search(RestaurantSearchParameters SearchParameters)        
+{
+    ...
+	...
+}
+
+public class RestaurantSearchParameters
+{                
+    public string cIds { get; set; }  // categories
+    public string sIds { get; set; }  // sensitivities
+    public string text { get; set; }  // free-text
+    public bool isKosher { get; set; }
+}

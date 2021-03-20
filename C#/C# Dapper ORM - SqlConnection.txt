@@ -545,7 +545,7 @@ public class DALHelper
 }
 
 
-----
+-------
 
 // Connection overload 
 public async Task<int> Save(User User) {
@@ -561,7 +561,7 @@ public async Task<int> Save(User User, SqlConnection Conn) {
             );
 }
 
-----
+-------
 
 // load from multiple results
 public async Task<Restaurant> Get(int Id)
@@ -598,3 +598,99 @@ public class DALHelper
         return new Restaurant(details, gallery, menu);
     }
 }
+
+-------
+
+public async Task<Restaurant> Get(int Id) {
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        var reader = await conn.QueryMultipleAsync(
+            "sp_Restaurant_get",
+            commandType: CommandType.StoredProcedure,
+            param: new { Id }
+        );
+
+        return await DALHelper.LoadRestaurant(reader);
+    }
+}
+
+public static async Task<Restaurant> LoadRestaurant(SqlMapper.GridReader reader)          
+{            
+    var restaurant = new Restaurant();
+
+    //-- 1st table: details --                
+    restaurant.Details = (await reader.ReadAsync<RestaurantDetails>()).FirstOrDefault();
+
+    //-- 2nd table: gallery --
+    restaurant.Gallery = new RestaurantGallery(await reader.ReadAsync<GalleryItem>());
+
+    //-- 3th table: address --
+    restaurant.Address = (await reader.ReadAsync<Address>()).FirstOrDefault();
+
+    //-- 4rd table: categories --
+    restaurant.Categories = new RestaurantCategories(await reader.ReadAsync<Category>());
+
+    //-- 5th table: working hours --
+    restaurant.WorkingHours = (await reader.ReadAsync<WorkingHours>()).FirstOrDefault();
+
+    //-- 6th table: menu --
+    var menuItems = await reader.ReadAsync<MenuItem>();
+    restaurant.Menu = new RestaurantMenu(menuItems);
+
+    //-- 7th table: deals + deals-items map --
+    var dealsData = await reader.ReadAsync<DealDetailsWithItemsMap>();                       
+    foreach (var dealData in dealsData)
+    {
+		//  sItems = string to represent item ids separated by comma
+        var dealItemsMap = dealData.sItems.Split(',').Select(x => Convert.ToInt32(x));
+        var dealItems = menuItems.Join(dealItemsMap, m => m.Id, i => i, (m, i) => m);
+        restaurant.Deals.ToList().Add(new Deal(dealData, dealItems));
+    }            
+
+    return restaurant;
+}
+
+-------
+
+public async Task<Deal> Get(int Id)
+{
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        var reader = await conn.QueryMultipleAsync(
+            "sp_Deal_Get",
+            commandType: CommandType.StoredProcedure,
+            param: new { Id }
+        );
+
+        return await DALHelper.LoadDeal(reader, new MenuDAL(ConnStr));
+    }
+}
+
+public static async Task<Deal> LoadDeal(SqlMapper.GridReader reader, IMenuDAL menuDAL) 
+{   
+    //-- 1st table: deals + deals-items map --
+    var dealData = (await reader.ReadAsync<DealDetailsWithItemsMap>()).FirstOrDefault();
+
+    //-- 2nd table: menu items --             
+    var dealItems = await menuDAL.GetByIds(dealData.sItems);
+
+    return new Deal(dealData, dealItems);
+}
+
+
+// sp_Deal_Get
+SELECT	*,
+		ISNULL(STUFF((SELECT ',' + CAST(MenuItemId AS VARCHAR(5)) FROM [dbo].[DealItems] WHERE DealId = Id FOR XML PATH('')), 1, 1, ''), '') AS 'sItems'
+FROM	[dbo].[Deals] WITH(NOLOCK)
+WHERE	Id = @Id
+
+
+// sp_MenuItems_ByIds_get
+@sIds VARCHAR(300) -- ids comma separated (',')
+
+SELECT * 
+FROM	[dbo].[MenuItems] WITH(NOLOCK)
+WHERE	Id IN (SELECT [value] FROM STRING_SPLIT(@sIds, ','))
+AND		IsDeleted = 0
+
+-------

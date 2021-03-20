@@ -9,7 +9,7 @@ void Main()
 	var mp4FilePath = @"E:\Scripts\FFmpeg Wrapper\Resources\adv.mp4"; 	             
 	var duration = GetMp4VideoDuration(mp4FilePath);
 	Console.WriteLine($"duration: {duration}");
-		
+	
 	var snapshot1 = TakeSnapshotFromMp4Video(mp4FilePath, 6);
 	Console.WriteLine($"snapshot1: {snapshot1.Size}");
 		
@@ -77,8 +77,7 @@ string SliceMp4Video(string mp4FilePath, int startSecond, int seconds) {
         p.StartInfo.RedirectStandardOutput = true;
         p.StartInfo.FileName = ffmpegExePath;
         // slice the {mp4FilePath} video, get {seconds} frames (-t) starting the {startSecond} position (-ss) 
-        p.StartInfo.Arguments = string.Format("-hide_banner -i \"{2}\" -ss {0} -t {1} -r 1 -c copy \"{3}\"", startSecond, seconds, mp4FilePath, partialMp4FilePath);
-		Console.WriteLine(p.StartInfo.Arguments);
+        p.StartInfo.Arguments = string.Format("-hide_banner -i \"{2}\" -ss {0} -t {1} -r 1 -c copy \"{3}\"", startSecond, seconds, mp4FilePath, partialMp4FilePath);		
         p.Start();
         p.WaitForExit();
     }

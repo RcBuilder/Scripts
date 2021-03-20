@@ -1,0 +1,4 @@
+DOS Commands
+------------
+listening ports:
+> netstat -aon | find /i "listening"

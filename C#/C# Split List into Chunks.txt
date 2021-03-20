@@ -1,0 +1,27 @@
+C# Split List into Chunks
+-------------------------
+public static List<List<T>> SplitList<T>(List<T> list, int length = 10)
+{
+	var result = new List<List<T>>();
+	for (var i = 0; i < list.Count; i += length)
+		result.Add(list.GetRange(i, Math.Min(length, list.Count - i)));
+	return result;
+}
+
+
+var pages = BLL.Pages.GetHeaderPages();
+var pagesChunks = Helper.SplitList(pages, 3);
+
+
+<div class="row">
+@foreach (var chunk in pagesChunks)
+{
+    <div class="col-md-4 pi-mm-col">
+        <ul class="pi-mm-list">
+            @foreach (var page in chunk){
+                <li>@Html.ActionLink(page.Title, page.Name, "Page", null, new { title = page.MetaTitle })</li>
+            }
+        </ul>
+    </div>
+}
+</div>

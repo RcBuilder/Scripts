@@ -1,0 +1,21 @@
+MVC Razor Extension Helper
+--------------------------
+add > new item > class
+
+notes:
+* static class + static method
+* extension method for the mvc @html object
+
+@using System.Web.Mvc
+@using System.Web.Mvc.Html
+
+public static class HelperExtensions {
+   public static MvcHtmlString DrawDiv(this HtmlHelper me) {
+       return new MvcHtmlString("<div>Some Div</div>");
+   }
+}
+
+-------------------
+
+using:
+@Html.DrawDiv()
