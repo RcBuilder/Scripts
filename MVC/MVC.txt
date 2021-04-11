@@ -103,17 +103,68 @@ see 'MVC FromURI binding'
   e.g: @Html.TextBoxFor(m => m.Email, new { placeholder = "email", maxLength = 250 })
 
 * drop down list 
+  aka DDL or ComboBox
+
+  syntax:
   @Html.DropDownListFor([model], [IEnumerable<SelectListItem>])  
-  e.g: 
+
+  - e.g: 
   public class DropDownLists
-    {
-        public static IEnumerable<SelectListItem> GetCities()
-        {
-            var cities = BLL.Cities.Get();
-            return cities.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() });
-        }
-    }
+  {
+  		public static IEnumerable<SelectListItem> GetCities()
+  		{
+  	  		var cities = BLL.Cities.Get();
+  	  		return cities.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() });
+  		}
+  }
   @Html.DropDownListFor(m => m.CityId, BLL.DropDownLists.GetCities())
+
+
+  - e.g: (with default option)
+  public class DropDownLists
+  {
+		public static IEnumerable<SelectListItem> GetCategories(string NotSelectedText)
+        {
+            var categories = BLL.Categories.Get().OrderBy(x => x.Name);
+            var result = new List<SelectListItem> { new SelectListItem { Text = NotSelectedText, Value = "0", Selected = true } };
+            return result.Concat(categories.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
+        }
+  }
+  @Html.DropDownListFor(m => m.CategoryId, BLL.DropDownLists.GetCategories())
+
+  - e.g: (with async method)
+  public class DropDownLists
+  {
+		public async static Task<IEnumerable<SelectListItem>> GetCategories(string NotSelectedText)
+		{
+			var categories = await new CategoriesBLL().GetByType(Entities.eCategoryType.MENU);
+			var result = new List<SelectListItem> { new SelectListItem { Text = NotSelectedText, Value = "0", Selected = true } };
+			return result.Concat(categories.Select(x => new SelectListItem { Text = x.NameHE, Value = x.Id.ToString() }));
+		}
+  }
+
+  ViewBag.CategoriesDDL = await BLL.DropDownLists.GetCategories("בחר קטגוריה");
+  @Html.DropDownListFor(m => m.CategoryId, (IEnumerable<SelectListItem>)ViewBag.CategoriesDDL)
+
+  - e.g: constant values
+  <div>
+        הצג
+        @Html.DropDownListFor(m => Model.RowCount, new List<SelectListItem> {
+            new SelectListItem{  Value = "9",  Text = "9" },
+            new SelectListItem{  Value = "18", Text = "18" },
+            new SelectListItem{  Value = "27", Text = "27" },
+            new SelectListItem{  Value = "36", Text = "36" },
+            new SelectListItem{  Value = "45", Text = "45" }
+        }, new { @class = "select" })
+        הזמנות
+    </div>
+    <div>
+       @Html.DropDownListFor(m => Model.OrderBy, new List<SelectListItem> {
+            new SelectListItem{  Value = "OrderDateASC",  Text = "ת.אספקה - ישן קודם" },
+            new SelectListItem{  Value = "OrderDateDESC", Text = "ת.אספקה - חדש קודם" },
+            new SelectListItem{  Value = "StatusASC", Text = "סטטוס הזמנה" }            
+        }, new { @class = "select" })
+    </div>
 
 * TextAreaFor
   @Html.TextAreaFor(m => m.Description, new { placeholder = "about you - Description", maxLength = 500, rows = 10, cols = 40 })
@@ -280,6 +331,7 @@ see 'MVC FromURI binding'
   </p>
 
   --
+
   <p>
 		משלם @Html.ValidationMessageFor(m => m.IsPaying)
   </p>    
@@ -287,6 +339,22 @@ see 'MVC FromURI binding'
 		@Html.RadioButtonFor(m => m.IsPaying, true) כן
         @Html.RadioButtonFor(m => m.IsPaying, false) לא
   </p>
+
+  --
+
+  // Entities
+  public enum ePaymentType : byte {
+    NONE,
+    CREDIT,
+    CASH
+  }
+
+  // Model Property
+  public ePaymentType PaymentType { get; set; } = ePaymentType.CREDIT;
+
+  // View
+  @Html.RadioButtonFor(m => m.PaymentType, "CREDIT") אשראי  
+  @Html.RadioButtonFor(m => m.PaymentType, "CASH") מזומן  
 	
 * Html.TextBoxFor
   <p>
@@ -2660,6 +2728,61 @@ see 'MVC FromURI binding'
         [StringLength(3, MinimumLength = 3, ErrorMessage = "CVV לא תקני")]
         public string CardCVV { get; set; }
     }
+
+* render checkbox list sample 
+
+	@model Models.SearchFilterDTO
+
+	<div class="filter__dropdown">
+		<p class="filter__dropdown-name">
+			<span class="filter__dropdown-img"></span>
+			<span>קטגוריה</span>
+		</p>
+		<div class="filter__dropdown-content">
+			@foreach (var category in Model.CategoriesMap?.Values.Where(c => c.Type == eCategoryType.RESTAURANT)) { 
+				<label for="">
+					<input type="checkbox" id="chkCat_@category.Id" value="@category.Id" @(Model.SearchParameters.cIdsList.Contains(category.Id) ? "checked" : "") />
+					<span>@category.NameHE</span>
+				</label>
+			}
+		</div>
+	</div>
+
+	public class SearchFilterDTO {        
+		public SearchParametersDTO SearchParameters { get; set; }
+		public Dictionary<int, Category> CategoriesMap { get; set; }
+
+		public SearchFilterDTO(SearchParametersDTO SearchParameters, Dictionary<int, Category> CategoriesMap) {
+			this.SearchParameters = SearchParameters;
+			this.CategoriesMap = CategoriesMap;
+		}
+	}
+
+
+* Checkbox list:
+  also see 'MVC Checkbox List' 
+   
+  [HttpPost]
+  public async Task<ActionResult> EditCategories(IEnumerable<int> SelectedCategories) { ... }
+  <input type="checkbox" id="chkCat_@category.Id" value="@category.Id" name="SelectedCategories" />
+
+* HttpMethodOverride
+  override POST/GET verb
+  @using (@Html.BeginForm("DeleteItem", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" })){
+     ...
+     ...
+     @Html.HttpMethodOverride(HttpVerbs.Delete)
+  }
+  
+* HttpDelete & @Html.BeginForm
+
+  @using (@Html.BeginForm("DeleteGalleryItem", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+  {
+       @Html.HttpMethodOverride(HttpVerbs.Delete)
+       <input type="hidden" name="RestaurantId" value="@Model.RestaurantId" />
+       <input type="hidden" name="RowId" value="@gi.RowId" />                
+       <input type="image" src="~/img/icons/Delete48x48.png" title="מחק שורה" />
+  }
 
 --------------------------------------------------------------
 // TODO Research

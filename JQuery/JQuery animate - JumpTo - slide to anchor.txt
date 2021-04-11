@@ -1,0 +1,43 @@
+JQuery animate - JumpTo - slide to anchor
+-----------------------------------------
+
+// navigator
+<nav>
+    <ul>
+        <li>
+            <a data-slide-target="about-us">מי אנחנו</a>
+        </li>
+        <li>
+            <a data-slide-target="leading-restaurants">מסעדות מובילות</a>
+        </li>        
+        <li>
+            <a data-slide-target="solutions">פתרונות למסעדה</a>                        
+        </li>
+    </ul>
+</nav>
+
+---
+
+// content page (SPA)
+<a name="about-us"></a>
+<div>...</div>
+
+<a name="solutions"></a>
+<div>...</div>
+
+<a name="leading-restaurants"></a>
+<div>...</div>
+
+---
+
+function JumpTo(anchorName) {
+    //document.location = '#' + anchorName;
+    var top = $('a[name="' + anchorName + '"]').offset().top;
+    $("html:not(:animated), body:not(:animated)").animate({ scrollTop: top }, 1100, null);
+}
+
+$('[data-slide-target]').on('click', function (e) {
+    var anchorName = $(e.currentTarget).attr('data-slide-target'); 
+    JumpTo(anchorName);     
+});
+

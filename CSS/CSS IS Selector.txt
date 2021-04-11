@@ -1,0 +1,60 @@
+CSS IS Selector
+---------------
+
+About:
+css "is" selector allows us to create a compound-selectors css rules.
+
+Syntax:
+:is([selector-1], [selector-2] ... [selector-N]) ... {
+
+}
+
+Browser support:
+- Chrome: 88
+- Firefox: 78
+- Edge: 88
+- Safari: 14
+
+Demo:
+see 'Css_IS_Selector.html'
+
+Sample:
+/*
+	section > h1, section > h2, section > h3, 
+	article > h1, article > h2, article > h3 {
+		color: red;
+	}
+*/
+:is(section, article) > :is(h1, h2, h3) {
+	color: red;
+}
+
+// H1, H2 and H3 are painted in red
+<p class="title">section</p>
+<section class="row">
+    <h1>H1</h1>
+    <h2>H2</h2>
+    <h3>H3</h3>
+    <h4>H4</h4>
+    <h5>H5</h5>
+</section>
+
+// H1, H2 and H3 are painted in red
+<p class="title">article</p>
+<article class="row">
+    <h1>H1</h1>
+    <h2>H2</h2>
+    <h3>H3</h3>
+    <h4>H4</h4>
+    <h5>H5</h5>
+</article>
+
+// none of the H tags is painted in red
+<p class="title">div</p>
+<div class="row">
+    <h1>H1</h1>
+    <h2>H2</h2>
+    <h3>H3</h3>
+    <h4>H4</h4>
+    <h5>H5</h5>
+</div>

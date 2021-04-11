@@ -126,6 +126,7 @@ public class TestDapper {
 
                     query = "drop table t1";
                     conn.Execute(query, transaction: tran);
+					tran.Commit();
                 }
                 catch(Exception ex) {
                     Console.WriteLine("[ERROR] {0}", ex.Message);
@@ -475,7 +476,8 @@ public async Task<bool> SetPassword(int Id, string Password)
 
 -------
 
-Dynamic result:
+[Dynamic result]
+
 in the following example, the dapper result is a dynamic object which consists of a flat table representing a Subscription row.
 the app strong-type class is not flat but a more complex type so we must parse the flat row into this complex object manually. 
 
@@ -547,7 +549,8 @@ public class DALHelper
 
 -------
 
-// Connection overload 
+[Connection overload] 
+
 public async Task<int> Save(User User) {
             using (var conn = new SqlConnection(ConnStr))            
                 return await this.Save(User, conn);            
@@ -563,7 +566,8 @@ public async Task<int> Save(User User, SqlConnection Conn) {
 
 -------
 
-// load from multiple results
+[load from multiple results]
+
 public async Task<Restaurant> Get(int Id)
 {
     using (var conn = new SqlConnection(ConnStr))
@@ -600,6 +604,8 @@ public class DALHelper
 }
 
 -------
+
+[Result Sets]
 
 public async Task<Restaurant> Get(int Id) {
     using (var conn = new SqlConnection(ConnStr))
@@ -652,6 +658,8 @@ public static async Task<Restaurant> LoadRestaurant(SqlMapper.GridReader reader)
 
 -------
 
+[Result Sets]
+
 public async Task<Deal> Get(int Id)
 {
     using (var conn = new SqlConnection(ConnStr))
@@ -692,5 +700,71 @@ SELECT *
 FROM	[dbo].[MenuItems] WITH(NOLOCK)
 WHERE	Id IN (SELECT [value] FROM STRING_SPLIT(@sIds, ','))
 AND		IsDeleted = 0
+
+-------
+
+[Transaction + Async + Multiple Rows + Connection Overload]
+
+// Create an Order sample
+// using Transaction and multiple rows
+public async Task<int> InsertRow(OrderRow OrderRow)
+{
+    using (var conn = new SqlConnection(ConnStr))
+        return await this.InsertRow(OrderRow, conn);            
+}
+public async Task<int> InsertRow(OrderRow OrderRow, SqlConnection Conn, , IDbTransaction Trans = null)
+{            
+    var result = await Conn.ExecuteScalarAsync(
+        "sp_Order_Row_add",
+        commandType: CommandType.StoredProcedure,
+        param: OrderRow,
+		transaction: Trans
+    );
+
+    return Convert.ToInt32(result);            
+}
+
+public async Task<int> SaveDetails(OrderDetails OrderDetails) {
+    using (var conn = new SqlConnection(ConnStr))
+        return await this.SaveDetails(OrderDetails, conn);
+}
+public async Task<int> SaveDetails(OrderDetails OrderDetails, SqlConnection Conn, IDbTransaction Trans = null)
+{            
+    var result = await Conn.ExecuteScalarAsync(
+        "sp_Order_Details_save",
+        commandType: CommandType.StoredProcedure,
+        param: OrderDetails,
+		transaction: Trans
+    );
+
+    return Convert.ToInt32(result);            
+}
+
+public async Task<int> Create(Order Order)
+{
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        conn.Open();
+        using (var trans = conn.BeginTransaction())
+        {
+            try
+            {
+                var orderId = await this.SaveDetails(Order.Details, conn, trans);
+                foreach (var row in Order.Rows) {
+                    row.OrderId = orderId;  // set the created order id foreach row
+                    await this.InsertRow(row, conn, trans);
+                }
+
+				trans.Commit();
+                return orderId;
+            }
+            catch (Exception ex)
+            {                        
+                trans.Rollback();
+                throw ex;
+            }
+        }
+    }
+}
 
 -------

@@ -24,3 +24,13 @@ select	*
 from	Students
 order by Id
 OFFSET 2 ROWS FETCH NEXT 10 ROWS ONLY 
+
+-
+
+@PageNum int = 1,
+@PageSize tinyint = 10
+
+SELECT	* 
+FROM	[dbo].[SomeTable]	
+ORDER BY CreatedDate DESC
+OFFSET ((@PageNum - 1) * @PageSize) ROWS FETCH NEXT @PageSize ROWS ONLY 

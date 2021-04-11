@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSS IS SELECTOR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        /* BASE */
+        .wrapper {
+            margin: 30px;            
+        }
+
+        .row {
+            display: flex;
+            flex-direction: row;      
+            flex-wrap: wrap;
+            column-gap: 12px;
+        }
+
+        p, pre {
+            margin: 0;
+        }
+
+        pre {            
+            margin-left: -60px;            
+        }
+
+        p.title {                        
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* IS */
+
+        /*
+            h1, h2, h3, h4, h5, h6 {
+                margin: 0;
+            }
+        */
+        :is(h1, h2, h3, h4, h5, h6) {
+            margin: 0;
+        }
+
+        /*
+            section > h1, section > h2, section > h3, 
+            article > h1, article > h2, article > h3 {
+                color: red;
+            }
+        */
+        :is(section, article) > :is(h1, h2, h3) {
+            color: red;
+        }
+
+        /*
+            .a1 > .b1, .a1 > .b2, 
+            .a2 > .b1, .a2 > .b2 {
+                color: red;
+            }
+        */
+        :is(.a1, .a2) > :is(.b1, .b2) {
+            color: red;
+        }
+
+        /*
+            div span, p span, b span, i span{
+                color: red;
+            }
+        */
+        :is(div, p, b, i) span {
+          color: red;
+        }
+
+        /*
+            ol, ul {
+                margin: 0;
+            }
+            ol > li:nth-child(odd), ul > li:nth-child(odd){
+                color: red;
+            }
+        */
+        :is(ol, ul) {
+            margin: 0;
+        }
+        :is(ol, ul) > li:nth-child(odd) {
+            color: red;
+        }        
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <h2>About</h2>
+        <p>
+            css <b><i>is</i></b> selector allows us to create a compound-selectors css rules.
+        </p>
+        <br />
+        <h2>Syntax</h2>
+        <p>
+            :is([selector-1], [selector-2] ... [selector-N]) ...
+        </p>
+        <br />
+        <h2>Browser support</h2>
+        <p>
+            Chrome: 88<br />
+            Firefox: 78<br />
+            Edge: 88<br />
+            Safari: 14
+        </p>
+
+        <hr />
+
+        <pre>     
+        /*
+            section > h1, section > h2, section > h3, 
+            article > h1, article > h2, article > h3 {
+                color: red;
+            }
+        */
+   
+        :is(section, article) > :is(h1, h2, h3){
+            color: red;
+        }
+        </pre>
+        <p class="title">section</p>
+        <section class="row">
+            <h1>H1</h1>
+            <h2>H2</h2>
+            <h3>H3</h3>
+            <h4>H4</h4>
+            <h5>H5</h5>
+        </section>
+
+        <p class="title">article</p>
+        <article class="row">
+            <h1>H1</h1>
+            <h2>H2</h2>
+            <h3>H3</h3>
+            <h4>H4</h4>
+            <h5>H5</h5>
+        </article>
+
+        <p class="title">div</p>
+        <div class="row">
+            <h1>H1</h1>
+            <h2>H2</h2>
+            <h3>H3</h3>
+            <h4>H4</h4>
+            <h5>H5</h5>
+        </div>
+
+        <hr />
+
+        <pre>
+        /*
+            .a1 > .b1, .a1 > .b2, 
+            .a2 > .b1, .a2 > .b2 {
+                color: red;
+            }
+        */
+
+        :is(.a1, .a2) > :is(.b1, .b2) {
+            color: red;
+        }
+        </pre>
+        <p class="title">A1</p>
+        <div class="a1 row">
+            <div class="b1">B1</div>
+            <div class="b2">B2</div>
+            <div class="b3">B3</div>
+        </div>
+
+        <p class="title">A2</p>
+        <div class="a2 row">
+            <div class="b1">B1</div>
+            <div class="b2">B2</div>
+            <div class="b3">B3</div>
+        </div>
+
+        <p class="title">A3</p>
+        <div class="a3 row">
+            <div class="b1">B1</div>
+            <div class="b2">B2</div>
+            <div class="b3">B3</div>
+        </div>
+
+        <hr />
+
+        <pre>
+        /*
+            div span, p span, b span, i span{
+                color: red;
+            }
+        */
+
+        :is(div, p, b, i) span {
+            color: red;
+        }
+        </pre>
+        <p class="title">DIV</p>
+        <div>
+            TEXT
+            <span>SPAN</span>
+        </div>
+
+        <p class="title">P</p>
+        <p>
+            TEXT
+            <span>SPAN</span>
+        </p>
+
+        <p class="title">B</p>
+        <b>
+            TEXT
+            <span>SPAN</span>
+        </b>
+
+        <p class="title">I</p>
+        <i>
+            TEXT
+            <span>SPAN</span>
+        </i>
+
+        <hr />
+
+        <pre>
+        /*
+            ol, ul {
+                margin: 0;
+            }
+            ol > li:nth-child(odd), ul > li:nth-child(odd){
+                color: red;
+            }
+        */
+        :is(ol, ul) {
+            margin: 0;
+        }
+        :is(ol, ul) > li:nth-child(odd) {
+            color: red;
+        }
+        </pre>
+        <p class="title">UL</p>
+        <ul>
+            <li>LI-1</li>
+            <li>LI-2</li>
+            <li>LI-3</li>
+            <li>LI-4</li>
+        </ul>
+
+        <p class="title">OL</p>
+        <ol>
+            <li>LI-1</li>
+            <li>LI-2</li>
+            <li>LI-3</li>
+            <li>LI-4</li>
+        </ol>
+    </div>
+</body>
+</html>
+

@@ -1,0 +1,159 @@
+MVC Checkbox List
+-----------------
+
+[base]
+
+[HttpPost]
+public async Task<ActionResult> EditCategories(IEnumerable<int> SelectedCategories) { 
+	... 
+}
+
+<input type="checkbox" id="chkCat_@category.Id" value="@category.Id" name="SelectedCategories" />
+
+-------
+
+[sample]
+
+public class EditRestaurantCategoriesDTO {        
+    public int RestaurantId { get; set; }
+    public List<int> SelectedCategoryIds { get; set; }
+    public List<Category> Categories { get; set; }
+
+    public EditRestaurantCategoriesDTO() : this(0, null, null) { }
+    public EditRestaurantCategoriesDTO(int RestaurantId, List<Category> Categories, List<int> SelectedCategoryIds) {
+        this.Categories = Categories;
+        this.RestaurantId = RestaurantId;
+        this.SelectedCategoryIds = SelectedCategoryIds;
+    }
+}
+
+public class RestaurantCategories {
+    [JsonProperty(PropertyName = "items")]
+    public IEnumerable<Category> Items { get; set; }
+
+    public RestaurantCategories() : this(null) { }
+    public RestaurantCategories(IEnumerable<Category> Items) {        
+        this.Items = Items;
+    }
+
+    public List<int> IdList
+    {
+        get
+        {
+            return (this.Items?.Select(x => x.Id) ?? Enumerable.Empty<int>()).ToList();
+        }
+    }
+}
+
+-
+
+@using (@Html.BeginForm("EditCategories", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    @Html.HiddenFor(m => m.RestaurantId)
+    foreach (var category in Model.Categories)
+    {
+        <label for="">    
+            <input type="checkbox" id="chkCat_@category.Id" value="@category.Id" name="SelectedCategoryIds" @(Model.SelectedCategoryIds.Contains(category.Id) ? "checked" : "") />
+            <span>@category.NameHE</span>
+        </label>
+    }
+
+    <button type="submit" class="button-base">щоеш</button>
+    <div class="validation-summary">
+        @Html.ValidationSummary(false)
+    </div>
+}
+
+-
+
+[HttpPost]
+public async Task<ActionResult> EditCategories(Models.EditRestaurantCategoriesDTO Model) {
+    try
+    {
+        if (!ModelState.IsValid)
+            return View(Model);
+        
+        await new RestaurantsBLL().SaveCategories(Model.RestaurantId, Model.SelectedCategoryIds);
+
+        return RedirectToAction("Index");
+    }
+    catch (Exception ex)
+    {
+        ModelState.AddModelError("CustomError", ex.Message);
+        return View(Model);
+    }
+}
+
+-------
+
+[sample]
+
+public class EditRestaurantCategoriesDTO {        
+    public RestaurantCategories SelectedCategories { get; set; }
+    public List<Category> Categories { get; set; }
+
+    public EditRestaurantCategoriesDTO() : this(null, null, null) { }
+    public EditRestaurantCategoriesDTO(RestaurantCategories SelectedCategories, IEnumerable<Category> Categories, IEnumerable<Category> Sensitivities) {
+        this.SelectedCategories = SelectedCategories;
+        this.Categories = Categories?.ToList() ?? new List<Category>();
+        this.Categories.AddRange(Sensitivities ?? Enumerable.Empty<Category>() );
+    }
+}
+
+public class RestaurantCategories {
+    [JsonProperty(PropertyName = "items")]
+    public IEnumerable<Category> Items { get; set; }
+
+    public RestaurantCategories() : this(null) { }
+    public RestaurantCategories(IEnumerable<Category> Items) {        
+        this.Items = Items;
+    }
+
+    public IEnumerable<int> IdList
+    {
+        get
+        {
+            return this.Items?.Select(x => x.Id) ?? Enumerable.Empty<int>();
+        }
+    }
+
+    // use this property to load the new-updated state of the selected categories!
+    [JsonProperty(PropertyName = "itemsNewState")]
+    public IEnumerable<int> ItemsNewState { get; set; }
+}
+
+-
+
+@using (@Html.BeginForm("EditCategories", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{    
+    foreach (var category in Model.Categories)
+    {
+        <input type="checkbox" id="chkCat_@category.Id" value="@category.Id" name="SelectedCategories.ItemsNewState" @(Model.SelectedCategories?.IdList.Contains(category.Id) ?? false ? "checked" : "") />
+        <span>@category.NameHE</span>
+    }
+
+    <button type="submit" class="button-base">щоеш</button>
+    <div class="validation-summary">
+        @Html.ValidationSummary(false)
+    </div>
+}
+
+-
+
+[HttpPost]
+public async Task<ActionResult> EditCategories(Models.EditRestaurantCategoriesDTO Model) {
+    try
+    {
+        if (!ModelState.IsValid)
+            return View(Model);
+
+        await new RestaurantsBLL().SaveCategories(Model.SelectedCategories.ItemsNewState);
+
+        return RedirectToAction("Index");
+    }
+    catch (Exception ex)
+    {
+        ModelState.AddModelError("CustomError", ex.Message);
+        return View(Model);
+    }
+}

@@ -1,0 +1,121 @@
+MVC Upload sample
+-----------------
+
+// Controller
+[HttpPost]
+public async Task<ActionResult> UploadGalleryItem(Models.GalleryItemDTO Model) {
+    try {                     
+        var file = Request.Files["NewPhoto"];
+        var isValidImage = FileHelper.CheckUploadedFile(file, ConfigSingleton.Instance.AllowedImagesTypes);
+        if (isValidImage) Model.Photo = FileHelper.SaveUploadedImageWithResize(file, ConfigSingleton.Instance.RestaurantGalleryFolder, 1200, 800, true, true);
+
+        var restaurantsBLL = new RestaurantsBLL();                
+        await restaurantsBLL.SaveGalleryItem(Model.RestaurantId, (Entities.GalleryItem)Model);
+    }
+    catch (Exception ex) {
+        ModelState.AddModelError("CustomError", ex.Message);                
+    }
+
+    return RedirectToAction("EditGallery", new { Id = Model.RestaurantId });
+}
+
+[HttpDelete]
+public async Task<ActionResult> DeleteGalleryItem(Models.GalleryItemDTO Model) {
+    try {                
+        var restaurantsBLL = new RestaurantsBLL();
+        await restaurantsBLL.DeleteGalleryItem(Model.RestaurantId, Model.RowId);
+    }
+    catch (Exception ex) {
+        ModelState.AddModelError("CustomError", ex.Message);
+    }
+
+    return RedirectToAction("EditGallery", new { Id = Model.RestaurantId });
+}
+
+---
+
+// Entities & Models
+public class RestaurantGallery {    
+    public int RestaurantId { get; set; }    
+    public IEnumerable<GalleryItem> Items { get; set; }
+
+    public RestaurantGallery() : this(0, null) { }
+    public RestaurantGallery(int RestaurantId, IEnumerable<GalleryItem> Items) {
+        this.Items = Items;
+        this.RestaurantId = RestaurantId;
+    }
+}
+
+public class GalleryItem {        
+    [JsonProperty(PropertyName = "rowId")]
+    public int RowId { get; set; }
+
+    [JsonProperty(PropertyName = "photo")]
+    public string Photo { get; set; }
+
+    [JsonProperty(PropertyName = "title")]
+    public string Title { get; set; }
+}
+
+public class GalleryItemDTO : GalleryItem {
+    public int RestaurantId { get; set; }        
+}
+
+---
+
+// View
+@model Entities.RestaurantGallery
+
+<h2>הוספת תמונה</h2>
+@using (@Html.BeginForm("UploadGalleryItem", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="hidden" name="RestaurantId" value="@Model.RestaurantId" />
+
+    <div>
+        <input type="text" name="Title" placeholder="כותרת" class="checkout__input" maxlength="250" />
+    </div>
+    <div>
+        <input type="file" name="NewPhoto" />
+    </div>
+
+    <button type="submit" class="button-base">הוסף</button>
+
+}
+
+<hr />
+
+<h2>גלריה</h2>
+@foreach (var gi in Model.Items)
+{    
+    <div class="gallery-view">
+        <img src="~/img/restaurant/Gallery/@gi.Photo" alt="@gi.Title" />
+        <div class="gallery-view-delete">
+            @using (@Html.BeginForm("DeleteGalleryItem", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+            {
+                @Html.HttpMethodOverride(HttpVerbs.Delete)
+                <input type="hidden" name="RestaurantId" value="@Model.RestaurantId" />
+                <input type="hidden" name="RowId" value="@gi.RowId" />                
+                <input type="image" src="~/img/icons/Delete48x48.png" title="מחק שורה" />
+            }
+        </div>        
+    </div> 
+}
+
+---
+
+// Css
+.gallery-view {
+    position: relative;
+    display: inline-block;
+}
+
+.gallery-view > img{
+    width: 200px;
+}
+
+.gallery-view  .gallery-view-delete{
+    position: absolute;
+    right: 0; 
+    top: 0; 
+    width: 24px;
+}

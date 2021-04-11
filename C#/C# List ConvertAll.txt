@@ -1,0 +1,14 @@
+C# List ConvertAll
+------------------
+syntax:
+List.ConvertAll(<converter>)
+
+sample:
+public class Converters {
+    public static int String2IntConverter(string value) {
+        return Convert.ToInt32(value);
+    }
+}
+
+var ids = "1,2,5,9".Split(',').ToList().ConvertAll(Converters.String2IntConverter);
+var rows = lstItems?.Join(ids, x => x.Id, id => id, (x, id) => x);

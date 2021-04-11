@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 // https://github.com/robinrodricks/FluentFTP
 using FluentFTP;
 
-// Install-Package SSH.NET -Version 2016.1.0
+// Install-Package SSH.NET -Version 2020.0.1
 // https://github.com/sshnet/SSH.NET
 using Renci.SshNet;  
 
@@ -53,7 +53,9 @@ namespace FilesProcessorBLL
         var deleted = await ftpConnector.DeleteFiles(filter);                          // delete files by filter
     */
 
-    public interface IFTPConnector<T> where T: class {        
+    public interface IFTPConnector<T> where T: class {
+        string Server { get; set; }
+
         Task<T> Connect();
         Task<bool> Disconnect(T client);
         Task<IEnumerable<string>> GetFileList(string RootFolder = "/", string Filter = "*.*", T client = null);
@@ -90,11 +92,13 @@ namespace FilesProcessorBLL
 
         public async Task<FtpClient> Connect() {            
             var client = new FtpClient(this.Server);
+            client.EncryptionMode = FtpEncryptionMode.Explicit;
+            client.ValidateCertificate += (s, e) => e.Accept = true;
             client.Credentials = new NetworkCredential(this.UserName, this.Password);            
             await client.ConnectAsync();
             return client;
         }
-
+        
         public async Task<bool> Disconnect(FtpClient client) {
             if (!client.IsConnected) return true;
             await client.DisconnectAsync();
@@ -208,9 +212,7 @@ namespace FilesProcessorBLL
             return await this.DeleteFiles(filtered, client);
         }
     }
-
-
-    // TODO ->> Check Connector
+    
     public class SFTPConnector : ISFTPConnector
     {
         private static readonly Encoding ENCODING = Encoding.UTF8;
@@ -228,8 +230,9 @@ namespace FilesProcessorBLL
 
         public async Task<SftpClient> Connect()
         {
-            var sClient = new SftpClient(this.Server, this.UserName, this.Password);
-            sClient.Connect();
+            var sClient = new SftpClient(this.Server, 22, this.UserName, this.Password);            
+            sClient.ConnectionInfo.Timeout = TimeSpan.FromSeconds(60);
+            sClient.Connect();            
             return sClient;
         }
 

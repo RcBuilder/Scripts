@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style type="text/css">
+         .main-wrapper {
+            margin: 20px auto;
+            max-width: 800px;
+            direction: rtl;
+        }
+      
+        .old-price {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .responsive-view {
+            border: solid 1px #d3d3d3;
+            border-radius: 10px;
+        }
+
+        .responsive-view .responsive-view-details, .responsive-view .responsive-view-header {
+            display: grid;
+            padding: 10px;
+            grid-column-gap: 3px;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        @media (min-width: 468px) {
+            .responsive-view .responsive-view-details, .responsive-view .responsive-view-header {
+                grid-template-columns: 1fr 1fr 1fr;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .responsive-view .responsive-view-details, .responsive-view .responsive-view-header {
+                grid-template-columns: 60px 2fr repeat(3, 80px) 80px;
+            }
+        }
+
+        .responsive-view .responsive-view-header {
+            padding-bottom: 10px;
+            border-bottom: solid 1px #d3d3d3;
+            background-color: #fff;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .responsive-view .responsive-view-header > div {    
+            font-size: 14px;
+            font-weight: bold;
+            padding-bottom: 4px;
+        }
+
+        .responsive-view-details:nth-child(even) {
+            background-color: #f3eeee;
+        }
+
+        .responsive-view-details:nth-child(odd) {
+            background-color: #fcf5f5;
+        }
+
+        .responsive-view-image {
+            position: relative;
+        }
+
+        .responsive-view-image > img, .responsive-view-image > input[type="image"] {        
+            width: 80px;
+            border: solid 1px #d3d3d3;
+            border-radius: 10px;
+            background-color: #fff;            
+        }
+
+        .responsive-view-image .image-delete {
+            position: absolute;
+            right: 5px;
+            top: 5px;    
+        }
+
+        .image-delete input[type="image"], .image-delete img {
+            width: 26px;
+            background-color: #fff;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-wrapper">
+        <div class="responsive-view">
+            <div class="responsive-view-header">
+                <div>מזהה</div>
+                <div>שם</div>
+                <div>קטגוריה</div>
+                <div>במלאי</div>
+                <div>מחיר</div>
+                <div>תמונה-1</div>
+            </div>
+
+            <div class="responsive-view-details">
+                <div>#1</div>
+                <div>מוצר-1</div>
+                <div>קטגוריה-1</div>
+                <div>כן</div>
+                <div>
+                    <span class="old-price">&#8362;139</span><br />
+                    <span>&#8362;99</span>
+                </div>
+                <div class="responsive-view-image">
+                    <img src="https://localhost:44362/img/restaurant/Menu/a6bf0311336744eca736507d7fa42630.jpg" alt="" />
+                    <div class="image-delete">
+                        <a><img src="https://localhost:44362/img/icons/Delete48x48.png" title="מחק" /></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

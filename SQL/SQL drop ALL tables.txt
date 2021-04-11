@@ -1,0 +1,23 @@
+drop ALL tables 
+---------------
+
+[sys table]
+sys.tables
+
+[get sp list]
+SELECT 	name, 
+	[schema_id], 
+	SCHEMA_NAME([schema_id]) as 'schema', 
+	create_date, 
+	modify_date
+FROM   	sys.tables
+
+[drop sp]
+DROP TABLE [dbo].[Users];
+
+[drop all]
+//  using dynamic execution
+DECLARE @query NVARCHAR(max)=''
+SELECT @query += 'DROP TABLE [' + SCHEMA_NAME(schema_id) + '].[' + name + '];'
+FROM   sys.tables 
+exec(@query)

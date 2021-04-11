@@ -6,7 +6,7 @@ using System.Net;
 using System.Text;
 using System.Web;
 
-namespace WebsiteBLL
+namespace Cardcom
 {
     /*
         SOURCES:
@@ -308,7 +308,20 @@ namespace WebsiteBLL
                 prms[$"CustomFields.Field{cfIndex}"] = x;
                 cfIndex++;
             });
-            
+
+            if (Operation == 3) {
+                /* 
+                    ValidationType (J2 OR J5)
+                    use J5 for a full check of the card (till the charge provider) and to save the amount for x days.
+                    note! support must be set in your charge provider account
+
+                    available values: 
+                    - 2 for J2 
+                    - 5 for J5
+                */
+                prms["CreateTokenJValidateType"] = "5"; 
+            }
+
             if (InvoiceDetails != null && Operation < 3) // available only for bill operations (1 and 2)
             {
                 // http://kb.cardcom.co.il/article/AA-00244/0                
@@ -337,7 +350,7 @@ namespace WebsiteBLL
                 var StatusCode = Convert.ToInt32(responseParsed["ResponseCode"]);
                 if (StatusCode != 0) {
                     var responseText = HttpUtility.UrlDecode(response);
-                    LoggerSingleton.Instance.Info("Cardcom", $"GenerateIFrameSource Failed With Code {StatusCode}", new List<string> { responseText });
+                    ///LoggerSingleton.Instance.Info("Cardcom", $"GenerateIFrameSource Failed With Code {StatusCode}", new List<string> { responseText });
                 }
 
                 return new CardcomIFrameSourceResponse
@@ -432,9 +445,10 @@ namespace WebsiteBLL
                 var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
 
                 var StatusCode = Convert.ToInt32(responseParsed["ResponseCode"]);
+                /*
                 if (StatusCode != 0)                
                     LoggerSingleton.Instance.Info("Cardcom", $"GetTransactionDetails #{Code} Failed With Code {StatusCode}", new List<string> { responseText });                
-
+                */
                 return (responseText, responseParsed);
             }
         }
@@ -533,9 +547,10 @@ namespace WebsiteBLL
                 var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
 
                 var StatusCode = Convert.ToInt32(responseParsed["ResponseCode"]);
+                /*
                 if (StatusCode != 0)
                     LoggerSingleton.Instance.Info("Cardcom", $"ChargeWithToken #{Token} Failed With Code {StatusCode}", new List<string> { responseText });
-
+                */
                 return (responseText, responseParsed);
             }
         }
@@ -610,9 +625,10 @@ namespace WebsiteBLL
                 var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
 
                 var StatusCode = Convert.ToInt32(responseParsed["ResponseCode"]);
+                /*
                 if (StatusCode != 0)
                     LoggerSingleton.Instance.Info("Cardcom", $"SetRecurringCharge #{Code} Failed With Code {StatusCode}", new List<string> { responseText });
-
+                */
                 return (responseText, responseParsed);
             }
         }
@@ -674,11 +690,12 @@ namespace WebsiteBLL
                 var responseParsed = new NameValueCollection(HttpUtility.ParseQueryString(response));
 
                 var StatusCode = Convert.ToInt32(responseParsed["ResponseCode"]);
+                /*
                 if (StatusCode != 0)
                     LoggerSingleton.Instance.Info("Cardcom", $"CancelRecurringCharge #{Code} Failed With Code {StatusCode}", new List<string> { 
                         responseText 
                     });
-
+                */
                 return (responseText, responseParsed);
             }
         }

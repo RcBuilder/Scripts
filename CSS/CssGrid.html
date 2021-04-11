@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CSS GRID</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>        
+        /* BASE */
+        .wrapper {
+            margin: 30px;
+        }
+
+        p {}
+        p > span {
+            display: block;
+            font-size: 13px;
+            font-style: italic;
+            color: red;
+        }
+
+        .grid {
+            display: grid;   
+            border: solid 1px #333;
+        }
+
+        .grid-inline {            
+            display: inline-grid;   
+        }
+
+        .grid > div {
+            height: 40px;
+            line-height: 40px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .grid.no-height > div {
+            height: unset;
+            line-height: unset;
+        }
+
+        .grid > div:nth-child(1) {
+            background-color: red;
+        }
+        .grid > div:nth-child(2) {
+            background-color: pink;
+        }
+        .grid > div:nth-child(3) {
+            background-color: skyblue;
+        }
+        .grid > div:nth-child(4) {
+            background-color: aqua;
+        }
+        .grid > div:nth-child(5) {
+            background-color: antiquewhite;
+        }
+        .grid > div:nth-child(6) {
+            background-color: coral;
+        }
+        .grid > div:nth-child(7) {
+            background-color: greenyellow;
+        }
+        .grid > div:nth-child(8) {
+            background-color:  gainsboro;
+        }
+        .grid > div:nth-child(9) {
+            background-color: cornflowerblue;
+        }
+
+        /* GRIDS */
+        .grid1 {            
+            grid-template-columns: 150px 150px;
+        }
+
+        .grid2 {            
+            grid-template-columns: 150px 1fr 150px;
+        }
+
+        .grid3 {            
+            grid-template-columns: 1fr 1fr 1fr;
+        }
+
+        .grid4 {            
+            grid-template-columns: 200px 200px 200px;
+        }
+        
+        .grid5 {            
+            grid-template-columns: 1fr 2fr 1fr;            
+        }
+
+        .grid6 {            
+            grid-template-columns: repeat(5, 100px) 1fr;            
+        }
+
+        .grid7 {            
+            grid-template-columns: repeat(2, 25%) repeat(3, 100px) 1fr;               
+        }
+
+        .grid8 {            
+            grid-template-columns: none;            
+        }
+
+        .grid9 {            
+            grid-template-columns: auto 50px auto;      
+            grid-template-rows: 100px 30px;
+        }
+
+        .grid10 {            
+            grid-template-columns: repeat(3, 250px);  
+            grid-column-gap: 6px;            
+            grid-row-gap: 6px;
+        }
+
+        .grid11 {
+            grid-template-columns: 100px auto 100px;
+            grid-template-rows: 50px 100px auto;
+        }
+
+        .grid12 {
+            grid-template-columns: [first-column] 100px [second-column] 300px;
+            grid-template-rows: [first-row] 100px [second-row] 200px;
+        }
+        .grid12 > div:nth-child(1) {
+            grid-column: second-column;
+            grid-row: second-row;
+        }
+        .grid12 > div:nth-child(2) {
+            grid-column: first-column;
+            grid-row: second-row;
+        }
+        .grid12 > div:nth-child(3) {
+            grid-column: first-column / span 2;
+            grid-row: first-row;
+        }
+
+        .grid13 {
+            grid-template-columns: auto 150px;
+            grid-template-rows: 120px auto 60px;
+            grid-template-areas:
+                "header header"
+                "main right"
+                "footer footer";
+        }
+        .grid13 > div {
+            padding: 12px;
+        }
+        .grid13 > div:nth-child(1) {
+            grid-area: header;
+        }
+        .grid13 > div:nth-child(2) {
+           grid-area: footer;
+        }
+        .grid13 > div:nth-child(3) {
+           grid-area: main;
+        }
+        .grid13 > div:nth-child(4) {
+           grid-area: right;
+        }
+    </style>
+</head>
+<body>   
+    <div class="wrapper">
+        <p>
+            display: grid;<br />
+            grid-template-columns: 150px 150px;
+            <span>
+                2 columns of 150px width each
+            </span>
+        </p>
+        <div class="grid grid1">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: grid;<br />
+            grid-template-columns: 150px 1fr 150px;
+            <span>
+                fr unit represents a fraction of the leftover space
+            </span>
+        </p>
+        <div class="grid grid2">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: grid;<br />
+            grid-template-columns: 1fr 1fr 1fr;
+            <span>
+                3 columns of 1/3 width each
+            </span>
+        </p>
+        <div class="grid grid3">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: inline-grid;<br />
+            grid-template-columns: 200px 200px 200px;
+            <span>
+                inline-grid generates the grid as inline-block (instead of block)<br />
+                3 columns of 200px width each
+            </span>
+        </p>
+        <div class="grid grid-inline grid4">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+        <div class="grid grid-inline grid4">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: grid;<br />
+            grid-template-columns: 1fr 2fr 1fr;
+            <span>
+                3 columns: the 1st and the 3rd take the same relative size and the 2nd takes twice that size
+            </span>
+        </p>
+        <div class="grid grid5">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: grid;<br />
+            grid-template-columns: repeat(5, 100px) 1fr;
+            <span>
+                repeat: a method to duplicate a condition<br />
+                6 columns: 5 of 100px and the 6th of the leftover space
+            </span>
+        </p>
+        <div class="grid grid6">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: grid;<br />
+            grid-template-columns: repeat(2, 25%) repeat(3, 100px) 1fr;
+            <span>
+                repeat: a method to duplicate a condition<br />
+                6 columns: 2 of 25%, 3 of 100px and last with the leftover space
+            </span>
+        </p>
+        <div class="grid grid7">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: grid;<br />
+            grid-template-columns: none;
+            <span>
+                no columns definition
+            </span>
+        </p>
+        <div class="grid grid8">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: grid;<br />
+            grid-template-columns: auto 50px auto;<br />
+            grid-template-rows: 100px 30px;
+            <span>
+                rows: define 2 rows height, 1st of 100px height and the 2nd of 30px height<br />
+                other rows will take the html default height
+            </span>
+        </p>
+        <div class="grid no-height grid9">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: inline-grid; <br />
+            grid-template-columns: repeat(3, 250px);<br />
+            grid-column-gap: 6px;<br />
+            grid-row-gap: 6px;
+            <span>
+                3 columns of 250px;<br />
+                set a gap of 6px between columns and 6px between rows
+            </span>
+        </p>
+        <div class="grid grid-inline grid10">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>
+            <div>E</div>
+            <div>F</div>
+        </div>
+
+        <p>
+            display: grid;<br />
+            grid-template-columns: 100px auto 100px;<br />
+            grid-template-rows: 50px 100px auto;
+            <span>
+                layout of 3 rows of 3 columns each.<br />
+                row-1: 50px height<br />
+                row-2: 100px height<br />
+                row-3: auto height (stretch by content)<br />
+                col-1: 100px width<br />
+                col-2: auto width<br />
+                col-3: 100px width
+            </span>
+        </p>
+        <div class="grid no-height grid11">
+            <div>H:50px|W:100px</div>
+            <div>H:50px|W:Auto</div>
+            <div>H:50px|W:100px</div>
+
+            <div>H:100px|W:100px</div>
+            <div>H:100px|W:Auto</div>
+            <div>H:100px|W:100px</div>
+
+            <div>
+                H:Auto|W:100px
+                <br /><br />
+                bla bla bla bla<br />
+                bla bla bla bla<br />
+                bla bla bla bla<br />
+                bla bla bla bla<br />
+                bla bla bla bla<br />
+                bla bla bla bla<br />
+                bla bla bla bla<br />
+                bla bla bla bla<br />
+            </div>
+            <div>H:Auto|W:Auto</div>
+            <div>H:Auto|W:100px</div>
+        </div>
+
+        <p>
+            [Grid]<br />
+            display: inline-grid; <br />
+            grid-template-columns: [first-column] 100px [second-column] 300px;<br />
+            grid-template-rows: [first-row] 100px [second-row] 200px;<br />
+            <span>
+                define a layout of 2 colunms and 2 rows with aliases.<br />
+                col-1 named "first-column"
+                col-2 named "second-column"
+                row-1 named "first-row"
+                row-2 named "second-row"
+            </span>
+            <br />
+            [Grid Children]<br />
+            grid-column: second-column;<br />
+            grid-row: second-row;<br />
+            <span>
+                set 1st grid child-element to be located at the second-column of the second-row
+            </span>
+            <br />
+            grid-column: first-column;<br />
+            grid-row: second-row;<br />
+            <span>
+                set 2nd grid child-element to be located at the first-column of the second-row
+            </span>
+            <br />
+            grid-column: first-column / span 2;<br />
+            grid-row: first-row;<br />
+            <span>
+                set 3rd grid child-element to take 2 columns starting from the first-column of the first-row
+            </span>
+        </p>
+        <div class="grid grid-inline no-height grid12">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+        </div>
+
+        <p>
+            [Grid]<br />
+            display: grid;<br />
+            grid-template-columns: auto 150px;<br />
+            grid-template-rows: 120px auto 60px;<br />
+            grid-template-areas:<br />
+            &nbsp;&nbsp;&nbsp; "header header"<br />
+            &nbsp;&nbsp;&nbsp; "main right"<br />
+            &nbsp;&nbsp;&nbsp; "footer footer";<br />
+            <span>
+                define a layout using "grid-template-areas"<br />
+                after setting the grid size (rows and columns), we use areas to define the layout using names (header, footer etc.)<br />
+                note: use dot (.) to define an empty area<br />
+            </span>
+            [Grid Children]<br />
+            grid-area: header;<br />
+            <span>
+                locate the 1st grid child-element at the "header" area
+            </span>
+            grid-area: footer;<br />
+            <span>
+                locate the 1st grid child-element at the "footer" area
+            </span>
+            grid-area: main;<br />
+            <span>
+                locate the 1st grid child-element at the "main" area
+            </span>
+            grid-area: right;<br />
+            <span>
+                locate the 1st grid child-element at the "right" area
+            </span>
+        </p>
+        <div class="grid no-height grid13">
+            <div>HEADER</div>
+            <div>FOOTER</div>
+            <div>
+                MAIN<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+            </div>
+            <div>RIGHT</div>
+        </div>
+    </div>
+</body>
+</html>
+

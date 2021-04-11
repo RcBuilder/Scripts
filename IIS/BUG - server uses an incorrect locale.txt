@@ -1,0 +1,25 @@
+Bug:
+server uses an incorrect locale 
+
+Issue:
+affect the dates presented in a website. show an incorrect format (MM/dd/yyyy instead of dd/MM/yyyy) 
+
+Cause:
+date-format settings are incorrect. 
+
+Solution:
+[option-1]
+go the server clock and change the date settings. 
+
+[option-2]
+if option-1 doesn't solve the problem, (in cases of DC or VPC), 
+change the machine applicationHost config file as follow
+
+1. open applicationHost.config
+   C:\Windows\System32\inetsrv\config\applicationHost.config
+
+2. set loadUserProfile to true 
+   <applicationPoolDefaults managedRuntimeVersion="v4.0">
+     <processModel identityType="ApplicationPoolIdentity" loadUserProfile="true" setProfileEnvironment="false" />
+   </applicationPoolDefaults> 
+

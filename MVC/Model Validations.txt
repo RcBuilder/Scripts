@@ -1,0 +1,150 @@
+Model Validations
+=================
+
+Checkbox
+--------
+[RegularExpression("True", ErrorMessage = "חובה לאשר את התקנון")]
+public bool PolicyApproved { get; set; }    
+
+
+Built-in
+--------  
+[Required]		
+[StringLength]	
+[MinLength]		
+[MaxLength]		
+[Range]			
+[CustomValidation]	// see 'CustomValidation Attribute'
+[RegularExpression] // see 'RegularExpression Attribute'
+[EmailAddress] 
+[Url]			
+[Phone]			
+[Remote]		// see 'Remote Validation Attribute (Client)' 
+[Compare]
+
+-
+
+[Required(ErrorMessage = "Name Required")]
+public string Name { set; get; }
+
+[RegularExpression(@"[0-9\.]+", ErrorMessage = "Invalid Price")]
+public float PriceList { set; get; }
+
+[EmailAddress(ErrorMessage = "Invalid Email")]
+public string Email { get; set; }
+
+[RegularExpression(@"[0-9\-]+", ErrorMessage = "Invalid Phone")]
+public string Phone1 { get; set; }
+
+[Url(ErrorMessage = "Invalid Website")]
+public string Website { get; set; }
+
+[StringLength(10, MinimumLength=5, ErrorMessage = "Invalid Length")]
+public string Name { get; set; }
+
+[Range(1, 120, ErrorMessage = "Invalid Age")]
+public byte Age { get; set; }
+
+[Compare("Email", ErrorMessage = "EmailConfirmation do Not Match Email")]
+public string EmailConfirmation { get; set; }
+       
+[RegularExpression("True", ErrorMessage = "חובה לאשר את התקנון")]
+public bool PolicyApproved { get; set; }    
+
+
+EnumDataType
+------------
+enums validators
+
+[EnumDataType(typeof(eMatchType), ErrorMessage = "Required")]
+public eMatchType MatchType { get; set; }
+
+
+
+Custom Validation Attribute (inheritance)
+-----------------------------------------
+[DateRange("01/01/2015", "31/12/2015", ErrorMessage = "Invalid Date Range")]
+public DateTime Date { get; set; }
+
+public class DateRange : ValidationAttribute {
+    private DateTime minDate { get; set; }
+    private DateTime maxDate { get; set; }
+
+    public DateRange(string minDate, string maxDate) {
+        this.minDate = Convert.ToDateTime(minDate);
+        this.maxDate = Convert.ToDateTime(maxDate);
+    }
+
+    public override bool IsValid(object value) {
+        var ticks = Convert.ToDateTime(value).Ticks;
+        return ticks > minDate.Ticks && ticks < maxDate.Ticks;
+    }
+}
+
+-
+
+[NotZeroValidation(ErrorMessage = "שדה חובה - מזהה מסעדה")]
+public int RestaurantId { get; set; }
+
+public class NotZeroValidation : ValidationAttribute
+{
+    public override bool IsValid(object value)
+    {
+        return Convert.ToInt32(value) > 0;
+    }
+}
+
+-
+
+[CheckedValidation(ErrorMessage = "חובה לאשר את התקנון")]
+public bool Policy { get; set; }
+
+public class CheckedValidation : ValidationAttribute
+{
+    public override bool IsValid(object value)
+    {
+        return Convert.ToBoolean(value);
+    }
+}
+
+-
+
+[MinDate("01/01/2015", ErrorMessage = "Invalid Date Range")]
+public DateTime Date { get; set; }
+
+public class MinDate : RangeAttribute {
+	public MinDate(string minDate) : base(typeof(DateTime), minDate, DateTime.Now.ToString("dd/MM/yyyy")) { }
+}
+
+-
+public class BirthDate : RangeAttribute {
+	public BirthDate() : base(typeof(DateTime), DateTime.Now.AddYears(-120).ToString("dd/MM/yyyy"), DateTime.Now.ToString("dd/MM/yyyy")) { }
+}
+
+public class FutureDate : RangeAttribute {
+	public FutureDate() : base(typeof(DateTime), DateTime.Now.ToString("dd/MM/yyyy"), DateTime.Now.AddYears(2).ToString("dd/MM/yyyy")) { }
+}
+
+public class EmptyDate : ValidationAttribute {
+    public override bool IsValid(object value) {
+        return value != null && (DateTime)value != DateTime.MinValue;
+    }
+}
+
+
+Built-in CustomValidation
+-------------------------
+structure:
+[CustomValidation([type], [methodName])]
+
+sample:
+[CustomValidation(typeof(DataValidations), "NotZero")]
+public int CategoryId { set; get; }
+
+public class DataValidations {
+	public static ValidationResult NotZero(int value, ValidationContext context){
+		if (value == 0)
+			return new ValidationResult(string.Concat(context.MemberName, " ", "Required"));
+		return ValidationResult.Success;
+	}
+}
