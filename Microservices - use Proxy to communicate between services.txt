@@ -1,0 +1,90 @@
+Microservices - use Proxy to communicate between services
+=========================================================
+when using microservices architecture, sometimes there's a need to communicate internally between some of the services. 
+in order to keep them de-coupled, we can use REST to perform calls from one service to another.
+(see usage example below)
+
+--
+
+reference:
+1. HttpServiceHelper.cs
+2. HttpExtractor.cs
+
+--
+
+namespace ServicesProxy
+{
+    public abstract class BaseProxy
+    {
+        public string Domain { get; protected set; }
+        public string Token { get; protected set; }
+        public HttpExtractor Extractor { get; protected set; }
+
+        public BaseProxy(HttpExtractor Extractor) {
+            this.Extractor = Extractor;            
+            this.Domain = Extractor.ExtractDomain(HttpContext.Current);
+            this.Token = Extractor.ExtractBearerToken(HttpContext.Current);
+        }
+
+        public BaseProxy(string Domain, string Token) {
+            this.Domain = Domain;
+            this.Token = Token;            
+        }
+    }
+}
+
+--
+
+namespace ServicesProxy
+{
+    public class AccountsProxy : BaseProxy
+    {
+        public AccountsProxy(HttpExtractor Extractor) : base(Extractor) { }
+
+        public (bool Success, string Content) AccountExists(int id) {            
+            return new HttpServiceHelper().GET($"http://127.0.0.1:{59310}/account/{id}/exists", headers: new Dictionary<string, string>
+            {
+                ["Content-Type"] = "application/json",
+                ["Authorization"] = $"Bearer {this.Token}"
+            });
+        }
+
+        public (bool Success, string Content, Entities.Account Model) GetAccount(int id) {            
+            return new HttpServiceHelper().GET<Entities.Account>($"http://127.0.0.1:{59310}/account/{id}", headers: new Dictionary<string, string>
+            {
+                ["Content-Type"] = "application/json",
+                ["Authorization"] = $"Bearer {this.Token}"
+            });
+        }
+
+        public (bool Success, string Content, int Model) CreateAccount(Entities.Account account) {
+            return new HttpServiceHelper().POST<Entities.Account, int>($"http://127.0.0.1:{59310}/account", account, headers: new Dictionary<string, string>
+            {
+                ["Content-Type"] = "application/json",
+                ["Authorization"] = $"Bearer {this.Token}"
+            });
+        }
+    }
+}
+
+--
+
+var proxy = new ServicesProxy.AccountsProxy(new HttpExtractor());
+            var getAccountResult = proxy.GetAccount(documentHeader.AccountId);
+
+            var account = getAccountResult.Model;
+            if (account == null)
+            {
+                // create new account
+                account = new Account
+                {
+                    Id = documentHeader.AccountId,
+                    Name = documentHeader.AccountName,
+                    Address = documentHeader.Address,
+                    City = documentHeader.City,
+                    Phone1 = documentHeader.Phone1,
+                    Phone2 = documentHeader.Phone2,
+                };
+                var createAccountResult = proxy.CreateAccount(account);
+                if (!createAccountResult.Success)
+                    throw new Exception($"[ProcessAccount] {createAccountResult.Content}");

@@ -1,0 +1,58 @@
+MVC - create REST-like endpoint with JSON
+-----------------------------------------
+use MVC action as REST api service.
+- action should return JsonResult
+- use js "fetch" class to make the request from the client.
+
+--
+
+// javascript 
+$('.order-tags > .tag').on('click', SaveOrderStatus);
+
+async function SaveOrderStatus(e) {
+    const serviceURI = '/Admin/SaveOrderStatus';
+    let id = parseInt($(e.target).closest('.order-card').find('span#orderId').text().replace('#', ''))
+    let status = $(e.target).attr('data-value');
+
+    let response = await fetch(serviceURI, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            id,
+            status
+        })
+    }).then(result => result.json());
+
+    if (response.Status == 'ERROR')
+        console.log('[ERROR] SaveOrderStatus, ' + response.Error);
+    SearchOrders();
+}
+
+--
+
+// MVC Controller
+public class AdminController : Controller{
+	[HttpPut]
+	public async Task<JsonResult> SaveOrderStatus(int Id, Entities.eOrderStatus Status)
+	{
+		try
+		{
+			var ordersBLL = new OrdersBLL();
+			await ordersBLL.SaveStatus(Id, Status);
+
+			return Json(new {
+				Status = "OK"
+			});
+		}
+		catch (Exception ex)
+		{
+			return Json(new
+			{
+				Status = "ERROR",
+				Error = ex.Message
+			});
+		}
+	}
+}

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Web;
-//using System.Web.ModelBinding;
 using System.Web.Http.ModelBinding;
 
 namespace Helpers
@@ -37,6 +36,21 @@ namespace Helpers
                     .Select(x => new { key = x.Split('=')[0], value = x.Split('=')[1] })
                     .Distinct()
                     .ToDictionary(x => x.key, x => x.value);
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public Dictionary<string, string> Headers2Dictionary(HttpRequestBase Request) {
+            return this.Headers2Dictionary(Request.Headers);
+        }
+        public Dictionary<string, string> Headers2Dictionary(NameValueCollection headers)
+        {
+            try
+            {
+                return headers.AllKeys.ToDictionary(k => k, k => headers[k]);
             }
             catch
             {

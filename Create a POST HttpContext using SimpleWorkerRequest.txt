@@ -1,0 +1,58 @@
+Create a POST HttpContext using SimpleWorkerRequest
+---------------------------------------------------
+
+using System.Web;
+using System.Web.Hosting;
+
+public class MyHttpPostWorker : SimpleWorkerRequest /*HttpWorkerRequest*/ 
+{
+    public string QueryString { get; set; }
+    public Dictionary<string, string> PostData { get; set; }
+    public string Method = "POST";
+    public string ContentType = "application/x-www-form-urlencoded";
+
+    public MyHttpPostWorker() : base("", "", "", null, new StringWriter())
+    {
+        this.PostData = new Dictionary<string, string>();
+    }
+
+    public override string GetQueryString(){
+        return this.QueryString;
+    }
+
+    public override string GetHttpVerbName(){
+        return Method;
+    }
+
+    public override string GetKnownRequestHeader(int index)
+    {
+        switch (index) { 
+            case HttpWorkerRequest.HeaderContentLength:
+                return this.PostData.Count.ToString();
+            case HttpWorkerRequest.HeaderContentType:
+                return ContentType;
+            default:
+                return base.GetKnownRequestHeader(index);
+        }
+    }
+
+    public override byte[] GetPreloadedEntityBody()
+    {
+        var strPostData = string.Join("&", this.PostData.Select(x => string.Concat(x.Key, "=", x.Value)));
+        return Encoding.UTF8.GetBytes(strPostData);
+    }
+}
+
+
+--------------------------------------------
+
+var postData = new Dictionary<string, string>();
+postData.Add("c", "3");
+postData.Add("d", "4");
+
+var httpWorker = new MyHttpPostWorker() { 
+      QueryString = "a=1&b=2",
+      PostData = postData
+};
+
+var httpContext = new HttpContext(httpWorker);

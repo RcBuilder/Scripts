@@ -1,0 +1,165 @@
+Search Engine Implementation
+============================
+
+[SAMPLE-1]
+
+@model Entities.OrderSearchParams
+
+<div class="order-filters-wrapper">
+    <div>
+        <img data-value="0" src="~/img/cards-view.svg" alt="" class="view-button @(Model.ViewType == Entities.eResultViewTypes.CARDS ? "selected" : "")"  />
+        <img data-value="1" src="~/img/list-view.svg"  alt="" class="view-button @(Model.ViewType == Entities.eResultViewTypes.LIST  ? "selected" : "")" />
+    </div>
+    <div>
+        הצג
+        @Html.DropDownListFor(m => Model.RowCount, new List<SelectListItem> {
+            new SelectListItem{  Value = "9",  Text = "9" },
+            new SelectListItem{  Value = "18", Text = "18" },
+            new SelectListItem{  Value = "27", Text = "27" },
+            new SelectListItem{  Value = "36", Text = "36" },
+            new SelectListItem{  Value = "45", Text = "45" }
+        }, new { @class = "select" })
+        הזמנות
+    </div>
+    <div>
+        <div class="filter-tags">
+            <span data-value="0" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.NONE) ?? true ? "selected" : "")">ללא</span>
+            <span data-value="1" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.APPROVED) ?? true ? "selected" : "")">אושר</span>
+            <span data-value="2" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.STARTED) ?? true ? "selected" : "")">בהכנה</span>
+            <span data-value="3" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.PREPARED) ?? true ? "selected" : "")">מוכן</span>
+            <span data-value="4" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.TAKEN) ?? true ? "selected" : "")">נלקח</span>
+        </div>
+    </div>
+    <div>
+        @Html.DropDownListFor(m => Model.OrderBy, new List<SelectListItem> {
+            new SelectListItem{  Value = "OrderDateASC",  Text = "ת.אספקה - ישן קודם" },
+            new SelectListItem{  Value = "OrderDateDESC", Text = "ת.אספקה - חדש קודם" },
+            new SelectListItem{  Value = "StatusASC", Text = "סטטוס הזמנה" }            
+        }, new { @class = "select" })
+    </div>
+    <div>
+        <button class="button-base button-xs" id="btnOrdersFilter">סינון</button>        
+    </div>
+</div>
+
+-
+
+$('#btnOrdersFilter').on('click', function (e) {
+    var prms = [];
+
+    var viewType = $('.order-filters-wrapper img.selected').first().attr('data-value');
+    if (viewType != '') prms.push('ViewType=' + viewType);
+
+    var rowCount = $('#RowCount').val();
+    if (rowCount != '') prms.push('RowCount=' + rowCount);
+
+    var tagIds = $('.filter-tags > .tag.selected').toArray().map(x => $(x).attr('data-value'));
+    if (tagIds.length > 0) prms.push('sStatuses=' + tagIds.join(','));
+
+    var orderBy = $('#OrderBy').val();
+    if (orderBy != '') prms.push('OrderBy=' + orderBy);
+
+    ///alert(prms);
+    var query = prms.length == 0 ? '' : '?'.concat(prms.join('&'));
+    document.location.href = '/Admin/Orders/1{0}'.replace('{0}', encodeURI(query));
+});
+
+$('.filter-tags > .tag').on('click', function (e) {
+    $(e.target).toggleClass('selected');
+});
+
+$('.order-filters-wrapper img').on('click', function (e) {
+    $('.order-filters-wrapper img').removeClass('selected');
+    $(e.target).addClass('selected');
+});
+
+----------------------
+
+[SAMPLE-2]
+
+@model WEB.Models.SearchFilterDTO
+
+<div class="filter-wrap">
+    <aside class="filter">
+        <div class="filter__header">
+            <div class="filter__header-wrap-img">
+                <img src="~/img/setup-preferences.svg" alt="">
+            </div>
+            <span class="filter__header-reset">
+                @Html.ActionLink("איפוס", "Search", "Restaurant", null, null)                
+            </span>
+        </div>
+        <div class="filter__content">
+            <div class="filter__search">
+				<input type="text" placeholder="חיפוש חופשי" id="txtFreeSearch" value="@Model.SearchParameters.text" />
+			</div>
+
+            <div class="filter__wrap-radio-btn">
+				<label for="">
+					<input type="radio" name="rKosher" id="rKosher_all" @(!Model.SearchParameters.isKosher.HasValue ? "checked" : "")>
+					<span>הצג הכל</span>
+				</label>
+				<label for="">
+					<input type="radio" name="rKosher" id="rKosher_on" @(Model.SearchParameters.isKosher.HasValue && Model.SearchParameters.isKosher.Value ? "checked" : "")>
+					<span>כשר</span>
+				</label>
+				<label for="">
+					<input type="radio" name="rKosher" id="rKosher_off" @(Model.SearchParameters.isKosher.HasValue && !Model.SearchParameters.isKosher.Value ? "checked" : "")>
+					<span>לא כשר</span>
+				</label>
+			</div>
+
+            <div class="filter__dropdown">
+				<p class="filter__dropdown-name">
+					<span class="filter__dropdown-img"></span>
+					<span>רגישות</span>
+				</p>
+				<div class="filter__dropdown-content">
+					@foreach (var category in Model.CategoriesMap?.Values.Where(c => c.Type == Entities.eCategoryType.SENSITIVITY))
+					{
+						<label for="">
+							<input type="checkbox" id="chkCat_@category.Id" value="@category.Id" @(Model.SearchParameters.cIdsList?.Contains(category.Id) ?? false ? "checked" : "") />
+							<span>@category.NameHE</span>
+						</label>
+					}
+				</div>
+			</div>
+
+            <div class="filter__dropdown">
+				<p class="filter__dropdown-name">
+					<span class="filter__dropdown-img"></span>
+					<span>קטגוריה</span>
+				</p>
+				<div class="filter__dropdown-content">
+					@foreach (var category in Model.CategoriesMap?.Values.Where(c => c.Type == Entities.eCategoryType.RESTAURANT)) { 
+						<label for="">
+							<input type="checkbox" id="chkCat_@category.Id" value="@category.Id" @(Model.SearchParameters.cIdsList?.Contains(category.Id) ?? false ? "checked" : "") />
+							<span>@category.NameHE</span>
+						</label>
+					}
+				</div>
+			</div>
+
+            <button class="button-base full-width" id="btnFilter">סינון</button>
+        </div>
+    </aside>
+</div>
+
+-
+
+$('#btnFilter').on('click', function (e) {
+    var prms = [];
+
+    var text = $('#txtFreeSearch').val().trim();
+    if (text != '') prms.push('text=' + text);
+        
+    var kosher = $('[name="rKosher"]:checked').attr('id');
+    if (kosher == 'rKosher_on') prms.push('isKosher=' + true);
+    else if (kosher == 'rKosher_off') prms.push('isKosher=' + false);
+
+    var arrIds = $('.filter__dropdown-content [type="checkbox"]:checked').toArray().map(x => x.value);
+    if (arrIds.length > 0) prms.push('cIds=' + arrIds.join(','));
+
+    var query = prms.length == 0 ? '' : '?'.concat(prms.join('&'));
+    document.location.href = '/Restaurant/Search{0}'.replace('{0}', encodeURI(query));
+});

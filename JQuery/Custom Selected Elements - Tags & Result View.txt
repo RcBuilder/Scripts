@@ -1,0 +1,38 @@
+Custom Selected Elements - Tags & Result View
+---------------------------------------------
+use "selected" class to define whether the element is ON or OFF. 
+use javascript to get the selected values.
+
+[sample]
+// get selected tags list 
+// plural checkbox-mode
+<div class="filter-tags">
+    <span data-value="0" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.NONE) ?? true ? "selected" : "")">ללא</span>
+    <span data-value="1" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.APPROVED) ?? true ? "selected" : "")">אושר</span>
+    <span data-value="2" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.STARTED) ?? true ? "selected" : "")">בהכנה</span>
+    <span data-value="3" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.PREPARED) ?? true ? "selected" : "")">מוכן</span>
+    <span data-value="4" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.TAKEN) ?? true ? "selected" : "")">נלקח</span>
+</div>
+
+var prms = [];
+var tagIds = $('.filter-tags > .tag.selected').toArray().map(x => $(x).attr('data-value'));
+if (tagIds.length > 0) prms.push('sStatuses=' + tagIds.join(','));
+
+var query = prms.length == 0 ? '' : '?'.concat(prms.join('&'));
+document.location.href = '/Search{0}'.replace('{0}', encodeURI(query));
+
+---
+
+// get single selected 
+// single radio-mode
+<div>
+    <img data-value="0" src="~/img/cards-view.svg" alt="" class="view-button @(Model.ViewType == Entities.eResultViewTypes.CARDS ? "selected" : "")"  />
+    <img data-value="1" src="~/img/list-view.svg"  alt="" class="view-button @(Model.ViewType == Entities.eResultViewTypes.LIST  ? "selected" : "")" />
+</div>
+
+var prms = [];
+var viewType = $('.order-filters-wrapper img.selected').first().attr('data-value');
+if (viewType != '') prms.push('ViewType=' + viewType);
+
+var query = prms.length == 0 ? '' : '?'.concat(prms.join('&'));
+document.location.href = '/Search{0}'.replace('{0}', encodeURI(query));

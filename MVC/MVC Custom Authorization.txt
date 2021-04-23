@@ -1,0 +1,157 @@
+MVC Custom Authorization
+------------------------
+
+// Authorize
+public class MNewAuthorization : AuthorizeAttribute {
+    public override void OnAuthorization(AuthorizationContext filterContext) {
+        var context = HttpContext.Current;
+        var accountSession = SessionsManager.GetAccount(context);
+
+        // no session - try to load cookie
+        if (accountSession == null) {
+            var accountCookie = CookiesManager.GetAccount(context);
+            if (accountCookie != null)
+            {
+                // update session
+                SessionsManager.SetAccount(context, accountCookie);
+                accountSession = accountCookie;
+            }
+        }
+
+        if (accountSession != null) {
+            GenericIdentity identity = null;
+            var roles = new List<string>();
+
+            var roleName = "Restaurant";
+            identity = new GenericIdentity(accountSession.Id.ToString(), roleName);
+            roles.Add(roleName);
+
+            if (roles.Count > 0)
+                context.User = new GenericPrincipal(identity, roles.ToArray());
+        }
+
+        base.OnAuthorization(filterContext);
+    }
+}
+
+--
+
+// Entities
+public class LoggedInAccount {
+    [JsonProperty(PropertyName = "id")]
+    public int Id { get; set; }
+
+    [JsonProperty(PropertyName = "name")]
+    public string Name { get; set; }
+
+    public static explicit operator LoggedInAccount(RestaurantDetails source) {
+        return new LoggedInAccount { 
+            Id = source.Id,
+            Name = source.Name
+        };
+    }
+}
+
+--
+
+// BLL
+public class SessionsManager {
+    public const string KEY_ACCOUNT = "Account";
+
+    public static void SetAccount(HttpContext Context, Entities.LoggedInAccount Account) {
+        Context.Session[KEY_ACCOUNT] = Account;
+    }
+
+    public static Entities.LoggedInAccount GetAccount(HttpContext Context) {
+        try {            
+            var accountSession = Context.Session[KEY_ACCOUNT];
+            if (accountSession != null) return (Entities.LoggedInAccount)accountSession;
+
+            return null;
+        }
+        catch { return null; }
+    }
+
+    public static int GetAccountId(HttpContext Context) {
+        var sessionAccount = GetAccount(Context);
+        if (sessionAccount == null) return 0;
+        return sessionAccount.Id;
+    }
+        
+    public static void ClearAccount(HttpContext Context) {
+        Context.Session[KEY_ACCOUNT] = "";
+        Context.Session.Remove(KEY_ACCOUNT);
+    }
+
+    public static bool IsLoggedIn(HttpContext Context) {
+        return GetAccount(Context) != null;
+    }
+}
+
+--
+
+// BLL
+public class CookiesManager {
+    public const string KEY_ACCOUNT = "Account";
+
+    public static void SetAccount(HttpContext Context, Entities.LoggedInAccount Account) {
+        Context.Response.Cookies.Add(new HttpCookie(KEY_ACCOUNT, JsonConvert.SerializeObject(Account)) {
+            Expires = DateTime.Now.AddDays(60),
+            Secure = true,
+        });
+    }
+
+    public static void ClearAccount(HttpContext Context) {
+        var cookie = Context.Request.Cookies[KEY_ACCOUNT];
+        if (cookie == null) return;
+        cookie.Value = null;
+        cookie.Expires = DateTime.Now.AddDays(-1);
+        Context.Response.Cookies.Add(cookie);
+    }
+
+    public static Entities.LoggedInAccount GetAccount(HttpContext Context) {
+        var cookie = Context.Request.Cookies[KEY_ACCOUNT];
+        if (cookie == null) return null;
+        return JsonConvert.DeserializeObject<Entities.LoggedInAccount>(cookie.Value);
+    }
+}
+
+--
+
+// Controller
+[HttpPost]
+public async Task<ActionResult> Login(Models.LoginDTO Model) {
+    try {
+        if (!ModelState.IsValid)
+            return View(Model);
+
+        var restaurantsBLL = new RestaurantsBLL();
+
+        var account = await restaurantsBLL.Login(Model.Email, Model.Password);
+        if (account == null) throw new Exception("שם משתמש או סיסמה לא נכונים");
+
+        var context = System.Web.HttpContext.Current;                
+        SessionsManager.SetAccount(context, (Entities.LoggedInAccount)account);                
+        CookiesManager.SetAccount(context, (Entities.LoggedInAccount)account);
+
+        return RedirectToAction("", "Admin");
+    }
+    catch (Exception ex) {
+        ModelState.AddModelError("CustomError", ex.Message);
+        return View(Model);
+    }
+}
+
+public ActionResult LogOut() {
+    var context = System.Web.HttpContext.Current;
+    SessionsManager.ClearAccount(context);
+    CookiesManager.ClearAccount(context);
+    return RedirectToAction("", "");
+}
+
+--
+
+// Web.config
+<authentication mode="Forms">
+    <forms loginUrl="~/Restaurant/LogIn" />
+</authentication>

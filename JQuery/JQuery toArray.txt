@@ -1,0 +1,13 @@
+JQuery toArray
+--------------
+<div class="filter-tags">
+    <span data-value="0" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.NONE) ?? true ? "selected" : "")">ללא</span>
+    <span data-value="1" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.APPROVED) ?? true ? "selected" : "")">אושר</span>
+    <span data-value="2" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.STARTED) ?? true ? "selected" : "")">בהכנה</span>
+    <span data-value="3" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.PREPARED) ?? true ? "selected" : "")">מוכן</span>
+    <span data-value="4" class="tag @(Model.StatusesList?.Contains((byte)Entities.eOrderStatus.TAKEN) ?? true ? "selected" : "")">נלקח</span>
+</div>
+
+---
+
+var tagIds = $('.filter-tags > .tag.selected').toArray().map(x => $(x).attr('data-value'));

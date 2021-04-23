@@ -12,7 +12,8 @@ namespace Helpers
     {
         private const double TimeOutSec = 30;
         private WebClient client { get; set; } = new WebClient {
-            Proxy = null
+            Proxy = null,
+            Encoding = Encoding.UTF8
         };
 
         public (bool Success, string Content) GET(string url, string querystring = null, Dictionary<string, string> headers = null)
@@ -46,24 +47,8 @@ namespace Helpers
         {
             try
             {
-                client.Headers.Clear();
-                if (headers != null)
-                    foreach (var header in headers)
-                        client.Headers.Add(header.Key, header.Value);
-
-                if (!string.IsNullOrEmpty(querystring))
-                    url = string.Concat(url, "?", querystring);
-
-                var content = client.DownloadString(url);
-                return (true, content, JsonConvert.DeserializeObject<T>(content));
-            }
-            catch (WebException ex)
-            {                
-                var stream = ex?.Response?.GetResponseStream();
-                if (stream == null) return (false, $"{ex.Message}", default(T));
-
-                using (var reader = new StreamReader(stream))
-                    return (false, $"{ex.Message} {reader.ReadToEnd()}", default(T));
+                var response = this.GET(url, querystring, headers);
+                return (response.Success, response.Content, response.Success ? JsonConvert.DeserializeObject<T>(response.Content) : default(T));
             }
             catch (Exception ex)
             {
@@ -74,13 +59,27 @@ namespace Helpers
         public (bool Success, string Content) POST<T>(string url, T payload, string querystring = null, Dictionary<string, string> headers = null) {
             return UPLOAD(url, payload, "JSON", querystring, headers, "POST");
         }
+        
+        public (bool Success, string Content, TResult Model) POST<TPayload, TResult>(string url, TPayload payload, string querystring = null, Dictionary<string, string> headers = null) {
+            return UPLOAD<TPayload, TResult>(url, payload, "JSON", querystring, headers, "POST");
+        }
 
         public (bool Success, string Content) PUT<T>(string url, T payload, string querystring = null, Dictionary<string, string> headers = null) {
             return UPLOAD(url, payload, "JSON", querystring, headers, "PUT");
         }
 
+        public (bool Success, string Content, TResult Model) PUT<TPayload, TResult>(string url, TPayload payload, string querystring = null, Dictionary<string, string> headers = null)
+        {
+            return UPLOAD<TPayload, TResult>(url, payload, "JSON", querystring, headers, "PUT");
+        }
+
         public (bool Success, string Content) DELETE<T>(string url, T payload, string querystring = null, Dictionary<string, string> headers = null) {
             return UPLOAD(url, payload, "JSON", querystring, headers, "DELETE");
+        }
+
+        public (bool Success, string Content, TResult Model) DELETE<TPayload, TResult>(string url, TPayload payload, string querystring = null, Dictionary<string, string> headers = null)
+        {
+            return UPLOAD<TPayload, TResult>(url, payload, "JSON", querystring, headers, "DELETE");
         }
 
         public (bool Success, string Content) POST_DATA(string url, Dictionary<string, string> payload, string querystring = null, Dictionary<string, string> headers = null) 
@@ -144,13 +143,27 @@ namespace Helpers
             }
             catch (WebException ex)
             {
-                var stream = ex.Response.GetResponseStream();
+                var stream = ex?.Response?.GetResponseStream();
+                if (stream == null) return (false, $"{ex.Message}");
+
                 using (var reader = new StreamReader(stream))
                     return (false, $"{ex.Message} {reader.ReadToEnd()}");                
             }
             catch (Exception ex)
             {
                 return (false, ex.Message);
+            }
+        }
+
+        protected (bool Success, string Content, TResult Model) UPLOAD<TPayload, TResult>(string url, TPayload payload, string payloadMode = "JSON" /*JSON|DATA*/, string querystring = null, Dictionary<string, string> headers = null, string method = "POST") {
+            try
+            {
+                var response = this.UPLOAD<TPayload>(url, payload, payloadMode, querystring, headers, method);
+                return (response.Success, response.Content, response.Success ? JsonConvert.DeserializeObject<TResult>(response.Content) : default(TResult));
+            }
+            catch (Exception ex)
+            {
+                return (false, ex.Message, default(TResult));
             }
         }
     }
