@@ -1,0 +1,100 @@
+Twilio API - Send Whataspp Messages
+-----------------------------------
+also see 'TwilioManager.cs'
+
+---
+
+nuget:
+Install-Package Twilio
+
+---
+
+how to use:
+1. Register to Twilio
+2. Activate the sandbox
+   Whatapp > Sandbox > 
+3. send a whatsapp message to the presented phone
+   join <sandbox name> // sandbox name is provided in twilio console
+   note: use stop <sandbox name> to stop service
+4. get a confirmation response
+5. get the Auth Token and Account SID for the REST requests from the console   
+6. create an app 
+   note: use 'whatsapp:[phone]' to send a whatsapp message
+
+---
+
+sample code:
+using Twilio;
+using Twilio.Rest.Api.V2010.Account;
+
+const string accountSid = "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+const string authToken = "your_auth_token";
+
+TwilioClient.Init(accountSid, authToken);
+
+var message = MessageResource.Create(
+     body: "Hello there!",
+     from: new Twilio.Types.PhoneNumber("whatsapp:+14155238886"),
+     to: new Twilio.Types.PhoneNumber("whatsapp:+15005550006")
+);
+
+Console.WriteLine(message.Sid);
+
+--------------------
+
+REFERENCE:                
+https://www.twilio.com/docs/whatsapp/quickstart/csharp
+https://www.twilio.com/docs/whatsapp/api
+
+DASHBOARD:                
+Home -> Programmable Messaging
+
+JOIN (SANDBOX):
+1. https://www.twilio.com/console/sms/whatsapp/sandbox    
+2. invite users to the sendbox by sending a whatsapp message to your twilio number with the provided code (e.g: "join least-dull")
+    notes: 
+    we can also use invitation link (whatsapp://send?phone=<TwilioNumber>&text=<Code(URL-Encoded)>)
+    we can also use QRCode to generate the invitation link
+
+WEBHOOK (SANDBOX):
+1. https://www.twilio.com/console/sms/whatsapp/sandbox
+2. set a webhook URL in both "WHEN A MESSAGE COMES IN" and\or "STATUS CALLBACK URL" options                    
+
+-
+                
+PRODUCTION:                
+(1) Facebook > Verify your Facebook Business Manager in order to setup WhatsApp Business API using Twilio.
+    business.facebook > Business settings > Business Information > Business Verification Status 
+    note! if status is not verified > click on "start verification" and follow the instructions 
+    https://business.facebook.com/
+    https://business.facebook.com/settings/info
+    https://business.facebook.com/settings/security
+
+(2) Twilio > Purchase a new mobile phone number for WhatsApp Business API
+    https://www.twilio.com/console/phone-numbers/search
+
+(3) To purchase the phone number, you'll need to submit a regulation-document fit to your country.
+    https://www.twilio.com/guidelines/regulatory
+
+(4) Then, you'll have to fill-out an access-request-form and send it to whatsapp team for approval.
+    note! twilio will contact you within 10 days with the outcome.
+    https://www.twilio.com/whatsapp/request-access
+
+    to get Facebook Business Id: 
+    FB > Setting > Business Manager
+    https://business.facebook.com/settings/info
+
+    to approve twilio on facebook bussiness:
+    FB > Settings > Received > "Approve" Twilio
+    https://business.facebook.com/settings/requests
+
+(5) add a new WhatsApp Sender using the approved phone number
+    https://www.twilio.com/console/sms/whatsapp/senders
+
+sources:
+- https://support.salescandy.com/hc/en-us/articles/360053590431-How-to-apply-and-set-up-WhatsApp-Business-API-number-in-Twilio-
+- https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile    
+- https://www.twilio.com/docs/whatsapp/api
+- https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile
+
+--------------------

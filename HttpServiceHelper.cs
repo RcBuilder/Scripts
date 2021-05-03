@@ -10,7 +10,7 @@ namespace Helpers
 {
     public class HttpServiceHelper : IHttpServiceHelper
     {
-        private const double TimeOutSec = 30;
+        private const double TimeOutSec = 10;
         private WebClient client { get; set; } = new WebClient {
             Proxy = null,
             Encoding = Encoding.UTF8

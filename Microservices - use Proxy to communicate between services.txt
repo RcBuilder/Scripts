@@ -70,21 +70,17 @@ namespace ServicesProxy
 --
 
 var proxy = new ServicesProxy.AccountsProxy(new HttpExtractor());
-            var getAccountResult = proxy.GetAccount(documentHeader.AccountId);
+var getAccountResult = proxy.GetAccount(document.AccountId);
 
-            var account = getAccountResult.Model;
-            if (account == null)
-            {
-                // create new account
-                account = new Account
-                {
-                    Id = documentHeader.AccountId,
-                    Name = documentHeader.AccountName,
-                    Address = documentHeader.Address,
-                    City = documentHeader.City,
-                    Phone1 = documentHeader.Phone1,
-                    Phone2 = documentHeader.Phone2,
-                };
-                var createAccountResult = proxy.CreateAccount(account);
-                if (!createAccountResult.Success)
-                    throw new Exception($"[ProcessAccount] {createAccountResult.Content}");
+var account = getAccountResult.Model;
+if (account == null) 
+{
+    // create new account
+    account = new Account {
+        ...
+    };
+}
+
+var createAccountResult = proxy.CreateAccount(account);
+if (!createAccountResult.Success)
+    throw new Exception($"[ERROR] {createAccountResult.Content}");

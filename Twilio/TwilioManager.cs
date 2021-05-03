@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 // Install-Package Twilio
 using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 
-namespace DistributionServiceBLL
+namespace TwilioBLL
 {
     /*
         USING
@@ -26,6 +24,14 @@ namespace DistributionServiceBLL
         var xmlPath = "http://demo.twilio.com/docs/voice.xml";
         var callId = this.Twilio.MakeACall("+1 423 285 6736", "+972 545614020", new Uri(xmlPath));
         Debug.WriteLine(callId);
+        
+        var whatsappMessageId1 = Twilio.SendWhatsapp("+1 415 523 8886", "+972-54-561-4020", "HELLO FROM TWILIO API");
+        Debug.WriteLine(whatsappMessageId1);
+
+        var whatsappMessageId2 = Twilio.SendWhatsapp("+1 415 523 8886", "+972-54-561-4020", "HELLO FROM TWILIO API", new List<string> { 
+            "https://static.remove.bg/sample-gallery/graphics/bird-thumbnail.jpg" 
+        });
+        Debug.WriteLine(whatsappMessageId3);
     */
 
     public class TwilioManager
@@ -64,14 +70,102 @@ namespace DistributionServiceBLL
         }
 
         public string SendSMS(string sTwilioPhone, string sToPhone, string Body) {
-            var fromPhone = new Twilio.Types.PhoneNumber(sTwilioPhone);  // https://www.twilio.com/console/phone-numbers
-            var toPhone = new Twilio.Types.PhoneNumber(sToPhone); 
+            /*
+                REFERENCE:                
+                https://www.twilio.com/docs/glossary/what-is-a-webhook
+                https://www.twilio.com/docs/usage/webhooks/sms-webhooks
+                https://www.twilio.com/docs/usage/webhooks
+
+                DASHBOARD:                
+                Home -> Programmable Messaging
+                
+                WEBHOOK:
+                1. https://www.twilio.com/console/phone-numbers
+                2. choose a Twilio Number 
+                3. (tab) Messaging > set "CONFIGURE WITH" to "WebHooks" > set WebHook URL                
+            */
+
+            var fromPhone = new Twilio.Types.PhoneNumber(CleanPhoneNumber(sTwilioPhone));  // https://www.twilio.com/console/phone-numbers
+            var toPhone = new Twilio.Types.PhoneNumber(CleanPhoneNumber(sToPhone)); 
 
             var message = MessageResource.Create(
                 body: Body,
 
                 from: fromPhone,
                 to: toPhone
+            );
+
+            return message.Sid;
+        }
+
+        public string SendWhatsapp(string sTwilioPhone, string sToPhone, string Body, List<string> Images = null) {
+            /*
+                REFERENCE:                
+                https://www.twilio.com/docs/whatsapp/quickstart/csharp
+                https://www.twilio.com/docs/whatsapp/api
+
+                DASHBOARD:                
+                Home -> Programmable Messaging
+
+                JOIN (SANDBOX):
+                1. https://www.twilio.com/console/sms/whatsapp/sandbox    
+                2. invite users to the sendbox by sending a whatsapp message to your twilio number with the provided code (e.g: "join least-dull")
+                   notes: 
+                   we can also use invitation link (whatsapp://send?phone=<TwilioNumber>&text=<Code(URL-Encoded)>)
+                   we can also use QRCode to generate the invitation link
+
+                WEBHOOK (SANDBOX):
+                1. https://www.twilio.com/console/sms/whatsapp/sandbox
+                2. set a webhook URL in both "WHEN A MESSAGE COMES IN" and\or "STATUS CALLBACK URL" options                    
+
+                -------------
+                
+                PRODUCTION:                
+                (1) Facebook > Verify your Facebook Business Manager in order to setup WhatsApp Business API using Twilio.
+                    business.facebook > Business settings > Business Information > Business Verification Status 
+                    note! if status is not verified > click on "start verification" and follow the instructions 
+                    https://business.facebook.com/
+                    https://business.facebook.com/settings/info
+                    https://business.facebook.com/settings/security
+
+                (2) Twilio > Purchase a new mobile phone number for WhatsApp Business API
+                    https://www.twilio.com/console/phone-numbers/search
+
+                (3) To purchase the phone number, you'll need to submit a regulation-document fit to your country.
+                    https://www.twilio.com/guidelines/regulatory
+
+                (4) Then, you'll have to fill-out an access-request-form and send it to whatsapp team for approval.
+                    note! twilio will contact you within 10 days with the outcome.
+                    https://www.twilio.com/whatsapp/request-access
+
+                    to get Facebook Business Id: 
+                    FB > Setting > Business Manager
+                    https://business.facebook.com/settings/info
+
+                    to approve twilio on facebook bussiness:
+                    FB > Settings > Received > "Approve" Twilio
+                    https://business.facebook.com/settings/requests
+
+                (5) add a new WhatsApp Sender using the approved phone number
+                    https://www.twilio.com/console/sms/whatsapp/senders
+
+                sources:
+                - https://support.salescandy.com/hc/en-us/articles/360053590431-How-to-apply-and-set-up-WhatsApp-Business-API-number-in-Twilio-
+                - https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile    
+                - https://www.twilio.com/docs/whatsapp/api
+                - https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile
+            */
+
+            var fromPhone = new Twilio.Types.PhoneNumber($"whatsapp:{CleanPhoneNumber(sTwilioPhone)}");  // https://www.twilio.com/console/phone-numbers
+            var toPhone = new Twilio.Types.PhoneNumber($"whatsapp:{CleanPhoneNumber(sToPhone)}"); 
+
+            var message = MessageResource.Create(
+                body: Body,
+
+                from: fromPhone,
+                to: toPhone,
+                mediaUrl: Images == null ? null : Images.Select(x => new Uri(x)).ToList()
+
             );
 
             return message.Sid;
@@ -118,6 +212,12 @@ namespace DistributionServiceBLL
             // https://www.twilio.com/docs/voice/api/call-resource#fetch-a-call-resource
             var call = CallResource.Fetch(Sid);
             return new CallInfo(call);
+        }
+
+        // -------------
+
+        private string CleanPhoneNumber(string PhoneNumber) {
+            return PhoneNumber.Replace(" ", string.Empty);
         }
     }
 }

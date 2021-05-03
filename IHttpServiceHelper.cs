@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace BLL
+namespace Helpers
 {
     public interface IHttpServiceHelper
     {

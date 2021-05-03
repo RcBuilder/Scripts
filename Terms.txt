@@ -145,6 +145,7 @@
 
 * AR = Augmented Reality (מציאות רבודה (שילוב  של אנימציה על רקעים אמיתיים
 * TOC = Table Of Contents
+* IVR = Interactive Voice Response (מענה קולי אינטראקטיבי)
 
 (phrases)
 * TDLR = Too Damn Lazy to Reply
