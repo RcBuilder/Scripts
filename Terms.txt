@@ -45,6 +45,7 @@
 * CRM = Customer-Relationship Management
 * WASM = WebAssembly
 * NLP = Natural Language Processing
+* NFC = Near-Field Communication (a set of communication protocols for communication between two electronic devices over a distance of 4 cm)
 
 * OLAP = Online Analytical Processing (analysis of data)
 * OLTP = Online Transaction Processing (transaction-oriented application)

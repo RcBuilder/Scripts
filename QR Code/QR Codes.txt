@@ -1,0 +1,96 @@
+*** QR Codes ***
+****************
+
+Sources:
+https://github.com/codebude/QRCoder
+
+Nuget:
+Install-Package QRCoder
+
+Namespaces:
+using QRCoder;
+using System.Drawing.Imaging;
+
+Create Data:
+<QRCodeGenerator>.CreateQrCode(<string>, <eccLevel>)
+<QRCodeGenerator>.CreateQrCode(<Payload>, <eccLevel>)  // see 'Payloads'
+
+Create Bitmap:
+<QRCode>.GetGraphic(<pixels>)
+<QRCode>.GetGraphic(<pixels>, <color-1>, <color-2>, true)
+<QRCode>.GetGraphic(<pixels>, <color-1>, <color-2>, <icon>, <icon-size>)
+
+Color Support:
+we can use Color static class from System.Drawing namespace or Hex string value 
+Color.Black or "#000000"
+        
+Steps:
+1. Create QRCodeData using the QRCodeGenerator
+    note! can choose the payload type // see 'Payloads' 
+2. Create QRCode from the QRCodeData in chapter 1 
+    note! choose the rendering-type // see 'Rendering Types'
+3. Create Bitmap from the QRCode in chapter 2
+4. Save Image
+5. use Any QR Scanner app to read the generated Code
+
+Rendering Types:
+use this option to determine how to render the code (as base64 image, pdf, svg and etc.)
+each option returns different result type which we can use to load as a different document format
+- QRCode
+- AsciiQRCode
+- Base64QRCode
+- BitmapByteQRCode
+- PdfByteQRCode
+- PngByteQRCode
+- PostscriptQRCode
+- SvgQRCode
+- UnityQRCode
+- XamlQRCode
+
+// e.g
+var qrCode = new QRCode(qrCodeData);
+var qrCode = new Base64QRCode(qrCodeData);
+
+
+Payloads:
+use this option to determine the payload type (url, geolocation, wifi address and etc.)
+each option triggers a differnt process (open a website, open a map, connect to a wifi and etc.)
+- BezahlCode
+- Bitcoin-Like cryptocurrency (Bitcoin, Bitcoin Cash, Litecoin) payment address
+- Bookmark
+- Calendar events (iCal/vEvent)
+- ContactData (MeCard/vCard)
+- Geolocation
+- Girocode
+- Mail
+- MMS
+- Monero address/payment
+- One-Time-Password
+- Phonenumber
+- Shadowsocks configuration
+- Skype call
+- SlovenianUpnQr
+- SMS
+- SwissQrCode (ISO-20022)
+- URL
+- WhatsAppMessage
+- WiFi
+        
+// e.g
+// PayloadGenerator.Url("https://rcb.co.il")
+
+Payload Generator:
+use PayloadGenerator class to generate a payload of any given type. 
+new PayloadGenerator.<PayloadType>(<params>)
+returns Payload object
+
+Using:
+var qrCodeData = new QRCodeGenerator().CreateQrCode(<data or payload>, QRCodeGenerator.ECCLevel.Q);
+var qrCode = new QRCode(qrCodeData);   // basic rendering type         
+var qrCodeImage = qrCode.GetGraphic(20);
+
+qrCodeImage.Save(<output-path>, ImageFormat.Jpeg);
+pictureBox1.Image = qrCodeImage;
+
+Reference:
+see 'QRCodeSample'

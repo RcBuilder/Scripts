@@ -3589,3 +3589,18 @@ BundleConfig - jsx (.NET)
 
 comment:
 {/* A JSX comment */}
+
+-
+
+import IdleTimer from "react-idle-timer";
+<IdleTimer
+    ref={(ref) => {
+		this.timer = ref;
+    }}
+    element={document}
+    onActive={this.onActive}
+    onIdle={this.onIdle}
+    onAction={this.onAction}
+    debounce={250}
+    timeout={5000}
+/>

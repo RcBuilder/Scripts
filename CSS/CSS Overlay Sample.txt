@@ -1,0 +1,47 @@
+CSS Overlay Sample
+------------------
+
+.container {
+    margin: 40px;
+    position: relative;
+    width: 500px;
+}
+.container > img {
+    display: block;
+    width: 100%;            
+}
+.container > .overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-color: #008CBA;
+    overflow: hidden;
+    width: 0;
+    height: 100%;
+    transition: .5s ease;    
+    opacity: 0.8;
+}
+.container:hover > .overlay {
+    width: 100%;
+}
+.container > .overlay > div {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    font-size: 20px;
+    top: 50%;
+    left: calc(50% - 50px);
+    overflow: hidden;
+}
+
+---
+
+<div class="container">
+    <img src="Resources/img_avatar.png" alt="" />
+    <div class="overlay">
+        <div>JOHN DOE</div>
+    </div>
+</div>

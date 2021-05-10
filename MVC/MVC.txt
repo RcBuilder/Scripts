@@ -2784,6 +2784,29 @@ see 'MVC FromURI binding'
        <input type="image" src="~/img/icons/Delete48x48.png" title="מחק שורה" />
   }
 
+* switch case to render different partial view
+  <main>
+        <h1>Order List</h1>
+
+        @Html.Partial("Partial/OrdersSearchFilter", Model.SearchParameters)
+
+        @{
+            switch (Model.SearchParameters.ViewType)
+            {
+                default:
+                case Entities.eResultViewTypes.CARDS:
+                    @Html.Partial("Partial/OrderCardsView", Model.Orders);
+                    break;
+                case Entities.eResultViewTypes.LIST:
+                    @Html.Partial("Partial/OrderListView", Model.Orders);
+                    break;
+                case Entities.eResultViewTypes.ITEM_LIST:
+                    @Html.Partial("Partial/OrderListView", Model.Orders);
+                    break;
+            }
+        }
+    </main>
+
 --------------------------------------------------------------
 // TODO Research
 

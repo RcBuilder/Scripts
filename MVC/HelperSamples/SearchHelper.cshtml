@@ -1,0 +1,18 @@
+﻿@helper RenderParametersAsString(WEB.Models.SearchResultDTO SearchResult)
+{
+    if (!string.IsNullOrEmpty(SearchResult.SearchParameters.text))
+    {
+        <text>@SearchResult.SearchParameters.text &middot;</text>
+    }
+
+    if (SearchResult.SearchParameters.isKosher.HasValue)
+    {
+        <text>@(SearchResult.SearchParameters.isKosher.Value ? "כשר" : "לא כשר") &middot;</text>
+    }
+
+    var categories = SearchResult.SearchParameters.cIdsList?.Where(id => SearchResult.CategoriesMap.ContainsKey(id)).Select(id => SearchResult.CategoriesMap[id].NameHE);
+    if (categories != null)
+    {
+        <text>@string.Join(" · ", categories)</text>
+    }
+}

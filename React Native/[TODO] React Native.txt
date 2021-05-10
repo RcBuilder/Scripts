@@ -2471,3 +2471,11 @@ https://reactnative.dev/docs/transforms
 
 State
 Props
+
+// NFC
+Requirements: buy NFC Card Reader + NFC Cards
+NFC = Near-Field Communication (a set of communication protocols for communication between two electronic devices over a distance of 4 cm)
+use react with nfc sample
+https://www.youtube.com/watch?v=Kx22B6OH3Oc
+windows-app
+https://gototags.com/windows-app

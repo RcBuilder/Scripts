@@ -1,0 +1,49 @@
+﻿@helper RenderStatus(Entities.Order o)
+{
+    string className, state;
+    if (o.IsLate) { className = "late"; state = "באיחור"; }
+    else if (o.Details.Status == Entities.eOrderStatus.APPROVED) { className = "approved"; state = "ממתין"; }
+    else if (o.Details.Status == Entities.eOrderStatus.STARTED) { className = "started"; state = "בהכנה"; }
+    else if (o.Details.Status == Entities.eOrderStatus.PREPARED) { className = "prepared"; state = "מוכן"; }
+    else if (o.Details.Status == Entities.eOrderStatus.TAKEN) { className = "taken"; state = "נלקח"; }
+    else { className = ""; state = "ללא"; }
+
+    <div class="order-status @className">
+        <span id="orderId">#@o.Details.Id</span>
+        <br />
+        <i>@state</i>
+    </div>
+}
+
+@helper RenderTags(Entities.eOrderStatus status)
+{
+    <div class="order-tags">
+        <span data-value="0" class="tag @(status == Entities.eOrderStatus.NONE ? "selected" : "")">ללא</span>
+        <span data-value="1" class="tag @(status == Entities.eOrderStatus.APPROVED ? "selected" : "")">אושר</span>
+        <span data-value="2" class="tag @(status == Entities.eOrderStatus.STARTED ? "selected" : "")">בהכנה</span>
+        <span data-value="3" class="tag @(status == Entities.eOrderStatus.PREPARED ? "selected" : "")">מוכן</span>
+        <span data-value="4" class="tag @(status == Entities.eOrderStatus.TAKEN ? "selected" : "")">נלקח</span>
+    </div>
+}
+
+@helper RenderPrice(Entities.Order o)
+{
+    if (o.Details.IsPaid)
+    {
+        <text>&#8362;0</text>
+    }
+    else
+    {
+        <text>&#8362;@o.Total</text>
+    }
+}
+
+@helper RenderSummary(IEnumerable<Entities.Order> orders)
+{
+    var flat = orders.SelectMany(o => o.Rows, (o, r) => r);
+    var group = flat.GroupBy(x => x.ItemName);
+    foreach (var row in group)
+    {
+        <div>@row.Key (@row.Count())</div>
+    }
+}
