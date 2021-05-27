@@ -1,0 +1,80 @@
+async abstract Methods
+----------------------
+to define an async abstract method we need to omit the 'async' keyword from the method declaration (the same as we do with an interface).
+we still have to add the 'async' keyword to the implementation.
+
+syntax:
+public abstract Task FunAsync();
+
+exception:
+public async abstract Task FunAsync(); // The 'async' modifier can only be used in methods that have a body.
+
+---
+
+async static Task Main(string[] args)
+{
+    var c = new Child();
+    await c.FunAsync();
+    c.Fun();           
+}
+
+abstract class Parent
+{
+    public abstract void Fun();
+    public abstract Task FunAsync();
+    ///public async abstract Task FunAsync(); // The 'async' modifier can only be used in methods that have a body.
+}
+
+class Child : Parent
+{
+    public override void Fun()
+    {
+        Console.WriteLine("In Fun");
+    }
+
+    public override Task FunAsync()
+    {
+        return Task.Factory.StartNew(() =>
+        {
+            Console.WriteLine("In FunAsync");
+        });
+    }
+}
+
+---
+
+// SAMPLE
+public async Task Process(int OrganizationId)
+{
+    try
+    {
+        var filePath = await this.GetFileToProcess();
+        Console.WriteLine($"File To Process: {Path.GetFileName(filePath)}");
+
+        await this.FileParser.Parse(filePath);
+        var rows = this.FileParser.Value?.ToList();
+                
+        var filtered = this.FilterByOrganisation(rows, OrganizationId)?.ToList();
+        if (filtered == null)
+        {
+            Console.WriteLine("NO ROWS TO PROCESS");
+            return;
+        }
+
+        Console.WriteLine($"{filtered.Count} ({rows.Count}) Rows Found");
+        foreach (var row in filtered)
+            await this.ProcessRow(row);
+    }
+    catch (AggregateException Ex)
+    {
+        Console.WriteLine($"[ERROR] {Ex.Message}");
+    }
+    catch (Exception Ex)
+    {
+        Console.WriteLine($"[ERROR] {Ex.Message}");
+    }
+}
+        
+public abstract IEnumerable<T> FilterByOrganisation(IEnumerable<T> Value, int OrganizationId);
+public abstract Task<string> GetFileToProcess();
+public abstract Task ProcessRow(T Row);

@@ -1,0 +1,20 @@
+C# Init a Dictionary 
+--------------------
+var dicCodes = new Dictionary<int, string>() {
+    [1] = "CODE-1",
+    [2] = "CODE-2",
+    [3] = "CODE-3",
+    [4] = "CODE-4"      
+};
+	
+var divCodesMap = new Dictionary<int, IEnumerable<int>>() {
+    [1] = new List<int> { 100, 101, 102, 103 },
+    [2] = new List<int> { 210, 220, 230 },
+    [3] = new List<int> { 300 },
+    [4] = new List<int> { 4100, 4200, 4300 }        
+};
+	
+Console.WriteLine(dicCodes[2]);  // CODE-2
+Console.WriteLine(string.Join(" | ", divCodesMap[2]));  // 210 | 220 | 230
+
+

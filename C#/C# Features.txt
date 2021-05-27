@@ -4,6 +4,10 @@
 
 
 *************************
+
+[Release 3.0]
+- Implicit-Typing (var keyword)
+
 [Release 6.0]
 - Expression Body
 - Auto-Property Initializer
@@ -38,8 +42,38 @@
 - ".." Range operator 
 - "??=" operator
 - Interfaces
+
+[Release 9.0]
+- Target-Types
+
 *************************
 
+Implicit-Typing (var keyword)
+-----------------------------
+'Implicit-Typing' are determined by the compiler based on the right-size of the variable definition.
+
+syntax:
+var <name> = <code>
+
+sample:
+var s1 = "Some String";
+var i1 = 10;
+var f1 = 3.99;
+
+var c1 = new SomeClass ("Roby");
+c1.SayYourName();
+
+class SomeClass{
+	public string Name { get; set; }
+	
+	public SomeClass(string Name){
+		this.Name = Name;
+	}
+	
+	public void SayYourName(){
+		Console.WriteLine(this.Name);
+	}
+}
 
 Expression Body
 ---------------
@@ -670,7 +704,30 @@ new capabilities:
 - supports static methods and members.
 - supports access modifiers (private, public etc.)
 
+Target-Types
+------------
+determine the object type by the LEFT-size of variable definition.  
 
+in contrast to the 'Implicit-Typing' which are determined by the right-size of the variable definition, 
+'Target-Type' are determined by the left-size! 
 
+syntax:
+<type> <name> = <code>
+
+sample:
+SomeClass c1 = new ("Roby");
+c1.SayYourName();
+
+class SomeClass{
+	public string Name { get; set; }
+	
+	public SomeClass(string Name){
+		this.Name = Name;
+	}
+	
+	public void SayYourName(){
+		Console.WriteLine(this.Name);
+	}
+}
 
 ------------------------------------------------------------

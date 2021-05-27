@@ -1,0 +1,103 @@
+using Google.Cloud.Speech.V1;
+
+void Main() {   
+    Console.WriteLine("Converting 5PAES...");
+    FetchAudioData(@"5PAES.wav");
+
+    Console.WriteLine("Converting RBMRD...");
+    FetchAudioData(@"RBMRD.wav");
+
+    Console.WriteLine("Converting 9A95P...");
+    FetchAudioData(@"9A95P.wav");
+
+    Console.WriteLine("Converting XUJ8M...");
+    FetchAudioData(@"XUJ8M.wav");
+
+    Console.WriteLine("Converting 9TUKB...");
+    FetchAudioData(@"9TUKB.wav");
+
+    Console.WriteLine("Converting 6WNUX...");
+    FetchAudioData(@"6WNUX.wav");
+
+    Console.WriteLine("Converting S9AEV...");
+    FetchAudioData(@"S9AEV.wav");
+
+    Console.WriteLine("Converting XWPW6...");
+    FetchAudioData(@"XWPW6.wav");
+}
+
+void FetchAudioData(string FilePath)
+{
+    string FlacFileFullPath = FlacConverter(FilePath);
+    string[] inputData = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+                
+    var Sc = new SpeechContext();
+    Sc.Phrases.Add(inputData);
+    var Phrases = new List<SpeechContext>();
+    Phrases.Add(Sc);
+             
+    /**/
+    var Speech = (new SpeechClientBuilder() {
+        CredentialsPath = @"Speech-To-Text.json",                    
+    }).Build();
+
+    /*
+    Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", @"Speech-To-Text.json");
+    var Speech = SpeechClient.Create();
+    */
+    var config = new RecognitionConfig
+    {                    
+        LanguageCode = LanguageCodes.English.UnitedKingdom,
+        EnableAutomaticPunctuation = true,
+        Encoding = RecognitionConfig.Types.AudioEncoding.Flac,
+        Model = "default",                                        
+        UseEnhanced = true
+
+    };
+    config.SpeechContexts.Add(Phrases);
+    var audio = RecognitionAudio.FromFile(FlacFileFullPath);
+    var response = Speech.Recognize(config, audio);
+    List<string> RecievedGoogleData = new List<string>();
+    if (response.Results != null)
+    {
+        foreach (var result in response.Results)
+        {
+            foreach (var alternative in result.Alternatives)
+            {
+                RecievedGoogleData.Add(alternative.Transcript);
+            }
+        }
+    }
+    foreach (var item in RecievedGoogleData)
+    {
+        string txtRaw = item.ToUpper();                                  
+        string txt = new string(txtRaw.Where(c => Char.IsDigit(c) || Char.IsLetter(c)).ToArray());
+        Console.WriteLine("CapchaText = " + txt);
+    }                
+}
+
+string FlacConverter(string FilePath)
+{
+    string InputFile = FilePath;
+    string OutputFile = Path.ChangeExtension(FilePath, ".flac");
+    if (File.Exists(OutputFile))
+        File.Delete(OutputFile);
+    Process NoiseRemovalProcess = new Process();
+    ProcessStartInfo NoiseRemovalStartInfo = new ProcessStartInfo();
+    NoiseRemovalStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+    NoiseRemovalStartInfo.FileName = @"C:\Program Files (x86)\sox-14-4-2\sox.exe";
+    NoiseRemovalStartInfo.Arguments = InputFile + " -n noiseprof noise.prof";
+    NoiseRemovalProcess.StartInfo = NoiseRemovalStartInfo;
+    NoiseRemovalProcess.Start();
+    NoiseRemovalProcess.WaitForExit();
+
+    Process FlacConvertProcess = new Process();
+    ProcessStartInfo FlacConvertStartInfo = new ProcessStartInfo();
+    FlacConvertStartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+    FlacConvertStartInfo.FileName = @"C:\Program Files (x86)\sox-14-4-2\sox.exe";
+    FlacConvertStartInfo.Arguments = "" + InputFile + " " + OutputFile + " lowpass -2 2500";
+    FlacConvertProcess.StartInfo = FlacConvertStartInfo;
+    FlacConvertProcess.Start();
+    FlacConvertProcess.WaitForExit();
+    return OutputFile;
+}

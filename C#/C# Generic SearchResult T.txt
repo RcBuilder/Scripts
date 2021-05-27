@@ -1,0 +1,49 @@
+C# Generic SearchResult T
+-------------------------
+
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Entities
+{
+    public class SearchResult<T>
+    {
+        [JsonProperty(PropertyName = "rowCount")]
+        public int RowCount {
+            get {
+                return this.Result?.Count() ?? 0;
+            }
+        }
+
+        [JsonProperty(PropertyName = "result")]
+        public IEnumerable<T> Result { get; protected set; }
+
+        public SearchResult(IEnumerable<T> Result) {
+            this.Result = Result;
+        }
+    }
+}
+
+---
+
+// using 
+public HttpResponseMessage FindPriceOffers(PriceOfferSearchParams searchParams)
+{
+    try
+    {
+        if (!ModelState.IsValid)
+            throw new Exception($"Invalid Model!");
+
+        var bll = new DocumentsBLL(this.Broker);
+        var searchResult = bll.FindPriceOffers(searchParams);
+
+        var response = Request.CreateResponse(HttpStatusCode.OK, new SearchResult<PriceOffer>(searchResult));
+        return response;
+    }
+    catch (Exception ex)
+    {
+        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+    }
+}

@@ -1,0 +1,59 @@
+Newtonsoft Custom Converters
+----------------------------
+there are several ways to override the serializer default behaviour:
+1. by overriding the 'JsonConverter' class and implement your own converter
+2. by creating a dummy property to set the actual one
+
+--
+
+also see 
+'Newtonsoft Custom Converter - JsonConverter - property'
+'Newtonsoft Custom Converter - JsonConverter - class'
+'Newtonsoft Settings - JsonConverter - Metadata - Objects Type'
+'DateTime-Based Serialization Property.txt'
+'Enum-Based Serialization Property'
+
+--
+
+[1]
+TODO 
+
+--
+
+[2]
+// DateTime
+[JsonProperty(PropertyName = "birthDate")]
+public string __BirthDate
+{
+    get
+    {
+        if (this.BirthDate.HasValue)
+            return this.BirthDate.Value.ToString("dd/MM/yyyy");
+        return null;
+    }
+    set
+    {
+        if (string.IsNullOrEmpty(value))
+            this.BirthDate = null;
+        else
+            this.BirthDate = DateTime.Parse(value);
+    }
+}
+public DateTime? BirthDate { get; set; } 
+
+-
+
+// Enum
+[JsonProperty(PropertyName = "type")]        
+public string __Type {
+    set {
+        try {
+            this.Type = (eType)Enum.Parse(typeof(eType), value, true);
+        }
+        catch {
+            this.Type = default(eType);
+        }
+    }
+    get { return this.Type.ToString(); }
+}
+public eType Type { get; set; }

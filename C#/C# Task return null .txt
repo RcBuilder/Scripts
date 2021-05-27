@@ -1,0 +1,14 @@
+C# Task return null 
+-------------------
+
+syntax:
+return Task.FromResult(0);
+
+sample:
+public override Task ProcessRow(RollTimeModel Row) {
+    if (string.IsNullOrEmpty(Row.ClientId))
+        return Task.FromResult(0);
+
+    Console.WriteLine(Row.ClientId);
+    return base.ProcessRow(Row);
+}

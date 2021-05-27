@@ -15,7 +15,7 @@ using FluentFTP;
 // https://github.com/sshnet/SSH.NET
 using Renci.SshNet;  
 
-namespace FilesProcessorBLL
+namespace DanHotelsConnector
 {
     /*
         USING
@@ -61,7 +61,7 @@ namespace FilesProcessorBLL
         Task<IEnumerable<string>> GetFileList(string RootFolder = "/", string Filter = "*.*", T client = null);
         Task<IEnumerable<string>> GetFolderList(string RootFolder = "/", T client = null);
         Task<bool> IsFileExists(string RemotePath, T client = null);
-        Task<bool> DownloadFile(string RemotePath, string LocalPath, T client = null);
+        Task<int> DownloadFile(string RemotePath, string LocalPath, T client = null);
         Task<int> DownloadFiles(IEnumerable<string> RemotePaths, string LocalFolder, T client = null);
         Task<int> DownloadFiles(string RootFolder, string Filter, string LocalFolder, T client = null);
         Task<bool> UploadFile(string RemotePath, string LocalPath, T client = null);
@@ -140,14 +140,14 @@ namespace FilesProcessorBLL
             return await client.FileExistsAsync(RemotePath);
         }
 
-        public async Task<bool> DownloadFile(string RemotePath, string LocalPath, FtpClient client = null) {
+        public async Task<int> DownloadFile(string RemotePath, string LocalPath, FtpClient client = null) {
             try
             {
                 client = client ?? await this.Connect();
                 var status = await client.DownloadFileAsync(LocalPath, RemotePath, FtpLocalExists.Overwrite);
-                return status == FtpStatus.Success;
+                return status == FtpStatus.Success ? 1 : 0;
             }
-            catch { return false; }
+            catch { return 0; }
         }
 
         public async Task<int> DownloadFiles(IEnumerable<string> RemotePaths, string LocalFolder, FtpClient client = null) {
@@ -233,14 +233,14 @@ namespace FilesProcessorBLL
             var sClient = new SftpClient(this.Server, 22, this.UserName, this.Password);            
             sClient.ConnectionInfo.Timeout = TimeSpan.FromSeconds(60);
             sClient.Connect();            
-            return sClient;
+            return await Task.FromResult(sClient);
         }
 
         public async Task<bool> Disconnect(SftpClient client)
         {
-            if (!client.IsConnected) return true;
+            if (!client.IsConnected) return await Task.FromResult(true);
             client.Disconnect();
-            return true;
+            return await Task.FromResult(true);
         }
 
         public async Task<IEnumerable<string>> GetFileList(string RootFolder = "/", string Filter = "*.*", SftpClient client = null)
@@ -283,7 +283,7 @@ namespace FilesProcessorBLL
             return client.Exists(RemotePath);
         }
 
-        public async Task<bool> DownloadFile(string RemotePath, string LocalPath, SftpClient client = null)
+        public async Task<int> DownloadFile(string RemotePath, string LocalPath, SftpClient client = null)
         {
             try
             {
@@ -292,9 +292,9 @@ namespace FilesProcessorBLL
                 if(!LocalPath.EndsWith(@"\")) LocalPath += @"\";
                 using (var fs = File.OpenWrite($"{LocalPath}{Path.GetFileName(RemotePath)}"))
                     client.DownloadFile(RemotePath, fs);
-                return true;
+                return 1;
             }
-            catch { return false; }
+            catch { return 0; }
         }
 
         public async Task<int> DownloadFiles(IEnumerable<string> RemotePaths, string LocalFolder, SftpClient client = null)
@@ -302,7 +302,7 @@ namespace FilesProcessorBLL
             client = client ?? await this.Connect();
             var successes = 0;
             foreach (var item in RemotePaths)
-                successes += (await this.DownloadFile(item, LocalFolder, client) ? 1 : 0);
+                successes += (await this.DownloadFile(item, LocalFolder, client));
             return successes;
         }
 

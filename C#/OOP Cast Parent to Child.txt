@@ -1,0 +1,87 @@
+OOP Cast Parent to Child
+------------------------
+Child class can be cast to Parent but Parent can NOT be cast to Child 
+
+syntax:
+var child = (Child)parent;   // ERROR: "Unable to cast object of type 'Parent' to type 'Child'"
+var parent = (Parent)child;  // OK
+
+e.g:
+var p = new Parent{
+	P1 = 1,
+	P2 = 2
+};
+	
+var c = (Child)p;  // ERROR: "Unable to cast object of type 'Parent' to type 'Child'"
+c.P3 = 3;
+
+-
+
+use the 'ClassConverter' generic class to Cast a parent class to Child class!
+
+syntax:
+var child = ClassConverter<TParent, TChild>.Copy(TParent);
+
+e.g:
+var p = new Parent{
+	P1 = 1,
+	P2 = 2
+};
+		
+var c = ClassConverter<Parent, Child>.Copy(p);  // OK
+c.P3 = 3;
+
+-----
+
+void Main()
+{
+	var p = new Parent{
+		P1 = 1,
+		P2 = 2
+	};
+		
+	// var c = (Child)p;  // ERROR
+	var c = ClassConverter<Parent, Child>.Copy(p);
+	c.P3 = 3;
+	
+	// var sc = (SubChild)c;  // ERROR
+	var sc = ClassConverter<Child, SubChild>.Copy(c);
+	sc.P4 = 4;
+	
+	Console.WriteLine(p);
+	Console.WriteLine(c);
+	Console.WriteLine(sc);
+}
+
+-
+
+// classes definition
+class Parent{
+	public int P1 { get; set; }
+	public int P2 { get; set; }
+}
+
+class Child : Parent {
+	public int P3 { get; set; }	
+}
+
+class SubChild : Child {
+	public int P4 { get; set; }	
+}
+
+-
+
+// custom convertion class
+// convertion between Parent and Child classes 
+class ClassConverter<TParent, TChild> where TParent: class where TChild : TParent {
+	// deep copy
+	public static TChild Copy(TParent parent){
+		try{
+			var serializedParent = JsonConvert.SerializeObject(parent); 
+ 			return JsonConvert.DeserializeObject<TChild>(serializedParent);
+		}
+		catch{
+			return default(TChild);
+		}
+	}	
+}

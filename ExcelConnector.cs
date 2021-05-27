@@ -8,7 +8,7 @@ using System.Linq;
 using System.Data.Common;
 using Newtonsoft.Json;
 
-namespace FilesProcessorBLL
+namespace FileLoaderProcess
 {
     /*
         INSTANCES
@@ -62,8 +62,8 @@ namespace FilesProcessorBLL
     {
         public string ConnStr { get; set; }
         public string SheetName { get; set; }
-
-        public ExcelConnector(string ConnStr, string SheetName)
+        
+        public ExcelConnector(string ConnStr, string SheetName = "Sheet1")
         {
             this.ConnStr = ConnStr;
             this.SheetName = SheetName;
@@ -90,6 +90,14 @@ namespace FilesProcessorBLL
             return dt;
         }
 
+        /*  
+            note! 
+            use [JsonProperty] attribute to map fields (also supports hebrew)
+
+            e.g: 
+            [JsonProperty(PropertyName = "מספר לקוח")]
+            public string ClientName { get; set; }
+        */
         protected string ReadAsJson(DbDataReader dr) {
             if (dr == null || !dr.HasRows) return "[]";
 
@@ -260,16 +268,5 @@ namespace FilesProcessorBLL
                     return this.ReadAsT<T>(dr);
             }
         }
-    }
-}
-
-public class TEST{
-    public float BI_ID { get; set; }
-    public string Pnr_No { get; set; }
-    public string FirstName { get; set; }
-
-    public override string ToString()
-    {
-        return $"#{this.BI_ID} | {this.Pnr_No} | {this.FirstName}";
     }
 }

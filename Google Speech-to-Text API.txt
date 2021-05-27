@@ -1,0 +1,69 @@
+Google API - Speech-to-Text
+---------------------------
+
+sources:
+https://www.nuget.org/packages/Google.Cloud.Speech.V1/
+https://cloud.google.com/speech-to-text
+https://cloud.google.com/speech-to-text/docs/quickstart-protocol
+https://github.com/googleapis/google-cloud-dotnet
+
+nuget:
+PM > Install-Package Google.Cloud.Speech.V1 -Version 2.1.0               
+
+enable api: 
+Developer Console > find API > Enable 
+
+create service account credentials: 
+Developer Console > Generate JSON credentials > (Service account > Create > Keys > Add Key > create new key > (type) JSON > file will be downloaded)   
+
+set credentials (see code samples)
+[option-1] Environment Variable - GOOGLE_APPLICATION_CREDENTIALS=/path/to/my/key.json 
+[option-2] use SpeechClientBuilder    
+
+--
+
+// sample usage
+string FlacFileFullPath = FlacConverter(FilePath);
+string[] inputData = { "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0" };
+                
+var Sc = new SpeechContext();
+Sc.Phrases.Add(inputData);
+var Phrases = new List<SpeechContext>();
+Phrases.Add(Sc);
+             
+/**/
+var Speech = (new SpeechClientBuilder() {
+    CredentialsPath = @"Speech-To-Text.json",                    
+}).Build();
+
+/*
+	Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", @"Speech-To-Text.json");
+	var Speech = SpeechClient.Create();
+*/
+
+var config = new RecognitionConfig
+{                    
+    LanguageCode = LanguageCodes.English.UnitedKingdom,
+    EnableAutomaticPunctuation = true,
+    Encoding = RecognitionConfig.Types.AudioEncoding.Flac,
+    Model = "default",                                        
+    UseEnhanced = true
+
+};
+
+config.SpeechContexts.Add(Phrases);
+var audio = RecognitionAudio.FromFile(FlacFileFullPath);
+var response = Speech.Recognize(config, audio);
+var RecievedGoogleData = new List<string>();
+
+if (response.Results != null) {
+    foreach (var result in response.Results)    
+        foreach (var alternative in result.Alternatives)        
+            RecievedGoogleData.Add(alternative.Transcript);    
+}
+
+foreach (var item in RecievedGoogleData) {
+    string txtRaw = item.ToUpper();                                  
+    string txt = new string(txtRaw.Where(c => Char.IsDigit(c) || Char.IsLetter(c)).ToArray());
+    Console.WriteLine("CapchaText = " + txt);
+}

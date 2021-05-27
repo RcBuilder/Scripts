@@ -30,8 +30,13 @@ elem.dispatchEvent(down);
 
 ---
 
+// using
 var elem = document.querySelector('a.subscription-auto-renew-toggle--off');
 if (elem) {
     var event = new Event('click'); 
     elem.dispatchEvent(event);
 }
+
+-
+
+currentDiv.querySelector('.order-item-checked').dispatchEvent(new Event('click'));

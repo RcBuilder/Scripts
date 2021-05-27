@@ -1,0 +1,29 @@
+C# Implict Typing and Target Types
+----------------------------------
+while Implicit Typings are determined by the compiler based on the right-side of the code, 
+the Target Types are determined by the left-side of the code.
+
+-
+
+// Implicit-Typing
+var c1 = new SomeClass("Roby");
+c1.SayYourName();
+	
+// Target-Types
+SomeClass c2 = new ("Roby");
+c1.SayYourName();
+
+-
+
+class SomeClass{
+	public string Name { get; set; }
+	
+	public SomeClass(string Name){
+		this.Name = Name;
+	}
+	
+	public void SayYourName(){
+		Console.WriteLine(this.Name);
+	}
+}
+

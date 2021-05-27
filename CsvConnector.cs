@@ -8,8 +8,9 @@ using System.Linq;
 using System.Data.Common;
 using Newtonsoft.Json;
 using Microsoft.VisualBasic.FileIO;
+using System.Text;
 
-namespace FilesProcessorBLL
+namespace DanHotelsConnector
 {
     /*
         USING
@@ -43,6 +44,7 @@ namespace FilesProcessorBLL
     {
         public string FilePath { get; set; }
         public string Delimiter { get; set; }
+        public Encoding Encoding { get; set; } = Encoding.GetEncoding("Windows-1255");
 
         public CsvConnector(string FilePath, string Delimiter = ",") {
             this.FilePath = FilePath;
@@ -53,7 +55,7 @@ namespace FilesProcessorBLL
         {
             return await Task.Factory.StartNew(() => {
                 var dt = new DataTable();
-                using (var reader = new TextFieldParser(this.FilePath))
+                using (var reader = new TextFieldParser(this.FilePath, this.Encoding))
                 {
                     reader.TextFieldType = FieldType.Delimited;
                     reader.SetDelimiters(this.Delimiter);
@@ -77,7 +79,7 @@ namespace FilesProcessorBLL
         {
             return await Task.Factory.StartNew(() => {
                 var results = new List<Dictionary<string, object>>();
-                using (var reader = new TextFieldParser(this.FilePath))
+                using (var reader = new TextFieldParser(this.FilePath, this.Encoding))
                 {
                     reader.TextFieldType = FieldType.Delimited;
                     reader.SetDelimiters(this.Delimiter);
