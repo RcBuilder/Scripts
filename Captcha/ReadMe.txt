@@ -1,10 +1,10 @@
-(logic)
+ο»Ώ(logic)
 1. choose a voice captcha and grab the .wav audio file
 2. cast it to a .flac file using the 'sox.exe' utility
 3. use google-speech API to convert the audio into pure text 
 
 (steps)
-1. SOX ϊελπδ μςιαεγ ΰεγιε
+1. SOX ΧªΧ•Χ›Χ Χ” ΧΧΆΧ™Χ‘Χ•Χ“ ΧΧ•Χ“Χ™Χ•
    http://sox.sourceforge.net/
 
 2. install google speech via nuget
