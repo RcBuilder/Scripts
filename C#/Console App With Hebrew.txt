@@ -1,0 +1,7 @@
+﻿Console App With Hebrew
+-----------------------
+Console.OutputEncoding = Encoding.GetEncoding("Windows-1255");
+
+Console.WriteLine("רובי כהן".Reverse().ToArray());
+Console.WriteLine("Roby Cohen");
+Console.ReadKey();
