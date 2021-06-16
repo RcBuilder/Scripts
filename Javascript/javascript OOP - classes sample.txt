@@ -1,0 +1,111 @@
+javascript OOP - classes sample
+-------------------------------
+
+[functions]
+
+function CartBase() {
+    this.add = item => {
+        console.log('add');
+    };
+
+    this.remove = rowId => {
+        console.log('remove');
+    };
+
+    this.clear = () => {
+        console.log('clear');
+    };
+
+    this.render = container => {
+        console.log('render');
+    };
+}
+
+function Cart1() {
+    CartBase.call(this);
+}
+
+function Cart2() {
+    CartBase.call(this);
+
+    this.add = item => {
+        console.log('add-override');
+    };
+
+    this.remove = rowId => {
+        console.log('remove-override');
+    };
+
+    this.clear = () => {
+        console.log('clear-override');
+    };
+
+    this.render = container => {
+        console.log('render-override');
+    };
+}        
+Cart1.prototype = Object.create(CartBase.prototype);
+Cart2.prototype = Object.create(CartBase.prototype);
+
+------
+
+[classes]
+
+class CartBase {
+    constructor() {}
+
+    add = item => {
+        console.log('add');
+    };
+
+    remove = rowId => {
+        console.log('remove');
+    };
+
+    clear = () => {
+        console.log('clear');
+    };
+
+    render = container => {
+        console.log('render');
+    };
+
+}
+
+class Cart1 extends CartBase {
+    constructor() {
+        super();
+    }        
+}
+
+class Cart2 extends CartBase {
+    constructor() {
+        super();
+    }            
+
+    add = item => {
+        console.log('add-override');
+    };
+
+    remove = rowId => {
+        console.log('remove-override');
+    };
+
+    clear = () => {
+        console.log('clear-override');
+    };
+
+    render = container => {
+        console.log('render-override');
+    };
+}                
+
+------
+
+[using]
+
+var cart = new Cart1();
+cart.add('ITEM-A');
+cart.remove(1);
+cart.clear();
+cart.render('cart-view');

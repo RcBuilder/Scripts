@@ -1,0 +1,13 @@
+PageSpeed Insights
+------------------
+
+source:
+https://developers.google.com/speed/pagespeed/insights/
+
+references:
+- javascript - load frames after page load
+- preload link - css, js and other resources
+- Load Web Fonts - best practice
+- images - lazy loading
+- Performance - Preload resources
+-

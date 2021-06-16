@@ -1,0 +1,55 @@
+Newtonsoft JsonConverter T - Property
+-------------------------------------
+
+class CountConverter : JsonConverter<int>
+{
+    public override int ReadJson(JsonReader reader, Type objectType, int existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        return Convert.ToInt32(reader.Value) / 100;
+    }
+
+    public override void WriteJson(JsonWriter writer, int value, JsonSerializer serializer)
+    {                        
+        serializer.Serialize(writer, value * 100);         
+    }
+
+    public override bool CanWrite => true;
+    public override bool CanRead => true;
+}
+
+class NameConverter : JsonConverter<string>
+{
+    public override string ReadJson(JsonReader reader, Type objectType, string existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        return reader.Value.ToString().Trim('#');
+    }
+
+    public override void WriteJson(JsonWriter writer, string value, JsonSerializer serializer)
+    {                        
+        serializer.Serialize(writer, $"##{value}##");         
+    }
+
+    public override bool CanWrite => true;
+    public override bool CanRead => true;
+}
+
+class SomeModel {        
+    [JsonConverter(typeof(CountConverter))]
+    public int Count { get; set; }
+
+    [JsonConverter(typeof(NameConverter))]
+    public string Name { get; set; }
+}
+
+---
+
+var o1 = new SomeModel {                
+    Count = 3,
+    Name = "TEST"
+};
+
+var sJson = JsonConvert.SerializeObject(o1);  
+Console.WriteLine(sJson);  // {"Count":300,"Name":"##TEST##"}
+
+var model = JsonConvert.DeserializeObject<SomeModel>(sJson);
+Console.WriteLine(model.Count);  // Count = 3, Name = "TEST"

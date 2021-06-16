@@ -1,0 +1,21 @@
+js - load frames after page load 
+--------------------------------
+
+$(document).ready(function () {
+    var frames = $('[video-data-src]');
+    frames.each(i => {
+        var frame = $(frames[i]);
+        frame.attr('src', frame.attr('video-data-src'));
+    });
+});       
+
+<iframe class="frm-video" video-data-src="https://www.youtube.com/embed/2ZxKr8XhDMo"></iframe>
+<iframe class="frm-video" video-data-src="https://www.youtube.com/embed/3zrVToSSEhk"></iframe>
+<iframe class="frm-video" video-data-src="https://www.youtube.com/embed/pNBWm4JkhzI"></iframe>
+<iframe class="frm-video" video-data-src="https://www.youtube.com/embed/K58N7tYX5uM"></iframe>
+
+
+iframe.frm-video {
+    width: 560px;
+    height: 315px;
+}

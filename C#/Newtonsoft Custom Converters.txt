@@ -12,6 +12,7 @@ also see
 'Newtonsoft Settings - JsonConverter - Metadata - Objects Type'
 'DateTime-Based Serialization Property.txt'
 'Enum-Based Serialization Property'
+'Newtonsoft JsonConverter T - Property'
 
 --
 

@@ -1,0 +1,13 @@
+C# ConvertAll - Custom Converter
+--------------------------------
+
+var list1 = "10,20,30,40,50".Split(',').ToList().ConvertAll(Converters.String2IntConverter);
+Console.WriteLine(list1.Count); // 5
+Console.WriteLine(list1[2]);    // 30
+
+public class Converters
+{
+    public static int String2IntConverter(string value) {
+        return Convert.ToInt32(value);
+    }
+}

@@ -1,0 +1,40 @@
+Load Web Fonts - best practice 
+------------------------------
+
+Format:
+use either 'woff' or 'woff2'. 
+these fonts are compressed so there are well small.
+support all browsers except for IE-8 and down.
+
+--
+
+Preload:
+tell the browser to download the fonts as soon as possible which improves the page load time.
+<link rel="preload" as="font" href="/fonts/some-font.woff2" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" as="font" href="/fonts/some-font.woff" type="font/woff2" crossorigin="anonymous" />
+<link rel="preload" as="font" href="/fonts/some-font.ttf" type="font/ttf" crossorigin="anonymous" />
+
+note! 
+crossorigin should be anonymous.
+
+--
+
+Declaration:
+
+// base
+@font-face {
+    font-family: 'some-font';
+    src: url('fonts/some-font.woff2');
+}
+
+// advanced
+@font-face {  
+	font-family: 'some-font';  
+	font-weight: 400;  
+	font-style: normal;  
+	font-display: swap; /* Read next point */  
+	unicode-range: U+000-5FF; /* Download only latin glyphs */  
+	src: local('some-font'), 
+	     url('/fonts/some-font.woff2') format('woff2'), 
+             url('/fonts/some-font.woff') format('woff');
+}

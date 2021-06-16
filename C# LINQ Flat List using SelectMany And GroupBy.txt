@@ -45,9 +45,12 @@ orders.Add(new Order{
 });
 
 var flat = orders.SelectMany(o => o.Rows, (o, r) => r);
-var group = flat.GroupBy(x => x.ItemName);
-foreach (var row in group)	
-	Console.WriteLine($"{row.Key} ({row.Count()})");	
+var groups = flat.GroupBy(x => x.ItemName);
+foreach (var group in groups) {
+	Console.WriteLine($"{group.Key} ({group.Count()})");
+	foreach (var row in group)	
+		Console.WriteLine($"{row.ItemName}");		
+}
 
 ---
 

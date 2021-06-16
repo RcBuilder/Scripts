@@ -1,0 +1,70 @@
+Performance - Preload resources 
+===============================
+
+preload
+-------
+to load a resource to use soon after loading the page.
+download and cache a resource as soon as possible.
+supports style, script, font, fetch, XMLHttpRequest and more.
+prioritized by the browser. 
+
+e.g:
+<link rel="preload" href="/css/style.css" as="style" />
+<link rel="preload" href="/fonts/some-font.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+
+prefetch
+--------
+to load a resource to use later.
+download and cache a resource in the background.
+same support as 'preload' type.
+low priority and doesn’t interfere with other resources.
+can be used as much as needed.
+
+e.g:
+<link rel="prefetch" href="/style.css" as="style" />
+
+preconnect
+----------
+to establish a connection to a domain in advance.
+set up a connection to the specified domain (cdn, google-fonts, api etc).
+once done, it'll save us time when loading resources from that domain later. 
+can also be used to spped-up api connections (for example: when 'domain.com' access 'api.domain.com')
+
+set-up a connection by the browser includes the following steps:
+- DNS resolution
+- TCP handshake
+- TLS handshake (for HTTPS)
+
+e.g:
+<link rel="preconnect" href="https://domain.com" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+
+dns-prefetch
+------------
+to perform a DNS resolution of a domain in advance.
+
+e.g:
+<link rel="dns-prefetch" href="https://domain.com" />
+
+prerender
+---------
+to load and render a URL in advance.
+the browser uses an invisible tab to store the loaded page.
+when reaching that page - it'll be prepared immediately!
+this feature is not supported by all browsers.
+
+e.g:
+<link rel="prerender" href="https://domain.com/page1.html" />
+
+modulepreload 
+-------------
+to download, cache, and compile a JS module as soon as possible.
+when using the 'import' keyword to import a JS module.
+note that the browser only knows about a module when it loads the script which defines it (using the import clause). 
+
+sample:
+when 'main.js' has an import of 'logo.js', the browser must render 'main' to discover the 'logo'
+so the use of 'modulepreload' can preload 'logo' in advance and save some loading time.
+
+e.g:
+<link rel="modulepreload" href="/script.js" />
