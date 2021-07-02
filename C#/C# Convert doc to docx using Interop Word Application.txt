@@ -1,0 +1,39 @@
+Convert doc to docx using Interop Word Application
+--------------------------------------------------
+
+[Nuget]
+> Install-Package Microsoft.Office.Interop.Word -Version 15.0.4797.1003
+
+[References]
+see 'Doc2DocxConverter'
+
+------
+
+[Sample Code]
+var docsFolder = @"C:\TEMP\";
+
+// open file 
+var winword = new Microsoft.Office.Interop.Word.Application() { Visible = false };
+var document = winword.Documents.Open($"{docsFolder}98001.DOC");
+
+//Save the document
+object fileName = $"{docsFolder}98001.docx";
+object fileFormat = Microsoft.Office.Interop.Word.WdSaveFormat.wdFormatDocumentDefault;  // docx
+document.SaveAs2(ref fileName, ref fileFormat);
+
+// release resource
+document.Close();
+winword.Quit();
+
+------
+
+[Errors]
+ERROR: "You are attempting to open a file type that is blocked by your File Block settings in the Trust Center"
+REASON: protected view 
+FIX: open doc > File > Options > Trust Center > Trust Center Settings > File Block Settings > uncheck "Word X Binary Documents and Templates"
+
+-
+
+ERROR: "incompatible file type and file extension"
+REASON: incorrect file format in SaveAs2 method
+FIX: for docx, use "wdFormatDocumentDefault" format type

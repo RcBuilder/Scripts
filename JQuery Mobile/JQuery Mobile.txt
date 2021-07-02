@@ -1,0 +1,3002 @@
+###### SUBJECTS ######
+- About
+- Structure
+- Toolbars
+- Page Structure
+- Pages
+- Linking pages
+- Buttons
+- InputButtons
+- Checkboxes
+- RadioButtons
+- Collapsible
+- ControlGroup
+- Datepicker
+- SearchBar
+- Switches
+- Grids
+- Heading
+- Icons
+- Listviews
+- Filters
+- Loaders
+- Navbar
+- Panels
+- Popups
+- Sliders
+- Selects
+- Selects As Popups
+- Tables
+- Inputs
+- Transitions
+--------------
+- Events
+- Pagecontainer Widget
+- Data Attributes
+- Partials
+######################
+
+About
+-----
+ HTML5-based interface which allows us to generate a native-look websites.
+ very easy to use and contains a lot of great features. 
+ built on top of the jquery framework. 
+ supports all the smartphones, tablets and desktops.
+ fully responsive elements. 
+
+Structure
+---------
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Page Title</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<link rel="stylesheet" type="text/css" href="jquery.mobile-1.4.5.min.css" />    
+</head>
+<body>	
+	...
+	...
+
+	<script type="text/javascript" src="jquery-1.8.0.min.js"></script>                                    
+    <script type="text/javascript" src="jquery.mobile-1.4.5.min.js"></script> 
+</body>
+</html>
+
+Toolbars
+--------
+- enhance headers and footers!
+
+- header:
+  attribute: data-role="header"
+  supports H1-H6 headers
+
+  e.g:
+  <div data-role="header">
+    <h1>Page Title</h1>
+  </div>
+
+- footer:
+  attribute: data-role="footer"
+  supports H1-H6 headers
+
+  e.g:
+  <div data-role="footer">
+    <h4>built by RcBuilder</h4>
+  </div>
+
+- theme:
+  attribute: data-theme="[a-z]"
+
+  e.g:
+  <div data-role="header" data-theme="b">
+    <h1>Page Title</h1>
+  </div>
+
+- fixed:
+  attribute: data-position="fixed"
+  use: fixed position - doesn't scroll with the page
+
+  e.g:
+  <div data-role="header" data-position="fixed">
+    <h1>Page Title</h1>
+  </div>
+
+- fullscreen:
+  attribute: data-fullscreen="true"
+  use: fullscreen fixed position
+
+  e.g:
+  <div data-role="header" data-position="fixed" data-fullscreen="true">
+    <h1>Page Title</h1>
+  </div>
+
+- buttons:
+  use: button with ui-btn-[left|right]
+
+  e.g:
+  <div data-role="header" data-position="fixed">
+    <h1>Page Title</h1>
+	<button class="ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-a ui-btn-left ui-btn-icon-left ui-icon-delete">Cancel</button>
+	<button class="ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-b ui-btn-right ui-btn-icon-right ui-icon-check">Save</button>
+  </div>
+
+  <div data-role="header" data-position="fixed">
+    <h1>Page Title</h1>
+	<button class="ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-b ui-btn-right ui-btn-icon-right ui-icon-gear">Settings</button>
+  </div>
+
+  // multiple buttons
+  <div data-role="header" data-position="fixed">
+    <h1>Page Title</h1>
+    <div data-role="controlgroup" data-type="horizontal" class="ui-btn-right">
+        <a href="#Home" class="ui-btn ui-corner-all ui-btn-icon-notext ui-shadow ui-icon-refresh">Refresh</a>            
+        <a class="refreshPage ui-btn ui-corner-all ui-btn-icon-notext ui-shadow ui-icon-home">Home</a>                            
+    </div>            
+    <a class="ui-btn ui-corner-all ui-btn-left ui-btn-icon-notext ui-shadow ui-icon-back" data-rel="back">Back</a>
+  </div>
+
+- groups:
+  see 'ControlGroup'
+
+- javascript:
+  we can use js to set the toolbar dynamically
+
+  structure:
+  $('[selector]').toolbar([options]);
+
+  e.g:
+  $('[data-role="header"], [data-role="footer"]').toolbar();
+  $('[data-role="header"]').toolbar({ theme: 'a' });
+
+Page Structure
+--------------
+<div data-role="page">
+    <div data-role="header">
+        <h1>Header</h1>
+    </div>
+    <div role="main" class="ui-content">
+        <p>....</p>
+    </div>
+    <div data-role="footer" data-position="fixed">
+        <h4>Footer</h4>
+    </div>
+</div>
+
+Pages
+-----
+- data-role="page"
+  data-role="header"
+  role="main"
+  data-role="footer"
+
+- supports multiple pages 
+- each page have to use the data-role 'page' (see 'Page Structure')
+- each page should have an 'id' attribute which will be used for navigation, to navigate to a page we use the # sign.
+  e.g: <a href="#PageB">Page B</a>
+- by default, the jquery-mobile engine present the first defined page. 
+- cache: use data-dom-cache attribute to cache a specific page
+         use js domCache prototype to cache all pages!
+
+  e.g:
+  // specific page 
+  <div data-role="page" id="Home" data-dom-cache="true">...</div>
+
+  // all pages 
+  $.mobile.page.prototype.options.domCache = true; 
+
+- change page:  
+  function changePage(pageName) {
+    $.mobile.changePage(
+      '#' + pageName, {
+          allowSamePageTransition: true          
+      }
+    );
+  }
+
+  e.g: changePage('Home');
+
+- refresh page:     
+  $('.refreshPage').click(refreshPage);
+
+  function refreshPage() {
+    changePage(window.location.hash.replace('#', ''));
+  }
+
+  function changePage(pageName) {
+    $.mobile.changePage(
+      '#' + pageName, {
+          allowSamePageTransition: true          
+      }
+    );
+  }
+
+  e.g: <a class="refreshPage ui-btn ui-corner-all ui-btn-icon-notext ui-shadow ui-icon-refresh">Refresh</a>
+
+- using:
+	<div data-role="page" id="Home">
+		<div data-role="header">
+			<h1>Home</h1>
+		</div>
+		<div role="main" class="ui-content">
+			<p>this is Home</p>
+			<p>
+				<a href="#PageB">Go To Page B</a>
+			</p>
+		</div>
+		<div data-role="footer" data-position="fixed">
+			<h4>Footer</h4>
+		</div>
+	</div>
+	<div data-role="page" id="PageB">
+		<div data-role="header">
+			<h1>PageB</h1>
+		</div>
+		<div role="main" class="ui-content">
+			<p>this is PageB</p>
+			<p>
+				<a href="#Home">Go To Home</a>
+			</p>
+		</div>
+		<div data-role="footer" data-position="fixed">
+			<h4>Footer</h4>
+		</div>
+	</div>
+
+Linking pages
+-------------
+- by default jQuery Mobile handle links in a SPA model using ajax backstage.
+- for external pages use rel="external"
+
+- page roles:
+  tag: #
+  using: #[page]
+
+  e.g:
+  <div data-role="page" id="Home">
+	<a href="#Page1">Page1</a>
+	<a href="#Page2">Page2</a>
+  </div>
+  <div data-role="page" id="Page1">
+	<a href="#Home">Home</a>
+  </div>
+  <div data-role="page" id="Page2">
+	<a href="#Home">Home</a>
+  </div>
+
+- external:
+  attribute: rel="external" 
+  e.g: <a href="http://www.google.com" rel="external">Google</a>
+
+- no-ajax:
+  attribute: data-ajax="false"
+  <a href="../" data-ajax="false">homepage</a>
+
+- global no-ajax:
+  attribute: data-ajax="false"
+
+  e.g:
+  <ul data-role="listview" data-ajax="false">   
+    <li><a href="../page1/">page1</a></li>
+    <li><a href="../page2/">page2</a></li>
+    <li><a href="../page3/">page3</a></li>
+  </ul>
+
+- back:
+  attribute: data-rel="back"
+  e.g: <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+
+- querystring issue:
+  when adding querystring after the referal page name, the jquery-mobile engine ignore them!  
+  to solve the issue set the link as external
+
+  e.g: 
+  // issue: querystring is omitted
+  <a href="#delivery?id=22">ôøèéí ðåñôéí</a>
+
+  // ok
+  <a href="#delivery?id=22" rel="external">ôøèéí ðåñôéí</a>
+  
+Buttons
+-------
+- [deprecated] data-role="button" (use ui-btn class instead)
+- fit both for button and a tags (buttons & anchors)
+- for input buttons use the Button Widget instead (see 'InputButtons')
+- use data-role="none" for no style (native buttons)
+
+- can be used on buttons and anchors tags
+
+  e.g:
+  <a href="#" class="ui-btn">clickMe</a>
+  <button class="ui-btn">clickMe</button>
+
+- basic: 
+  class: ui-btn
+  e.g: <button class="ui-btn">clickMe</button>  
+
+- corners:
+  class: ui-corner-all
+  e.g: <button class="ui-btn ui-corner-all">clickMe</button>  
+
+- icon only:  
+  class: ui-icon-[icon] + ui-btn-icon-notext  
+  e.g: <button class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext" />
+
+- shadow:
+  class: ui-shadow
+  e.g: <button class="ui-btn ui-shadow">clickMe</button>
+
+- inline:
+  class: ui-btn-inline
+  e.g: <button class="ui-btn ui-btn-inline">clickMe</button>
+
+- theme:
+  class: ui-btn-[a-z]
+  e.g: <button class="ui-btn ui-btn-b">clickMe</button>
+
+- mini:
+  class: ui-mini
+  e.g: <button class="ui-btn ui-mini">clickMe</button>
+
+- icons:
+  class: ui-icon-[icon] + ui-btn-icon-[left|right|top|buttom]
+  e.g: <button class="ui-btn ui-icon-delete ui-btn-icon-right">clickMe</button>
+
+- icons shadow:
+  class: ui-icon-[icon] + ui-shadow-icon
+  e.g: <button class="ui-btn ui-icon-delete ui-btn-icon-right ui-shadow-icon">clickMe</button>
+
+- disabled:
+  class: ui-state-disabled  
+  e.g: <button class="ui-btn ui-state-disabled">clickMe</button>
+
+InputButtons
+------------
+- for buttons and anchors use the Buttons classes instead (see 'Buttons')
+- use data-role="none" for no style (native buttons)
+
+- can be used on inputs with the following types: 
+  type="button" 
+  type="submit" 
+  type="reset" 
+
+   e.g:
+  <input type="button" value="Button">
+  <input type="submit" value="Submit">
+  <input type="reset" value="Reset">
+
+- enhanced:   
+  attribute: data-enhanced
+  default: false
+  e.g: <input type="button" data-enhanced="false" value="clickMe" />
+
+- corners:   
+  attribute: data-corners
+  default: true
+  e.g: <input type="button" data-corners="false" value="clickMe" />
+
+- icon only:  
+  attribute: data-icon="[icon]" + data-iconpos="notext"
+  e.g: <input type="button" data-icon="delete" data-iconpos="notext" value="" />
+
+- shadow:   
+  attribute: data-shadow
+  default: true
+  e.g: <input type="button" data-shadow="false" value="clickMe" />
+
+- inline:   
+  attribute: data-inline
+  default: false
+  e.g: <input type="button" data-inline="true" value="clickMe" />
+
+- theme:
+  attribute: data-theme="[a-z]"
+  e.g: <input type="button" data-theme="a" value="clickMe" />
+
+- mini:   
+  attribute: data-mini
+  default: false
+  e.g: <input type="button" data-mini="true" value="clickMe" />
+
+- icons:
+  attribute: data-icon="[icon]" + data-iconpos=[left|right|top|buttom|notext]
+  default: left
+  e.g: <input type="button" data-icon="delete" data-iconpos="right" value="clickMe" />
+
+- icons shadow:
+  attribute: data-icon="[icon]" + data-iconshadow
+  default: false
+  e.g: <input type="button" data-icon="delete" data-iconshadow="true" value="clickMe" />
+
+- disabled:
+  attribute: disabled
+  e.g: <input type="button" disabled="" value="clickMe" />
+
+Checkboxes
+----------
+- basic:
+  <label>
+      <input type="checkbox" name="chk1">CheckMe
+  </label>
+
+  OR 
+
+  <input type="checkbox" name="chk1" id="chk1">
+  <label for="chk1">CheckMe</label>
+
+- mini: 
+  attribute: data-mini
+  default: false
+  e.g: 
+  <label>
+      <input type="checkbox" name="chk1" data-mini="true">CheckMe
+  </label>
+
+- groups:
+  see 'ControlGroup'
+
+- icons:
+  attribute: data-iconpos="[left|right]"
+  default: left
+  e.g: 
+  <fieldset data-role="controlgroup" data-iconpos="right">        
+        <input type="checkbox" name="chk1" id="chk1">
+        <label for="chk1">One</label>
+        <input type="checkbox" name="chk2" id="chk2">
+        <label for="chk2">Two</label>
+		<input type="checkbox" name="chk3" id="chk3">
+        <label for="chk3">Three</label>
+   </fieldset>
+
+- theme:
+  attribute: data-theme="[a-z]"  
+  e.g: 
+  <fieldset data-role="controlgroup">        
+        <input type="checkbox" name="chk1" id="chk1" data-theme="b">
+        <label for="chk1">One</label>
+        <input type="checkbox" name="chk2" id="chk2" data-theme="b">
+        <label for="chk2">Two</label>
+		<input type="checkbox" name="chk3" id="chk3" data-theme="b">
+        <label for="chk3">Three</label>
+   </fieldset>
+
+- disabled:
+  attribute: disabled
+  e.g: 
+  <label>
+      <input type="checkbox" name="chk1" disabled="">CheckMe
+  </label>
+
+- disabled:
+  attribute: data-enhanced
+  default: false
+  e.g: 
+  <label>
+      <input type="checkbox" name="chk1" data-enhanced="true">CheckMe
+  </label>
+
+RadioButtons
+------------
+- use checked="checked" to set radio as selected
+ 
+- basic:
+  <label>
+      <input type="radio" name="radioGroup" id="radio1">ChooseMe
+  </label>
+
+  OR 
+
+  <input type="radio" name="radioGroup" id="radio1">
+  <label for="radio1">ChooseMe</label>
+
+- mini: 
+  attribute: data-mini
+  default: false
+  e.g: 
+  <label>
+      <input type="radio" name="radioGroup" id="radio1" data-mini="true">ChooseMe
+  </label>
+
+- groups:
+  see 'ControlGroup'
+
+- icons:
+  attribute: data-iconpos="[left|right]"
+  default: left
+  e.g: 
+  <fieldset data-role="controlgroup" data-iconpos="right">        
+        <input type="radio" name="radioGroup1" id="radio1" checked="checked">
+        <label for="radio1">One</label>
+        <input type="radio" name="radioGroup1" id="radio2">
+        <label for="radio2">Two</label>
+		<input type="radio" name="radioGroup1" id="radio3">
+        <label for="radio3">Three</label>
+   </fieldset>
+
+- theme:
+  attribute: data-theme="[a-z]"  
+  e.g: 
+  <fieldset data-role="controlgroup" data-type="horizontal">        
+        <input type="radio" name="radioGroup1" id="radio1" data-theme="b" checked="checked">
+        <label for="radio1">One</label>
+        <input type="radio" name="radioGroup1" id="radio2" data-theme="b">
+        <label for="radio2">Two</label>
+		<input type="radio" name="radioGroup1" id="radio3" data-theme="b">
+        <label for="radio3">Three</label>
+   </fieldset>
+
+- disabled:
+  attribute: disabled
+  e.g: 
+  <label>
+      <input type="radio" name="radioGroup" id="radio1" disabled="">ChooseMe
+  </label>
+
+- disabled:
+  attribute: data-enhanced
+  default: false
+  e.g: 
+  <label>
+      <input type="radio" name="radioGroup" id="radio1" data-enhanced="true">ChooseMe
+  </label>
+
+Collapsible
+-----------
+- collapse content
+- attribute: data-role="collapsible"
+- use H1-H6 or legend element for the header 
+
+- basic:
+  attribute: data-role="collapsible"
+
+  e.g:
+  <div data-role="collapsible">
+    <h4>Heading</h4>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse accumsan blandit fermentum. Pellentesque cursus mauris purus, auctor commodo mi ullamcorper nec.</p>
+  </div>
+
+- theme:
+  attribute: data-theme="[a-z]" + data-content-theme="[a-z]"
+  note: use data-content-theme="false" to clear theme for the content
+
+  e.g:
+  <div data-role="collapsible" data-theme="b" data-content-theme="b">
+	...
+  </div>
+
+- listview:
+  attribute: data-role="listview" (content)
+  use: supports listviews as content (see 'Listviews')
+
+  e.g:
+  <div data-role="collapsible">
+    <h4>Heading</h4>
+    <ul data-role="listview">
+        <li><a href="#">item 1</a></li>
+        <li><a href="#">item 2</a></li>
+        <li><a href="#">item 3</a></li>
+    </ul>
+  </div>
+
+- collapsed:
+  attribute: data-collapsed="[false|true]"
+  default: true
+  use: determine whether the the content should be collapsed or not
+
+  e.g:
+  <div data-role="collapsible" data-collapsed="false">
+    ...
+  </div>
+
+- mini:
+  attribute: data-mini="[false|true]"
+  default: false 
+
+- inset:
+  attribute: data-inset="true"
+  result: adds some styling (rounded corners and some margin)
+
+- icons:
+  attribute: data-collapsed-icon="[icon]" + data-expanded-icon="[icon]"
+  use: data-collapsed-icon controls the CLOSE mode and data-expanded-icon controls the OPEN mode.
+
+  e.g:
+  <div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+    ...
+  </div>
+
+- icon position:
+  attribute: data-iconpos="[left|right|top|buttom]"
+  default: right 
+  e.g: 
+  <div data-role="collapsible" data-iconpos="right">
+	...
+  </div>
+
+- forms:
+  note: for forms - we're using legend element for heading
+
+  e.g:
+  <form>
+    <fieldset data-role="collapsible">
+        <legend>Legend</legend>        
+        <input type="text" value="" />
+        <div data-role="controlgroup">
+            <input type="checkbox" name="checkbox-1-a" id="checkbox-1-a">
+            <label for="checkbox-1-a">One</label>
+
+            <input type="checkbox" name="checkbox-2-a" id="checkbox-2-a">
+            <label for="checkbox-2-a">Two</label>
+
+            <input type="checkbox" name="checkbox-3-a" id="checkbox-3-a">
+            <label for="checkbox-3-a">Three</label>
+        </div>
+    </fieldset>
+  </form>
+
+ControlGroup
+------------
+- allow us to group items. 
+- attribute: data-role="controlgroup"
+- tag: fieldset
+
+- type:
+  attribute: data-type="[horizontal|vertical]"
+  default: vertical
+  e.g: <fieldset data-role="controlgroup" data-type="vertical" data-mini="true">...</fieldset>
+
+- mini: 
+  attribute: data-mini="true"
+  default: false
+  e.g: <fieldset data-role="controlgroup" data-type="horizontal" data-mini="true">...</fieldset>
+
+- checkboxes group:    
+  e.g: 
+  <fieldset data-role="controlgroup" data-type="horizontal">
+        <legend>Some Title:</legend>
+        <input type="checkbox" name="chk1" id="chk1">
+        <label for="chk1">One</label>
+        <input type="checkbox" name="chk2" id="chk2">
+        <label for="chk2">Two</label>
+		<input type="checkbox" name="chk3" id="chk3">
+        <label for="chk3">Three</label>
+   </fieldset>
+
+- radios group:  
+  e.g: 
+  <fieldset data-role="controlgroup" data-type="vertical">
+        <legend>Some Title:</legend>
+        <input type="radio" name="radioGroup1" id="radio1" checked="checked">
+        <label for="radio1">One</label>
+        <input type="radio" name="radioGroup1" id="radio2">
+        <label for="radio2">Two</label>
+		<input type="radio" name="radioGroup1" id="radio3">
+        <label for="radio3">Three</label>
+   </fieldset>
+
+- selects group:
+  e.g:
+  <fieldset data-role="controlgroup" data-type="vertical">
+     <legend>Some Title:</legend>
+     <select>
+		<option value="1">Item 1</option>
+		<option value="2">Item 2</option>
+		<option value="3">Item 3</option>
+		<option value="4">Item 4</option>
+	  </select>
+     <select>
+		<option value="1">Item 1</option>
+		<option value="2">Item 2</option>
+		<option value="3">Item 3</option>
+		<option value="4">Item 4</option>
+	  </select>
+   </fieldset>
+
+- buttons:
+  e.g:
+  <div data-role="controlgroup" data-type="horizontal" class="ui-mini ui-btn-left">
+      <a href="#" class="ui-btn ui-btn-icon-right ui-icon-plus">Add</a>
+      <a href="#" class="ui-btn ui-btn-icon-right ui-icon-arrow-u">Up</a>
+      <a href="#" class="ui-btn ui-btn-icon-right ui-icon-arrow-d">Down</a>
+  </div>
+  
+  <div data-role="controlgroup" data-type="horizontal" data-mini="true">
+      <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-plus ui-btn-b">Add</a>
+      <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-delete ui-btn-b">Delete</a>
+      <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-grid ui-btn-b">More</a>
+  </div> 
+
+- buttons in header:
+  e.g:
+  <div data-role="header">
+    <div data-role="controlgroup" data-type="horizontal" class="ui-mini ui-btn-left">
+        <a href="#" class="ui-btn ui-btn-icon-right ui-icon-plus">Add</a>
+        <a href="#" class="ui-btn ui-btn-icon-right ui-icon-arrow-u">Up</a>
+        <a href="#" class="ui-btn ui-btn-icon-right ui-icon-arrow-d">Down</a>
+    </div>
+    <h6>Page Header</h6>
+  </div>
+
+- refresh
+  in order to add items dynamically to a control group we have to refresh/create it.
+
+  e.g:
+
+  var container = $('#favorites').find('[role="main"] > [data-role="controlgroup"]');
+  container.empty();
+
+  container.append('<label>Item A<input type="checkbox" id="A"></label>');  
+  container.append('<label>Item B<input type="checkbox" id="B"></label>');  
+  ...
+  ...
+  container.trigger('create');
+
+
+Datepicker
+---------- 
+// TODO
+
+- external widget:
+  see: https://github.com/arschmitz/jquery-mobile-datepicker-wrapper
+
+- basic:
+  attribute: data-role="date"
+  e.g: <input type="text" data-role="date" />
+
+- inline
+  attribute: data-inline="true"
+  e.g: <input type="text" data-role="date" data-inline="true" />
+
+
+SearchBar 
+---------
+- AKA autocomplete 
+
+- supporting elements:
+  1. listviews [data-role="listview"]
+  2. tables [data-role="table"]
+  3. groups [data-role="controlgroup"]
+  4. collapsible sets [data-role="collapsibleset"]
+  5. anything
+
+- filter:
+  attribute: data-filter="[true|false]"
+  default: true
+  use data-filter to define if it should be included in the search
+
+- filtertext:
+  attribute: data-filtertext="[string]"  
+  multiple: use space between words for multiple values (e.g: data-filtertext="WordA WordB")
+  use data-filtertext to define the filter text for the searches 
+
+- data-type:
+  attribute: data-type="search"
+  define the search input element 
+
+- data-input:
+  attribute: data-input="#[search Input Id]"
+  reference to the id of the search input element which will serve the search value 
+  
+- placeholder:
+  attribute: data-filter-placeholder="[string]"
+
+- theme:
+  attribute: data-filter-theme="[a-z]"
+
+- basic:
+
+  e.g:
+  <div class="ui-filterable">
+    <input id="txtSearch" data-type="search" placeholder="search" />
+  </div>
+  <ul data-role="listview" data-filter="true" data-input="#txtSearch">
+    <li>Roby</li>
+    <li>Avi</li>
+    <li>Ronen</li>
+    <li>Shirly</li>
+    <li>Avner</li>
+  </ul>
+
+- custom text:
+
+  e.g:
+  <div class="ui-filterable">
+    <input id="txtSearch" data-type="search" placeholder="search" />
+  </div>
+  <ul data-role="listview" data-filter="true" data-input="#txtSearch">
+    <li data-filtertext="Roby">bla bla bla bla ....</li>
+	<li data-filtertext="Avi">bla bla bla bla ....</li>
+	<li data-filtertext="Ronen">bla bla bla bla ....</li>
+	<li data-filtertext="Shirly">bla bla bla bla ....</li>
+	<li data-filtertext="Avner">bla bla bla bla ....</li>
+  </ul>
+
+  note: for 'bla' we'll not get any results, the search refer to the values defined in the data-filtertext attributes
+
+- table:
+  when using filter on a table, the search will refer to rows! 
+
+  e.g:
+  <form>
+    <input id="txtSearch" data-type="search">
+  </form>
+  <table data-role="table" data-filter="true" data-input="#txtSearch" class="ui-responsive">
+    <thead>
+        <tr>
+            <th data-priority="1">Rank</th>
+            <th data-priority="persist">Movie Title</th>
+            <th data-priority="2">Year</th>
+            <th data-priority="3"Rating</th>
+            <th data-priority="4">Reviews</th>
+        </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <th>1</th>
+                <td>Citizen Kane</td>
+                <td>1941</td>
+                <td>100%</td>
+                <td>74</td>
+            </tr>
+            <tr>
+                <th>2</th>
+                <td>Casablanca</td>
+                <td>1942</td>
+                <td>97%</td>
+                <td>64</td>
+            </tr>
+            <tr>
+                <th>3</th>
+                <td>The Godfather</td>
+                <td>1972</td>
+                <td>97%</td>
+                <td>87</td>
+            </tr>
+        </tbody>
+    </table>
+
+- collapsible set:
+  use the data-filtertext attribute to define the search words on each collapsible item within the set!
+
+  e.g:
+  <form>
+    <input data-type="search" id="txtSearch">
+  </form>
+  <div data-role="collapsibleset" data-filter="true" data-inset="true" data-input="#txtSearch">
+        <div data-role="collapsible" data-filtertext="Animals">
+            <h3>Animals</h3>
+            <ul data-role="listview" data-inset="false">
+                <li>Cats</li>
+                <li>Dogs</li>
+                <li>Lizards</li>
+                <li>Snakes</li>
+            </ul>
+        </div>
+        <div data-role="collapsible" data-filtertext="Cars">
+            <h3>Cars</h3>
+            <ul data-role="listview" data-inset="false">
+                <li>Acura</li>
+                <li>Audi</li>
+                <li>BMW</li>
+                <li>Cadillac</li>
+            </ul>
+        </div>
+        <div data-role="collapsible" data-filtertext="Planets">
+            <h3>Planets</h3>
+            <ul data-role="listview" data-inset="false">
+                <li>Earth</li>
+                <li>Jupiter</li>
+                <li>Mars</li>
+                <li>Mercury</li>
+            </ul>
+        </div>
+    </div>
+
+- anything:
+  search for content on any tag - free search!
+
+  e.g:
+  <form>
+  	<input data-type="search" id="txtSearch">
+  </form>
+  <div data-filter="true" data-input="#txtSearch">
+	<p><strong>These</strong> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam</p>
+	<p><strong>tags</strong> nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam</p>
+	<p><strong>Tags</strong> erat, sed diam voluptua. At vero eos et accusam et justo duo dolores </p>
+	<p><strong>are</strong> et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est</p>
+	<p><strong>Filterable</strong> Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur</p>
+  </div>
+
+- autocomplete:
+  use data-filter-reveal="true" to trasform the filter in to autocomplete widget!
+  note: no search input requires!
+
+  e.g:
+  <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-filter-placeholder="search fruits..." data-inset="true">
+    <li>Apple</li>
+    <li>Banana</li>
+    <li>Cherry</li>
+    <li>Cranberry</li>
+    <li>Grape</li>
+    <li>Orange</li>
+  </ul>
+
+- remote autocomplete:
+  attribute: filterablebeforefilter 
+
+  e.g:
+  <input id="autocomplete-input" data-type="search" placeholder="Find a city...">
+  <ul id="autocomplete" data-role="listview" data-inset="true" data-filter="true" data-input="#autocomplete-input"></ul>
+
+  $('#autocomplete').on('filterablebeforefilter', function(e, data) {
+		var input = $(data.input);  // data.input = the search input element
+        var value = input.val();
+
+		if(value.trim().length < 3) 
+			return;
+
+		$.ajax({
+            type: 'GET',
+            url: '...',
+            success: function(data){
+				var container = $(this); // this = the ul element
+				container.empty();
+				container.append('<li>Item A</li>');  
+				container.append('<li>Item B</li>');  
+				...
+				...
+				container.listview('refresh');
+				container.trigger('updatelayout');
+			},
+            error: function (xhr) {
+                console.log('STATUS = ' + xhr.status);
+            }
+        });
+  });
+
+Switches
+--------
+- basic:  
+  attribute: data-role="flipswitch"
+  
+  e.g: 
+  <input type="checkbox" data-role="flipswitch" name="switch1" />
+
+  OR 
+
+  <input type="checkbox" name="switch1" id="switch1" data-role="flipswitch" />
+  <label for="switch1">CheckMe</label>
+
+- custom labels: 
+  attribute: data-on-text="[text]" + data-off-text="[text]"
+  default: On/Off
+  e.g: <input type="checkbox" data-role="flipswitch" name="switch1" data-on-text="open" data-off-text="close" class="custom-label-flipswitch" />
+ 
+  tip:
+  use text-indent css rule to locate the text as needed (for both on and off states)
+
+- checked:
+  attribute: checked=""
+  default: false
+  e.g: <input type="checkbox" data-role="flipswitch" name="switch1" checked="" />
+
+- theme:
+  attribute: data-theme="[a-z]"
+  e.g: <input type="checkbox" data-role="flipswitch" name="switch1" data-theme="b" />
+
+- mini:
+  attribute: data-mini
+  default: false
+  e.g: <input type="checkbox" data-role="flipswitch" name="switch1" data-mini="true" />
+
+- corners:
+  attribute: data-corners
+  default: true
+  e.g: <input type="checkbox" data-role="flipswitch" name="switch1" data-corners="false" />
+
+- disabled:
+  attribute: disabled="disabled"   
+  e.g: <input type="checkbox" data-role="flipswitch" name="switch1" disabled="disabled" />
+
+
+Grids
+-----
+- use the class ui-block-[a-z] to define each block within the grid.
+- supports up to 5 (a-e) columns
+
+- basic:
+  class: ui-grid + ui-block-[a-z]
+
+  e.g:
+
+  // 2 columns
+  <div class="ui-grid-a">
+    <div class="ui-block-a">
+		<div style="height:60px">Block A</div>
+	</div>
+    <div class="ui-block-b">
+		<div style="height:60px">Block B</div>
+	</div>
+  </div>
+
+  // 3 columns
+  <div class="ui-grid-b">
+    <div class="ui-block-a"><input type="button" value="clickMe" data-theme="a"></div>
+    <div class="ui-block-b"><input type="button" value="clickMe" data-theme="a"></div>
+    <div class="ui-block-c"><input type="button" value="clickMe" data-theme="b"></div>
+  </div>
+
+- multiple rows:
+  class: ui-grid + ui-block-[a-z]
+
+  e.g:
+
+  // 3 columns
+  <div class="ui-grid-b">
+    <div class="ui-block-a">A1</div>
+    <div class="ui-block-b">B1</div>
+    <div class="ui-block-c">C1</div>
+
+	<div class="ui-block-a">A2</div>
+    <div class="ui-block-b">B2</div>
+    <div class="ui-block-c">C2</div>
+
+	<div class="ui-block-a">A3</div>
+    <div class="ui-block-b">B3</div>
+    <div class="ui-block-c">C3</div>
+  </div>
+
+- responsive:
+  class: ui-grid + ui-responsive
+
+  e.g:
+  <div class="ui-grid-b ui-responsive">
+    <div class="ui-block-a"><input type="button" value="clickMe" data-theme="a"></div>
+    <div class="ui-block-b"><input type="button" value="clickMe" data-theme="a"></div>
+    <div class="ui-block-c"><input type="button" value="clickMe" data-theme="b"></div>
+  </div>
+
+- solo:
+  class: ui-grid-solo
+
+  e.g:
+  <div class="ui-grid-solo">
+    <div class="ui-block-a"><input type="button" value="ClickMe"></div>
+  </div>
+
+Heading
+-------
+- use both ui-bar and ui-body to create an heading section with content
+- themes: use ui-bar-[a-z] and ui-body-[a-z] classes to determine the theme
+- to attach the heading and body sections use ui-bar class on a div instead of h tag
+
+- basic:
+  
+  e.g:
+  <h3 class="ui-bar ui-bar-a">Heading</h3>
+  <div class="ui-body">
+     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse accumsan blandit fermentum. Pellentesque cursus mauris purus, auctor commodo mi ullamcorper nec. Donec semper mattis eros, nec condimentum ante sollicitudin quis. Etiam orci sem, porttitor ut tellus nec, blandit posuere urna. Proin a arcu non lacus pretium faucibus. Aliquam sed est porttitor, ullamcorper urna nec, vehicula lorem. Cras porttitor est lorem, non venenatis diam convallis congue.</p>
+  </div>
+
+- themes:
+  class: ui-bar-[a-z] + ui-body-[a-z]
+  <h3 class="ui-bar ui-bar-a">Heading</h3>
+  <div class="ui-body ui-body-a">
+     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse accumsan blandit fermentum. Pellentesque cursus mauris purus, auctor commodo mi ullamcorper nec. Donec semper mattis eros, nec condimentum ante sollicitudin quis. Etiam orci sem, porttitor ut tellus nec, blandit posuere urna. Proin a arcu non lacus pretium faucibus. Aliquam sed est porttitor, ullamcorper urna nec, vehicula lorem. Cras porttitor est lorem, non venenatis diam convallis congue.</p>
+  </div>
+
+- corners:
+  class: ui-corner-all
+  <h3 class="ui-bar ui-bar-a ui-corner-all">Heading</h3>
+  <div class="ui-body ui-body-a ui-corner-all">
+     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse accumsan blandit fermentum. Pellentesque cursus mauris purus, auctor commodo mi ullamcorper nec. Donec semper mattis eros, nec condimentum ante sollicitudin quis. Etiam orci sem, porttitor ut tellus nec, blandit posuere urna. Proin a arcu non lacus pretium faucibus. Aliquam sed est porttitor, ullamcorper urna nec, vehicula lorem. Cras porttitor est lorem, non venenatis diam convallis congue.</p>
+  </div>
+
+- no seperation:
+  // use ui-bar on a div instead of h tag 
+  <div class="ui-bar ui-bar-a">
+    <h3>Heading</h3>
+  </div>
+  <div class="ui-body ui-body-a">
+    <p>Content</p>
+  </div>
+
+Icons
+-----
+- list: http://api.jquerymobile.com/icons/
+- use data-icon or ui-icon-[icon] to set an icon
+- use ui-alt-icon for alternate color (the forecolor is black instead of white)
+- global rules - some rules can be applied for all of the implementing tab children (see 'global behaviour')
+- two versions per icon: SVG and PNG! 
+  the SVG version is being used by default, if the platform doesn't support SVG - a fall back to the PNG version will be made.
+
+- sample:
+  <button class="ui-btn ui-corner-all ui-icon-comment">comment</button>
+  <button class="ui-btn ui-corner-all ui-icon-delete">delete</button>
+  <button class="ui-btn ui-corner-all ui-icon-edit">edit</button>
+
+- position:
+  class: ui-btn-icon-[left|right|top|buttom]
+
+- no-text (icon only):
+  class: ui-btn-icon-notext
+
+- shadow:
+  class: ui-shadow-icon
+
+- theme:
+  class: ui-btn-[a-z]
+
+- no disk:
+  class: ui-nodisc-icon
+
+- alt:  
+  class: ui-alt-icon
+  alternate color - the forecolor is black instead of white
+
+  e.g:
+  <div class="ui-nodisc-icon ui-alt-icon"><!-- global alt + nodisk -->                        
+	  <button class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-a ui-btn-inline ui-icon-plus" />
+	  <button class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-b ui-btn-inline ui-icon-minus" />
+  </div>
+  <div class="ui-nodisc-icon">
+	  <button class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-a ui-btn-inline ui-icon-plus" />
+	  <button class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-b ui-btn-inline ui-icon-minus" />
+  </div>
+
+- global behaviour:    
+  suopports: data-iconpos, ui-nodisc-icon etc.
+  note: 
+  the class ui-nodisc-icon added on the wrapper and update all the buttons within it!
+
+  e.g:
+  <div class="ui-nodisc-icon">
+    <a href="#" class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-b ui-btn-inline ui-icon-delete">Delete</a>
+    <a href="#" class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-b ui-btn-inline ui-icon-plus">Plus</a>
+    <a href="#" class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-b ui-btn-inline ui-icon-minus">Minus</a>
+    <a href="#" class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-b ui-btn-inline ui-icon-check">Check</a>
+  </div>
+
+- custom Icons:
+  steps:
+  1. add a new class (prefereable using the same name structure ui-icon-[myIcon])
+  2. add css rule using the icon as background image, define it with the :after option
+  3. (optional) if using svg - add a fallback to a png version for non support platforms
+  4. apply your class
+
+  e.g:
+  <button class="ui-btn ui-corner-all ui-icon-myicon">myicon</button>
+  .ui-icon-myicon:after {
+      background-image: url('21-skull.png');    
+      background-size: 18px 18px;
+   }
+   .ui-nosvg .ui-icon-myicon:after {
+	  background-image: url("iconimg.png");
+   }
+
+Listviews
+---------
+- apply on OL or UL tags using listview data-role attribute
+- structure:
+  <ul data-role="listview">
+    <li>...</li>
+    <li>...</li>
+  </ul>
+
+- basic:
+  attribute: data-role="listview"
+
+  e.g:
+  <ul data-role="listview">
+    <li>ItemA</li>
+    <li>ItemB</li>
+    <li>ItemC</li>
+  </ul>
+
+- numbered:
+  use: using OL instead of UL
+  result: number the rows (add number each row)
+
+  e.g:
+  <ol data-role="listview">
+    <li>ItemA</li>
+    <li>ItemB</li>
+    <li>ItemC</li>
+  </ol>
+
+- links:
+  use: using a tags (anchors) within a listview
+  result: link apears with a nice icon, the whole row is clickable and have a hover effect
+  
+  e.g:
+  <ul data-role="listview">
+    <li><a href="#">ItemA</a></li>
+    <li><a href="#">ItemB</a></li>
+    <li><a href="#">ItemC</a></li>
+  </ul>
+
+- inset:
+  attribute: data-inset="true"
+  result: adds some styling (rounded corners and some margin)
+
+- filter:
+  see 'SearchBar'
+
+- dividers:
+  attribute: data-role="list-divider" + data-divider-theme="[a-z]"
+  use: data-role applied on the li item, data-divider-theme applied on the list
+
+  e.g:
+  <ul data-role="listview" data-inset="true" data-divider-theme="a">
+      <li><a href="#">ItemA</a></li>
+      <li><a href="#">ItemB</a></li>
+      <li data-role="list-divider">&nbsp;</li>
+      <li><a href="#">ItemC</a></li>
+      <li><a href="#">ItemD</a></li>
+  </ul>
+
+- auto dividers: 
+  attribute: data-autodividers="true"
+  use: takes a sequence of items using the same first letter and add this first letter as a divider
+
+  e.g:
+  <ul data-role="listview" data-inset="true" data-autodividers="true" data-divider-theme="a">
+      <li><a href="#">A1</a></li>
+      <li><a href="#">A2</a></li>
+      <li><a href="#">A3</a></li>
+      <li><a href="#">B1</a></li>
+      <li><a href="#">B2</a></li>
+      <li><a href="#">C1</a></li>
+      <li><a href="#">C2</a></li>
+  </ul>
+
+  result:
+  three dividers will be added automatically: A, B and C
+
+- count indicator:
+  class: ui-li-count + data-count-theme="[a-z]"
+  use: wrap a number with an element using the ui-li-count class. should be located within any li item (including dividers)!  
+
+  e.g:
+  <ul data-role="listview" data-count-theme="b" data-inset="true">
+    <li><a href="#">Inbox <span class="ui-li-count">12</span></a></li>
+    <li><a href="#">Outbox <span class="ui-li-count">0</span></a></li>
+    <li><a href="#">Drafts <span class="ui-li-count">4</span></a></li>
+    <li><a href="#">Sent <span class="ui-li-count">328</span></a></li>
+    <li><a href="#">Trash <span class="ui-li-count">62</span></a></li>
+  </ul>
+
+- icons:
+  attribute: data-icon="[icon]"
+  default: carat-r
+  use: applied on the li item 
+  
+  e.g:
+  <ul data-role="listview" data-inset="true">
+      <li><a href="#">default</a></li>
+      <li data-icon="delete"><a href="#">delete</a></li>
+      <li data-icon="gear"><a href="#">gear</a></li>
+      <li data-icon="info"><a href="#">info</a></li>                        
+      <li data-icon="false"><a href="#">none</a></li>
+  </ul>
+
+- no icon:
+  attribute: data-icon="false"
+  note: to remove any icon (including the default), set data-icon to false
+
+- custom icon:
+  also see 'Icons'
+  use: create a css :after rule with background-image which should refer to your icon
+    
+  e.g:
+  <ul data-role="listview" data-inset="true">
+      <li><a href="#">default</a></li>                      
+      <li data-icon="myicon"><a href="#">custom</a></li>
+  </ul>
+  
+  // css
+  .ui-icon-myicon:after {
+      background-image: url('myicon.png');          
+   }
+
+- inline icon:
+  class: ui-li-icon
+  use: add image with ui-li-icon class within the li item.
+  note: this will add image icon before the li item text (in addition to the li built-in icon)
+  
+  e.g:
+  <ul data-role="listview" data-inset="true">
+    <li><a href="#"><img src="images/icons-png/carat-r-white.png" class="ui-li-icon ui-corner-none">default</a></li>
+    <li><a href="#"><img src="images/icons-png/delete-white.png" class="ui-li-icon">delete</a></li>
+    <li><a href="#"><img src="images/icons-png/gear-white.png" class="ui-li-icon">gear</a></li>
+    <li><a href="#"><img src="images/icons-png/info-white.png" class="ui-li-icon">info</a></li>
+    <li data-icon="false"><a href="#"><img src="images/icons-png/info-black.png" class="ui-li-icon">no li icon</a></li>
+  </ul> 
+
+- thumbnails:
+  class: none
+  use: just add image within the li item! 
+  scale: 80 pixels square
+  note: this will add image as thumbnail within the li item right before the text (in addition to the li built-in icon)
+
+  e.g:
+  <ul data-role="listview" data-inset="true">
+    <li>
+        <a href="#">
+            <img src="images/samples/sample1.jpg" />
+            <h2>ItemA</h2>
+            <p>bla bla bla ...</p>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <img src="images/samples/sample2.jpg" />
+            <h2>ItemB</h2>
+            <p>bla bla bla ...</p>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <img src="images/samples/sample3.jpg" />
+            <h2>ItemC</h2>
+            <p>bla bla bla ...</p>
+        </a>
+    </li>
+  </ul>
+
+- split buttons (global):
+  attribute: data-split-icon="[icon]" + data-split-theme="[a-z]"
+  use: just add a second link within the li item!    
+  note: listview level
+
+  e.g:
+  <ul data-role="listview" data-inset="true" data-split-icon="gear" data-split-theme="a">
+    <li>
+        <a href="#">
+            <img src="images/samples/sample1.jpg" />
+            <h2>ItemA</h2>
+            <p>bla bla bla ...</p>
+        </a>
+		<a href="#">&nbsp;</a>
+    </li>
+    <li>
+        <a href="#">
+            <img src="images/samples/sample2.jpg" />
+            <h2>ItemB</h2>
+            <p>bla bla bla ...</p>
+        </a>
+		<a href="#">&nbsp;</a>
+    </li>
+    <li>
+        <a href="#">
+            <img src="images/samples/sample3.jpg" />
+            <h2>ItemC</h2>
+            <p>bla bla bla ...</p>
+        </a>
+		<a href="#">&nbsp;</a>
+    </li>
+  </ul>
+
+- split buttons:
+  attribute: data-icon="[icon]" +  data-theme="[a-z]"  
+  use: just add a second link within the li item!    
+  note: link level
+
+  e.g:
+  <ul data-role="listview" data-inset="true">
+    <li>
+        <a href="#">
+            <img src="images/samples/sample1.jpg" />
+            <h2>ItemA</h2>
+            <p>bla bla bla ...</p>
+        </a>
+		<a href="#" data-icon="info">&nbsp;</a>
+    </li>
+    <li>
+        <a href="#">
+            <img src="images/samples/sample2.jpg" />
+            <h2>ItemB</h2>
+            <p>bla bla bla ...</p>
+        </a>
+		<a href="#" data-icon="gear">&nbsp;</a>
+    </li>
+    <li>
+        <a href="#">
+            <img src="images/samples/sample3.jpg" />
+            <h2>ItemC</h2>
+            <p>bla bla bla ...</p>
+        </a>
+		<a href="#" data-icon="delete">&nbsp;</a>
+    </li>
+  </ul>  
+
+- formatted content:
+  [tag] H1-H6 - headers 
+  [tag] P - contents
+  [class] ui-li-aside - side content
+
+  e.g:
+  <ul data-role="listview" data-inset="true">
+    <li data-role="list-divider">
+        Articles
+        <span class="ui-li-count">2</span>
+    </li>
+    <li>
+        <a href="#">
+            <h2>Title</h2>
+            <p><strong>bla bla bla</strong></p>
+            <p>bla bla bla bla bla bla</p>
+            <p class="ui-li-aside">2017-01-03</p>
+        </a>
+    </li>
+    <li>
+        <a href="#">
+            <h2>Title</h2>
+            <p><strong>bla bla bla</strong></p>
+            <p>bla bla bla bla bla bla</p>
+            <p class="ui-li-aside">2017-01-01</p>
+        </a>
+    </li>
+  </ul>
+
+- theme:  
+  [listview] data-theme
+  [li] data-theme
+  [divider] data-divider-theme
+  [indicator] data-count-theme
+  [split button] data-split-theme
+
+  e.g:
+  <ul data-role="listview" data-inset="true">    
+    <li data-theme="b">ItemA</li>
+    <li>ItemB</li>
+    <li>ItemC</li>
+  </ul>
+
+- refresh
+  in order to add items dynamically to a listview we have to refresh it.
+
+  e.g:
+
+  var container = $('#favorites').find('[role="main"] > [data-role="listview"]');
+  container.empty();
+  container.append('<li>Item A</li>');  
+  container.append('<li>Item B</li>');  
+  ...
+  ...
+  container.listview("refresh");
+
+- rtl
+  change the ui direction 
+
+  // css
+  .ui-listview > .ui-li-static, .ui-listview > .ui-li-divider, .ui-listview > li > a.ui-btn {
+    text-align: right;
+  }
+
+Filters
+-------
+reference: see 'SearchBar'
+
+Loaders
+-------
+- loading ... 
+- supports icon only, text only or icon + text.
+
+- methods:
+  $.mobile.loading('hide');  // hide loader
+  $.mobile.loading('show', [options]);  // show loader
+
+- options:
+  { 
+	text,  // [string] the text to present with the loader
+	textVisible, // [true|false] determine whether to present the text or not
+	theme, // [a-z] the loader theme
+	textonly, // [true|false] determine whether to present only text with no loader
+	html // [string] html content to render 
+  }
+
+- fix:
+  the loader uses the ui-icon-loading class which refer to the 'images/ajax-loader.gif' spinner icon 
+  we can override this path if needed
+
+  e.g:
+  .ui-icon-loading {
+    background: url(../images/ajax-loader.gif);    
+  }
+
+- using:
+
+  e.g: 
+  <button id="btnLoader1" data-inline="true">Icon</button>                    
+  <button id="btnLoader2" data-inline="true">Icon + Text</button>   
+
+  // css
+  .ui-icon-loading {
+    background: url(../images/ajax-loader.gif);    
+  }
+
+  // javascript
+  $('#btnLoader1').click(function () {
+        $.mobile.loading("show", {
+            text: '',
+            textVisible: false,
+            theme: 'b',
+            textonly: false,
+            html: ''
+        });
+    });
+
+  $('#btnLoader2').click(function () {
+        $.mobile.loading("show", {
+            text: 'Loading...',
+            textVisible: true,
+            theme: 'b',
+            textonly: false,
+            html: ''
+        });
+    });
+
+Navbar
+------
+- buttons bar.
+- also used as Tabs. 
+- supports up to 5 buttons. 
+- use ui-btn-active and ui-state-persist to set button as active.
+  e.g: 
+
+- basic:
+  attribute: data-role="navbar"
+
+  e.g:
+  <div data-role="navbar">
+    <ul>
+        <li><a href="#" class="ui-btn-active ui-state-persist">One</a></li>
+        <li><a href="#">Two</a></li>
+        <li><a href="#">Three</a></li>
+    </ul>
+  </div>
+
+- multiple:
+  note: same as the basic! once you pass the 5 items limit - the navbar structure will be changed into rows of 2 columns.
+
+  e.g:
+  // navbar of 2 columns - total of 5 rows
+  <div data-role="navbar">
+    <ul>
+        <li><a href="#" class="ui-btn-active ui-state-persist">One</a></li>
+        <li><a href="#">Two</a></li>
+        <li><a href="#">Three</a></li>
+        <li><a href="#">Four</a></li>
+        <li><a href="#">Five</a></li>
+        <li><a href="#">Six</a></li>
+        <li><a href="#">Seven</a></li>
+        <li><a href="#">Eight</a></li>
+        <li><a href="#">Nine</a></li>
+        <li><a href="#">Ten</a></li>
+    </ul>
+   </div>
+
+- within an header:
+  attribute: data-role="header" + data-role="navbar"
+  note: we can add navbar within an header role.
+
+  e.g:
+  <div data-role="header" style="overflow:hidden;">
+	<h1>header</h1>
+    	<a href="#" data-icon="gear" class="ui-btn-right">Options</a>
+    	<div data-role="navbar">
+        	<ul>
+            	<li><a href="#">One</a></li>
+            	<li><a href="#">Two</a></li>
+            	<li><a href="#">Three</a></li>
+        	</ul>
+    	</div>
+	</div>
+
+- within an footer:
+  attribute: data-role="footer" + data-role="navbar"
+  note: we can add navbar within an footer role.
+
+  <div data-role="footer" style="overflow:hidden;">
+    <h4>footer</h4>
+    <div data-role="navbar">
+        <ul>
+            <li><a href="#">One</a></li>
+            <li><a href="#">Two</a></li>
+            <li><a href="#">Three</a></li>
+        </ul>
+    </div>
+  </div>
+
+  <div data-role="footer" data-position="fixed">
+    <div data-role="navbar" data-iconpos="top">
+        <ul>
+            <li><a href="#" data-icon="plus">Add</a></li>
+            <li><a href="#" data-icon="delete">Delete</a></li>
+            <li><a href="#" data-icon="grid" class="ui-btn-active ui-state-persist">List</a></li>
+        </ul>
+    </div>      
+  </div>
+
+- with icons:
+  attribute: data-icon="[icon]" + data-iconpos="[left|right|top|buttom]"
+  e.g:  
+  <div data-role="footer">
+      <div data-role="navbar" data-iconpos="top">
+          <ul>
+              <li><a href="#" data-icon="grid">Summary</a></li>
+              <li><a href="#" data-icon="star" class="ui-btn-active ui-state-persist">Favs</a></li>
+              <li><a href="#" data-icon="gear">Setup</a></li>
+          </ul>
+      </div>
+   </div>
+
+- themes:
+  attribute: data-theme="[a-z]"
+
+  e.g:
+  <div data-role="navbar">
+     <ul>
+        <li><a href="#" data-icon="grid"  data-theme="b">A</a></li>
+        <li><a href="#" data-icon="star">B</a></li>
+        <li><a href="#" data-icon="gear">C</a></li>
+        <li><a href="#" data-icon="arrow-l">D</a></li>
+        <li><a href="#" data-icon="arrow-r">E</a></li>
+     </ul>
+  </div>
+
+- global themes:
+  class: ui-body-[a-z]
+  note: wrap the navbar with div element using both ui-body and ui-body-[a-z] theme
+
+  e.g:
+  <div class="ui-body ui-body-a">
+    <h3>header</h3>
+    <div data-role="navbar">
+        <ul>
+            <li><a href="#" data-icon="grid">A</a></li>
+            <li><a href="#" data-icon="star">B</a></li>
+            <li><a href="#" data-icon="gear">C</a></li>
+            <li><a href="#" data-icon="arrow-l">D</a></li>
+            <li><a href="#" data-icon="arrow-r">E</a></li>
+        </ul>
+    </div>
+  </div>
+
+- 3rd party icon sets:
+  note: we can add any icons as custom. 
+  suppliers: http://glyphish.com/ etc.  
+
+  e.g:
+  <div data-role="navbar" class="nav-glyphish-example" data-grid="d">
+    <ul>
+        <li><a href="#" id="chat" data-icon="custom">Chat</a></li>
+        <li><a href="#" id="email" data-icon="custom">Email</a></li>
+        <li><a href="#" id="skull" data-icon="custom">Danger</a></li>
+        <li><a href="#" id="beer" data-icon="custom">Beer</a></li>
+        <li><a href="#" id="coffee" data-icon="custom">Coffee</a></li>
+    </ul>
+  </div>
+  
+  // css
+  .nav-glyphish-example .ui-btn { 
+	padding-top: 40px !important; 
+  }
+  .nav-glyphish-example .ui-btn:after { 
+	width: 30px!important; 
+	height: 30px!important; 		
+  }
+  #chat:after { 
+	background: url("../glyphish-icons/09-chat2.png") 50% 50% no-repeat; 
+	background-size: 24px 22px; 
+  }
+  #email:after { 
+	background: url("../glyphish-icons/18-envelope.png") 50% 50% no-repeat; 
+	background-size: 24px 16px;  
+  }  
+  #beer:after { 
+	background: url("../glyphish-icons/88-beermug.png") 50% 50% no-repeat;  
+	background-size: 22px 27px; 
+  }
+  #coffee:after { 
+	background: url("../glyphish-icons/100-coffee.png") 50% 50% no-repeat;  
+	background-size: 20px 24px; 
+  }
+  #skull:after { 
+	background: url("../glyphish-icons/21-skull.png") 50% 50% no-repeat;  
+	background-size: 22px 24px; 
+  }
+
+Panels
+------
+- data-role="panel"
+- commonly used for side menus.
+- panels use ui-panel-inner class backstage, we can override it using pure css. 
+  .ui-panel-inner{
+	padding: 10px;
+  }
+
+- for dynamic content it requires to trigger the updatelayout panel event:
+  e.g: $('#mypanel').trigger('updatelayout');
+
+- structure:
+  <div data-role="page">
+	<div data-role="panel" id="mypanel">
+		...
+	</div>
+
+	<!-- header -->
+	<!-- content -->
+	<!-- footer -->
+ </div>
+
+- directions: 
+  attribute: data-position="[right|left]"
+  default: left
+
+- display modes: 
+  attribute: data-display="[reveal|overlay|push]"
+  default: reveal 
+
+- open a panel:
+  note: to open a panel use the # tag + panel id (#mypanel)
+
+  e.g: 
+  <div data-role="page" id="Home">
+    <div data-role="panel" data-position-fixed="true" id="myPanel">
+		...
+	</div>
+	<div role="main" class="ui-content">
+		<a href="#myPanel" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-icon-notext ui-btn-inline ui-shadow"></a>
+	</div>
+  </div>		
+
+- close a panel:
+  default: 
+  clicking on the opening link, swiping left or right or tapping the Esc key will close the panel.
+
+  close button:
+  attribute: data-rel="close"
+  note: MUST locate within the panel
+  e.g: 
+  <a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+  <a href="#Home" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a> // close and jump to specific page
+
+  turn off swipe to close: 
+  use the data-swipe-close="false" attribute to disable this behaviour.
+
+  turn off outside click closing: 
+  use the data-dismissible="false" attribute to disable this behaviour.  
+
+- animate:
+  attribute: data-animate="[false|true]"
+  default: true
+
+- positioning:
+  attribute: data-position-fixed="[false|true]"
+  default: false (uses css absolute position)
+
+- themes:
+  attribute: data-theme=[none|a-z]"
+  default: data-theme="c"
+
+- external panels: 
+  by locating the panel outside of the pages roles - we define it as external so it becomes accessible from all the pages.
+  
+  e.g:
+  <div data-role="panel" id="externalPanel" data-position-fixed="true" data-theme="b">
+	 <p>
+	 	External
+	 </p>
+	 <p>
+	 	<a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+	 </p>
+  </div>
+
+- responsive:
+  class: ui-responsive-panel
+  note: need to add it on the page level!
+
+  e.g:
+  <div data-role="page" class="ui-responsive-panel">
+	<div data-role="panel" id="mypanel">
+		...
+	</div>
+ </div>  
+
+- using:
+  <div data-role="page" id="pageC">
+
+        // Panels
+		<div data-role="panel" id="panel1" data-position-fixed="true">
+			<p>
+				left panel<br />
+				fixed position<br />
+				reveal display<br />
+			</p>
+			<p>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+			</p>
+		</div>
+		<div data-role="panel" id="panel2" data-position-fixed="true" data-display="overlay">
+			<p>
+				left panel<br />
+				fixed position<br />
+				overlay display<br />
+			</p>
+			<p>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+			</p>
+		</div>
+		<div data-role="panel" id="panel3" data-position-fixed="true" data-display="push">
+			<p>
+				left panel<br />
+				fixed position<br />
+				push display<br />
+			</p>
+			<p>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+			</p>
+		</div>
+		<div data-role="panel" id="panel4" data-position-fixed="true" data-position="right">
+			<p>
+				right panel<br />
+				fixed position<br />
+				reveal display<br />
+			</p>
+			<p>
+				<a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+			</p>
+		</div>
+		<div data-role="panel" id="panel5" data-position-fixed="true" data-theme="b">
+                <p>
+                    left panel<br />
+                    fixed position<br />
+                    reveal display<br />
+                    B theme<br />
+                </p>
+                <p>
+                    <a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+                </p>
+            </div>
+		// End Panels
+
+		<div data-role="header">
+			<h1>My App</h1>
+		</div>
+		<div role="main" class="ui-content">
+			<p>bla bla bla</p>
+			<p>
+				<a href="#Home" class="ui-btn ui-corner-all">Home</a>
+				<a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+			</p>
+			<p>                    
+				<a href="#panel1" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow">A</a>                    
+				<a href="#panel2" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow">B</a>
+				<a href="#panel3" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow">C</a>
+				<a href="#panel4" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow">D</a>
+				<a href="#panel5" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow ui-btn-b">E</a>
+			</p>
+		</div>
+		<div data-role="footer" data-position="fixed">
+			<h4>Footer</h4>
+		</div>
+	</div>
+
+Popups
+------
+- data-role="popup"
+- transitions: see 'Transitions'
+
+- open popup: 
+  use link with data-rel="popup" and href="#[popupId]"
+
+- close popup:
+  by default, popup close by any click outside the popup area or ESC key 
+  use data-dismissible="false" to prevent it!
+  use data-rel="back" to close a popup from within.
+
+- structure:
+  <a href="#[popupId]" data-rel="popup" class="ui-btn ui-corner-all ui-btn-inline" data-transition="[transition]">Show Popup</a>
+  <div data-role="popup" id="[popupId]">
+	.....
+  </div>
+
+
+- basic:
+  attribute: data-role="popup"
+
+  e.g:
+  <a href="#popup1" data-rel="popup" class="ui-btn ui-corner-all ui-btn-inline" data-transition="pop">Show</a>
+  <div data-role="popup" id="popup1">
+	<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+	<p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
+  </div>
+
+- tooltip: 
+  class: [link] ui-icon-info + ui-btn-icon-notext   
+  css: [custom] my-tooltip-btn
+
+  e.g:
+  <a href="#popup1" data-rel="popup" data-transition="pop" class="ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Learn more"></a>
+  <div data-role="popup" id="popup1" data-theme="a">...</div>
+
+  // css
+  .ui-btn.my-tooltip-btn, .ui-btn.my-tooltip-btn:hover, .ui-btn.my-tooltip-btn:active {
+      background: none;
+      border: 0;
+  }
+
+- photos:
+  use: create a photo popup.
+
+  e.g:
+  <a href="#popup1" data-rel="popup" data-position-to="window" data-transition="fade">
+	<img src="paris.jpg" alt="Paris" style="width:30%" />
+  </a>
+  <div data-role="popup" id="popup1" data-overlay-theme="b" data-theme="b" data-corners="false">
+    <img src="paris.jpg" alt="Paris" />
+  </div>
+
+- menu:
+  use: create a menu popup.
+  note: can create nested menu by using collapsible within the listview
+
+  e.g:
+  <a href="#popup1" data-rel="popup" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a">Menu</a>
+  <div data-role="popup" id="popup1" data-theme="b">
+        <ul data-role="listview" data-inset="true">
+            <li data-role="list-divider">Choose</li>
+            <li><a href="#">ItemA</a></li>
+            <li><a href="#">ItemB</a></li>
+            <li><a href="#">ItemC</a></li>
+            <li><a href="#">ItemD</a></li>
+        </ul>
+   </div>
+
+- form:
+  use: create a form popup.
+
+  e.g:
+  <a href="#popup1" data-rel="popup" data-position-to="window" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-check ui-btn-icon-left ui-btn-a" data-transition="pop">SignIn</a>
+  <div data-role="popup" id="popup1" class="ui-corner-all">
+    <form>
+        <div style="padding:10px 20px;">
+            <h3>Sign In</h3>            
+            <input type="text" name="user" placeholder="username" />            
+            <input type="password" name="pass" placeholder="password" />
+            <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Sign In</button>
+        </div>
+    </form>
+  </div>
+
+- dialog:
+  use: create a dialog popup (confirm etc.)
+  tip: use data-dismissible="false" to prevent the closing dialog by clicking outside the popup
+
+  e.g:
+  <a href="#popup1" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-corner-all ui-btn-inline ui-icon-delete ui-btn-icon-notext ui-btn-b"></a>
+  <div data-role="popup" id="popup1" data-overlay-theme="b" data-theme="b" data-dismissible="false">
+    <div data-role="header" data-theme="a">
+        <h1>Delete</h1>
+    </div>
+    <div role="main" class="ui-content">
+        <h3 class="ui-title">Are you sure?</h3>
+        <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
+        <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-transition="flow">Delete</a>
+    </div>
+  </div>
+
+- padding:
+  class: ui-content
+  use: add the ui-content class to the popup for padding
+
+  e.g:
+  <div data-role="popup" id="popup1" class="ui-content">...</div>
+
+- close button:
+  also see 'close popup'.
+
+  e.g:
+  <a href="#popup1" data-rel="popup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline">Show</a>
+  <div data-role="popup" id="popup1" class="ui-content">
+    <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+    <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+  </div>
+
+- theme:
+  attribute: data-theme="[none|a-z]" AND data-overlay-theme="[none|a-z]"
+  data-theme: for the popup itself
+  data-overlay-theme: for the overlay
+
+- position:
+  attribute: data-position-to="[origin|window|selector]"
+
+  types: 
+  1. origin // link position
+  2. window // screen centered (both vertically and horizontally) 
+  3. custom jQuery selector
+
+  default: origin
+
+  e.g:
+  <a href="#popup1" class="ui-btn ui-corner-all ui-btn-inline" data-rel="popup" data-position-to="window">window</a>
+  <a href="#popup1" class="ui-btn ui-corner-all ui-btn-inline" data-rel="popup" data-position-to="origin">origin</a>
+  <a href="#popup1" class="ui-btn ui-corner-all ui-btn-inline" data-rel="popup" data-position-to="#div1">selector</a>
+  <a href="#popup1" class="ui-btn ui-corner-all ui-btn-inline" data-rel="popup" data-position-to="[data-role='header']">selector</a>
+
+  <div id="div1"></div>
+
+  <div data-role="popup" id="popup1">
+	<p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+	<p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
+  </div>
+
+- transitions:  
+  see 'Transitions'
+
+  e.g:
+  <a href="#popup1" data-rel="popup" data-transition="none" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+  <a href="#popup1" data-rel="popup" data-transition="pop" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+  <a href="#popup1" data-rel="popup" data-transition="fade" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+  <a href="#popup1" data-rel="popup" data-transition="flip" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+  <a href="#popup1" data-rel="popup" data-transition="turn" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+  <a href="#popup1" data-rel="popup" data-transition="flow" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+  <a href="#popup1" data-rel="popup" data-transition="slide" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+  <a href="#popup1" data-rel="popup" data-transition="slidefade" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+  <a href="#popup1" data-rel="popup" data-transition="slideup" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+  <a href="#popup1" data-rel="popup" data-transition="slidedown" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+
+  <div data-role="popup" id="popup1" class="ui-content" data-theme="a">
+	<p>bla bla bla</p>
+  </div>
+
+- using javascript:
+  structure: 
+  $([selector]).popup([action], [options]);
+
+  actions:
+  1. open
+  2. close
+
+  options:
+  1. corners (bool)
+  2. history (bool)
+  3. overlayTheme (a-z)
+  4. positionTo (origin|window|selector)
+  5. shadow (bool)
+  6. theme (a-z)
+  7. tolerance (string) e.g: '30,15,30,15'
+  8. transition (string) see 'Transitions'
+
+  e.g:
+  $('#myPopup']).popup('open');
+
+- global popups:
+  1. create a popup under the body tag
+  2. instantiate it manually (MUST)
+     $(function () {
+       $("#popup-test").enhanceWithin().popup();
+     });  
+
+- events:
+  see 'Popup Events'
+
+Sliders
+-------
+- numeric values (int, float etc.)
+
+- structure:
+  <input type="range" min="[min]" max="[max]" value="[value]" />
+
+- basic:
+  no attribute requires! input type="range"
+  e.g: <input type="range" min="0" max="100" value="40" />     
+
+- range:
+  data-role="rangeslider"
+
+  e.g:
+  <div data-role="rangeslider">   
+     <input type="range" min="0" max="100" value="40" />     
+     <input type="range" min="0" max="100" value="80" />
+  </div>
+
+- highlight:
+  attribute: data-highlight="[true|false]"
+  default: true
+  use: adds blue bg fill to the track.
+
+  e.g:
+  <div data-role="rangeslider" data-highlight="false">   
+     <input type="range" min="0" max="100" value="40" />     
+     <input type="range" min="0" max="100" value="80" />
+  </div>
+
+- step:
+  attribute: step="[value]"
+
+  e.g:
+  <div data-role="rangeslider">   
+     <input type="range" min="0" max="5" step=".1" value="2.1" />     
+     <input type="range" min="0" max="5" step=".1" value="4.2" />
+  </div>
+
+- theme:
+  attribute: data-track-theme="[a-z]" + data-theme="[a-z]"
+  use: data-track-theme controls the track theme whereas the data-theme attribute controls the range element itself
+
+  e.g:
+  <div data-role="rangeslider" data-track-theme="b" data-theme="a">   
+     <input type="range" min="0" max="100" value="40" />     
+     <input type="range" min="0" max="100" value="80" />
+  </div>  
+
+- mini:
+  attribute: data-mini="[true|false]"
+  default: false
+
+  e.g:
+  <div data-role="rangeslider" data-mini="true">
+     <input type="range" min="0" max="50" value="15" />
+     <input type="range" min="0" max="50" value="30" />
+  </div>
+
+- disabled:
+  attribute: disabled="disabled"  
+  e.g: <input type="range" min="0" max="100" value="40" disabled="disabled" />     
+  
+- show value:  
+  attribute: data-show-value="[true|false]"
+  default: false
+  use: show the value on the selector
+  e.g: <input type="range" min="0" max="100" value="50" data-show-value="true" />
+
+- show tooltip:  
+  attribute: data-popup-enabled="[true|false]"
+  default: false
+  e.g: <input type="range" min="0" max="100" value="50" data-show-value="true" data-popup-enabled="true" />
+
+- refresh
+  in order to update value dynamically, we have to refresh the range input.
+
+  e.g:
+  $('#my-range').val('50').slider('refresh');
+
+Selects
+-------   
+ - basic:
+   no attribute required!
+
+   e.g:
+   <select>
+        <option value="1">Item 1</option>
+        <option value="2">Item 2</option>
+        <option value="3">Item 3</option>
+        <option value="4">Item 4</option>
+    </select>
+
+- mini:
+  attribute: data-mini="[true|false]"
+  default: false 
+  e.g: <select data-mini="true">..</select>
+
+- icon position:
+  attribute: data-iconpos="[left|right|top|buttom]"
+  default: right 
+  e.g: <select data-iconpos="left">..</select>
+
+- selected option:
+  attribute: selected="selected"
+  note: applied on the option
+
+  e.g:
+  <select>
+        <option value="1">Item 1</option>
+        <option value="2">Item 2</option>
+        <option value="3" selected="selected">Item 3</option>
+        <option value="4">Item 4</option>
+    </select>
+
+- disabled option:
+  attribute: disabled="disabled"
+  note: applied on the option
+
+  e.g:
+  <select>
+        <option value="1">Item 1</option>
+        <option value="2" disabled="disabled">Item 2</option>
+        <option value="3" disabled="disabled">Item 3</option>
+        <option value="4">Item 4</option>
+    </select>
+
+- options group:
+  tag: optgroup
+  use: make a logical grouping for the options 
+
+  e.g:
+  <select>
+        <option>[Choose]</option>
+        <optgroup label="Group 1">
+            <option value="1">Item 1</option>
+            <option value="2">Item 2</option>
+            <option value="3">Item 3</option>
+            <option value="4">Item 4</option>
+        </optgroup>
+        <optgroup label="Group 2">
+            <option value="5">Item 5</option>
+            <option value="6">Item 6</option>
+            <option value="7">Item 7</option>
+        </optgroup>
+    </select>
+
+- refresh
+  in order to add items dynamically to a select we have to refresh it.
+  known issue: if we didn't refresh the select - the first option will not be presented as selected and ONLY if we choose a different item, it will be updated 
+               if its a single value, we'll never see it as selected although it is!
+
+  e.g:
+  var select = container.find('#messageEmployee-dest');
+  select.empty();
+          
+  var template = '<option value="{0}">{1}</option>';
+  $.each(data, function (i, employee) {
+      select.append(template
+          .replace('{0}', employee.id)
+          .replace('{1}', employee.firstName + ' ' + employee.lastName)
+      );
+  });
+  
+  select.selectmenu('refresh');
+
+- groups:
+  see 'ControlGroup'
+
+- popup:
+  see 'Select As Popup'
+
+Selects As Popups
+-----------------
+- by disabling the native menu view, we change the view to use popups
+
+- basic:
+  attribute: data-native-menu="false"
+  
+  e.g:
+  <select data-native-menu="false">
+        <option value="1">Item 1</option>
+        <option value="2">Item 2</option>
+        <option value="3" selected="selected">Item 3</option>
+        <option value="4">Item 4</option>
+    </select>
+
+- placeholder:
+  attribute: data-placeholder="true"
+  note: applied on the option
+
+  e.g:
+  <select data-native-menu="false">
+      <option value="choose" data-placeholder="true">[Choose]</option>
+      <option value="1">Item 1</option>
+      <option value="2">Item 2</option>
+      <option value="3" selected="selected">Item 3</option>
+      <option value="4">Item 4</option>
+  </select>
+
+- multiple:
+  attribute: multiple="multiple"
+  
+  e.g:
+  <select data-native-menu="false" multiple="multiple">    
+      <option>[Choose]</option>  
+      <option value="1">Item 1</option>
+      <option value="2" selected="selected">Item 2</option>
+      <option value="3" selected="selected">Item 3</option>
+      <option value="4">Item 4</option>
+  </select>
+
+Tables
+------
+- use: just add data-role="table" attribute to a table.
+
+- structure:
+  <table data-role="table">
+     <thead>
+       <tr>
+         ...
+       </tr>
+     </thead>
+  </table>
+
+- basic:
+  attribute: data-role="table"  
+
+- show/hide columns: 
+  attribute: data-mode="columntoggle"
+  use: adds a columns filter which let us the ability to define the table view (which columns to present) 
+  thead: the column filter control panel (use data-priority attribute to define each column priority)
+  tbody: the table rows
+  priority: see 'priority'
+      
+  e.g:
+  <table data-role="table" data-mode="columntoggle" class="ui-responsive table-stroke">
+     <thead>
+       <tr>
+         <th data-priority="2">A</th>
+         <th>B</th>
+         <th data-priority="3">C</th>
+         <th data-priority="1">D</th>
+         <th data-priority="5">E</th>
+       </tr>
+     </thead>
+     <tbody>
+       <tr>
+         <td>1</td>
+         <td>2</td>
+         <td>3</td>
+         <td>4</td>
+         <td>5</td>
+       </tr>
+       <tr>
+         <th>6</th>
+         <td>7</td>
+         <td>8</td>
+         <td>9</td>
+         <td>10</td>
+       </tr>
+       <tr>
+         <th>11</th>
+         <td>12</td>
+         <td>13</td>
+         <td>14</td>
+         <td>15</td>
+       </tr>
+     </tbody>
+  </table>
+
+- columns priority:
+  attribute: data-priority="[1-6]" or data-priority="[custom]"
+  range: 1 (highest) - 6 (lowest) 
+
+  about:
+  the number of columns to present is defined by the framework based on the screen width. 
+  the omission process is performed based on the data-priority defined for each column.
+  columns with NO data-priority defined will be persistent and will always be shown.
+
+  custom:
+  we can add ANY custom priority value! 
+  the framework adds automatically a corresponding class per each custom value.
+  once we add a data-priority attribute - the column will appear on the columns menu.
+  the class structure is ui-table-priority-[custom] whereas the [custom] is the value we added as our custom data.
+  e.g: for data-priority="critical" - ui-table-priority-critial
+
+  we can use this the style our own priorities.  
+  
+  e.g:
+  <thead>
+    <tr>
+      <th data-priority="2">A</th>
+      <th data-priority="critical">B</th>
+      <th data-priority="3">C</th>
+      <th data-priority="1">D</th>
+      <th data-priority="5">E</th>
+    </tr>
+  </thead>
+
+  // css 
+  .ui-table-priority-critical {
+    color:red;
+  }
+
+- columns menu theme:
+  attribute: data-column-btn-theme="[a-z]" + data-column-popup-theme="[a-z]"
+  e.g:
+  <table data-role="table" data-mode="columntoggle" data-column-btn-theme="b" data-column-popup-theme="a" class="ui-responsive table-stroke">
+	...
+  </table>
+
+
+- columns menu text:
+  attribute: data-column-btn-text="[string]" 
+
+  e.g:
+  <table data-role="table" data-mode="columntoggle" data-column-btn-text="Columns to display..." class="ui-responsive table-stroke">
+	...
+  </table>  
+
+- table theme:
+  class: ui-body-[a-z] (table level)
+         ui-bar-[a-z] (header row level)
+		 table-stripe (table level) 
+
+  e.g:
+  <table data-role="table" data-mode="columntoggle" class="ui-responsive ui-body-b table-stripe">
+    <thead>
+        <tr class="ui-bar-b">
+            <th>A</th>
+            <th>B</th>
+            <th>C</th>
+            <th>D</th>
+            <th>E</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>2</td>
+            <td>3</td>
+            <td>4</td>
+            <td>5</td>
+        </tr>
+        <tr>
+            <td>6</td>
+            <td>7</td>
+            <td>8</td>
+            <td>9</td>
+            <td>10</td>
+        </tr>
+    </tbody>
+  </table>
+
+- responsive:
+  class: ui-responsive 
+
+  priority (defaults):
+  data-priority="1" -> Displays the column at 320px (20em)
+  data-priority="2" -> Displays the column at 480px (30em)
+  data-priority="3" -> Displays the column at 640px (40em)
+  data-priority="4" -> Displays the column at 800px (50em)
+  data-priority="5" -> Displays the column at 960px (60em)
+  data-priority="6" -> Displays the column at 1,120px (70em)
+
+
+  priority visibility:
+  we can set each priority (both built-in and custom) visibility by using a media queries 
+  recommendation: use a custom table class to prevent appling this behaviour for ALL tables
+
+  e.g:
+  <table data-role="table" data-mode="columntoggle" data-column-btn-theme="b" data-column-popup-theme="a" class="ui-responsive table-stroke">
+	...
+  </table>
+
+   // Show priority 1 at 320px (20em x 16px) */
+   @media screen and (min-width: 20em) {
+      .custom-table th.ui-table-priority-1, .custom-table td.ui-table-priority-1 {
+   		display: table-cell;
+      }
+   }
+   // Show priority 2 at 480px (30em x 16px) */
+   @media screen and (min-width: 30em) {
+      .custom-table  th.ui-table-priority-2, .custom-table td.ui-table-priority-2 {
+   		display: table-cell;
+      }
+   }
+
+- reflow:
+  attribute: data-mode="reflow" + class: ui-responsive  
+  note: default! doesn't have to be supplied 
+  use: show the table as list on vertical mode and as table on horizontal. 
+
+  e.g:
+  <table data-role="table" data-mode="reflow" class="table-stripe ui-responsive">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Age</th>                            
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>Roby</td>
+            <td>38</td>                            
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Avi</td>
+            <td>36</td>                            
+        </tr>
+    </tbody>
+  </table>
+
+
+Inputs
+------
+- [input] text:
+  e.g: <input type="text" value="" />
+
+- [input] search:
+  use: adds a clear button (right) and a search icon (left)
+  e.g: <input type="search" value="">
+  
+- [input] textarea:
+  e.g: <textarea></textarea>
+
+- [input] number:  
+  e.g: <input type="number" data-clear-btn="true" value="" />
+
+- [input] date:
+  e.g: <input type="date" value="" />
+
+- [input] month:
+  e.g: <input type="month" value="" />
+
+- [input] week:
+  e.g: <input type="week" value="" />
+
+- [input] time:
+  e.g: <input type="time" value="" />
+
+- [input] datetime:
+  e.g: <input type="datetime" value="" />
+
+- [input] telephone:
+  e.g: <input type="tel" value="" />
+
+- [input] email:
+  e.g: <input type="email" value="" />
+
+- [input] url:
+  e.g: <input type="url" value="" />
+
+- [input] password:
+  e.g: <input type="password" value="" autocomplete="off" />
+
+- [input] color:
+  e.g: <input type="color" value="" />
+
+- [input] file:
+  e.g: <input type="file" value="" />
+
+- placeholder:
+  attribute: placeholder="[string]"
+
+- disabled:  
+  class: ui-disabled (add/remove)
+
+  e.g:
+    $('#myInput').removeClass('ui-disabled'); // disabled
+    $('#myInput').addClass('ui-disabled'); // enabled
+
+- enhanced:
+  attribute: data-enhanced="[true|false]"
+  default: false
+
+- mini
+  attribute: data-mini="[true|false]"
+  default: false
+
+- pattern:
+  attribute: pattern="[regEx]"
+  use: allows us to add a regEx pattern to define the input valid content
+  sample: pattern="[0-9]*"
+  e.g: <input type="number" pattern="[0-9]*" value="" />
+  
+- clear button:
+  attribute: data-clear-btn="[true|false]"
+  default: false
+  use: adds x button which clears the typed content 
+  e.g: <input type="text" data-clear-btn="true" value="" />    
+
+- label for input:
+  use: attach a label to an input
+
+  e.g:
+  <form>
+    <label for="textarea1">Textarea:</label>
+    <textarea name="textarea1" id="textarea1"></textarea>
+
+    <label for="text1">Text input:</label>
+    <input type="text" data-clear-btn="true" name="text1" id="text1" value="" />
+  </form>
+
+- field-contain:
+  class: ui-field-contain
+  use: make two columns (horizontaly) - one for the label (or legend) and one for the input
+       a table view
+
+  e.g:
+  <form>
+    <div class="ui-field-contain">
+         <label for="text1">Text1:</label>
+         <input type="text" name="text1" id="text1" value="" />
+    </div>
+    <div class="ui-field-contain">
+         <label for="text2">Text2:</label>
+         <input type="text" data-clear-btn="true" name="text2" id="text2" value="" />
+    </div>
+  </form>
+
+  <form>
+    <div class="ui-field-contain">
+        <fieldset data-role="controlgroup" data-type="horizontal">
+            <legend>Group</legend>
+            <button class="ui-shadow ui-btn ui-corner-all ui-icon-home ui-btn-icon-right">One</button>
+            <button class="ui-shadow ui-btn ui-corner-all ui-icon-grid ui-btn-icon-right">Two</button>
+            <button class="ui-shadow ui-btn ui-corner-all ui-icon-back ui-btn-icon-right">Three</button>
+        </fieldset>
+    </div>
+  </form>
+
+Transitions
+-----------
+- attribute: data-transition="[none|fade|pop|flip|turn|flow|slidefade|slide|slideup|slidedown]"
+- default: fade
+
+- back button:
+  when the back button is pressed, the framework will apply the reverse version of the transition that used to show the page.
+ 
+====================================================================================
+
+Events
+------
+- hashchange
+  on hash tag (#) changed
+
+  e.g:
+  $(window).hashchange(function(e) {
+	var hash = location.hash;
+    console.log('hash changed to ' + hash);
+  });
+
+- mobileinit
+  on jQuery Mobile fully loaded. 
+
+  e.g:
+  $(document).on('mobileinit', function(e) {
+    console.log('jQuery mobile is fully loaded');
+  });
+
+  note: 
+  if we locate it after the framework has already been loaded - the event will not be fired!
+
+- navigate
+
+- orientationchange
+  on device orientation changed (portrait or landscape)
+
+  e.g:
+  $(window).on("orientationchange", function(e) {
+    console.log(e.orientation);
+  });
+
+- pagebeforecreate
+  on a page is being initialized.
+
+  e.g:
+  $(window).on('pagebeforecreate', function (e) {
+    console.log('creating page ' + e.target.id);
+  });
+
+- pagecreate
+  on page created.
+
+  e.g:
+  $(window).on('pagecreate', function (e) {
+    console.log('page ' + e.target.id + ' created');
+  });
+
+- pagebeforechange
+  [deprecated] use pagecontainerbeforechange (see 'Pagecontainer Widget')
+
+- pagebeforehide
+  [deprecated] use pagecontainerbeforehide (see 'Pagecontainer Widget')
+
+- pagebeforeload
+  [deprecated] use pagecontainerbeforeload (see 'Pagecontainer Widget')
+
+- pagebeforeshow
+  [deprecated] use pagecontainerbeforeshow (see 'Pagecontainer Widget')
+
+- pagechange
+  [deprecated] use pagecontainerchange (see 'Pagecontainer Widget')
+
+- pagechangefailed
+  [deprecated] use pagecontainerchangefailed (see 'Pagecontainer Widget')
+
+- pagehide
+  [deprecated] use pagecontainerhide (see 'Pagecontainer Widget')
+
+- pageload
+  [deprecated] use pagecontainerload (see 'Pagecontainer Widget')
+
+- pageloadfailed
+  [deprecated] use pagecontainerloadfailed (see 'Pagecontainer Widget')
+
+- pageremove
+  [deprecated] use pagecontainerremove (see 'Pagecontainer Widget')
+
+- pageshow
+  [deprecated] use pagecontainershow (see 'Pagecontainer Widget')
+
+- scrollstart
+  on scroll start.
+
+  e.g:
+  $(window).on('scrollstart', function (e) {
+    console.log('[scrollstart] scroll start');
+  });        
+
+- scrollstop
+  on scroll stop. 
+
+  e.g:
+  $(window).on('scrollstop', function (e) {
+    console.log('[scrollstop] scroll stop');
+  });
+
+- swipe
+  on swipe.
+  triggered when an horizontal drag of [X]px occurs within 1 second duration.
+  
+  properties:  
+  - durationThreshold
+    $.event.special.swipe.durationThreshold
+	default: 1000ms
+
+  - horizontalDistanceThreshold
+    $.event.special.swipe.horizontalDistanceThreshold
+	default: 30px
+
+  - verticalDistanceThreshold
+	$.event.special.swipe.verticalDistanceThreshold
+	default: 30px
+
+  e.g:  
+  $(window).on('swipe', function (e) {
+    console.log('[swipe] swiping');
+  });  
+
+- swipeleft
+  on swipe to the left.
+
+  e.g:  
+  $(window).on('swipeleft', function (e) {
+    console.log('[swipeleft] swiping left');
+  });  
+
+- swiperight
+  on swipe to the right.
+
+  e.g:  
+  $(window).on('swiperight', function (e) {
+    console.log('[swiperight] swiping right');
+  });  
+
+- tap
+  on tap. a quick touch event.
+
+- taphold
+  on tap hold. a sustained touch event.
+
+- updatelayout
+  on layout update.
+  triggered by components within the framework that dynamically show/hide content.
+
+- vclick
+  on click 
+
+  get position:
+  use e param to get data about the clicked position 
+  (pageX, pageY, screenX, screenY, clientX, clientY etc.)
+
+  e.g:
+  $(window).on('vclick', function (e) {
+    console.log('[vclick] click');
+  });
+
+- vmousecancel
+  on mouse event was canceled.
+
+- vmousedown
+  on mouse down.
+
+- vmousemove
+  on mouse move.
+
+- vmouseout
+  on mouse out.
+
+- vmouseover
+  on mouse over.
+
+- vmouseup
+  on mouse up.
+
+note! 
+almost all of the page events replaced by the Pagecontainer Widget! 
+(see 'Pagecontainer Widget')
+
+Popup Events
+------------
+- [event] popupbeforeposition
+  on before show
+
+- [event] popupafteropen
+  on after show
+
+- [event] popupafterclose
+  on after close
+
+- [event] popupcreate
+  on create
+
+  e.g:
+  $(window).on('popupcreate', function (e, data) {
+		console.log('[popupshow] show popup ' + e.target.id);        
+  });
+
+Pagecontainer Widget
+--------------------
+- source:
+  http://api.jquerymobile.com/pagecontainer/
+
+- via code 
+  $([selector]).pagecontainer([options]);
+
+  e.g:
+  $('#pageA').pagecontainer({
+	beforeshow: function(e, data) { ... }
+  });
+
+- [event] pagecontainerbeforechange
+  on before the page state changed, 
+  occurs twice: once prior any page loading and second after the page completely loaded.
+  
+  data:
+  absUrl // absolute url
+  prevPage // source page
+  toPage // destination page, can be the page url (before load) or an elements collection containing the page (load completed) 
+  options // page configuration data
+
+  e.g:
+  $(window).on("pagecontainerbeforechange", function (e, data) {
+    var state = '';
+    if (typeof (data.toPage) == 'string')
+        state = 'before load';
+    else if (typeof (data.toPage) == 'object')
+        state = 'load completed';
+
+    console.log('state: ' + state + ', destination: ' + data.absUrl);
+  });
+
+- [event] pagecontainerbeforehide  
+  on before page leave.
+
+  data:
+  prevPage // source page
+  toPage // destination page
+  options // page configuration data
+
+  e.g:
+  $(window).on('pagecontainerbeforehide', function (e, data) {
+    console.log('leaving page ' + data.prevPage[0].id);
+  });
+
+- [event] pagecontainerbeforeload  
+  on before any load request is made.
+
+- [event] pagecontainerbeforeshow  
+  on before show a page.
+
+  data:
+  prevPage // source page
+  toPage // destination page
+  options // page configuration data
+
+  e.g:
+  $(window).on('pagecontainerbeforeshow', function (e, data) {
+    console.log('pre show page ' + data.toPage[0].id);
+  });
+
+- [event] pagecontainerchange
+  on page change. after the page was loaded and all transitions have completed.
+
+  data:  
+  prevPage // source page
+  toPage // destination page, can be the page url (before load) or an elements collection containing the page (load completed) 
+  options // page configuration data
+
+  e.g:
+  $(window).on("pagecontainerchange", function (e, data) {
+    console.log('changing page ' + data.toPage[0].id);
+  });
+
+- [event] pagecontainerchangefailed  
+  on page change failed. 
+
+- [event] pagecontainerhide
+  on page left.
+
+  data:
+  prevPage // source page
+  toPage // destination page
+  options // page configuration data
+
+  e.g:
+  $(window).on('pagecontainerhide', function (e, data) {
+    console.log('page ' + data.prevPage[0].id + ' left');
+  });
+
+- [event] pagecontainerload  
+  on page load.
+
+- [event] pagecontainerloadfailed
+  on page load failed.
+
+- [event] pagecontainerremove  
+  on page remove.
+
+- [event] pagecontainershow
+  on page show.  after the transition has completed.
+
+  data:
+  prevPage // source page
+  toPage // destination page
+  options // page configuration data
+
+  $(window).on('pagecontainershow', function (e, data) {
+    console.log('showing page ' + data.toPage[0].id);
+  });
+
+Data Attributes
+---------------
+http://api.jquerymobile.com/data-attribute/
+
+Change Page
+-----------
+- method: 
+  $.mobile.changePage([to], [options]);
+
+- changing the active page 
+
+- implementation:  
+  function changePage(page) {
+    $.mobile.changePage(
+      '#' + page, { 
+			allowSamePageTransition: true 
+	   }
+    );
+  }
+
+- e.g:
+  $.mobile.changePage('Index.html'); // using file
+  $.mobile.changePage('#Home'); // using data-role
+
+Partials
+--------
+- partial views
+- use the 'changePage' method to load pages from outer html files
+
+- document:
+  http://api.jquerymobile.com/jquery.mobile.changepage/
+
+- e.g:
+  $.mobile.changePage("partial/1.html", { 
+	transition: "slideup", changeHash: false 
+  });
+
+  // 1.html
+  <div data-role="page" id="partial">
+    <div data-role="header" data-position="fixed">
+        <h1>partial</h1>
+        <a href="#Home" class="ui-btn ui-corner-all ui-btn-right ui-btn-icon-notext ui-shadow ui-icon-home">Home</a>
+        <a class="ui-btn ui-corner-all ui-btn-left ui-btn-icon-notext ui-shadow ui-icon-back" data-rel="back">Back</a>
+    </div>
+    <div role="main" class="ui-content">
+        <p>partial</p>
+    </div>
+    <div data-role="footer" data-position="fixed">
+        <div data-role="navbar" data-iconpos="top">
+            <ul>
+                <li><a href="#" data-icon="plus">add</a></li>
+            </ul>
+        </div>
+    </div>
+  </div>
+
+-----------------------------
+
+widget uses data- attributes, others uses classes ???

@@ -1,0 +1,7 @@
+C# set file creation and updated time
+-------------------------------------
+FileInfo originalFile = ...
+
+// preserve creation and updated time                        
+File.SetCreationTime(newFilePath, originalFile.CreationTime);
+File.SetLastWriteTime(newFilePath, originalFile.LastWriteTime);

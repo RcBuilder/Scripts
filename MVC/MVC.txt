@@ -577,7 +577,15 @@ see 'MVC FromURI binding'
 * validateRequest
   - to disable the .net validation request security feature for a specific action 
     use the ValidateInput attribute and set it to be false.
-	[ValidateInput(false)]
+    [ValidateInput(false)]
+
+    // action level
+    [ValidateInput(false)]
+    public ActionResult SomeAction(SomeModel Model)
+
+    // model level
+    [AllowHtml]
+    public string SomeProperty { get; set; }
 
   - Exclude inputs
     [ValidateInput(true, Exclude = "YourFieldName")]

@@ -1,0 +1,99 @@
+POSTMAN 
+=======
+
+Collections
+-----------
+create a collection of requests.
+
+1. go to 'Collections' tab (from the left pane)
+2. press on 'Create' 
+3. add requests as per need 
+
+
+capabilities:
+* export and import postman collections
+* share a collection 
+* run a collection (execute all requests one after the other)
+* duplicate a collection
+* create a Monitor on a collection 
+* create a Mock server from a collection 
+
+
+Environments
+------------
+add variables to inject to postman requests
+
+1. go to 'Environments' tab (from the left pane)
+2. press on 'Create' > add variables with default values
+
+to use the variables: 
+1. choose the Environments collection to use from the dropdown located at the top-right. 
+2. use the double curly brackets({{}}) to inject a variable by its name 
+   for example: {{VAR1}} 
+   e.g: http://example.com?a={{VAR1}}&b={{VAR2}}
+
+tip:
+set collection per environment (PROD, LOCAL, QA) and include within it the relevant variables (base-url, headers etc.)
+that way we could use a single collection for multiple environments! 
+
+e.g: 
+envPROD -> url=http://domain.com 
+envQA -> url=http://staging.domain.com
+envLOCAL -> url=http://127.0.0.1
+
+note! 
+once collection was choosen, we can inject the variable anywhere! 
+(header, url, body etc.)
+
+
+Monitors
+--------
+create a custom scheduler to execute a postman collection
+
+1. go to 'Monitors' tab (from the left pane)
+2. press on 'Create'
+3. create a schedule to run on a specified collection
+
+
+Mock Servers
+------------
+create a mock api server with custom rules
+
+1. go to 'Mock Servers' tab (from the left pane)
+2. press on 'Create'
+3. add some rules (request path and response content)
+   e.g: GET /test1 to response with message OK
+4. copy the generated server url 
+   e.g: https://815b5353-db88-4530-857f-91a10eaaac8f.mock.pstmn.io
+5. test your server by executing the endpoints using your favorite provider (postman, browser, fiddler etc.)
+   e.g: GET https://815b5353-db88-4530-857f-91a10eaaac8f.mock.pstmn.io/test1
+
+
+Workspaces
+----------
+create a shared workspace with your team. 
+
+1. open top 'Workspaces' menu
+2. press on 'New'
+3. add members to join the workspace (by email, name or group-name)
+
+tip:
+we can also create a postman team and add it to a workspace 
+
+note! 
+must be logged-in
+
+
+Capturing Mode 
+--------------
+to capture requests we need to turn-on the postman interceptor. 
+
+1. click on the Capture icon (top-right icon near the settings icon)
+2. choose 'Interceptor' as the source 
+3. turn-on the source and choose to where to store the traffic (usually to the requests History tab)
+4. add 'Postman Interceptor' extension to chrome browser
+   https://chrome.google.com/webstore/detail/postman-interceptor/aicmkgpgakddgnaphhhpliifpcfhicfo
+5. turn-on the extension in order to connect it via postman 
+6. once connected, all traffic will be stored to the choosen destination
+
+  

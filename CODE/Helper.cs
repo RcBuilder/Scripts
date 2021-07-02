@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HtmlAgilityPack;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,12 @@ namespace Common
     public class Helper
     {
         #region DateFormat:
+        public static string DateFormat(DateTime? dt)
+        {
+            if (!dt.HasValue) return "";
+            return DateFormat(dt.Value);
+        }
+
         public static string DateFormat(DateTime dt)
         {
             return DateFormat(dt, "dd/MM/yyyy");
@@ -25,6 +32,23 @@ namespace Common
         public static string InnerText(string val)
         {
             return Regex.Replace(val, "<.*?>", string.Empty);
+        }
+        #endregion
+
+        #region HtmlInnerText:
+        public static string HtmlInnerText(string sHtml)
+        {
+            var doc = new HtmlDocument();
+            doc.LoadHtml(sHtml);
+            return doc?.DocumentNode.InnerText;
+        }
+        #endregion
+
+        #region TakeXWords:
+        public static string TakeXWords(string val, int Count)
+        {
+            val = Regex.Replace(val, "\\s{2,}", " ");
+            return string.Join(" ", val?.Split(' ')?.Take(Count) ?? Enumerable.Empty<string>());
         }
         #endregion
 
@@ -96,6 +120,16 @@ namespace Common
             var ts = TimeSpan.FromSeconds(seconds);
             //return ts.ToString();             
             return string.Format("{0:00}:{1:00}:{2:00}", (int)(ts.Days * 24 + ts.Hours), (int)ts.Minutes, (int)ts.Seconds);
+        }
+        #endregion
+
+        #region SplitList:
+        public static List<List<T>> SplitList<T>(List<T> list, int length = 10)
+        {
+            var result = new List<List<T>>();
+            for (var i = 0; i < list.Count; i += length)
+                result.Add(list.GetRange(i, Math.Min(length, list.Count - i)));
+            return result;
         }
         #endregion
     }

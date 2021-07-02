@@ -13,14 +13,19 @@ https://www.elastic.co/videos/
 
 engine:
 elasticsearch-7.2.0-windows-x86_64.zip
-run: bin/elasticsearch
+run: bin/elasticsearch		
+run: bin/elasticsearch-cli 	// cli
+run: bin/elasticsearch-sql-cli	// sql cli
+run: config/elasticsearch.yml   // config
 http://localhost:9200
 
 (management studio)
 manager & visualization:
 kibana-7.2.0-windows-x86_64.zip
 run: bin/kibana
+run: config/kibana.yml		// config
 http://localhost:5601
+
 
 ---
 
@@ -31,17 +36,15 @@ stores documents as JSON format
 api:
 https://www.elastic.co/guide/en/elasticsearch/reference/current/docs.html
 
-types:
-_doc
-
 commands:
-_mget	      // multiple GET
-_update
+_doc		  // work with document
+_mget	      	  // multiple GET
+_update		  // partial update
 -bulk		  // bulk operation
 _search		  // search for data 
 _sql		  // use sql-like queries
 _mapping	  // use field mapping
-_analyze
+_analyze	  // analyze text
 
 bulk operations:
 - index
@@ -51,7 +54,7 @@ bulk operations:
 
 search operations:
 - match			// contains   
-- match_phrase  // contains phrase  
+- match_phrase  	// contains phrase  
 - range			// range (see 'search range operations')
 - match_all
   
@@ -83,13 +86,25 @@ document structure:
 }
 
 using:
+also see 'ElasticSearch LOCAL.postman_collection.json'
 
 // system information
 GET http://localhost:9200/
 
 // create a new document 
-// a new identity is created
+// if no id has provided, a new identity is auto created
 // each execution - new document! use PUT to update an existing documents
+// syntax: POST /<index>/_doc/<docId>
+// syntax: POST /<index>/_doc
+POST http://localhost:9200/users_ix/_doc/100
+H: Content-Type: application/json
+{
+    "firstName": "John",
+    "lastName": "Doe",
+    "createdDate": "2019-07-02T14:33:49"
+}
+
+// auto _id is created
 POST http://localhost:9200/users_ix/_doc
 H: Content-Type: application/json
 {
@@ -100,6 +115,7 @@ H: Content-Type: application/json
 
 // if not exists - create an index and add a new document 
 // if exists - update a document 
+// syntax: PUT /<index>/_doc/<docId>
 PUT http://localhost:9200/users_ix/_doc/1
 H: Content-Type: application/json
 {
@@ -139,9 +155,11 @@ H: Content-Type: application/json
 }
 
 // get index information 
+// syntax: GET /<index>
 GET http://localhost:9200/users_ix
 
 // get document
+// syntax: GET /<index>/_doc/<docId>
 GET http://localhost:9200/users_ix/_doc/1
 
 // update partial document (add or update specific field/s)
@@ -154,6 +172,7 @@ H: Content-Type: application/json
 }
 
 // delete document
+// syntax: DELETE /<index>/_doc/<docId>
 DELETE http://localhost:9200/users_ix/_doc/1
 
 // get multiple documents 
@@ -264,68 +283,112 @@ GET http://localhost:9200/users_ix/_search
 GET http://localhost:9200/users_ix/_search
 H: Content-Type: application/json
 {
-	"query": {
-		"match": {
-			"firstName": "Roby"
-		}
-	}
-}
-
-// search by criteria (range) 
-GET http://localhost:9200/products_ix/_search
-H: Content-Type: application/json
-{
-	"query": {
-		"range": {
-			"price": { "gte" : 35 }
-		}
-	}
-}
-
-// with sort
-GET http://localhost:9200/products_ix/_search
-H: Content-Type: application/json
-{
-	"query": {
-		"range": {
-			"price": { "gte" : 25 }
-		}
-	},
-    "sort": [
-		{ "price": "asc" }
-	]
+  "query": {
+    "match": {
+      "firstName": "Roby"
+    }
+  }
 }
 
 // search by multiple criterias
 GET http://localhost:9200/users_ix/_search
 H: Content-Type: application/json
 {
-	"query": {
-		"bool": {
-			"must": [
-				{ "match": { "firstName": "Roby"}},
-				{ "match": { "lastName": "Cohen"}}
-			]
-		}
-	}
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "firstName": "Roby"
+          }
+        },
+        {
+          "match": {
+            "lastName": "Cohen"
+          }
+        }
+      ]
+    }
+  }
+}
+
+// search by criteria (NOT) 
+// first name is not "John"
+GET http://localhost:9200/products_ix/_search
+H: Content-Type: application/json
+{
+  "query": {
+    "bool": {
+      "must_not": [
+        {
+          "match": {
+            "firstName": "John"
+          }
+        }
+      ]
+    }
+  }
+}
+
+// search by criteria (range) 
+GET http://localhost:9200/products_ix/_search
+H: Content-Type: application/json
+{
+  "query": {
+    "range": {
+      "price": {
+        "gte": 35
+      }
+    }
+  }
+}
+
+// with sort
+GET http://localhost:9200/products_ix/_search
+H: Content-Type: application/json
+{
+  "query": {
+    "range": {
+      "price": {
+        "gte": 25
+      }
+    }
+  },
+  "sort": [
+    {
+      "price": "asc"
+    }
+  ]
 }
 
 // with aggregations
 GET http://localhost:9200/products_ix/_search
 H: Content-Type: application/json
 {
-	"aggregations": {
-		"price": {
-			"range": {
-				"field": "price",
-				"ranges": [
-					{ "key": "0-40", "from": 0, "to": 40 },
-					{ "key": "40-100", "from": 40, "to": 100 },
-					{ "key": "100-400", "from": 100, "to": 400 }
-				]
-			}
-		}
-	}
+  "aggregations": {
+    "price": {
+      "range": {
+        "field": "price",
+        "ranges": [
+          {
+            "key": "0-40",
+            "from": 0,
+            "to": 40
+          },
+          {
+            "key": "40-100",
+            "from": 40,
+            "to": 100
+          },
+          {
+            "key": "100-400",
+            "from": 100,
+            "to": 400
+          }
+        ]
+      }
+    }
+  }
 }
 
 
@@ -490,7 +553,69 @@ H: Content-Type: application/json
 
 ---
 
+// TODO 
 ElasticSearch vs Redis
+
+---
+
+// TODO
+elasticsearch cloud engine
+elasticsearch cli 
+elasticsearch sql cli
+
+---
+
+// TODO
+_search:
+highlight 
+
+---
+
+// TODO
+_analyze 
+
+tokenizers: 
+standard
+whitespace
+
+filter:
+lowercase       // lowercase the tokens 
+unique		// distinct, remove duplicate tokens
+
+// analyze text
+GET http://localhost:9200/users_ix/_analyze
+{
+  "tokenizer": "whitespace",
+  "filter": ["lowercase", "unique"],
+  "text": "EMAIL is is rcbuilder@walla.com"
+}
+
+// response
+{
+    "tokens": [
+        {
+            "token": "email",
+            "start_offset": 0,
+            "end_offset": 5,
+            "type": "word",
+            "position": 0
+        },
+        {
+            "token": "is",
+            "start_offset": 6,
+            "end_offset": 8,
+            "type": "word",
+            "position": 1
+        },
+        {
+            "token": "rcbuilder@walla.com",
+            "start_offset": 12,
+            "end_offset": 31,
+            "type": "word",
+            "position": 2
+        }
+    ]
+}
 
 ---
 
@@ -504,9 +629,7 @@ only 64bit supported
 solution:
 The default Java version on java.com is 32 bit. 
 download the 64 bit version.
-
-
-
+-
 issue:
 Elasticsearch not starting on windows. X-Pack issues.
 
@@ -516,7 +639,7 @@ disable xpack
 how to:
 - open 'config/elasticsearch.yml'
 - xpack.ml.enabled: false
-
+-
 issue:
 Malformed action/metadata line, expected START_OBJECT but found [VALUE_STRING]
 

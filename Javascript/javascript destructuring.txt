@@ -1,0 +1,38 @@
+javascript destructuring
+------------------------
+
+[Object destructuring]
+var me = {
+    fname: "Roby",
+    lname: "Cohen",
+    country: "Israel"
+}
+
+// basic
+var { fname, lname, country } = me;
+console.log(fname); // Roby
+
+-
+
+// with custom name
+var { v1 = fname, v2 = lname, v3 = country } = me;
+console.log(v1); // Roby
+
+-
+
+// partial 
+var { country } = me;
+console.log(fname); // exception! fname is not defined
+console.log(country); // Israel
+
+---
+
+[Array destructuring]
+
+var arr = [1,2,3,4,5,6];
+[n1, n2, ...rest] = arr;
+
+console.log(n1);  // 1
+console.log(n2);  // 2
+console.log(rest); // [3,4,5,6]
+

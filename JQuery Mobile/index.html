@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>    
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+
+    <link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.5.min.css" />
+    <link rel="stylesheet" type="text/css" href="css/index.css" />
+</head>
+<body>
+    <div data-role="page" id="Home">
+        <div data-role="header" data-position="fixed">
+            <h1>My App</h1>
+            <a href="#Home" class="ui-btn ui-corner-all ui-btn-right ui-btn-icon-notext ui-shadow ui-icon-home">Home</a>
+            <a class="ui-btn ui-corner-all ui-btn-left ui-btn-icon-notext ui-shadow ui-icon-back" data-rel="back">Back</a>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <a href="#dates" class="ui-btn ui-corner-all">dates</a>
+                <a href="#panels" class="ui-btn ui-corner-all">panels</a>
+                <a href="#dropdowns" class="ui-btn ui-corner-all">dropdowns</a>
+                <a href="#listviews" class="ui-btn ui-corner-all">listviews</a>
+                <a href="#tables" class="ui-btn ui-corner-all">tables</a>
+                <a href="#collapsibles" class="ui-btn ui-corner-all">collapsibles</a>
+                <a href="#controlgroups" class="ui-btn ui-corner-all">control-groups</a>
+                <a href="#loaders" class="ui-btn ui-corner-all">loaders</a>
+                <a href="#popups" class="ui-btn ui-corner-all">popups</a>
+                <a href="#sliders" class="ui-btn ui-corner-all">sliders</a>
+                <a href="#checkboxes" class="ui-btn ui-corner-all">checkboxes</a>
+                <a href="#radios" class="ui-btn ui-corner-all">radios</a>
+                <a href="#buttons" class="ui-btn ui-corner-all">buttons</a>
+                <a href="#switches" class="ui-btn ui-corner-all">switches</a>
+                <a href="#navbars" class="ui-btn ui-corner-all">navbars</a>
+                <a href="#grids" class="ui-btn ui-corner-all">grids</a>
+                <a href="#bars" class="ui-btn ui-corner-all">bars</a>
+                <a href="#filters" class="ui-btn ui-corner-all">filters</a>
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <div data-role="navbar" data-iconpos="top">
+                <ul>                    
+                    <li><a href="#" data-icon="power">יציאה</a></li>
+                    <li><a href="#" data-icon="gear">מאפיינים</a></li>
+                    <li><a href="#" data-icon="mail">מייל</a></li>                    
+                    <li><a href="#" data-icon="phone">טלפון</a></li>
+                    <li><a href="#" data-icon="home" class="ui-btn-active">ראשי</a></li>
+                </ul>
+            </div>   
+        </div>
+    </div>
+
+    <div data-role="page" id="dates">
+        <div data-role="header">
+            <h1>dates</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <input type="text" data-role="date" data-inline="true" />
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="panels">
+        <!-- panels -->
+        <div data-role="panel" id="panel1" data-position-fixed="true">
+            <p>
+                left panel<br />
+                fixed position<br />
+                reveal display<br />
+            </p>
+            <p>
+                <a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+            </p>
+        </div>
+        <div data-role="panel" id="panel2" data-position-fixed="true" data-display="overlay">
+            <p>
+                left panel<br />
+                fixed position<br />
+                overlay display<br />
+            </p>
+            <p>
+                <a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+            </p>
+        </div>
+        <div data-role="panel" id="panel3" data-position-fixed="true" data-display="push">
+            <p>
+                left panel<br />
+                fixed position<br />
+                push display<br />
+            </p>
+            <p>
+                <a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+            </p>
+        </div>
+        <div data-role="panel" id="panel4" data-position-fixed="true" data-position="right">
+            <p>
+                right panel<br />
+                fixed position<br />
+                reveal display<br />
+            </p>
+            <p>
+                <a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+            </p>
+        </div>
+        <div data-role="panel" id="panel5" data-position-fixed="true" data-theme="b">
+            <p>
+                left panel<br />
+                fixed position<br />
+                reveal display<br />
+                B theme<br />
+            </p>
+            <p>
+                <a href="#" class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-left" data-rel="close">Close panel</a>
+            </p>
+        </div>
+
+        <div data-role="header">
+            <h1>Panels</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>bla bla bla</p>
+            <p>
+                <a href="#panel1" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow">A</a>
+                <a href="#panel2" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow">B</a>
+                <a href="#panel3" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow">C</a>
+                <a href="#panel4" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow">D</a>
+                <a href="#panel5" class="ui-btn ui-corner-all ui-icon-bullets ui-btn-inline ui-shadow ui-btn-b">E</a>
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="dropdowns">
+        <div data-role="header">
+            <h1>Dropdowns</h1>
+        </div>
+        <div role="main" class="ui-content"> 
+            <p>
+                <select>
+                    <option value="1">Item 1</option>
+                    <option value="2">Item 2</option>
+                    <option value="3" selected="selected">Item 3</option>
+                    <option value="4">Item 4</option>
+                </select>
+            </p>
+            <p>
+                <select data-iconpos="left">
+                    <option value="1">Item 1</option>
+                    <option value="2">Item 2</option>
+                    <option value="3">Item 3</option>
+                    <option value="4">Item 4</option>
+                </select>
+            </p>
+            <p>
+                <select>
+                    <option value="1">Item 1</option>
+                    <option value="2" disabled="disabled">Item 2</option>
+                    <option value="3" disabled="disabled">Item 3</option>
+                    <option value="4">Item 4</option>
+                </select>
+            </p>
+            <p>
+                <select>
+                    <option>[Choose]</option>
+                    <optgroup label="Group 1">
+                        <option value="1">Item 1</option>
+                        <option value="2">Item 2</option>
+                        <option value="3">Item 3</option>
+                        <option value="4">Item 4</option>
+                    </optgroup>
+                    <optgroup label="Group 2">
+                        <option value="5">Item 5</option>
+                        <option value="6">Item 6</option>
+                        <option value="7">Item 7</option>
+                    </optgroup>
+                </select>
+            </p>
+            <p>
+                <fieldset data-role="controlgroup" data-type="vertical">
+                    <legend>Some Title:</legend>
+                    <select>
+                        <option value="1">Item 1</option>
+                        <option value="2">Item 2</option>
+                        <option value="3">Item 3</option>
+                        <option value="4">Item 4</option>
+                    </select>
+                    <select>
+                        <option value="1">Item 1</option>
+                        <option value="2">Item 2</option>
+                        <option value="3">Item 3</option>
+                        <option value="4">Item 4</option>
+                    </select>
+                </fieldset>
+            </p>
+            <p>
+                <select data-native-menu="false">
+                    <option value="1">Item 1</option>
+                    <option value="2">Item 2</option>
+                    <option value="3" selected="selected">Item 3</option>
+                    <option value="4">Item 4</option>
+                </select>
+            </p>
+            <p>
+                <select data-native-menu="false" multiple="multiple">
+                    <option>[Choose]</option>
+                    <option value="1">Item 1</option>
+                    <option value="2" selected="selected">Item 2</option>
+                    <option value="3" selected="selected">Item 3</option>
+                    <option value="4">Item 4</option>
+                </select>
+            </p>
+            <p>
+                <select data-native-menu="false" multiple="multiple" data-iconpos="left">
+                    <option>[Choose]</option>
+                    <option value="1">Item 1</option>
+                    <option value="2" selected="selected">Item 2</option>
+                    <option value="3" selected="selected">Item 3</option>
+                    <option value="4">Item 4</option>
+                </select>
+            </p>
+            <p>
+                <select data-role="slider">
+                    <option value="off">Off</option>
+                    <option value="on">On</option>
+                </select>
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="listviews">
+        <div data-role="header">
+            <h1>Listviews</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <ul data-role="listview">
+                    <li>Avi</li>
+                    <li>Roby</li>
+                    <li>Shirly</li>
+                    <li>Ronen</li>
+                    <li>Ori</li>
+                </ul>
+            </p>
+            <p>&nbsp;</p>
+            <p>
+                <ol data-role="listview">
+                    <li>Avi</li>
+                    <li>Roby</li>
+                    <li>Shirly</li>
+                    <li>Ronen</li>
+                    <li>Ori</li>
+                </ol>
+            </p>
+            <p>&nbsp;</p>
+            <p>
+                <ul data-role="listview" data-inset="true" data-divider-theme="a">
+                    <li><a href="#">ItemA</a></li>
+                    <li><a href="#">ItemB</a></li>
+                    <li data-role="list-divider">&nbsp;</li>
+                    <li><a href="#">ItemC</a></li>
+                    <li><a href="#">ItemD</a></li>
+                </ul>
+            </p>
+            <p>
+                <ul data-role="listview" data-inset="true" data-autodividers="true" data-divider-theme="a">
+                    <li><a href="#">A1</a></li>
+                    <li><a href="#">A2</a></li>
+                    <li><a href="#">A3</a></li>
+                    <li><a href="#">B1</a></li>
+                    <li><a href="#">B2</a></li>
+                    <li><a href="#">C1</a></li>
+                    <li><a href="#">C2</a></li>
+                </ul>
+            </p>
+            <p>
+                <ul data-role="listview" data-count-theme="b" data-inset="true">
+                    <li><a href="#">Inbox <span class="ui-li-count">12</span></a></li>
+                    <li><a href="#">Outbox <span class="ui-li-count">0</span></a></li>
+                    <li><a href="#">Drafts <span class="ui-li-count">4</span></a></li>
+                    <li><a href="#">Sent <span class="ui-li-count">328</span></a></li>
+                    <li><a href="#">Trash <span class="ui-li-count">62</span></a></li>
+                </ul>
+            </p>
+            <p>
+                <ul data-role="listview" data-inset="true">
+                    <li><a href="#">default</a></li>
+                    <li data-icon="delete"><a href="#">delete</a></li>
+                    <li data-icon="gear"><a href="#">gear</a></li>
+                    <li data-icon="info"><a href="#">info</a></li>
+                    <li data-icon="myicon"><a href="#">custom</a></li>
+                    <li data-icon="false"><a href="#">none</a></li>
+                </ul>
+            </p>
+            <p>
+                <ul data-role="listview" data-inset="true">
+                    <li><a href="#"><img src="images/icons-png/carat-r-black.png" class="ui-li-icon ui-corner-none">default</a></li>
+                    <li><a href="#"><img src="images/icons-png/delete-black.png" class="ui-li-icon">delete</a></li>
+                    <li><a href="#"><img src="images/icons-png/gear-black.png" class="ui-li-icon">gear</a></li>
+                    <li><a href="#"><img src="images/icons-png/info-black.png" class="ui-li-icon">info</a></li>
+                    <li data-icon="false"><a href="#"><img src="images/icons-png/info-black.png" class="ui-li-icon">no li icon</a></li>
+                </ul>
+            </p>
+            <div>
+                <ul data-role="listview" data-inset="true">
+                    <li>
+                        <a href="#">
+                            <img src="images/samples/sample1.jpg" />
+                            <h2>ItemA</h2>
+                            <p>bla bla bla ...</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="images/samples/sample2.jpg" />
+                            <h2>ItemB</h2>
+                            <p>bla bla bla ...</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="images/samples/sample3.jpg" />
+                            <h2>ItemC</h2>
+                            <p>bla bla bla ...</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <ul data-role="listview" data-inset="true" data-split-icon="gear" data-split-theme="a">
+                    <li>
+                        <a href="#">
+                            <img src="images/samples/sample1.jpg" />
+                            <h2>ItemA</h2>
+                            <p>bla bla bla ...</p>
+                        </a>
+                        <a href="#">&nbsp;</a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="images/samples/sample2.jpg" />
+                            <h2>ItemB</h2>
+                            <p>bla bla bla ...</p>
+                        </a>
+                        <a href="#">&nbsp;</a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="images/samples/sample3.jpg" />
+                            <h2>ItemC</h2>
+                            <p>bla bla bla ...</p>
+                        </a>
+                        <a href="#">&nbsp;</a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <ul data-role="listview" data-inset="true">
+                    <li>
+                        <a href="#">
+                            <img src="images/samples/sample1.jpg" />
+                            <h2>ItemA</h2>
+                            <p>bla bla bla ...</p>
+                        </a>
+                        <a href="#" data-icon="info">&nbsp;</a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="images/samples/sample2.jpg" />
+                            <h2>ItemB</h2>
+                            <p>bla bla bla ...</p>
+                        </a>
+                        <a href="#" data-icon="gear">&nbsp;</a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <img src="images/samples/sample3.jpg" />
+                            <h2>ItemC</h2>
+                            <p>bla bla bla ...</p>
+                        </a>
+                        <a href="#" data-icon="delete">&nbsp;</a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <ul data-role="listview" data-inset="true">
+                    <li data-role="list-divider">
+                        Articles
+                        <span class="ui-li-count">2</span>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <h2>Title</h2>
+                            <p><strong>bla bla bla</strong></p>
+                            <p>bla bla bla bla bla bla</p>
+                            <p class="ui-li-aside">2017-01-03</p>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#">
+                            <h2>Title</h2>
+                            <p><strong>bla bla bla</strong></p>
+                            <p>bla bla bla bla bla bla</p>
+                            <p class="ui-li-aside">2017-01-01</p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div>
+                <ul data-role="listview" data-inset="true">
+                    <li data-theme="b">ItemA</li>
+                    <li>ItemB</li>
+                    <li>ItemC</li>
+                </ul>
+            </div>            
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="tables">
+        <div data-role="header">
+            <h1>Tables</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div>
+                <table data-role="table" data-mode="columntoggle" class="ui-responsive table-stroke">
+                    <thead>
+                        <tr>
+                            <th data-priority="2">A</th>
+                            <th data-priority="critical">B</th>
+                            <th data-priority="3">C</th>
+                            <th data-priority="1">D</th>
+                            <th data-priority="5">E</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>7</td>
+                            <td>8</td>
+                            <td>9</td>
+                            <td>10</td>
+                        </tr>
+                        <tr>
+                            <td>11</td>
+                            <td>12</td>
+                            <td>13</td>
+                            <td>14</td>
+                            <td>15</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <table data-role="table" data-mode="columntoggle" class="ui-responsive ui-body-b table-stripe">
+                    <thead>
+                        <tr class="ui-bar-b">
+                            <th data-priority="1">A</th>
+                            <th data-priority="1">B</th>
+                            <th>C</th>
+                            <th>D</th>
+                            <th>E</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>7</td>
+                            <td>8</td>
+                            <td>9</td>
+                            <td>10</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <table data-role="table" data-mode="columntoggle" class="custom-table table-stripe">
+                    <thead>
+                        <tr>
+                            <th data-priority="1">A</th>
+                            <th data-priority="1">B</th>
+                            <th>C</th>
+                            <th>D</th>
+                            <th>E</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>2</td>
+                            <td>3</td>
+                            <td>4</td>
+                            <td>5</td>
+                        </tr>
+                        <tr>
+                            <td>6</td>
+                            <td>7</td>
+                            <td>8</td>
+                            <td>9</td>
+                            <td>10</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div>
+                <table data-role="table" data-mode="reflow" class="table-stripe ui-responsive">
+                    <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Name</th>
+                            <th>Age</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>1</td>
+                            <td>Roby</td>
+                            <td>38</td>
+                        </tr>
+                        <tr>
+                            <td>2</td>
+                            <td>Avi</td>
+                            <td>36</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+    
+    <div data-role="page" id="collapsibles">
+        <div data-role="header">
+            <h1>Collapsibles</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div data-role="collapsible">
+                <h4>Heading</h4>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse accumsan blandit fermentum. Pellentesque cursus mauris purus, auctor commodo mi ullamcorper nec.</p>
+            </div>
+
+            <div data-role="collapsible">
+                <h4>Heading</h4>
+                <ul data-role="listview">
+                    <li><a href="#">item 1</a></li>
+                    <li><a href="#">item 2</a></li>
+                    <li><a href="#">item 3</a></li>
+                </ul>
+            </div>
+
+            <div data-role="collapsible" data-collapsed="false">
+                <h4>Heading</h4>
+                <ul data-role="listview">
+                    <li><a href="#">item 1</a></li>
+                    <li><a href="#">item 2</a></li>
+                    <li><a href="#">item 3</a></li>
+                </ul>
+            </div>
+
+            <div data-role="collapsible" data-collapsed-icon="carat-d" data-expanded-icon="carat-u">
+                <h4>Heading</h4>
+                <ul data-role="listview">
+                    <li><a href="#">item 1</a></li>
+                    <li><a href="#">item 2</a></li>
+                    <li><a href="#">item 3</a></li>
+                </ul>
+            </div>
+            <div>
+                <form>
+                    <fieldset data-role="collapsible">
+                        <legend>Legend</legend>
+                        <input type="text" value="" />
+                        <div data-role="controlgroup">
+                            <input type="checkbox" name="checkbox-1-a" id="checkbox-1-a">
+                            <label for="checkbox-1-a">One</label>
+
+                            <input type="checkbox" name="checkbox-2-a" id="checkbox-2-a">
+                            <label for="checkbox-2-a">Two</label>
+
+                            <input type="checkbox" name="checkbox-3-a" id="checkbox-3-a">
+                            <label for="checkbox-3-a">Three</label>
+                        </div>
+                    </fieldset>
+                </form>
+            </div>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="controlgroups">
+        <div data-role="header">
+            <h1>Control Groups</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <div>
+                <form>
+                    <div class="ui-field-contain">
+                        <fieldset data-role="controlgroup" data-type="horizontal">
+                            <legend>Group</legend>
+                            <button class="ui-shadow ui-btn ui-corner-all ui-icon-home ui-btn-icon-right">One</button>
+                            <button class="ui-shadow ui-btn ui-corner-all ui-icon-grid ui-btn-icon-right">Two</button>
+                            <button class="ui-shadow ui-btn ui-corner-all ui-icon-back ui-btn-icon-right">Three</button>
+                        </fieldset>
+                    </div>
+                </form>
+            </div>
+            <div>
+                <fieldset data-role="controlgroup" data-type="horizontal">
+                    <input type="checkbox" name="chk1" id="chk1">
+                    <label for="chk1">One</label>
+                    <input type="checkbox" name="chk2" id="chk2">
+                    <label for="chk2">Two</label>
+                    <input type="checkbox" name="chk3" id="chk3">
+                    <label for="chk3">Three</label>
+                </fieldset>
+            </div>
+            <div>
+                <fieldset data-role="controlgroup" data-iconpos="right">
+                    <input type="checkbox" name="chk4" id="chk4">
+                    <label for="chk4">Four</label>
+                    <input type="checkbox" name="chk5" id="chk5">
+                    <label for="chk5">Five</label>
+                    <input type="checkbox" name="chk6" id="chk6">
+                    <label for="chk6">Six</label>
+                </fieldset>
+            </div> 
+            <div>
+                <fieldset data-role="controlgroup">
+                    <input type="radio" name="radioGroup1" id="radio1" checked="checked">
+                    <label for="radio1">One</label>
+                    <input type="radio" name="radioGroup1" id="radio2">
+                    <label for="radio2">Two</label>
+                    <input type="radio" name="radioGroup1" id="radio3">
+                    <label for="radio3">Three</label>
+                </fieldset>
+            </div>
+            <div>
+                <fieldset data-role="controlgroup" data-type="horizontal">
+                    <input type="radio" name="radioGroup2" id="radio4" data-theme="b" checked="checked">
+                    <label for="radio4">Four</label>
+                    <input type="radio" name="radioGroup2" id="radio5" data-theme="b">
+                    <label for="radio5">Five</label>
+                    <input type="radio" name="radioGroup2" id="radio6" data-theme="b">
+                    <label for="radio6">Six</label>
+                </fieldset>
+            </div>
+            <div>
+                <div data-role="controlgroup" data-type="horizontal" data-mini="true">
+                    <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-plus ui-btn-b">Add</a>
+                    <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-delete ui-btn-b">Delete</a>
+                    <a href="#" class="ui-shadow ui-btn ui-corner-all ui-btn-icon-left ui-icon-grid ui-btn-b">More</a>
+                </div>
+            </div>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="loaders">
+        <div data-role="header">
+            <h1>Loaders</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <button id="btnLoader1" data-inline="true">Icon</button>
+                <button id="btnLoader2" data-inline="true">Icon + Text</button>
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="popups">
+        <!-- popups -->
+        <div data-role="popup" id="popup1">
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+            <p>Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.</p>
+        </div>
+
+        <div data-role="popup" id="popup2" data-overlay-theme="b" data-theme="b" data-corners="false">
+            <img src="images/samples/paris.jpg" style="max-height:512px;" alt="Paris, France">
+        </div>
+
+        <div data-role="popup" id="popup3" data-theme="b">
+            <ul data-role="listview" data-inset="true">
+                <li data-role="list-divider">Choose</li>
+                <li><a href="#">ItemA</a></li>
+                <li><a href="#">ItemB</a></li>
+                <li><a href="#">ItemC</a></li>
+                <li><a href="#">ItemD</a></li>
+            </ul>
+        </div>
+
+        <div data-role="popup" id="popup4" class="ui-corner-all">
+            <form>
+                <div style="padding:10px 20px;">
+                    <h3>Sign In</h3>
+                    <input type="text" name="user" placeholder="username" />
+                    <input type="password" name="pass" placeholder="password" />
+                    <button type="submit" class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check">Sign In</button>
+                </div>
+            </form>
+        </div>
+
+        <div data-role="popup" id="popup5" data-overlay-theme="b" data-theme="b" data-dismissible="false">
+            <div data-role="header" data-theme="a">
+                <h1>Delete</h1>
+            </div>
+            <div role="main" class="ui-content">
+                <h3 class="ui-title">Are you sure?</h3>
+                <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-rel="back">Cancel</a>
+                <a href="#" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-btn-b" data-transition="flow">Delete</a>
+            </div>
+        </div>
+
+        <div data-role="popup" id="popup6" class="ui-content">
+            <a href="#" data-rel="back" class="ui-btn ui-corner-all ui-shadow ui-btn-a ui-icon-delete ui-btn-icon-notext ui-btn-right">Close</a>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+        </div>
+
+        <div data-role="popup" id="popup7">
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry.</p>
+        </div>
+
+        <div data-role="popup" id="popup8" class="ui-content" data-theme="a">
+            <p>Lorem Ipsum is simply dummy text</p>
+        </div>
+
+        <div data-role="header">
+            <h1>Popups</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <a href="#popup1" data-rel="popup" class="ui-btn ui-corner-all" data-transition="pop">Show Popup</a>
+            </p>
+            <p>
+                <a href="#popup1" data-rel="popup" data-transition="pop" class="ui-btn ui-alt-icon ui-nodisc-icon ui-btn-inline ui-icon-info ui-btn-icon-notext my-tooltip-btn" title="Learn more"></a>
+                <a href="#popup3" data-rel="popup" data-transition="slideup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-gear ui-btn-icon-left ui-btn-a">Menu</a>
+                <a href="#popup4" data-rel="popup" data-position-to="window" class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-check ui-btn-icon-left ui-btn-a" data-transition="pop">SignIn</a>
+                <a href="#popup5" data-rel="popup" data-position-to="window" data-transition="pop" class="ui-btn ui-corner-all ui-btn-inline ui-icon-delete ui-btn-icon-notext ui-btn-b"></a>
+            </p>
+            <p>
+                <a href="#popup2" data-rel="popup" data-position-to="window" data-transition="fade">
+                    <img src="images/samples/paris.jpg" alt="Paris, France" style="width:30%" />
+                </a>
+            </p>
+            <p>
+                <a href="#popup6" data-rel="popup" class="ui-btn ui-corner-all ui-shadow ui-btn-inline">Show</a>
+            </p>
+            <p>
+                <a href="#popup7" class="ui-btn ui-corner-all ui-btn-inline" data-rel="popup" data-position-to="window">window</a>
+                <a href="#popup7" class="ui-btn ui-corner-all ui-btn-inline" data-rel="popup" data-position-to="origin">origin</a>
+                <a href="#popup7" class="ui-btn ui-corner-all ui-btn-inline" data-rel="popup" data-position-to="[data-role='header']">#selector</a>
+            </p>
+            <p>
+                <a href="#popup8" data-rel="popup" data-transition="none" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+                <a href="#popup8" data-rel="popup" data-transition="pop" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+                <a href="#popup8" data-rel="popup" data-transition="fade" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+                <a href="#popup8" data-rel="popup" data-transition="flip" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+                <a href="#popup8" data-rel="popup" data-transition="turn" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+                <a href="#popup8" data-rel="popup" data-transition="flow" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+                <a href="#popup8" data-rel="popup" data-transition="slide" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+                <a href="#popup8" data-rel="popup" data-transition="slidefade" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+                <a href="#popup8" data-rel="popup" data-transition="slideup" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+                <a href="#popup8" data-rel="popup" data-transition="slidedown" class="ui-btn ui-corner-all ui-btn-inline ui-icon-info ui-btn-icon-notext ui-btn-b"></a>
+            </p>
+            <p>
+                <a href="#popup8" data-rel="popup" data-arrow="true" class="ui-btn ui-corner-all ui-btn-inline">Show</a>
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="sliders">
+        <div data-role="header">
+            <h1>Sliders</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <input type="range" min="0" max="100" value="40" />
+            </p>
+            <p>
+                <input type="range" min="0" max="100" value="50" data-show-value="true" />
+            </p>
+            <p>
+                <input type="range" min="0" max="100" value="50" data-show-value="true" data-popup-enabled="true" />
+            </p>
+            <p>
+                <div data-role="rangeslider">
+                    <input type="range" min="0" max="100" value="40" />
+                    <input type="range" min="0" max="100" value="80" />
+                </div>
+            </p>
+            <p>
+                <div data-role="rangeslider">
+                    <input type="range" min="0" max="5" step=".1" value="2.1" />
+                    <input type="range" min="0" max="5" step=".1" value="4.2" />
+                </div>
+            </p>
+            <p>
+                <div data-role="rangeslider" data-track-theme="b" data-theme="a">
+                    <input type="range" min="0" max="100" value="40" />
+                    <input type="range" min="0" max="100" value="80" />
+                </div>
+            </p>
+            <p>
+                <div data-role="rangeslider" data-track-theme="a" data-theme="b">
+                    <input type="range" min="0" max="100" value="40" />
+                    <input type="range" min="0" max="100" value="80" />
+                </div>
+            </p>
+            <p>
+                <div data-role="rangeslider">
+                    <input type="range" min="0" max="100" value="40" disabled="disabled" />
+                    <input type="range" min="0" max="100" value="80" disabled="disabled" />
+                </div>
+            </p>
+
+            <p>
+                <div data-role="rangeslider" data-mini="true">
+                    <input type="range" min="0" max="50" value="15" />
+                    <input type="range" min="0" max="50" value="30" />
+                </div>
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="checkboxes">
+        <div data-role="header">
+            <h1>Checkboxes</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <label>
+                    <input type="checkbox" name="chkA" />CheckMe
+                </label>
+                <label>
+                    <input type="checkbox" name="chkB" data-theme="b" />CheckMe
+                </label>
+            </p>            
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="radios">
+        <div data-role="header">
+            <h1>Radios</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>                
+                <input type="radio" name="radioGroup0" id="radio0" />
+                <label for="radio0">CheckMe</label>                
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="buttons">
+        <div data-role="header">
+            <h1>Buttons</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>bla bla bla</p>
+            <p>
+                <button class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-inline" />
+                <button class="ui-btn ui-corner-all ui-icon-delete ui-btn-icon-notext ui-btn-inline" />
+            </p>
+            <p>
+                <button class="ui-btn ui-corner-all ui-btn-b">clickMe</button>
+            </p>
+            <p>
+                <button class="ui-btn ui-icon-delete ui-btn-icon-right">clickMe</button>
+            </p>
+            <p>
+                <button class="ui-btn ui-state-disabled">clickMe</button>
+            </p>
+            <p>
+                <div class="ui-nodisc-icon ui-alt-icon">
+                    <!-- global alt + nodisk -->
+                    <button class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-a ui-btn-inline ui-icon-plus" />
+                    <button class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-b ui-btn-inline ui-icon-minus" />
+                </div>
+                <div class="ui-nodisc-icon">
+                    <button class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-a ui-btn-inline ui-icon-plus" />
+                    <button class="ui-btn ui-corner-all ui-btn-icon-notext ui-btn-b ui-btn-inline ui-icon-minus" />
+                </div>
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="switches">
+        <div data-role="header">
+            <h1>Switches</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <input type="checkbox" data-role="flipswitch" name="switch1" />
+            </p>
+            <p>
+                <input type="checkbox" data-role="flipswitch" name="switch2" data-on-text="open" data-off-text="close" class="custom-label-flipswitch" />
+            </p>
+            <p>
+                <input type="checkbox" data-role="flipswitch" name="switch3" data-theme="b" />
+            </p>
+            <p>
+                <input type="checkbox" data-role="flipswitch" name="switch4" data-mini="true" />
+            </p>
+            <p>
+                <input type="checkbox" data-role="flipswitch" name="switch5" disabled="disabled" />
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="navbars">
+        <div data-role="header">
+            <h1>Navbars</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#" class="ui-btn-active">One</a></li>
+                        <li><a href="#">Two</a></li>
+                        <li><a href="#">Three</a></li>
+                    </ul>
+                </div>
+            </p>
+            <p>
+                <div data-role="navbar" data-iconpos="top">
+                    <ul>
+                        <li><a href="#" data-icon="grid">Summary</a></li>
+                        <li><a href="#" data-icon="star" class="ui-btn-active">Favs</a></li>
+                        <li><a href="#" data-icon="gear">Setup</a></li>
+                    </ul>
+                </div>
+            </p>
+            <p>
+                <div data-role="navbar">
+                    <ul>
+                        <li><a href="#" data-icon="grid" data-theme="b">A</a></li>
+                        <li><a href="#" data-icon="star">B</a></li>
+                        <li><a href="#" data-icon="gear">C</a></li>
+                        <li><a href="#" data-icon="arrow-l">D</a></li>
+                        <li><a href="#" data-icon="arrow-r">E</a></li>
+                    </ul>
+                </div>
+            </p>
+            <p>
+                <div class="ui-body ui-body-a">
+                    <h3>theme A</h3>
+                    <div data-role="navbar">
+                        <ul>
+                            <li><a href="#" data-icon="grid">A</a></li>
+                            <li><a href="#" data-icon="star">B</a></li>
+                            <li><a href="#" data-icon="gear">C</a></li>
+                            <li><a href="#" data-icon="arrow-l">D</a></li>
+                            <li><a href="#" data-icon="arrow-r">E</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </p>
+            <p>
+                <div class="ui-body ui-body-b">
+                    <h3>theme B</h3>
+                    <div data-role="navbar">
+                        <ul>
+                            <li><a href="#" data-icon="grid">A</a></li>
+                            <li><a href="#" data-icon="star">B</a></li>
+                            <li><a href="#" data-icon="gear">C</a></li>
+                            <li><a href="#" data-icon="arrow-l">D</a></li>
+                            <li><a href="#" data-icon="arrow-r">E</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="grids">
+        <div data-role="header">
+            <h1>Grids</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <div class="ui-grid-a">
+                    <div class="ui-block-a">
+                        <div style="height:60px">Block A</div>
+                    </div>
+                    <div class="ui-block-b">
+                        <div style="height:60px">Block B</div>
+                    </div>
+                </div>
+            </p>
+            <p>
+                <div class="ui-grid-b">
+                    <div class="ui-block-a"><input type="button" value="clickMe" data-theme="a"></div>
+                    <div class="ui-block-b"><input type="button" value="clickMe" data-theme="a"></div>
+                    <div class="ui-block-c"><input type="button" value="clickMe" data-theme="b"></div>
+                </div>
+            </p>
+            <p>
+                <div class="ui-grid-c ui-responsive">
+                    <div class="ui-block-a"><input type="button" value="clickMe" data-theme="a"></div>
+                    <div class="ui-block-b"><input type="button" value="clickMe" data-theme="a"></div>
+                    <div class="ui-block-c"><input type="button" value="clickMe" data-theme="b"></div>
+                </div>
+            </p>
+            <p>
+                <div class="ui-grid-d">
+                    <div class="ui-block-a">A1</div>
+                    <div class="ui-block-b">B1</div>
+                    <div class="ui-block-c">C1</div>
+
+                    <div class="ui-block-a">A2</div>
+                    <div class="ui-block-b">B2</div>
+                    <div class="ui-block-c">C2</div>
+
+                    <div class="ui-block-a">A3</div>
+                    <div class="ui-block-b">B3</div>
+                    <div class="ui-block-c">C3</div>
+                </div>
+            </p>
+            <p>
+                <div class="ui-grid-solo">
+                    <div class="ui-block-a"><input type="button" value="ClickMe"></div>
+                </div>
+            </p>
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="bars">
+        <div data-role="header">
+            <h1>Bars</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <h3 class="ui-bar ui-bar-a ui-corner-all">Heading</h3>
+                <div class="ui-body ui-body-a ui-corner-all">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse accumsan blandit fermentum. Pellentesque cursus mauris purus, auctor commodo mi ullamcorper nec. Donec semper mattis eros, nec condimentum ante sollicitudin quis. Etiam orci sem, porttitor ut tellus nec, blandit posuere urna. Proin a arcu non lacus pretium faucibus. Aliquam sed est porttitor, ullamcorper urna nec, vehicula lorem. Cras porttitor est lorem, non venenatis diam convallis congue.
+                </div>
+            </p>
+            <p>
+                <div class="ui-bar ui-bar-a">
+                    <h3>Heading</h3>
+                </div>
+                <div class="ui-body ui-body-a">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse accumsan blandit fermentum. Pellentesque cursus mauris purus, auctor commodo mi ullamcorper nec. Donec semper mattis eros, nec condimentum ante sollicitudin quis. Etiam orci sem, porttitor ut tellus nec, blandit posuere urna. Proin a arcu non lacus pretium faucibus. Aliquam sed est porttitor, ullamcorper urna nec, vehicula lorem. Cras porttitor est lorem, non venenatis diam convallis congue.
+                </div>
+            </p>     
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="filters">
+        <div data-role="header">
+            <h1>Filters</h1>
+        </div>
+        <div role="main" class="ui-content">
+            <p>
+                <div class="ui-filterable">
+                    <input id="txtSearch" data-type="search" placeholder="search" />
+                </div>
+                <ul data-role="listview" data-filter="true" data-input="#txtSearch">
+                    <li>Roby</li>
+                    <li>Avi</li>
+                    <li>Ronen</li>
+                    <li>Shirly</li>
+                    <li>Avner</li>
+                </ul>
+            </p>
+            <div class="ui-filterable">
+                <input data-type="search" id="txtSearch2">
+            </div>
+            <div data-filter="true" data-input="#txtSearch2">
+                <div><strong>These</strong> Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam</div>
+                <div><strong>tags</strong> nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam</div>
+                <div><strong>Tags</strong> erat, sed diam voluptua. At vero eos et accusam et justo duo dolores </div>
+                <div><strong>are</strong> et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est</div>
+                <div><strong>Filterable</strong> Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur</div>
+            </div>            
+            <p>
+                <ul data-role="listview" data-filter="true" data-filter-reveal="true" data-filter-placeholder="search fruits..." data-inset="true">
+                    <li>Apple</li>
+                    <li>Banana</li>
+                    <li>Cherry</li>
+                    <li>Cranberry</li>
+                    <li>Grape</li>
+                    <li>Orange</li>
+                </ul>
+            </p>    
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <div data-role="page" id="test">
+        <div data-role="header">
+            <h1>test</h1>
+        </div>
+        <div role="main" class="ui-content">
+            
+        </div>
+        <div data-role="footer" data-position="fixed">
+            <h4>
+                <a href="#Home" class="ui-btn ui-corner-all">Home</a>
+                <a class="ui-btn ui-corner-all" data-rel="back">Back</a>
+            </h4>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="scripts/jquery-1.8.0.min.js"></script>
+    <script type="text/javascript" src="scripts/jquery.mobile-1.4.5.min.js"></script>
+    <script type="text/javascript" src="scripts/index.js"></script>
+</body>
+</html>

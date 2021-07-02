@@ -1,0 +1,58 @@
+javascript Spread Operator (...) 3 dots
+---------------------------------------
+
+// spread operator
+var arr = [1, 2, 3, 4, 5, 6];
+var arr2 = [...arr, 7, 8];
+console.log(arr2);  // [1, 2, 3, 4, 5, 6, 7, 8]
+
+-
+
+// shallow clone
+var me = {
+    fname: "Roby",
+    lname: "Cohen",
+    country: "Israel"
+}
+
+var meClone = { ...me }
+console.log(meClone); // {fname: "Roby", lname: "Cohen", country: "Israel"}
+
+-
+
+// join 
+var o1 = { a: 1, b: 2 }
+var o2 = { c: 3, d: 4 }
+
+var oJoin = { ...o1, ...o2 }
+console.log(oJoin); // {a: 1, b: 2, c: 3, d: 4}
+
+-
+
+// join+
+var o1 = { a: 1, b: 2 }
+var o2 = { c: 3, d: 4 }
+
+var oJoin = { ...o1, ...o2, e: 5, f: 6 }
+console.log(oJoin); // {a: 1, b: 2, c: 3, d: 4, e: 5, f: 6}
+
+-
+
+// rest parameters
+function fun(p1, p2, ...rest){
+    console.log(p1);
+    console.log(p2);
+    console.log(rest);
+}
+fun(1,2,3,4,5,6);
+
+optput:
+1
+2
+[3, 4, 5, 6]
+
+note!
+Rest parameter must be last formal parameter!
+
+-
+

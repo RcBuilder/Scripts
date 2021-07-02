@@ -1,0 +1,174 @@
+{
+	"info": {
+		"_postman_id": "13364674-3f37-475f-9f74-1aa9d4feff50",
+		"name": "ElasticSearch LOCAL",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Search users_ix by multiple criterias (NOT)",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"query\": {\r\n    \"bool\": {\r\n      \"must_not\": [\r\n        {\r\n          \"match\": {\r\n            \"firstName\": \"John\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  }\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9200/users_ix/_search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"users_ix",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Analyze text",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"tokenizer\": \"whitespace\",\r\n  \"filter\": [\"lowercase\", \"unique\"],\r\n  \"text\": \"EMAIL is is rcbuilder@walla.com\"\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9200/users_ix/_analyze",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"users_ix",
+						"_analyze"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search users_ix by multiple criterias",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"query\": {\r\n    \"bool\": {\r\n      \"must\": [\r\n        {\r\n          \"match\": {\r\n            \"firstName\": \"John\"\r\n          }\r\n        },\r\n\t{\r\n          \"match\": {\r\n            \"lastName\": \"Doe\"\r\n          }\r\n        }\r\n      ]\r\n    }\r\n  }\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9200/users_ix/_search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"users_ix",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search users_ix by criteria",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"query\": {\r\n    \"match\": {\r\n      \"firstName\": \"John\"\r\n    }\r\n  }\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9200/users_ix/_search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"users_ix",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search users_ix ALL",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "http://localhost:9200/users_ix/_search",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9200",
+					"path": [
+						"users_ix",
+						"_search"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

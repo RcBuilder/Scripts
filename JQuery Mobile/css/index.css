@@ -1,0 +1,24 @@
+body { }
+
+.ui-btn.my-tooltip-btn, .ui-btn.my-tooltip-btn:hover, .ui-btn.my-tooltip-btn:active {
+    background:none;
+    border:0;
+}
+
+.ui-icon-myicon:after {
+    background-image: url('../images/samples/myicon.png');      
+}
+
+.ui-icon-loading {
+    background: url(../images/ajax-loader.gif);    
+}
+
+.ui-table-priority-critical {
+    color:red;
+}
+
+@media screen and (min-width: 100px) {
+	.custom-table th.ui-table-priority-1, .custom-table td.ui-table-priority-1 {
+		display: table-cell;
+	}
+}

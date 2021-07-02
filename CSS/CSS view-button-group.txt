@@ -1,0 +1,58 @@
+CSS view-button-group
+---------------------
+sample: 
+see "view-button-group.html"
+
+--
+
+[css]
+.view-button-group {
+    margin-bottom: 8px;
+}
+
+img.view-button {
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 6px;
+    vertical-align: middle;
+    height: 40px;
+    width: 40px;
+}
+
+img.view-button.selected {
+    background-color: #CCC;
+}
+
+--
+
+[html]
+<div class="view-button-group">
+    <img src="img/cards-view.svg" class="view-button selected" />
+    <img src="img/list-view.svg" class="view-button" />
+    <img src="img/list-view-2.svg" class="view-button" />
+</div>
+<div class="view-button-group">
+    <img src="img/served-black.png" class="view-button" />
+</div>
+<div class="view-button-group">
+    <img src="img/Israel-Flag-96-icon.png" class="view-button" />
+    <img src="img/English-96-icon.png" class="view-button selected" />
+</div>
+
+--
+
+[script]
+$('.view-button-group img').on('click', function (e) {
+    var group = $(e.target).closest('.view-button-group').find('img');
+    if (!group) return;
+
+    var groupSize = group.length;
+    if (groupSize > 1) {
+        group.removeClass('selected');  // clear all
+        $(e.target).addClass('selected'); // mark current
+    }
+    else if (groupSize == 1) {
+        // toggle
+        $(e.target).toggleClass('selected');
+    }
+});

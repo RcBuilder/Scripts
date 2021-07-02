@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 // Install-Package Twilio
 using Twilio;
@@ -172,8 +173,44 @@ namespace TwilioBLL
         }
 
         public string MakeACall(string sTwilioPhone, string sToPhone, string audioFile, bool useMachineDetection = false) {
+            var sTwimlXML = $"<Response><Play loop=\"1\">{audioFile}</Play></Response>";
+            return MakeACallExtended(sTwilioPhone, sToPhone, sTwimlXML, useMachineDetection);
+        }
+        public string MakeACall(string sTwilioPhone, string sToPhone, IEnumerable<string> audioFiles, bool useMachineDetection = false)
+        {
+            var sTwimlXML = new StringBuilder();
+            sTwimlXML.Append("<Response>");
+            foreach(var audioFile in audioFiles)
+                sTwimlXML.Append($"<Play loop=\"1\">{audioFile}</Play>");
+            sTwimlXML.Append("</Response>");
+
+            return MakeACallExtended(sTwilioPhone, sToPhone, sTwimlXML.ToString(), useMachineDetection);
+        }
+
+        /*
+            source:
+            https://www.twilio.com/docs/voice/twiml
+
+            <Say> - Read provided text 
+            <Play> - Play an audio file
+            <Dial> - Add another party to the call
+            <Record> - Record the caller's voice
+            <Gather> - Collect digits the caller types on their keypad
+
+            ---
+
+            sample:
+            <Response>
+                <Say voice=""alice"">Hello World</Say>
+                <Play loop=""1"">https://media-server.com/sample1.wav</Play>
+                <Play loop=""2"">https://media-server.com/sample2.wav</Play>
+            </Response> 
+        */
+        public string MakeACallExtended(string sTwilioPhone, string sToPhone, string sTwimlXML, bool useMachineDetection = false) {
+
+
             var call = CallResource.Create(                                
-                twiml: new Twilio.Types.Twiml($"<Response><Play loop=\"1\">{audioFile}</Play></Response>"), // as inline xml
+                twiml: new Twilio.Types.Twiml(sTwimlXML), // as inline xml
 
                 // detects who answered the call (machine_start, human, fax, unknown)
                 // https://www.twilio.com/docs/voice/answering-machine-detection

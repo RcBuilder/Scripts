@@ -1,0 +1,10 @@
+IL87 0109 4300 0000 1234 567
+
+(formula)
+ILxx010XXX00000YYYYYYYY 
+IL = Israel
+xx = random digits foreach account
+010 = bank number
+XXX = branch number 
+00000
+YYYYYYYY = account number
