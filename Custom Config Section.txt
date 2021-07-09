@@ -1,0 +1,55 @@
+﻿<configuration>
+	<configSections>
+		<section name="RcRoleProviderConfig" type="RcRoleProvideSection" />
+	</configSections>	 
+
+	<RcRoleProviderConfig>
+		<groups>
+			<add name="Administrators" users="Roby" />
+			<add name="Users" users="Avi, Isaac, Roby" />
+		</groups>
+	</RcRoleProviderConfig>
+</configuration>
+
+===========================================================================
+
+public class RcRoleProvideSection : ConfigurationSection
+{
+    [ConfigurationProperty("groups", IsRequired = true)]
+    public GroupsElement Groups
+    {
+        get { return (GroupsElement)this["groups"]; }
+    }
+}
+
+public class GroupsElement : ConfigurationElementCollection
+{
+    protected override ConfigurationElement CreateNewElement()
+    {
+        return new GroupElement();
+    }
+
+    protected override object GetElementKey(ConfigurationElement element)
+    {
+        return ((GroupElement)element).Name;
+    }
+}
+
+public class GroupElement : ConfigurationElement
+{
+    [ConfigurationProperty("name", IsKey = true, IsRequired = true)]
+    public string Name
+    {
+        get { return base["name"].ToString(); }
+    }
+
+    [ConfigurationProperty("users", IsRequired = true)]
+    public string Users
+    {
+        get { return base["users"].ToString(); }
+    }
+}
+
+===========================================================================
+
+RcRoleProvideSection section = (RcRoleProvideSection)ConfigurationManager.GetSection("RcRoleProviderConfig");

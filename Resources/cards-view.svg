@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
+    <defs>
+        <style>
+            .cls-1{fill:none;stroke:#11263c;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:10;stroke-width:2px}
+        </style>
+    </defs>
+    <g id="grid-view" transform="translate(-1 -1)">
+        <path id="Rectangle_268" d="M0 0H4V4H0z" class="cls-1" transform="translate(2 2)"/>
+        <path id="Rectangle_269" d="M0 0H4V4H0z" class="cls-1" transform="translate(2 10)"/>
+        <path id="Rectangle_270" d="M0 0H4V4H0z" class="cls-1" transform="translate(2 18)"/>
+        <path id="Rectangle_271" d="M0 0H4V4H0z" class="cls-1" transform="translate(10 2)"/>
+        <path id="Rectangle_272" d="M0 0H4V4H0z" class="cls-1" transform="translate(10 10)"/>
+        <path id="Rectangle_273" d="M0 0H4V4H0z" class="cls-1" transform="translate(10 18)"/>
+        <path id="Rectangle_274" d="M0 0H4V4H0z" class="cls-1" transform="translate(18 2)"/>
+        <path id="Rectangle_275" d="M0 0H4V4H0z" class="cls-1" transform="translate(18 10)"/>
+        <path id="Rectangle_276" d="M0 0H4V4H0z" class="cls-1" transform="translate(18 18)"/>
+    </g>
+</svg>

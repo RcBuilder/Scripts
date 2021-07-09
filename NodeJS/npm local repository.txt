@@ -5,6 +5,9 @@ we can create our own repository (package), add custom modules and use npm to im
 code sample:
 see 'Local-Repo-sample/'
 
+note:
+can also use "npm link" to link a local repository
+
 -----
 
 (steps)

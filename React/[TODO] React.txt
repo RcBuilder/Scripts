@@ -79,11 +79,52 @@ see 'ReactJS.NET'
 
 CRA (Create-React-App)
 ----------------------
-// TODO
+// install app-creator (globally)
+> npm install -g create-react-app
+
+-
+
+// create an app using npx
+> npx create-react-app test-react
+-OR-
+// create an app using npm
+> npm init react-app test-react
+
+// run 
+// start and launch server 
+> npm start
+
+// build (for deployment)
+// creates a minified bundle
+> npm run build
+
+-
+
+// using a template
+syntax:
+--template <template-name>
+
+templates:
+https://www.npmjs.com/search?q=cra-template-*
+
+// e.g: 
+// using typescript as template
+> npx create-react-app my-app --template typescript
+
 
 Serverless
 ----------
-// TODO
+to use react directly in HTML, we need to add the following scripts: 
+- react
+- react-dom
+- babel
+
+note!
+see 'CDN'
+
+samples:
+see 'TestReact.html'
+see 'TestReact-2.html'
 
 NodeJS Express
 --------------
@@ -1509,40 +1550,6 @@ https://www.pluralsight.com/guides/just-plain-react
 - 
 
 render using express server 
-
--
-
-cra = create-react-app 
-
-// install app-creator (globally)
-> npm install -g create-react-app
-
--
-
-// create an app using npx
-> npx create-react-app test-react
--OR-
-// create an app using npm
-> npm init react-app test-react
-
-// run 
-// start and launch server 
-> npm start
-
-// build (for deployment)
-// creates a minified bundle
-> npm run build
-
--
-
-syntax:
---template <template-name>
-
-templates:
-https://www.npmjs.com/search?q=cra-template-*
-
-e.g:
-> npx create-react-app my-app --template typescript
 
 -
 

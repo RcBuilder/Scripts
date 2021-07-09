@@ -1,0 +1,9 @@
+word - doc protected view
+-------------------------
+
+to remove protected view:
+
+1. open doc 
+2. File > Options > Trust Center > Trust Center Settings 
+3. File Block Settings 
+4. uncheck "Word X Binary Documents and Templates"

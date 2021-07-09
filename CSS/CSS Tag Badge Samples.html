@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body > div {
+            margin: 12px 0;
+        }
+
+        .tag {
+            display: inline-block;
+            background-color: #F1F1F1;
+            border-radius: 6px;
+            padding: 4px;
+            font-size: 12px;    
+            text-align: center;
+            cursor: pointer;
+            border: dotted 1px #CCC;
+        }
+
+        .tag.selected, img.view-button.selected {
+            background-color: #CCC;
+        }
+
+        .order-tags {
+            padding-top: 10px;
+        }
+
+        .tag.tag-status {
+            width: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <span class="tag">tag-1</span>
+        <span class="tag">tag-2</span>
+        <span class="tag">tag-3</span>
+        <span class="tag">tag-4</span>
+        <span class="tag">tag-5</span>
+    </div>
+
+    <div>
+        <span class="tag tag-status">tag-1</span>
+        <span class="tag tag-status">tag-2</span>
+        <span class="tag tag-status">tag-3</span>
+        <span class="tag tag-status">tag-4</span>
+        <span class="tag tag-status">tag-5</span>
+    </div>
+</body>
+</html>

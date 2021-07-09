@@ -1,0 +1,12 @@
+Html input type number
+----------------------
+// float
+<input type="number" step="0.01" />
+
+// int
+<input type="number" />
+
+// limited float 
+// 4.95 is valid 
+// 4.99 is invalid
+<input type="number" step="0.05" />

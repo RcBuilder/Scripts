@@ -29,6 +29,17 @@ there are two ways to use authorization with adwords:
    a client_key and client_secret are generated once in the developer console.
    an adwords-user is created using the client_key and client_secret.
    
+3. use 'OAuthTokenGenerator' utility 
+
+   (steps)
+   - go to the developer console 
+     https://console.developers.google.com/apis/dashboard
+   - Enable 'Adwords API' (aka 'Google Ads API')	
+   - (credentials) Create > OAuth > Desktop > Create
+   - (oauth consent screen) Publish app 
+   - open OAuthTokenGenerator utility > provide clientId + Secret > ok
+   - copy the result and paste it into the adwords project web.config file
+
 -
 
 see samples at 'AdwordsUser'

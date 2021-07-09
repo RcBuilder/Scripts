@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            direction: rtl;
+            margin: 20px 50px;
+        }
+
+        img.delete {    
+            width: 16px;    
+        }
+
+        table {
+            margin: auto;
+            text-align: right;
+            direction: rtl;
+            border-collapse: collapse;
+            border-spacing: 0;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            border-radius: 12px;
+            position: relative;
+            width: 100%;
+        }
+
+        table > thead > tr {
+            background-color: #4F98CF;
+            color: #fff;
+        }
+
+        table td {
+            padding: 8px;
+        }
+
+        table th {
+            padding: 12px 8px;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #fdf6f6;
+        }
+
+        table tr > td:nth-child(1) {
+            width: 80px;
+        }
+
+        table tr > td:nth-child(2) {
+            width: 250px;
+        }
+
+        table tr > td:nth-child(3) {
+            
+        }
+
+        table tr > td:nth-child(4) {
+            width: 50px;
+            text-align: left;
+        }
+
+        tr.selectedRow > td:last-child::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 8px;
+            background-color: #4F98CF !important;
+            color: #fff;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <table id="table1">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>A</th>
+                <th>B</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>A1</td>
+                <td>B1</td>
+                <td><img src="../Resources/Delete48x48.png" title="מחק" class="delete" /></td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>A2</td>
+                <td>B2</td>
+                <td><img src="../Resources/Delete48x48.png" title="מחק" class="delete" /></td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>A3</td>
+                <td>B3</td>
+                <td><img src="../Resources/Delete48x48.png" title="מחק" class="delete" /></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

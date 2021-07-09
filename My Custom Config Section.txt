@@ -1,0 +1,96 @@
+using System;
+using System.Configuration;
+using System.Text;
+
+/* --- SECTION ---
+    <configuration>
+        <configSections>
+            <section name="MySectionConfig" type="MySectionClass" />
+        </configSections>
+        <MySectionConfig>
+            <E1>ELEMENT 1</E1>
+            <E2>ELEMENT 2</E2>
+            <E3 A1="ATTRIBUTE 1" A2="ATTRIBUTE 2" A3="ATTRIBUTE 3" />
+            <G1>
+                <add name="Name1" value="Value1" />
+                <add name="Name2" value="Value2" />
+                <add name="Name3" value="Value3" />
+            </G1>
+        </MySectionConfig>
+    </configuration>
+*/
+
+/*  --- USING ---
+    MySectionClass section = (MySectionClass)ConfigurationManager.GetSection("MySectionConfig");
+    Response.Write(section.ToString());
+*/
+
+public class MySectionClass : ConfigurationSection
+{
+    [ConfigurationProperty("E1", IsRequired = true)]
+    public E e1 { get { return (E)this["E1"]; } }
+
+    [ConfigurationProperty("E2", IsRequired = true)]
+    public E e2 { get { return (E)this["E2"]; } }
+
+    [ConfigurationProperty("E3", IsRequired = true)]
+    public E3 e3 { get { return (E3)this["E3"]; } }
+
+    [ConfigurationProperty("G1", IsRequired = true)]
+    public G1 g1{ get { return (G1)this["G1"]; } }
+
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendFormat("E1 = {0}<br />", this.e1.value);
+        sb.AppendFormat("E2 = {0}<br />", this.e2.value);
+        sb.AppendFormat("E3 : A1 = {0}, A2 = {1}, A3 = {2}<br />", this.e3.a1, this.e3.a2, this.e3.a3);
+        foreach(G1_Item item in this.g1)
+            sb.AppendFormat("G1 Item : name = {0}, value = {1}<br />", item.name, item.value);
+        return sb.ToString();
+    }
+}
+
+public class E : ConfigurationElement
+{
+    public string value { get; private set; }
+
+    protected override void  DeserializeElement(System.Xml.XmlReader reader, bool serializeCollectionKey)
+    {
+        this.value = reader.ReadElementContentAs(typeof(string), null) as string;
+    }
+}
+
+public class E3 : ConfigurationElement
+{
+    [ConfigurationProperty("A1", IsKey = true, IsRequired = true)]
+    public string a1 { get { return base["A1"].ToString(); } }
+
+    [ConfigurationProperty("A2", IsKey = true, IsRequired = true)]
+    public string a2 { get { return base["A2"].ToString(); } }
+
+    [ConfigurationProperty("A3", IsKey = true, IsRequired = true)]
+    public string a3 { get { return base["A3"].ToString(); } }
+}
+
+public class G1 : ConfigurationElementCollection
+{
+    protected override ConfigurationElement CreateNewElement()
+    {
+        return new G1_Item();
+    }
+
+    protected override object GetElementKey(ConfigurationElement element)
+    {
+        return ((G1_Item)element).name;
+    }
+}
+
+public class G1_Item : ConfigurationElement
+{
+    [ConfigurationProperty("name", IsKey = true, IsRequired = true)]
+    public string name { get { return base["name"].ToString(); } }
+
+    [ConfigurationProperty("value", IsRequired = true)]
+    public string value { get { return base["value"].ToString(); } }
+}

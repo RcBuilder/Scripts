@@ -1,0 +1,91 @@
+notice! 
+we can use the built-in mail section (see 'web config mailSettings.txt')
+
+App.config:
+-----------
+<?xml version="1.0"?>
+<configuration>
+  <configSections>
+    <section name="MailSection" type="ConfigSections.MailSection, WebMonitoring"/>
+  </configSections>
+  <MailSection>
+    <From>info@domain.com</From>
+    <To>Roby@domain.com</To>
+    <Bcc>Roby@domain.com</Bcc>
+    <DisplayName>Roby</DisplayName>
+    <PORT>25</PORT>
+    <SMTP>smtp.domain.com</SMTP>
+    <UserName>userName</UserName>
+    <UserPass>password</UserPass>
+    <Encoding>utf-8</Encoding>
+  </MailSection>
+</configuration>
+
+=============================================
+
+ConfigSections.cs:
+------------------
+namespace ConfigSections
+{
+        public class Element : ConfigurationElement
+        {
+            public string value { get; private set; }
+
+            protected override void  DeserializeElement(System.Xml.XmlReader reader, bool serializeCollectionKey)
+            {
+                this.value = reader.ReadElementContentAs(typeof(string), null) as string;
+            }
+        }
+
+        /*  
+            USING:
+            ConfigSections.MailSection mailSection = (ConfigSections.MailSection)ConfigurationManager.GetSection("MailSection");
+      
+            <MailSection>
+                <From>info@domain.com</From>
+                <To>Roby@domain.com</To>
+                <Bcc>Roby@domain.com</Bcc>
+                <DisplayName>Roby</DisplayName>
+                <PORT>25</PORT>
+                <SMTP>smtp.domain.com</SMTP>
+                <UserName>userName</UserName>
+                <UserPass>password</UserPass>
+                <Encoding>utf-8</Encoding>
+            </MailSection>
+        */
+        public class MailSection : ConfigurationSection
+        {
+            [ConfigurationProperty("From", IsRequired = true)]
+            public Element From { get { return (Element)this["From"]; } }
+
+            [ConfigurationProperty("To", IsRequired = true)]
+            public Element To { get { return (Element)this["To"]; } }
+
+            [ConfigurationProperty("Bcc", IsRequired = true)]
+            public Element Bcc { get { return (Element)this["Bcc"]; } }
+
+            [ConfigurationProperty("DisplayName", IsRequired = true)]
+            public Element DisplayName { get { return (Element)this["DisplayName"]; } }
+
+            [ConfigurationProperty("PORT", IsRequired = true)]
+            public Element PORT { get { return (Element)this["PORT"]; } }
+
+            [ConfigurationProperty("SMTP", IsRequired = true)]
+            public Element SMTP { get { return (Element)this["SMTP"]; } }
+
+            [ConfigurationProperty("UserName", IsRequired = true)]
+            public Element UserName { get { return (Element)this["UserName"]; } }
+
+            [ConfigurationProperty("UserPass", IsRequired = true)]
+            public Element UserPass { get { return (Element)this["UserPass"]; } }
+
+            [ConfigurationProperty("Encoding", IsRequired = true)]
+            public Element Encoding { get { return (Element)this["Encoding"]; } }
+        }
+
+}
+
+=============================================
+USING:
+------
+var mailsection = (ConfigSections.MailSection)ConfigurationManager.GetSection("MailSection");

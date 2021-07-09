@@ -1,0 +1,160 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            direction: rtl;
+        }
+
+        table {
+            margin: auto;
+            text-align: right;
+            direction: rtl;
+            border-collapse: collapse;
+            border-spacing: 0;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            border-radius: 12px;
+            position: relative;
+        }
+
+        table > thead > tr {
+            background-color: #4F98CF;
+            color: #fff;
+        }
+
+        table td {
+            padding: 8px;
+        }
+
+        table th {
+            padding: 12px 8px;
+        }
+
+        table tr:nth-child(even) {
+            background-color: #fdf6f6;
+        }
+
+        table tr > td:nth-child(1) {
+            width: 80px;
+        }
+
+        table tr > td:nth-child(2) {
+            width: 250px;
+        }
+
+        table tr > td:nth-child(3) {
+            width: 250px;
+        }
+
+        tr.selectedRow > td:last-child::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 8px;
+            background-color: #4F98CF !important;
+            color: #fff;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <table id="table1">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>A</th>
+                <th>B</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td>A1</td>
+                <td>B1</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td>A2</td>
+                <td>B2</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td>A3</td>
+                <td>B3</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+	    function TableKeyboardController(selector, onEnter, selectedClass = 'selectedRow') {
+            // properties
+            let oTable = document.querySelector(selector);
+            let currentRow;
+
+            // private methods
+            RegisterEvents = () => {
+                document.addEventListener('keydown', (e) => {
+
+                    /*
+                        37 = Arrow LEFT
+                        38 = Arrow UP
+                        39 = Arrow RIGHT
+                        40 = Arrow DOWN
+                        13 = ENTER
+                    */
+                    var keyCode = (e.keyCode > 0) ? e.keyCode : e.charCode;
+                    // console.log(keyCode);
+
+                    switch (keyCode) {
+                        case 38: ChooseRow('up');
+                            break;
+                        case 40: ChooseRow('down');
+                            break;
+                        case 13:
+                            if (onEnter) onEnter.call(null, currentRow);
+                            break;
+                    }
+                });
+            }
+            UnRegisterEvents = () => {
+                document.removeEventListener('keydown');
+            }
+            ChooseRow = (direction = 'down') => {
+                let rows = oTable.querySelectorAll('tbody > tr');
+                (rows || []).forEach((x) => x.classList.remove(selectedClass));
+
+                currentRow = currentRow ? direction == 'down' ? currentRow.nextElementSibling : currentRow.previousElementSibling : null;
+                if (!currentRow) // reset - take 1st row
+                    currentRow = oTable.querySelector('tbody > tr');
+
+                currentRow.classList.add(selectedClass);
+            }
+
+            // public methods
+            this.Start = () => {
+                if (!oTable) return;
+                RegisterEvents();
+            }
+            this.Stop = () => {
+                if (!oTable) return;
+                UnRegisterEvents();
+            }
+
+            // init
+            (() => {
+                if (!oTable) return;
+                console.log('Init TableKeyboardController');
+            })();
+        }
+
+        new TableKeyboardController('#table1', currentRow => {
+            alert(currentRow.querySelector('td').innerText);
+        }).Start();
+    </script>
+</body>
+</html>
