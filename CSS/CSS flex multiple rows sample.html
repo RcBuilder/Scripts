@@ -1,0 +1,36 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .flex-base {
+            display: flex;    
+        }
+
+        .flex-1 {
+             flex-flow: row wrap;
+            justify-content: flex-start;
+        }       
+
+        .flex-1 > div {
+            width: calc(33% - 16px);
+            height: 300px;
+            border: solid 1px #808080;
+            margin: 8px;
+            line-height: 300px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 30px;
+            color: red;
+        }
+    </style>
+</head>
+<body>    
+    <div class="flex-base flex-1">
+        <div>A</div>
+        <div>B</div>
+        <div>C</div>
+        <div>D</div>        
+    </div>
+</body>
+</html>
+

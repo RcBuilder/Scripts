@@ -1,0 +1,40 @@
+eslint
+-------
+find & fix problems in javaScript code
+
+source:
+https://www.npmjs.com/package/eslint
+https://eslint.org/
+
+install:
+> npm install --save eslint
+
+import:
+no-import requires
+
+using:
+let var1 = 1;
+let var2 = 2;  // eslint: 'var2' is assigned a value but never used (no-unused-vars)
+console.log(var1);
+
+function some_func (x, y) // Unexpected space before function parentheses (space-before-function-paren)
+{  
+    console.log(`x: ${x}, y: ${y}`);    
+}
+some_func(10,20);
+
+let arr = ['a', 'b', "c"];    // Strings must use singlequote (quotes))
+console.log(arr);
+
+let obj = {
+    id: 1,
+    name: 'joe', // Strings must use singlequote (comma-dangle)
+};    
+console.log(obj);
+
+try{
+    alert('abc');  // Unexpected alert (no-alert)
+}
+catch(e){
+    console.log(`[ERROR] NO-ALERTS!, ex:${e}`);    
+}

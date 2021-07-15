@@ -1,0 +1,49 @@
+javascript max selected checkbox items
+--------------------------------------    
+
+<div data-property-id="2" data-property-max-selected="2" data-property-multi="1">        
+    <h6 class="popup-property-title pt-10">            
+        <span>רטבים</span>
+        <i>(2 לבחירה)</i>
+    </h6>
+    <div class="property-values">
+        <div>
+            <input type="checkbox" data-value="איולי" name="chkPty">
+            <span>איולי</span>
+        </div>
+        <div>
+            <input type="checkbox" data-value="רוטב שום" name="chkPty">
+            <span>רוטב שום</span>
+        </div>
+        <div>
+            <input type="checkbox" data-value="קארי" name="chkPty">
+            <span>קארי</span>
+        </div>
+        <div>
+            <input type="checkbox" data-value="ברביקיו" name="chkPty">
+            <span>ברביקיו</span>
+        </div>
+        <div>
+            <input type="checkbox" data-value="לימון כבוש" name="chkPty">
+            <span>לימון כבוש</span>
+        </div>
+        <div>
+            <input type="checkbox" data-value="אלף האיים" name="chkPty">
+            <span>אלף האיים</span>
+        </div>
+    </div>        
+</div>                    
+
+--
+
+$('.property-values input[type="checkbox"]').on('click', function (e) {
+    let checkbox = $(e.currentTarget);
+    let wrapperNode = checkbox.closest('[data-property-max-selected]');
+    if (!wrapperNode) return true;
+
+    // limit selected 
+    let max = parseInt(wrapperNode.attr('data-property-max-selected'));
+    let groupName = checkbox.attr('name');
+    let selected = wrapperNode.find(`[name=${groupName}]:checked`).length;
+    return selected <= max;
+});

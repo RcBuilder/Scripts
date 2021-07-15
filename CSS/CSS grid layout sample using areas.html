@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .wrapper {
+            width: 800px;
+            margin: 0 auto;
+            border: solid 1px #000;
+        }
+
+        .grid-base {
+            display: grid;    
+        }
+
+        .grid-1 {            
+            grid-template-columns: auto 150px;
+            grid-template-rows: 120px auto 60px;
+            grid-template-areas:
+                "header header"
+                "main right"
+                "footer footer";
+        }       
+        .grid-1 > div {
+            padding: 12px;
+        }
+        .grid-1 > div:nth-child(1) {
+            grid-area: header;
+            background-color: aqua;
+        }
+        .grid-1 > div:nth-child(2) {
+           grid-area: footer;
+           background-color: cornsilk;
+        }
+        .grid-1 > div:nth-child(3) {
+           grid-area: main;
+           background-color: aquamarine;
+        }
+        .grid-1 > div:nth-child(4) {
+           grid-area: right;
+           background-color: lavenderblush;
+        }       
+    </style>
+</head>
+<body>    
+    <div class="wrapper">
+        <div class="grid-base grid-1">
+            <div>HEADER</div>
+            <div>FOOTER</div>
+            <div>
+                MAIN<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+                bla bla bla bla bla bla bla bla bla bla bla bla<br />
+            </div>
+            <div>RIGHT</div>
+        </div>
+    </div>
+</body>
+</html>
+

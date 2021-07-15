@@ -1,0 +1,12 @@
+javascript extension methods
+----------------------------
+// String
+String.prototype.replaceAll = function (oldValue, newValue) {
+    return this.split(oldValue).join(newValue);
+}
+
+-
+
+// using
+'abc|def|ghi'.replaceAll('|', '_');  // abc_def_ghi
+'abc def  ghi'.replaceAll(' ', '');  // abcdefghi

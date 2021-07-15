@@ -1,0 +1,78 @@
+Benchmark.NET
+-------------
+a .Net library to perform a benchmarks on C# code.
+
+install:
+> Install-Package BenchmarkDotNet -Version 0.13.0
+
+source:
+https://benchmarkdotnet.org/articles/overview.html
+https://github.com/dotnet/BenchmarkDotNet
+https://www.nuget.org/packages/BenchmarkDotNet/
+
+note! 
+Must run in Release Mode
+
+steps:
+1. install package using nuget 
+2. create a Benchmark class
+3. add some methods and decorate them with 'Benchmark' attribute
+4. use the built-in runner to execute the class from chapter 2 
+   BenchmarkRunner.Run<BenchmarkClass>()
+
+code-sample:
+see 'CODE\BenchmarkTests.cs'
+
+---
+
+sample:
+// Install-Package BenchmarkDotNet -Version 0.13.0
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Running;
+
+[MemoryDiagnoser]
+[RankColumn]  // add rank column
+[Orderer(SummaryOrderPolicy.FastestToSlowest)]  // order by
+public class BenchmarkClass
+{
+    private string data;
+
+    [GlobalSetup]
+    public void Setup()
+    {
+        data = "2021-07-14";
+    }
+
+    [Benchmark]
+    public void Test1()
+    {
+        var year = this.data.Split('-')[0];            
+    }
+
+    [Benchmark]
+    public void Test2()
+    {
+        var year = this.data.Substring(0, 4);            
+    }
+
+    [Benchmark]
+    public void Test3()
+    {
+        var match = Regex.Match(this.data, @"(?<y>\d{4})-(?<m>\d{2})-(?<d>\d{2})");
+        var year = match.Groups["y"].Value;            
+    }
+
+	[Benchmark]
+    public void Test4()
+    {
+        var date = DateTime.Parse(this.data);
+        var year = date.Year;
+    }
+}
+
+static void Main(string[] args) {
+	var summary = BenchmarkRunner.Run<BenchmarkClass>();  // execute 
+}
+
+output:
+see 'Benchmark_Result.png'

@@ -1,0 +1,7 @@
+javascript replaceAll
+---------------------
+use split-join technique
+
+reference:
+see 'javascript extension methods'
+

@@ -1,0 +1,54 @@
+npm excel xlsx
+--------------
+read excel file into cells-map
+
+source:
+https://github.com/SheetJS/sheetjs
+
+install:
+> npm install --save xlsx
+
+import:
+const XLSX = require('xlsx');
+
+sample:
+see 'Sources\Libraries'
+
+using:
+let workbook = XLSX.readFile('.\\test2.xlsx');
+let sheetNames = workbook.SheetNames;
+console.log(`sheets: ${sheetNames.join(' | ')}`);
+
+let sheet = workbook.Sheets[sheetNames[0]];  // first sheet tab
+let dataMap = new Map();
+
+let keys = Object.keys(sheet).filter(k => !k.startsWith('!'));
+for(let i = 0; i < keys.length; i++)    
+    dataMap.set(keys[i], sheet[keys[i]].v);
+/*
+    Map {
+        'A1' => 'Column1',
+        'B1' => 'Column2',
+        'C1' => 'Column3',
+        'D1' => 'Column4',
+        'A2' => 'A1',
+        'B2' => 'A2',
+        'C2' => 'A3',
+        'D2' => 'A4',
+        'A3' => 'B1',
+        'B3' => 'B2',
+        'C3' => 'B3',
+        'D3' => 'B4',
+        'A4' => 'C1',
+        'B4' => 'C2',
+        'C4' => 'C3',
+        'D4' => 'C4',
+        'A5' => 'D1',
+        'B5' => 'D2',
+        'C5' => 'D3',
+        'D5' => 'D4' 
+    }
+*/
+console.log(dataMap);    
+console.log(`B3 = ${dataMap.get('B3')}`);    
+console.log(`A5 = ${dataMap.get('A5')}`);

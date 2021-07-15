@@ -1,0 +1,44 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .wrapper {
+            width: 800px;
+            margin: 0 auto;
+            border: solid 1px #000;
+        }
+
+        .grid-base {
+            display: grid;    
+        }
+
+        .grid-1 {
+             grid-template-columns: repeat(3, 1fr);
+             grid-column-gap: 6px;
+             grid-row-gap: 6px;
+        }       
+
+        .grid-1 > div {            
+                        
+            height: 300px;
+            border: solid 1px #808080;            
+            line-height: 300px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 30px;
+            color: red;                
+        }       
+    </style>
+</head>
+<body>    
+    <div class="wrapper">
+        <div class="grid-base grid-1">
+            <div>A</div>
+            <div>B</div>
+            <div>C</div>
+            <div>D</div>            
+        </div>
+    </div>
+</body>
+</html>
+

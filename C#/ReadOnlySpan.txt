@@ -1,0 +1,12 @@
+ReadOnlySpan 
+------------
+ReadOnlySpan is a struct so it always lives in the STACK instead of the HEAP 
+and therefore, evaporates once reaching the end of the code block. 
+hence, it doesn't trigger the GC which is an expensive process.  
+
+sample:
+ReadOnlySpan<char> spnDate = "2021-07-14"; 
+var year = int.Parse(spnDate.Slice(0, 4));
+
+tip:
+use Benchmark.NET to watch the Memory and Execution-Time (see 'Benchmark.NET')
