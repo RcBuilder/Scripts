@@ -400,3 +400,8 @@ few examples for simple but very-effective scripts are:
 ...
 
 hope it helps
+
+----------------------
+
+I provide automation scripts for adwords account (both MCC and Regular types)
+we can schedule the script to be executed as per need and we can let it perform almost anything you can do manually and thus, save you time and m-oney

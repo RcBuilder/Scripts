@@ -1,0 +1,26 @@
+Performance - FCP & LCP
+=======================
+FCP = First Contentful Paint
+LCP = Largest Contentful Paint
+
+
+FCP:
+the point in the page load timeline where the user can see anything on the screen.
+the timestamp that the user doesn't see a blank page anymore but some content (text, image and etc) that has been rendered to the screen.
+any result up to apprx 2 seconds considered as a good user experience.
+(see 'FCP.png')
+
+LCP:
+the point in the page load timeline where the main content has loaded.
+the timestamp when most of the content has loaded to the screen.
+any result up to apprx 2.5 seconds considered as a good user experience.
+
+-
+
+find FCP and LCP:
+1.using external tools:
+  use any performance tool to find your website FCP and LCP.  
+  - https://webpagetest.org
+
+2.using devTools
+  to get FCP and LCP using the devTools we need to use the 'Performance' tab, click on 'reload & record'.

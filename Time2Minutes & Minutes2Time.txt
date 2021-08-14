@@ -1,0 +1,33 @@
+Time2Minutes & Minutes2Time
+---------------------------
+
+/// Convert Time string into minutes count. 	    
+/// format: HH:mm:ss
+protected double Time2Minutes(string sTime)
+{
+    if (string.IsNullOrEmpty(sTime)) return 0;
+    var match = Regex.Match(sTime, @"(?<HH>\d{2}):(?<mm>\d{2}):(?<ss>\d{2})");
+    if (match == null) return 0;
+    return Convert.ToInt32(match.Groups["HH"].Value) * 60 + Convert.ToInt32(match.Groups["mm"].Value) + (Convert.ToDouble(match.Groups["ss"].Value) / 60);
+}
+
+/// Convert minutes count to Time string.
+/// format: HH:mm:ss
+protected string Minutes2Time(double Minutes)
+{
+    if (Minutes <= 0) return "00:00:00";
+    var hh = ((int)(Minutes / 60)).ToString();
+    if (hh.Length == 1) hh = $"0{hh}";
+    Minutes = Minutes % 60;
+    var mm = ((int)(Minutes)).ToString();
+    if (mm.Length == 1) mm = $"0{mm}";
+    Minutes = Minutes - (int)(Minutes);
+    var ss = Math.Round(Minutes * 60).ToString();
+    if (ss.Length == 1) ss = $"0{ss}";
+    return $"{hh}:{mm}:{ss}";
+}
+
+---
+// Using 
+Console.WriteLine(Math.Round(Time2Minutes("02:37:31"), 2));	// 157.52
+Console.WriteLine(Minutes2Time(157.52)); // 02:37:31

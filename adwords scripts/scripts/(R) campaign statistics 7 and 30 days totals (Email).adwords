@@ -25,12 +25,12 @@ function main() {
     var stats7days = campaign.getStatsFor('LAST_7_DAYS');
     var impressions7days = stats7days.getImpressions();
     var clicks7days = stats7days.getClicks();
-    var conversions7days = stats7days.getConvertedClicks();
+    var conversions7days = stats7days.getConversions();
     
     var stats30days = campaign.getStatsFor('LAST_30_DAYS');
     var impressions30days = stats30days.getImpressions();
     var clicks30days = stats30days.getClicks();
-    var conversions30days = stats30days.getConvertedClicks();
+    var conversions30days = stats30days.getConversions();
     
     totalImpressions7days += impressions7days;
     totalClicks7days += clicks7days;

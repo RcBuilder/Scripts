@@ -1,0 +1,201 @@
+Azure API
+=========
+
+azure portal:
+https://portal.azure.com/#home
+
+sources:
+https://developer.microsoft.com/en-us/graph/get-started
+
+.NET SDK:
+https://www.nuget.org/packages/Microsoft.Graph
+https://github.com/microsoftgraph/msgraph-sdk-dotnet
+> Install-Package Microsoft.Graph -Version 4.0.0
+
+NodeJS SDK:
+https://github.com/microsoftgraph/msgraph-sdk-javascript
+> npm install @microsoft/microsoft-graph-client
+
+auth types:
+- application permissions (access to the registered application) 
+  permissions for pre-registered app for background use with no signed-in user
+- delegated permissions (access to the signed-in user) 
+  permissions on behalf of a user (authorize popup)
+
+application auth:
+(steps)
+1. open azure portal 
+2. click on Azure AD (active-directory) 
+3. click on 'app Registrations'
+4. create An App (click on 'New Registration')
+5. click on 'Certificated & Secrets'
+6. Add a client secret
+7. get Client-Id + Client-Secret + Tenant-Id
+
+Authorization header:
+once we've generated a Token, we need to pass it on as a 'Bearer' token in the Authorization header of any API call.
+[H] Authorization: Bearer <Token>
+
+delegated auth:
+go to the registered app
+go to 'Authentication' section 
+add a platform and set the redirect URLs 
+note! the generated token will be passed-on to the provided redirect URL
+
+add app permissions (Service Management):
+go the Azure AD > Registered App > API Permissions
+add > Azure Service Management 
+e.g - https://management.azure.com/user_impersonation
+
+add app permissions (Microsoft Graph):
+go the Azure AD > Registered App > API Permissions
+add > Microsoft Graph > application permissions
+e.g - User.Read.All 
+
+token (v1):
+POST https://login.microsoftonline.com/<Tenant-Id>/oauth2/token
+H Content-Type:application/x-www-form-urlencoded
+client_id=<Client-Id>
+client_secret=<Client-Secret>
+grant_type=client_credentials
+resource=https://management.azure.com
+scope=./default
+
+token (v2):
+POST https://login.microsoftonline.com/<Tenant-Id>/oauth2/v2.0/token
+H Content-Type:application/x-www-form-urlencoded
+client_id=<Client-Id>
+client_secret=<Client-Secret>
+grant_type=client_credentials
+scope=https://graph.microsoft.com/.default
+
+token with Authorization Code (v2):
+// use authorize to generate a code (see 'authorize (v2)'). requires a consent from the signed-in user. 
+// once user has authorized, we can also reach all the api services related to 'me' (the signed-in user), for example https://graph.microsoft.com/v1.0/me
+POST https://login.microsoftonline.com/<Tenant-Id>/oauth2/v2.0/token
+H Content-Type:application/x-www-form-urlencoded
+client_id=<Client-Id>
+client_secret=<Client-Secret>
+grant_type=authorization_code
+code=<Code>
+scope=https://graph.microsoft.com/.default
+redirect_uri=<Redirect-URL>
+
+authorize (v2):
+this will return a code to the defined redirect URL, we need to use this code to generate a token.
+for security purposes, any redirect URL we use must be defined in the 'Authentication' section of the registered app in azure. 
+
+// syntax
+- form action 
+  https://login.microsoftonline.com/<Tenant-Id>/oauth2/v2.0/authorize
+- post-data
+  client_id=<Client-Id>
+  scope=<Scope>
+  response_type=code
+  response_mode=query
+  redirect_uri=<Redirect-URL>
+  state=<State>
+
+// sample
+<form action="https://login.microsoftonline.com/337829c0-7b0e-4e87-ae80-7c5c420319c9/oauth2/v2.0/authorize">
+    <input type="hidden" name="client_id" value="xxxxxxxxxxxxxxxxxxxxxxxx" />
+    <input type="hidden" name="scope" value="offline_access user.read mail.read" />
+    <input type="hidden" name="response_type" value="code" />
+    <input type="hidden" name="response_mode" value="query" />
+    <input type="hidden" name="redirect_uri" value="https://rcbuilder.free.beeceptor.com" />
+    <input type="hidden" name="state" value="123456" />
+    <input type="submit" value="Submit" />
+</form>
+
+// reference
+AzureAuthrize.html
+
+note! 
+- Scope can be found in the azure app permissions
+  e.g - https://management.azure.com/user_impersonation
+- Scope can be provided inline. supports multiple permissions seperated by space.
+  e.g - offline_access user.read mail.read
+- State can be any data which will serve as the round-trip context. it also will be returned in the token response.
+- in the above sample, we've used a dummy-url as redirect uri. to view the incomming requests to this address, go to the console at 'https://beeceptor.com/console/rcbuilder'
+
+Graph Services: 
+- Microsoft 365 core services
+  Bookings, Calendar, Delve, Excel, Microsoft 365 compliance eDiscovery, Microsoft Search, OneDrive, OneNote, Outlook/Exchange, People (Outlook contacts), Planner, SharePoint, Teams, To Do, Workplace Analytics.
+
+- Enterprise Mobility and Security services: 
+  Advanced Threat Analytics, Advanced Threat Protection, Azure Active Directory, Identity Manager, and Intune.
+
+- Windows 10 services: 
+  activities, devices, notifications, Universal Print.
+
+- Dynamics 365 Business Central.
+
+Errors:
+- Insufficient privileges to complete the operation.
+  go to the registered app in azure > api permissions > add permissions > Microsoft Graph > app permissions > Select permissions.
+  once added, click on 'Grant admin consent' for all the added permissions 
+- after changing a User Data, the changes were not reflected in the api 
+  note that it takes a few seconds for the data to be updated 
+- after changing the app permissions, the changes were not reflected in the api 
+  note that after any permissions change, we need to generate a new token in order to include the latest changes
+
+get active profile:
+GET https://graph.microsoft.com/v1.0/me  
+H Authorization: Bearer <Token>
+
+Graph Explorer:
+use this service to find out more about the graph available services and the required Permissions for each.
+https://developer.microsoft.com/en-us/graph/graph-explorer
+
+Service Required Permissions:
+(steps)
+1. use the Graph Explorer (see 'Graph Explorer') to find out the service.
+2. at the top pane, open 'Modify permissions' tab.
+3. copy each permission value and add it to the application API permissions (see 'add app permissions (Microsoft Graph)')
+   note that the there are 2 permission types (see 'Permissions Type')
+4. once all permissions were added, click on 'grant admin consent' 
+5. wait for a few seconds and generate a new token (in order to apply the changes)
+
+Permissions Type:
+1. Application	// application level (for registered apps)
+2. Delegated	// logged-in user level (for apps with a signed-in user)
+
+using Graph API:
+(steps)
+1. create an registered app (see 'application auth')
+2. add API permissions to the registered app from chapter 1 (see 'add app permissions (Microsoft Graph)')
+   note! find the available services list and each permissions (see 'Service Required Permissions')
+3. generate a token v2 (see 'token (v2)') 
+4. grab the token and add it as authorization bearer token to any of the resource request of the api
+   
+Samples:
+// remember to add the relevant permissions to the API Permissions list (see 'Service Required Permissions')
+GET https://graph.microsoft.com/v1.0/applications
+[H] Authorization: Bearer <Token>
+
+GET https://graph.microsoft.com/v1.0/groups
+[H] Authorization: Bearer <Token>
+
+GET https://graph.microsoft.com/v1.0/users
+[H] Authorization: Bearer <Token>
+
+// requires 
+GET https://graph.microsoft.com/v1.0/me
+[H] Authorization: Bearer <Token>
+
+----------------
+// TODO ->>
+
+V1 
+V2
+V3 
+REST
+SDK
+GRAPH-QL
+MS-365
+
+Delegated with Postman?? (e.g: https://graph.microsoft.com/v1.0/me)
+
+sandbox
+
+Azure AD aka Microsoft Identity

@@ -42,3 +42,13 @@ select t.value from (
 where [key] = @k 
 
 -- returns 'C' 
+
+---
+
+SELECT * FROM (
+	VALUES
+	(1, 10, 100), 
+	(2, 20, 200),
+	(3, 30, 300)
+) T(c1,c2,c3)
+WHERE c3 < 150

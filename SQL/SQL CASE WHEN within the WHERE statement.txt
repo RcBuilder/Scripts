@@ -1,0 +1,24 @@
+SQL CASE WHEN within the WHERE statement
+----------------------------------------
+
+[OPTION-1] using CASE WHEN 
+
+DECLARE @p INT = 3;
+
+SELECT * FROM (
+	VALUES
+	(1, 10, 100), 
+	(2, 20, 200),
+	(3, 30, 300)
+) T(c1,c2,c3)
+WHERE c3 <=	CASE(@p) 
+				WHEN 1 THEN 100 
+				WHEN 2 THEN 200 
+				WHEN 3 THEN 300 
+				ELSE 0
+			END	
+
+---
+
+[OPTION-2] using OR 
+see 'SQL Conditioned Where Clause using OR'

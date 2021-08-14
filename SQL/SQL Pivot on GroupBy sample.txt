@@ -1,0 +1,31 @@
+;WITH CTE([CNT], [YEAR], [MONTH]) AS (
+	SELECT	COUNT(DISTINCT C.ClientUniqueId) AS CNT, 
+			YEAR([OpeningDate]) AS 'YEAR',
+			MONTH([OpeningDate]) AS 'MONTH'			
+	FROM	[dbo].[Clients] C WITH(NOLOCK)			
+			INNER JOIN 
+			[dbo].[Stores] S WITH(NOLOCK)
+			ON(S.BranchNo = C.OpeningBranchNo)
+	GROUP BY YEAR([OpeningDate]), MONTH([OpeningDate])
+)
+SELECT * FROM CTE	
+PIVOT(
+	SUM([CNT]) 
+	FOR [YEAR] IN ([2020], [2021])
+) AS Pvt
+
+
+---
+
+MONTH	2020	2021
+1		7		NULL
+2		4		NULL
+3		1		12
+4		NULL	274
+5		2		19
+6		4		NULL
+7		2		NULL
+8		7		NULL
+9		6		NULL
+11		1		NULL
+12		5		NULL

@@ -34,6 +34,9 @@ POWER
 ISNULL
 COALESCE 
 DATEFROMPARTS
+ROUND
+FLOOR
+CEILING
 ===============================
 
 STRING_SPLIT
@@ -518,3 +521,36 @@ create a date from a given parts
 DECLARE @TODAY DATE = GETDATE();  -- e.g: 2020-02-17	
 DECLARE @1ST DATE = DATEFROMPARTS(YEAR(@TODAY), MONTH(@TODAY), 1);
 PRINT(CONCAT(@1ST, ' - ', @TODAY)); -- 2020-02-01 - 2020-02-17
+
+ROUND
+-----
+FLOAT ROUND(<NUMBER>, <DECIMALS>)
+
+round a number
+
+---
+
+SELECT ROUND(12.345, 0)  -- 12.000 
+SELECT ROUND(12.345, 1)  -- 12.300
+SELECT ROUND(12.345, 2)  -- 12.350
+
+FLOOR
+-----
+INT FLOOR(<NUMBER>)
+
+round-down a number 
+
+---
+
+SELECT FLOOR(12.345)  -- 12
+
+
+CEILING
+-----
+INT CEILING(<NUMBER>)
+
+round-up a number
+
+---
+
+SELECT CEILING(12.345)  -- 13

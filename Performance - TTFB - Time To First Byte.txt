@@ -1,0 +1,13 @@
+Performance - TTFB
+==================
+TTFB = Time To First Byte
+the time taken for a browser to receive the first response byte from a server.
+use the chrome Waterfall view to profile the TTFB.
+
+(steps)
+- open chrome devTools (F12) > 'Network' Tab 
+- reload the page and watch the 'Waterfall' inner tab 
+- to see more details, select any request > 'Timing' tab.
+
+note:
+the green line represents the waiting time for the first byte (TTFB) 

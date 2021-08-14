@@ -10,4 +10,6 @@ references:
 - Load Web Fonts - best practice
 - images - lazy loading
 - Performance - Preload resources
--
+- Performance - FCP & LCP - First & Largest Contentful Paint
+- Performance - TTFB - Time To First Byte
+- DevTools - Network Analysis

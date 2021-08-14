@@ -1,0 +1,10 @@
+SQL SPLIT Email Parts
+---------------------
+DECLARE @temp TABLE(idx INT, val NVARCHAR(MAX)) 
+INSERT INTO @temp
+	SELECT ROW_NUMBER() OVER(ORDER BY [Value]), [Value] FROM STRING_SPLIT('Rc_Builder@walla.com', '@')
+	
+DECLARE @Recipient NVARCHAR(MAX) = (SELECT TOP 1 val FROM @temp WHERE idx = 1), 
+		@Domain NVARCHAR(MAX) = (SELECT TOP 1 val FROM @temp WHERE idx = 2)
+
+SELECT @Recipient, @Domain

@@ -1,0 +1,33 @@
+SQL Join Several CTE tables 
+---------------------------
+;WITH CTE_A(Client, CNT, [SUM]) AS ( 
+	 SELECT * FROM (
+		VALUES
+		(1, 10, 100), 
+		(2, 20, 200),
+		(3, 30, 300)
+	) T(c1,c2,c3)
+
+), CTE_B(Client, CNT, [SUM]) AS ( 
+	SELECT * FROM (
+		VALUES
+		(1, 100, 1000), 
+		(3, 300, 3000),
+		(5, 500, 5000)
+	) T(c1,c2,c3)
+)
+SELECT	A.Client, 
+		A.CNT AS 'A_CNT', 
+		A.[SUM] AS 'A_SUM',
+		B.CNT AS 'B_CNT', 
+		B.[SUM] AS 'B_SUM'
+FROM	CTE_A A 
+	INNER JOIN 
+	CTE_B B ON(A.Client = B.Client)
+
+--
+
+output:
+Client	A_CNT	A_SUM	B_CNT	B_SUM
+1	10	100	100	1000
+3	30	300	300	3000

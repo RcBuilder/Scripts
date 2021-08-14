@@ -46,6 +46,13 @@
 [Release 9.0]
 - Target-Types
 
+[Release 10.0]
+- Null Parameter Checking
+- Required Properties
+- field Keyword
+- Global Usings
+- Namespace Definition
+
 *************************
 
 Implicit-Typing (var keyword)
@@ -727,6 +734,132 @@ class SomeClass{
 	
 	public void SayYourName(){
 		Console.WriteLine(this.Name);
+	}
+}
+
+Null Parameter Checking
+-----------------------
+throw automatic ArgumentNullException if the parameter value is NULL.
+
+note! 
+Parameter is a variable listed inside the parentheses in the function definition.
+Argument is the value sent to the function
+
+syntax:
+SomeFunction(SomeClass obj!!)
+
+sample:
+SomeFunction(1, new SomeClass()); // OK
+SomeFunction(1, null);  // Exception
+
+void SomeFunction(int id, SomeClass obj!!) {  	
+	Console.WriteLine("OK");
+}
+
+old version:
+// the above function is the same as the following
+void SomeFunction(int id, SomeClass obj)
+{
+  	if (obj == null)  
+    	throw new ArgumentNullException("obj");
+	Console.WriteLine("OK");
+}
+
+Required Properties
+-------------------
+allows us to define required properties. 
+if no value has been provided, we'll get a compile-time error.
+
+syntax:
+public required <type> <name> { get; set; }
+
+sample:
+public class SomeClass{
+	public required string P1 { get; init; }
+	public string P2 { get; init; }
+}
+
+// OK
+var c1 = new SomeClass {
+	P1 = "V1",
+	P2 = "V2"
+}
+
+// ERROR -> P1 is required
+var c2 = new SomeClass {	
+	P2 = "V2"
+}
+
+// OK
+var c3 = new SomeClass {
+	P1 = "V1"	
+}
+
+field Keyword
+-------------
+use this keyword to set value of a property within the 'set' area! 
+till this feature was exposed, we had to create a data-member in order to achieve that functionality.
+
+syntax:
+get; set { field = value; } 
+
+sample:
+public class SomeClass{
+	public string P1 { 
+		get; 
+		set	{
+			if (String.IsNullOrEmpty(value))
+		        throw new Exception("P1 can't be empty");
+		    field = value;
+		} 
+	}	
+}
+
+old version:
+// the above P1 property is the same as the following
+private string _P1;
+public string P1 { 
+	get { return this._P1; } 
+	set	{
+		if (String.IsNullOrEmpty(value))
+		    throw new Exception("P1 can't be empty");
+		this._P1 = value;
+	} 
+}	
+
+Global Usings
+-------------
+define global usings for the whole project.
+
+syntax:
+global using <namespace>;
+
+tip:
+create a new file 'usings.cs' and put all global usings there.
+
+sample:
+// usings.cs
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Threading.Tasks;
+
+Namespace Definition
+--------------------
+allows us to define namespaces on the file level without the curly brackets ({})
+
+syntax:
+namespace MyProject;
+public class SomeClass
+{
+	// code ...
+}
+
+old version:
+namespace MyProject{
+	public class SomeClass
+	{
+		// code ...
 	}
 }
 

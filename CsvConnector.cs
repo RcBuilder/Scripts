@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Data.Odbc;
-using System.Data.OleDb;
 using System.Data;
 using System.Linq;
-using System.Data.Common;
 using Newtonsoft.Json;
 using Microsoft.VisualBasic.FileIO;
 using System.Text;
 
-namespace DanHotelsConnector
+namespace BLL
 {
     /*
         USING
@@ -44,11 +41,13 @@ namespace DanHotelsConnector
     {
         public string FilePath { get; set; }
         public string Delimiter { get; set; }
+        public bool HasNoHeader { get; set; }
         public Encoding Encoding { get; set; } = Encoding.GetEncoding("Windows-1255");
 
-        public CsvConnector(string FilePath, string Delimiter = ",") {
+        public CsvConnector(string FilePath, string Delimiter = ",", bool HasNoHeader = false) {
             this.FilePath = FilePath;
             this.Delimiter = Delimiter;
+            this.HasNoHeader = HasNoHeader;
         }
 
         public async Task<DataTable> GetAsDataTable()
@@ -60,16 +59,20 @@ namespace DanHotelsConnector
                     reader.TextFieldType = FieldType.Delimited;
                     reader.SetDelimiters(this.Delimiter);
 
-                    var headerFields = reader.ReadFields();  // read 1st line - the header 
-                    dt.Columns.AddRange(headerFields.Select(x => new DataColumn(x)).ToArray());
+                    var firstRow = reader.ReadFields();
+                    string[] headerFields = firstRow;  // read 1st line - the header 
 
-                    while (!reader.EndOfData) {                        
-                        var rowFields = reader.ReadFields();
-                        var row = dt.NewRow();
-                        for (var i = 0; i < rowFields.Length; i++) // read row                                                 
-                            row[i] = rowFields[i];
-                        dt.Rows.Add(row);  // add row to collection                                                    
+                    // no-header mode
+                    if (this.HasNoHeader) {
+                        headerFields = this.GenerateDefaultHeader(headerFields.Length); // override with default header
+                        dt.Columns.AddRange(headerFields.Select(x => new DataColumn(x)).ToArray());
+                        dt.Rows.Add(this.ReadDataRow(firstRow, dt));  // add the 1st row to the Rows collection
                     }
+                    else
+                        dt.Columns.AddRange(headerFields.Select(x => new DataColumn(x)).ToArray());                    
+
+                    while (!reader.EndOfData)                                               
+                        dt.Rows.Add(this.ReadDataRow(reader, dt));  // add row to collection                                                    
                 }
                 return dt;
             });
@@ -84,17 +87,17 @@ namespace DanHotelsConnector
                     reader.TextFieldType = FieldType.Delimited;
                     reader.SetDelimiters(this.Delimiter);
 
-                    var headerFields = reader.ReadFields();  // read 1st line - the header 
+                    var firstRow = reader.ReadFields();
+                    string[] headerFields = firstRow;  // read 1st line - the header 
 
-                    while (!reader.EndOfData)
-                    {
-                        var result = new Dictionary<string, object>();
-                        var rowFields = reader.ReadFields();
-                        for (var i = 0; i < rowFields.Length; i++) // read row
-                            result.Add(headerFields[i], rowFields[i]);  // add row to collection
-                        results.Add(result);
+                    // no-header mode
+                    if (this.HasNoHeader) {
+                        headerFields = this.GenerateDefaultHeader(headerFields.Length); // override with default header
+                        results.Add(this.ReadJsonRow(firstRow, headerFields));  // add the 1st row to the Rows collection
                     }
-
+                    
+                    while (!reader.EndOfData)                       
+                        results.Add(this.ReadJsonRow(reader, headerFields));
                 }
                 return JsonConvert.SerializeObject(results);
             });            
@@ -103,6 +106,34 @@ namespace DanHotelsConnector
         public async Task<T> GetAsT<T>()
         {
             return JsonConvert.DeserializeObject<T>(await this.GetAsJson());
+        }
+
+        // -- private --
+
+        private Dictionary<string, object> ReadJsonRow(TextFieldParser reader, string[] headerFields) {
+            return this.ReadJsonRow(reader.ReadFields(), headerFields);            
+        }
+        private Dictionary<string, object> ReadJsonRow(string[] rowFields, string[] headerFields)
+        {
+            var result = new Dictionary<string, object>();            
+            for (var i = 0; i < rowFields.Length; i++) // read row
+                result.Add(headerFields[i], rowFields[i]);  // add row to collection
+            return result;
+        }
+
+        private DataRow ReadDataRow(TextFieldParser reader, DataTable dt){
+            return this.ReadDataRow(reader.ReadFields(), dt);
+        }
+        private DataRow ReadDataRow(string[] rowFields, DataTable dt)
+        {            
+            var row = dt.NewRow();
+            for (var i = 0; i < rowFields.Length; i++) // read row                                                 
+                row[i] = rowFields[i];
+            return row;
+        }
+
+        private string[] GenerateDefaultHeader(int ColumnsCount) {
+            return Enumerable.Range(1, ColumnsCount).Select(i => $"Column-{i}").ToArray();
         }
     }
 }

@@ -1,0 +1,307 @@
+K6 Load Testing Tool
+====================
+a tool to test your app performance using load tests. 
+fully configurable and easy to use.
+written with javascript.
+"Like unit testing, for performance"
+
+sources:
+https://github.com/grafana/k6
+
+sample:
+see 'Sources\K6 Load Tests'
+
+api docs:
+https://k6.io/docs/using-k6
+https://k6.io/docs/using-k6/options/
+
+dummy api:
+https://test-api.k6.io
+
+installation:
+https://dl.k6.io/msi/k6-latest-amd64.msi
+see 'k6-latest-amd64.msi'
+
+commands:
+> k6 run <js-file>  // run test
+> k6 run --vus <count> <js-file>  // run test for x VU's (override options if defined)
+> k6 run -u <count> <js-file>  // same as --vus
+> k6 run --duration <duration> <js-file>  // run test with duration (override options if defined)
+> k6 run -d <duration> <js-file>  // same as --duration
+> k6 run --iterations <count> <js-file>  // run test for x iterations (override options if defined)
+> k6 run -i <count> <js-file>  // same as --iterations
+> k6 run -i 30 -d 10s <js-file>  // run test with 30 iterations for 10 seconds
+> k6 run --stage <duration:target...> <js-file>  // run test with stages (override options if defined)
+> k6 run -s <duration:target...> <js-file>  // same as --stage
+> k6 run -s 5s:10,20s:100,5s:0 <js-file>  // run test with stages: 5 seconds with 10 users, 20 seconds with 100 users and 5 secodns till no users
+
+legend:
+- VU = virtual user
+
+k6-test objects:
+- default exported method   // the main method to execute 
+- options object            // options to define the test behaviour
+- setup method              // onInit, occurs once per test, when the test is about to start 
+- teardown method           // onCompleted, occurs once per test, after test has completed
+
+using: 
+(steps)
+1. install k6
+2. create a test (see 'create a test') 
+   e.g: test.js
+3. write your test logic and configure the test behaviour
+4. open cli and run the test 
+   > k6 run test.js
+
+create a test:
+create a js file with a default export method and a configuration object (see 'configure a test').
+within the exported method we'll write the logic to execute. 
+use the configuration object to define the execution behaviour.
+
+configure a test:
+to configure the test behaviour we need to export an 'options' object. (see 'options object')
+this object defines how many virtual users to allocate, how many instances to run, for how long and etc.
+this object is optional and when is not defined, the k6 engine uses an inner default option with 1 virtual user and 1 iteration.
+
+options object:
+- vus           // set the number of virtual users to use
+- iterations    // set the number of iterations (method execution count)
+- duration      // set the duration of the test
+- stages        // set the stages for the test (see 'stages')
+- thresholds    // set the thresholds for the test (see 'thresholds')
+
+- insecureSkipTLSVerify	// ignore tls verifications
+- noConnectionReuse	// disable keep-alive connections
+
+note!
+full list can be found at 'https://k6.io/docs/using-k6/options/'
+
+passing test data:
+the return value of the 'setup' method will be passed on to both the execution and 'teardown' methods.
+we can use any data type including complex objects.
+
+sleep:
+import { sleep } from "k6";
+export default function() {
+    // code here...
+    sleep(1);  // sleep for 1 seconds
+};
+
+stages:
+use this configuration option to define the test stages. 
+this is an array of 'stage' object which contains 'duration' and 'target' (VUs count). 
+each item defines a stage behaviour in the test.
+
+export let options = {    
+    stages: [        
+        { duration: '1m', target: 50 },     // ramp up to 50 users during the first minute
+        { duration: '2m30s', target: 50 },  // hold at 50 users for 2.5 minutes
+        { duration: '30s', target: 0 },     // ramp down users to 0 over the last 30 seconds
+    ]
+};
+
+note! 
+the whole test should take 4 minutes (1m + 2m + 30s + 30s)
+
+checks:
+we can use this method to validate ANY data we'd like from local variables to http responses.
+this method returns true/false which represents the check-result of a given value against all the defined rules (AND operator).
+a summary of the results will be added to the test output. it also includes percentage value for each check (e.g: 'positive number' 75% - 3 (pass) / 1 (failed))
+
+// check an http response
+let response = http.get('...');  // api call   
+let check = check(response, {
+    'http2 is used': x => x.proto === 'HTTP/2.0',
+    'status is 200': x => x.status === 200        
+});
+
+// check a number
+let criteria = {
+    'less than 10': x => x < 10,
+    'even number': x => x % 2 == 0,
+    'positive number': x => x >= 0
+};
+let check = check(8, criteria);    // true (even, positive and less than 10)
+let check = check(25, criteria);   // false 
+let check = check(7, criteria);    // false
+let check = check(-7, criteria);   // false
+
+thresholds:
+use this configuration option to define the test thresholds. 
+this is an object which contains the threshold name and array of thresholds values.
+
+// syntax
+thresholds: {
+    metric_name: ['expression', ...], // short format
+    metric_name: [{ 
+            threshold: 'expression', 
+            abortOnFail: boolean, 
+            delayAbortEval: string 
+        }, 
+    ] // full format
+}
+
+// expression syntax
+min < 100       // minimum duration must be less than 100ms
+max < 400       // maximum duration must be less than 400ms
+avg < 200       // average duration must be less than 200ms
+p(90) < 300     // 90% of samples must be less than 300
+rate < 0.05     // global failure rate must be less than 5%
+count >= 500    // count must be larger or equal to 500
+
+export let options = {    
+    thresholds: {    
+        "http_req_duration": ["p(95)<500"],  // 95 percent of all HTTP request should to be less than 500ms        
+        "http_req_duration{staticAsset:yes}": ["p(99)<250"],  // requests with the staticAsset tag should finish in less than 250ms
+        "check_failure_rate": [             
+            "rate<0.01",  // global failure rate should be less than 1%            
+            { threshold: "rate<=0.05", abortOnFail: true },  // abort the test early if it climbs over 5%
+        ],
+    }
+};
+
+types of tests:
+by changing the stages in the options object, we can define several different tests such as the following
+- stress
+- spike
+- soak
+- load
+
+---
+
+[sample]
+// execute an api call 30 times with max of 30 virtual users
+import http from "k6/http";
+
+export let options = {
+    vus: 30,
+    iterations: 30
+};
+
+export default function() {
+    let response = http.get('https://test-api.k6.io/public/crocodiles/');  // api call     
+};
+
+---
+
+[sample]
+// execute a method to print a random value 60 times with max of 30 virtual users and for total of 20 seconds
+const arr = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'];
+
+export let options = {
+    vus: 30,
+    iterations: 60,
+    duration: '20s'
+};
+
+export default function() {    
+    let rIndex = Math.floor(Math.random() * arr.length);
+    console.log(arr[rIndex]);
+}
+
+---
+
+[sample]
+// using stages
+// start executing for 5 seconds with 10 users, then executes 10 seconds with 20 users and finally executes for 5 seconds till there are no users.
+export let options = {    
+    stages: [
+        { duration: '5s', target: 10 },
+        { duration: '10s', target: 20 },
+        { duration: '5s', target: 0 },
+    ]
+};
+
+export default function() {        
+   // code here... 
+}
+
+---
+
+[sample]
+// using setup (onInit) and teardown (onCompleted) methods
+export function setup() {
+    console.log('INIT');
+    return { cnt: 1 };
+}
+
+export let options = {
+    vus: 1,
+    iterations: 50    
+};
+
+export default function(data) {
+    console.log(data.cnt);
+    data.cnt++;
+}
+
+export function teardown(data) {
+    console.log('COMPLETED');
+}
+
+---
+
+[sample]
+// execute an api call 30 times for a single virtual user with sleep of 1 second each execution
+import http from "k6/http";
+import { sleep } from "k6";
+
+export let options = {
+    vus: 1,
+    iterations: 30
+};
+
+export default function() {
+    let response = http.get('https://test-api.k6.io/public/crocodiles/');  // api call   
+    sleep(1);  // sleep for 1 seconds
+};
+
+---
+
+[sample]
+// use checks to validate data
+import http from "k6/http";
+import { check } from "k6";
+
+export let options = {
+    vus: 1,
+    iterations: 1
+};
+
+export default function() {
+    let response = http.get('https://test-api.k6.io/public/crocodiles/');  // api call   
+
+    // http response must returns status OK (200) and use HTTP/2.0
+    let check1 = check(response, {
+        'http2 is used': x => x.proto === 'HTTP/2.0',
+        'status is 200': x => x.status === 200        
+    });
+    console.log(`result for http response: ${check1}`);  // true
+
+    // number must be an even, positive and small number (less than 10)
+    let criteria = {
+        'less than 10': x => x < 10,
+        'even number': x => x % 2 == 0,
+        'positive number': x => x >= 0
+    };
+    
+    let check2 = check(8, criteria);
+    console.log(`result for number 8: ${check2}`);  // true
+
+    let check3 = check(25, criteria);
+    console.log(`result for number 25: ${check3}`); // false
+    
+    let check4 = check(7, criteria);
+    console.log(`result for number 7: ${check4}`);  // false
+    
+    let check5 = check(-7, criteria);
+    console.log(`result for number -7: ${check5}`); // false
+};
+
+---
+
+-------------------------
+
+// TODO
+Checks   // like 'Asserts' in unitests but without stopping the execution, they store the results for the output
+Thresholds

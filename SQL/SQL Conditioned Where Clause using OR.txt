@@ -1,0 +1,46 @@
+SQL Conditioned Where Clause using OR
+-------------------------------------
+
+-- RangeA --
+@A_DateFrom DATE = NULL,  
+@A_DateTo DATE = NULL,
+@A_Amount FLOAT = 0,
+@A_ConditionType CHAR(1) = '<', -- =, <. >
+	
+-- RangeB --
+@B_DateFrom DATE = NULL,  
+@B_DateTo DATE = NULL,
+@B_Amount FLOAT = 0,
+@B_ConditionType CHAR(1) = '>', -- =, <. >
+
+-
+
+;WITH CTE_A(Client, Trs_CNT, Trs_SUM) AS ( 
+	...				
+	...
+), CTE_B(Client, Trs_CNT, Trs_SUM) AS ( 
+	...
+	...
+)
+SELECT	A.Client, 
+	CONCAT(@A_DateFrom, ' > ', @A_DateTo, ' | ', @A_ConditionType, ' ', @A_Amount) AS 'RangeA',
+	A.Trs_CNT, 
+	A.Trs_SUM,
+	CONCAT(@B_DateFrom, ' > ', @B_DateTo, ' | ', @B_ConditionType, ' ', @B_Amount) AS 'RangeB',
+	B.Trs_CNT, 
+	B.Trs_SUM 
+FROM	CTE_A A INNER JOIN CTE_B B ON(A.Client = B.Client)	
+WHERE	(
+		(@A_ConditionType = '=' AND A.Trs_SUM = @A_Amount)
+		OR 
+		(@A_ConditionType = '>' AND A.Trs_SUM > @A_Amount)
+		OR
+		(@A_ConditionType = '<' AND A.Trs_SUM < @A_Amount)													
+	)
+AND	(
+		(@B_ConditionType = '=' AND B.Trs_SUM = @B_Amount)
+		OR
+		(@B_ConditionType = '>' AND B.Trs_SUM > @B_Amount)
+		OR
+		(@B_ConditionType = '<' AND B.Trs_SUM < @B_Amount)								
+	)

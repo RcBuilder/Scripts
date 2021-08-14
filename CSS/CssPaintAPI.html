@@ -1,0 +1,223 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <style>
+        body {
+            font-size: 14px;
+            font-family: Arial;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            margin: 0;
+            padding: 0;
+        }
+
+        p {
+            margin: 6px 0;
+        }
+
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        ul > li > i {
+            font-size: 12px;
+        }
+        /* ----------- */
+
+        .worklet-canvas {
+            display: inline-block;
+            width: 300px;
+            height: 300px;
+        }
+
+        /* purple shape */
+        .shape-1 {
+            --blob-seed: 123429;
+            --blob-num-points: 8;
+            --blob-variance: 0.5;
+            --blob-smoothness: 1;
+            --blob-fill: #7257fa;            
+            background-image: paint(blob);
+        }
+
+        /* red shape */
+        .shape-2 {
+            --blob-seed: 123429;
+            --blob-num-points: 11;
+            --blob-variance: 0.5;
+            --blob-smoothness: 1;
+            --blob-fill: red;
+            background-image: paint(blob);
+        }
+
+        /* background-image mask shape */
+        .shape-3 {
+            --blob-seed: 123429;
+            --blob-num-points: 8;
+            --blob-variance: 0.5;
+            --blob-smoothness: 1;
+            --blob-fill: #7257fa;                        
+            background-image: url('Resources/Chrysanthemum.jpg');
+            background-size: cover;
+            background-position: center center;
+            mask-image: paint(blob);
+            -webkit-mask-image: paint(blob);
+        }
+
+        /* random background-image mask shape (using js) */
+        .shape-4 {
+            --blob-seed: 123429;
+            --blob-num-points: 8;
+            --blob-variance: 0.5;
+            --blob-smoothness: 1;
+            --blob-fill: #7257fa;
+            background-image: url('Resources/Chrysanthemum.jpg');
+            background-size: cover;
+            background-position: center center;
+            mask-image: paint(blob);
+            -webkit-mask-image: paint(blob);
+        }
+
+        .shape-5 {
+            --circle-color: red;
+            background-image: paint(testWorklet1);
+        }
+
+        .shape-6 {
+            background-image: paint(testWorklet2);
+        }
+    </style>
+</head>
+<body>    
+    <div class="grid">
+        <div>
+            <h3>CSS Paint API</h3>
+            <h5>create custom shapes</h5>
+            <p>
+                the <mark>CSS Paint API</mark> allows us low-level access to CSS itself.<br />
+                the API uses <mark>Worklets</mark>, which are JavaScript classes implementing a paint() function.<br />
+                it can be used for background-image, mask-image and etc.<br />
+                each Worklet defines its own properties to control the shape.<br />
+                we can harness js-code to set/ change properties dynamically.
+            </p>
+
+            <h4>using js code:</h4>
+            <p>
+                <pre>
+                syntax:
+                [selector].setProperty('[property-name]', [value])
+
+                sample:
+                document.querySelector(".shape-4").style.setProperty("--blob-seed", 123429);
+                </pre>
+            </p>
+            <h4>Fallback</h4>
+            <p>
+                <pre>
+                background-image: url('fallback.png');
+                background-image: paint(testWorklet);        
+                </pre>
+            </p>
+
+            <h4>Blob Worklet</h4>
+            <p>
+                in this example we use a Blob worklet<br />
+                <i>https://unpkg.com/@georgedoescode/houdini-random-blobs</i>
+                <h5>Properties</h5>
+                <ul>
+                    <li>--blob-seed</li>
+                    <li>--blob-num-points</li>
+                    <li>--blob-variance</li>
+                    <li>--blob-smoothness</li>
+                    <li>--blob-fill</li>
+                </ul>
+            </p>
+            <h4>Custom Worklet</h4>
+            <p>
+                spec:<br />
+                https://drafts.css-houdini.org/css-paint-api-1/
+            </p>
+            <p>
+                sample:<br />
+                see 'scripts/testWorklets.js'
+            </p>
+            <p>
+                (steps)<br />
+                1. create a js class to serve as a worklet<br />
+                2. add it as a module to the worklet list using 'CSS.paintWorklet.addModule'<br />
+                3. register the worklet using 'registerPaint'<br />
+                4. call it from within the css
+            </p>
+            <p>
+                structure:<br />
+                <pre>
+                class TestWorklet1 {                
+                    static get inputProperties() {
+                        return [...];
+                    }
+
+                    paint(context, geometry, properties) {        
+                        ...
+                        ctx.fill();
+                    }
+                }
+                </pre>
+            </p>
+            <p>
+                properties:<br />
+                to use properties in a worklet, we need to expose an array of properties using the static 'inputProperties' property<br />
+                use the 'properties.get([property-name])' to get the value sent from the css<br />
+                <pre>            
+                --circle-color: red;
+                background-image: paint(testWorklet);
+                </pre>
+            </p>
+            <p>
+                paint signature:<br />
+                <pre>
+                paint(context, geometry, properties)
+
+                - context        // the canvas context to draw the shape
+                - geometry      // the shape sise (css width and height defined rules)
+                - properties    // the custom properties defined in the css
+                </pre>
+            </p>
+        </div>
+        <div>
+            <div class="worklet-canvas shape-1"></div>
+            <div class="worklet-canvas shape-2"></div>
+            <div class="worklet-canvas shape-3"></div>
+            <div class="worklet-canvas shape-4"></div>
+            <div class="worklet-canvas shape-5"></div>
+            <div class="worklet-canvas shape-6"></div>
+        </div>
+    </div>
+        
+    <script>
+        (async function () {
+            // if no css suppot -> import polyfill
+            if (CSS['paintWorklet'] === undefined)
+                await import('https://unpkg.com/css-paint-polyfill');            
+
+            // init modules
+            CSS.paintWorklet.addModule('https://unpkg.com/@georgedoescode/houdini-random-blobs');
+            CSS.paintWorklet.addModule('scripts/testWorklets.js');
+
+            // -----
+
+            // for shape-4 - set random seed each load to generate a random shape
+            document.querySelector(".shape-4").style.setProperty("--blob-seed", Math.random() * 10000);
+        })();        
+    </script>
+</body>
+</html>

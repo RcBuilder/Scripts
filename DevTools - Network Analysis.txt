@@ -1,5 +1,6 @@
-DevTools - Network Analysis - Speed-up a Website
-------------------------------------------------
+DevTools - Network Analysis
+===========================
+
 handy tools:
 https://developers.google.com/speed/pagespeed/insights/
 https://gtmetrix.com/
@@ -161,6 +162,7 @@ Waterfall - Analyze Timing Breakdown:
   how long it took to send the request.
 
 - Waiting (TTFB)
+  Time To First Byte
   for how long the browser was waiting for the first byte of a response.
   the actual server-side processing. 
 
