@@ -1,0 +1,118 @@
+C# HttpListener
+---------------
+
+[OPTION-1] Basic
+
+var listener = new HttpListener();            
+listener.Prefixes.Add("http://localhost:5000/");
+listener.Prefixes.Add("http://localhost:5001/");
+
+listener.Start();            
+Console.WriteLine("Listening...");
+
+while (listener.IsListening) {
+    var context = listener.GetContext();
+    var request = context.Request;
+    var response = context.Response;
+
+    Console.WriteLine($"{context.Request.HttpMethod.ToUpper()} {context.Request.Url}");
+
+    var responseString = "OK";
+    var buffer = Encoding.UTF8.GetBytes(responseString);
+
+    response.ContentLength64 = buffer.Length;
+    var output = response.OutputStream;
+    output.Write(buffer, 0, buffer.Length);
+    output.Close();
+}
+
+/// listener.Stop();
+
+---
+
+[OPTION-2] Using BeginGetContext
+
+var listener = new HttpListener();            
+listener.Prefixes.Add("http://localhost:5000/");
+listener.Prefixes.Add("http://localhost:5001/");
+
+listener.Start();            
+Console.WriteLine("Listening...");
+
+while (listener.IsListening) {
+    listener.BeginGetContext(async (IAsyncResult result) => {
+        var context = listener.EndGetContext(result);
+        var request = context.Request;
+        var response = context.Response;
+
+        Console.WriteLine($"{context.Request.HttpMethod.ToUpper()} {context.Request.Url}");
+
+        var responseString = "OK";
+        var buffer = Encoding.UTF8.GetBytes(responseString);
+
+        response.ContentLength64 = buffer.Length;
+        var output = response.OutputStream;
+        output.Write(buffer, 0, buffer.Length);
+        output.Close();
+    }, null);
+}
+
+/// listener.Stop();
+
+---
+
+[OPTION-3] Best Practices
+
+var listener = new SampleHttpListener("http://localhost:5000/", "http://localhost:5001/");                        
+listener.Start();            
+/// listener.Stop();
+
+
+public class SampleHttpListener {
+    private readonly HttpListener listener;
+
+    public SampleHttpListener(params string[] targets) {
+        this.listener = new HttpListener();
+        foreach (var target in targets)
+            this.listener.Prefixes.Add(target);
+    }
+
+    public void Start() {
+        Console.WriteLine("Listener has Started");        
+        this.listener.Start();
+
+        Console.WriteLine("Listening...");
+        this.listener.BeginGetContext(ProcessRequest, null);
+    }
+
+    public void Stop() {        
+        this.listener.Stop();
+        Console.WriteLine("Listener has Stopped");
+    }
+
+    private async void ProcessRequest(IAsyncResult result)
+    {
+        if (!this.listener.IsListening)
+            return;
+
+        var context = this.listener.EndGetContext(result);
+        this.listener.BeginGetContext(ProcessRequest, null);
+        await this.ProcessRequest(context).ConfigureAwait(false);
+    }
+
+    private async Task ProcessRequest(HttpListenerContext context)
+    {
+        var request = context.Request;
+        var response = context.Response;
+
+        Console.WriteLine($"{context.Request.HttpMethod.ToUpper()} {context.Request.Url}");
+
+        var responseString = "OK";
+        var buffer = Encoding.UTF8.GetBytes(responseString);
+
+        response.ContentLength64 = buffer.Length;
+        var output = response.OutputStream;
+        output.Write(buffer, 0, buffer.Length);
+        output.Close();
+    }
+}

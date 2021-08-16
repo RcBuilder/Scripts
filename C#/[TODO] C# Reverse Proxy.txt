@@ -1,0 +1,20 @@
+C# Reverse Proxy
+----------------
+
+Reference: 
+see 'C# HttpListener'
+
+// TODO ->> 
+
+
+A reverse proxy is a type of proxy server.  Unlike a traditional proxy server, which is used to protect clients, a reverse proxy is used to protect servers. A reverse proxy is a server that accepts a request from a client, forwards the request to another one of many other servers, and returns the results from the server that actually processed the request to the client as if the proxy server had processed the request itself. The client only communicates directly with the reverse proxy server and it does not know that some other server actually processed its request.
+
+https://www.imperva.com/learn/performance/reverse-proxy/
+
+https://stackoverflow.com/questions/224664/whats-the-difference-between-a-proxy-server-and-a-reverse-proxy-server
+
+https://oxylabs.io/blog/reverse-proxy-vs-forward-proxy
+
+
+reverse-proxy-server.png
+forward-proxy-server.png
