@@ -18,3 +18,15 @@ https://oxylabs.io/blog/reverse-proxy-vs-forward-proxy
 
 reverse-proxy-server.png
 forward-proxy-server.png
+
+test-app - listener as an http profiler (??)
+create a server and a listener to serve as a traffic proxy profiler
+also on port 80 (incoming + outgoing)
++ URLs filtering (block websites by some logic)
+
+
+TcpListener (??)
+
+HttpListener vs TcpListener
+
+HttpListener with host (domain)

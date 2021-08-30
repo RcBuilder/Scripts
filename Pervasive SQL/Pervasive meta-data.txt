@@ -1,0 +1,16 @@
+Pervasive meta-data
+-------------------
+
+source:
+https://docs.actian.com/psql/psqlv11/wwhelp/wwhimpl/js/html/wwhelp.htm#href=sqlref/SQLSysTb.12.3.html
+
+-
+
+sample:
+// get table list
+SELECT Xf$Name FROM X$File
+
+-
+
+also see 'Pervasive IsTableExists'
+also see 'Pervasive IsColumnExists'

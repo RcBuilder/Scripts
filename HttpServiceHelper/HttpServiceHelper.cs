@@ -7,7 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DanHotelsConnector
+namespace Helpers
 {
     /*
         USING
@@ -51,8 +51,111 @@ namespace DanHotelsConnector
             throw new Exception(result.Content);
         return Request.CreateResponse(HttpStatusCode.OK, result);
 
+        ----
+
+        // Sample: RefreshToken
+        var response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseAuthURL}oauth2/v1/tokens/bearer", new List<string> { 
+            "grant_type=refresh_token", 
+            $"refresh_token={this.Config.RefreshToken}" 
+        }, null, new Dictionary<string, string> {
+            ["Accept"] = "application/json",
+            ["Content-Type"] = "application/x-www-form-urlencoded",
+            ["Authorization"] = this.HttpService.GenerateBasicAuthorizationValue(this.Config.ClientId, this.Config.ClientSecret)
+        });
+
+        if (response.Success) {
+            var modelSchema = new {
+                x_refresh_token_expires_in = 0,
+                refresh_token = string.Empty,
+                access_token = string.Empty,
+                token_type = string.Empty,
+                expires_in = 0
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);                
+            this.Config.AccessToken = responseData.access_token;
+            this.Config.RefreshToken = responseData.refresh_token;
+        }
+
+        -
+
+        // Sample: handle Unauthorized
+        public async Task<bool> RefreshToken()
+        {            
+            var response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseAuthURL}oauth2/v1/tokens/bearer", new List<string> { 
+                "grant_type=refresh_token", 
+                $"refresh_token={this.Config.RefreshToken}" 
+            }, null, new Dictionary<string, string> {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/x-www-form-urlencoded",
+                ["Authorization"] = this.HttpService.GenerateBasicAuthorizationValue(this.Config.ClientId, this.Config.ClientSecret)
+            });
+
+            if (!response.Success)
+                return false;
+
+            var modelSchema = new
+            {
+                x_refresh_token_expires_in = 0,
+                refresh_token = string.Empty,
+                access_token = string.Empty,
+                token_type = string.Empty,
+                expires_in = 0
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            this.Config.AccessToken = responseData.access_token;
+            this.Config.RefreshToken = responseData.refresh_token;
+            return true;
+        }
+
+        public async Task<APICompanyInfo> GetCompanyInfo()
+        {                                            
+            var response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                "Select * from CompanyInfo"
+            }, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/text",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                    "Select * from CompanyInfo"
+                }, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/text",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                return null;
+
+            var companySchema = new {
+                CompanyName = string.Empty
+            };
+
+            var modelSchema = new {
+                QueryResponse = new {
+                    CompanyInfo = new[] { companySchema }
+                }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            return new APICompanyInfo {
+                Name = responseData.QueryResponse.CompanyInfo.FirstOrDefault()?.CompanyName
+            };
+        }
+
     */
-    public class HttpServiceHelper : IHttpServiceHelper, IAsyncHttpServiceHelper
+    public class HttpServiceHelper : IHttpServiceHelper, IAsyncHttpServiceHelper, IHttpServiceUtilities
     {
         private const double TimeOutSec = 10;
         private const HttpStatusCode OK = HttpStatusCode.OK;
@@ -393,6 +496,35 @@ namespace DanHotelsConnector
             {
                 return (false, ERROR, ex.Message, default(TResult));
             }
+        }
+
+        public string Base64Encode(string Value)
+        {
+            var valueBytes = Encoding.UTF8.GetBytes(Value);
+            return Convert.ToBase64String(valueBytes);
+        }
+
+        public string Base64Decode(string Base64Value)
+        {
+            var base64ValueBytes = Convert.FromBase64String(Base64Value);
+            return Encoding.UTF8.GetString(base64ValueBytes);
+        }
+
+        public string GenerateBasicAuthorizationValue(string UserName, string Password)
+        {
+            return $"Basic {this.Base64Encode($"{UserName}:{Password}")}";
+        }
+
+        // e.g: IsHttpFileExists("https://mml-videos-music.s3.eu-west-2.amazonaws.com/prefixMM_16LXmdeT15U=.wav")
+        public bool IsHttpFileExists(string FilePath)
+        {
+            try
+            {
+                var request = (HttpWebRequest)WebRequest.Create(FilePath);
+                using (var response = (HttpWebResponse)request.GetResponse())
+                    return response.StatusCode == HttpStatusCode.OK;
+            }
+            catch { return false; }
         }
     }
 }

@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 
-namespace DanHotelsConnector
+namespace Helpers
 {
     public interface IHttpServiceHelper
     {

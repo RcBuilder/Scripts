@@ -1,0 +1,36 @@
+DataReader Extension - ReadOrDefault
+------------------------------------
+public static class Extensions {    
+    public static object ReadOrDefault<T>(this OdbcDataReader me, string columnName) 
+    {
+        try {
+			/*
+				/// var typeT = typeof(T);
+				/// if(typeT.IsPrimitive || typeT == typeof(string)) ...
+				return (T)Convert.ChangeType(me[columnName], typeof(T));
+			*/      
+
+            return me[columnName];
+        }
+        catch {
+            return default(T);
+        }
+    }
+}
+
+--
+
+USING:
+
+var v1 = reader.ReadOrDefault<string>("Column1");		// Column1 exists > return value of Column1
+var v2 = reader.ReadOrDefault<string>("Column101");		// Column101 not exists > return default of string > null
+var v3 = reader.ReadOrDefault<int>("Column2");			// Column2 exists > return value of Column2
+var v4 = reader.ReadOrDefault<int>("Column102");		// Column102 not exists > return default of int > 0
+var v5 = reader.ReadOrDefault<DateTime?>("Column3");	// Column3 exists > return value of Column3
+var v6 = reader.ReadOrDefault<DateTime?>("Column103");	// Column103 not exists > return default of DateTime? > null
+var v7 = reader.ReadOrDefault<float>("Column4");		// Column4 exists > return value of Column4
+var v8 = reader.ReadOrDefault<float>("Column104");		// Column104 not exists > return default of float > 0
+
+note! 
+the return value is a base object, hence we need to convert it to the correct type.
+Convert.ToInt32(reader.ReadOrDefault<int>("Column2"));

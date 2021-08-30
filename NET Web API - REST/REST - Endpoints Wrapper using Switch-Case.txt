@@ -1,0 +1,61 @@
+REST - Endpoints Wrapper using Switch-Case
+------------------------------------------
+public class DocumentController : BrokerApiController
+{
+	[HttpPost]
+    [Route("any")]
+    public async Task<HttpResponseMessage> CreateANY()
+    {
+        try
+        {            
+            if(!Request.Headers.Contains("Document-Type"))
+                throw new Exception($"Document-Type header is missing");
+                
+            var bodyRaw = await Request.Content.ReadAsStringAsync();
+
+            var documentType = Request.Headers.GetValues("Document-Type")?.FirstOrDefault();
+            switch (documentType.ToLower()) {
+                case "order": return this.CreateOrderMas(JsonConvert.DeserializeObject<Order>(bodyRaw));                    
+                case "priceoffer": return this.CreatePriceOffer(JsonConvert.DeserializeObject<PriceOffer>(bodyRaw));
+                case "invoice": return this.CreateInvoice(JsonConvert.DeserializeObject<Invoice>(bodyRaw));
+                case "receipt": return this.CreateReceipt(JsonConvert.DeserializeObject<Receipt>(bodyRaw));
+                ...
+				...
+				...
+                default: throw new Exception($"Invalid Document-Type ({documentType})");
+            }
+        }
+        catch (Exception ex)
+        {
+            return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        }
+    }
+
+	[HttpPost]
+    [Route("order")]
+    public HttpResponseMessage CreateOrderMas([FromBody]Order order) { ... }
+
+	[HttpPost]
+    [Route("priceOffer")]
+    public HttpResponseMessage CreatePriceOffer([FromBody]PriceOffer priceOffer) { ... }
+
+	[HttpPost]
+    [Route("invoice")]
+    public HttpResponseMessage CreateInvoice([FromBody]Invoice invoice) { ... }
+
+	[HttpPost]
+    [Route("receipt")]
+	public HttpResponseMessage CreateReceipt([FromBody]Receipt receipt) { ... }
+}
+
+--- 
+
+POST /any
+H Content-Type: application/json
+H Authorization: Bearer xxxxxxxxxxx
+H Document-Type: DeliveryNote
+B { ... }		
+
+note! 
+the Payload must fit the provided Document-Type 
+

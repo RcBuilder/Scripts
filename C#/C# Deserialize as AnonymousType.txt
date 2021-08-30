@@ -69,3 +69,82 @@ var cart = JsonConvert.DeserializeAnonymousType(cartPayload, CartSchema);
 Console.WriteLine(cart.CartId);
 foreach(var item in cart.Items)
 	Console.WriteLine($"{item.Name} -> Units: {item.Units}, Price:{item.Price}");
+
+----
+
+// more samples
+var companySchema = new {
+    CompanyName = string.Empty
+};
+
+var modelSchema = new {
+    QueryResponse = new {
+        CompanyInfo = new[] { companySchema }
+    }
+};
+
+var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+return new APICompanyInfo {
+    Name = responseData.QueryResponse.CompanyInfo.FirstOrDefault()?.CompanyName
+};
+
+-
+
+var modelSchema = new
+{
+    x_refresh_token_expires_in = 0,
+    refresh_token = string.Empty,
+    access_token = string.Empty,
+    token_type = string.Empty,
+    expires_in = 0
+};
+
+var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+this.Config.AccessToken = responseData.access_token;
+this.Config.RefreshToken = responseData.refresh_token;
+
+-
+
+var accountSchema = new
+{
+    Id = string.Empty,
+    Name = string.Empty
+};
+
+var modelSchema = new
+{
+    QueryResponse = new
+    {
+        Account = new[] { accountSchema }
+    }
+};
+
+var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+return responseData?.QueryResponse?.Account?.Select(x => new APIAccount { 
+    Id = x.Id,
+    Name = x.Name
+});
+
+-
+
+var errorSchema = new {
+    message = string.Empty,
+    detail = string.Empty
+};
+            
+var exSchema = new {
+    fault = new { 
+        error = new[] { errorSchema }
+    },
+    type = string.Empty
+};
+
+var exData = JsonConvert.DeserializeAnonymousType(errorRawParts[1], exSchema)?.fault?.error?.FirstOrDefault();
+return new APIErrorResponse
+{
+    Message = errorRawParts[0].Trim(),
+    InnerMessage = (
+        exData?.message?.Trim() ?? string.Empty,
+        exData?.detail?.Trim() ?? string.Empty
+    )
+};            

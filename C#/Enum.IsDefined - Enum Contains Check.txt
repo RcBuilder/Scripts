@@ -1,0 +1,24 @@
+Enum Contains Check
+-------------------
+syntax:
+bool Enum.IsDefined(typeof(<enum>), <value>);
+
+--
+
+// using
+Console.WriteLine(Enum.IsDefined(typeof(eAccountType),0));  // False
+Console.WriteLine(Enum.IsDefined(typeof(eAccountType),10));	// True
+Console.WriteLine(Enum.IsDefined(typeof(eAccountType),11)); // True
+Console.WriteLine(Enum.IsDefined(typeof(eAccountType),20)); // True
+Console.WriteLine(Enum.IsDefined(typeof(eAccountType),90)); // False
+
+
+public enum eAccountType {        
+    Account10 = 10,
+    Account11 = 11,
+    Account12 = 12,
+    Account20 = 20,
+	Account21 = 21,
+	Account50 = 50,
+	Account60 = 60
+}

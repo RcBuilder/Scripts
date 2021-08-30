@@ -1,0 +1,22 @@
+Pervasive IsTableExists
+-----------------------
+private bool IsTableExists(string tableName)
+        {
+            try
+            {
+                using (var connection = new OdbcConnection(this.ConnetionString))
+                {
+                    connection.Open();
+                    var query = $@" SELECT 1 FROM X$File WHERE Xf$Name = '{tableName}'";
+
+                    var command = new OdbcCommand(query);
+                    command.Connection = connection;
+                    return Convert.ToInt32(command.ExecuteScalar()) == 1;
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+                throw;
+            }
+        }

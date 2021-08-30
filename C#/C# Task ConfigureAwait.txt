@@ -1,0 +1,59 @@
+C# Task ConfigureAwait
+----------------------
+
+in the past when we've used Threads, they've worked in the background 
+and therefore, in order to get back to the UI thread we had to call the 
+Dispatcher.BeginInvoke method.
+
+when using async-await, the context switch occurs automatically, hence, it
+brings back the main thread automatically after completed the task. 
+
+Synchronization context represents a "target for work".
+in some cases, we don't really need it to return to the main thread (it can stay in the background) 
+so we can save the context switching action and improve performance. 
+
+to disable the context switching back to the main thread we need to use the 
+ConfigureAwait(false) 
+
+using ConfigureAwait(false) can also prevent deadlocks!
+
+-
+
+using:
+await Task.Delay(10).ConfigureAwait(false);
+
+- 
+
+benchmark:
+public async Task<ActionResult> Index2() {
+    var timer = new Stopwatch();
+    var loop = 100;
+
+    timer.Start();
+    await Fun1(loop);
+    timer.Stop();
+    Debug.WriteLine(timer.Elapsed.TotalMilliseconds);
+
+    timer.Reset();
+    GC.Collect();            
+
+    timer.Start();
+    await Fun2(loop);
+    timer.Stop();
+    Debug.WriteLine(timer.Elapsed.TotalMilliseconds);
+
+    return RedirectToAction("Index");
+}
+
+async Task Fun1(int loop) {
+    for (var i = 0; i < loop; i++)                            
+        await Task.Delay(10);                         
+}
+
+async Task Fun2(int loop) {
+    for (var i = 0; i < loop; i++)
+        await Task.Delay(10).ConfigureAwait(false);                         
+}
+
+
+

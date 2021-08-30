@@ -25,6 +25,7 @@ public string __Type {
     }
     get { return this.Type.ToString(); }
 }
+[JsonIgnore]
 public eType Type { get; set; }
 
 -----------------------------------------
@@ -69,6 +70,7 @@ public abstract class Delivery
 		}
 		get { return this.Type.ToString(); }
 	}
+ 	[JsonIgnore]
 	public eDeliveryType Type { get; set; }
 
 	// enum-based property
@@ -86,5 +88,6 @@ public abstract class Delivery
                 this.CreatedDate = DateTime.Parse(value);
         }
     }
+    [JsonIgnore]
     public DateTime? CreatedDate { get; set; }
 }

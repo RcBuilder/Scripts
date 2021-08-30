@@ -22,27 +22,6 @@ namespace Authorization
             this.JWTSecretKey = ConfigurationManager.AppSettings["JWTSecretKey"].Trim();
         }
 
-        private string GetTokenFromQuery(HttpActionContext actionContext) {
-            var prmsMap = actionContext.Request.GetQueryNameValuePairs();
-            if (prmsMap == null) return null; // no parameters
-            return prmsMap.FirstOrDefault(p => p.Key == "token").Value;
-        }
-
-        private string GetTokenFromHeader(HttpActionContext actionContext)
-        {
-            var authorization = actionContext.Request.Headers.Authorization;
-            if (authorization == null)
-                throw new Exception("No Authorization Header");
-
-            if (authorization.Scheme != "Bearer")
-                throw new Exception("Not a Bearer Authorization");
-
-            if (string.IsNullOrEmpty(this.JWTSecretKey))
-                throw new Exception("No JWT Secret Key");
-
-            return authorization.Parameter;
-        }
-
         public override Task OnAuthorizationAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
             try
@@ -51,19 +30,17 @@ namespace Authorization
                 if (actionContext.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any())
                     return base.OnAuthorizationAsync(actionContext, cancellationToken);
 
-                /*
-                    [Header]
-                    Authorization: Bearer xxxxxxxxxxxxxxxxxxxxxxxxxx
+                var authorization = actionContext.Request.Headers.Authorization;
+                if (authorization == null)
+                    throw new Exception("No Authorization Header");
 
-                    - OR -
+                if (authorization.Scheme != "Bearer")
+                    throw new Exception("Not a Bearer Authorization");
 
-                    [Query]
-                    ?token=xxxxxxxxxxxxxxxxxxxxxxxxxx
-                */
-                var token = GetTokenFromQuery(actionContext);
-                if(string.IsNullOrEmpty(token))
-                    token = GetTokenFromHeader(actionContext);
+                if (string.IsNullOrEmpty(this.JWTSecretKey))
+                    throw new Exception("No JWT Secret Key");
 
+                var token = authorization.Parameter;
                 var generator = new JWTGenerator(this.JWTSecretKey);
                 if (!generator.VerifyToken(token))                
                     throw new Exception("Unauthorized Access");                 
@@ -86,15 +63,14 @@ namespace Authorization
                 var schema = new
                 {
                     BrokerName = "",
-                    Role = "",
-                    RefName = ""  // referrer
+                    Role = ""
                 };
                 var tokenPayloadModel = JsonConvert.DeserializeAnonymousType(tokenPayload, schema);
 
                 // set brokerName from the JWT payload                
                 var identity = new GenericIdentity(tokenPayloadModel.BrokerName, "BrokerName");
                 actionContext.RequestContext.Principal = new GenericPrincipal(identity, new string[] {
-                    tokenPayloadModel.Role // roles = Guest | Broker | System 
+                    tokenPayloadModel.Role // roles = Broker | System
                 });
 
                 var contextIdentity = actionContext.RequestContext.Principal.Identity;
@@ -110,7 +86,7 @@ namespace Authorization
                     };
                 */
 
-                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized, $"[CreativeAuthorize] {ex.Message}");
+                actionContext.Response = actionContext.Request.CreateErrorResponse(HttpStatusCode.Unauthorized, ex.Message);
                 return Task.CompletedTask;
             }
         }

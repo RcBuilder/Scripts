@@ -1,0 +1,56 @@
+*** SQL CLI ***
+***************
+
+requirements
+------------
+python engine
+
+install
+-------
+> python -m pip install mssql-cli
+> pip install mssql-cli   // same as above 
+
+connect to sql engine
+---------------------
+syntax:
+> sqlcmd -S <server>
+
+sample:
+> sqlcmd -S RCBUILDER-PC\RCBUILDERSQL2016
+
+execute commands
+----------------
+syntax:
+> [connect to server]
+1> [command]
+2> GO
+
+sample:
+> sqlcmd -S RCBUILDER-PC\RCBUILDERSQL2016
+1> select DB_NAME()
+2> GO
+
+note! use GO to execute
+
+change database
+---------------
+syntax:
+1> USE <dbName>
+2> GO
+
+sample:
+1> USE MyTestDB
+2> GO
+ 
+more samples
+------------
+1> SELECT NAME FROM SYS.DATABASES
+2> GO
+-
+1> USE MyTestDB
+2> GO
+
+---------------
+// TODO ->> 
+
+https://www.sqlshack.com/working-sql-server-command-line-sqlcmd/

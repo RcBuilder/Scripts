@@ -116,7 +116,7 @@ namespace BLL
         private Dictionary<string, object> ReadJsonRow(string[] rowFields, string[] headerFields)
         {
             var result = new Dictionary<string, object>();            
-            for (var i = 0; i < rowFields.Length; i++) // read row
+            for (var i = 0; i < headerFields.Length; i++) // read row
                 result.Add(headerFields[i], rowFields[i]);  // add row to collection
             return result;
         }

@@ -1,0 +1,68 @@
+
+
+
+source:
+https://www.python.org/
+https://www.python.org/downloads/
+
+install:
+python-3.9.6-amd64.exe
+note! if python was added to the system PATH, we can use cmd window instead (see 'cmd')
+
+terminal:
+Start > Python 3.9 (64-bit)
+
+shell:
+Start > IDLE (Python 3.9 64-bit)
+
+pip:
+python package-manager
+> pip install <package>
+also see 'packages'
+
+cmd:
+> python
+>>> print("hello")
+
+commands:
+> python   // enter python mode
+> python --version // get installed version
+> pip --version    // python package-manager version	
+> pip install <package>  // install a package 
+> python <file>  // execute a python file (.py)
+
+commands (in python mode):
+>>> print(<message: string>)  // print a message
+>>> exit()   // exit python mode
+>>> import <module>  // import a module 
+
+packages:
+packages list can be found at https://pypi.org/
+- opencv-python
+
+editor: 
+any text editor can be used to write python code. 
+VSCode is the most recommended one. 
+
+file extension:
+python file uses .py extension (e.g: sample.py)
+
+execution:
+- option-1 
+  using the python command 
+  > python sample.py
+- option-2
+  direct execution
+  > sample	
+
+
+
+
+--------------------------
+// TODO ->> 
+
+http server 
+deploy
+batch file (.bat)
+input (read-line)
+

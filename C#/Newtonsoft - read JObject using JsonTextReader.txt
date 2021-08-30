@@ -1,0 +1,46 @@
+Newtonsoft - read JObject using JsonTextReader
+----------------------------------------------
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+var filePath = $"{AppDomain.CurrentDomain.BaseDirectory}schema.json";
+
+JObject schema;
+using (var file = System.IO.File.OpenText(filePath))
+using (var reader = new JsonTextReader(file))
+    schema = (JObject)JToken.ReadFrom(reader);
+
+Console.WriteLine(schema["a"].Value<int>());
+Console.WriteLine(schema["b"].Value<int>());
+var items = schema["c"];
+foreach(var item in items)
+    Console.WriteLine(item["d"].Value<int>());
+Console.WriteLine(schema["e"]["f"].Value<int>());
+
+--
+
+output:
+1
+2
+10
+20
+30
+100
+
+--
+
+schema.json:
+{
+  "a": 1,
+  "b": 2,
+  "c": [
+    { "d": 10 },
+    { "d": 20 },
+    { "d": 30 }
+  ],
+  "e": {
+    "f": 100,
+    "g": 200
+  }
+}

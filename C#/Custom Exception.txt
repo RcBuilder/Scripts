@@ -1,0 +1,118 @@
+Custom Exception
+----------------
+
+// ENTITIES
+public class StatusException : Exception
+{
+    public HttpStatusCode StatusCode { get; protected set; }
+
+    public StatusException(HttpStatusCode StatusCode, string Message) : base(Message) {
+        this.StatusCode = StatusCode;
+    }
+}
+
+// USING
+try {
+   throw new StatusException(HttpStatusCode.Unauthorized, "Unauthorized Access");
+}
+catch (StatusException ex) {
+	actionContext.Response = actionContext.Request.CreateResponse(ex.StatusCode, ex.Message);
+}
+catch (Exception ex) {
+        actionContext.Response = actionContext.Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+}
+
+-------
+
+// ENTITIES
+public class APIException : Exception
+{
+    public APIErrorResponse ErrorResponse { get; protected set; }
+    public APIException(APIErrorResponse ErrorResponse) : base(ErrorResponse.Message) {
+        this.ErrorResponse = ErrorResponse;
+    }
+
+    public override string ToString()
+    {
+        return $"{this.ErrorResponse}";
+    }
+}
+
+public class APIErrorResponse
+{        
+    public string Message { get; set; }
+    public (string Error, string Details) InnerMessage { get; set; }
+
+    public override string ToString()
+    {
+        return $"{this.Message} | {this.InnerMessage.Error} | {this.InnerMessage.Details}";
+    }
+}
+
+// PARSE ERROR (SAMPLE)
+private APIErrorResponse ParseError(string ErrorRaw) {
+    /*
+        The remote server returned an error: (401)Unauthorized.|
+        {
+            "warnings": null,
+            "fault": {
+            "error": [
+                {
+                "message": "message=AuthenticationFailed; errorCode=003200; statusCode=401",
+                "detail": "Token expired: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "code": "3200",
+                "element": null
+                }
+            ],
+            "type": "AUTHENTICATION"
+            },
+            "report": null,
+            "requestId": null,
+            "time": 1629905161081,
+            "status": null
+        } 
+    */
+
+    var errorRawParts = ErrorRaw.Split('|');
+
+    var errorSchema = new {
+        message = string.Empty,
+        detail = string.Empty
+    };
+            
+    var exSchema = new {
+        fault = new { 
+            error = new[] { errorSchema }
+        },
+        type = string.Empty
+    };
+
+    var exData = JsonConvert.DeserializeAnonymousType(errorRawParts[1], exSchema)?.fault?.error?.FirstOrDefault();
+    return new APIErrorResponse
+    {
+        Message = errorRawParts[0].Trim(),
+        InnerMessage = (
+            exData?.message?.Trim() ?? string.Empty,
+            exData?.detail?.Trim() ?? string.Empty
+        )
+    };            
+}
+
+// THROW
+var response = await this.HttpService.POST_DATA_ASYNC(...);
+if (!response.Success)
+	throw new APIException(this.ParseError(response.Content));
+
+
+// USING
+try{ 
+	...
+}
+catch (APIException ex) {                
+    Console.WriteLine($"[EX] {ex.ErrorResponse}");
+}
+catch (Exception ex) {
+    Console.WriteLine($"[EX] {ex.Message}");
+}
+
+-------

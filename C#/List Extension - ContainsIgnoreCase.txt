@@ -1,0 +1,23 @@
+List Extension - ContainsIgnoreCase
+-----------------------------------
+public static class Extensions{
+	public static bool ContainsIgnoreCase(this List<string> me, string value)
+	{
+		return me?.Any(p => p.Equals(value, StringComparison.OrdinalIgnoreCase)) ?? false;  
+	}
+}
+
+--
+
+var lst = new List<string>{ "aaa", "bbb", "ccc" };
+Console.WriteLine(lst.Contains("aaa"));  // True
+Console.WriteLine(lst.Contains("AAA"));  // False
+Console.WriteLine(lst.Contains("aAa"));  // False
+Console.WriteLine(lst.Contains("ddd"));  // False
+	
+Console.WriteLine(lst.ContainsIgnoreCase("aaa"));  // True
+Console.WriteLine(lst.ContainsIgnoreCase("AAA"));  // True
+Console.WriteLine(lst.ContainsIgnoreCase("aAa"));  // True
+Console.WriteLine(lst.ContainsIgnoreCase("ddd"));  // False
+
+
