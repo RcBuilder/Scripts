@@ -1,0 +1,40 @@
+REST - Web Api - Return HTML
+----------------------------
+
+// HTML from string
+var response = new HttpResponseMessage();
+response.Content = new StringContent("<div>Hello World</div>");
+response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");          
+return response;
+
+// HTML from disk file
+var htmlPath = $"{AppDomain.CurrentDomain.BaseDirectory}Pages\\Index.html";
+var response = new HttpResponseMessage();
+response.Content =  new StringContent(File.ReadAllText(htmlPath));
+response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+return response;
+
+--
+
+[HttpGet]
+[Route("view/{documentId}")]
+public HttpResponseMessage ViewDocument(int documentId)
+{
+    try
+    {
+        if (documentId == 0 || documentType == 0)
+            throw new Exception($"Invalid Model!");
+        
+        string sDocument = new DocumentsBLL().GetDocumentAsHTML(documentId);
+
+        var response = new HttpResponseMessage();
+        response.Content = new StringContent(sDocument);
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");          
+        return response;
+    }
+    catch (Exception ex) {
+        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+    }
+}
+
+

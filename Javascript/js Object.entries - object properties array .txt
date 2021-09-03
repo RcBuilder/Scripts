@@ -1,0 +1,19 @@
+js Object.entries - object properties array 
+-------------------------------------------
+parse an object to properties array
+
+syntax: 
+Object.entries(<object>)
+
+sample:
+Object.entries({ a: 1, b: 2 })[0]  // ["a", 1]
+
+- 
+
+let obj = { a: 1, b: 2 };
+for(let [attr, value] of Object.entries(obj))
+	console.log(`${attr} = ${value}`);
+
+output:
+a = 1
+b = 2

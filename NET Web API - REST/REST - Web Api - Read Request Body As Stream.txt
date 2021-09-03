@@ -1,0 +1,79 @@
+REST - Web Api - Read Request Body As Stream
+--------------------------------------------
+use ReadAsStreamAsync method to read the request body as stream 
+and use StreamReader to convert the stream into string
+the below samples return the content of the request as a string.
+
+-----------------------------
+
+POST /api/test1
+H Content-Type: application/json
+B {
+    "Id": 1001,
+    "Name": "Roby"
+}
+
+// read content as stream
+[HttpPost]
+[Route("api/test1")]
+public async Task<string> Test1([FromBody]Model1 value)
+{
+    using (var stream = await Request.Content.ReadAsStreamAsync())
+    {
+        stream.Seek(0, SeekOrigin.Begin);
+        using (var sr = new StreamReader(stream))                
+            return sr.ReadToEnd();                                    
+    }
+}
+
+---
+
+POST /api/test2
+H Content-Type: application/json
+B {
+    "Id": 1001,
+    "Name": "Roby"
+}
+
+// using Extension method
+[HttpPost]
+[Route("api/test2")]
+public async Task<string> Test2([FromBody]Model1 value)
+{
+    var raw = await Request.RawData();
+    return raw;
+}
+
+public static class RequestExtensions {
+    public static async Task<string> RawData(this HttpRequestMessage me) {
+        try
+        {
+            using (var stream = await me.Content.ReadAsStreamAsync())
+            {
+                stream.Seek(0, SeekOrigin.Begin);
+                using (var sr = new StreamReader(stream))
+                    return sr.ReadToEnd();
+            }
+        }
+        catch { return null; }
+    }
+}
+
+---
+
+POST /api/test3
+H Content-Type: application/json
+B {
+    "Id": 1001,
+    "Name": "Roby"
+}
+
+// using Deserialization
+[HttpPost]
+[Route("api/test3")]
+public string Test3([FromBody]Model1 value)
+{
+    var raw = Request.Content.ReadAsStringAsync().Result;
+    var model = JsonConvert.DeserializeObject<Model1>(raw);
+    return raw;
+}

@@ -1,0 +1,55 @@
+REST - Web Api - Download File
+------------------------------
+
+// HTML from string
+var response = new HttpResponseMessage();
+response.Content = new StringContent("<div>Hello World</div>");
+response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+response.Content.Headers.ContentDisposition.FileName = "export.html";
+response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");          
+return response;
+
+// HTML from disk file
+var htmlPath = $"{AppDomain.CurrentDomain.BaseDirectory}Pages\\Index.html";
+var response = new HttpResponseMessage();
+response.Content = new StringContent(File.ReadAllText(htmlPath));
+response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+response.Content.Headers.ContentDisposition.FileName = "Export_Index.html";
+response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+return response;
+
+// HTML from disk file using Stream
+var htmlPath = $"{AppDomain.CurrentDomain.BaseDirectory}Pages\\Index.html";
+var response = new HttpResponseMessage();
+response.Content = new StreamContent(new FileStream(htmlPath, FileMode.Open, FileAccess.Read));
+response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+response.Content.Headers.ContentDisposition.FileName = "Export_Index.html";
+response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+return response;
+
+--
+
+[HttpGet]
+[Route("download/{documentId}")]
+public HttpResponseMessage DownloadDocument(int documentId)
+{
+    try
+    {
+        if (documentId == 0 || documentType == 0)
+            throw new Exception($"Invalid Model!");
+        
+        string sDocument = new DocumentsBLL().GetDocumentAsHTML(documentId);
+
+        var response = new HttpResponseMessage();
+        response.Content = new StringContent(sDocument);
+        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+        response.Content.Headers.ContentDisposition.FileName = "export.html";
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");    
+        return response;
+    }
+    catch (Exception ex) {
+        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+    }
+}
+
+

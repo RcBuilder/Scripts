@@ -1,0 +1,25 @@
+SQL - Check Rows from TransactionsLog file
+------------------------------------------
+
+Operation:
+- LOP_MODIFY_ROW 
+- LOP_INSERT_ROWS 
+- LOP_DELETE_ROWS
+
+
+SELECT [Current LSN], [Transaction ID], Operation, Context, AllocUnitName
+FROM fn_dblog(NULL, NULL)
+WHERE Operation  = 'LOP_DELETE_ROWS'
+AND	 Context IN ('LCX_HEAP')
+ORDER BY [Transaction ID] DESC
+
+
+-- insert into T1 values('Z1'), ('Z2'), ('Z3')
+-- delete from T1 where C1 in ('Z1', 'Z2', 'Z3')
+
+/*
+	Current LSN				Transaction ID	Operation			Context		AllocUnitName
+	000004b1:000046b4:0002	0000:00c377f2	LOP_DELETE_ROWS		LCX_HEAP	dbo.T1
+	000004b1:000046b4:0003	0000:00c377f2	LOP_DELETE_ROWS		LCX_HEAP	dbo.T1
+	000004b1:000046b4:0004	0000:00c377f2	LOP_DELETE_ROWS		LCX_HEAP	dbo.T1	
+*/

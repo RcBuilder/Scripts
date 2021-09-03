@@ -1,0 +1,56 @@
+HTML-2-PDF
+----------
+
+references:
+- PdfSharpTests
+
+sources:
+- https://www.nuget.org/packages/HtmlRenderer.PdfSharp/
+
+nuget:
+> Install-Package HtmlRenderer.PdfSharp -Version 1.5.0.6
+
+---
+
+var sDocument = @"
+    <h1>Header<h1>
+    <p>Content</p>
+";
+
+// save to file
+var pdfDoc1 = PdfGenerator.GeneratePdf(sDocument, PageSize.A4);
+pdfDoc1.Save("D:\\1.pdf");
+Console.WriteLine("converted HTML has saved as file (D:\\1.pdf)");
+
+// save to stream
+var pdfDoc2 = PdfGenerator.GeneratePdf(sDocument, PageSize.A4);
+var stream = new MemoryStream();
+pdfDoc2.Save(stream);
+Console.WriteLine("converted HTML has saved to stream");
+
+---
+
+[HttpGet]
+[Route("api/export/pdf")]
+public HttpResponseMessage ExportAsPDF()
+{
+    // https://www.nuget.org/packages/HtmlRenderer.PdfSharp/
+    // Install-Package HtmlRenderer.PdfSharp -Version 1.5.0.6
+
+    var sDocument = @"
+        <h1>Header<h1>
+        <p>Content</p>
+    ";
+
+    var pdfDoc = PdfGenerator.GeneratePdf(sDocument, PageSize.A4);
+    var stream = new MemoryStream();
+    pdfDoc.Save(stream);    
+
+    var response = new HttpResponseMessage();
+    response.Content = new ByteArrayContent(stream.ToArray());
+    response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+    response.Content.Headers.ContentDisposition.FileName = "export.pdf";
+    response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");            
+
+    return response;
+}
