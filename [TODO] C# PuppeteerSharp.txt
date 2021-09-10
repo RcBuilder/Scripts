@@ -187,3 +187,189 @@ await chkPolicy.ClickAsync();
 await page.ClickAsync("[type=\"submit\"]");
 
 -
+
+https://www.puppeteersharp.com/examples/index.html
+
+-
+
+var browserFetcherOptions = new BrowserFetcherOptions { 
+    Path = $"{AppDomain.CurrentDomain.BaseDirectory}", 
+    Platform = Platform.Win64,
+    Product = Product.Chrome
+};
+await new BrowserFetcher(browserFetcherOptions).DownloadAsync();           
+
+-
+
+// screenshot fullscreen!
+var browser = await Puppeteer.LaunchAsync(new LaunchOptions {
+    Headless = true,
+    Timeout = (10 * 1000),  // 10 sec
+    ExecutablePath = $"{AppDomain.CurrentDomain.BaseDirectory}Win64-884014\\chrome-win\\chrome.exe",
+    DefaultViewport = null, // max resolution
+    Args = new[] { "--no-sandbox" }
+});
+
+var webPage = await browser.NewPageAsync();
+await webPage.GoToAsync("https://rcb.co.il/Service/WebsiteForYourBusiness");
+
+var screenshotOptions = new ScreenshotOptions { 
+    FullPage = true, 
+    Quality = 100, 
+    Type = ScreenshotType.Jpeg 
+};
+
+using (var screenshotStream = await webPage.ScreenshotStreamAsync(screenshotOptions))
+using (var image = Image.FromStream(screenshotStream))
+	image.Save("D:\\screenshot.jpg");  
+
+-
+
+var downloadChrome = string.IsNullOrEmpty(ChromePath);
+if (downloadChrome)
+{
+    var browserFetcherOptions = new BrowserFetcherOptions
+    {
+        Path = $"{AppDomain.CurrentDomain.BaseDirectory}",
+        Platform = Platform.Win64,
+        Product = Product.Chrome
+    };
+    var browserFetcher = new BrowserFetcher(browserFetcherOptions);
+    var revisionInfo = await browserFetcher.DownloadAsync();
+    ChromePath = revisionInfo.ExecutablePath;
+}
+
+var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+{                
+    Headless = true,                
+    Timeout = (10 * 1000),  // 10 sec
+    ExecutablePath = ChromePath, /// $"{AppDomain.CurrentDomain.BaseDirectory}Win64-884014\\chrome-win\\chrome.exe",
+    DefaultViewport = null, // max resolution
+    Args = new[] { "--no-sandbox" }  // "--window-size=800,1080"
+});
+
+-
+
+var webPage = await browser.NewPageAsync();
+await webPage.GoToAsync(URL);
+await webPage.PdfAsync("D:\\screenshot.pdf");
+
+-
+
+var webPage = await browser.NewPageAsync();
+await webPage.GoToAsync(URL);
+
+var screenshotOptions = new ScreenshotOptions
+{
+    FullPage = true,
+    Quality = 100,
+    Type = ScreenshotType.Jpeg
+};
+
+using (var screenshotStream = await webPage.ScreenshotStreamAsync(screenshotOptions))
+using (var image = Image.FromStream(screenshotStream))
+    image.Save("D:\\screenshot.jpg"); 
+
+-
+
+var webPage = await browser.NewPageAsync();
+await webPage.GoToAsync(URL);
+Stream pdfStream = await webPage.PdfStreamAsync();
+
+pdfStream.Position = 0;
+using (var fs = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+    PdfStream.CopyTo(fs);
+pdfStream.Dispose();
+
+-
+
+var webPage = await browser.NewPageAsync();
+await webPage.GoToAsync(URL);
+byte[] data = await webPage.PdfDataAsync();
+
+-
+
+WINDOWS-7 Support:
+to use Puppeteer# in windows-7, we need to create a socket manually and pass it on as a 'WebSocketFactory' property
+
+exception
+"Failed to create connection, System.PlatformNotSupportedException: The WebSocket protocol is not supported on this platform."
+
+https://www.nuget.org/packages/System.Net.WebSockets.Client.Managed/
+> Install-Package System.Net.WebSockets.Client.Managed -Version 1.0.22
+
+async Task<WebSocket> CreateWebSocket(Uri url, IConnectionOptions options, CancellationToken cancellationToken)
+{
+    var result = new System.Net.WebSockets.Managed.ClientWebSocket();
+    result.Options.KeepAliveInterval = TimeSpan.Zero;
+    await result.ConnectAsync(url, cancellationToken).ConfigureAwait(false);
+    return result;
+}
+
+WebSocketFactory webSocketFactory = CreateWebSocket;
+var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+{
+    WebSocketFactory = webSocketFactory,
+    Headless = true,
+    Timeout = (10 * 1000),  // 10 sec
+    ExecutablePath = @"C:\inetpub\wwwroot\DocumentsService\Win64-884014\chrome-win\chrome.exe",
+    DefaultViewport = null,
+    Args = new[] { "--no-sandbox", "--disable-gpu" }  // "--window-size=800,1080"
+});
+
+var webPage = await browser.NewPageAsync();
+await webPage.GoToAsync("http://example.com/");
+
+-
+
+// full sample - get pdf as stream
+// + download chrome if path not provided 
+// + windows-7 support
+public async Task<Stream> CreateFromBrowser(string URL, string ChromePath = null)
+{
+    var browser = await this.CreateWebBrowser(ChromePath);
+    var webPage = await browser.NewPageAsync();
+    await webPage.GoToAsync(URL);
+    return await webPage.PdfStreamAsync();            
+}
+
+private async Task<Browser> CreateWebBrowser(string ChromePath) {
+    async Task<WebSocket> CreateWebSocketTask(Uri url, IConnectionOptions options, CancellationToken cancellationToken)
+    {
+        var result = new System.Net.WebSockets.Managed.ClientWebSocket();
+        result.Options.KeepAliveInterval = TimeSpan.Zero;
+        await result.ConnectAsync(url, cancellationToken).ConfigureAwait(false);
+        return result;
+    }
+
+    var downloadChrome = string.IsNullOrEmpty(ChromePath);
+    if (downloadChrome)
+    {
+        var browserFetcherOptions = new BrowserFetcherOptions
+        {
+            Path = $"{AppDomain.CurrentDomain.BaseDirectory}",
+            Platform = Platform.Win64,
+            Product = Product.Chrome
+        };
+        var browserFetcher = new BrowserFetcher(browserFetcherOptions);
+        var revisionInfo = await browserFetcher.DownloadAsync();
+        ChromePath = revisionInfo.ExecutablePath;  // set the created chrome path
+    }
+
+    var launchOptions = new LaunchOptions
+    {
+        Headless = true,
+        Timeout = (10 * 1000),  // 10 sec
+        ExecutablePath = ChromePath,
+        DefaultViewport = null, // max resolution
+        Args = new[] { "--no-sandbox", "--disable-gpu" }  // "--window-size=800,1080"
+    };
+
+    if (Environment.OSVersion.Version.Major == 7)
+        launchOptions.WebSocketFactory = CreateWebSocketTask;  // support for windows-7
+
+    var browser = await Puppeteer.LaunchAsync(launchOptions);
+    return browser;
+} 
+
+-

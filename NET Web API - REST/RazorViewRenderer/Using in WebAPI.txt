@@ -1,0 +1,72 @@
+USING IN WebAPI
+---------------
+GET /api/render/razor
+
+-
+
+public class DefaultController : ApiController{
+    [HttpGet]
+    [Route("api/render/razor")]
+    public HttpResponseMessage RenderHTMLByRazor() {
+        var model = new SampleModel {
+            FirstName = "John",
+            LastName = "Doe"                
+        };
+           
+        var sDocument = RazorViewRenderer.RenderView("~/views/Sample.cshtml", model);
+
+        var response = new HttpResponseMessage();
+        response.Content = new StringContent(sDocument);
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+        return response;
+    }
+}
+
+-
+
+public class SampleModel {
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+}
+
+-
+
+// Sample.cshtml
+@inherits System.Web.Mvc.WebViewPage
+@using System.Web.Mvc.Html;
+@{
+    Layout = null;
+    var MyModel = (Model as RestAPITests.SampleModel);
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    @Html.Partial("~/Partial/Header.cshtml")
+    <h2>Hello @MyModel.FirstName @MyModel.LastName</h2>
+    <div>
+        bla bla bla ...
+    </div>            
+</body>
+</html>
+
+-
+
+// Header.cshtml
+@inherits System.Web.Mvc.WebViewPage
+<header>
+    ...
+</header>
+
+-
+
+notes:
+- every view must inherit from WebViewPage 
+  @inherits System.Web.Mvc.WebViewPage
+
+- to use Partial extension, import the Mvc.Html namespace 
+  @using System.Web.Mvc.Html;

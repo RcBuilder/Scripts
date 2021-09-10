@@ -1,0 +1,24 @@
+SQL - Check If Table Exists
+---------------------------
+syntax:
+SELECT	1 
+FROM	INFORMATION_SCHEMA.TABLES 
+WHERE	TABLE_NAME = '<table-name>'
+
+-
+
+SELECT IIF((SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '<table-name>') = 1, 1, 0)
+
+---
+
+// sample (check if exists)
+SELECT	1
+FROM	INFORMATION_SCHEMA.TABLES 
+WHERE	TABLE_NAME = 'Users'
+
+-
+
+// sample (get table details)
+SELECT	*
+FROM	INFORMATION_SCHEMA.TABLES 
+WHERE	TABLE_NAME = 'Users'

@@ -1,0 +1,164 @@
+REST - Web Api - Export As HTML & PDF & Screenshot
+--------------------------------------------------
+
+[HttpGet]
+[Route("api/export/html")]
+public HttpResponseMessage ExportAsHTML()
+{
+    var sDocument = @"
+        <h1>Header<h1>
+        <p>Content</p>
+    ";
+
+    var response = new HttpResponseMessage();
+    response.Content = new StringContent(sDocument);
+    response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+    response.Content.Headers.ContentDisposition.FileName = "export.html";
+    response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+
+    return response;
+}
+
+[HttpGet]
+[Route("api/export/pdf")]
+public HttpResponseMessage ExportAsPDF()
+{
+    // https://www.nuget.org/packages/HtmlRenderer.PdfSharp/
+    // Install-Package HtmlRenderer.PdfSharp -Version 1.5.0.6
+
+    var sDocument = @"
+        <h1>Header<h1>
+        <p>Content</p>
+    ";
+
+    var pdfDoc = PdfGenerator.GeneratePdf(sDocument, PageSize.A4);
+    
+	using (var stream = new MemoryStream()) {
+        pdfDoc.Save(stream);
+
+        var response = new HttpResponseMessage();
+        response.Content = new ByteArrayContent(stream.ToArray());
+        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+        response.Content.Headers.ContentDisposition.FileName = "export.pdf";
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+
+        return response;
+    }
+}
+
+[HttpGet]
+[Route("api/export/pdf/screenshot")]
+public async Task<HttpResponseMessage> ExportAsPDF()
+{    
+    // Install-Package HtmlRenderer.PdfSharp -Version 1.5.0.6
+	// Install-Package PuppeteerSharp -Version 5.0.0
+    
+    var pdfDoc = new PdfDocument();
+    var browser = await Puppeteer.LaunchAsync(new LaunchOptions {
+        Headless = true,
+        Timeout = (10 * 1000),  // 10 sec
+        ExecutablePath = $"{AppDomain.CurrentDomain.BaseDirectory}Win64-884014\\chrome-win\\chrome.exe",
+        DefaultViewport = null, // max resolution
+        Args = new[] { "--no-sandbox" } // "--window-size=800,1080"
+    });
+
+    var webPage = await browser.NewPageAsync();    
+    ///await webPage.GoToAsync("https://rcb.co.il/Service/WebsiteForYourBusiness");
+
+    var screenshotOptions = new ScreenshotOptions { 
+        FullPage = true, 
+        Quality = 100, 
+        Type = ScreenshotType.Jpeg 
+    };
+
+    using (var screenshotStream = await webPage.ScreenshotStreamAsync(screenshotOptions))
+    using (var image = Image.FromStream(screenshotStream))
+    {
+        image.Save("D:\\screenshot.jpg");                
+        var page = pdfDoc.AddPage();
+        var gfx = XGraphics.FromPdfPage(page);                
+        var pdfImage = XImage.FromGdiPlusImage(image);                
+        gfx.DrawImage(pdfImage, new XRect(0, 0, page.Width, page.Height), new XRect(0, 0, pdfImage.PixelWidth, pdfImage.PixelHeight), XGraphicsUnit.Point);
+    }
+
+    using (var stream = new MemoryStream())
+    {
+        pdfDoc.Save(stream);
+
+        var response = new HttpResponseMessage();
+        response.Content = new ByteArrayContent(stream.ToArray());
+        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+        response.Content.Headers.ContentDisposition.FileName = "export.pdf";
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
+
+        return response;
+    }
+}
+
+[HttpGet]
+[Route("api/export/image/screenshot")]
+public async Task<HttpResponseMessage> ExportAsScreenshotImage()
+{
+	// > Install-Package PuppeteerSharp -Version 5.0.0
+
+    var browser = await Puppeteer.LaunchAsync(new LaunchOptions
+    {
+        Headless = true,
+        Timeout = (10 * 1000),  // 10 sec
+        ExecutablePath = $"{AppDomain.CurrentDomain.BaseDirectory}Win64-884014\\chrome-win\\chrome.exe",
+        DefaultViewport = null, // max resolution
+        Args = new[] { "--no-sandbox" } // "--window-size=800,1080"
+    });
+
+    var webPage = await browser.NewPageAsync();    
+    await webPage.GoToAsync("https://rcb.co.il/Service/WebsiteForYourBusiness");
+
+    var screenshotOptions = new ScreenshotOptions
+    {
+        FullPage = true,
+        Quality = 100,
+        Type = ScreenshotType.Jpeg
+    };
+
+    var screenshotStream = await webPage.ScreenshotStreamAsync(screenshotOptions);             
+    var response = new HttpResponseMessage();
+    response.Content = new StreamContent(screenshotStream);
+    response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+    response.Content.Headers.ContentDisposition.FileName = "export.jpg";
+    response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+
+    return response;            
+}
+
+[HttpGet]
+[Route("api/render")]
+public HttpResponseMessage RenderHTML()
+{
+    var sDocument = @"
+        <h1>Header<h1>
+        <p>Content</p>
+    ";
+
+    var response = new HttpResponseMessage();
+    response.Content = new StringContent(sDocument);
+    response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+    return response;
+}
+
+[HttpGet]
+[Route("api/render/razor")]
+public HttpResponseMessage RenderHTMLByRazor()
+{
+    var model = new SampleModel
+    {
+        FirstName = "John",
+        LastName = "Doe"                
+    };
+           
+    var sDocument = RazorViewRenderer.RenderView("~/views/Sample.cshtml", model);
+
+    var response = new HttpResponseMessage();
+    response.Content = new StringContent(sDocument);
+    response.Content.Headers.ContentType = new MediaTypeHeaderValue("text/html");
+    return response;
+}

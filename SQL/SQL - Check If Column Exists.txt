@@ -1,0 +1,27 @@
+SQL - Check If Column Exists
+----------------------------
+syntax:
+SELECT	1
+FROM	INFORMATION_SCHEMA.COLUMNS 
+WHERE	TABLE_NAME = '<table-name>'
+AND	COLUMN_NAME = '<column-name>'
+
+-
+
+SELECT IIF((SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '<table-name>' AND	COLUMN_NAME = '<column-name>') = 1, 1, 0)
+
+---
+
+// sample (check if exists)
+SELECT	1
+FROM	INFORMATION_SCHEMA.COLUMNS 
+WHERE	TABLE_NAME = 'Users'
+AND	COLUMN_NAME = 'IsrairUserId'
+
+-
+
+// sample (get column details)
+SELECT	TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, IS_NULLABLE
+FROM	INFORMATION_SCHEMA.COLUMNS 
+WHERE	TABLE_NAME = 'Users'
+AND	COLUMN_NAME = 'IsrairUserId'

@@ -3,6 +3,7 @@ HTML-2-PDF
 
 references:
 - PdfSharpTests
+- PDFSharp - Generate PDF using C#
 
 sources:
 - https://www.nuget.org/packages/HtmlRenderer.PdfSharp/
@@ -43,14 +44,16 @@ public HttpResponseMessage ExportAsPDF()
     ";
 
     var pdfDoc = PdfGenerator.GeneratePdf(sDocument, PageSize.A4);
-    var stream = new MemoryStream();
-    pdfDoc.Save(stream);    
+    
+	using (var stream = new MemoryStream()) {
+        pdfDoc.Save(stream);
 
-    var response = new HttpResponseMessage();
-    response.Content = new ByteArrayContent(stream.ToArray());
-    response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
-    response.Content.Headers.ContentDisposition.FileName = "export.pdf";
-    response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");            
+        var response = new HttpResponseMessage();
+        response.Content = new ByteArrayContent(stream.ToArray());
+        response.Content.Headers.ContentDisposition = new ContentDispositionHeaderValue("attachment");
+        response.Content.Headers.ContentDisposition.FileName = "export.pdf";
+        response.Content.Headers.ContentType = new MediaTypeHeaderValue("application/pdf");
 
-    return response;
+        return response;
+    }
 }

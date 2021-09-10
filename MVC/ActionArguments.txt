@@ -1,0 +1,18 @@
+ActionArguments
+---------------
+used to pass data through the request pipeline
+
+-
+
+syntax:
+ActionArguments[<key>] = <value>
+
+-
+
+// set
+actionContext.ActionArguments["Custom-1"] = "Value-1";
+actionContext.ActionArguments["Custom-2"] = "Value-2";
+
+// get
+var v1 = actionContext.ActionArguments["Custom-1"]?.ToString();
+var v2 = actionContext.ActionArguments["Custom-2"]?.ToString();

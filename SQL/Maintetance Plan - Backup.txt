@@ -1,0 +1,34 @@
+Maintetance Plan - Backup
+-------------------------
+
+[Plan] Backup:
+- Open SQL Managment > Managment > Maintetance Plans
+- Right Click > Maintenance Plan Wizard
+- Name: Backup 
+  Schedule: Set a Scheduler 
+- Task: Back Up Database (Full)
+- (tab) General: Select Databases to back up > OK
+- (tab) Destination: 
+        Set destination folder for the backups, 
+        Set Backup file extension to 'bak'
+- (tab) Options: choose 'Compress backup'
+- Set folder for logs
+- Finish
+
+----
+
+[Plan] Clear Old Backups: 
+- Open SQL Managment > Managment > Maintetance Plans
+- Right Click > Maintenance Plan Wizard
+- Name: Clear Old Backups
+  Schedule: Set a Scheduler 
+- Task: Maintenance Cleanup Task
+- Define: 
+  Delete files of the following type: 'Backup files'
+  File location: Set the backups destination folder and choose 'bak' file extension
+  File age: check the 'delete files based on the age...' and choose the Period (e.g: older than 4 weeks)
+  
+----
+
+note! 
+to execute a plan, right-click > Execute

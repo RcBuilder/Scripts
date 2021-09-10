@@ -1,0 +1,19 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@{
+    Layout = null;
+    var MyModel = (Model as RestAPITests.SampleModel);
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title></title>
+</head>
+<body>
+    <h2>Hello @MyModel.FirstName @MyModel.LastName</h2>
+    <div>
+        bla bla bla ...
+    </div>
+</body>
+</html>

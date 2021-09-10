@@ -92,6 +92,8 @@ see 'MVC FromURI binding'
   @Html.Partial("~/Views/Controls/Footer.cshtml"); // option1 - full path 
   @Html.Partial("Controls/Footer"); // option 2 - by name
 
+  note! namespace System.Web.Mvc.Html
+
 * @Html.Raw(Model.Content) // read as html 
 
 * RouteConfig file - add routes
@@ -2814,6 +2816,10 @@ see 'MVC FromURI binding'
             }
         }
     </main>
+
+* get Reference to the Controller from the ActionContext:
+var controller = actionContext.ControllerContext.Controller as BrokerApiController;
+controller.Broker = this.Broker;
 
 --------------------------------------------------------------
 // TODO Research

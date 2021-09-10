@@ -1,0 +1,30 @@
+SQL - INFORMATION_SCHEMA - Table $ Column details
+-------------------------------------------------
+
+// get table column list
+SELECT	TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, IS_NULLABLE
+FROM	INFORMATION_SCHEMA.COLUMNS 
+WHERE	TABLE_NAME = '<table-name>'
+
+// check if table exists
+SELECT	1 
+FROM	INFORMATION_SCHEMA.TABLES 
+WHERE	TABLE_NAME = '<table-name>'
+
+// check if table exists using IIF
+SELECT IIF((SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '<table-name>') = 1, 1, 0)
+
+// check if column exists
+SELECT	1
+FROM	INFORMATION_SCHEMA.COLUMNS 
+WHERE	TABLE_NAME = '<table-name>'
+AND	COLUMN_NAME = '<column-name>'
+
+// check if column exists using IIF
+SELECT IIF((SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = '<table-name>' AND	COLUMN_NAME = '<column-name>') = 1, 1, 0)
+
+// get column details
+SELECT	TABLE_NAME, COLUMN_NAME, DATA_TYPE, COLUMN_DEFAULT, IS_NULLABLE
+FROM	INFORMATION_SCHEMA.COLUMNS 
+WHERE	TABLE_NAME = '<table-name>'
+AND		COLUMN_NAME = '<column-name>'
