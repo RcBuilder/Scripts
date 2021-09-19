@@ -11,6 +11,8 @@ Nuget:
 Sources:
 - https://www.nuget.org/packages/HtmlRenderer.PdfSharp/
 
+----
+
 Save To Stream:
 var stream = new MemoryStream();
 pdfDoc.Save(stream);
@@ -35,140 +37,8 @@ var gfx = XGraphics.FromPdfPage(page);
 var font = new XFont("Arial", 20, XFontStyle.Regular);
 gfx.DrawString("Hello World", font, XBrushes.Black, new XRect(0, 0, page.Width, page.Height), XStringFormats.Center);
 
-----
 
-// generate a file using Canvas
-
-using PdfSharp;
-using PdfSharp.Drawing;
-using PdfSharp.Pdf;
-
-var pdfDoc = new PdfDocument();
-pdfDoc.Info.Title = "PDF Title";
-
-var page1 = pdfDoc.AddPage();
-var gfx1 = XGraphics.FromPdfPage(page1);
-var font = new XFont("Arial", 20, XFontStyle.Regular);
-gfx1.DrawString("Hello World", font, XBrushes.Black, new XRect(0, 0, page1.Width, page1.Height), XStringFormats.Center);
-
-var page2 = pdfDoc.AddPage();
-var gfx2 = XGraphics.FromPdfPage(page2);
-var image = XImage.FromFile("D:\\237-200x200.jpg");
-gfx2.DrawImage(image, new XRect(0, 0, page2.Width, page2.Height)); // full page
-
-var page3 = pdfDoc.AddPage();
-var gfx3 = XGraphics.FromPdfPage(page3);            
-gfx3.DrawImage(image, new XRect(0, 0, image.PixelWidth, image.PixelHeight)); // image size
-
-pdfDoc.Save("D:\\export.pdf");
-
-----
-
-// create a PdfDocument from HTML string
-
-var sDocument = @"
-    <h1>Header<h1>
-    <p>Content</p>
-";
-
-var pdfDoc = PdfGenerator.GeneratePdf(sDocument, PageSize.A4);	
-
-----
-
-// draw image from the web (by image-url)
-
-var pdfDoc = new PdfDocument();
-byte[] data;
-using (var client = new WebClient())            
-    data = await client.DownloadDataTaskAsync(new Uri("https://picsum.photos/id/1011/600/300"));
-
-using (var ms = new MemoryStream(data))
-using (var image = Image.FromStream(ms))
-{
-    var page = pdfDoc.AddPage();
-    var gfx = XGraphics.FromPdfPage(page);
-    var pdfImage = XImage.FromGdiPlusImage(image);
-    gfx.DrawImage(pdfImage, new XRect(0, 0, pdfImage.PixelWidth, pdfImage.PixelHeight));
-}
-
-----
-
-// take a website screenshot into a pdf document using Puppeteer#
-// > Install-Package PuppeteerSharp -Version 5.0.0
-
-var pdfDoc = new PdfDocument();
-var browser = await Puppeteer.LaunchAsync(new LaunchOptions {
-    Headless = true,
-    Timeout = (10 * 1000),  // 10 sec
-    ExecutablePath = $"{AppDomain.CurrentDomain.BaseDirectory}Win64-884014\\chrome-win\\chrome.exe",
-    DefaultViewport = null, // max resolution
-    Args = new[] { "--no-sandbox" }
-});
-
-var webPage = await browser.NewPageAsync();
-await webPage.GoToAsync("https://rcb.co.il/Service/WebsiteForYourBusiness");
-
-var screenshotOptions = new ScreenshotOptions { 
-    FullPage = true, 
-    Quality = 100, 
-    Type = ScreenshotType.Jpeg 
-};
-
-using (var screenshotStream = await webPage.ScreenshotStreamAsync(screenshotOptions))
-using (var image = Image.FromStream(screenshotStream))
-{    
-    var page = pdfDoc.AddPage();
-    var gfx = XGraphics.FromPdfPage(page);                
-    var pdfImage = XImage.FromGdiPlusImage(image);                
-    gfx.DrawImage(pdfImage, new XRect(0, 0, page.Width, page.Height), new XRect(0, 0, pdfImage.PixelWidth, pdfImage.PixelHeight), XGraphicsUnit.Point);
-}
-
-----
-
-// create Pdf using Puppeteer#
-// > Install-Package PuppeteerSharp -Version 5.0.0
-var downloadChrome = string.IsNullOrEmpty(ChromePath);
-if (downloadChrome)
-{
-    var browserFetcherOptions = new BrowserFetcherOptions
-    {
-        Path = $"{AppDomain.CurrentDomain.BaseDirectory}",
-        Platform = Platform.Win64,
-        Product = Product.Chrome
-    };
-    var browserFetcher = new BrowserFetcher(browserFetcherOptions);
-    var revisionInfo = await browserFetcher.DownloadAsync();
-    ChromePath = revisionInfo.ExecutablePath;
-}
-
-var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-{
-    Headless = true,
-    Timeout = (10 * 1000),  // 10 sec
-    ExecutablePath = ChromePath, /// $"{AppDomain.CurrentDomain.BaseDirectory}Win64-884014\\chrome-win\\chrome.exe",
-    DefaultViewport = null, // max resolution
-    Args = new[] { "--no-sandbox" }  // "--window-size=800,1080"
-});
-
-var webPage = await browser.NewPageAsync();
-await webPage.GoToAsync(URL);
-
-/* 
-	Stream PdfStreamAsync()
-	Byte[] PdfDataAsync()
-	Void PdfAsync(<file-path>)
-*/
-var pdfStream = await webPage.PdfStreamAsync();
-
-pdfStream.Position = 0;
-using (var fs = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
-    pdfStream.CopyTo(fs);
-pdfStream.Dispose();
-
-----
-
-// export as a file using HttpResponse
-
+export as a file using HttpResponse:
 using (var stream = new MemoryStream()) {
     pdfDoc.Save(stream);
 
@@ -182,6 +52,160 @@ using (var stream = new MemoryStream()) {
 }
 
 ----
+
+// generate a file using Canvas
+
+using PdfSharp;
+using PdfSharp.Drawing;
+using PdfSharp.Pdf;
+
+var pdfDoc = new PdfDocument();
+pdfDoc.Info.Title = "PDF Title";
+
+var page1 = pdfDoc.AddPage();
+var gfx1 = XGraphics.FromPdfPage(page1);
+
+// var fontOptions = new XPdfFontOptions(PdfFontEncoding.Unicode, PdfFontEmbedding.Always);
+var font = new XFont("Arial", 20, XFontStyle.Regular);
+gfx1.DrawString("Hello World", font, XBrushes.Black, new XRect(0, 0, page1.Width, page1.Height), XStringFormats.Center);
+
+var page2 = pdfDoc.AddPage();
+var gfx2 = XGraphics.FromPdfPage(page2);
+var image = XImage.FromFile("D:\\237-200x200.jpg");
+gfx2.DrawImage(image, new XRect(0, 0, page2.Width, page2.Height)); // full page
+
+var page3 = pdfDoc.AddPage();
+var gfx3 = XGraphics.FromPdfPage(page3);
+gfx3.DrawImage(image, new XRect(0, 0, image.PixelWidth, image.PixelHeight)); // image size
+
+pdfDoc.Save("D:\\export.pdf");
+
+----
+
+// create a PdfDocument from HTML string
+
+var HtmlString = @"
+    <h1>Header<h1>
+    <p>Content</p>
+";
+
+var config = new PdfGenerateConfig { 
+        PageSize = PageSize.A4,
+        PageOrientation = PageOrientation.Portrait                 
+};
+config.SetMargins(16);            
+var pdfDoc = PdfGenerator.GeneratePdf(HtmlString, config);
+            
+----
+
+// draw image from the web (by image-url)
+
+var pdfDoc = new PdfDocument();
+
+/* read as Bytes
+byte[] data;
+using (var client = new WebClient())
+    data = await client.DownloadDataTaskAsync(new Uri("https://picsum.photos/id/1011/600/300"));
+using (var ms = new MemoryStream(data))
+using (var image = Image.FromStream(ms))
+*/
+
+// read as Stream
+using (var client = new WebClient())
+using (var imageStream = await client.OpenReadTaskAsync(new Uri("https://picsum.photos/id/1011/600/300")))
+using (var image = Image.FromStream(imageStream))
+{
+    var page = pdfDoc.AddPage();
+    var gfx = XGraphics.FromPdfPage(page);
+    var pdfImage = XImage.FromGdiPlusImage(image);
+
+    var width = Stretch ? page.Width : pdfImage.PixelWidth;
+    var height = Stretch ? page.Height : pdfImage.PixelHeight;
+    gfx.DrawImage(pdfImage, new XRect(0, 0, width, height));
+}
+
+----
+
+// take a website screenshot into a pdf document using Puppeteer#
+// > Install-Package PuppeteerSharp -Version 5.0.0
+
+var pdfDoc = new PdfDocument();
+
+var browser = await this.CreateWebBrowser(ChromePath);
+var webPage = await browser.NewPageAsync();
+await webPage.GoToAsync("https://rcb.co.il/Service/WebsiteForYourBusiness");
+
+var screenshotOptions = new ScreenshotOptions
+{
+    FullPage = true,
+    Quality = 100,
+    Type = ScreenshotType.Jpeg
+};
+
+using (var screenshotStream = await webPage.ScreenshotStreamAsync(screenshotOptions))
+using (var image = Image.FromStream(screenshotStream))
+{
+    /// image.Save("D:\\screenshot.jpg"); 
+
+    var page = pdfDoc.AddPage();
+    var gfx = XGraphics.FromPdfPage(page);
+    var pdfImage = XImage.FromGdiPlusImage(image);
+    gfx.DrawImage(pdfImage, new XRect(0, 0, page.Width, page.Height), new XRect(0, 0, pdfImage.PixelWidth, pdfImage.PixelHeight), XGraphicsUnit.Point);
+}
+
+private async Task<Browser> CreateWebBrowser(string ChromePath) {
+	async Task<WebSocket> CreateWebSocketTask(Uri url, IConnectionOptions options, CancellationToken cancellationToken)
+	{
+		var result = new System.Net.WebSockets.Managed.ClientWebSocket();
+		result.Options.KeepAliveInterval = TimeSpan.Zero;
+		await result.ConnectAsync(url, cancellationToken).ConfigureAwait(false);
+		return result;
+	}
+
+	var downloadChrome = string.IsNullOrEmpty(ChromePath);
+	if (downloadChrome)
+	{
+		var browserFetcherOptions = new BrowserFetcherOptions
+		{
+			Path = $"{AppDomain.CurrentDomain.BaseDirectory}",
+			Platform = Platform.Win64,
+			Product = Product.Chrome
+		};
+		var browserFetcher = new BrowserFetcher(browserFetcherOptions);
+		var revisionInfo = await browserFetcher.DownloadAsync();
+		ChromePath = revisionInfo.ExecutablePath;  // set the created chrome path
+	}
+
+	var launchOptions = new LaunchOptions
+	{
+		Headless = true,
+		Timeout = (10 * 1000),  // 10 sec
+		ExecutablePath = ChromePath, /// $"{AppDomain.CurrentDomain.BaseDirectory}Win64-884014\\chrome-win\\chrome.exe",
+		DefaultViewport = null, // max resolution
+		Args = new[] { "--no-sandbox", "--disable-gpu" }  // "--window-size=800,1080"
+	};
+            
+	if (Environment.OSVersion.Version.Major < 10)                            
+		launchOptions.WebSocketFactory = CreateWebSocketTask;  // support for windows-7
+            
+	var browser = await Puppeteer.LaunchAsync(launchOptions);
+	return browser;
+} 
+
+----
+
+// create Pdf using Puppeteer#
+// > Install-Package PuppeteerSharp -Version 5.0.0
+
+var browser = await this.CreateWebBrowser(ChromePath);
+var webPage = await browser.NewPageAsync();
+await webPage.GoToAsync(URL);
+var pdfStream await webPage.PdfStreamAsync(); 
+
+pdfStream.Position = 0;
+using (var fs = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+    pdfStream.CopyTo(fs);
+pdfStream.Dispose();
 
 -------------------------------------------------------------
 TODO ->> Check

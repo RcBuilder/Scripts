@@ -1,0 +1,4 @@
+PDF - Create from HTML, URL or Image 
+------------------------------------
+see 'Utilities/wk-Html-2-Pdf' folder
+see 'C# PdfManager - Generate PDFs'

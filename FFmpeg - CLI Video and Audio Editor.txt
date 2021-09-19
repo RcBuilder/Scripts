@@ -1,0 +1,4 @@
+FFmpeg - CLI Video and Audio Editor
+-----------------------------------
+see 'Utilities/FFmpeg' folder
+see 'FFmpegWrapper.cs' (a Wrapper using C#)

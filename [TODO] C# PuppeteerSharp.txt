@@ -312,6 +312,7 @@ var browser = await Puppeteer.LaunchAsync(new LaunchOptions
     WebSocketFactory = webSocketFactory,
     Headless = true,
     Timeout = (10 * 1000),  // 10 sec
+	IgnoreHTTPSErrors  = true,
     ExecutablePath = @"C:\inetpub\wwwroot\DocumentsService\Win64-884014\chrome-win\chrome.exe",
     DefaultViewport = null,
     Args = new[] { "--no-sandbox", "--disable-gpu" }  // "--window-size=800,1080"
@@ -360,12 +361,13 @@ private async Task<Browser> CreateWebBrowser(string ChromePath) {
     {
         Headless = true,
         Timeout = (10 * 1000),  // 10 sec
+		IgnoreHTTPSErrors  = true,
         ExecutablePath = ChromePath,
         DefaultViewport = null, // max resolution
         Args = new[] { "--no-sandbox", "--disable-gpu" }  // "--window-size=800,1080"
     };
 
-    if (Environment.OSVersion.Version.Major == 7)
+    if (Environment.OSVersion.Version.Major < 10)
         launchOptions.WebSocketFactory = CreateWebSocketTask;  // support for windows-7
 
     var browser = await Puppeteer.LaunchAsync(launchOptions);
@@ -373,3 +375,31 @@ private async Task<Browser> CreateWebBrowser(string ChromePath) {
 } 
 
 -
+
+BUG:
+'ERR_CERT_COMMON_NAME_INVALID' on localhost with Puppeteer launch
+
+Error:
+using IIS and Puppeteer to access https website internally using 127.0.0.1 (localhost)
+
+Solution:
+set 'IgnoreHTTPSErrors' flag to true
+https://github.com/puppeteer/puppeteer/blob/main/docs/api.md#puppeteerlaunchoptions
+
+IIS:
+should include 127.0.0.1 binding
+
+sample:
+var launchOptions = new LaunchOptions {
+    Headless = true,                
+    Timeout = (10 * 1000),  // 10 sec
+    ExecutablePath = ChromePath, /// $"{AppDomain.CurrentDomain.BaseDirectory}Win64-884014\\chrome-win\\chrome.exe",
+    DefaultViewport = null, // max resolution
+    IgnoreHTTPSErrors  = true,
+    Args = new[] { "--no-sandbox", "--disable-gpu" }  // "--window-size=800,1080"
+};
+            
+if (Environment.OSVersion.Version.Major < 10)                            
+    launchOptions.WebSocketFactory = CreateWebSocketTask;  // support for windows-7
+            
+var browser = await Puppeteer.LaunchAsync(launchOptions);

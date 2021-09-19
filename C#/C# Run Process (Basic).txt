@@ -1,0 +1,16 @@
+C# Run Process (Basic)
+----------------------
+private void RunProcess(string Command, string Args) {            
+            using (var p = new Process())
+            {
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo.RedirectStandardInput = true;
+                p.StartInfo.RedirectStandardOutput = true;
+                p.StartInfo.RedirectStandardError = true;
+                p.StartInfo.FileName = Command;                
+                p.StartInfo.Arguments = Args;
+                p.Start();
+                p.WaitForExit();
+            }
+        }

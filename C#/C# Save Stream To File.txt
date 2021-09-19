@@ -1,0 +1,16 @@
+C# Save Stream To File
+----------------------
+public void SaveStream(Stream SourceStream, string FilePath, bool CloseStream = true)
+{
+    SourceStream.Position = 0;
+    using (var fs = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        SourceStream.CopyTo(fs);
+    if (CloseStream) SourceStream.Dispose();
+}
+
+public async Task SaveStreamAsync(Stream SourceStream, string FilePath, bool CloseStream = true) {
+	SourceStream.Position = 0;
+    using (var fs = new FileStream(FilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+        await SourceStream.CopyToAsync(fs);
+    if (CloseStream) SourceStream.Dispose();
+}

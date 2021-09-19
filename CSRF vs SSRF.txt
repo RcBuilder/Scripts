@@ -1,0 +1,36 @@
+CSRF vs SSRF
+------------
+CSRF = Cross Site Request Forgery
+SSRF = Server Side Request Forgery
+XSS = Cross Site Scripting
+
+CSRF occurs on the Client-side whereas SSRF occurs on the Server.
+CSRF uses cookies to forge a request from domain A to domain B without 
+the user knowing about that. 
+e.g: 
+a user enters his bank (bank.com), the bank uses cookie to authenticate him.
+then, he enters a malicious website (malicious.com), within it, there's a form 
+which target to perform some activity in the bank website (GET bank.com/info). 
+the bank cookie matk as "same-site=null" so it keep sending the cookie on every request. 
+the bank authenticates the user using the sending cookie and provide the requested information. 
+
+another option is to manually set a cookie on your own computer 
+in order to mimic a logged-in user.
+
+SameSiteCookie=null: 
+tell the browser to send the cookie for any request. 
+such a website is a good CSRF potential target.
+
+XSS uses injected javascript code. 
+in that case, the attacker have full access to any of the website resources.
+in addition, any request it'll make from that website will be legit as if it came directly from the author.
+it also allows the attacker to change the DOM, add scripts and modify css rules.
+
+SSRF uses the server to make the forgery. 
+the client uses the server to perform an action he can't perform due to security.
+very rare cause it requires a chain of bad code failures to be accomplished.
+e.g:
+a call to an api server which call another service internally and it get the target service from the client. 
+the client then, can change the target to a different secured location (like admin), 
+because the request is performed by the api server itself, it'll be authenticated and the api will return 
+the data from there to the client. in this attack, the client must know the internal path.

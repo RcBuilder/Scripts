@@ -1,0 +1,26 @@
+Enum Extensions
+---------------
+
+public static class Extensions{
+	public static string GetDescription(this Enum me)
+        {
+            var enumItem = me.GetType().GetMember(me.ToString())[0];
+            var descriptionAttribute = enumItem.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (descriptionAttribute == null || descriptionAttribute.Length == 0)
+                return string.Empty;
+            return ((DescriptionAttribute)descriptionAttribute[0]).Description;
+        }
+
+        public static T ToEnum<T>(this string me) where T : struct { // constraint
+            try
+            {
+                if (!typeof(T).IsEnum)
+                    throw new ArgumentException("T is not an ENUM!");
+                return (T)Enum.Parse(typeof(T), me, true);
+            }
+            catch
+            {
+                return default(T); // item 0
+            }
+        }
+}

@@ -1,0 +1,7 @@
+VS Install packages.config
+--------------------------
+install packages from packages.config file (like npm install)
+
+(steps)
+1. open Package Manager Console
+2. > Update-Package -reinstall -Project <projectName>

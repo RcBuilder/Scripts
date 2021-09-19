@@ -1,0 +1,19 @@
+C# Stream-2-String & String-2-Stream
+------------------------------------
+
+var str = "Hello World!";
+var stream = String2Stream(str);
+var strCopy = Stream2String(stream);
+Console.WriteLine(strCopy);
+
+--
+
+private Stream String2Stream(string Value) { 
+	byte[] bytes = Encoding.ASCII.GetBytes(Value);
+	return new MemoryStream(bytes);
+}
+
+private string Stream2String(Stream Value) { 
+	using(var reader = new StreamReader(Value))
+		return reader.ReadToEnd();
+}

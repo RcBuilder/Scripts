@@ -14,7 +14,7 @@ using System.Web.Http.Controllers;
 
 namespace Authorization
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class| AttributeTargets.Method)]
     public class CreativeAuthorizeAttribute : AuthorizeAttribute
     {
         private string JWTSecretKey { get; set; }
@@ -74,12 +74,16 @@ namespace Authorization
 
                 /*
                    payload:
-                   { brokerName, role }
+                   { brokerName, role, refName }
                    
+                    roles:
+                    Document | Guest | Broker | System
+
                    sample:
                    {  
                       "brokerName": "ShakedBroker",
-                      "role": "Broker"
+                      "role": "Broker",
+                      "refName": ""
                    }
                 */
 
@@ -87,15 +91,16 @@ namespace Authorization
                 {
                     BrokerName = "",
                     Role = "",
-                    RefName = ""  // referrer
+                    RefName = "" 
                 };
                 var tokenPayloadModel = JsonConvert.DeserializeAnonymousType(tokenPayload, schema);
 
                 // set brokerName from the JWT payload                
                 var identity = new GenericIdentity(tokenPayloadModel.BrokerName, "BrokerName");
                 actionContext.RequestContext.Principal = new GenericPrincipal(identity, new string[] {
-                    tokenPayloadModel.Role // roles = Guest | Broker | System 
+                    tokenPayloadModel.Role // roles = Document | Guest | Broker | System 
                 });
+                actionContext.ActionArguments["TokenData"] = tokenPayload;
 
                 var contextIdentity = actionContext.RequestContext.Principal.Identity;
                 Debug.WriteLine($"Context Identity -> {contextIdentity.Name}");

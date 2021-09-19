@@ -1,0 +1,41 @@
+C# CopyStream
+-------------
+
+// convert string to stream 
+var str = "Hello World!";
+var stream = String2Stream(str);
+
+// make a stream copy
+var ms = new MemoryStream();
+await CopyStream(stream2, ms);
+
+// print
+Console.WriteLine(Stream2String(stream2));
+Console.WriteLine(Stream2String(ms));
+
+---
+
+async Task CopyStream(Stream Input, Stream Output) {
+    /// Input.CopyTo(Output);            
+    await Input.CopyToAsync(Output);
+
+    /*
+    var buffer = new byte[32768];
+    int read;
+    while ((read = await Input.ReadAsync(buffer, 0, buffer.Length)) > 0)            
+        Output.Write(buffer, 0, read);
+    */
+	
+    Input.Position = 0;
+    Output.Position = 0;
+}
+
+Stream String2Stream(string Value) { 
+	byte[] bytes = Encoding.ASCII.GetBytes(Value);
+	return new MemoryStream(bytes);
+}
+
+string Stream2String(Stream Value) { 
+	using(var reader = new StreamReader(Value))
+		return reader.ReadToEnd();
+}

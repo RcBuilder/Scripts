@@ -1,0 +1,12 @@
+Bug:
+IIS - 401.3 - Unauthorized
+
+Error:
+You do not have permission to view this directory or page because of the access control list (ACL) configuration or encryption settings for this resource on the Web server
+
+Cause:
+from some unknown reason (myybe cache of some sort), the program thinks that it still refer to the previous version of the dll 
+
+Solution:
+Open IIS > Choose a website > Authentication > Anonymous authentication > Edit
+Set User as 'Identity of the application pool'
