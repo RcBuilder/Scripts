@@ -119,6 +119,27 @@ server
   response.Headers.Add("someKey", "someValue");
   return response;
 
+  e.g:
+  public class StatusException : Exception {
+    public HttpStatusCode StatusCode { get; protected set; }
+
+    public StatusException(HttpStatusCode StatusCode, string Message) : base(Message) {
+        this.StatusCode = StatusCode;
+    }
+  }
+
+  try { 
+     ...
+     ...
+     return request.CreateResponse(HttpStatusCode.OK, "OK");   
+  }
+  catch (StatusException ex) {    
+    return request.CreateResponse(ex.StatusCode, ex.Message);
+  }
+  catch (Exception ex) {  
+    return request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+  }
+
   tip: 
   for POST requests, it's very common to set an http header with the location of the 
   created item and/or add an header key represents the created id.

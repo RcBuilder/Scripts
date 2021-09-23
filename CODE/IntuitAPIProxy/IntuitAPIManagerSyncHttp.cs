@@ -11,12 +11,20 @@ namespace IntuitProxy
 {
     public class IntuitAPIManagerSyncHttp : IAPIManager
     {
+        public EventHandler<TokensUpdatedEventArgs> TokensUpdated;
+
         protected IntuitAPIConfig Config { get; set; }
         protected HttpServiceHelper HttpService { get; set; }
 
         public IntuitAPIManagerSyncHttp(IntuitAPIConfig Config) {
             this.Config = Config;
             this.HttpService = new HttpServiceHelper();
+        }
+
+        protected void OnTokensUpdated(TokensUpdatedEventArgs args)
+        {
+            if (TokensUpdated == null) return;
+            TokensUpdated(null, args);
         }
 
         public async Task<bool> Authorize() {
@@ -49,6 +57,10 @@ namespace IntuitProxy
             var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
             this.Config.AccessToken = responseData.access_token;
             this.Config.RefreshToken = responseData.refresh_token;
+
+            // raise an event
+            this.OnTokensUpdated(new TokensUpdatedEventArgs(this.Config.CompanyId, this.Config.RefreshToken, this.Config.AccessToken));
+
             return true;
         }
 

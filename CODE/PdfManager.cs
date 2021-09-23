@@ -277,9 +277,9 @@ namespace Helpers
             var config = new PdfGenerateConfig
             {
                 PageSize = PageSize.A4,
-                PageOrientation = PageOrientation.Portrait
+                PageOrientation = PageOrientation.Portrait                
             };
-            config.SetMargins(16);
+            config.SetMargins(16);            
             var pdfDoc = PdfGenerator.GeneratePdf(HtmlString, config);
 
             var stream = new MemoryStream();
@@ -303,7 +303,7 @@ namespace Helpers
         public Stream CreateFromBitmap(Bitmap Bitmap, eImageMode ImageMode = eImageMode.None)
         {
             var pdfDoc = new PdfDocument();
-
+            
             using (var image = Bitmap)
                 this.DrawImage(pdfDoc, ImageMode, image);
 
@@ -356,7 +356,7 @@ namespace Helpers
 
             using (var client = new WebClient())
             {
-                client.Encoding = Encoding.UTF8;
+                client.Encoding = Encoding.GetEncoding("Windows-1255");
                 HtmlString = await client.DownloadStringTaskAsync(URL);
             }
 

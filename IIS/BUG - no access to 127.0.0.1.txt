@@ -1,0 +1,19 @@
+Bug:
+no access to 127.0.0.1
+
+Issue:
+after creating a website with host on the local IIS, 
+we can reach it using 'localhost' but not using 127.0.0.1 ip.
+
+(hosts)
+127.0.0.1	proxy.crtv.co.il
+
+> ping proxy.crtv.co.il
+127.0.0.1
+
+Cause:
+need to add an ip-listener to 127.0.0.1
+
+Solution:
+(cmd)
+> netsh http add iplisten 127.0.0.1

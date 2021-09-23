@@ -22,7 +22,6 @@ namespace Authorization
             this.JWTSecretKey = ConfigurationManager.AppSettings["JWTSecretKey"].Trim();
         }
 
-        /*
         private string GetTokenFromQuery(HttpActionContext actionContext) {
             var prmsMap = actionContext.Request.GetQueryNameValuePairs();
             if (prmsMap == null) return null; // no parameters
@@ -37,10 +36,12 @@ namespace Authorization
 
             if (authorization.Scheme != "Bearer")
                 throw new Exception("Not a Bearer Authorization");
-            
+
+            if (string.IsNullOrEmpty(this.JWTSecretKey))
+                throw new Exception("No JWT Secret Key");
+
             return authorization.Parameter;
         }
-        */
 
         public override Task OnAuthorizationAsync(HttpActionContext actionContext, CancellationToken cancellationToken)
         {
@@ -59,19 +60,9 @@ namespace Authorization
                     [Query]
                     ?token=xxxxxxxxxxxxxxxxxxxxxxxxxx
                 */
-
-                if (string.IsNullOrEmpty(this.JWTSecretKey))
-                    throw new Exception("No JWT Secret Key");
-
-                var token = JWTGenerator.Utilities.GetTokenFromQuery(actionContext.Request);
-                if (string.IsNullOrEmpty(token))
-                    token = JWTGenerator.Utilities.GetTokenFromHeader(actionContext.Request);
-
-                /*
                 var token = GetTokenFromQuery(actionContext);
                 if(string.IsNullOrEmpty(token))
                     token = GetTokenFromHeader(actionContext);
-                */
 
                 var generator = new JWTGenerator(this.JWTSecretKey);
                 if (!generator.VerifyToken(token))                

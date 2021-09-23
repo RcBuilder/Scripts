@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace IntuitProxy
 {
-    /*
+    /*        
         // QA
         var intuitAPIManager = new IntuitAPIManagerSyncHttp(new IntuitAPIConfig { 
             BaseURL = "https://sandbox-quickbooks.api.intuit.com/v3/",
@@ -32,15 +32,30 @@ namespace IntuitProxy
             AccessToken = "xxxxxxxxxxxxxxxxxxxx",
             RefreshToken = "xxxxxxxxxxxxxxxxxxx"
         });
+
+        intuitAPIManager.TokensUpdated += (sender, eventArgs) => {
+            Console.WriteLine($"Tokens Updated #{eventArgs.CompanyId}");
+        };    
+
+        var companyInfo = await intuitAPIManager.GetCompanyInfo();
+        Console.WriteLine($"[Company] {companyInfo?.Name}");
     */
     public class IntuitAPIManager : IAPIManager
     {
+        public EventHandler<TokensUpdatedEventArgs> TokensUpdated;
+
         protected IntuitAPIConfig Config { get; set; }
         protected HttpServiceHelper HttpService { get; set; }
-
+        
         public IntuitAPIManager(IntuitAPIConfig Config) {
             this.Config = Config;
             this.HttpService = new HttpServiceHelper();
+        }
+
+        protected void OnTokensUpdated(TokensUpdatedEventArgs args)
+        {
+            if (TokensUpdated == null) return;
+            TokensUpdated(null, args);
         }
 
         public async Task<bool> Authorize() {
@@ -73,6 +88,10 @@ namespace IntuitProxy
             var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
             this.Config.AccessToken = responseData.access_token;
             this.Config.RefreshToken = responseData.refresh_token;
+
+            // raise an event
+            this.OnTokensUpdated(new TokensUpdatedEventArgs(this.Config.CompanyId, this.Config.RefreshToken, this.Config.AccessToken));
+
             return true;
         }
 

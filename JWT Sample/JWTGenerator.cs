@@ -1,10 +1,12 @@
 ﻿using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System;
+using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace TestRest
+namespace Authorization
 {
     /*
         USING
@@ -40,6 +42,36 @@ namespace TestRest
 
     public sealed class JWTGenerator
     {
+        public sealed class Utilities {
+            /*                
+                [Query]
+                ?token=xxxxxxxxxxxxxxxxxxxxxxxxxx
+            */
+            public static string GetTokenFromQuery(HttpRequestMessage Request)
+            {
+                var prmsMap = Request.GetQueryNameValuePairs();
+                if (prmsMap == null) return null; // no parameters
+                return prmsMap.FirstOrDefault(p => p.Key == "token").Value;
+            }
+
+            /*
+                [Header]
+                Authorization: Bearer xxxxxxxxxxxxxxxxxxxxxxxxxx
+            */
+            public static string GetTokenFromHeader(HttpRequestMessage Request)
+            {
+                var authorization = Request.Headers.Authorization;
+                if (authorization == null)
+                    throw new Exception("No Authorization Header");
+
+                if (authorization.Scheme != "Bearer")
+                    throw new Exception("Not a Bearer Authorization");
+
+                return authorization.Parameter;
+            }
+        }
+
+
         private Encoding Encoding { get; set; } = Encoding.ASCII;
         private string SecretKey { get; set; }        
 
