@@ -1,0 +1,23 @@
+HttpClient Basics
+-----------------
+
+private static readonly HttpClient client = new HttpClient();
+
+async void Main()
+{
+    // POST
+    var values = new Dictionary<string, string>
+    {
+        { "one", "value-1" },
+        { "two", "value-2" }
+    };
+
+    var content = new System.Net.Http.FormUrlEncodedContent(values);
+    var response = await client.PostAsync("https://rcbuilder.free.beeceptor.com", content);
+    var responseString = await response.Content.ReadAsStringAsync();	
+    Console.WriteLine(responseString);
+
+    // GET    	
+    responseString = await client.GetStringAsync("https://rcbuilder.free.beeceptor.com");
+    Console.WriteLine(responseString);
+}

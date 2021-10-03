@@ -1,0 +1,41 @@
+Reverse Proxy Server
+--------------------
+an intermediate server that handles HTTP requests. 
+it serves as a gateway between users and the application origin server.
+it uses a facade layer as an endpoint, clone the original request, pass it on to the original 
+application corresponding endpoint and return the response back to the end user.
+
+handles http requests from the web and forward them to the origin application server.
+this type of server sits between the end-user and the application server!
+
+use cases:
+- when have several servers and need a single server to route the requests. 
+- to set application load balancing on application level
+- to monitor http requests to the target application
+- to add http logger for requests to the target application
+- to add server-level logic to the http pipeline (for the target application) 
+- to enforce reaching the application for a single endpoint (by allowing only the proxy ip)
+- to set different routing rules of the target application
+
+illustration:
+see 'reverse-proxy.jpg'
+
+Forward Proxy Server
+--------------------
+an intermediate server that handles HTTP requests before reaching out to the WEB. 
+usually used internally by large organizations. 
+located in the organization's network edge so it also can block incoming & outbound traffic.
+
+handles http requests BEFORE reaching the web and forward them to the origin website.
+this type of server sits between the organization's LAN and the WEB!
+
+use cases:
+- to block employees from visiting certain websites (facebook etc.)
+- to block malicious incoming traffic
+- to monitor ANY outbound http to the WEB
+- to monitor ANY incoming http from the WEB
+- to cache external sites content internally
+- to bypass firewall restrictions (by country, ip etc.) 
+
+illustration:
+see 'forward-proxy.jpg'

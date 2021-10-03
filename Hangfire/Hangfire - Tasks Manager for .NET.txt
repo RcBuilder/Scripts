@@ -23,6 +23,7 @@ see 'TPL - QueueBackgroundWorkItem'
 - Authorization
 - Interface & Tasks
 - Using OWIN
+- ASP Support
 - Using Global.asax
 ============================
 
@@ -48,7 +49,7 @@ if we also want the use the hangfire dashboard, we nedd to install the 'Owin.Hos
 if we need to support old ASP.NET framework with no OWIN support, we need to install 'Hangfire.AspNet' package.
 
 e.g:
-> Install-Package Hangfire.Core
+> Install-Package Hangfire.Core -Version 1.7.13
 > Install-Package Hangfire.SqlServer
 > Install-Package Microsoft.Owin.Host.SystemWeb
 
@@ -441,8 +442,8 @@ public class NotificationsProcess : IProcess {
 }
 
 
-Using Global.asax
------------------
+ASP Support
+-----------
 for best practices, use OWIN (see 'Using OWIN')
 to support older versions, we need to install an extra package 'Hangfire.AspNet'
 
@@ -452,6 +453,10 @@ install in old ASP.NET apps (no OWIN):
 note!
 for modern apps with OWIN Startup class (OwinStartup) - use the OWIN version
 for older apps with no OWIN support - use the 'AspNet' package and bootstrap the hangfire in the global.asax file.
+
+Using Global.asax
+-----------------
+see 'ASP Support'
 
 -
 

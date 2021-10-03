@@ -53,6 +53,8 @@ namespace Logger
 
     public class SQLDBLogger : ILogger, ILoggerAsync
     {
+        private const int SyncWaitTimeMS = 3000;
+
         protected string ConnStr { get; set; }
         protected string ProcedureName { get; set; } = "sp_Log_add";
 
@@ -62,12 +64,12 @@ namespace Logger
 
         public void Error(string LogName, Exception Ex)
         {
-            this.ErrorAsync(LogName, Ex).Wait();
+            this.ErrorAsync(LogName, Ex).Wait(SyncWaitTimeMS);
         }
 
         public void Info(string LogName, string Message, List<string> Params = null)
         {
-            this.InfoAsync(LogName, Message, Params).Wait();
+            this.InfoAsync(LogName, Message, Params).Wait(SyncWaitTimeMS);
         }
 
         public async Task ErrorAsync(string LogName, Exception Ex)
@@ -105,7 +107,7 @@ namespace Logger
         private async Task _LogAsync(string Type, string Name, string Message, List<string> Params = null) {
             using (var conn = new SqlConnection(ConnStr))
             {
-                await conn.ExecuteAsync(
+                await conn.ExecuteScalarAsync(
                     this.ProcedureName,
                     commandType: CommandType.StoredProcedure,
                     param: new

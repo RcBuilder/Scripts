@@ -1,0 +1,59 @@
+Clone Http Request Message
+--------------------------
+
+[Code]
+
+private async Task<HttpRequestMessage> CloneHttpRequestMessageAsync(HttpRequestMessage request, string targetHost) {
+    var clone = new HttpRequestMessage(request.Method, request.RequestUri);
+
+    var ms = new MemoryStream();
+    if (request.Content != null) {
+        await request.Content.CopyToAsync(ms).ConfigureAwait(false);
+        ms.Position = 0;
+
+        if ((ms.Length > 0 || request.Content.Headers.Any()) && clone.Method != HttpMethod.Get) {
+            clone.Content = new StreamContent(ms);
+
+            if (request.Content.Headers != null)
+                foreach (var h in request.Content.Headers)
+                    clone.Content.Headers.Add(h.Key, h.Value);
+        }
+    }
+
+    clone.Version = request.Version;
+
+    foreach (var prop in request.Properties)
+        clone.Properties.Add(prop);
+
+    foreach (var header in request.Headers) {
+        switch (header.Key?.ToLower()) {
+            case "host": 
+                // change destination host-name
+                clone.Headers.TryAddWithoutValidation(header.Key, $"{targetHost}");
+                break;
+            default:
+                clone.Headers.TryAddWithoutValidation(header.Key, header.Value);
+                break;
+        }                
+    }
+
+    return clone;
+}
+
+---
+
+[Using]
+
+/// HttpRequestMessage request
+using (var client = new HttpClient()) {
+    client.Timeout = TimeSpan.FromSeconds(90); 
+    var clonedRequest = await CloneHttpRequestMessageAsync(request, "http://mySite.com");
+    clonedRequest.RequestUri = this.BuildTargetRequestUri(request);
+    return await client.SendAsync(clonedRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+}    
+
+---
+
+[Reference]
+
+see 'CODE > ProxyServer Folder' 

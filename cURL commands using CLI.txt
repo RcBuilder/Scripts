@@ -7,16 +7,16 @@ syntax
 
 flags
 -----
--I						// response headers only!
--i						// include headers in the response
--X <method>				// set request method
+-I				// response headers only!
+-i				// include headers in the response
+-X <method>			// set request method
 -H <header> 			// add request header [supports multiple]
--d <data>				// add request data [supports multiple]
--d @<file> 				// pass data from file
+-d <data>			// add request data [supports multiple]
+-d @<file> 			// pass data from file
 --data-binary @<file> 	// same as -d @<file>
--v						// extra information 
--o <file>				// save response to file
--b <cookie>				// add cookie header to the request (e.g: -b "k1=v1;k2=v2" results in cookie="k1=v1;k2=v2")
+-v				// extra information 
+-o <file>			// save response to file
+-b <cookie>			// add cookie header to the request (e.g: -b "k1=v1;k2=v2" results in cookie="k1=v1;k2=v2")
  	
 using
 -----

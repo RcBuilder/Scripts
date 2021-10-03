@@ -1,0 +1,13 @@
+References
+----------
+- provider: MML
+  project: DistributionServiceBLL
+  file: NotificationsProcess.cs
+
+- provider: MML
+  project: DistributionServiceBLL
+  file: RedialProcess.cs
+
+- provider: Creative
+  project: BrokerServicesBLL
+  file: WebHooksProcess.cs  

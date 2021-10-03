@@ -1,0 +1,25 @@
+Web API Routing
+===============
+
+// convention-based routing
+config.Routes.MapHttpRoute(
+    name: "DefaultApi",
+    routeTemplate: "api/{controller}/{id}",
+    defaults: new { id = RouteParameter.Optional }
+);
+
+-
+
+// attribute routing
+config.MapHttpAttributeRoutes();
+
+-
+
+// define route
+IHttpRoute defaultRoute = config.Routes.CreateRoute(
+	"api/{controller}/{id}", 
+    new { id = RouteParameter.Optional }, 
+	null
+);
+           
+config.Routes.Add("DefaultApi", defaultRoute);

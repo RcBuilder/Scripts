@@ -1,0 +1,48 @@
+public class SomeProcess : IProcessAsync {
+    protected IConfig Config { get; set; }
+    protected ILogger Logger { get; set; }
+	protected IDAL DAL { get; set; }
+
+    public bool IsRunning { protected set; get; }
+
+	public WebHooksProcess() : this(
+        new MSSQLDBProvider(ConfigSingleton.Instance.ConnStr),
+        ConfigSingleton.Instance,
+        LoggerSingleton.Instance
+    )
+    { }
+
+    public WebHooksProcess(IDAL dal, IConfig config, ILogger logger)
+    {
+        this.DAL = dal;
+        this.Config = config;            
+        this.Logger = logger;
+    }
+
+    public void Run()
+    {            
+        this.RunAsync().Wait();
+    }
+
+    public async Task RunAsync()
+    {
+        if (!this.Config.ServicesOnOff) return;
+        if (this.IsRunning) return;
+
+        try
+        {
+            this.IsRunning = true;
+
+            // CODE HERE ...
+
+        }
+        catch (Exception ex)
+        {
+            this.Logger.Error("RedialProcess.Run", ex);
+        }
+        finally
+        {
+            this.IsRunning = false;
+        }
+    }
+}

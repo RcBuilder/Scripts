@@ -1,13 +1,11 @@
 ﻿using Logger;
-using System;
-using System.Configuration;
 
-namespace WebsiteBLL
+namespace BLL
 {
     public sealed class LoggerSingleton
     {
-        private static SQLDBLogger _Instance = null;
-        public static SQLDBLogger Instance
+        private static ILogger _Instance = null;
+        public static ILogger Instance
         {
             get
             {

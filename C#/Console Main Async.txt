@@ -1,0 +1,48 @@
+Console Main Async
+------------------
+structure:
+static void Main(string[] args) {
+    MainAsync().Wait();                
+    Console.ReadKey();
+}
+async static Task MainAsync() { ... }
+
+---
+
+sample:
+static void Main(string[] args) {
+    MainAsync().Wait();            
+    Console.WriteLine("DONE");
+    Console.ReadKey();
+}
+
+async static Task MainAsync()
+{
+    var list = new[] {
+        new { Id = 1, Name = "A", Delay = TimeSpan.FromSeconds(1.4) },
+        new { Id = 2, Name = "B", Delay = TimeSpan.FromSeconds(3.1) },
+        new { Id = 3, Name = "C", Delay = TimeSpan.FromSeconds(0.5) },
+        new { Id = 4, Name = "D", Delay = TimeSpan.FromSeconds(0.6) },
+        new { Id = 5, Name = "E", Delay = TimeSpan.FromSeconds(2.2) }
+    }.ToList();
+        
+    Parallel.ForEach(list, item =>
+    {
+        Console.WriteLine($"#{item.Id} {item.Name}");
+        Thread.Sleep(item.Delay);
+        Console.WriteLine($"#{item.Id} COMPLETED");
+    });    
+}
+
+output:
+#1 A
+#4 D
+#3 C
+#5 E
+#2 B
+#3 COMPLETED
+#4 COMPLETED
+#1 COMPLETED
+#5 COMPLETED
+#2 COMPLETED
+DONE
