@@ -1,0 +1,20 @@
+Deploy Node App to Heroku
+-------------------------
+
+1. create a basic app 
+2. use the process.env.PORT to set the port. add a default value as fallback.
+   const port = process.env.PORT || 5001;
+3. add a 'Procfile' file (heroku init file) and add the app launch file.
+   web: node server.js
+4. go to heroku dashboard > new app 
+5. set name and choose a region > create
+6. choose Deployment method as 'Heroku Git' and init repository
+   note! need to install heroku cli
+   > git init
+   > heroku git:remote -a rcbuilder-test-1
+   > git add .
+   > git commit -m "init"
+   > git push heroku master
+7. click on 'Open app' in the heroku app dashboard
+-
+8. to update server, just use git commands (commit, push and etc.)

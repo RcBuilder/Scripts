@@ -14,8 +14,278 @@ using System.Xml.Linq;
 
 namespace GoogleAdwordsAPI
 {
+    // TODO TO DOCUMENT
+    /*
+    // TO DOCUMENT:
+    Create -> test.RcBuilder@gmail.com
+    Create -> test.RcBuilder MCC (Test)
+    Create -> adwords account + campaigns + .. (Test)
+    Real MCC -> account settings -> Adwords API Center -> Developer token -> update the DeveloperToken config key (note! for real accounts managment we MUST send a developer request form)
+    Real MCC -> login developers zone -> Create Project -> Credentials -> Create OAuth -> type: other -> Client ID + Client secret
+    OAuthTokenGenerator.exe -> set Client ID + Client secret -> popup -> give access WITH the test MCC account (test.RcBuilder@gmail.com) -> OAuth2RefreshToken
+    copy-paste the credentials to the web.config under AdWordsApi section                
+    set the ClientCustomerId config key to the account id which you want to manage via the api (note! can be set to the ROOT level account - the root mcc)
+
+
+    * install nuget package
+      Install-Package Google.AdWords
+
+    * note!
+      must include the System.Web.Services namespace 
+
+    * documentation:
+      https://developers.google.com/adwords/api/         
+      https://developers.google.com/adwords/api/docs/reference/
+      https://developers.google.com/adwords/api/docs/reference/#v201601
+      https://developers.google.com/adwords/api/docs/guides/first-api-call
+
+    * developers zone
+      https://console.developers.google.com/apis/   
+
+    * OAuth2 
+      - in the developers zone -> credentials -> create an OAuth2 client ID and secret (type: other)
+        client ID: '962312011735-668d7s9io5ro76lrolprkrrop7h5umfu.apps.googleusercontent.com'
+        secret: 'U3gT7KQ8qPOetbqVsQCRS7Bt'
+      - MUST use the MCC account to login the developer zone
+      - note! DO NOT USE Web Application type - it requires an callback url!          
+
+    * add access to the API:
+      - open your adwords account -> account settings -> (left menu) AdWords API Center
+      - fill the form and click on the generate token button
+        Developer token: '9LFOb09isOe8dsTB4MosPw'
+
+      - need to fill the form and wait for token confirmation          
+
+      - note! here you can generate a new token or set the access level  
+      - important! MUST be an MCC account
+
+    * adwords customer Id
+      - open your adwords account -> copy the customer Id
+
+    * OAuthTokenGenerator.exe
+      - use the 'OAuthTokenGenerator.exe' token generator utility to generate a token                      
+
+    * sendBox
+      - create a gmail account to attach to the MCC test account
+        account: test.rcbuilder@gmail.com            
+
+      - create an MCC test Account
+        https://adwords.google.com/um/Welcome/Home?a=1&sf=mt&authuser=0#ta            
+        note! need to attached to an account with NO adwords account
+        Mcc: 691-108-5522       
+
+      - create an account within the created test mcc
+        customer Id: 575-092-7569          
+
+
+    * web.config
+      https://github.com/googleads/googleads-dotnet-lib/wiki/Understanding-App.config
+
+      <configSections>            
+        <section name="AdWordsApi" type="System.Configuration.DictionarySectionHandler" />
+      </configSections>
+      <AdWordsApi>
+        <!-- AdWords API.-->
+        <add key="UserAgent" value="Adwords API"/>
+        <add key="DeveloperToken" value="9LFOb09isOe8dsTB4MosPw"/>
+        <add key="ClientCustomerId" value="905-811-3159"/>
+
+        <!-- OAuth2 -->
+        <add key="AuthorizationMethod" value="OAuth2" />
+        <add key="OAuth2Mode" value="APPLICATION" />
+        <add key='OAuth2ClientId' value='1077252635708-crhp3ci2q5afvfe0serntuvkgfo17t88.apps.googleusercontent.com' />
+        <add key='OAuth2ClientSecret' value='YhOt7UKVYpmB-nMmFayKknjO' />
+        <add key='OAuth2RefreshToken' value='1/gkvTzzciCJ2qvK3Ok_AgCMZqg_o5lx0cF34xm30gve4' />
+      </AdWordsApi>
+
+      note! e.g credentials belongs to yosibaryosefmcc@gmail.com account 
+    ------------------- 
+
+    * GET DATA
+      var user = new AdWordsUser(); // adwords account user
+      var service = ([serviceType])user.GetService([serviceType]);
+
+      var selector = new Selector{
+        fields = new string[] { ... } // field: [Entity].Fields...
+      };
+
+      var result = service.get(selector);
+
+    * GET DATA WITH PAGING
+      var user = new AdWordsUser(); // adwords account user
+      var service = ([serviceType])user.GetService([serviceType]);
+
+      var selector = new Selector{
+        fields = new string[] { ... }, // field: [Entity].Fields...
+        paging = Paging.Default
+      };
+
+      var page = service.get(selector); // use page.entries to get the items
+
+    * GET DATA WITH FILTERS
+      var user = new AdWordsUser(); // adwords account user
+      var service = ([serviceType])user.GetService([serviceType]);
+
+      var selector = new Selector{
+        fields = new string[] { ... }, // field: [Entity].Fields...
+        predicates = new Predicate[] { ... } // Predicate: { fieldName, @operator, values }
+      };
+
+      var page = service.get(selector); // use page.entries to get the items     
+
+
+    * SET DATA
+      var user = new AdWordsUser(); // adwords account user
+      var service = ([serviceType])user.GetService([serviceType]);
+
+      var operation = new BudgetOperation();
+      operation.@operator = [type];
+      operation.operand = [operand];
+
+      var result = service.mutate([operations]);
+
+    * REPORTS
+
+      - structure:
+      var user = new AdWordsUser();
+      var service = (ReportDefinitionService)user.GetService(AdWordsService.v201601.ReportDefinitionService);
+
+      var fields = service.getReportFields([ReportType]); // see 'Report Types'
+
+      foreach (var field in fields) 
+        Console.WriteLine("{0} ({1})", field.fieldName,field.fieldType);
+
+     - Report Types
+       https://developers.google.com/adwords/api/docs/appendix/reports
+
+       enum ReportDefinitionReportType
+       e.g: ReportDefinitionReportType.ACCOUNT_PERFORMANCE_REPORT
+
+       - Account Performance 
+       - Ad Customizers Feed Item
+       - Ad Group Performance
+       - Ad Performance
+       - Age Range Performance
+       - Audience Performance
+       - Automatic Placements Performance
+       - Bid Goal Performance
+       - Budget Performance
+       - Call Metrics Call Details
+       - Campaign Ad Schedule Target
+       - Campaign Location Target
+       - Campaign Negative Keywords Performance
+       - Campaign Negative Locations
+       - Campaign Negative Placements Performance	Campaign Performance
+       - Campaign Platform Target
+       - Campaign Shared Set
+       - Click Performance
+       - Creative Conversion
+       - Criteria Performance
+       - Destination URL
+       - Display Keyword Performance
+       - Display Topics Performance
+       - Final URL
+       - Gender Performance
+       - Geo Performance
+       - Keywordless Category
+       - Keywordless Query
+       - Keywords Performance	Label
+       - Paid and Organic Query
+       - Parental Status Performance
+       - Placeholder
+       - Placeholder Feed Item
+       - Placement Performance
+       - Product Partition
+       - Search Query Performance
+       - Shared Set
+       - Shared Set Criteria
+       - Shopping Performance
+       - URL Performance
+       - User Ad Distance
+       - Video Performance   
+
+
+    * AdGroup Criteria List
+      note! see AdGroupCriterionService 
+
+      Types:
+      - NegativeAdGroupCriterion
+      - BiddableAdGroupCriterion
+
+      SubTypes:
+      - AgeRange
+      - AppPaymentModel
+      - Gender
+      - Keyword
+      - MobileAppCategory
+      - MobileApplication
+      - Parent
+      - Placement
+      - ProductPartition
+      - CriterionUserInterest
+      - CriterionUserList
+      - Vertical
+      - Webpage
+      - YouTubeChannel
+      - YouTubeVideo         
+
+    * Campaign Criteria List
+      note! see CampaignCriterionService
+
+      Types:
+      - NegativeCampaignCriterion 
+
+      SubTypes:
+      - AdSchedule
+      - AgeRange
+      - Carrier
+      - ContentLabel
+      - Gender
+      - IpBlock
+      - Keyword
+      - Language
+      - Location
+      - MobileAppCategory
+      - MobileApplication
+      - MobileDevice
+      - OperatingSystemVersion
+      - Parent
+      - Placement
+      - Platform
+      - ProductScope
+      - Proximity
+      - LocationGroups
+      - CriterionUserInterest
+      - CriterionUserList
+      - Vertical
+      - Webpage
+      - YouTubeChannel
+      - YouTubeVideo
+
+
+    // TODO
+    * keyword Planner documentation:
+      - use TargetingIdeaService service to Search for new keywords using a phrase, website or category
+      - https://developers.google.com/adwords/api/docs/guides/targeting-idea-service        
+
+
+    // TODO ConstantDataService
+    // TODO #Regions 
+    */
     public class GoogleAdwordsProxy
-    { 
+    {
+        
+        public string TEST() {
+            return "";
+        }
+
+
+
+
+
+
+
+
         private static long MICRO_UNIT = 1000000;
         private static int DEFAULT_ROWS_COUNT = 50;
         private AdWordsUser user;        
@@ -448,7 +718,7 @@ namespace GoogleAdwordsAPI
                 name = Details.BudgetName,
                 deliveryMethod = BudgetBudgetDeliveryMethod.STANDARD,
                 amount = new Money{
-                    microAmount = (long)(Details.BudgetAmount * (float)MICRO_UNIT)
+                    microAmount = (long)(Math.Round(Details.BudgetAmount) * (float)MICRO_UNIT)
                 }
             };
 
@@ -491,13 +761,13 @@ namespace GoogleAdwordsAPI
 
                 adGroup.biddingStrategyConfiguration = new BiddingStrategyConfiguration
                 {
-                    bids = new Bids[] { cpcBid }
+                    bids = new Bids[] { cpcBid }                    
                 };
             }
 
             var operations = new AdGroupOperation[]{
                 new AdGroupOperation{
-                    @operator = (Details.Id > 0) ? Operator.SET : Operator.ADD,
+                    @operator = (Details.Id > 0) ? Operator.SET : Operator.ADD,                   
                     operand = adGroup
                 }
             };
@@ -789,31 +1059,211 @@ namespace GoogleAdwordsAPI
                     }).ToList();
         }
 
-        public int ClearProximities(long CampaignId)
+        public List<long> GetAgeRangeList(long AdgroupId)
         {
-            var proximities = this.GetProximities(CampaignId);
-            if (proximities == null || proximities.Count == 0)
-                return 0;
+            var service = (AdGroupCriterionService)this.user.GetService(AdWordsService.v201809.AdGroupCriterionService);
 
-            var campaignCriterions = proximities.Select(x => new CampaignCriterion
+            var selector = new Selector
             {
-                campaignId = CampaignId,
-                criterion = new Proximity { id = x.Id }
-            }).ToList();
+                fields = new string[] {
+                    Criterion.Fields.Id
+                },
+                predicates = new Predicate[] {
+                    // WHERE AdgroupId = [AdgroupId] AND CriteriaType = AGE_RANGE
+                    Predicate.Equals(AdGroupCriterion.Fields.AdGroupId, AdgroupId.ToString()),
+                    Predicate.Equals(Criterion.Fields.CriteriaType, CriterionType.AGE_RANGE.ToString())
+                }
+            };
 
-            return DeleteCampaignCriterions(campaignCriterions);            
+            var resultPage = service.get(selector);
+            if (resultPage.entries == null)
+                return null;
+
+            return (from entry in resultPage.entries
+                    let criterion = (AgeRange)entry.criterion
+                    select criterion.id).ToList();
         }
 
-        public bool AddLanguages(long CampaignId, IEnumerable<int> LanguageIds)
+        public List<long> GetGenderList(long AdgroupId)
         {
-            if (LanguageIds == null || LanguageIds.Count() == 0)            
+            var service = (AdGroupCriterionService)this.user.GetService(AdWordsService.v201809.AdGroupCriterionService);
+
+            var selector = new Selector
+            {
+                fields = new string[] {
+                    Criterion.Fields.Id
+                },
+                predicates = new Predicate[] {
+                    // WHERE AdgroupId = [AdgroupId] AND CriteriaType = GENDER
+                    Predicate.Equals(AdGroupCriterion.Fields.AdGroupId, AdgroupId.ToString()),
+                    Predicate.Equals(Criterion.Fields.CriteriaType, CriterionType.GENDER.ToString())
+                }
+            };
+
+            var resultPage = service.get(selector);
+            if (resultPage.entries == null)
+                return null;
+
+            return (from entry in resultPage.entries
+                    let criterion = (Gender)entry.criterion
+                    select criterion.id).ToList();
+        }
+
+        public List<long> GetLanguageList(long AdgroupId)
+        {
+            var service = (AdGroupCriterionService)this.user.GetService(AdWordsService.v201809.AdGroupCriterionService);
+
+            var selector = new Selector
+            {
+                fields = new string[] {
+                    Criterion.Fields.Id
+                },
+                predicates = new Predicate[] {
+                    // WHERE AdgroupId = [AdgroupId] AND CriteriaType = LANGUAGE
+                    Predicate.Equals(AdGroupCriterion.Fields.AdGroupId, AdgroupId.ToString()),
+                    Predicate.Equals(Criterion.Fields.CriteriaType, CriterionType.LANGUAGE.ToString())
+                }
+            };
+
+            var resultPage = service.get(selector);
+            if (resultPage.entries == null)
+                return null;
+
+            return (from entry in resultPage.entries
+                    let criterion = (Language)entry.criterion
+                    select criterion.id).ToList();
+        }
+
+        // https://developers.google.com/adwords/api/docs/appendix/codes-formats#expandable-2
+        public List<long> GetAgeRangeList()
+        {
+            // static content for better performance
+            return new List<long> {
+                503001,
+                503002,
+                503003,
+                503004,
+                503005,
+                503006,
+                503999
+            };
+
+            // get list from api
+            var service = (ConstantDataService)this.user.GetService(AdWordsService.v201809.ConstantDataService);
+            var result = service.getAgeRangeCriterion();
+
+            if (result == null || result.Length == 0)
+                return null;
+
+            return result.Select(x => x.id).ToList();
+        }
+
+        // https://developers.google.com/adwords/api/docs/appendix/codes-formats#expandable-4
+        public List<long> GetGenderList()
+        {
+            // static content for better performance
+            return new List<long>
+            {
+                10,
+                11,
+                20
+            };
+
+            // get list from api
+            var service = (ConstantDataService)this.user.GetService(AdWordsService.v201809.ConstantDataService);
+            var result = service.getGenderCriterion();
+
+            if (result == null || result.Length == 0)
+                return null;
+
+            return result.Select(x => x.id).ToList();
+        }
+
+        // https://developers.google.com/adwords/api/docs/appendix/codes-formats#expandable-7
+        public List<long> GetLanguageList()
+        {
+            // static content for better performance
+            return new List<long>
+            {
+                1019,
+                1056,
+                1020,
+                1038,
+                1017,
+                1018,
+                1039,
+                1021,
+                1009,
+                1010,
+                1000,
+                1043,
+                1042,
+                1011,
+                1002,
+                1001,
+                1022,
+                1072,
+                1027,
+                1023,
+                1024,
+                1026,
+                1025,
+                1004,
+                1005,
+                1086,
+                1012,
+                1028,
+                1029,
+                1102,
+                1098,
+                1101,
+                1013,
+                1064,
+                1030,
+                1014,
+                1032,
+                1031,
+                1035,
+                1033,
+                1034,
+                1003,
+                1015,
+                1130,
+                1131,
+                1044,
+                1037,
+                1036,
+                1041,
+                1040
+            };
+
+            // get list from api
+            var service = (ConstantDataService)this.user.GetService(AdWordsService.v201809.ConstantDataService);
+            var result = service.getLanguageCriterion();
+
+            if (result == null || result.Length == 0)
+                return null;
+
+            return result.Select(x => x.id).ToList();
+        }
+
+        public bool AddLanguages(long CampaignId, IEnumerable<int> Ids)
+        {
+            return this.AddLanguages(CampaignId, Ids.Select(x => (long)x));
+        }
+        public bool AddLanguages(long CampaignId, IEnumerable<long> Ids)
+        {
+            if (Ids == null || Ids.Count() == 0)
                 return true;
-            
+
             List<CampaignCriterion> criterions = new List<CampaignCriterion>();
-            foreach (var languageId in LanguageIds) {
-                criterions.Add(new CampaignCriterion {
-                    criterion = new Language {
-                        id = (long)languageId
+            foreach (var id in Ids)
+            {
+                criterions.Add(new CampaignCriterion
+                {
+                    criterion = new Language
+                    {
+                        id = id
                     },
                     campaignId = CampaignId
                 });
@@ -823,16 +1273,23 @@ namespace GoogleAdwordsAPI
             return responseIds != null && responseIds.Count() > 0;
         }
 
-        public bool AddGenders(long AdgroupId, IEnumerable<int> GenderIds)
+        public bool AddGenders(long AdgroupId, IEnumerable<int> Ids)
         {
-            if (GenderIds == null || GenderIds.Count() == 0)
+            return this.AddGenders(AdgroupId, Ids.Select(x => (long)x));
+        }
+        public bool AddGenders(long AdgroupId, IEnumerable<long> Ids)
+        {
+            if (Ids == null || Ids.Count() == 0)
                 return true;
-            
+
             var criterions = new List<AdGroupCriterion>();
-            foreach (var genderId in GenderIds) {
-                criterions.Add(new BiddableAdGroupCriterion {
-                    criterion = new Gender {
-                        id = (long)genderId
+            foreach (var id in Ids)
+            {
+                criterions.Add(new BiddableAdGroupCriterion
+                {
+                    criterion = new Gender
+                    {
+                        id = id
                     },
                     adGroupId = AdgroupId
                 });
@@ -842,16 +1299,24 @@ namespace GoogleAdwordsAPI
             return responseIds != null && responseIds.Count() > 0;
         }
 
-        public bool AddAgeRanges(long AdgroupId, IEnumerable<int> AgeRangeIds)
+        public bool AddAgeRanges(long AdgroupId, IEnumerable<int> Ids)
         {
-            if (AgeRangeIds == null || AgeRangeIds.Count() == 0)
+            return this.AddAgeRanges(AdgroupId, Ids.Select(x => (long)x));
+        }
+        public bool AddAgeRanges(long AdgroupId, IEnumerable<long> Ids)
+        {
+            if (Ids == null || Ids.Count() == 0)
                 return true;
-            
+
             var criterions = new List<AdGroupCriterion>();
-            foreach (var ageRangeId in AgeRangeIds) {
-                criterions.Add(new BiddableAdGroupCriterion {
-                    criterion = new AgeRange {
-                        id = (long)ageRangeId
+            /// NegativeAdGroupCriterion 
+            foreach (var id in Ids)
+            {
+                criterions.Add(new BiddableAdGroupCriterion
+                {
+                    criterion = new AgeRange
+                    {
+                        id = id
                     },
                     adGroupId = AdgroupId
                 });
@@ -860,17 +1325,69 @@ namespace GoogleAdwordsAPI
             var responseIds = this.AddAdgroupCriterions(criterions);
             return responseIds != null && responseIds.Count() > 0;
         }
-
-        public bool AddInterests(long AdgroupId, IEnumerable<int> InterestsIds)
+        
+        public bool SaveGenders(long AdgroupId, IEnumerable<int> Ids)
         {
-            if (InterestsIds == null || InterestsIds.Count() == 0)
+            return this.SaveGenders(AdgroupId, Ids.Select(x => (long)x));
+        }
+        public bool SaveGenders(long AdgroupId, IEnumerable<long> Ids)
+        {
+            var all = this.GetGenderList();
+            this.ClearGenders(AdgroupId);
+            var res1 = this.AddGenders(AdgroupId, all.Intersect(Ids));
+            var res2 = this.ExcludeGenders(AdgroupId, all.Except(Ids));
+            return res1 && res2;
+        }
+
+        public bool SaveAgeRanges(long AdgroupId, IEnumerable<int> Ids)
+        {
+            return this.SaveAgeRanges(AdgroupId, Ids.Select(x => (long)x));
+        }
+        public bool SaveAgeRanges(long AdgroupId, IEnumerable<long> Ids)
+        {
+            var all = this.GetAgeRangeList();
+            this.ClearAgeRanges(AdgroupId);
+            var res1 = this.AddAgeRanges(AdgroupId, all.Intersect(Ids));
+            var res2 = this.ExcludeAgeRanges(AdgroupId, all.Except(Ids));
+            return res1 && res2;
+        }
+
+        public bool AddInterests(long AdgroupId, IEnumerable<int> Ids)
+        {
+            return this.AddInterests(AdgroupId, Ids.Select(x => (long)x));
+        }
+        public bool AddInterests(long AdgroupId, IEnumerable<long> Ids)
+        {
+            if (Ids == null || Ids.Count() == 0)
                 return true;
             
             var criterions = new List<AdGroupCriterion>();
-            foreach (var interestsId in InterestsIds) {
+            foreach (var id in Ids) {
                 criterions.Add(new BiddableAdGroupCriterion {
                     criterion = new CriterionUserInterest {
-                        userInterestId = (long)interestsId
+                        userInterestId = id
+                    },
+                    adGroupId = AdgroupId
+                });
+            }
+
+            var responseIds = this.AddAdgroupCriterions(criterions);
+            return responseIds != null && responseIds.Count() > 0;
+        }
+
+        public bool AddPlacements(long AdgroupId, IEnumerable<string> URLs)
+        {
+            if (URLs == null || URLs.Count() == 0)
+                return true;
+
+            var criterions = new List<AdGroupCriterion>();
+            foreach (var url in URLs)
+            {
+                criterions.Add(new BiddableAdGroupCriterion
+                {
+                    criterion = new Placement
+                    {
+                        url = url
                     },
                     adGroupId = AdgroupId
                 });
@@ -989,6 +1506,155 @@ namespace GoogleAdwordsAPI
             return responseIds != null && responseIds.Count() > 0;
         }
 
+        public long UpdateCampaignStatus(long CampaignId, eEntityStatus Status)
+        {
+            var service = (CampaignService)this.user.GetService(AdWordsService.v201809.CampaignService);
+
+            var operand = new Campaign
+            {
+                status = (CampaignStatus)Status,
+                id = CampaignId
+            };
+
+            var operations = new CampaignOperation[] {
+                new CampaignOperation {
+                    @operator = Operator.SET,
+                    operand = operand
+                }
+            };
+
+            var campaignReturnValue = service.mutate(operations);
+            if (campaignReturnValue == null || campaignReturnValue.value == null || campaignReturnValue.value.Length == 0)
+                return 0;
+            return campaignReturnValue.value.First().id;
+        }
+
+        public int ClearProximities(long CampaignId)
+        {
+            var proximities = this.GetProximities(CampaignId);
+            if (proximities == null || proximities.Count == 0)
+                return 0;
+
+            var criterions = proximities.Select(x => new CampaignCriterion
+            {
+                campaignId = CampaignId,
+                criterion = new Proximity { id = x.Id }
+            }).ToList();
+
+            return DeleteCampaignCriterions(criterions);
+        }
+        
+        public int ClearAgeRanges(long AdgroupId)
+        {
+            var ids = this.GetAgeRangeList(AdgroupId);
+            if (ids == null || ids.Count == 0)
+                return 0;
+
+            var criterions = ids.Select(id => new AdGroupCriterion
+            {
+                adGroupId = AdgroupId,
+                criterion = new AgeRange { id = id }
+            }).ToList();
+
+            return DeleteAdgroupCriterions(criterions);
+        }
+
+        public int ClearGenders(long AdgroupId)
+        {
+            var ids = this.GetGenderList(AdgroupId);
+            if (ids == null || ids.Count == 0)
+                return 0;
+
+            var criterions = ids.Select(id => new AdGroupCriterion
+            {
+                adGroupId = AdgroupId,
+                criterion = new Gender { id = id }
+            }).ToList();
+
+            return DeleteAdgroupCriterions(criterions);
+        }
+
+        public int ClearLanguages(long AdgroupId)
+        {
+            var ids = this.GetLanguageList(AdgroupId);
+            if (ids == null || ids.Count == 0)
+                return 0;
+
+            var criterions = ids.Select(id => new AdGroupCriterion
+            {
+                adGroupId = AdgroupId,
+                criterion = new Language { id = id }
+            }).ToList();
+
+            return DeleteAdgroupCriterions(criterions);
+        }
+        
+        public bool ExcludeAgeRanges(long AdgroupId, IEnumerable<long> Ids)
+        {
+            if (Ids == null || Ids.Count() == 0)
+                return true;
+
+            var criterions = new List<AdGroupCriterion>();            
+            foreach (var id in Ids)
+            {
+                criterions.Add(new NegativeAdGroupCriterion
+                {
+                    criterion = new AgeRange
+                    {
+                        id = id
+                    },
+                    adGroupId = AdgroupId
+                });
+            }
+
+            var responseIds = this.AddAdgroupCriterions(criterions);
+            return responseIds != null && responseIds.Count() > 0;
+        }
+
+        public bool ExcludeGenders(long AdgroupId, IEnumerable<long> Ids)
+        {
+            if (Ids == null || Ids.Count() == 0)
+                return true;
+
+            var criterions = new List<AdGroupCriterion>();            
+            foreach (var id in Ids)
+            {
+                criterions.Add(new NegativeAdGroupCriterion
+                {
+                    criterion = new Gender
+                    {
+                        id = id
+                    },
+                    adGroupId = AdgroupId
+                });
+            }
+
+            var responseIds = this.AddAdgroupCriterions(criterions);
+            return responseIds != null && responseIds.Count() > 0;
+        }
+
+        public bool ExcludeLanguages(long AdgroupId, IEnumerable<long> Ids)
+        {
+            if (Ids == null || Ids.Count() == 0)
+                return true;
+
+            var criterions = new List<AdGroupCriterion>();            
+            foreach (var id in Ids)
+            {
+                criterions.Add(new NegativeAdGroupCriterion
+                {
+                    criterion = new Language
+                    {
+                        id = id
+                    },
+                    adGroupId = AdgroupId
+                });
+            }
+
+            var responseIds = this.AddAdgroupCriterions(criterions);
+            return responseIds != null && responseIds.Count() > 0;
+        }
+
         private long AddCampaignCriterions(CampaignCriterion Criterion)
         {
             var responseIds = this.AddCampaignCriterions(new List<CampaignCriterion> {
@@ -1070,6 +1736,27 @@ namespace GoogleAdwordsAPI
             return responseIds.FirstOrDefault();
         }
 
+        private int DeleteAdgroupCriterions(List<AdGroupCriterion> Criterions)
+        {
+            var service = (AdGroupCriterionService)this.user.GetService(AdWordsService.v201809.AdGroupCriterionService);
+
+            var operations = new List<AdGroupCriterionOperation>();
+            foreach (var criterion in Criterions)
+            {
+                operations.Add(new AdGroupCriterionOperation
+                {
+                    @operator = Operator.REMOVE,
+                    operand = criterion
+                });
+            }
+
+            var adGroupCriterionReturnValue = service.mutate(operations.ToArray());
+            if (adGroupCriterionReturnValue == null || adGroupCriterionReturnValue.value == null || adGroupCriterionReturnValue.value.Length == 0)
+                return 0;
+
+            return adGroupCriterionReturnValue.value.Length;
+        }
+
         private IEnumerable<long> AddAdgroupCriterions(List<AdGroupCriterion> Criterions)
         {
             var service = (AdGroupCriterionService)this.user.GetService(AdWordsService.v201809.AdGroupCriterionService);
@@ -1106,29 +1793,7 @@ namespace GoogleAdwordsAPI
             
             return campaignExtensionSettingReturnValue.value.First().extensionSetting.extensions.Select(x => x.feedId).ToList();
         }
-
-        public long UpdateCampaignStatus(long CampaignId, eEntityStatus Status)
-        {
-            var service = (CampaignService)this.user.GetService(AdWordsService.v201809.CampaignService);
-
-            var operand = new Campaign {
-                status = (CampaignStatus)Status,
-                id = CampaignId
-            };
-
-            var operations = new CampaignOperation[] {
-                new CampaignOperation {
-                    @operator = Operator.SET,
-                    operand = operand
-                }
-            };
-
-            var campaignReturnValue = service.mutate(operations);
-            if (campaignReturnValue == null || campaignReturnValue.value == null || campaignReturnValue.value.Length == 0)            
-                return 0;           
-            return campaignReturnValue.value.First().id;
-        }
-
+        
         /*  NOTE! 
             [GetManagedAccounts] use the ManagedCustomerService service to get the accounts under the MCC 
             [GetRelatedAccounts] use the CustomerService (getCustomers method) to get the related accounts (the accounts who gave you access)

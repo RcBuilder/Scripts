@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns="http://www.w3.org/2000/svg" xmlns:cc="http://web.resource.org/cc/" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:svg="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:ns1="http://sozi.baierouge.fr" id="svg2" viewBox="0 0 720 720" version="1.1" inkscape:version="0.91 r13725">
+  <g id="layer1" transform="translate(0 -332.36)">
+    <path id="path2834" style="stroke:#000000;fill:#000000" d="m352.9 377.86-90.801 157.27h-181.6l90.801 157.2-90.8 157.27h181.6l90.8 157.3 90.87-157.3h181.6l-90.801-157.27 90.801-157.2h-181.6l-90.87-157.27z"/>
+    <path id="path2839" style="fill:#ffffff" d="m352.91 377.96 0.032222 314.5 90.833-157.23-90.866-157.27z"/>
+    <path id="path2841" style="fill:#ffffff" d="m625.37 535.13-272.42 157.28 181.62 0.026596 90.799-157.3z"/>
+    <path id="path2843" style="fill:#ffffff" d="m625.44 849.66-272.45-157.22 90.787 157.26 181.66-0.038387z"/>
+    <path id="path2845" style="fill:#ffffff" d="m352.91 1007-0.032222-314.5-90.833 157.23 90.866 157.27z"/>
+    <path id="path2847" style="fill:#ffffff" d="m80.454 849.74 272.42-157.28-181.62-0.02-90.796 157.3z"/>
+    <path id="path2849" style="fill:#ffffff" d="m80.421 535.24 272.45 157.22-90.78-157.26-181.67 0.04z"/>
+  </g>
+  <metadata>
+    <rdf:RDF>
+      <cc:Work>
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+        <cc:license rdf:resource="http://creativecommons.org/licenses/publicdomain/"/>
+        <dc:publisher>
+          <cc:Agent rdf:about="http://openclipart.org/">
+            <dc:title>Openclipart</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+        <dc:title>outrayj hexagram 12 stripe</dc:title>
+        <dc:date>2011-05-31T23:39:21</dc:date>
+        <dc:description>outrayj hexagram 12 stripe</dc:description>
+        <dc:source>https://openclipart.org/detail/141721/outrayj-hexagram-12-stripe-by-10binary</dc:source>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>10binary</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>12</rdf:li>
+            <rdf:li>hexagram</rdf:li>
+            <rdf:li>outrayj</rdf:li>
+            <rdf:li>polygon</rdf:li>
+            <rdf:li>star</rdf:li>
+            <rdf:li>stripe</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+      </cc:Work>
+      <cc:License rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Reproduction"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#Distribution"/>
+        <cc:permits rdf:resource="http://creativecommons.org/ns#DerivativeWorks"/>
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>
