@@ -196,16 +196,30 @@ namespace Helpers
             }
         }
 
-        public (bool Success, HttpStatusCode StatusCode, string Content, T Model) GET<T>(string url, string querystring = null, Dictionary<string, string> headers = null)
+        public (bool Success, HttpStatusCode StatusCode, string Content, TResult Model) GET<TResult>(string url, string querystring = null, Dictionary<string, string> headers = null)
         {
             try
             {
                 var response = this.GET(url, querystring, headers);
-                return (response.Success, response.StatusCode, response.Content, response.Success ? JsonConvert.DeserializeObject<T>(response.Content) : default(T));
+
+                var model = default(TResult);
+                if (response.Success)
+                    model = JsonConvert.DeserializeObject<TResult>(response.Content);
+                else if (response.Content.Contains("{"))
+                {
+                    try
+                    {
+                        var json = response.Content.Substring(response.Content.IndexOf("{"));
+                        model = JsonConvert.DeserializeObject<TResult>(json);
+                    }
+                    catch { }
+                }
+
+                return (response.Success, response.StatusCode, response.Content, model);
             }
             catch (Exception ex)
             {
-                return (false, ERROR, ex.Message, default(T));
+                return (false, ERROR, ex.Message, default(TResult));
             }
         }
 
@@ -319,7 +333,21 @@ namespace Helpers
             try
             {
                 var response = this.UPLOAD<TPayload>(url, payload, payloadMode, querystring, headers, method);
-                return (response.Success, response.StatusCode, response.Content, response.Success ? JsonConvert.DeserializeObject<TResult>(response.Content) : default(TResult));
+
+                var model = default(TResult);
+                if (response.Success)
+                    model = JsonConvert.DeserializeObject<TResult>(response.Content);
+                else if (response.Content.Contains("{"))
+                {
+                    try
+                    {
+                        var json = response.Content.Substring(response.Content.IndexOf("{"));
+                        model = JsonConvert.DeserializeObject<TResult>(json);
+                    }
+                    catch { }
+                }
+
+                return (response.Success, response.StatusCode, response.Content, model);
             }
             catch (Exception ex)
             {
@@ -490,7 +518,21 @@ namespace Helpers
             try
             {
                 var response = await this.UPLOAD_ASYNC<TPayload>(url, payload, payloadMode, querystring, headers, method);
-                return (response.Success, response.StatusCode, response.Content, response.Success ? JsonConvert.DeserializeObject<TResult>(response.Content) : default(TResult));
+
+                var model = default(TResult);
+                if (response.Success)
+                    model = JsonConvert.DeserializeObject<TResult>(response.Content);
+                else if (response.Content.Contains("{"))
+                {
+                    try
+                    {
+                        var json = response.Content.Substring(response.Content.IndexOf("{"));
+                        model = JsonConvert.DeserializeObject<TResult>(json);
+                    }
+                    catch { }
+                }
+
+                return (response.Success, response.StatusCode, response.Content, model);
             }
             catch (Exception ex)
             {

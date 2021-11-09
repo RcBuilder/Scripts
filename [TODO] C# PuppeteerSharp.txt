@@ -223,6 +223,8 @@ using (var screenshotStream = await webPage.ScreenshotStreamAsync(screenshotOpti
 using (var image = Image.FromStream(screenshotStream))
 	image.Save("D:\\screenshot.jpg");  
 
+browser.Dispose();
+
 -
 
 var downloadChrome = string.IsNullOrEmpty(ChromePath);
@@ -247,6 +249,8 @@ var browser = await Puppeteer.LaunchAsync(new LaunchOptions
     DefaultViewport = null, // max resolution
     Args = new[] { "--no-sandbox" }  // "--window-size=800,1080"
 });
+
+browser.Dispose();
 
 -
 
@@ -320,6 +324,7 @@ var browser = await Puppeteer.LaunchAsync(new LaunchOptions
 
 var webPage = await browser.NewPageAsync();
 await webPage.GoToAsync("http://example.com/");
+browser.Dispose();
 
 -
 
@@ -331,7 +336,10 @@ public async Task<Stream> CreateFromBrowser(string URL, string ChromePath = null
     var browser = await this.CreateWebBrowser(ChromePath);
     var webPage = await browser.NewPageAsync();
     await webPage.GoToAsync(URL);
-    return await webPage.PdfStreamAsync();            
+    var stream = await webPage.PdfStreamAsync();      
+	browser.Dispose();
+
+	return stream;
 }
 
 private async Task<Browser> CreateWebBrowser(string ChromePath) {
@@ -403,3 +411,14 @@ if (Environment.OSVersion.Version.Major < 10)
     launchOptions.WebSocketFactory = CreateWebSocketTask;  // support for windows-7
             
 var browser = await Puppeteer.LaunchAsync(launchOptions);
+browser.Dispose();
+
+BUG:
+multiple instances of chromium under the 'Task Manager'
+
+Error:
+no error message
+
+Solution:
+missing browser Dispose (or using clause)
+browser.Dispose();

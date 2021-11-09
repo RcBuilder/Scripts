@@ -1,0 +1,152 @@
+******************
+***** SQLite *****
+******************
+
+Sources
+-------
+https://www.sqlite.org
+https://www.sqlite.org/docs.html
+https://www.sqlitetutorial.net
+
+
+About
+-----
+sqlite is a serverless RDBMS storage provider. 
+it's a stand-alone and self-contained storage. 
+commonly used in small scale apps which needs a file-based embedded DB. 
+sqlite lite db is basically a local file which is managed by the sqlite engine and supports the SQL syntax. 
+server-less architecture - No server nor installation required! fully integrated within the project.
+it supports all environments including mobile devices, game consoles, media players and etc.
+
+Nuget
+-----
+> Install-Package System.Data.SQLite.Core
+> Install-Package Dapper
+
+Connection String
+-----------------
+structure:
+Data Source=<db path>;Version=3
+
+supported paths:
+supports both physical (absolute) and relative paths.
+use '.\' for relative path.
+
+Data Source=c:\sqlite\sample.db;Version=3	// physical path
+Data Source=.\sample.db;Version=3			// relative path 
+
+app.config:
+<connectionStrings>
+	<add name="ConnStr" connectionString="Data Source=c:\sqlite\sample.db;Version=3" providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+SQLiteConnection:
+using(var conn = new SQLiteConnection(<ConnStr>)){
+	var result = conn.Query<T>(<query>, new DynamicParameters());
+	...
+}
+using(var conn = new SQLiteConnection(<ConnStr>)){
+	conn.Execute(<query-with-params>, <model>);
+	...
+}
+
+note! 
+the above code snippet uses Dapper as an extension for the SQLiteConnection object.
+
+sample:
+class User{
+	public string FirstName { get; set; }
+	public string LastName { get; set; }
+}
+
+var user = new User("Roby", "Cohen");
+conn.Execute("insert into Users(fname, lname) values(@FirstName, @LastName)", user);
+
+
+CLI
+---
+utility -> sqlite3.exe
+a command-line interface to interact with sqlite databases.
+https://www.sqlitetutorial.net/sqlite-commands/
+https://www.sqlite.org/cli.html
+
+Commands:
+> sqlite3 <db path>				// connect or create a db source
+> sqlite3 c:\sqlite\sample.db   // connect to a db source, creates it if non exists
+-
+>> .help				// help menu
+>> .exit				// exit
+>> .database			// data bases list (under the current connection)
+>> .tables				// table list
+>> ATTACH DATABASE "<db path>" AS <name>			// append a db to the current connection 
+>> ATTACH DATABASE "c:\sqlite\sales.db" AS sales	// append sales db	
+>> .table <pattern>				// find table by pattern
+>> .table '%abc%'				// find tables contains 'abc' in their name
+>> .schema <table name>			// show table structure
+>> .fullschema<table name>		// show table structure (extended)
+>> .schema sales
+>> .indexes						// index list
+>> .indexes <table name>		// index list for a specific table
+>> .indexes <pattern>			// find indexes by pattern
+>> .indexes	sales				// index list of 'sales' db
+>> .indexes	'IX%'				// indexes start with 'IX' prefix 
+>> .output <file name>			// save the result of a query into a file
+-
+>> .output users.txt
+>> SELECT fname FROM users;	// export users data to a 'users.txt' file
+-
+// top_users.txt
+SELECT fname, lname
+FROM users
+ORDER BY fname
+LIMIT 10;
+
+>> .read <file name>		// read sql-query from a file
+>> .read top_users.txt		// read and execute the sql command written in 'top_users.txt' file
+-
+
+SQLite Browser
+--------------
+a visual, open source, cross platform tool for sqlite to create, design, and edit database. 
+https://sqlitebrowser.org/
+https://github.com/sqlitebrowser/sqlitebrowser/wiki
+
+SQLite Studio 
+-------------
+free, portable, and cross-platform GUI tool for managing SQLite databases. 
+contains importing/exporting data in various formats such as CSV, XML, and JSON.
+https://sqlitestudio.pl/
+
+
+Tools
+-----
+- SQLite Browser (see 'SQLite Browser')
+- CLI (see 'CLI')
+- SQLite Studio (see 'SQLite Studio')
+
+Triggers
+--------
+sqlite supports triggers for INSERT, UPDATE and  DELETE actions
+https://www.sqlitetutorial.net/sqlite-trigger/
+
+
+
+
+
+
+
+
+
+-----------------
+// TODO ->> 
+
+SP (??)
+Views (??)
+
+transactions 
+
+// Anonymous Type (??)
+
+Complete:
+/// C:\Users\RcBuilder\Downloads\SQLite
+/// Chrome open related tabs

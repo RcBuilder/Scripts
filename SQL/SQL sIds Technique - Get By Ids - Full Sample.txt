@@ -1,0 +1,75 @@
+SQL sIds Technique - Get By Ids - Full Sample
+---------------------------------------------
+
+// get all ids related to the user and store them into a temporary table (variable)
+DECLARE @tIds TABLE(SchoolId INT)
+INSERT INTO @tIds EXEC sp_Schools_Ids_ByUser_Get @UserId
+
+// convert the table of ids into a comma seperated string using COALESCE
+DECLARE @sIds VARCHAR(MAX) 
+SELECT @sIds = COALESCE(@sIds + ', ', '') + CAST(SchoolId AS VARCHAR(10)) FROM @tIds
+
+// splits the sIds string using STRING_SPLIT and embeds it within the query as list of ids
+EXEC sp_Schools_Get
+
+---
+
+SAMPLE:
+
+// sp_Schools_ByUser_Get 1
+ALTER PROCEDURE [dbo].[sp_Schools_ByUser_Get]
+	@UserId INT
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+
+	DECLARE @tIds TABLE(SchoolId INT)
+	INSERT INTO @tIds EXEC sp_Schools_Ids_ByUser_Get @UserId
+
+	DECLARE @sIds VARCHAR(MAX) 
+	SELECT @sIds = COALESCE(@sIds + ', ', '') + CAST(SchoolId AS VARCHAR(10)) FROM @tIds
+
+	EXEC sp_Schools_Get @sIds	
+END
+
+
+// sp_Schools_Get '1,2,3,4'
+ALTER PROCEDURE [dbo].[sp_Schools_Get]
+	@sIds VARCHAR(500) -- splitted by comma --
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+
+	DECLARE @t TABLE(Id INT)
+	INSERT INTO @t SELECT [Value] FROM STRING_SPLIT(@sIds, ',')
+
+	SELECT	DISTINCT *
+	FROM	[dbo].[Schools] WITH(NOLOCK)				
+	WHERE	Id IN (SELECT Id FROM @t)
+END
+
+
+// sp_Schools_Ids_ByUser_Get 1
+ALTER PROCEDURE [dbo].[sp_Schools_Ids_ByUser_Get]
+	@UserId INT
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+
+	SELECT	DISTINCT S.Id
+	FROM	[dbo].[Schools] S WITH(NOLOCK)	
+			INNER JOIN 
+			[dbo].[Grades] G WITH(NOLOCK)
+			ON(G.SchoolId = S.Id)
+			INNER JOIN 
+			[dbo].[Classes] C WITH(NOLOCK)
+			ON(C.GradeId = G.Id)
+			INNER JOIN 
+			[dbo].[ClassUsers] CU WITH(NOLOCK)
+			ON(CU.ClassId = C.Id)
+			INNER JOIN 
+			[dbo].[Users] U WITH(NOLOCK)
+			ON(U.Id = CU.UserId)
+	WHERE	U.Id = @UserId
+	AND	U.IsDeleted = 0
+END

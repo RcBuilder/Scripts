@@ -1,0 +1,99 @@
+CSS Variables
+-------------
+css variables use -- prefix. 
+
+---
+
+define variables:
+:root {
+    --big-font: 22px;
+    --item-width: 300px;
+    --text-align: center;
+    --margin: 10px 0;
+    --padding: 20px 0;
+
+    --back-color-1: yellow;
+    --back-color-2: gray;
+}
+
+-
+
+use variables:
+margin: var(--margin);
+width: var(--item-width);
+font-size: var(--big-font);
+text-align: var(--text-align);
+
+-
+
+default value:
+color: var(--dummy-var, red);
+
+-
+
+set a variable:
+--back-color-1: blue;
+
+-
+
+get with javascript:
+var value = window.getComputedStyle(document.documentElement).getPropertyValue('--back-color-1');
+console.log(value);
+
+set with javascript:
+document.documentElement.style.setProperty('--back-color-1', 'blue');
+
+---
+
+// css
+:root {
+    --big-font: 22px;
+    --item-width: 300px;
+    --text-align: center;
+    --margin: 10px 0;
+    --padding: 20px 0;
+
+    --back-color-1: yellow;
+    --back-color-2: gray;
+}
+
+.A, .B, .C, .D {
+    display: inline-block;
+    margin: var(--margin);
+    width: var(--item-width);
+    font-size: var(--big-font);
+    text-align: var(--text-align);
+}
+
+.A {
+    background-color: var(--back-color-1);
+    padding: var(--padding);
+}
+.B {
+    background-color: var(--back-color-1);
+}
+.C {
+    background-color: var(--back-color-2);
+    padding: var(--padding);
+}
+.D {
+    background-color: var(--back-color-2);
+    color: var(--dummy-var, red);
+}
+
+// js 
+var value = window.getComputedStyle(document.documentElement).getPropertyValue('--back-color-1');
+console.log(value);
+
+setTimeout(() => {
+    document.documentElement.style.setProperty('--back-color-1', 'blue');
+    document.documentElement.style.setProperty('--back-color-2', 'orange');
+}, 5000);
+
+// html
+<div>
+    <div class="A">A</div>
+    <div class="B">B</div>
+    <div class="C">C</div>
+    <div class="D">D</div>
+</div>

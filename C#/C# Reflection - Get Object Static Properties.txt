@@ -1,0 +1,33 @@
+C# Reflection - Get Object Static Properties
+--------------------------------------------
+public static class SERVICES
+{
+    public const string Accounts = "Account";
+    public const string Items = "Item";
+    public const string Documents = "Document";
+    public const string Inventory = "Inventory";
+    public const string Suppliers = "Supplier";
+    public const string Reports = "Reports";
+    public const string Utilities = "Utilities";
+    public const string ServiceLocator = "ServiceLocator";
+    public const string WebHooks = "WebHooks";
+}
+
+///var props = typeof(SERVICES).GetProperties();
+///var props = typeof(SERVICES).GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static);
+var props = typeof(SERVICES).GetFields().Where(p => p.IsLiteral);
+foreach(var p in props)
+	Console.WriteLine(p.Name);
+
+-
+
+output:
+Accounts
+Items
+Documents
+Inventory
+Suppliers
+Reports
+Utilities
+ServiceLocator
+WebHooks

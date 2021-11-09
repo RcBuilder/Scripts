@@ -1,0 +1,22 @@
+SQL - Get By sIds 
+-----------------
+
+-- sp_Schools_ByIds_Get '1,2,3,4'
+ALTER PROCEDURE [dbo].[sp_Schools_ByIds_Get]
+	@sIds VARCHAR(500) -- splitted by comma --
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+
+	DECLARE @t TABLE(Id INT)
+	INSERT INTO @t SELECT [Value] FROM STRING_SPLIT(@sIds, ',')
+
+	SELECT	DISTINCT *
+	FROM	[dbo].[Schools] WITH(NOLOCK)				
+	WHERE	Id IN (SELECT Id FROM @t)
+END
+
+---
+
+implementation:
+see 'C# Dapper LoadMultiple Sample'

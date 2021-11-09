@@ -1,0 +1,11 @@
+SQL SELECT By Ids
+-----------------
+@sIds VARCHAR(MAX)
+
+DECLARE @tIds TABLE(Id INT)
+INSERT INTO @tIds
+	SELECT RTRIM(LTRIM([Value])) FROM STRING_SPLIT(@sIds, ',')
+
+SELECT	*
+FROM	<tableName> WITH(NOLOCK)
+WHERE	Id IN (SELECT Id FROM @tIds)

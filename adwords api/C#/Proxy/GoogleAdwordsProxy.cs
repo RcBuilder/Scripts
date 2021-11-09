@@ -93,9 +93,9 @@ namespace GoogleAdwordsAPI
         <!-- OAuth2 -->
         <add key="AuthorizationMethod" value="OAuth2" />
         <add key="OAuth2Mode" value="APPLICATION" />
-        <add key='OAuth2ClientId' value='1077252635708-crhp3ci2q5afvfe0serntuvkgfo17t88.apps.googleusercontent.com' />
-        <add key='OAuth2ClientSecret' value='YhOt7UKVYpmB-nMmFayKknjO' />
-        <add key='OAuth2RefreshToken' value='1/gkvTzzciCJ2qvK3Ok_AgCMZqg_o5lx0cF34xm30gve4' />
+        <add key='OAuth2ClientId' value='xxxxxxxxxxxxx-crhp3ci2q5afvfe0serntuvkgfo17t88.apps.googleusercontent.com' />
+        <add key='OAuth2ClientSecret' value='xxxxxxxxxxxxxxxxxxxxxxxxx' />
+        <add key='OAuth2RefreshToken' value='xxxxxxxxxxxxxxxxxxxxxxxxxx' />
       </AdWordsApi>
 
       note! e.g credentials belongs to yosibaryosefmcc@gmail.com account 

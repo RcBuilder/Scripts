@@ -1,0 +1,10 @@
+SQL Alias
+---------
+
+1. open 'SQL Configuration Manager'
+2. (menu) SQL Native Client x Configuration > 'Aliases'
+3. right click > New Alias 
+4. set Name, Port (usually 1433), Protocol and Server (Url or IP) > Save
+5. (menu) SQL Server Services
+6. restart 'SQL Server Browser' and 'Sql Server (x)' services 
+7. open managment studion > use the alias to connect to the server

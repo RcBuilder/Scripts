@@ -1,0 +1,21 @@
+From & To UnixTime
+------------------
+
+using:
+Console.WriteLine(FromUnixTime(DateTime.Now));  // 1636309195
+Console.WriteLine(ToUnixTime(1636309195));  	// 07/11/2021 18:19:55
+
+-
+
+public DateTime ToUnixTime(int Date) {
+    // unixTime (seconds count since 1970-01-01)
+    return new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(Date);  
+}
+
+public int FromUnixTime(DateTime Date)
+{
+    // unixTime (seconds count since 1970-01-01)
+    var DateUTC = Date.ToUniversalTime();
+    var ts = DateUTC - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+    return (int)ts.TotalSeconds;  
+}

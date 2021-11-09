@@ -28,15 +28,20 @@ namespace Website.App_Start
             var cardcomManager = new CardcomManager(ConfigSingleton.Instance.CardcomTerminal, ConfigSingleton.Instance.CardcomUserName, TerminalNoCvv: ConfigSingleton.Instance.CardcomTerminalNoCvv);
             var detailsResponse = cardcomManager.GetTransactionDetails(Request.QueryString["lowprofilecode"]);
 
+            var model = new PurchaseThanks();
+
             // Collect custom details
             // returnValue: PRICE|PACKAGE|USER_ID|COUPON (e.g: 39.90|3|1|98F41F8F-6F6C-4A0A-A7D4-D719A41A6BD7)
-            var returnValue = detailsResponse.Details["ReturnValue"];
-            var returnValueSlices = returnValue.Split('|');
-            
-            var model = new PurchaseThanks();
-            model.PackageDetails = PackagesSingleton.Instance.GetPackage(Convert.ToInt32(returnValueSlices[1]));
-            model.SubscriptionDetails = (await new SubscriptionsBLL().Get(Convert.ToInt32(returnValueSlices[2])))?.Details;
-            model.AmountPaid = Convert.ToSingle(returnValueSlices[0]);
+            var returnValue = detailsResponse.Details["ReturnValue"]?.Trim() ?? Request.QueryString["ReturnValue"]?.Trim();
+            model.ReturnValue = returnValue ?? string.Empty;
+            if (!string.IsNullOrEmpty(returnValue))
+            {
+                var returnValueSlices = returnValue.Split('|');                
+                model.PackageDetails = PackagesSingleton.Instance.GetPackage(Convert.ToInt32(returnValueSlices[1]));
+                model.Subscription = (await new SubscriptionsBLL().Get(Convert.ToInt32(returnValueSlices[2])));
+                model.AmountPaid = Convert.ToSingle(returnValueSlices[0]);
+            }
+
             return View(model);
         }
 
@@ -47,16 +52,47 @@ namespace Website.App_Start
                 ReturnValue                
             */
             #endregion
-            
-            // Collect custom details
-            // returnValue: PRICE|PACKAGE|USER_ID|COUPON (e.g: 39.90|3|1|98F41F8F-6F6C-4A0A-A7D4-D719A41A6BD7)
-            var returnValue = Request.QueryString["ReturnValue"].Trim();
-            var returnValueSlices = returnValue.Split('|');
 
             var model = new PurchaseThanks();
-            model.PackageDetails = PackagesSingleton.Instance.GetPackage(Convert.ToInt32(returnValueSlices[1]));
-            model.SubscriptionDetails = (await new SubscriptionsBLL().Get(Convert.ToInt32(returnValueSlices[2])))?.Details;
-            model.AmountPaid = Convert.ToSingle(returnValueSlices[0]);
+
+            // Collect custom details
+            // returnValue: PRICE|PACKAGE|USER_ID|COUPON (e.g: 39.90|3|1|98F41F8F-6F6C-4A0A-A7D4-D719A41A6BD7)
+            var returnValue = Request.QueryString["ReturnValue"]?.Trim();
+            model.ReturnValue = returnValue ?? string.Empty;
+            if (!string.IsNullOrEmpty(returnValue))
+            {
+                var returnValueSlices = returnValue.Split('|');
+                model.PackageDetails = PackagesSingleton.Instance.GetPackage(Convert.ToInt32(returnValueSlices[1]));
+                model.Subscription = (await new SubscriptionsBLL().Get(Convert.ToInt32(returnValueSlices[2])));
+                model.AmountPaid = Convert.ToSingle(returnValueSlices[0]);
+            }
+
+            return View(model);
+        }
+
+        public async Task<ActionResult> ThanksFollowUp()
+        {
+            var model = new PurchaseThanks();
+            
+            // returnValue: PRICE|PACKAGE|USER_ID|COUPON (e.g: 39.90|3|1|98F41F8F-6F6C-4A0A-A7D4-D719A41A6BD7)
+            var returnValue = Request.QueryString["ReturnValue"]?.Trim();
+            model.ReturnValue = returnValue ?? string.Empty;
+            if (!string.IsNullOrEmpty(returnValue))
+            {
+                var returnValueSlices = returnValue.Split('|');
+                model.PackageDetails = PackagesSingleton.Instance.GetPackage(Convert.ToInt32(returnValueSlices[1]));
+                model.Subscription = (await new SubscriptionsBLL().Get(Convert.ToInt32(returnValueSlices[2])));
+                model.AmountPaid = Convert.ToSingle(returnValueSlices[0]);
+
+                if (model.Subscription != null)
+                {
+                    // send welcome SMS
+                    //servicesBLL.SendWelcomeSMS(subscription);
+                    // send welcome WhatsApp
+                    new ServicesBLL().SendWelcomeWhatsApp(model.Subscription);
+                }
+            }
+
             return View(model);
         }
 
@@ -66,7 +102,7 @@ namespace Website.App_Start
         }
 
         [HttpGet]                                  
-        public async Task<HttpStatusCodeResult> ProcessCardcomTransaction()
+        public async Task<string> ProcessCardcomTransaction()
         {
             #region ### IPN Parameters ###
             /*             
@@ -87,35 +123,51 @@ namespace Website.App_Start
             #endregion
 
             var step = 0;
+            var isTransactionFailed = false;
+            var transaction = new Transaction();
+            var httpResult = "";
+
+            var transactionsBLL = new TransactionsBLL();
+            var couponsBLL = new CouponsBLL();
+            var subscriptionsBLL = new SubscriptionsBLL();
+
+            // [step-1: process request]
             try
-            {                
+            {
                 LoggerSingleton.Instance.Info("Cardcom", "Process-Transaction", new List<string> { $"QueryString: {Request.QueryString}" });
 
-                var transactionsBLL = new TransactionsBLL();
-                var couponsBLL = new CouponsBLL();
-                var subscriptionsBLL = new SubscriptionsBLL();
-                
+                // defaults
+                transaction.StatusCode = 9999;
+                transaction.StatusCodeDetails = 9999;
+                transaction.StatusCodeChargeToken = 9999;
+                transaction.StatusCodeRecurringCharge = 9999;                
+                transaction.InvoiceNumber = "";                
+
                 var cardcomManager = new CardcomManager(ConfigSingleton.Instance.CardcomTerminal, ConfigSingleton.Instance.CardcomUserName, TerminalNoCvv: ConfigSingleton.Instance.CardcomTerminalNoCvv);
+
                 step = 1;
 
-                // Collect basic details 
-                var transaction = new Transaction();
+                // Collect basic details                 
                 transaction.Raw = Request.QueryString?.ToString();
-                transaction.Code = Request.QueryString["lowprofilecode"];                
+                transaction.Code = Request.QueryString["lowprofilecode"];
                 transaction.StatusCode = Convert.ToInt32(Request.QueryString["OperationResponse"]);
                 transaction.CardStatusCode = Convert.ToInt32(Request.QueryString["DealResponse"]);
+
                 step = 2;
 
                 // Collect extra details                 
-                var detailsResponse = cardcomManager.GetTransactionDetails(transaction.Code);                    
-                step = 3;
-                
-                if(Convert.ToInt32(detailsResponse.Details["ResponseCode"]) != 0)
-                    throw new Exception($"Error while trying to get details. status-code {detailsResponse.Details["ResponseCode"]} ({transaction.Code})");
+                var detailsResponse = cardcomManager.GetTransactionDetails(transaction.Code);
 
+                step = 3;
+
+                transaction.StatusCodeDetails = Convert.ToInt32(detailsResponse.Details["ResponseCode"]);
+                transaction.RawDetails = detailsResponse.Raw;
+
+                if (Convert.ToInt32(detailsResponse.Details["ResponseCode"]) != 0)                
+                    throw new Exception($"Error while trying to get details. status-code {detailsResponse.Details["ResponseCode"]} ({transaction.Code})");
+                
                 step = 4;
 
-                transaction.RawDetails = detailsResponse.Raw;
                 transaction.Token = detailsResponse.Details["Token"] ?? "";
                 transaction.TokenExpiry = detailsResponse.Details["TokenExDate"] ?? "";
                 transaction.TokenApprovalNumber = detailsResponse.Details["TokenApprovalNumber"] ?? "";
@@ -127,30 +179,86 @@ namespace Website.App_Start
 
                 transaction.CardExpiry = $"{detailsResponse.Details["CardValidityYear"] ?? ""}{CardValidityMonth}";
                 transaction.CardSuffix = detailsResponse.Details["ExtShvaParams.CardNumber5"] ?? "";
-                transaction.InvoiceStatusCode = Convert.ToInt32(detailsResponse.Details["InvoiceResponseCode"]);
-                transaction.InvoiceNumber = detailsResponse.Details["InvoiceNumber"] ?? "";
-                transaction.InvoiceType = Convert.ToInt32(detailsResponse.Details["InvoiceType"] ?? "0");
                 transaction.NumOfPayments = Convert.ToInt32(detailsResponse.Details["NumOfPayments"] ?? "1");
                 step = 5;
 
                 // Collect custom details
                 // returnValue: PRICE|PACKAGE|USER_ID|COUPON (e.g: 39.90|3|1|98F41F8F-6F6C-4A0A-A7D4-D719A41A6BD7)                
-                var returnValue = detailsResponse.Details["ReturnValue"].Trim();                
+                var returnValue = detailsResponse.Details["ReturnValue"].Trim();
                 var returnValueSlices = returnValue.Split('|');
-                transaction.Price = Convert.ToSingle(returnValueSlices[0]);                
+                transaction.Price = Convert.ToSingle(returnValueSlices[0]);
                 transaction.PackageId = Convert.ToInt32(returnValueSlices[1]);
                 transaction.SubscriptionId = Convert.ToInt32(returnValueSlices[2]);
 
                 var coupon = await couponsBLL.Find(returnValueSlices[3]);
-                transaction.Coupon = coupon == null ? "" : coupon.Code.ToString();
+                transaction.Coupon = coupon == null ? "" : coupon.Code.ToString();                
                 step = 6;
 
-                // Create Transaction Row 
-                var transactionId = await transactionsBLL.Save(transaction);
-                if (transactionId <= 0)
-                    throw new Exception($"Error while trying to save an incoming transaction ({transaction.Code})");
-                transaction.RowId = transactionId;
+                // load package 
+                var packageDetails = PackagesSingleton.Instance.GetPackage(transaction.PackageId);
+
                 step = 7;
+
+                // load subscription 
+                var subscription = await subscriptionsBLL.Get(transaction.SubscriptionId);
+
+                step = 8;
+                
+                /*
+                    we have two states to handle:
+                    1. free week -> no charge + recurring-charge with a 1 week delay 
+                    2. coupon -> immediate charge + recurring-charge with a week/month delay (depending on the acquired package)
+                */
+                var isFreeWeek = coupon == null;
+                /// isFreeWeek = false; // disabled
+
+                if (isFreeWeek) {
+                    transaction.Price = 0;
+                }
+                else
+                {
+                    // actual charge using generated TOKEN
+                    var responseCharge = cardcomManager.ChargeWithToken(
+                        transaction.Token,
+                        transaction.CardExpiry,
+                        transaction.CardOwnerId,
+                        new List<CardcomIFrameSourceItem> {
+                        new CardcomIFrameSourceItem {
+                            Description = $"#{packageDetails.Id} {packageDetails.Name}",
+                            Price = transaction.Price,
+                            Quantity = 1
+                        }
+                        },
+                        returnValue,
+                        transaction.NumOfPayments,
+                        InvoiceDetails: new CardcomInvoiceDetails
+                        {
+                            CustomerId = subscription.Details.Id.ToString(),
+                            CustomerName = subscription.Details.FirstName,
+                            Email = subscription.Details.Email,
+                            SendEmail = true
+                        }
+                    );
+
+                    step = 9;
+
+                    transaction.StatusCodeChargeToken = Convert.ToInt32(responseCharge.Details["ResponseCode"]);
+                    transaction.RawChargeToken = responseCharge.Raw;
+
+                    if (Convert.ToInt32(responseCharge.Details["ResponseCode"]) != 0)
+                        throw new Exception($"Error while trying to charge with token {transaction.Token}. status-code {responseCharge.Details["ResponseCode"]} ({transaction.Code})");
+
+                    step = 10;
+
+                    transaction.CardStatusCode = 0;  // update the card status code
+
+                    // add invoice details 
+                    transaction.InvoiceStatusCode = Convert.ToInt32(responseCharge.Details["InvoiceResponse.ResponseCode"]);
+                    transaction.InvoiceNumber = responseCharge.Details["InvoiceResponse.InvoiceNumber"] ?? "";
+                    transaction.InvoiceType = Convert.ToInt32(responseCharge.Details["InvoiceResponse.InvoiceType"] ?? "0");
+                }                
+                
+                step = 11;
 
                 if (transaction.StatusCode != 0)
                 {
@@ -160,38 +268,42 @@ namespace Website.App_Start
                     throw new Exception($"transaction code error. status-code {transaction.StatusCode} ({transaction.Code})");
                 }
 
-                step = 8;
+                step = 12;
 
                 // Update Coupon Capacity 
-                if (!string.IsNullOrEmpty(transaction.Coupon)) {
+                if (!string.IsNullOrEmpty(transaction.Coupon))
+                {
                     var successCapacity = await couponsBLL.IncreaseCapacityInUse(Guid.Parse(transaction.Coupon));
-                    if(!successCapacity) LoggerSingleton.Instance.Info("Cardcom", "IncreaseCapacity Failed", new List<string> {
+                    if (!successCapacity) LoggerSingleton.Instance.Info("Cardcom", "IncreaseCapacity Failed", new List<string> {
                         $"#{transaction.SubscriptionId}",
-                        transaction.Coupon 
+                        transaction.Coupon
                     });
                 }
-                step = 9;
-
-                var packageDetails = PackagesSingleton.Instance.GetPackage(transaction.PackageId);
-                step = 10;
+                step = 13;
 
                 // calculate the valid-until, the Recurring Payments Start Date and the corresponding interval id
                 DateTime? validUntil = packageDetails.ValidUntil;
-                var timeIntervalId = packageDetails.CardcomIntervalId;                
-                step = 11;
+                var timeIntervalId = packageDetails.CardcomIntervalId;
+
+                step = 14;
+
+                if (isFreeWeek)
+                    validUntil = DateTime.Now.AddDays(7);
+
+                step = 15;
 
                 // update ValidUntil 
                 var successValidUntil = await subscriptionsBLL.SaveValidUntil(transaction.SubscriptionId, validUntil);
                 if (!successValidUntil) LoggerSingleton.Instance.Info("Cardcom", "SaveValidUntil Failed", new List<string> {
                     $"#{transaction.SubscriptionId}",
-                }); 
-                step = 12;
+                });
+                step = 16;
 
                 var chargeDetails = new Entities.ChargeDetails
                 {
                     SubscriptionId = transaction.SubscriptionId,
                     Token = transaction.Token,
-                    IsAutoRenewal = true,
+                    IsAutoRenewal = packageDetails.IsReccuringPayment,
                     CardSuffix = transaction.CardSuffix,
                     CardExpiry = transaction.CardExpiry,
                     CardOwnerId = transaction.CardOwnerId,
@@ -203,62 +315,120 @@ namespace Website.App_Start
                 if (!successChargeDetails) LoggerSingleton.Instance.Info("Cardcom", "SaveChargeDetails Failed", new List<string> {
                     $"#{chargeDetails.SubscriptionId}",
                     chargeDetails.Token
-                });                
-                step = 13;
+                });
+                step = 17;
 
-                // load subscription 
-                var subscription = await subscriptionsBLL.Get(transaction.SubscriptionId);
-                step = 14;
-                
-                var responseCharge = cardcomManager.SetRecurringCharge(
-                    chargeDetails.Code, 
-                    "My Morning Love", 
-                    validUntil.Value, 
-                    timeIntervalId,
-                    new List<CardcomIFrameSourceItem> {
+                // add a transaction
+                var transactionId = await transactionsBLL.Save(transaction);
+                if (transactionId <= 0)
+                    throw new Exception($"Error while trying to save an incoming transaction ({transaction.Code})");
+                transaction.RowId = transactionId;
+
+                step = 18;
+
+                // set recurring-charge
+                if (packageDetails.IsReccuringPayment)
+                {
+                    step = 19;
+
+                    var responseRecurringCharge = cardcomManager.SetRecurringCharge(
+                        chargeDetails.Code,
+                        "My Morning Love",
+                        validUntil.Value,
+                        timeIntervalId,
+                        new List<CardcomIFrameSourceItem> {
                         new CardcomIFrameSourceItem {
                             Description = packageDetails.Name,
                             Price = packageDetails.Price,
                             Quantity = 1
                         }
-                    },
-                    returnValue,
-                    new CardcomInvoiceDetails
+                        },
+                        returnValue,
+                        new CardcomInvoiceDetails
+                        {
+                            CustomerId = subscription.Details.Id.ToString(),
+                            CustomerName = subscription.Details.FullName,
+                            Email = subscription.Details.Email,
+                            SendEmail = true
+                        }
+                    );
+
+
+                    step = 20;
+
+                    transaction.StatusCodeRecurringCharge = Convert.ToInt32(responseRecurringCharge.Details["ResponseCode"]);
+                    transaction.RawRecurringCharge = responseRecurringCharge.Raw;
+
+                    if (responseRecurringCharge.Details["ResponseCode"] != "0")
                     {
-                        CustomerId = subscription.Details.Id.ToString(),
-                        CustomerName = subscription.Details.FullName,
-                        Email = subscription.Details.Email,
-                        SendEmail = true
+                        await subscriptionsBLL.SaveAutoRenewal(transaction.SubscriptionId, false); // recurring charge has failed > mark user as AutoRenewal false
+                        throw new Exception($"Error while trying to set Recurring Charge. status-code {responseRecurringCharge.Details["ResponseCode"]} ({transaction.Code})");
                     }
-                );
-                step = 15;
-                if (responseCharge.Details["ResponseCode"] != "0") {            
-                    LoggerSingleton.Instance.Info("Cardcom", $"SetRecurringCharge Failed With Code {responseCharge.Details["ResponseCode"]}");                       
+                    step = 20;
 
-                    await subscriptionsBLL.SaveAutoRenewal(transaction.SubscriptionId, false); // recurring charge has failed > mark user as AutoRenewal false
+                    chargeDetails.RecurringId = Convert.ToInt32(responseRecurringCharge.Details["Recurring0.RecurringId"]);
+                    successChargeDetails = await subscriptionsBLL.SaveChargeDetails(chargeDetails);
+                    if (!successChargeDetails) LoggerSingleton.Instance.Info("Cardcom", "SaveChargeDetails (with RecurringId) Failed", new List<string> {
+                        $"#{chargeDetails.SubscriptionId}",
+                        chargeDetails.Token,
+                        responseRecurringCharge.Details["Recurring0.RecurringId"]
+                    });
                 }
-                step = 16;
 
-                chargeDetails.RecurringId = Convert.ToInt32(responseCharge.Details["Recurring0.RecurringId"]);
-                successChargeDetails = await subscriptionsBLL.SaveChargeDetails(chargeDetails);
-                if (!successChargeDetails) LoggerSingleton.Instance.Info("Cardcom", "SaveChargeDetails (with RecurringId) Failed", new List<string> {
-                    $"#{chargeDetails.SubscriptionId}",
-                    chargeDetails.Token,
-                    responseCharge.Details["Recurring0.RecurringId"]
-                });
-                step = 17;
+                step = 21;
 
-                var success2 = await subscriptionsBLL.SaveRegistrationStep(subscription.Details.Id, "Completed");
-                if (!success2) LoggerSingleton.Instance.Info("Cardcom", $"SaveRegistrationStep Failed For User #{subscription.Details.Id}");
-
-                return new HttpStatusCodeResult(HttpStatusCode.OK, "OK");
+                httpResult = "OK";
             }
-            catch (Exception ex) {                
+            catch (Exception ex)
+            {
+                isTransactionFailed = true;
                 ex.Data.Add("step", step);
                 ex.Data.Add("Method", "ProcessCardcomTransaction");
-                LoggerSingleton.Instance.Error("Cardcom", ex);                
-                return new HttpStatusCodeResult(HttpStatusCode.InternalServerError, ex.Message);
+                LoggerSingleton.Instance.Error("Cardcom", ex);
+                httpResult = ex.Message;
             }
+
+            step = 22;
+
+            // [step-2: update transaction]
+            try
+            {
+                // Create Transaction Row 
+                var transactionId = await transactionsBLL.Save(transaction);
+                if (transactionId <= 0)
+                    throw new Exception($"Error while trying to save an incoming transaction ({transaction.Code})");
+                transaction.RowId = transactionId;
+            }
+            catch (Exception ex)
+            {
+                isTransactionFailed = true;
+                ex.Data.Add("step", step);
+                ex.Data.Add("Method", "ProcessCardcomTransaction");
+                LoggerSingleton.Instance.Error("Cardcom", ex);
+                httpResult = ex.Message;
+            }
+
+            step = 23;
+
+            // [step-3: mark registration state]
+            try
+            {                
+                var success = await subscriptionsBLL.SaveRegistrationStep(transaction.SubscriptionId, isTransactionFailed ? "TransactionFailed" : "Completed");
+                if (!success) LoggerSingleton.Instance.Info("Cardcom", $"SaveRegistrationStep Failed For User #{transaction.SubscriptionId}");                
+            }
+            catch (Exception ex)
+            {                
+                ex.Data.Add("step", step);
+                ex.Data.Add("Method", "ProcessCardcomTransaction");
+                LoggerSingleton.Instance.Error("Cardcom", ex);
+                httpResult = ex.Message;
+            }
+
+            Response.StatusCode = httpResult == "OK" ? (int)HttpStatusCode.OK : (int)HttpStatusCode.InternalServerError;
+            return httpResult;
+
+            ///return new HttpStatusCodeResult(HttpStatusCode.OK, "OK");
+            /// return httpStatusCodeResult;
         }
 
         [HttpPost]
@@ -344,8 +514,9 @@ namespace Website.App_Start
 
             var step = 0;
             try
-            {
-                LoggerSingleton.Instance.Info("Cardcom", "Process-Recurring-Payment");
+            {                
+                var sFormVariables = Helper.Form2String(Request);
+                LoggerSingleton.Instance.Info("Cardcom", "Process-Recurring-Payment", new List<string> { sFormVariables ?? "" });
 
                 var formVariables = Helper.Form2Dictionary(Request);
                 var type = formVariables["RecordType"];

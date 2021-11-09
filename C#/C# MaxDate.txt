@@ -1,0 +1,27 @@
+C# MaxDate
+----------
+
+private DateTime? MaxDate(DateTime? Date1, DateTime? Date2) {
+    if (!Date1.HasValue) return Date2;
+    if (!Date2.HasValue) return Date1;
+    return Date1.Value > Date2.Value ? Date1.Value : Date2.Value;
+}
+
+---
+
+using:
+Console.WriteLine(MaxDate(DateTime.Now, DateTime.Now.AddDays(1)));
+Console.WriteLine(MaxDate(DateTime.Now, DateTime.Now.AddDays(-1)));
+Console.WriteLine(MaxDate(DateTime.Now, null));
+Console.WriteLine(MaxDate(null, DateTime.Now));
+Console.WriteLine(MaxDate(new DateTime(2020, 12, 31), DateTime.Now));
+Console.WriteLine(MaxDate(DateTime.Now, new DateTime(2020, 12, 31)));
+
+output:
+22/10/2021 18:54:43
+21/10/2021 18:54:43
+21/10/2021 18:54:43
+21/10/2021 18:54:43
+21/10/2021 18:54:43
+21/10/2021 18:54:43
+

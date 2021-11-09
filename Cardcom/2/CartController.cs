@@ -41,24 +41,70 @@ namespace WEB.Controllers
                     Type = Entities.eOrderType.TAKE_AWAY,
                     PaymentType = Model.PaymentType,
                     Status = Entities.eOrderStatus.NONE,
-                    IsPaid = false
+                    IsPaid = false,
+                    TableNumber = Model.TableNumber
                 };
 
                 var menu = await restaurantsBLL.GetMenu(Model.RestaurantId);
-                var menuIds = Model.CartItemIds?.Split(',').ToList().ConvertAll(Converters.String2IntConverter);               
-                var orderRows = menu.Items?.Join(menuIds, m => m.Id, id => id, (m, id) => m)?.Select(m => new Entities.OrderRow{ 
-                    IsDeal = false,
-                    ItemName = m.Name,
-                    ItemPrice = m.Price,
-                    ReferenceId = m.Id                    
-                });
+                var menuIds = Model.CartItemIds;               
+                var orderRows = menu.Items?.Join(menuIds, m => m.Id, idPair => idPair.ItemId, (m, idPair) => new { m, rowId = idPair.ItemRowId })?.Select(model =>
+                {
+                    var selectedProperties = Model.ItemPropertiesMap?.ContainsKey(model.rowId) ?? false ? Model.ItemPropertiesMap[model.rowId].Properties : "";
+                    var isStarter = Model.IsStarterMap?.ContainsKey(model.rowId) ?? false ? Model.IsStarterMap[model.rowId].IsStarter : false;
+
+                    return new Entities.OrderRow
+                    {
+                        IsDeal = false,
+                        ItemName = model.m.Name,
+                        ItemPrice = model.m.Price,
+                        ItemId = model.m.Id,
+                        Properties = selectedProperties,
+                        IsStarter = isStarter
+                    };
+                })?.ToList();
+
+                var sideDishesDB = new List<Entities.MenuItemSideDish>();
+                if (Model.ItemSideDishMap != null) {
+                    foreach (var sdm in Model.ItemSideDishMap) {
+                        var sd = await new MenuBLL().GetItemSideDishes(sdm.ItemId);
+                        sideDishesDB.Add(sd.FirstOrDefault(x => x.SideDishId == sdm.SidedishId));
+                    };
+                }
+
+                var sideDishes = sideDishesDB?.Select(sd => {
+                    return new Entities.OrderRow
+                    {
+                        IsDeal = false,
+                        ItemName = sd.SideDishName,
+                        ItemPrice = sd.Price,
+                        ItemId = sd.SideDishId,
+                        Notes = "תוספת למנה עיקרית"
+                    };
+                })?.ToList();
+
+                if ((sideDishes?.Count ?? 0) > 0)
+                    orderRows.AddRange(sideDishes);
 
                 var orderId = await ordersBLL.Create(new Entities.Order { 
                     Details = orderDetails,
                     Rows = orderRows
                 });
 
-                return RedirectToAction(Model.PaymentType == Entities.ePaymentType.CASH ? "PayThanks" : "Pay", new { Id = orderId });
+                // send overload alert if needed 
+                await restaurantsBLL.NotifyOverload(Model.RestaurantId);
+
+                if (Model.PaymentType == Entities.ePaymentType.CASH) {
+                    // update order status
+                    var orderUpdated = await ordersBLL.SaveStatus(orderId, Entities.eOrderStatus.APPROVED);
+                        if (!orderUpdated) 
+                            LoggerSingleton.Instance.Info("Cardcom", "Save Order Status Failed", new List<string> {
+                                $"#{orderId}", "Status: APPROVED"
+                            });
+
+                    return RedirectToAction("PayThanks", new { Id = orderId });
+                }
+                else 
+                    return RedirectToAction("Pay", new { Id = orderId });
             }
             catch (Exception ex)
             {
@@ -85,14 +131,21 @@ namespace WEB.Controllers
                 ConfigSingleton.Instance.CardcomErrorURL                
             );
 
-            var response = cardcomManager.GenerateIFrameSource(
-                "הזמנת אוכל",
+            var response = cardcomManager.GenerateIFrameSource(                
+                "הזמנת אוכל",                
                     order.Rows?.Select(row => new CardcomIFrameSourceItem { 
                         Quantity = 1,
                         Price = row.ItemPrice,
                         Description = row.ItemName
                     })?.ToList(),
-                    $"{Id}"                       
+                    $"{Id}",
+                    Operation: 1,
+                    InvoiceDetails: new CardcomInvoiceDetails { 
+                        CustomerName = order.Details.ClientName,
+                        CustomerId = order.Details.ClientPhone,
+                        Email = order.Details.ClientEmail,
+                        SendEmail = true
+                    }
             );
 
             return View(new Models.PayDTO { 
@@ -116,7 +169,7 @@ namespace WEB.Controllers
         }
 
         [HttpGet]
-        public async Task<HttpStatusCodeResult> ProcessCardcomTransaction()
+        public async Task<string> ProcessCardcomTransaction()
         {
             #region ### IPN Parameters ###
             /*             
@@ -138,7 +191,7 @@ namespace WEB.Controllers
 
             var step = 0;            
             var transaction = new Entities.Transaction();
-            HttpStatusCodeResult httpStatusCodeResult = null;
+            var httpResult = "";
 
             var transactionsBLL = new TransactionsBLL();            
             var ordersBLL = new OrdersBLL();
@@ -215,21 +268,29 @@ namespace WEB.Controllers
                 step = 11;
 
                 // update Order Status 
-                var statusSuccess = await ordersBLL.SaveStatus(orderId, Entities.eOrderStatus.PAID);
-                if (!statusSuccess) LoggerSingleton.Instance.Info("Cardcom", "SaveOrderStatus Failed", new List<string> {
-                    $"#{orderId}", "Status: PAID", $"Code: {transaction.Code}"
+                order.Details.Status = Entities.eOrderStatus.APPROVED;
+                order.Details.IsPaid = true;
+                var orderUpdated = await ordersBLL.SaveDetails(order.Details) > 0;
+                if (!orderUpdated) LoggerSingleton.Instance.Info("Cardcom", "Save Order Details Failed", new List<string> {
+                    $"#{orderId}", "Status: APPROVED", $"Code: {transaction.Code}"
                 });
 
                 step = 12;
-                
-                httpStatusCodeResult = new HttpStatusCodeResult(HttpStatusCode.OK, "OK");
+
+                // send sms
+                if (orderUpdated)
+                    SMSManager.OrderStatusChanged(order);
+
+                step = 13;
+
+                httpResult = "OK";
             }
             catch (Exception ex)
             {                
                 ex.Data.Add("step", step);                
                 ex.Data.Add("Method", "ProcessCardcomTransaction");
                 LoggerSingleton.Instance.Error("Cardcom", ex);
-                httpStatusCodeResult = new HttpStatusCodeResult(HttpStatusCode.InternalServerError, ex.Message);
+                httpResult = ex.Message;
             }
 
             try {
@@ -243,10 +304,11 @@ namespace WEB.Controllers
                 ex.Data.Add("Action", "CreateTransaction");
                 ex.Data.Add("Method", "ProcessCardcomTransaction");
                 LoggerSingleton.Instance.Error("Cardcom", ex);
-                httpStatusCodeResult = new HttpStatusCodeResult(HttpStatusCode.InternalServerError, ex.Message);
+                httpResult = ex.Message;
             }
 
-            return httpStatusCodeResult;
+            Response.StatusCode = httpResult == "OK" ? (int)HttpStatusCode.OK : (int)HttpStatusCode.InternalServerError;
+            return httpResult;
         }
     }
 }

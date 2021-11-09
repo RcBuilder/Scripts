@@ -1,0 +1,655 @@
+C# TimeZone Converter
+---------------------
+DateTime ConvertTimeBySystemTimeZoneId(<date>, <source-zone-id>, <target-zone>);
+List<TimeZoneInfo> TimeZoneInfo.GetSystemTimeZones();
+
+-
+
+public (DateTime Server, DateTime Local) Time() {            
+	var serverTime = DateTime.Now;
+	var localTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(serverTime, TimeZoneInfo.Local.Id, "Israel Standard Time");
+	return (serverTime, localTime);
+}
+
+-
+
+foreach (TimeZoneInfo zoneInfo in TimeZoneInfo.GetSystemTimeZones())
+    Console.WriteLine(zoneInfo.Id);            
+
+-
+
+Samoa Standard Time
+Hawaiian Standard Time
+Alaskan Standard Time
+Pacific Standard Time (Mexico)
+Pacific Standard Time
+US Mountain Standard Time
+Mountain Standard Time (Mexico)
+Mountain Standard Time
+Central America Standard Time
+Central Standard Time
+Central Standard Time (Mexico)
+Canada Central Standard Time
+SA Pacific Standard Time
+Eastern Standard Time
+US Eastern Standard Time
+Venezuela Standard Time
+Paraguay Standard Time
+Atlantic Standard Time
+Central Brazilian Standard Time
+SA Western Standard Time
+Pacific SA Standard Time
+Newfoundland Standard Time
+E. South America Standard Time
+Argentina Standard Time
+SA Eastern Standard Time
+Greenland Standard Time
+Montevideo Standard Time
+Mid-Atlantic Standard Time
+Azores Standard Time
+Cape Verde Standard Time
+Morocco Standard Time
+UTC
+GMT Standard Time
+Greenwich Standard Time
+W. Europe Standard Time
+Central Europe Standard Time
+Romance Standard Time
+Central European Standard Time
+W. Central Africa Standard Time
+Namibia Standard Time
+Jordan Standard Time
+GTB Standard Time
+Middle East Standard Time
+Egypt Standard Time
+Syria Standard Time
+South Africa Standard Time
+FLE Standard Time
+Israel Standard Time
+E. Europe Standard Time
+Arabic Standard Time
+Arab Standard Time
+Russian Standard Time
+E. Africa Standard Time
+Iran Standard Time
+Arabian Standard Time
+Azerbaijan Standard Time
+Mauritius Standard Time
+Georgian Standard Time
+Caucasus Standard Time
+Afghanistan Standard Time
+Ekaterinburg Standard Time
+Pakistan Standard Time
+West Asia Standard Time
+India Standard Time
+Sri Lanka Standard Time
+Nepal Standard Time
+Central Asia Standard Time
+Bangladesh Standard Time
+N. Central Asia Standard Time
+Myanmar Standard Time
+SE Asia Standard Time
+North Asia Standard Time
+China Standard Time
+North Asia East Standard Time
+Singapore Standard Time
+W. Australia Standard Time
+Taipei Standard Time
+Ulaanbaatar Standard Time
+Tokyo Standard Time
+Korea Standard Time
+Yakutsk Standard Time
+Cen. Australia Standard Time
+AUS Central Standard Time
+E. Australia Standard Time
+AUS Eastern Standard Time
+West Pacific Standard Time
+Tasmania Standard Time
+Vladivostok Standard Time
+Central Pacific Standard Time
+New Zealand Standard Time
+Fiji Standard Time
+Kamchatka Standard Time
+Tonga Standard Time
+
+-
+
+{
+    tZCode : "Morocco Standard Time",
+    tZDesc : "(GMT) Casablanca"
+},
+{
+    tZCode : "GMT Standard Time",
+    tZDesc : "(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London"
+},
+{
+    tZCode : "Greenwich Standard Time",
+    tZDesc : "(GMT) Monrovia, Reykjavik"
+},
+{
+    tZCode : "W. Europe Standard Time",
+    tZDesc : "(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna"
+},
+{
+    tZCode : "Central Europe Standard Time",
+    tZDesc : "(GMT+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague"
+},
+{
+    tZCode : "Romance Standard Time",
+    tZDesc : "(GMT+01:00) Brussels, Copenhagen, Madrid, Paris"
+},
+{
+    tZCode : "Central European Standard Time",
+    tZDesc : "(GMT+01:00) Sarajevo, Skopje, Warsaw, Zagreb"
+},
+{
+    tZCode : "W. Central Africa Standard Time",
+    tZDesc : "(GMT+01:00) West Central Africa"
+},
+{
+    tZCode : "Jordan Standard Time",
+    tZDesc : "(GMT+02:00) Amman"
+},
+{
+    tZCode : "GTB Standard Time",
+    tZDesc : "(GMT+02:00) Athens, Bucharest, Istanbul"
+},
+{
+    tZCode : "Middle East Standard Time",
+    tZDesc : "(GMT+02:00) Beirut"
+},
+{
+    tZCode : "Egypt Standard Time",
+    tZDesc : "(GMT+02:00) Cairo"
+},
+{
+    tZCode : "South Africa Standard Time",
+    tZDesc : "(GMT+02:00) Harare, Pretoria"
+},
+{
+    tZCode : "FLE Standard Time",
+    tZDesc : "(GMT+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius"
+},
+{
+    tZCode : "Israel Standard Time",
+    tZDesc : "(GMT+02:00) Jerusalem"
+},
+{
+    tZCode : "E. Europe Standard Time",
+    tZDesc : "(GMT+02:00) Minsk"
+},
+{
+    tZCode : "Namibia Standard Time",
+    tZDesc : "(GMT+02:00) Windhoek"
+},
+{
+    tZCode : "Arabic Standard Time",
+    tZDesc : "(GMT+03:00) Baghdad"
+},
+{
+    tZCode : "Arab Standard Time",
+    tZDesc : "(GMT+03:00) Kuwait, Riyadh"
+},
+{
+    tZCode : "Russian Standard Time",
+    tZDesc : "(GMT+03:00) Moscow, St. Petersburg, Volgograd"
+},
+{
+    tZCode : "E. Africa Standard Time",
+    tZDesc : "(GMT+03:00) Nairobi"
+},
+{
+    tZCode : "Georgian Standard Time",
+    tZDesc : "(GMT+03:00) Tbilisi"
+},
+{
+    tZCode : "Iran Standard Time",
+    tZDesc : "(GMT+03:30) Tehran"
+},
+{
+    tZCode : "Arabian Standard Time",
+    tZDesc : "(GMT+04:00) Abu Dhabi, Muscat"
+},
+{
+    tZCode : "Azerbaijan Standard Time",
+    tZDesc : "(GMT+04:00) Baku"
+},
+{
+    tZCode : "Mauritius Standard Time",
+    tZDesc : "(GMT+04:00) Port Louis"
+},
+{
+    tZCode : "Caucasus Standard Time",
+    tZDesc : "(GMT+04:00) Yerevan"
+},
+{
+    tZCode : "Afghanistan Standard Time",
+    tZDesc : "(GMT+04:30) Kabul"
+},
+{
+    tZCode : "Ekaterinburg Standard Time",
+    tZDesc : "(GMT+05:00) Ekaterinburg"
+},
+{
+    tZCode : "Pakistan Standard Time",
+    tZDesc : "(GMT+05:00) Islamabad, Karachi"
+},
+{
+    tZCode : "West Asia Standard Time",
+    tZDesc : "(GMT+05:00) Tashkent"
+},
+{
+    tZCode : "India Standard Time",
+    tZDesc : "(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi"
+},
+{
+    tZCode : "Sri Lanka Standard Time",
+    tZDesc : "(GMT+05:30) Sri Jayawardenepura"
+},
+{
+    tZCode : "Nepal Standard Time",
+    tZDesc : "(GMT+05:45) Kathmandu"
+},
+{
+    tZCode : "N. Central Asia Standard Time",
+    tZDesc : "(GMT+06:00) Almaty, Novosibirsk"
+},
+{
+    tZCode : "Central Asia Standard Time",
+    tZDesc : "(GMT+06:00) Astana, Dhaka"
+},
+{
+    tZCode : "Myanmar Standard Time",
+    tZDesc : "(GMT+06:30) Yangon (Rangoon)"
+},
+{
+    tZCode : "SE Asia Standard Time",
+    tZDesc : "(GMT+07:00) Bangkok, Hanoi, Jakarta"
+},
+{
+    tZCode : "North Asia Standard Time",
+    tZDesc : "(GMT+07:00) Krasnoyarsk"
+},
+{
+    tZCode : "China Standard Time",
+    tZDesc : "(GMT+08:00) Beijing, Chongqing, Hong Kong, Urumqi"
+},
+{
+    tZCode : "North Asia East Standard Time",
+    tZDesc : "(GMT+08:00) Irkutsk, Ulaan Bataar"
+},
+{
+    tZCode : "Singapore Standard Time",
+    tZDesc : "(GMT+08:00) Kuala Lumpur, Singapore"
+},
+{
+    tZCode : "W. Australia Standard Time",
+    tZDesc : "(GMT+08:00) Perth"
+},
+{
+    tZCode : "Taipei Standard Time",
+    tZDesc : "(GMT+08:00) Taipei"
+},
+{
+    tZCode : "Tokyo Standard Time",
+    tZDesc : "(GMT+09:00) Osaka, Sapporo, Tokyo"
+},
+{
+    tZCode : "Korea Standard Time",
+    tZDesc : "(GMT+09:00) Seoul"
+},
+{
+    tZCode : "Yakutsk Standard Time",
+    tZDesc : "(GMT+09:00) Yakutsk"
+},
+{
+    tZCode : "Cen. Australia Standard Time",
+    tZDesc : "(GMT+09:30) Adelaide"
+},
+{
+    tZCode : "AUS Central Standard Time",
+    tZDesc : "(GMT+09:30) Darwin"
+},
+{
+    tZCode : "E. Australia Standard Time",
+    tZDesc : "(GMT+10:00) Brisbane"
+},
+{
+    tZCode : "AUS Eastern Standard Time",
+    tZDesc : "(GMT+10:00) Canberra, Melbourne, Sydney"
+},
+{
+    tZCode : "West Pacific Standard Time",
+    tZDesc : "(GMT+10:00) Guam, Port Moresby"
+},
+{
+    tZCode : "Tasmania Standard Time",
+    tZDesc : "(GMT+10:00) Hobart"
+},
+{
+    tZCode : "Vladivostok Standard Time",
+    tZDesc : "(GMT+10:00) Vladivostok"
+},
+{
+    tZCode : "Central Pacific Standard Time",
+    tZDesc : "(GMT+11:00) Magadan, Solomon Is., New Caledonia"
+},
+{
+    tZCode : "New Zealand Standard Time",
+    tZDesc : "(GMT+12:00) Auckland, Wellington"
+},
+{
+    tZCode : "Fiji Standard Time",
+    tZDesc : "(GMT+12:00) Fiji, Kamchatka, Marshall Is."
+},
+{
+    tZCode : "Tonga Standard Time",
+    tZDesc : "(GMT+13:00) Nuku'alofa"
+},
+{
+    tZCode : "Azores Standard Time",
+    tZDesc : "(GMT-01:00) Azores"
+},
+{
+    tZCode : "Cape Verde Standard Time",
+    tZDesc : "(GMT-01:00) Cape Verde Is."
+},
+{
+    tZCode : "Mid-Atlantic Standard Time",
+    tZDesc : "(GMT-02:00) Mid-Atlantic"
+},
+{
+    tZCode : "E. South America Standard Time",
+    tZDesc : "(GMT-03:00) Brasilia"
+},
+{
+    tZCode : "Argentina Standard Time",
+    tZDesc : "(GMT-03:00) Buenos Aires"
+},
+{
+    tZCode : "SA Eastern Standard Time",
+    tZDesc : "(GMT-03:00) Georgetown"
+},
+{
+    tZCode : "Greenland Standard Time",
+    tZDesc : "(GMT-03:00) Greenland"
+},
+{
+    tZCode : "Montevideo Standard Time",
+    tZDesc : "(GMT-03:00) Montevideo"
+},
+{
+    tZCode : "Newfoundland Standard Time",
+    tZDesc : "(GMT-03:30) Newfoundland"
+},
+{
+    tZCode : "Atlantic Standard Time",
+    tZDesc : "(GMT-04:00) Atlantic Time (Canada)"
+},
+{
+    tZCode : "SA Western Standard Time",
+    tZDesc : "(GMT-04:00) La Paz"
+},
+{
+    tZCode : "Central Brazilian Standard Time",
+    tZDesc : "(GMT-04:00) Manaus"
+},
+{
+    tZCode : "Pacific SA Standard Time",
+    tZDesc : "(GMT-04:00) Santiago"
+},
+{
+    tZCode : "Venezuela Standard Time",
+    tZDesc : "(GMT-04:30) Caracas"
+},
+{
+    tZCode : "SA Pacific Standard Time",
+    tZDesc : "(GMT-05:00) Bogota, Lima, Quito, Rio Branco"
+},
+{
+    tZCode : "Eastern Standard Time",
+    tZDesc : "(GMT-05:00) Eastern Time (US & Canada)"
+},
+{
+    tZCode : "US Eastern Standard Time",
+    tZDesc : "(GMT-05:00) Indiana (East)"
+},
+{
+    tZCode : "Central America Standard Time",
+    tZDesc : "(GMT-06:00) Central America"
+},
+{
+    tZCode : "Central Standard Time",
+    tZDesc : "(GMT-06:00) Central Time (US & Canada)"
+},
+{
+    tZCode : "Central Standard Time (Mexico)",
+    tZDesc : "(GMT-06:00) Guadalajara, Mexico City, Monterrey"
+},
+{
+    tZCode : "Canada Central Standard Time",
+    tZDesc : "(GMT-06:00) Saskatchewan"
+},
+{
+    tZCode : "US Mountain Standard Time",
+    tZDesc : "(GMT-07:00) Arizona"
+},
+{
+    tZCode : "Mountain Standard Time (Mexico)",
+    tZDesc : "(GMT-07:00) Chihuahua, La Paz, Mazatlan"
+},
+{
+    tZCode : "Mountain Standard Time",
+    tZDesc : "(GMT-07:00) Mountain Time (US & Canada)"
+},
+{
+    tZCode : "Pacific Standard Time",
+    tZDesc : "(GMT-08:00) Pacific Time (US & Canada)"
+},
+{
+    tZCode : "Pacific Standard Time (Mexico)",
+    tZDesc : "(GMT-08:00) Tijuana, Baja California"
+},
+{
+    tZCode : "Alaskan Standard Time",
+    tZDesc : "(GMT-09:00) Alaska"
+},
+{
+    tZCode : "Hawaiian Standard Time",
+    tZDesc : "(GMT-10:00) Hawaii"
+},
+{
+    tZCode : "Samoa Standard Time",
+    tZDesc : "(GMT-11:00) Midway Island, Samoa"
+},
+{
+    tZCode : "Dateline Standard Time",
+    tZDesc : "(GMT-12:00) International Date Line West"
+}
+
+-
+
+<select>
+	<option value="Morocco Standard Time">(GMT) Casablanca</option>
+	<option value="GMT Standard Time">(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London</option>
+	<option value="Greenwich Standard Time">(GMT) Monrovia, Reykjavik</option>
+	<option value="W. Europe Standard Time">(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna</option>
+	<option value="Central Europe Standard Time">(GMT+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague</option>
+	<option value="Romance Standard Time">(GMT+01:00) Brussels, Copenhagen, Madrid, Paris</option>
+	<option value="Central European Standard Time">(GMT+01:00) Sarajevo, Skopje, Warsaw, Zagreb</option>
+	<option value="W. Central Africa Standard Time">(GMT+01:00) West Central Africa</option>
+	<option value="Jordan Standard Time">(GMT+02:00) Amman</option>
+	<option value="GTB Standard Time">(GMT+02:00) Athens, Bucharest, Istanbul</option>
+	<option value="Middle East Standard Time">(GMT+02:00) Beirut</option>
+	<option value="Egypt Standard Time">(GMT+02:00) Cairo</option>
+	<option value="South Africa Standard Time">(GMT+02:00) Harare, Pretoria</option>
+	<option value="FLE Standard Time">(GMT+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius</option>
+	<option value="Israel Standard Time">(GMT+02:00) Jerusalem</option>
+	<option value="E. Europe Standard Time">(GMT+02:00) Minsk</option>
+	<option value="Namibia Standard Time">(GMT+02:00) Windhoek</option>
+	<option value="Arabic Standard Time">(GMT+03:00) Baghdad</option>
+	<option value="Arab Standard Time">(GMT+03:00) Kuwait, Riyadh</option>
+	<option value="Russian Standard Time">(GMT+03:00) Moscow, St. Petersburg, Volgograd</option>
+	<option value="E. Africa Standard Time">(GMT+03:00) Nairobi</option>
+	<option value="Georgian Standard Time">(GMT+03:00) Tbilisi</option>
+	<option value="Iran Standard Time">(GMT+03:30) Tehran</option>
+	<option value="Arabian Standard Time">(GMT+04:00) Abu Dhabi, Muscat</option>
+	<option value="Azerbaijan Standard Time">(GMT+04:00) Baku</option>
+	<option value="Mauritius Standard Time">(GMT+04:00) Port Louis</option>
+	<option value="Caucasus Standard Time">(GMT+04:00) Yerevan</option>
+	<option value="Afghanistan Standard Time">(GMT+04:30) Kabul</option>
+	<option value="Ekaterinburg Standard Time">(GMT+05:00) Ekaterinburg</option>
+	<option value="Pakistan Standard Time">(GMT+05:00) Islamabad, Karachi</option>
+	<option value="West Asia Standard Time">(GMT+05:00) Tashkent</option>
+	<option value="India Standard Time">(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi</option>
+	<option value="Sri Lanka Standard Time">(GMT+05:30) Sri Jayawardenepura</option>
+	<option value="Nepal Standard Time">(GMT+05:45) Kathmandu</option>
+	<option value="N. Central Asia Standard Time">(GMT+06:00) Almaty, Novosibirsk</option>
+	<option value="Central Asia Standard Time">(GMT+06:00) Astana, Dhaka</option>
+	<option value="Myanmar Standard Time">(GMT+06:30) Yangon (Rangoon)</option>
+	<option value="SE Asia Standard Time">(GMT+07:00) Bangkok, Hanoi, Jakarta</option>
+	<option value="North Asia Standard Time">(GMT+07:00) Krasnoyarsk</option>
+	<option value="China Standard Time">(GMT+08:00) Beijing, Chongqing, Hong Kong, Urumqi</option>
+	<option value="North Asia East Standard Time">(GMT+08:00) Irkutsk, Ulaan Bataar</option>
+	<option value="Singapore Standard Time">(GMT+08:00) Kuala Lumpur, Singapore</option>
+	<option value="W. Australia Standard Time">(GMT+08:00) Perth</option>
+	<option value="Taipei Standard Time">(GMT+08:00) Taipei</option>
+	<option value="Tokyo Standard Time">(GMT+09:00) Osaka, Sapporo, Tokyo</option>
+	<option value="Korea Standard Time">(GMT+09:00) Seoul</option>
+	<option value="Yakutsk Standard Time">(GMT+09:00) Yakutsk</option>
+	<option value="Cen. Australia Standard Time">(GMT+09:30) Adelaide</option>
+	<option value="AUS Central Standard Time">(GMT+09:30) Darwin</option>
+	<option value="E. Australia Standard Time">(GMT+10:00) Brisbane</option>
+	<option value="AUS Eastern Standard Time">(GMT+10:00) Canberra, Melbourne, Sydney</option>
+	<option value="West Pacific Standard Time">(GMT+10:00) Guam, Port Moresby</option>
+	<option value="Tasmania Standard Time">(GMT+10:00) Hobart</option>
+	<option value="Vladivostok Standard Time">(GMT+10:00) Vladivostok</option>
+	<option value="Central Pacific Standard Time">(GMT+11:00) Magadan, Solomon Is., New Caledonia</option>
+	<option value="New Zealand Standard Time">(GMT+12:00) Auckland, Wellington</option>
+	<option value="Fiji Standard Time">(GMT+12:00) Fiji, Kamchatka, Marshall Is.</option>
+	<option value="Tonga Standard Time">(GMT+13:00) Nuku'alofa</option>
+	<option value="Azores Standard Time">(GMT-01:00) Azores</option>
+	<option value="Cape Verde Standard Time">(GMT-01:00) Cape Verde Is.</option>
+	<option value="Mid-Atlantic Standard Time">(GMT-02:00) Mid-Atlantic</option>
+	<option value="E. South America Standard Time">(GMT-03:00) Brasilia</option>
+	<option value="Argentina Standard Time">(GMT-03:00) Buenos Aires</option>
+	<option value="SA Eastern Standard Time">(GMT-03:00) Georgetown</option>
+	<option value="Greenland Standard Time">(GMT-03:00) Greenland</option>
+	<option value="Montevideo Standard Time">(GMT-03:00) Montevideo</option>
+	<option value="Newfoundland Standard Time">(GMT-03:30) Newfoundland</option>
+	<option value="Atlantic Standard Time">(GMT-04:00) Atlantic Time (Canada)</option>
+	<option value="SA Western Standard Time">(GMT-04:00) La Paz</option>
+	<option value="Central Brazilian Standard Time">(GMT-04:00) Manaus</option>
+	<option value="Pacific SA Standard Time">(GMT-04:00) Santiago</option>
+	<option value="Venezuela Standard Time">(GMT-04:30) Caracas</option>
+	<option value="SA Pacific Standard Time">(GMT-05:00) Bogota, Lima, Quito, Rio Branco</option>
+	<option value="Eastern Standard Time">(GMT-05:00) Eastern Time (US & Canada)</option>
+	<option value="US Eastern Standard Time">(GMT-05:00) Indiana (East)</option>
+	<option value="Central America Standard Time">(GMT-06:00) Central America</option>
+	<option value="Central Standard Time">(GMT-06:00) Central Time (US & Canada)</option>
+	<option value="Central Standard Time (Mexico)">(GMT-06:00) Guadalajara, Mexico City, Monterrey</option>
+	<option value="Canada Central Standard Time">(GMT-06:00) Saskatchewan</option>
+	<option value="US Mountain Standard Time">(GMT-07:00) Arizona</option>
+	<option value="Mountain Standard Time (Mexico)">(GMT-07:00) Chihuahua, La Paz, Mazatlan</option>
+	<option value="Mountain Standard Time">(GMT-07:00) Mountain Time (US & Canada)</option>
+	<option value="Pacific Standard Time">(GMT-08:00) Pacific Time (US & Canada)</option>
+	<option value="Pacific Standard Time (Mexico)">(GMT-08:00) Tijuana, Baja California</option>
+	<option value="Alaskan Standard Time">(GMT-09:00) Alaska</option>
+	<option value="Hawaiian Standard Time">(GMT-10:00) Hawaii</option>
+	<option value="Samoa Standard Time">(GMT-11:00) Midway Island, Samoa</option>
+	<option value="Dateline Standard Time">(GMT-12:00) International Date Line West</option>
+</select>
+
+-
+
+var timezones = new List<SelectListItem> { 
+	new SelectListItem() { Value="", Text="Select timezone...", Selected = false },
+	new SelectListItem() { Value="Morocco Standard Time", Text="(GMT) Casablanca", Selected = false },
+	new SelectListItem() { Value="GMT Standard Time", Text="(GMT) Greenwich Mean Time : Dublin, Edinburgh, Lisbon, London", Selected = false },
+	new SelectListItem() { Value="Greenwich Standard Time", Text="(GMT) Monrovia, Reykjavik", Selected = false },
+	new SelectListItem() { Value="W. Europe Standard Time", Text="(GMT+01:00) Amsterdam, Berlin, Bern, Rome, Stockholm, Vienna", Selected = false },
+	new SelectListItem() { Value="Central Europe Standard Time", Text="(GMT+01:00) Belgrade, Bratislava, Budapest, Ljubljana, Prague", Selected = false },
+	new SelectListItem() { Value="Romance Standard Time", Text="(GMT+01:00) Brussels, Copenhagen, Madrid, Paris", Selected = false },
+	new SelectListItem() { Value="Central European Standard Time", Text="(GMT+01:00) Sarajevo, Skopje, Warsaw, Zagreb", Selected = false },
+	new SelectListItem() { Value="W. Central Africa Standard Time", Text="(GMT+01:00) West Central Africa", Selected = false },
+	new SelectListItem() { Value="Jordan Standard Time", Text="(GMT+02:00) Amman", Selected = false },
+	new SelectListItem() { Value="GTB Standard Time", Text="(GMT+02:00) Athens, Bucharest, Istanbul", Selected = false },
+	new SelectListItem() { Value="Middle East Standard Time", Text="(GMT+02:00) Beirut", Selected = false },
+	new SelectListItem() { Value="Egypt Standard Time", Text="(GMT+02:00) Cairo", Selected = false },
+	new SelectListItem() { Value="South Africa Standard Time", Text="(GMT+02:00) Harare, Pretoria", Selected = false },
+	new SelectListItem() { Value="FLE Standard Time", Text="(GMT+02:00) Helsinki, Kyiv, Riga, Sofia, Tallinn, Vilnius", Selected = false },
+	new SelectListItem() { Value="Israel Standard Time", Text="(GMT+02:00) Jerusalem", Selected = false },
+	new SelectListItem() { Value="E. Europe Standard Time", Text="(GMT+02:00) Minsk", Selected = false },
+	new SelectListItem() { Value="Namibia Standard Time", Text="(GMT+02:00) Windhoek", Selected = false },
+	new SelectListItem() { Value="Arabic Standard Time", Text="(GMT+03:00) Baghdad", Selected = false },
+	new SelectListItem() { Value="Arab Standard Time", Text="(GMT+03:00) Kuwait, Riyadh", Selected = false },
+	new SelectListItem() { Value="Russian Standard Time", Text="(GMT+03:00) Moscow, St. Petersburg, Volgograd", Selected = false },
+	new SelectListItem() { Value="E. Africa Standard Time", Text="(GMT+03:00) Nairobi", Selected = false },
+	new SelectListItem() { Value="Georgian Standard Time", Text="(GMT+03:00) Tbilisi", Selected = false },
+	new SelectListItem() { Value="Iran Standard Time", Text="(GMT+03:30) Tehran", Selected = false },
+	new SelectListItem() { Value="Arabian Standard Time", Text="(GMT+04:00) Abu Dhabi, Muscat", Selected = false },
+	new SelectListItem() { Value="Azerbaijan Standard Time", Text="(GMT+04:00) Baku", Selected = false },
+	new SelectListItem() { Value="Mauritius Standard Time", Text="(GMT+04:00) Port Louis", Selected = false },
+	new SelectListItem() { Value="Caucasus Standard Time", Text="(GMT+04:00) Yerevan", Selected = false },
+	new SelectListItem() { Value="Afghanistan Standard Time", Text="(GMT+04:30) Kabul", Selected = false },
+	new SelectListItem() { Value="Ekaterinburg Standard Time", Text="(GMT+05:00) Ekaterinburg", Selected = false },
+	new SelectListItem() { Value="Pakistan Standard Time", Text="(GMT+05:00) Islamabad, Karachi", Selected = false },
+	new SelectListItem() { Value="West Asia Standard Time", Text="(GMT+05:00) Tashkent", Selected = false },
+	new SelectListItem() { Value="India Standard Time", Text="(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi", Selected = false },
+	new SelectListItem() { Value="Sri Lanka Standard Time", Text="(GMT+05:30) Sri Jayawardenepura", Selected = false },
+	new SelectListItem() { Value="Nepal Standard Time", Text="(GMT+05:45) Kathmandu", Selected = false },
+	new SelectListItem() { Value="N. Central Asia Standard Time", Text="(GMT+06:00) Almaty, Novosibirsk", Selected = false },
+	new SelectListItem() { Value="Central Asia Standard Time", Text="(GMT+06:00) Astana, Dhaka", Selected = false },
+	new SelectListItem() { Value="Myanmar Standard Time", Text="(GMT+06:30) Yangon (Rangoon)", Selected = false },
+	new SelectListItem() { Value="SE Asia Standard Time", Text="(GMT+07:00) Bangkok, Hanoi, Jakarta", Selected = false },
+	new SelectListItem() { Value="North Asia Standard Time", Text="(GMT+07:00) Krasnoyarsk", Selected = false },
+	new SelectListItem() { Value="China Standard Time", Text="(GMT+08:00) Beijing, Chongqing, Hong Kong, Urumqi", Selected = false },
+	new SelectListItem() { Value="North Asia East Standard Time", Text="(GMT+08:00) Irkutsk, Ulaan Bataar", Selected = false },
+	new SelectListItem() { Value="Singapore Standard Time", Text="(GMT+08:00) Kuala Lumpur, Singapore", Selected = false },
+	new SelectListItem() { Value="W. Australia Standard Time", Text="(GMT+08:00) Perth", Selected = false },
+	new SelectListItem() { Value="Taipei Standard Time", Text="(GMT+08:00) Taipei", Selected = false },
+	new SelectListItem() { Value="Tokyo Standard Time", Text="(GMT+09:00) Osaka, Sapporo, Tokyo", Selected = false },
+	new SelectListItem() { Value="Korea Standard Time", Text="(GMT+09:00) Seoul", Selected = false },
+	new SelectListItem() { Value="Yakutsk Standard Time", Text="(GMT+09:00) Yakutsk", Selected = false },
+	new SelectListItem() { Value="Cen. Australia Standard Time", Text="(GMT+09:30) Adelaide", Selected = false },
+	new SelectListItem() { Value="AUS Central Standard Time", Text="(GMT+09:30) Darwin", Selected = false },
+	new SelectListItem() { Value="E. Australia Standard Time", Text="(GMT+10:00) Brisbane", Selected = false },
+	new SelectListItem() { Value="AUS Eastern Standard Time", Text="(GMT+10:00) Canberra, Melbourne, Sydney", Selected = false },
+	new SelectListItem() { Value="West Pacific Standard Time", Text="(GMT+10:00) Guam, Port Moresby", Selected = false },
+	new SelectListItem() { Value="Tasmania Standard Time", Text="(GMT+10:00) Hobart", Selected = false },
+	new SelectListItem() { Value="Vladivostok Standard Time", Text="(GMT+10:00) Vladivostok", Selected = false },
+	new SelectListItem() { Value="Central Pacific Standard Time", Text="(GMT+11:00) Magadan, Solomon Is., New Caledonia", Selected = false },
+	new SelectListItem() { Value="New Zealand Standard Time", Text="(GMT+12:00) Auckland, Wellington", Selected = false },
+	new SelectListItem() { Value="Fiji Standard Time", Text="(GMT+12:00) Fiji, Kamchatka, Marshall Is.", Selected = false },
+	new SelectListItem() { Value="Tonga Standard Time", Text="(GMT+13:00) Nuku'alofa", Selected = false },
+	new SelectListItem() { Value="Azores Standard Time", Text="(GMT-01:00) Azores", Selected = false },
+	new SelectListItem() { Value="Cape Verde Standard Time", Text="(GMT-01:00) Cape Verde Is.", Selected = false },
+	new SelectListItem() { Value="Mid-Atlantic Standard Time", Text="(GMT-02:00) Mid-Atlantic", Selected = false },
+	new SelectListItem() { Value="E. South America Standard Time", Text="(GMT-03:00) Brasilia", Selected = false },
+	new SelectListItem() { Value="Argentina Standard Time", Text="(GMT-03:00) Buenos Aires", Selected = false },
+	new SelectListItem() { Value="SA Eastern Standard Time", Text="(GMT-03:00) Georgetown", Selected = false },
+	new SelectListItem() { Value="Greenland Standard Time", Text="(GMT-03:00) Greenland", Selected = false },
+	new SelectListItem() { Value="Montevideo Standard Time", Text="(GMT-03:00) Montevideo", Selected = false },
+	new SelectListItem() { Value="Newfoundland Standard Time", Text="(GMT-03:30) Newfoundland", Selected = false },
+	new SelectListItem() { Value="Atlantic Standard Time", Text="(GMT-04:00) Atlantic Time (Canada)", Selected = false },
+	new SelectListItem() { Value="SA Western Standard Time", Text="(GMT-04:00) La Paz", Selected = false },
+	new SelectListItem() { Value="Central Brazilian Standard Time", Text="(GMT-04:00) Manaus", Selected = false },
+	new SelectListItem() { Value="Pacific SA Standard Time", Text="(GMT-04:00) Santiago", Selected = false },
+	new SelectListItem() { Value="Venezuela Standard Time", Text="(GMT-04:30) Caracas", Selected = false },
+	new SelectListItem() { Value="SA Pacific Standard Time", Text="(GMT-05:00) Bogota, Lima, Quito, Rio Branco", Selected = false },
+	new SelectListItem() { Value="Eastern Standard Time", Text="(GMT-05:00) Eastern Time (US & Canada)", Selected = false },
+	new SelectListItem() { Value="US Eastern Standard Time", Text="(GMT-05:00) Indiana (East)", Selected = false },
+	new SelectListItem() { Value="Central America Standard Time", Text="(GMT-06:00) Central America", Selected = false },
+	new SelectListItem() { Value="Central Standard Time", Text="(GMT-06:00) Central Time (US & Canada)", Selected = false },
+	new SelectListItem() { Value="Central Standard Time (Mexico)", Text="(GMT-06:00) Guadalajara, Mexico City, Monterrey", Selected = false },
+	new SelectListItem() { Value="Canada Central Standard Time", Text="(GMT-06:00) Saskatchewan", Selected = false },
+	new SelectListItem() { Value="US Mountain Standard Time", Text="(GMT-07:00) Arizona", Selected = false },
+	new SelectListItem() { Value="Mountain Standard Time (Mexico)", Text="(GMT-07:00) Chihuahua, La Paz, Mazatlan", Selected = false },
+	new SelectListItem() { Value="Mountain Standard Time", Text="(GMT-07:00) Mountain Time (US & Canada)", Selected = false },
+	new SelectListItem() { Value="Pacific Standard Time", Text="(GMT-08:00) Pacific Time (US & Canada)", Selected = false },
+	new SelectListItem() { Value="Pacific Standard Time (Mexico)", Text="(GMT-08:00) Tijuana, Baja California", Selected = false },
+	new SelectListItem() { Value="Alaskan Standard Time", Text="(GMT-09:00) Alaska", Selected = false },
+	new SelectListItem() { Value="Hawaiian Standard Time", Text="(GMT-10:00) Hawaii", Selected = false },
+	new SelectListItem() { Value="Samoa Standard Time", Text="(GMT-11:00) Midway Island, Samoa", Selected = false },
+	new SelectListItem() { Value="Dateline Standard Time", Text="(GMT-12:00) International Date Line West", Selected = false }
+}

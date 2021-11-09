@@ -8,3 +8,9 @@ INSERT INTO @t
 VALUES('A'),('B'),('C'),('D')
 
 select STUFF((select ',' + v from @t for XML PATH('')), 1, 1, '')  -- A,B,C,D
+
+--
+
+select STUFF((
+	select CONCAT(',', Id) from [dbo].[Subscriptions] FOR XML PATH('')
+), 1, 1, '')

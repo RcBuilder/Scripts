@@ -1,0 +1,9 @@
+C# Server 2 Local Time
+----------------------
+see 'C# TimeZone Converter'
+
+public (DateTime Server, DateTime Local) Time() {            
+	var serverTime = DateTime.Now;
+	var localTime = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(serverTime, TimeZoneInfo.Local.Id, "Israel Standard Time");
+	return (serverTime, localTime);
+}

@@ -80,6 +80,7 @@
 * CEO - Chief Executive Officer
 
 * GPU - Graphics Processing Unit
+* 2FA = Two-Factor Authentication
 
 * XML - Extensible Markup Language
 * JSON - Javascript Object Notation

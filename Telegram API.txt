@@ -1,0 +1,411 @@
+Telegram API
+============
+
+APIs
+----
+there are 2 APIs available:
+1. User API (see 'Telegram User API')
+2. Bot  API (see 'Telegram Bot API')
+
+Telegram Core
+-------------
+https://my.telegram.org
+
+Telegram Web
+------------
+1. open app > Settings > Devices > Scan QR
+2. go to 'https://web.telegram.org/z/' 
+3. scan the presented QR Code 
+
+Telegram Search Engine
+----------------------
+Search for Channels, Bots & Groups.
+https://www.telegram-group.com/
+https://tgram.io/
+https://telegramchannels.me/
+https://tdirectory.me
+https://www.tg-me.com/
+https://xtea.io/ts_en.html#gsc.tab=0
+https://gramxly.com/
+https://groupda.com/tg/
+
+Code Samples
+------------
+see 'CODE > TelegramManager'
+see 'TelegramBot' project
+see 'TelegramTests' under 'TestProjects' sln
+
+--------------------------------------------------
+
+Telegram User API
+=================
+
+About
+-----
+a bot running under regular Telegram account. 
+this API serves as a user account and have no limitations. 
+we must register the bot-user with an actual phone number (the same as real account)
+
+Process
+-------
+1. Register an account
+2. Find the api_id and api_hash (see 'Get Credentials')
+3. Create a client to interact with telegram
+4. authorize the client using code (only once) - see .net Sample.
+
+Sources
+-------
+https://core.telegram.org/api
+https://core.telegram.org/api#getting-started
+https://core.telegram.org/methods
+
+Get Credentials
+---------------
+1. sign up for Telegram
+2. log in to Telegram core (see 'Telegram Core')
+3. choose 'API development tools'
+4. set up an app:  set app name and choose a platform (e.g: Web)
+5. grab and save the following keys:
+   - App api_id
+   - App api_hash
+
+.NET SDK
+--------
+
+options:
+- TLSharp			// .NET library to interact with Telegram API
+- ModernTlSharp		// an improved library for .Net Core 3.1+ (based on TLSharp)
+
+
+nuget:
+> Install-Package TLSharp
+
+reference:
+https://github.com/sochix/TLSharp
+
+client:
+using TLSharp.Core;
+var client = new TelegramClient(<apiId>, "<apiHash>");
+await client.ConnectAsync();
+
+authorize the user:
+to gain full access to the user account, we need to authorize the user. 
+the authorization process uses code sent to the corresponding user phone. 
+once authorized, TLSharp creates special file called 'session.dat' and stores the user information there so we don't need to do this process again.
+if the 'session.dat' file is corrupted or removed, we'll have to authorize the user again.
+
+var phone = "+972545614020";
+var hash = await client.SendCodeRequestAsync(phone);
+var code = "<code>";
+var user = await client.MakeAuthAsync(phone, hash, code);
+
+generic request:
+await client.SendRequestAsync<T>(new TLRequest...()
+{
+	...
+	...
+});
+
+sample:
+using TeleSharp.TL;
+using TeleSharp.TL.Messages;
+using TeleSharp.TL.Updates;
+using TLSharp.Core;
+
+// get all contacts 
+Console.WriteLine($"CONTACTS");
+var response = await client.GetContactsAsync();
+var users = response.Users?.Where(x => x is TLUser).Cast<TLUser>() ?? new List<TLUser>();
+foreach (var user in users)              
+    Console.WriteLine($"#{user.Id} {user.FirstName} ({user.Phone})");
+
+// find a contact and send a message
+var shirly = users.Where(x => x.Phone == "972542xxxxx").FirstOrDefault();
+await client.SendMessageAsync(new TLInputPeerUser() { UserId = shirly.Id }, "HELLO FROM API");
+
+// get contact history
+var history = await client.SendRequestAsync<TLMessages>(new TLRequestGetHistory()
+{
+    Peer = new TLInputPeerUser() { UserId = shirly.Id },
+    Limit = 100
+});
+var historyMessages = history.Messages?.Cast<TLMessage>() ?? new List<TLMessage>();
+Console.WriteLine($"history: {historyMessages.Count()} messages");
+foreach (var msg in historyMessages)
+    Console.WriteLine($"from #{msg.FromId}: {msg.Message}");
+
+// get all channels and groups
+var dialogs = (TLDialogsSlice)await client.GetUserDialogsAsync();
+
+// get channels 
+Console.WriteLine($"CHANNELS");
+var channels = dialogs.Chats?.Where(x => x is TLChannel).Cast<TLChannel>() ?? new List<TLChannel>();
+foreach (var channel in channels)
+    Console.WriteLine($"#{channel.Id} {channel.Title}");
+
+// get groups
+Console.WriteLine($"GROUPS");
+var groups = dialogs.Chats?.Where(x => x is TLChat).Cast<TLChat>() ?? new List<TLChat>();
+foreach (var group in groups)
+    Console.WriteLine($"#{group.Id} {group.Title}");
+
+// find a group and send a message
+var testGroup = groups.Where(x => x.Title == "Test").FirstOrDefault();
+await client.SendMessageAsync(new TLInputPeerChat() { ChatId = 65275xxxx }, "HELLO FROM API");
+            
+// get extended information
+var testGroupFull = await client.SendRequestAsync<TeleSharp.TL.Messages.TLChatFull>(new TLRequestGetFullChat() {
+    ChatId = testGroup.Id
+});
+
+// get users in group
+Console.WriteLine($"GROUP USERS");
+var groupUsers = testGroupFull.Users?.Where(x => x is TLUser).Cast<TLUser>() ?? new List<TLUser>();
+foreach (var groupUser in groupUsers)
+    Console.WriteLine($"#{groupUser.Id} {groupUser.FirstName}"); 
+
+// get account state
+var state = await client.SendRequestAsync<TLState>(new TLRequestGetState());
+Console.WriteLine($"{state.UnreadCount} unread messages"); 
+
+BUGS
+----
+- issue:
+  'ERROR' message when trying to create a new app on my telegram core
+
+  fix: 
+  disable popup blocker.
+  chrome menu > Settings > Advanced > Privacy and security > settings > Pop-ups and redirects
+
+
+--------------------------------------------------
+
+Telegram Bot API
+================
+
+About
+-----
+the bot api has limited permissions so there are some actions that can't be made using it. 
+it can't scan the group members for details. 
+it can't join to groups programmatically 
+it can't initiate conversations with users (only if the user added it manually) 
+and more...
+
+to use the bot api, we need to ADD it to a group manually, then it can listen to events, send messages, 
+count users and more (see 'https://core.telegram.org/bots/api#available-methods')
+
+a bot can be used for monitoring a group activity and reply based on pre-defined rules.
+it can interact with 1-on-1 chats and reply back with a message (text, image, video etc.) based on some logic. 
+it can send a scheduled messages and more...
+
+common use of a bot is to react to messages received by a user and reply back automatically.
+we can create a buttons view to choose from.  
+as a convension, it's better to add a prefix '/' to indicate the bot that an action is required (in order to distinguish these actions from the regular messages)
+
+examples:
+react to '/cat' with a random photo of a cat
+react to '/weather' or '/weather israel' with the current weather of a selected country (can use buttons view)
+react to '/currency_convert USD-ILS' with the exchange rate 
+and more...
+
+the bot can onlt interact with chats/ groups related to it! 
+either a group it is in or a contact who sent you a message before.
+
+for other cases, use the 'Telegram API' instead.
+
+Process
+-------
+1. Create a bot using the botFather (see 'Create a bot')
+2. Disable its privacy mode (see 'Set Bot Privacy')
+3. add the bot to groups 
+4. Create a client to interact with telegram OR use Rest (see 'REST')
+
+Sources
+-------
+https://core.telegram.org/bots
+https://core.telegram.org/bots/api
+https://core.telegram.org/bots/api#available-methods
+
+BotFather Account
+-----------------
+1. open telegram 
+2. Search > botfather  (@BotFather)
+
+Commands:
+use the following message commands to "talk" with the bot. 
+/help				// help menu
+/newbot 			// create a new bot
+/mybots 			// edit bot
+/setname 			// set name
+/setdescription 	// set description
+/setabouttext 		// set about info
+/setuserpic 		// set profile photo
+/setcommands 		// set list of commands
+/deletebot 			// delete a bot
+/token 				// generate a token
+/revoke 			// revoke token
+/setinline 			// toggle inline mode
+/setinlinegeo 		// toggle inline location requests
+/setinlinefeedback 	// set inline feedback settings
+/setjoingroups 		// allow bot to be added to groups
+/setprivacy 		// toggle privacy mode in groups
+/mygames 			// edit games
+/newgame			// create a new game
+/listgames 			// get games list
+/editgame			// edit game
+/deletegame 		// delete game
+
+Create a bot:
+1. /newbot
+2. set name (e.g: RcBuilder Test Bot)
+3. set userName (e.g: RcBuilderTestBot)
+4. grab the generated token 
+5. append the token from chapter 4 to any API http request
+   (https://core.telegram.org/bots/api)
+
+Add To Group
+------------
+(option-1) 
+1. open the group
+2. click on +
+3. find your bot (e.g: @RcBuilderTestBot)
+
+(option-2)
+1. open BotFather
+2. use 'setjoingroups' command
+3. choose your bot
+4. enable 'bot can be added to groups'
+5. use the 'Add to Group' button on the bot's profile
+
+Set Bot Privacy
+---------------
+in order to receive messages from groups the bot is in, we need 
+to disable the bot privacy mode.
+
+(steps)
+1. open botFather
+2. /setprivacy
+3. choose the bot you want to update (e.g: @RcBuilderTestBot)
+4. choose 'Disable'
+
+to check that its working, just send a message in the group and call 'getUpdates'
+to see its there.
+
+REST
+----
+schema:
+https://api.telegram.org/bot<token>/<action>
+
+actions:
+https://core.telegram.org/bots/api#available-methods
+
+sample:
+https://api.telegram.org/botxxxxxxx:xxxxxxxxxx/getMe
+
+GET /getMe
+GET /getUpdates
+GET /getUpdates?offset=272250583
+GET /sendMessage?chat_id=<chatId>&text=Hello From Bot
+GET /sendPhoto?chat_id=<chatId>&photo=https://picsum.photos/id/237/400/300
+GET /sendVideo?chat_id=<chatId>&video=http://techslides.com/demos/sample-videos/small.mp4
+GET /setChatTitle?chat_id=<chatId>&title=New Chat Title
+GET /sendLocation?chat_id=<chatId>&latitude=32.0853&longitude=34.7818
+GET /getChatMemberCount?chat_id=<chatId>
+GET /getChatMember?chat_id=<chatId>&user_id=<userId>
+
+postman:
+see 'TelegramAPI' collection 
+('TelegramAPI.postman_collection.json')
+
+.NET SDK
+--------
+
+nuget:
+> Install-Package Telegram.Bot -Version 16.0.2
+> Install-Package Telegram.Bot.Extensions.Polling -Version 0.2.0
+
+reference:
+https://telegrambots.github.io/book/1/quickstart.html
+https://github.com/TelegramBots/Telegram.Bot
+
+client:
+using Telegram.Bot;
+var client = new TelegramBotClient("<token>");
+
+polling:
+client.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync));
+
+async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken) {
+    if (!(update.Message is Message message)) return;
+    Console.WriteLine($"{update.Message.From.FirstName}: {update.Message.Text}"); // e.g: Roby: Hi Bot
+}
+
+async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken) {
+    if (!(exception is ApiRequestException apiRequestException)) return;
+    Console.WriteLine($"{apiRequestException.Message}");            
+}
+
+note! 
+we can create our own Polling by using the 'getUpdates' action.  
+all we need is a timer which checks the updates and then clears them. 
+for more info, see 'Get Updates' and 'Clear Updates'.
+
+sample:
+using Telegram.Bot;
+using Telegram.Bot.Exceptions;
+using Telegram.Bot.Extensions.Polling;
+using Telegram.Bot.Types;
+
+var client = new TelegramBotClient("xxxxxx:xxxxxxxxxxxxxxxxxxxxxx");
+
+// listen for incoming messages sent to the bot profile
+client.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync)); // see polling
+
+var me = await client.GetMeAsync();
+Console.WriteLine($"#{me.Id} {me.FirstName}");
+            
+var updates = await client.GetUpdatesAsync();
+Console.WriteLine($"{updates.Count()} updates found");
+
+var chatId_TestGroup = -6527xxxxx;  // find it using the GetUpdates method  
+var message = await client.SendTextMessageAsync(chatId_TestGroup, "Hello From Telegram API");
+Console.WriteLine($"message #{message.MessageId} has sent");
+
+
+Get Updates
+-----------
+1. using Polling
+2. using WebHook
+
+in both cases, all the received updates are related to the BOT profile.
+updates will be received for each new message sent to the bot profile and for each join of the bot to a group.
+when joining the bot to a group, the update contains the group id which can be later use to send messages from the bot to the whole group!
+
+under the hood, the polling service uses the 'getUpdates' endpoint to fetch the updates.
+once the updates have pulled using the polling service, they are removed by the service and can't be fetched again. 
+note that when using the 'getUpdates' endpoint - they keep returning.
+
+Clear Updates
+-------------
+to clear old updates, call the 'getUpdates' service with an 'offset' parameter contains the last processed update id. 
+the update id is part of the 'getUpdates' response. 
+
+all Polling services execute the 'getUpdates' and then execute it again with an 'offset' of the latest update id that has received on the first call.
+this technique allows the polling service to clear the updates already received and prevent duplicates. 
+
+Get User Info
+-------------
+a bot can't access directly to the group's users. 
+the only way to get information about a member in the group is to wait for the member to send a message in the group, 
+then to use the 'getUpdates' to fetch updates which should include the user-id. 
+once we have the user-id, we can use the 'getChatMember' service to get details about the user.
+note that this can also be achieved using Polling or WebHook.
+
+BUGS
+----
+- issue:
+  bot gets no updates for group messages but does receive for direct messages (chat 1 on 1)
+
+  fix: 
+  disable bot privacy mode.
+  see 'Set Bot Privacy'

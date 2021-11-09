@@ -1,0 +1,30 @@
+machine vs applicationHost vs app vs web config
+-----------------------------------------------
+
+machine.config:
+sets the configuration for all .NET applications.
+level = global
+based on the installed version.
+located in %windir%\Microsoft.NET\Framework\%version%\CONFIG
+
+-
+
+applicationHost.config:
+sets the configuration for IIS. 
+level = global
+
+located in 
+%windir%\system32\inetsrv\config (IIS)
+%programfiles%\IIS Express\AppServer (IIS Express)
+
+-
+
+web.config:
+sets the configuration for a specific ASP.NET application.
+level = application
+
+-
+
+app.config:
+sets the configuration for a specific NON ASP.NET application.
+level = application

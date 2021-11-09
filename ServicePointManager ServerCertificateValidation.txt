@@ -1,0 +1,25 @@
+ServicePointManager ServerCertificateValidation
+-----------------------------------------------
+use this global event to define for which certificates to trust when making requests from the server.
+
+we need this patch when there's something wrong with the installed certificates (self-signed certificate, mismatch hostname and etc.)
+This is dangerous for requests to servers outside of our control. 
+commonly used for internal requests between servers (127.0.0.1 etc.)
+
+1. trust all certificates
+   ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);
+
+2. trust specific certificates
+   ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => certificate.Subject.Contains("YourServerName"));
+
+3. use method to define the trusted certificates
+   ServicePointManager.ServerCertificateValidationCallback += new RemoteCertificateValidationCallback(ValidateRemoteCertificate);
+   private static bool ValidateRemoteCertificate(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) {
+       return certificate.Subject.Contains("YourServerName");
+   }
+
+--
+
+sample:
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);

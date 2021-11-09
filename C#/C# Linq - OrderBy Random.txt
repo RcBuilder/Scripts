@@ -1,0 +1,21 @@
+C# Linq - OrderBy Random
+------------------------
+Enumerable.OrderBy(_ => Guid.NewGuid());
+Enumerable.OrderByDescending(_ => Guid.NewGuid());
+
+- 
+
+var items = new List<Item> { 
+    new Item{ ID = 100, Name = "Item A" },
+    new Item{ ID = 101, Name = "Item B" },
+    new Item{ ID = 102, Name = "Item C" },
+    new Item{ ID = 103, Name = "Item D" },
+    new Item{ ID = 104, Name = "Item E" },
+    new Item{ ID = 105, Name = "Item F" },
+    new Item{ ID = 106, Name = "Item G" },
+    new Item{ ID = 107, Name = "Item H" },
+    new Item{ ID = 108, Name = "Item I" }           
+};
+var ordered = items.OrderBy(_ => Guid.NewGuid());
+var top3 = ordered?.Take(3).ToList();
+top3.ForEach(x => Console.WriteLine(x.Name));

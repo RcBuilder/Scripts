@@ -1,0 +1,16 @@
+Bug:
+internal https communication between servers returns an "underlying connection was closed..." message
+
+Error:
+The underlying connection was closed: Could not establish trust relationship for the SSL/TLS secure channel
+
+Cause:
+Tls support issue
+
+Solution:
+set the 'SecurityProtocol' and the 'ServerCertificateValidationCallback' properties of the global 'ServicePointManager' object
+
+e.g:
+// trust all certificates
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);

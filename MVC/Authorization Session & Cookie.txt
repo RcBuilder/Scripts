@@ -1,6 +1,11 @@
 Authorization Session & Cookie
 ------------------------------
 
+reference: 
+see 'CODE/AuthorizationSession&Cookie' folder
+
+-
+
 public class MyAuthorization : AuthorizeAttribute
 {        
     public override void OnAuthorization(AuthorizationContext filterContext)

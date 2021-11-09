@@ -319,7 +319,7 @@ namespace WebsiteBLL
                     - 2 for J2 
                     - 5 for J5
                 */
-                ///prms["CreateTokenJValidateType"] = "5"; 
+                prms["CreateTokenJValidateType"] = "5"; 
             }
 
             if (InvoiceDetails != null && Operation < 3) // available only for bill operations (1 and 2)
@@ -475,6 +475,7 @@ namespace WebsiteBLL
             prms["codepage"] = UNICODE;
             
             prms["TokenToCharge.Token"] = Token;
+            prms["TokenToCharge.UniqAsmachta"] = Token;
 
             if (!string.IsNullOrEmpty(CardExpiry)) { 
                 prms["TokenToCharge.CardValidityMonth"] = CardExpiry?.Substring(4, 2);
@@ -483,7 +484,7 @@ namespace WebsiteBLL
 
             prms["TokenToCharge.SumToBill"] = Items.Sum(x => x.Price * x.Quantity).ToString(); // Sum To Bill;
             prms["TokenToCharge.IdentityNumber"] = CardOwnerId;            
-            prms["TokenToCharge.NumOfPayments"] = NumOfPayments.ToString();
+            prms["TokenToCharge.NumOfPayments"] = NumOfPayments.ToString();            
 
             // billing coin: 1 - NIS, 2 - USD...
             // list: http://kb.cardcom.co.il/article/AA-00247/0

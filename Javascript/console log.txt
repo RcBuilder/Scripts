@@ -1,0 +1,24 @@
+Console Log
+-----------
+
+formats:
+%s	// format as string
+%i	// format as int 
+%d	// format as int 
+%f	// format as float 
+%o	// format as expandable DOM element
+%O	// format as expandable javascript object
+%c	// applies CSS style rules to the output
+
+syntax:
+console.log('%c <message>', '<style>');
+console.log('%s', '<message>');
+console.log('%c%s', '<style>', '<message>');
+
+methods:
+console.log
+console.info
+console.debug
+console.warn
+console.error
+

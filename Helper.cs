@@ -106,6 +106,22 @@ namespace MHCommon
         }
         #endregion 
 
+        #region Form2String:
+        public static string Form2String(HttpRequestBase Request)
+        {
+            try
+            {
+                return string.Join("&", Request.Form.AllKeys
+                    .Select(x => $"{x}={Request.Form[x]}")
+                    .Distinct());
+            }
+            catch
+            {
+                return null;
+            }
+        }
+        #endregion 
+
         #region ParseResponse:
         public static NameValueCollection ParseResponse(string sResponse)
         {
@@ -131,6 +147,20 @@ namespace MHCommon
             return phone;
         }
         #endregion 
+
+        #region IsHttpFileExists:
+        // e.g: IsHttpFileExists("https://mml-videos-music.s3.eu-west-2.amazonaws.com/prefixMM_.wav")
+        public static bool IsHttpFileExists(string filePath)
+        {
+            try
+            {
+                var request = (HttpWebRequest)WebRequest.Create(filePath);
+                using (var response = (HttpWebResponse)request.GetResponse())
+                    return response.StatusCode == HttpStatusCode.OK;
+            }
+            catch { return false; }
+        }
+        #endregion
 
         // -- also see 'HttpServiceHelper'
         #region POST:

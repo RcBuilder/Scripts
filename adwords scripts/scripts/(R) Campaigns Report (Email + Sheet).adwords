@@ -1,8 +1,8 @@
-var LABEL_CAMPAIGN = 'Experiment';
+var LABEL_CAMPAIGN = 'TEST';
 var EMAIL = 'RcBuilder@walla.com';
-var DATE_RANGE = 'LAST_7_DAYS';
+var DATE_RANGE = 'LAST_30_DAYS';
 var SHEET_NAME = 'Campaigns_Report';
-var SHEET_FOLDER = 'TEST';
+var SHEET_FOLDER = '';
 
 function main() {
   var accountName = AdWordsApp.currentAccount().getName();
@@ -26,7 +26,7 @@ function main() {
       'Pos.Tablet',
       'Pos.Mobile',
       'Conversions', 
-      'Conv.Rate',
+      //'Conv.Rate',
       'Conv.Value',
       'Conv.Value.Rate'
     ]);
@@ -51,7 +51,7 @@ function main() {
        '<th>Pos.Tablet</th>' +
        '<th>Pos.Mobile</th>' + 
        '<th>Conversions</th>' +
-       '<th>Conv.Rate</th>' +
+       //'<th>Conv.Rate</th>' +
        '<th>Conv.Value</th>' + 
        '<th>Conv.Value.Rate</th>' +     
     '</tr>');  
@@ -149,7 +149,7 @@ function main() {
            '<td>' + deviceData.tablet.averagePosition + '</td>' + 
            '<td>' + deviceData.mobile.averagePosition + '</td>' + 
            '<td>' + tblConversions + '</td>' +  
-           '<td>' + tblConversionsRate + '</td>' +   
+           //'<td>' + tblConversionsRate + '</td>' +   
            '<td>' + extendedData.conversionValue.toFixed(2) + '</td>' +
            '<td>' + conversionValueRate.toFixed(2) + '</td>' +   
        '</tr>');     
@@ -208,7 +208,7 @@ function main() {
            '<td>' + totals.tabletPosition + '</td>' + 
            '<td>' + totals.mobilePosition + '</td>' + 
            '<td>' + totals.conversions + '</td>' +  
-           '<td>' + totals.conversionsRate + '%</td>' +    
+           //'<td>' + totals.conversionsRate + '%</td>' +    
            '<td>' + totals.conversionValue.toFixed(2) + '</td>' + 
            '<td>' + totals.conversionValueRate + '%</td>' +                  
        '</tr>');
@@ -230,7 +230,7 @@ function main() {
     totals.tabletPosition,
     totals.mobilePosition,
     totals.conversions, 
-    totals.conversionsRate + '%',
+    //totals.conversionsRate + '%',
     totals.conversionValue.toFixed(2),
     totals.conversionValueRate + '%'
   ]);
@@ -293,7 +293,7 @@ function GetCampaignConversionsData(campaign, dateRange){
     includeZeroImpressions: true
   };
   
-  var query =  'SELECT CampaignId, CampaignName, ConversionTypeName, Conversions, ConversionRate ' + 
+  var query =  'SELECT CampaignId, CampaignName, ConversionTypeName, Conversions ' + 
     'FROM CAMPAIGN_PERFORMANCE_REPORT ' + 
     'WHERE CampaignStatus IN [ENABLED] ' +        
     'AND CampaignId = ' + campaign.getId() + ' ' + 
@@ -309,7 +309,7 @@ function GetCampaignConversionsData(campaign, dateRange){
       conversionType: conversionType, 
       stats: { 
         conversions: row['Conversions'],         
-        conversionRate: row['ConversionRate'] 
+        conversionRate: 0 
       }
     });
   }

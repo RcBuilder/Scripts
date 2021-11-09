@@ -476,6 +476,7 @@ namespace Cardcom
             prms["codepage"] = UNICODE;
             
             prms["TokenToCharge.Token"] = Token;
+            prms["TokenToCharge.UniqAsmachta"] = Token;
 
             if (!string.IsNullOrEmpty(CardExpiry)) { 
                 prms["TokenToCharge.CardValidityMonth"] = CardExpiry?.Substring(4, 2);

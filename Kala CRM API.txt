@@ -1,0 +1,49 @@
+Kala CRM API
+------------
+
+Postman:
+See 'Kala API' 
+
+implementation:
+see 'Creative > KalaInventorySyncService' project
+
+documentation:
+see 'Creative > Documents'
+
+-
+
+// API
+https://xxxx.kala-crm.co.il/api/v1/<service>
+
+Headers:
+X-<service-type>-Key=<token>
+
+// Admin
+https://aquatech-staging.kala-crm.co.il/admin
+
+-
+
+// Save Inventory
+POST https://aquatech-staging.kala-crm.co.il/api/v1/product_inventory
+H: X-Inventory-Key=xxxxxxxxx
+H: Content-Type=application/json
+{
+    "page_sku": "41rgv23", 
+    "inventory_location_id": 5,
+    "quantity": 123,
+    "set_quantity": true
+}
+
+notes!
+page_sku // item-id 
+inventory_location_id // store-no
+set_quantity // set or append 
+
+-
+
+// Get Stores
+GET https://aquatech-staging.kala-crm.co.il/api/v1/product_inventory_location
+H: X-Inventory-Key=xxxxxxxxx
+H: Content-Type=application/json
+
+-

@@ -1,0 +1,171 @@
+BeeComm API
+===========
+also see 'Postman > BeeComm.postman_collection.json'
+also see 'CODE > BeeCommManager.cs'
+
+Base URL
+--------
+https://biapp.beecomm.co.il:8094
+
+Order Object
+------------
+http://bibeecommws.azurewebsites.net/Docs/OrdersCenter/OrdersCenter.aspx
+
+{
+  "branchId": "string",
+  "orderInfo": {
+    "orderType": int,
+    "firstName": "string",
+    "lastName": "string",
+    "phone": "string",
+    "remarks": "string",
+    "discountSum": decimal,
+    "outerCompId": int,
+    "outerCompOrderId": "string",
+    "items": [
+      {
+        "netId": int,
+        "itemName": "string",
+        "quantity": int,
+        "price": decimal,
+        "unitPrice": decimal,
+        "remarks": "string",
+        "belongTo": "string",
+        "billRemarks": "string",
+        "subItems": [],
+        "toppings": []
+      }
+    ],
+    "payments": [
+      {
+        "paymentType": int,
+        "paymentSum": decimal,
+        "paymentName": "string",
+        "creditCard": "string",
+        "creditCardTokef": "string",
+        "creditCardCvv": "string",
+        "creditCardHolderID": "string",
+        "paymentRemark": "string"
+      }
+    ],
+    "deliveryInfo": {
+      "deliveryCost": decimal,
+      "deliveryRemarks": "string",
+      "city": "string",
+      "street": "string",
+      "homeNum": "string",
+      "apartment": "string",
+      "floor": "string",
+      "companyName": "string"
+    },
+    "dinners": int,
+    "arrivalTime": "string",
+    "email": "string"
+  }
+}
+
+note! 
+for cash order, omit the 'payments' section 
+
+Generate a Token
+----------------
+POST /v2/oauth/token
+H Content-Type: application/x-www-form-urlencoded
+H Accept: application/json
+B client_id=xxxxxxxxx&client_secret=xxxxxxxxx
+
+response:
+{
+    "result": true,
+    "message": "authenticated successfully",
+    "access_token": "xxxxxxxxxxxxxx"
+}
+
+Get Customers
+-------------
+GET /api/v2/services/orderCenter/customers
+H access_token: <token>
+
+response:
+{
+    "result": true,
+    "customers": [
+        {
+            "customerName": "",
+            "branchName": "",
+            "branchId": ""
+        }
+    ]
+}
+
+Create an Order
+---------------
+POST /api/v2/services/orderCenter/pushOrder
+H access_token: <token>
+H Content-Type: application/json
+H Accept: application/json
+
+{
+  "branchId": "5fc517cb89xxxxxxxxx",
+  "orderInfo": {
+    "orderType": 100,
+    "firstName": "TEST",
+    "lastName": "API",
+    "phone": "055-5555555",
+    "remarks": "bla bla bla",
+    "discountSum": 0,
+    "outerCompId": 0,
+    "outerCompOrderId": "",
+    "items": [
+      {
+        "netId": 1000,
+        "itemName": "Item-1",
+        "quantity": 1,
+        "price": 1,
+        "unitPrice": 1,
+        "remarks": "item notes",
+        "belongTo": "",
+        "billRemarks": "",
+        "subItems": [],
+        "toppings": []
+      }
+    ],
+    "payments": [
+      {
+        "paymentType": 1,
+        "paymentSum": 1,
+        "paymentName": "cash",
+        "creditCard": "",
+        "creditCardTokef": "",
+        "creditCardCvv": "",
+        "creditCardHolderID": "",
+        "paymentRemark": ""
+      }
+    ],
+    "deliveryInfo": {
+      "deliveryCost": 0,
+      "deliveryRemarks": "free delivery",
+      "city": "tel-aviv",
+      "street": "dan",
+      "homeNum": "11",
+      "apartment": "1",
+      "floor": "101",
+      "companyName": "RcBuilder"
+    },
+    "dinners": 0,
+    "arrivalTime": "",
+    "email": ""
+  }
+}
+
+Get Order Status
+----------------
+POST /api/v2/services/orderCenter/getOrderStatus
+H access_token: <token>
+H Content-Type: application/json
+H Accept: application/json
+
+{
+    "orderCenterId": "1234"
+}
+

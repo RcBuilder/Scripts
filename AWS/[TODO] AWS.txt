@@ -244,3 +244,14 @@ supports static files
 supports html files 
 
 --
+
+interact with AWS:
+- AWS Management Console
+- AWS Command Line Interface (AWS CLI)
+- Software development kits (SDKs)
+
+--
+
+https://resources.awscloud.com/
+
+--

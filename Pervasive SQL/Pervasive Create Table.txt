@@ -1,0 +1,29 @@
+Pervasive Create Table
+----------------------
+using (var connection = new OdbcConnection(this.ConnetionString))
+{
+    connection.Open();
+                    
+    var command = new OdbcCommand();
+    command.Connection = connection;
+
+    command.CommandText = $@"CREATE TABLE TEST_1(c1 int default 999, c2 char(5) default 'abcd', c3 bit default 1)";
+    command.ExecuteNonQuery();
+
+    command.CommandText = $@"INSERT INTO TEST_1(c1, c2) VALUES(100, 'aaaa')";
+    command.ExecuteNonQuery();
+}
+
+
+using (var connection = new OdbcConnection(ConnetionString))
+{
+    connection.Open();
+    var query = $@"SELECT * FROM TEST_1";
+
+    var command = new OdbcCommand(query);
+    command.Connection = connection;
+    using (var reader = command.ExecuteReader()) {
+        while(reader.Read())
+            Console.WriteLine($"{reader["c1"]}, {reader["c2"]}");
+    }
+}

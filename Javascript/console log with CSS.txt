@@ -1,0 +1,34 @@
+Console Log with CSS
+--------------------
+
+format:
+%c  // apply css 
+%s  // message placeholder
+
+syntax:
+console.log('%c <message>', '<style>');
+console.log('%c%s', '<style>', '<message>');
+
+support:
+console.log
+console.info
+console.debug
+console.warn
+console.error
+
+sample:
+console.log('%cHello World', 'color: green');
+console.log('%cHello World', 'color: green; font-size: 22px;');
+console.log('%cHello World', 'color: green; font-size: 22px; font-family: serif;');
+console.log('%cHello World', 'color: #fff; background: red; padding: 10px;');
+
+// using array
+const styles = [
+    'color: #fff',
+    'background: red',
+    'padding: 10px'
+].join(';');
+console.log('%cHello World', styles);
+
+// using %s
+console.log('%c%s', styles, 'Hello World');

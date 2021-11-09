@@ -1,0 +1,112 @@
+C# Dapper LoadMultiple Sample
+-----------------------------
+
+[SQL]
+
+// sp_Posts_ByClass_Get 4
+ALTER PROCEDURE [dbo].[sp_Posts_ByClass_Get]
+	@ClasstId INT	
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+		
+	EXEC sp_Posts_ByTarget_Get @ClasstId, 1 /* Class */
+END
+
+-
+
+// sp_Posts_ByTarget_Get 5, 1
+ALTER PROCEDURE [dbo].[sp_Posts_ByTarget_Get]
+	@TargetId INT,
+	@TargetType TINYINT
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+	
+	DECLARE @sIds VARCHAR(MAX) = (
+		SELECT STUFF((
+			SELECT	CONCAT(',', Id)
+			FROM	[dbo].[Posts] WITH(NOLOCK)
+			WHERE	TargetId = @TargetId
+			AND		TargetType = @TargetType
+			AND		IsDeleted = 0	
+			FOR XML PATH('')
+		), 1, 1, '')
+	)
+
+	EXEC sp_Posts_Get @sIds
+END
+
+-
+
+// sp_Posts_Get '2,3,4'
+ALTER PROCEDURE [dbo].[sp_Posts_Get]
+	@sIds VARCHAR(MAX)	
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+		
+	DECLARE @tIds TABLE(Id INT)
+	INSERT INTO @tIds
+		SELECT RTRIM(LTRIM([Value])) FROM STRING_SPLIT(@sIds, ',')
+
+	-- 1st table: posts --
+	SELECT	*
+	FROM	[dbo].[Posts] WITH(NOLOCK)
+	WHERE	Id IN (SELECT Id FROM @tIds)
+	AND		IsDeleted = 0
+	ORDER BY UpdatedDate DESC
+
+	-- 2nd table: likes --
+	SELECT	*
+	FROM	[dbo].[Likes] WITH(NOLOCK)
+	WHERE	PostId IN (SELECT Id FROM @tIds)	
+
+	-- 3rd table: comments --
+	SELECT	*
+	FROM	[dbo].[Comments] WITH(NOLOCK)
+	WHERE	PostId IN (SELECT Id FROM @tIds)
+	AND		IsDeleted = 0
+
+END
+
+---
+
+[DAL]
+
+public async Task<IEnumerable<Post>> GetByClass(int ClassId)
+{
+    using (var conn = new SqlConnection(ConnStr))
+    {
+        var reader = await conn.QueryMultipleAsync(
+            "sp_Posts_ByClass_Get",
+            commandType: CommandType.StoredProcedure,
+            param: new { ClassId }
+        );
+
+        return this.LoadPosts(reader);
+    }
+}
+
+private IEnumerable<Post> LoadPosts(SqlMapper.GridReader reader)
+{            
+    var result = new List<Post>();
+
+    //-- 1st table: posts --                
+    var posts = reader.Read<Post>();
+
+    //-- 2nd table: likes --
+    var likes = reader.Read<Like>();
+
+    //-- 3rd table: comments --
+    var comments = reader.Read<Comment>();
+
+    foreach (var post in posts)
+    {
+        post.Likes = likes.Where(x => x.PostId == post.Id);
+        post.Comments = comments.Where(x => x.PostId == post.Id);
+        result.Add(post);
+    }
+
+    return result;
+}
