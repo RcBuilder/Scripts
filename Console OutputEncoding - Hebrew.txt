@@ -1,0 +1,9 @@
+Console OutputEncoding - Hebrew
+-------------------------------
+to use hebrew characters in a console, we need to set the output encoding 
+as 'Windows-1255' and reverese the text.
+
+-
+
+Console.OutputEncoding = Encoding.GetEncoding("Windows-1255");
+Console.WriteLine(new String("טקסט בעברית".Reverse().ToArray()));

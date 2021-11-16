@@ -41,6 +41,10 @@ app.config:
 </connectionStrings>
 
 SQLiteConnection:
+using System.Data;
+using System.Data.SQLite;
+using Dapper;
+
 using(var conn = new SQLiteConnection(<ConnStr>)){
 	var result = conn.Query<T>(<query>, new DynamicParameters());
 	...
@@ -107,6 +111,7 @@ LIMIT 10;
 
 SQLite Browser
 --------------
+(Recommended)
 a visual, open source, cross platform tool for sqlite to create, design, and edit database. 
 https://sqlitebrowser.org/
 https://github.com/sqlitebrowser/sqlitebrowser/wiki
@@ -130,12 +135,126 @@ sqlite supports triggers for INSERT, UPDATE and  DELETE actions
 https://www.sqlitetutorial.net/sqlite-trigger/
 
 
+BUGs
+----
+Error:
+Unable to load DLL 'SQLite.Interop.dll'
 
+Solution:
+Must Install the 'Core' package also on the main-project (package 'System.Data.SQLite.Core')
 
+-
 
+Error:
+query - near "IF": syntax error
 
+Reason:
+IF statement is not supported 
 
+Error Sample:
+IF NOT EXISTS(SELECT 1 FROM Contacts WHERE Id = @Id)
+BEGIN 
+	INSERT INTO Contacts 
+    (Id, UserName, FirstName, LastName, Phone, AccessHash)
+	VALUES 
+    (@Id, @UserName, @FirstName, @LastName, @Phone, @AccessHash)
+END 
+ELSE
+BEGIN 
+	UPDATE	Contacts 
+	SET		UserName = @UserName,
+			FirstName = @FirstName,
+			LastName = @LastName,
+			Phone = @Phone,
+            AccessHash = @AccessHash
+	WHERE	Id = @Id
+END 
 
+Solution:
+use INSERT OR REPLACE ... 
+
+Sample:
+INSERT OR REPLACE INTO Contacts 
+(Id, UserName, FirstName, LastName, Phone, AccessHash)
+VALUES 
+(@Id, @UserName, @FirstName, @LastName, @Phone, @AccessHash)
+
+-
+
+Error:
+Database Locked exception. 
+
+Solution:
+SQL Browser locks the file. close it.
+
+USING
+-----
+var dal = new SampleDAL(@"Data Source=E:\DataBase\SampleDB.db;Version=3");
+
+var contact = new DBContact { 
+    Id = 1,
+    FirstName = "John",
+    LastName = "Doe",
+    UserName = "@johnDoe",
+    Phone = "972545555555",
+    AccessHash = 123456
+};
+await dal.SaveContact(contact);            
+var contacts = await dal.GetContacts();
+await dal.DeleteContact(contact.Id);
+
+-
+
+public class SampleDAL : IContactsDAL
+{
+    protected string ConnStr { get; set; }
+    public TelegramBotDAL(string ConnStr) {
+        this.ConnStr = ConnStr;
+    }
+
+    public async Task<IEnumerable<DBContact>> GetContacts()
+    {
+        using (var conn = new SQLiteConnection(this.ConnStr)) {
+            return await conn.QueryAsync<DBContact>(
+                "SELECT * FROM Contacts", 
+                commandType: CommandType.Text
+            );
+        }   
+    }
+
+    public async Task<bool> SaveContact(DBContact Contact)
+    {
+        using (var conn = new SQLiteConnection(this.ConnStr))
+        {
+            await conn.ExecuteAsync(
+                @"
+                    INSERT OR REPLACE INTO Contacts 
+                    (Id, UserName, FirstName, LastName, Phone, AccessHash)
+                    VALUES 
+                    (@Id, @UserName, @FirstName, @LastName, @Phone, @AccessHash)
+                ",
+                commandType: CommandType.Text,
+                param: Contact
+            );
+
+            return true;
+        }
+    }
+
+    public async Task<bool> DeleteContact(int Id)
+    {
+        using (var conn = new SQLiteConnection(this.ConnStr))
+        {
+            await conn.ExecuteAsync(
+                "DELETE FROM Contacts WHERE Id = @Id",
+                commandType: CommandType.Text,
+                param: new { Id }
+            );
+
+            return true;
+        }
+    }
+}
 
 -----------------
 // TODO ->> 
@@ -150,3 +269,4 @@ transactions
 Complete:
 /// C:\Users\RcBuilder\Downloads\SQLite
 /// Chrome open related tabs
+

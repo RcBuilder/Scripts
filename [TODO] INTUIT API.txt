@@ -1,0 +1,186 @@
+[INTUIT API]
+aka QuickBooksOnline (QBO)
+
+Getting Started:
+(steps)
+1. Go to developer console
+   https://developer.intuit.com/app/developer/dashboard
+2. Create an App > Click on it
+3. Development > Keys & OAuth
+4. Create Sandbox Company (see 'Create a Sandbox Company')
+
+Create a Sandbox Company:
+1. Go to developer console
+2. API Docs & Tools (top menu) > Add a sandbox company
+   note! this will generate a dummy company with dashboard and data, 
+   click on the company to login.
+
+sources:
+- developer console
+  https://developer.intuit.com/app/developer/dashboard
+- reference 
+  https://developer.intuit.com/docs
+  https://developer.intuit.com/app/developer/qbo/docs/develop
+- sandbox
+  https://developer.intuit.com/app/developer/sandbox
+- oauth playground
+  https://developer.intuit.com/app/developer/playground
+- api explorer
+  https://developer.intuit.com/v2/apiexplorer
+- blog
+  https://blogs.intuit.com/
+- dev-support
+  https://help.developer.intuit.com/s/
+- endpoints-list
+  // prod
+  https://developer.api.intuit.com/.well-known/openid_configuration
+  // sandbox
+  https://developer.api.intuit.com/.well-known/openid_sandbox_configuration
+- SDKs
+  https://developer.intuit.com/app/developer/qbo/docs/develop/sdks-and-samples
+- api base-url (prod)
+  https://quickbooks.api.intuit.com/v3/
+- api base-url (qa)
+  https://sandbox-quickbooks.api.intuit.com/v3/
+- upload files
+  https://developer.intuit.com/app/developer/qbo/docs/workflows/attach-images-and-notes#uploading-files-to-the-attachment-list
+
+Postman:
+(Collection)
+QuickBooks Online V3API Collections - OAuth2
+
+note:
+there's no app-level support for oauth meaning user interaction is required! 
+we can generate a token, plant it within the code and keep refreshing it till the refresh-token expires (101 days)
+// source
+https://help.developer.intuit.com/s/question/0D54R0000873LCHSA2/api-authentication-without-a-user-logging-in
+
+
+OAuth:
+[step-1] authorization code
+// request
+GET https://appcenter.intuit.com/connect/oauth2
+?client_id=ABiPdxRWuhDGBlFaHc1PGYoU1CdZQBjyDu0epkrybawJHABwb5
+&response_type=code
+&scope=com.intuit.quickbooks.accounting
+&redirect_uri=https://rcbuilder.free.beeceptor.com
+&state=202108151830
+
+// response 
+https://rcbuilder.free.beeceptor.com/
+?code=<authorization code>
+&state=202108151830
+&realmId=4620816365179386750
+
+[step-2] access tokens
+// request
+POST https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer
+H Accept: application/json
+H Content-Type: application/x-www-form-urlencoded
+H Authorization: Basic <Base64(client_id + ":" + client_secret)>
+grant_type=authorization_code
+&code=<authorization code>
+&redirect_uri=https://rcbuilder.free.beeceptor.com
+
+// response
+{
+    "x_refresh_token_expires_in": 8726400,
+    "refresh_token": "xxxxxxxxxxxxxxxxxxxxxxxx",
+    "access_token": "xxxxxxxxxxxxxxxxxxxxxxxx",
+    "token_type": "bearer",
+    "expires_in": 3600
+}
+
+[step-3] refresh token
+// request
+POST https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer
+H Accept: application/json
+H Content-Type: application/x-www-form-urlencoded
+H Authorization: Basic <Base64(client_id + ":" + client_secret)>
+grant_type=refresh_token
+&refresh_token=<refresh_token>
+
+// response (same as step-2)
+{
+    "x_refresh_token_expires_in": 8726400,
+    "refresh_token": "xxxxxxxxxxxxxxxxxxxxxxxx",
+    "access_token": "xxxxxxxxxxxxxxxxxxxxxxxx",
+    "token_type": "bearer",
+    "expires_in": 3600
+}
+
+[step-4] test api
+// request
+POST https://sandbox-quickbooks.api.intuit.com/v3/company/<realmId>/query
+H Accept: application/json
+H Content-Type: application/text
+H Authorization: Bearer <token>
+B Select * from CompanyInfo
+
+
+Using Query Request:
+.../query
+Content-Type: application/text
+B <query>
+
+
+.NET SDK:
+
+// nuget 
+> Install-Package IppDotNetSdkForQuickBooksApiV3
+
+// sample 
+using Intuit.Ipp.Core;
+using Intuit.Ipp.Data;
+using Intuit.Ipp.QueryFilter;
+using Intuit.Ipp.Security;
+
+var token = "xxxxxxxxxxxxx";
+var realmId = "xxxxxxxxxxxxx";
+
+var oauthValidator = new OAuth2RequestValidator(token);
+var serviceContext = new ServiceContext(realmId, IntuitServicesType.QBO, oauthValidator);
+serviceContext.IppConfiguration.MinorVersion.Qbo = "23";
+serviceContext.IppConfiguration.BaseUrl.Qbo = "https://sandbox-quickbooks.api.intuit.com/"; // sandbox
+
+var querySvc = new QueryService<CompanyInfo>(serviceContext);
+var companyInfo = querySvc.ExecuteIdsQuery("SELECT * FROM CompanyInfo").FirstOrDefault();
+
+string output = JsonConvert.SerializeObject(companyInfo, new JsonSerializerSettings
+{
+    NullValueHandling = NullValueHandling.Ignore
+});
+
+POSTMAN:
+see 'QuickBooks Online - Intuit.postman_collection.json'
+
+IMPLEMENTATION:
+see 'CODE\IntuitAPIProxy'
+
+PROJECT:
+see 'Fintechtic-Solutions-Ltd' > 'WebTools'
+see 'Fintechtic-Solutions-Ltd' > 'TestIntuitProxy'
+
+-----------------
+// TODO ->> 
+authorize ANY account using oauth process
+note! developer console is NOT related to the logged in account, 
+the clientId+secret represents the developer and the token represents the account authorized the oauth consent screen 
+(steps)
+1. use the developer clientId + Secret to redirect to the QB login screen
+2. once a user logged-in, he will redirect back to the provided callbackURL 
+   note! must also be defined in the allowed callbacks on the dev Console
+3. get the active companyId (aka realmId) and the oauth-code from the querystring
+4. convert the oauth-code to a token (+ refreshToken)
+5. use the token and the companyId to make calls to the api
+
+-
+
+api sandbox keys can't access LIVE accounts. only PROD keys fit for PROD accounts. 
+
+-
+
+note that the oauth state is the id of the QB account related to the developer console.
+the companyId in the querystring is the target company which we pull the data from.
+
+-

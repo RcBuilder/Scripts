@@ -28,6 +28,7 @@ https://www.tg-me.com/
 https://xtea.io/ts_en.html#gsc.tab=0
 https://gramxly.com/
 https://groupda.com/tg/
+https://combot.org/telegram/top/groups
 
 Code Samples
 ------------
@@ -263,6 +264,10 @@ Create a bot:
 5. append the token from chapter 4 to any API http request
    (https://core.telegram.org/bots/api)
 
+Get Token For Existing Bot:
+1. /token 
+2. choose the bot
+
 Add To Group
 ------------
 (option-1) 
@@ -355,21 +360,24 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 var client = new TelegramBotClient("xxxxxx:xxxxxxxxxxxxxxxxxxxxxx");
 
 // listen for incoming messages sent to the bot profile
-client.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync)); // see polling
-
-var me = await client.GetMeAsync();
-Console.WriteLine($"#{me.Id} {me.FirstName}");
+client.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync));
             
+var me = await client.GetMeAsync();
+Console.WriteLine($"Bot {me.Username} is Running...");
+
 var updates = await client.GetUpdatesAsync();
 Console.WriteLine($"{updates.Count()} updates found");
 
 var chatId_TestGroup = -6527xxxxx;  // find it using the GetUpdates method  
 var message = await client.SendTextMessageAsync(chatId_TestGroup, "Hello From Telegram API");
 Console.WriteLine($"message #{message.MessageId} has sent");
+
+Console.ReadKey();
 
 
 Get Updates
@@ -409,3 +417,44 @@ BUGS
   fix: 
   disable bot privacy mode.
   see 'Set Bot Privacy'
+
+
+
+-----------------------------------------
+// TODO ->>
+ParseMode: Default, Markdown, Html, MarkdownV2
+await botClient.SendTextMessageAsync(update.Message.Chat.Id, "SOME <b>BOLD</b> TEXT", parseMode: ParseMode.Html);
+
+-
+
+// ReplyKeyboardMarkup
+var keyboard = new List<List<KeyboardButton>> {
+    new List<KeyboardButton>{
+        new KeyboardButton{ Text = "/Option1" },
+        new KeyboardButton{ Text = "/Option2" },
+        new KeyboardButton{ Text = "/Option3" }
+    },
+    new List<KeyboardButton>{
+        new KeyboardButton{ Text = "/Option4" },
+        new KeyboardButton{ Text = "/Option5" },
+        new KeyboardButton{ Text = "/Option6" }
+    }
+};
+var options = new ReplyKeyboardMarkup(keyboard);
+
+-
+
+// InlineKeyboardMarkup
+var inlineKeyboard = new List<List<InlineKeyboardButton>> {
+    new List<InlineKeyboardButton>{
+        new InlineKeyboardButton{ Text = "Choose Option 1", CallbackData = "/Option1" },
+        new InlineKeyboardButton{ Text = "Choose Option 2", CallbackData = "/Option2" },
+        new InlineKeyboardButton{ Text = "Choose Option 3", CallbackData = "/Option3" }
+    },
+    new List<InlineKeyboardButton>{
+        new InlineKeyboardButton{ Text = "Choose Option 4", CallbackData = "/Option4" },
+        new InlineKeyboardButton{ Text = "Choose Option 5", CallbackData = "/Option5" },
+        new InlineKeyboardButton{ Text = "Choose Option 6", CallbackData = "/Option6" }
+    }
+};
+var options = new InlineKeyboardMarkup(inlineKeyboard);

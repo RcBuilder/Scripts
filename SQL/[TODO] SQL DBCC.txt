@@ -1,0 +1,36 @@
+*** DBCC ***
+************
+DataBase Console Command. 
+DBCC Commands are console commands used for maintenance.
+
+// TODO
+Commands:
+- FreeProcCache
+- DropCleanBuffers
+
+- LOG(<db-name>)  // show transaction log 
+- 
+
+
+
+
+
+
+--------------------------------------
+// TODO
+
+Sp_who_2
+
+--
+
+INPUT BUFFER
+displays the latest command executed on the specified process
+
+syntax:
+DBCC INPUTBUFFER(<processId>) 
+
+sample:
+sp_who  // find a process id
+DBCC INPUTBUFFER(57)
+
+-- 

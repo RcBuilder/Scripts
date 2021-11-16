@@ -11,7 +11,7 @@ namespace IntuitProxy
 {
     /*        
         // QA
-        var intuitAPIManager = new IntuitAPIManagerSyncHttp(new IntuitAPIConfig { 
+        var intuitAPIManager = new IntuitAPIManager(new IntuitAPIConfig { 
             BaseURL = "https://sandbox-quickbooks.api.intuit.com/v3/",
             BaseAuthURL = "https://oauth.platform.intuit.com/",
             ClientId = "xxxxxxxxxxxxxxxxxxxxxxxxx",
@@ -22,7 +22,7 @@ namespace IntuitProxy
         });        
 
         // PROD
-        var intuitAPIManager = new IntuitAPIManagerSyncHttp(new IntuitAPIConfig
+        var intuitAPIManager = new IntuitAPIManager(new IntuitAPIConfig
         {
             BaseURL = "https://quickbooks.api.intuit.com/v3/",
             BaseAuthURL = "https://oauth.platform.intuit.com/",
@@ -96,9 +96,10 @@ namespace IntuitProxy
         }
 
         public async Task<APICompanyInfo> GetCompanyInfo()
-        {                                            
+        {
+            var query = "Select * from CompanyInfo";
             var response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
-                "Select * from CompanyInfo"
+                query
             }, null, new Dictionary<string, string>
             {
                 ["Accept"] = "application/json",
@@ -112,7 +113,7 @@ namespace IntuitProxy
                 await this.RefreshToken();
 
                 response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
-                    "Select * from CompanyInfo"
+                    query
                 }, null, new Dictionary<string, string>
                 {
                     ["Accept"] = "application/json",
@@ -142,8 +143,9 @@ namespace IntuitProxy
 
         public async Task<IEnumerable<APIAccount>> GetAccounts()
         {
+            var query = "Select * from Account";
             var response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
-                "Select * from Account"
+                query
             }, null, new Dictionary<string, string>
             {
                 ["Accept"] = "application/json",
@@ -157,7 +159,7 @@ namespace IntuitProxy
                 await this.RefreshToken();
 
                 response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
-                    "Select * from Account"
+                    query
                 }, null, new Dictionary<string, string>
                 {
                     ["Accept"] = "application/json",
@@ -239,6 +241,107 @@ namespace IntuitProxy
         
         public async Task<IEnumerable<string>> UploadBankTransactions(IEnumerable<APIBankTransaction> Entries) {
             return await this.UploadJournalEntries(Entries.Select(e => (APIJournalEntry)e));
+        }
+
+        public async Task<IEnumerable<APIVendor>> GetVendors() {
+            var query = "Select * from Vendor";
+            var response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                query
+            }, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/text",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                    query
+                }, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/text",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            var vendorSchema = new
+            {
+                Id = string.Empty,
+                DisplayName = string.Empty
+            };
+
+            var modelSchema = new
+            {
+                QueryResponse = new
+                {
+                    Vendor = new[] { vendorSchema }
+                }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            return responseData?.QueryResponse?.Vendor?.Select(x => new APIVendor { 
+                Id = x.Id,
+                DisplayName = x.DisplayName
+            });
+        }
+
+        public async Task<IEnumerable<APICustomer>> GetCustomers() {
+            var query = "Select * from Customer";
+            var response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                query
+            }, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/text",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = await this.HttpService.POST_DATA_ASYNC($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                    query
+                }, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/text",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            var customerSchema = new
+            {
+                Id = string.Empty,
+                DisplayName = string.Empty
+            };
+
+            var modelSchema = new
+            {
+                QueryResponse = new
+                {
+                    Customer = new[] { customerSchema }
+                }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            return responseData?.QueryResponse?.Customer?.Select(x => new APICustomer
+            {
+                Id = x.Id,
+                DisplayName = x.DisplayName
+            });
         }
 
         // --- 

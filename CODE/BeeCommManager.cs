@@ -208,7 +208,7 @@ namespace BeeComm
         protected string ClientId { get; set; }
         protected string ClientSecret { get; set; }
         protected HttpServiceHelper HttpService { get; set; }
-        protected string AccessToken { get; set; }
+        protected string AccessToken { get; set; } = "";
 
         public BeeCommManager(string ClientId, string ClientSecret)
         {
@@ -319,7 +319,7 @@ namespace BeeComm
                     ["access_token"] = $"{this.AccessToken}"
                 });
             }
-
+            
             if (!response.Success)
                 throw new Exception(this.ParseError(response.Content));
 
@@ -330,6 +330,9 @@ namespace BeeComm
 
         private string ParseError(string ErrorRaw)
         {
+            if (!ErrorRaw.Contains("|"))
+                return ErrorRaw;
+
             /*
                 The remote server returned an error: (401)Unauthorized.|
                 {

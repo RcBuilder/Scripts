@@ -148,3 +148,53 @@ return new APIErrorResponse
         exData?.detail?.Trim() ?? string.Empty
     )
 };            
+
+-
+
+/*
+{
+    "QueryResponse": {
+        "Vendor": [
+            {
+                "Balance": 0,
+                "Vendor1099": false,
+                "CurrencyRef": {
+                    "value": "USD",
+                    "name": "United States Dollar"
+                },
+                "domain": "QBO",
+                "sparse": false,
+                "Id": "56",
+                "SyncToken": "0",
+                "MetaData": {
+                    "CreateTime": "2021-08-03T14:28:52-07:00",
+                    "LastUpdatedTime": "2021-08-03T14:28:52-07:00"
+                },
+                "DisplayName": "Bob's Burger Joint",
+                "PrintOnCheckName": "Bob's Burger Joint",
+                "Active": true
+            }
+        ]        
+    }    
+}
+*/
+
+var vendorSchema = new
+{
+    Id = string.Empty,
+    DisplayName = string.Empty
+};
+
+var modelSchema = new
+{
+    QueryResponse = new
+    {
+        Vendor = new[] { vendorSchema }
+    }
+};
+
+var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+return responseData?.QueryResponse?.Vendor?.Select(x => new APIVendor { 
+    Id = x.Id,
+    DisplayName = x.DisplayName
+});
