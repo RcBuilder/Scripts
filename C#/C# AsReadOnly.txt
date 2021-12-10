@@ -1,0 +1,18 @@
+C# AsReadOnly
+-------------
+use it to return a limited IEnumerable data-member. 
+prevent the user outside the class to use the IEnumerable built-in SET methods (Add, AddRange, Remove, RemoveAt and etc.)
+allows the user to get the collection for reading.
+
+// HashSet<string>
+protected ConcurrentBag<string> _Links { get; set; }
+
+public IEnumerable<string> Links {
+    get {
+        return this._Links.Distinct().ToList().AsReadOnly();
+    }
+}
+
+public void AddLink(string link) {
+    this._Links.Add(link);
+}

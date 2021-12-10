@@ -1,0 +1,12 @@
+Select a Random Message 
+-----------------------
+static Random rnd = new Random();
+
+var messages = new string[] { 
+	"message-1", 
+	"message-2", 
+	"message-3", 
+	"message-4" 
+};
+
+Console.WriteLine(messages[rnd.Next(messages.Length)]);

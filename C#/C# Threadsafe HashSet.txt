@@ -1,0 +1,14 @@
+C# Threadsafe HashSet
+---------------------
+// HashSet<string>
+protected ConcurrentBag<string> _Links { get; set; }
+
+public IEnumerable<string> Links {
+    get {
+        return this._Links.Distinct().ToList().AsReadOnly();  // return as readOnly to prevent the list internal menthod (Add, Remove etc.)
+    }
+}
+
+public void AddLink(string link) {
+    this._Links.Add(link);
+}

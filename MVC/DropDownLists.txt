@@ -1,0 +1,72 @@
+DropDownLists
+-------------
+public class DropDownLists {
+	public async static Task<IEnumerable<SelectListItem>> GetUnitTypes(string NotSelectedText)
+    {
+        var unitTypes = new List<SelectListItem> { 
+            new SelectListItem{ 
+            Text = "יחידות",
+            Value = ((int)Entities.eUnitType.Units).ToString()
+            },
+            new SelectListItem{
+            Text = "ליטרים",
+            Value = ((int)Entities.eUnitType.Liters).ToString()
+            },
+            new SelectListItem{
+            Text = "קילוגרם",
+            Value = ((int)Entities.eUnitType.KGs).ToString()
+            }
+        };
+        var result = new List<SelectListItem> { new SelectListItem { Text = NotSelectedText, Value = "0", Selected = true } };
+        return result.Concat(unitTypes);
+    }
+
+    public async static Task<IEnumerable<SelectListItem>> GetInventory(string NotSelectedText)
+    {
+        var restaurantId = SessionsManager.GetAccountId(System.Web.HttpContext.Current);
+        var inventory = await new InventoryBLL().GetByRestaurant(restaurantId);
+        var result = new List<SelectListItem> { new SelectListItem { Text = NotSelectedText, Value = "0", Selected = true } };
+        return result.Concat(inventory.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() }));
+    }
+}
+
+-
+
+[HttpGet]
+public async Task<ActionResult> AddInventory()
+{
+    ViewBag.UnitTypesDDL = await DropDownLists.GetUnitTypes("בחר סוג");
+    ViewBag.MenuItemsDDL = await DropDownLists.GetInventory("בחר מלאי");
+    return View(new Entities.Inventory());
+}
+
+[HttpPost]
+public async Task<ActionResult> AddInventory(Entities.Inventory Model)
+{
+    try
+    {
+        var restaurantId = SessionsManager.GetAccountId(System.Web.HttpContext.Current);
+        Model.RestaurantId = restaurantId;
+
+        ViewBag.UnitTypesDDL = await DropDownLists.GetUnitTypes("בחר סוג");
+        ViewBag.InventoryDDL = await DropDownLists.GetInventory("בחר מלאי");
+
+        if (!ModelState.IsValid)
+            return View(Model);                
+                
+        await new InventoryBLL().Save(Model);
+        return RedirectToAction("Inventories");
+    }
+    catch (Exception ex)
+    {
+        ModelState.AddModelError("CustomError", ex.Message);
+        return View(Model);
+    }
+}
+
+-
+
+@Html.DropDownListFor(m => m.UnitType, (IEnumerable<SelectListItem>)ViewBag.UnitTypesDDL, new { @class = "input-1" })
+@Html.DropDownListFor(m => m.Id, (IEnumerable<SelectListItem>)ViewBag.InventoryDDL, new { @class = "input-1" })
+
+-

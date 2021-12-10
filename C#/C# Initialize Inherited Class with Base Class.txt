@@ -1,0 +1,44 @@
+C# Initialize Inherited Class with Base Class
+---------------------------------------------
+
+var crawledPage = new CrawledPage();
+var crawledPageExtended = new CrawledPageExtended(crawledPage);
+crawledPageExtended.ContentType = eCrawlerContentType.VIDEO;
+
+-
+
+public class CrawledPage
+{
+    public Uri URI { get; set; }
+    public int Depth { get; set; }
+    public List<string> Links { get; set; }
+
+    public int LinksCount {
+        get { return this.Links == null ? 0 : this.Links.Count; }
+    }
+}
+
+// [OPTION-1] inheritance
+public class CrawledPageExtended : CrawledPage
+{
+    public eCrawlerContentType ContentType { get; set; }
+
+    public CrawledPageExtended() { }
+    public CrawledPageExtended(CrawledPage BaseObject) {
+        this.URI = BaseObject.URI;
+        this.Depth = BaseObject.Depth;
+        this.Links = BaseObject.Links;            
+    }
+}
+
+// [OPTION-2] extend base
+public class CrawledPageExtended
+{
+    public CrawledPage CrawledPage { get; set; }
+    public eCrawlerContentType ContentType { get; set; }
+
+    public CrawledPageExtended() { }
+    public CrawledPageExtended(CrawledPage BaseObject) {
+        this.CrawledPage = BaseObject;
+    }
+}  

@@ -1,0 +1,8 @@
+Windows Index - Search In Files Content
+---------------------------------------
+
+(steps)
+1. Start > Indexing Options
+2. Advanced > choose 'Index Properties and File Contents' 
+3. (optional) Add Extensions (.cs, .js, etc.)
+4. Rebuild

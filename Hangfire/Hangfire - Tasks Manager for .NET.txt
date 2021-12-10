@@ -25,6 +25,8 @@ see 'TPL - QueueBackgroundWorkItem'
 - Using OWIN
 - ASP Support
 - Using Global.asax
+- Installation Steps
+- BUGs
 ============================
 
 About
@@ -222,7 +224,7 @@ a commands scheduler.
 - Cron.Monthly(<day>?, <hour>?, <minute>?) 
 - Cron.MonthInterval(<interval>)
 - Cron.Weekly(<dayOfWeek>?, <hour>?, <minute>?)
-- Cron.Daily(<hour>, <minute>?)
+- Cron.Daily(<hour>, <minute>?) 
 - Cron.DayInterval(<interval>)
 - Cron.Hourly(<minute>?)
 - Cron.HourInterval(<interval>)
@@ -231,6 +233,9 @@ a commands scheduler.
 - Cron.Never()
 
 also see 'Cron Expression'
+
+e.g:
+Cron.Daily(8)  // every day at 08:00 AM
 
 Cron Expression
 ---------------
@@ -244,6 +249,8 @@ samples:
 "*/15 * * * *"  // every 15 minutes
 "*/1 * * * *"   // every 1 minute
 "* */1 * * *"   // every 1 hour
+"1 */1 * * *"	// at 1 minute of every hour
+"0 8 * * *"		// at 08:00 am every day
 
 important notice!
 "/15 * * * *"   // at 15 minutes past the hour
@@ -518,3 +525,17 @@ projects:
 - MyMorningLove
 - OpenBook
 - PropertySuiteAPI
+- Creative
+- MNew
+
+Installation Steps
+------------------
+see 'Hangfire Installation Steps'
+
+BUGs
+----
+Error:
+Could not load type 'Hangfire.CompatibilityLevelExtensions' from assembly 'Hangfire.Core, Version=1.6.0.0, Culture=neutral, PublicKeyToken=null'.
+
+Solution:
+Install 'Hangfire.Core' Package to the WEB layer.

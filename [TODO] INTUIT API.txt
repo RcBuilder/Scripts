@@ -159,7 +159,9 @@ see 'CODE\IntuitAPIProxy'
 
 PROJECT:
 see 'Fintechtic-Solutions-Ltd' > 'WebTools'
+see 'Fintechtic-Solutions-Ltd' > 'IntuitProxy'
 see 'Fintechtic-Solutions-Ltd' > 'TestIntuitProxy'
+
 
 -----------------
 // TODO ->> 
@@ -184,3 +186,6 @@ note that the oauth state is the id of the QB account related to the developer c
 the companyId in the querystring is the target company which we pull the data from.
 
 -
+
+oauth process implementation:
+'Fintechtic-Solutions-Ltd' > 'WebTools'

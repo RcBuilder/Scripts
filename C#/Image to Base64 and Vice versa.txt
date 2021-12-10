@@ -1,0 +1,33 @@
+Image to Base64 and Vice versa
+------------------------------
+
+Image-to-Base64
+---------------
+var image = Image.FromFile("D:\\test.jpg");
+var imageData = ImageToBase64(image);
+image.Dispose();
+
+Base64-to-Image
+---------------            
+var imageData = "/9j/4AAQSkZJRgABAQEAAAAAAAD/7gA...";
+var image = Base64ToImage(imageData);
+image.Save("D:\\test_copy.jpg");
+image.Dispose();
+
+FUNCTIONS
+---------
+Image Base64ToImage(string base64String)
+{
+    byte[] imageAsBytes = Convert.FromBase64String(base64String);
+    var ms = new MemoryStream(imageAsBytes);
+    return Image.FromStream(ms);
+}
+
+string ImageToBase64(Image image)
+{
+    using (var ms = new MemoryStream())
+    {
+        image.Save(ms, ImageFormat.Jpeg);
+        return Convert.ToBase64String(ms.ToArray());
+    }
+}

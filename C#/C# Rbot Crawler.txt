@@ -1,0 +1,56 @@
+C# Abot Crawler
+---------------
+a Web Scraper service to parse HTML content. 
+similar to Puppeteer, Selenium and ScrapySharp
+use it as a base to a web Crawler.
+
+Namespaces:
+using Crawler.Rbot;
+
+Process:
+trigger a 'PageCrawlCompleted' Event for each crawled page.
+await the 'CrawlAsync' method to get a summary of the crawling process (optional).   
+
+Config:
+CrawlTimeoutSeconds
+MaxConcurrentThreads
+MaxPagesToCrawl
+UserAgentString
+ConfigurationExtensions  
+        
+Events:
+PageCrawlStarting
+PageCrawlCompleted
+PageCrawlDisallowed
+PageLinksCrawlDisallowed
+
+---
+
+Source Code:
+see 'Rbot'
+
+Code Sample:
+see 'RbotSample'
+
+Reference:
+also see 'AbotSample'
+
+---
+
+var config = new CrawlConfiguration {
+    MaxPagesToCrawl = 100,  // Pages quantity to scan 
+    MinCrawlDelayPerDomainMilliSeconds = 100,  // min delay time between requests 
+    MaxConcurrentThreads = 10,  // max threads quantity 
+    CrawlTimeoutSeconds = 20  // timeout in seconds
+};
+
+var crawler = new WebCrawler(config);
+
+crawler.PageCrawlCompleted += (s, e) => {
+    Console.WriteLine($"Page {e.CrawledPage.Uri}");                
+};
+            
+var crawlSummary = await crawler.CrawlAsync(new Uri("http://www.example.com"));
+Console.WriteLine($"[Completed] {crawlSummary.CrawlContext.CrawledCount}");
+
+Console.ReadKey();

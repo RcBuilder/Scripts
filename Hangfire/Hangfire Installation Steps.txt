@@ -1,0 +1,26 @@
+Hangfire Installation Steps
+---------------------------
+
+(Steps)
+
+1.	add 'HangfireManager.cs' and 'IProcess.cs' to the BLL.
+	- (nuget) Install-Package Hangfire.Core
+	- (nuget) Install-Package Hangfire.AspNet
+	- (nuget) Install-Package Hangfire.SqlServer
+	- set SQL Connection-String (usually the same as the website)
+	- change namespace as per need
+	- note! install the 'Hangfire.Core' package to the WEB layer as well. 
+
+2. add 'Startup1.cs' to the WEB Layer.
+   - (nuget) Install-Package Hangfire.AspNet -Version 0.2.0   
+   - change namespace as per need
+
+3. Create background Service/s. 
+   - must inherit from IProcessAsync
+   - (optional) add 'BGServiceOnOff' config key to control the service state.
+     <add key="BGServiceOnOff" value="Off" />
+	 ConfigurationManager.AppSettings["BGServiceOnOff"]?.Trim()?.ToUpper();
+
+4. within 'HangfireManager.cs' > 'Start' method - Register and Schedule the Services from Chapter 3.
+
+5. open dashboard at '/hangfire'

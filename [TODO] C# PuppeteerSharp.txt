@@ -11,7 +11,8 @@ http://www.puppeteersharp.com/api/index.html
 
 Nuget
 -----
-Install-Package PuppeteerSharp -Version 2.0.0
+> Install-Package PuppeteerSharp
+> Install-Package System.Net.WebSockets.Client.Managed -Version 1.0.22
   
 Chrome Engine
 -------------
@@ -128,6 +129,132 @@ public class GoogleResults
     public List<GoogleAd> Paid { get; set; } = new List<GoogleAd>();
 }
 
+-
+
+public class PuppeteerWebCrawler : IWebCrawler, IDisposable
+{
+    protected Browser Client { get; set; }
+    protected CrawlConfiguration Config { get; set; }
+
+    public event EventHandler<CrawlEventArgs> PageCrawlCompleted;
+
+    public PuppeteerWebCrawler(CrawlConfiguration Config)
+    {
+        this.Config = Config;            
+    }
+
+    protected void OnPageCrawlCompleted(CrawlEventArgs args)
+    {
+        PageCrawlCompleted?.Invoke(null, args);
+    }
+
+    public async Task<CrawlResult> CrawlAsync(Uri uri)
+    {
+        var result = new CrawlResult();
+
+        if(this.Client == null)
+            this.Client = await this.CreateWebBrowser(null);
+
+		var timer = new Stopwatch();
+        timer.Start();
+
+        try
+        {
+            var response = string.Empty;
+
+            this.Client.DefaultWaitForTimeout = this.Config.CrawlTimeoutSeconds;
+            using (var resonse = await this.Client.GetAsync(uri.ToString()).ConfigureAwait(false))
+                response = await resonse.Content.ReadAsStringAsync();
+
+            var document = new HtmlDocument();
+            document.LoadHtml(response);
+
+            if (this.Config.IgnoreFooter) {
+                document.DocumentNode.SelectSingleNode("//footer")?.RemoveAll();
+                document.DocumentNode.SelectSingleNode("//*[contains(@class, 'footer-')]")?.RemoveAll();
+            }
+            if (this.Config.IgnoreHeader) {
+                document.DocumentNode.SelectSingleNode("//header")?.RemoveAll();
+                document.DocumentNode.SelectSingleNode("//*[contains(@class, 'header-')]")?.RemoveAll();
+            }
+
+            var links = document.DocumentNode.SelectNodes("//a")
+                ?.Select(x => x.Attributes["href"]?.Value)
+                .Where(x => !string.IsNullOrEmpty(x));
+
+            links.AsParallel().ForAll(link => {
+
+                if (!link.StartsWith("http"))
+                    link = uri.Scheme + "://" + uri.Host + "/" + (link.StartsWith("/") ? link.Remove(0, 1) : link);
+
+                result.CrawlContext.CrawledCount++;
+                OnPageCrawlCompleted(new CrawlEventArgs
+                {
+                    CrawledPage = new CrawledPage
+                    {
+                        Uri = new Uri(link)
+                    }
+                });
+            });
+        }
+        catch (Exception ex)
+        {
+            result.ErrorException = ex;
+        }
+
+        timer.Stop();
+
+        result.Elapsed = timer.Elapsed;
+        return result;
+	}
+
+	private async Task<Browser> CreateWebBrowser(string ChromePath)
+	{
+		async Task<WebSocket> CreateWebSocketTask(Uri url, IConnectionOptions options, CancellationToken cancellationToken)
+		{
+			var result = new System.Net.WebSockets.Managed.ClientWebSocket();
+			result.Options.KeepAliveInterval = TimeSpan.Zero;
+			await result.ConnectAsync(url, cancellationToken).ConfigureAwait(false);
+			return result;
+		}
+
+		var downloadChrome = string.IsNullOrEmpty(ChromePath) || !File.Exists(ChromePath);
+		if (downloadChrome)
+		{
+			var browserFetcherOptions = new BrowserFetcherOptions
+			{
+				Path = $"{AppDomain.CurrentDomain.BaseDirectory}",
+				Platform = Platform.Win64,
+				Product = Product.Chrome
+			};
+			var browserFetcher = new BrowserFetcher(browserFetcherOptions);
+			var revisionInfo = await browserFetcher.DownloadAsync();
+			ChromePath = revisionInfo.ExecutablePath;  // set the created chrome path
+		}
+
+		var launchOptions = new LaunchOptions
+		{
+			Headless = true,
+			Timeout = (10 * 1000),  // 10 sec
+			ExecutablePath = ChromePath, /// $"{AppDomain.CurrentDomain.BaseDirectory}Win64-884014\\chrome-win\\chrome.exe",
+			DefaultViewport = null, // max resolution
+			IgnoreHTTPSErrors = true,
+			Args = new[] { "--no-sandbox", "--disable-gpu" }  // "--window-size=800,1080"
+		};
+
+		if (Environment.OSVersion.Version.Major < 10)
+			launchOptions.WebSocketFactory = CreateWebSocketTask;  // support for windows-7
+
+		var browser = await Puppeteer.LaunchAsync(launchOptions);
+		return browser;
+	}
+
+	public void Dispose()
+	{
+		if (this.Client != null)
+			this.Client.Dispose();
+	}
+}
 
 ------------------------------------------
 // TODO 
@@ -227,7 +354,7 @@ browser.Dispose();
 
 -
 
-var downloadChrome = string.IsNullOrEmpty(ChromePath);
+var downloadChrome = string.IsNullOrEmpty(ChromePath) || !File.Exists(ChromePath);
 if (downloadChrome)
 {
     var browserFetcherOptions = new BrowserFetcherOptions
@@ -351,7 +478,7 @@ private async Task<Browser> CreateWebBrowser(string ChromePath) {
         return result;
     }
 
-    var downloadChrome = string.IsNullOrEmpty(ChromePath);
+    var downloadChrome = string.IsNullOrEmpty(ChromePath) || !File.Exists(ChromePath);
     if (downloadChrome)
     {
         var browserFetcherOptions = new BrowserFetcherOptions

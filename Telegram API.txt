@@ -11,6 +11,14 @@ Telegram Core
 -------------
 https://my.telegram.org
 
+Update TDLib
+------------
+> Install-Package TDLib -Version 1.7.9
+
+Limits
+------
+https://limits.tginfo.me/en
+
 Telegram Web
 ------------
 1. open app > Settings > Devices > Scan QR
@@ -29,6 +37,9 @@ https://xtea.io/ts_en.html#gsc.tab=0
 https://gramxly.com/
 https://groupda.com/tg/
 https://combot.org/telegram/top/groups
+
+Forum:
+https://gitter.im/TLSharp/Lobby
 
 Code Samples
 ------------
@@ -59,6 +70,7 @@ Sources
 https://core.telegram.org/api
 https://core.telegram.org/api#getting-started
 https://core.telegram.org/methods
+https://tjhorner.dev/tl-schema/
 
 Get Credentials
 ---------------
@@ -83,6 +95,7 @@ nuget:
 
 reference:
 https://github.com/sochix/TLSharp
+https://csharpdoc.hotexamples.com/namespace/TeleSharp.TL
 
 client:
 using TLSharp.Core;
@@ -418,7 +431,11 @@ BUGS
   disable bot privacy mode.
   see 'Set Bot Privacy'
 
+- issue:
+  UPDATE_APP_TO_LOGIN exception
 
+  fix:
+  update TDLib (see 'Update TDLib')
 
 -----------------------------------------
 // TODO ->>
@@ -458,3 +475,47 @@ var inlineKeyboard = new List<List<InlineKeyboardButton>> {
     }
 };
 var options = new InlineKeyboardMarkup(inlineKeyboard);
+
+-
+
+code sample:
+see 'TelegramBot'
+
+- 
+
+ideas:
+Weather Bot (by location or country or choose from a list)
+Photo Bot (e.g: Animals by animal name or choose from a list)  
+Currency Bot (by currency-name or choose from a list)
+
+-
+
+https://core.telegram.org/method/upload.getWebFile
+https://core.telegram.org/method/messages.getWebPagePreview
+https://core.telegram.org/method/upload.getFile
+
+-
+
+getFile:
+https://stackoverflow.com/questions/41649726/using-tlsharp-how-to-get-userprofilephotos-photo/43050093
+https://core.telegram.org/type/InputFileLocation
+https://github.com/sochix/TLSharp/issues/352
+https://core.telegram.org/method/upload.getFile
+
+-
+
+TeleSharp - custom Request (??)
+
+-
+
+protected const int SECOND = 1000;
+protected async Task HandleFloodException(Exception ex) {
+    if (!ex.Message.StartsWith("Flood prevention.")) return;
+
+    var match = Regex.Match(ex.Message, @"after \s+ (?<seconds>\d+) \s+ seconds \s+ have \s+ passed", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+    if (match == null || match.Groups["seconds"] == null) return;
+    var timeToWait = Convert.ToInt32(match.Groups["seconds"].Value);
+
+    Console.WriteLine($"waiting for {timeToWait} seconds...");
+    await Task.Delay(SECOND * timeToWait);
+}

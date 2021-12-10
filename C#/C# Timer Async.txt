@@ -1,0 +1,39 @@
+C# Timer Async
+--------------
+
+using System.Timers;
+
+-
+
+protected const float MINUTE = 60 * 1000;
+
+this.Timer = new Timer();
+this.Timer.Elapsed += TimerTick;
+this.Timer.Interval = (int)(Params.IntervalInMin * MINUTE);
+
+-
+
+public virtual void StartRecurring() {
+    this.Timer.Start();
+    this.Timer.Enabled = true;
+}
+
+public virtual void StopRecurring() {
+    this.Timer.Stop();
+    this.Timer.Enabled = false;
+}
+
+protected async void TimerTick(object sender, EventArgs e) {
+    try {
+        if (this.IsRunning) return;
+        this.IsRunning = true;
+                
+        // CODE HERE ...
+    }
+    catch (Exception ex) {
+        Console.WriteLine($"[ERROR] TimerTick. {ex.Message}");
+    }
+    finally {
+        this.IsRunning = false;
+    }
+}

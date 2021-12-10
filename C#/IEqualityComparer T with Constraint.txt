@@ -1,0 +1,34 @@
+IEqualityComparer T with Constraint
+-----------------------------------
+public interface IIdentity {
+    int Id { set; get; }
+}
+
+public class IdComparer<T> : IEqualityComparer<T> where T: IIdentity {
+    public bool Equals(T x, T y) {
+        return (x.Id == y.Id);
+    }
+
+    public int GetHashCode(T obj) {
+        return obj.Id.ToString().GetHashCode();
+    }
+}
+
+public class Group : IIdentity
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+}
+
+public class Channel : IIdentity
+{
+    public int Id { get; set; }
+    public string About { get; set; }
+}
+
+public class Contact : IIdentity
+{
+    public int Id { get; set; }    
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+}

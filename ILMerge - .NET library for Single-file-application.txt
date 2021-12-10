@@ -1,0 +1,14 @@
+ILMerge - .NET library for Single-file-application 
+--------------------------------------------------
+
+sources:
+https://www.nuget.org/packages/ilmerge/
+https://github.com/dotnet/ILMerge
+
+nuget:
+> Install-Package ilmerge
+
+once installed, any build will generate an additional 
+single-application file (dll or exe) under the bin folder.
+
+

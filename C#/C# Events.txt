@@ -39,14 +39,14 @@ public class MyClass
             SomethingHappened(null, args);
     }
 
-	public void Fun1(){
+    public void Fun1(){
 		...
 		...
 
 		OnSomethingHappened(new LoadParamsEventArgs { 
             p1 = 0, p2 = "abcd" 
         });
-	}
+    }
 }
 
 
@@ -80,3 +80,83 @@ public class CrawledPage {
 	    ...
         }
     }
+
+--------------------------------------
+
+public class ExexuteCompletedEventArgs {
+	public BotScraperResult Result { get; set; }
+
+	public ExexuteCompletedEventArgs(BotScraperResult Result) {
+            this.Result = Result;
+        }
+}
+
+public class BotScraperResult {
+        public int Successes { get; set; }
+        public int Failures { get; set; }
+        public int Skipped { get; set; }
+
+        public HashSet<string> Links { get; set; } = new HashSet<string>();
+        public List<string> Errors { get; set; } = new List<string>();
+
+        public override string ToString() {
+            return $"{this.Successes} Successes, {this.Failures} Failures, {this.Skipped} Skipped";
+        }
+}
+
+public abstract class BaseBotScraper : IBotScraper {
+	protected const float MINUTE = 60 * 1000;
+
+	protected BotScraperParams Params { get; set; }
+        protected Timer Timer { get; set; }
+
+        public bool IsRunning { get; protected set; } = false;	
+        public event EventHandler<ExexuteCompletedEventArgs> ExexuteCompleted;
+
+	public BaseBotScraper(BotScraperParams Params) {
+            this.Params = Params;
+
+            this.Timer = new Timer();
+            this.Timer.Elapsed += TimerTick;
+            this.Timer.Interval = (int)(Params.IntervalInMin * MINUTE);
+        }
+
+	public virtual void Start() {
+            this.Timer.Start();
+            this.Timer.Enabled = true;
+        }
+
+        public virtual void Stop() {
+            this.Timer.Stop();
+            this.Timer.Enabled = false;
+        }
+
+        protected async void TimerTick(object sender, EventArgs e)
+        {
+            try
+            {
+                if (this.IsRunning) return;
+                this.IsRunning = true;
+                var result = await this.Exexute();
+		OnExexuteCompleted(new ExexuteCompletedEventArgs(result));
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] TimerTick. {ex.Message}");
+            }
+            finally
+            {
+                this.IsRunning = false;
+            }
+        }
+
+        protected void OnExexuteCompleted(ExexuteCompletedEventArgs args) {            
+            ExexuteCompleted?.Invoke(null, args);
+        }
+
+	protected async Task<BotScraperResult> Exexute() {
+		....
+		....
+		....
+	}
+}

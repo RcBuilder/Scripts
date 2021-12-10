@@ -254,6 +254,20 @@ public class SampleDAL : IContactsDAL
             return true;
         }
     }
+
+	public async Task<bool> ExistsContact(int Id)
+    {
+        using (var conn = new SQLiteConnection(this.ConnStr))
+        {
+            var result = await conn.QueryAsync<DBContact>(
+                "SELECT * FROM Contacts WHERE Id = @Id",
+                commandType: CommandType.Text,
+                param: new { Id }
+            );
+
+            return (result?.Count() ?? 0) > 0;
+        }
+    }
 }
 
 -----------------
@@ -267,6 +281,42 @@ transactions
 // Anonymous Type (??)
 
 Complete:
-/// C:\Users\RcBuilder\Downloads\SQLite
 /// Chrome open related tabs
+
+-
+
+// store image
+var image1 = Image.FromFile("D:\\test.jpg");
+var image1Data = ImageToBase64(image1);
+image1.Dispose();
+
+var message = new DBMessage
+{
+    Id = 1,
+    Body = "hello world",
+    Photo = image1Data
+};
+await dal.SaveMessage(message);
+            
+var message1 = await dal.GetMessage(1);
+var image2Data = message1.Photo;
+var image2 = Base64ToImage(image2Data);
+image2.Save("D:\\test_copy.jpg");
+image2.Dispose();
+
+Image Base64ToImage(string base64String)
+{
+    byte[] imageAsBytes = Convert.FromBase64String(base64String);
+    var ms = new MemoryStream(imageAsBytes);
+    return Image.FromStream(ms);
+}
+
+string ImageToBase64(Image image)
+{
+    using (var ms = new MemoryStream())
+    {
+        image.Save(ms, ImageFormat.Jpeg);
+        return Convert.ToBase64String(ms.ToArray());
+    }
+}
 

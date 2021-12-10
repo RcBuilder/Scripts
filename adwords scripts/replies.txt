@@ -405,3 +405,16 @@ hope it helps
 
 I provide automation scripts for adwords account (both MCC and Regular types)
 we can schedule the script to be executed as per need and we can let it perform almost anything you can do manually and thus, save you time and m-oney
+
+
+-------------------
+
+
+hi there, thanks for reaching out
+Unfortunately, you need an SEM expert.
+I'm a developer who writes great automation scripts for any AdWords account (both regular and MCC)
+I do not use the account features as a regular user but only "under the hood" so for stuff related to the account management via the dashboard - you need to find an SEM person instead.
+
+if you'll need automation scripts (kind of a bot to maintain your account) - I'm always here for your disposal
+
+thanks, Roby (-:

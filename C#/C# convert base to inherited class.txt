@@ -1,0 +1,3 @@
+C# convert base to inherited class
+----------------------------------
+see 'C# Initialize Inherited Class with Base Class'
