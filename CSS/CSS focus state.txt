@@ -1,0 +1,13 @@
+CSS focus state
+---------------
+the default behaviour on focus an element is a black border. 
+to remove the border use outline:none. 
+to set a custom focus style use the :focus selector.
+
+*:focus {
+    outline:none;
+}
+
+*:focus {
+    outline:solid 1px #d3d3d3;
+}

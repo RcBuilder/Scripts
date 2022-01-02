@@ -85,7 +85,7 @@ namespace BeeComm
         public string ItemName { get; set; }
 
         [JsonProperty(PropertyName = "quantity")]
-        public int Quantity { get; set; }
+        public float Quantity { get; set; }
 
         [JsonProperty(PropertyName = "price")]
         public float Price { get; set; }

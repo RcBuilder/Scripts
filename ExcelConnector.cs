@@ -8,7 +8,7 @@ using System.Linq;
 using System.Data.Common;
 using Newtonsoft.Json;
 
-namespace FileLoaderProcess
+namespace BLL
 {
     /*
         INSTANCES
@@ -16,6 +16,10 @@ namespace FileLoaderProcess
         * ExcelOdbcConnector    // using Odbc
         * ExcelOleDbConnector   // using OleDB
 
+        DEPENDENCY
+        ----------
+        AccessDatabaseEngine_X32.exe
+        AccessDatabaseEngine_X64.exe
 
         USING
         -----        

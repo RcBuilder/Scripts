@@ -1,0 +1,64 @@
+javascript - Vertical Traveling - Arrows Down-Up
+------------------------------------------------
+also see 'Horizontal Traveling - Arrows Left-Right'
+
+-
+
+sample: 
+see 'CSS > CSS Nodes Traveling Via Arrows'
+see 'CSS > CSS Table with Keyboard Controller - Multiple'
+
+-
+
+technique:
+create a matrix copy of the array and calculate the current index 
+based on the created matrix 
+
+
+let matrix = arrayToMatrix(arrNodes, numInRow);                        
+let selectedIndex = -1;                     
+let x, y;
+
+document.addEventListener('keydown', (e) => {
+    var keyCode = (e.keyCode > 0) ? e.keyCode : e.charCode;
+
+    switch (keyCode) {
+        case 37: // Arrow LEFT
+            if (selectedIndex >= arrNodes.length - 1) selectedIndex = 0;
+            else selectedIndex++;
+
+            arrNodes[selectedIndex].focus();
+            break;
+
+        case 38: // Arrow UP     
+            y = Math.floor(selectedIndex / numInRow);
+            x = selectedIndex % numInRow;
+
+            if (y <= 0) y = matrix.length - 1;
+            else y--;
+
+            selectedIndex = (y * numInRow) + x;
+
+            arrNodes[selectedIndex].focus();
+            break;
+
+        case 39: // Arrow RIGHT
+            if (selectedIndex <= 0) selectedIndex = arrNodes.length - 1;
+            else selectedIndex--;
+
+            arrNodes[selectedIndex].focus();
+            break;
+                    
+        case 40: // Arrow DOWN     
+            y = Math.floor(selectedIndex / numInRow);
+            x = selectedIndex % numInRow;
+
+            if (y >= matrix.length - 1) y = 0;
+            else y++;
+
+            selectedIndex = (y * numInRow) + x;
+
+            arrNodes[selectedIndex].focus();
+            break;                    
+    }
+});

@@ -1,0 +1,62 @@
+C# Enum Bitwise & Flags Attribute
+---------------------------------
+
+Enum As A Bitwise:
+enum supports multiple values and can serves as a Bitwise. 
+to use an enum as bitwise we need to set its items values as a power of 2 sequently (2^0, 2^1...2^N).
+
+Shift Operator:
+when working with Bitwise, we MUST set all values as power of the number 2, we can do that manually 
+or use the Shift operator (<<) to auto calculate the next power by index. 
+
+[Flags]
+enum eLetter : int { 
+	A = 1, 
+	B = 2, 
+	C = 4, 
+	D = 8 
+}
+
+[Flags]
+enum eLetter : int { 
+	A = 1 << 0,  // 2^0 = 1 
+	B = 1 << 1,  // 2^1 = 2
+	C = 1 << 2,  // 2^2 = 4
+	D = 1 << 3   // 2^3 = 8
+}
+
+
+The Flags Attribute:
+even though it's NOT a requirement, the attribute 'Flags' provides an indication for a Bitwise usage.
+in addition, when an enum is decorated with 'Flags', its ToString method provides a nice representation of the enum values. 
+
+var letters = (eLetter.B | eLetter.D);
+
+// with Flags attribute
+Console.WriteLine(letters.ToString());  // B, D
+Console.WriteLine((int)letters); // 10
+
+// without Flags attribute
+Console.WriteLine(letters.ToString());  // 10
+Console.WriteLine((int)letters); // 10
+
+
+Working With BitWise:
+use the OR operator to check if an enum IS a specific value (not contains)
+use the AND operator to check if an enum HAS a value (contains) 
+ 
+var letters = (eLetter.B | eLetter.D);
+
+var hasA = (letters & eLetter.A) == eLetter.A;
+Console.WriteLine(hasA); // false
+	
+var hasB = (letters & eLetter.B) == eLetter.B;
+Console.WriteLine(hasB); // true
+	
+var hasD = (letters & eLetter.D) == eLetter.D;
+Console.WriteLine(hasD); // true
+	
+var isD = (letters | eLetter.D) == eLetter.D;
+Console.WriteLine(isD); // false
+
+

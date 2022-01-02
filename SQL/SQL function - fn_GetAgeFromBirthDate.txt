@@ -1,0 +1,15 @@
+-- =============================================
+-- Author: <RcBuilder>
+-- SELECT dbo.fn_GetAgeFromBirthDate('2000-01-01')
+-- SELECT dbo.fn_GetAgeFromBirthDate(NULL)
+-- =============================================
+CREATE FUNCTION [dbo].[fn_GetAgeFromBirthDate]
+(
+	@BirthDate DATE
+)
+RETURNS INT
+AS
+BEGIN
+	DECLARE @Today DATETIME = GETDATE()
+	RETURN DATEDIFF(YEAR, @BirthDate, @Today)
+END

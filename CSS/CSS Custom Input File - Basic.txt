@@ -1,0 +1,24 @@
+CSS Custom Input File - Basic
+-----------------------------
+the trick is to use Label-for and hide the input.
+
+-
+
+<input type="file" name="file1" id="file1" />
+<label for="file1">Click To Upload</label>
+
+input[type=file] 
+{
+	cursor: pointer;
+	display: none;
+}
+
+label
+{
+	padding: 12px 10px 12px 0;
+    	border: 1px solid #11263C;
+    	border-radius: 4px;
+    	color: #11263C;
+    	width: calc(100% - 40px);
+    	background-color: #fffcfc;
+}

@@ -1,0 +1,26 @@
+SQL PIVOT By Year sample 
+------------------------
+;WITH CTE(Company, Branch, ClientId, ClientName, [YEAR], Trs_CNT) AS (		
+		SELECT	S.CompanyName,		
+				S.BranchNo,
+				C.ClientUniqueId,
+				C.ClientName,						
+				YEAR([OpeningDate]),												
+				COUNT(TransactionNo)				
+		FROM	[dbo].[SalesLines] L WITH(NOLOCK)						
+				INNER JOIN 
+				[dbo].[Stores] S WITH(NOLOCK)
+				ON(S.BranchNo = L.SaleBranchNo)
+				INNER JOIN 
+				[dbo].[Clients] C WITH(NOLOCK)
+				ON(C.ClientUniqueId = L.ClientUniqueId)
+		WHERE	L.CategoryNo NOT IN('99999', '9005', '0')		
+		AND		(@CompanyName = '' OR S.CompanyName = @CompanyName)			
+		AND		(Amount BETWEEN @AmountFrom AND @AmountTo)
+		GROUP BY CompanyName, S.BranchNo, C.ClientUniqueId, C.ClientName, YEAR([OpeningDate])
+	)
+	SELECT * FROM CTE	
+	PIVOT(
+		SUM(Trs_CNT) 
+		FOR [YEAR] IN ([2013], [2014], [2015], [2016], [2017], [2018], [2019], [2020], [2021], [2022])
+    ) AS Pvt	

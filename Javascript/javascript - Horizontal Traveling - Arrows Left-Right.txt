@@ -1,0 +1,33 @@
+javascript - Horizontal Traveling - Arrows Left-Right
+-----------------------------------------------------
+also see 'Vertical Traveling - Arrows Down-Up'
+
+-
+
+sample:
+see 'CSS > CSS Nodes Traveling Via Arrows'
+
+-
+
+function HorizontalTraveling(tableNodes) {
+            let nodesLength = tableNodes.length;            
+            let selectedIndex = -1;
+            document.addEventListener('keydown', (e) => {                
+                var keyCode = (e.keyCode > 0) ? e.keyCode : e.charCode;
+
+                switch (keyCode) {                    
+                    case 37: // 37 = Arrow LEFT                        
+                        if (selectedIndex >= nodesLength - 1) selectedIndex = 0;
+                        else selectedIndex++;
+                        tableNodes[selectedIndex].focus();                       
+                        break; 
+                    case 39: // Arrow RIGHT                                                
+                        if (selectedIndex <= 0) selectedIndex = nodesLength - 1;
+                        else selectedIndex--;
+                        tableNodes[selectedIndex].focus();                                        
+                        break;
+                }
+            });
+        } 
+
+        HorizontalTraveling(tableNodes);

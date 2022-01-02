@@ -1,3 +1,5 @@
+Enum Extension - Description attribute
+--------------------------------------
 using System.ComponentModel;
 
 public static class Extension

@@ -2818,8 +2818,45 @@ see 'MVC FromURI binding'
     </main>
 
 * get Reference to the Controller from the ActionContext:
-var controller = actionContext.ControllerContext.Controller as BrokerApiController;
-controller.Broker = this.Broker;
+
+  var controller = actionContext.ControllerContext.Controller as BrokerApiController;
+  controller.Broker = this.Broker;
+
+* input file with filter
+
+  @Html.TextBoxFor(m => m.File1, new { type = "file", @class = "input-1", maxlength = "250", accept=".csv, .xlsx" })
+  <input accept=".csv, .xlsx" class="input-1" id="File1" maxlength="250" name="File1" type="file" value="">
+
+* Request.Form.Keys
+  custom inputs  
+  
+  // view
+  <label for="">
+		<span>מחלקה-1</span>
+		@Html.TextBox($"Overload_200", 10, new { placeholder = "כמות להתראה", @class = "input-1", maxlength = "5" })
+  </label>
+  <label for="">
+		<span>מחלקה-2</span>
+		@Html.TextBox($"Overload_201", 15, new { placeholder = "כמות להתראה", @class = "input-1", maxlength = "5" })
+  </label>
+  <label for="">
+		<span>מחלקה-3</span>
+		@Html.TextBox($"Overload_202", 20, new { placeholder = "כמות להתראה", @class = "input-1", maxlength = "5" })
+  </label>
+  <label for="">
+		<span>מחלקה-4</span>
+		@Html.TextBox($"Overload_203", 25, new { placeholder = "כמות להתראה", @class = "input-1", maxlength = "5" })
+  </label>
+
+  // controller
+  foreach (string key in Request.Form.Keys) {
+        if (key.StartsWith("Overload_"))
+            Model.OverloadAlertsThreshold.Add(new Entities.DepartmentOverload
+            {
+                Count = Convert.ToInt32(Request.Form[key]),
+                DepartmentId = Convert.ToInt32(key.Replace("Overload_", ""))                            
+            });
+    };
 
 --------------------------------------------------------------
 // TODO Research

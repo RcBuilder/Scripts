@@ -101,7 +101,12 @@ namespace Crawler.Rbot
                     rootNode.SelectSingleNode("//*[contains(@class, 'header-')]")?.RemoveAll();
                 }
 
-                var links = rootNode.SelectNodes(".//a")
+                if (this.Config.LinksSelector?.StartsWith("//") ?? false)
+                    this.Config.LinksSelector = string.Concat(".", this.Config.LinksSelector); // relative
+
+                var nodes = rootNode.SelectNodes(string.IsNullOrEmpty(this.Config.LinksSelector) ? ".//a" : this.Config.LinksSelector);                
+                var links = nodes
+                    ?.Where(x => x.Name == "a")
                     ?.Select(x => x.Attributes["href"]?.Value?.Trim())
                     .Where(x => !string.IsNullOrEmpty(x)).ToHashSet();
 

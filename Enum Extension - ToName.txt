@@ -1,0 +1,28 @@
+Enum Extension - ToName
+-----------------------
+note! 
+we can also use Description attribute technique 
+see 'Enum Extension - Description attribute'
+
+-
+
+public enum eUnitType : byte { 
+	NONE,
+        Units,
+        Liters,
+        KGs  // kilograms
+}
+
+public static class Extensions {
+        public static string ToName(this Entities.eUnitType me) {
+            switch (me) {
+                default:
+                case Entities.eUnitType.NONE: return "ללא";
+                case Entities.eUnitType.KGs: return "קילוגרמים";
+                case Entities.eUnitType.Liters: return "ליטרים";
+                case Entities.eUnitType.Units: return "יחידות";
+            }
+        }
+}
+
+@row.UnitType.ToName()

@@ -1,0 +1,142 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            text-align: center;
+        }
+        .wrapper {
+            width: 900px;
+            margin: 4px auto;
+            direction: rtl;           
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-column-gap: 6px;
+            grid-row-gap: 6px;
+        }
+
+        .wrapper > div {            
+            border: 1px solid #808080;
+            background-color: #ddd;                              
+            text-align: center;
+            vertical-align: middle;
+            height: 250px;
+            line-height: 250px;
+            font-size: 70px;
+            color: #fff;
+        }
+
+        .wrapper > div.selected::after {
+            content: '';
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            left: 8px;
+            background-color: #4F98CF !important;
+            color: #fff;
+            border-radius: 50%;
+        }
+
+        .wrapper > div:focus {
+          border: solid 1px #808080;
+        }
+    </style>
+</head>
+<body>
+    <div>Use RIGHT-LEFT-UP-DOWN Arrows</div>
+    <div class="wrapper">
+        <div>A</div>
+        <div>B</div>
+        <div>C</div>
+        <div>D</div>
+        <div>E</div>
+        <div>F</div>
+        <div>G</div>
+        <div>H</div>
+        <div>I</div>
+        <div>J</div>
+        <div>K</div>
+        <div>L</div>
+    </div>
+
+    <script>               
+        function NodesTraveling(arrNodes, numInRow = 4) {
+
+            function arrayToMatrix() {
+                var matrix = [], i, k;
+
+                for (i = 0, k = -1; i < arrNodes.length; i++) {
+                    if (i % numInRow === 0) {
+                        k++;
+                        matrix[k] = [];
+                    }
+
+                    matrix[k].push(arrNodes[i]);
+                }
+
+                return matrix;
+            }
+            
+            // set tabindex for focus support - requires for the keydown event
+            let temp = 1;
+            arrNodes.forEach(node => {
+                node.setAttribute('tabindex', temp++);
+            });
+            
+            let matrix = arrayToMatrix(arrNodes, numInRow);                        
+            let selectedIndex = -1;                     
+            let x, y;
+
+            document.addEventListener('keydown', (e) => {
+                var keyCode = (e.keyCode > 0) ? e.keyCode : e.charCode;
+
+                switch (keyCode) {
+                    case 37: // Arrow LEFT
+                        if (selectedIndex >= arrNodes.length - 1) selectedIndex = 0;
+                        else selectedIndex++;
+
+                        arrNodes[selectedIndex].focus();
+                        break;
+
+                    case 38: // Arrow UP     
+                        y = Math.floor(selectedIndex / numInRow);
+                        x = selectedIndex % numInRow;
+
+                        if (y <= 0) y = matrix.length - 1;
+                        else y--;
+
+                        selectedIndex = (y * numInRow) + x;
+
+                        arrNodes[selectedIndex].focus();
+                        break;
+
+                    case 39: // Arrow RIGHT
+                        if (selectedIndex <= 0) selectedIndex = arrNodes.length - 1;
+                        else selectedIndex--;
+
+                        arrNodes[selectedIndex].focus();
+                        break;
+                    
+                    case 40: // Arrow DOWN     
+                        y = Math.floor(selectedIndex / numInRow);
+                        x = selectedIndex % numInRow;
+
+                        if (y >= matrix.length - 1) y = 0;
+                        else y++;
+
+                        selectedIndex = (y * numInRow) + x;
+
+                        arrNodes[selectedIndex].focus();
+                        break;                    
+                }
+            });
+        }
+
+        var arrNodes = document.querySelectorAll('.wrapper > div');
+        NodesTraveling(arrNodes);
+    </script>
+</body>
+</html>

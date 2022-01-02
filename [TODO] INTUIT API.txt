@@ -189,3 +189,19 @@ the companyId in the querystring is the target company which we pull the data fr
 
 oauth process implementation:
 'Fintechtic-Solutions-Ltd' > 'WebTools'
+
+-
+
+scrapper python:
+https://github.com/vhdmsm/tg_crawler/blob/master/crawler.py
+
+-
+
+telegram bot sample:
+https://github.com/TelegramBots/Telegram.Bot.Examples/blob/master/Telegram.Bot.Examples.Polling/Handlers.cs
+
+-
+
+WTelegram:
+https://github.com/wiz0u/WTelegramClient
+https://github.com/wiz0u/WTelegramClient/blob/master/EXAMPLES.md

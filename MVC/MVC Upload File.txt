@@ -1,0 +1,57 @@
+MVC Upload File
+---------------
+
+public class FileUpload {        
+        public HttpPostedFileBase File1 { get; set; }        
+}
+
+---
+
+[HttpGet]
+public async Task<ActionResult> ImportMenu() {            
+	return View(new Models.FileUpload());
+}
+
+[HttpPost]
+public async Task<ActionResult> ImportMenu(Models.FileUpload Model) {
+
+	// code here ...
+
+	return RedirectToAction("EditMenu");
+}
+
+---
+
+@model WEB.Models.FileUpload
+@{
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+    ViewBag.Title = $"טעינת תפריט מקובץ";
+}
+
+<main>
+    <h1 class="pb-20">טעינת תפריט מקובץ</h1>
+
+    <div>
+        @using (@Html.BeginForm("ImportMenu", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {            
+            <div class="form-1">
+                <div>
+                    <label for="">
+                        <span>שם</span>
+                        @Html.TextBoxFor(m => m.File1, new { type = "file", @class = "input-1", maxlength = "250", accept = ".csv" })
+                    </label>
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="button-base">שמור</button>
+
+                <text>&nbsp;&nbsp;|&nbsp;&nbsp;</text>
+                @Html.ActionLink("ביטול", "EditMenu", null, new { @class = "button-base button button-cancel" })
+
+                <div class="validation-summary">
+                    @Html.ValidationSummary(false)
+                </div>
+            </div>
+        }
+    </div>
+</main>

@@ -1,0 +1,20 @@
+SQL - EXEC Commands using WHILE loop
+------------------------------------
+
+DECLARE @temp TABLE([command] NVARCHAR(MAX)) 
+INSERT INTO @temp
+VALUES
+('SELECT ''SOME COMMAND'''), 
+('SELECT ''OTHER COMMAND'''), 
+('SELECT 1'),	
+('SELECT ''ABCD'', LEN(''ABCD'')'),
+('SELECT GETDATE()')
+	
+		
+WHILE(EXISTS(SELECT 1 FROM @temp))
+BEGIN 
+	DECLARE @command NVARCHAR(MAX) = (SELECT TOP 1 command FROM @temp);	
+	PRINT(@command)
+	EXEC(@command)
+	DELETE FROM @temp WHERE command = @command;
+END 

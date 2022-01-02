@@ -623,7 +623,7 @@ interface Array<T> {
 syntax:
 class <name> extends <name> {
 	<properties>
-	constructor(<params>){ ... }constructor
+	constructor(<params>){ ... }
 	<functions>
 }
 

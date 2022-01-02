@@ -1,0 +1,69 @@
+javascript - table keydown and keyup events
+-------------------------------------------
+onkeydown and onkeyup events are only work for nodes 
+that support focus. 
+to add focus support to a table, we must add a tabIndex to it!
+
+--
+
+<table id="table1">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>A</th>
+            <th>B</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>1</td>
+            <td>A1</td>
+            <td>B1</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>A2</td>
+            <td>B2</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>A3</td>
+            <td>B3</td>
+        </tr>
+    </tbody>
+</table>
+
+--
+
+let oTable = document.querySelector('#table1');
+
+oTable.addEventListener('click', (e) => {                    
+	console.log('focus');
+    oTable.focus();
+});
+
+oTable.addEventListener('focusout', (e) => {    
+    console.log('focusout');
+});
+
+oTable.addEventListener('keydown', (e) => {                    
+    /*
+        37 = Arrow LEFT
+        38 = Arrow UP
+        39 = Arrow RIGHT
+        40 = Arrow DOWN
+        13 = ENTER
+    */
+    var keyCode = (e.keyCode > 0) ? e.keyCode : e.charCode;
+    // console.log(keyCode);
+
+    switch (keyCode) {
+        case 38: console.log('up');
+            break;
+        case 40: console.log('down');
+            break;
+        case 13:
+            if console.log('enter');
+            break;
+    }
+});  

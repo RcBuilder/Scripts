@@ -1,0 +1,3 @@
+javascript - table focus
+------------------------
+see 'javascript - table keydown and keyup events'

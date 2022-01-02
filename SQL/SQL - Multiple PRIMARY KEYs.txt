@@ -1,0 +1,11 @@
+SQL - Multiple PRIMARY KEYs
+---------------------------
+
+CREATE TABLE RestaurantDepartmentsOverload(
+	DepartmentId INT NOT NULL,
+	RestaurantId INT NOT NULL,	
+	ThresholdCount INT NOT NULL,
+	OverloadStateON BIT NOT NULL DEFAULT 0,
+	CreatedDate SMALLDATETIME NOT NULL DEFAULT GETDATE(),
+	PRIMARY KEY (DepartmentId, RestaurantId)
+)

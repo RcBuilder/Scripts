@@ -1,0 +1,25 @@
+drop ALL functions 
+------------------
+
+[sys table]
+sys.objects
+ 
+[get sp list]
+SELECT 	name, 
+	[schema_id], 
+	SCHEMA_NAME([schema_id]) as 'schema', 
+	create_date, 
+	modify_date
+FROM sys.objects
+WHERE type_desc LIKE '%FUNCTION%';
+
+[drop sp]
+DROP FUNCTION [dbo].[fn_GetGenderName];
+
+[drop all] 
+//  using dynamic execution
+DECLARE @query NVARCHAR(max)=''
+SELECT @query += 'DROP FUNCTION [' + SCHEMA_NAME(schema_id) + '].[' + name + '];'
+FROM   sys.objects 
+WHERE type_desc LIKE '%FUNCTION%';
+exec(@query)

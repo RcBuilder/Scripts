@@ -1,0 +1,230 @@
+ZCredit WebCheckout API
+=======================
+
+Reference:
+https://zcreditwc.docs.apiary.io/#reference
+
+Payment Settings:
+go to 'ZCredit Dashboard' > 'Settings' > (tab) 'Clearing Settings'
+(הגדרות עסק - הגדרות סליקה)
+
+Api_Secret:
+note! aka Token
+1. go to the payment sertings page (see 'Payment Settings')
+2. under 'WebCheckout Settings' > Generate 'Web Checkout ID'
+
+Api URL:
+note! aka ServerURL
+https://pci.zcredit.co.il/webcheckout/api/WebCheckout/CreateSession/
+
+Supported Features: 
+to activate these features, check them on the dashboard's Settings page 
+- GooglePay
+- ApplePay
+- Bit
+
+Using The API:
+(steps)
+1. Create a POST Request for a new session (see 'Create New Session').
+2. set the SuccessUrl and CallbackUrl as part of the request payload.
+3. use the SuccessUrl as a ThankYou page after purchase.
+4. use the CallbackUrl for the IPN from ZCredit. this should be a server handler to process the transaction.
+5. supply the item/s to the custoemr and save a receipt if needed.
+
+Create New Session:
+see 'Samples > Create Session'
+
+Languages:
+use the payload property 'Local' to set the page language
+- He = Hebrew
+- En = English
+- Ru = Russian
+
+Currencies:
+- ILS
+- USD
+- EUR
+
+
+Payload properties:
+- Key  
+  *required
+  the api secret (see 'Api_Secret')
+
+- Local
+  language (see 'Languages')
+
+- UniqueId
+  define a unique id for this transaction (usually the cart id)
+  returned in the Callback url!
+
+- SuccessUrl 
+  *required
+  url to redirect to after a successfull transaction
+
+- CancelUrl
+  url to redirect to after a canceled transaction
+
+- CallbackUrl
+  *required
+  IPN url, Server-2-Server call
+  url for the callback response including all the data about the transaction 
+
+- PaymentType
+  defines the payment charging method
+  1. regular - regular Payment
+  2. authorize - authorize Payment only (J5)
+  3. validate - validate Payment only (J2)
+
+- CreateInvoice
+  determines whether to generate an invoice or not
+
+- AdditionalText
+  extra custom text to be logged as part of the transaction 
+
+- ShowCart
+  determines whether to show or hide the cart items
+
+- ThemeColor
+  defines the page theme color
+
+- Installments.Type
+  defines the transaction type
+  1. none - no payments, single immediate transaction 
+  2. regular - equal payments 
+  3. credit - credit payments
+
+- Installments.MinQuantity
+  minimum number of allowed payments
+
+- Installments.MaxQuantity  
+  maximum number of allowed payments
+
+- Customer
+  use this property to provide details about the customer
+  supported sub-properties are 'Email', 'Name' and 'PhoneNumber'
+
+- CartItems
+  *required
+  an array of items on this transaction.  
+
+  sub-properties are as follow
+  *required are 'Amount', 'Currency', 'Name' and 'Quantity'
+  1. Amount - a unit price
+  2. Currency -  the currency to use (see 'Currencies')
+  3. Name - the item name
+  4. Description - the item description
+  5. Quantity 
+  6. Image - url to an image (must be https)
+  7. IsTaxFree - no tax
+
+IPN:
+use 'CallbackUrl' property to provide the url for the Server-2-Server IPN!
+for more details see 'Reference'
+
+properties are as follow
+- SessionId
+- ReferenceNumber
+- HolderId
+- Total
+- Currency
+- Installments
+- CardNum
+- CardName
+- UniqueID
+- Token
+- ApprovalNumber
+- CustomerName
+- CustomerPhone
+- CustomerEmail
+- ExpDate_MMYY
+- FirstInstallentAmount
+- OtherInstallmentsAmount
+- CreditType
+- J
+- CardIssuerCode
+- CardFinancerCode
+- CardBrandCode
+- VoucherNumber
+- InvoiceRecieptDocumentNumber
+- InvoiceRecieptNumber
+
+Postman:
+see 'ZCredit API.postman_collection.json'
+
+
+[Samples]
+
+Create Session:
+
+POST {{ServerURL}}/WebCheckout/CreateSession/
+H Content-Type: application/json
+{
+    "Key": "{{Token}}",
+    "Local": "He",
+    "UniqueId": "#100",
+    "SuccessUrl": "{{SuccessUrl}}",
+    "CallbackUrl": "{{CallbackUrl}}",
+    "PaymentType": "regular",
+    "CreateInvoice": false,
+    "AdditionalText": "some extra details",
+    "ShowCart": true,
+    "Installments": {
+        "Type": "regular",
+        "MinQuantity": 1,
+        "MaxQuantity": 5
+    },
+    "Customer": {
+        "Email": "RcBuilder@walla.com",
+        "Name": "RcBuilder",
+        "PhoneNumber": ""
+    },
+    "CartItems": [
+        {
+            "Amount": 10,
+            "Currency": "ILS",
+            "Name": "Item 1",
+            "Description": "bla bla bla",
+            "Quantity": 1,
+            "IsTaxFree": false
+        }
+    ]    
+}
+
+--
+
+IPN Respose:
+{   
+      "SessionId": "333a569cf6a95e294d55d36fc33172",     
+      "ReferenceNumber": "12345679",     
+      "HolderId": "123456780",            
+      "Total": 10,                         
+      "Currency": "ILS",                   
+      "Installments": 3,                
+      "CardNum": "9001",                   
+      "CardName": "ויזה רגיל",           
+      "UniqueID": "A23fJKS23443",         
+      "Token": "b12163d2-d1a2-4cf9-b71c-1151825b450a",    
+      "ApprovalNumber": "0543140",      
+      "CustomerName": "43434",            
+      "CustomerPhone": "",              
+      "CustomerEmail": "",                
+      "ExpDate_MMYY": "07/20",             
+      "FirstInstallentAmount": 3.34,       
+      "OtherInstallmentsAmount": 3.33,      
+      "CreditType": 2,                    
+      "J": 0,                            
+      "CardIssuerCode": "2",               
+      "CardFinancerCode": "1",             
+      "CardBrandCode": "2",                
+      "VoucherNumber": "31001037",      
+      "InvoiceRecieptDocumentNumber": 1718,
+      "InvoiceRecieptNumber": 12
+}
+
+---------------
+// TODO ->>
+
+old api doc + implementation
+
+-

@@ -12,10 +12,20 @@ SELECT 	name,
 	modify_date
 FROM   	sys.procedures
 
+-OR-
+
+SELECT 	name, 
+	[schema_id], 
+	SCHEMA_NAME([schema_id]) as 'schema', 
+	create_date, 
+	modify_date
+FROM sys.objects
+WHERE type_desc LIKE '%STORED_PROCEDURE%';
+
 [drop sp]
 DROP PROCEDURE [dbo].[sp_Shift_Employees_Get];
 
-[drop all]
+[drop all] 
 //  using dynamic execution
 DECLARE @query NVARCHAR(max)=''
 SELECT @query += 'DROP PROCEDURE [' + SCHEMA_NAME(schema_id) + '].[' + name + '];'

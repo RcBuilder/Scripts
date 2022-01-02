@@ -1,0 +1,38 @@
+Serialize and Deserialize Array Of Key-Value
+--------------------------------------------
+
+class SomeModelWithDictionary{
+	public int id {get; set;}
+	public IEnumerable<IDictionary<string, string>> attributes { get; set; }
+}
+
+--
+
+// Deserialize
+var someModelJson = @"{
+  'id': 77137,	  
+  'attributes': [
+    {
+      'sku': 'aaa',
+	  'price': 38.99,
+    }
+  ]
+}";
+
+var someModel = JsonConvert.DeserializeObject<SomeModelWithDictionary>(someModelJson);
+Console.WriteLine(someModel.attributes);  // {"sku":"aaa","price":"38.99"}
+
+--
+
+// Serialize
+var someModel = new SomeModelWithDictionary{
+	id = 100,
+	attributes = new List<Dictionary<string, string>> {
+        new Dictionary<string, string> {
+            ["sku"] = "bbb",
+            ["price"] = "89.19"
+        }
+    }
+};
+var someModelJson = JsonConvert.SerializeObject(someModel);
+Console.WriteLine(someModelJson);  // {"id":100,"attributes":[{"sku":"bbb","price":"89.19"}]}

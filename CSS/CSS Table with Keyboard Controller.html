@@ -97,7 +97,7 @@
             let currentRow;
 
             // private methods
-            RegisterEvents = () => {
+            let RegisterEvents = () => {
                 document.addEventListener('keydown', (e) => {
 
                     /*
@@ -121,10 +121,10 @@
                     }
                 });
             }
-            UnRegisterEvents = () => {
+            let UnRegisterEvents = () => {
                 document.removeEventListener('keydown');
             }
-            ChooseRow = (direction = 'down') => {
+            let ChooseRow = (direction = 'down') => {
                 let rows = oTable.querySelectorAll('tbody > tr');
                 (rows || []).forEach((x) => x.classList.remove(selectedClass));
 

@@ -11,13 +11,15 @@ Telegram Core
 -------------
 https://my.telegram.org
 
-Update TDLib
-------------
-> Install-Package TDLib -Version 1.7.9
-
 Limits
 ------
 https://limits.tginfo.me/en
+https://docs.pyrogram.org/api/errors/bad-request
+
+Spam
+----
+https://github.com/wiz0u/WTelegramClient/blob/master/FAQ.md#abuse
+https://telegram.org/faq_spam
 
 Telegram Web
 ------------
@@ -84,9 +86,10 @@ Get Credentials
 
 .NET SDK
 --------
+// TODO ->> replace with WTelegramClient library!
 
 options:
-- TLSharp			// .NET library to interact with Telegram API
+- TLSharp			// .NET library to interact with Telegram API (not TDLib-based)
 - ModernTlSharp		// an improved library for .Net Core 3.1+ (based on TLSharp)
 
 
@@ -181,16 +184,6 @@ foreach (var groupUser in groupUsers)
 // get account state
 var state = await client.SendRequestAsync<TLState>(new TLRequestGetState());
 Console.WriteLine($"{state.UnreadCount} unread messages"); 
-
-BUGS
-----
-- issue:
-  'ERROR' message when trying to create a new app on my telegram core
-
-  fix: 
-  disable popup blocker.
-  chrome menu > Settings > Advanced > Privacy and security > settings > Pop-ups and redirects
-
 
 --------------------------------------------------
 
@@ -431,12 +424,6 @@ BUGS
   disable bot privacy mode.
   see 'Set Bot Privacy'
 
-- issue:
-  UPDATE_APP_TO_LOGIN exception
-
-  fix:
-  update TDLib (see 'Update TDLib')
-
 -----------------------------------------
 // TODO ->>
 ParseMode: Default, Markdown, Html, MarkdownV2
@@ -504,10 +491,6 @@ https://core.telegram.org/method/upload.getFile
 
 -
 
-TeleSharp - custom Request (??)
-
--
-
 protected const int SECOND = 1000;
 protected async Task HandleFloodException(Exception ex) {
     if (!ex.Message.StartsWith("Flood prevention.")) return;
@@ -519,3 +502,79 @@ protected async Task HandleFloodException(Exception ex) {
     Console.WriteLine($"waiting for {timeToWait} seconds...");
     await Task.Delay(SECOND * timeToWait);
 }
+
+-
+
+Working With TDLib
+https://github.com/Muaath5/TDLibBinaries
+https://github.com/tdlib/td/blob/master/example/csharp/TdExample.cs
+https://github.com/tdlib/td
+https://github.com/tdlib/td/blob/eb80924dad30af4e6d8385d058bb7e847174df5e/example/csharp/TdExample.cs#L214
+
+---
+
+[WTelegramClient]
+
+spam and abuse exceptions:
+1. FLOOD_WAIT_X
+2. PEER_FLOOD
+3. PHONE_NUMBER_BANNED
+
+-
+
+protected async Task HandleFloodException(Exception ex) {
+    if (!ex.Message.Contains("FLOOD")) return;
+
+    var timeToWait = 0;
+
+    if (ex.Message == "PEER_FLOOD") {
+        await this.TelegramClient.SendMessageToMe("PEER_FLOOD");
+        return;
+    }
+
+    if (ex.Message.StartsWith("FLOOD_WAIT_"))
+    {
+        var match = Regex.Match(ex.Message, @"FLOOD_WAIT_(?<seconds>\d+)", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+        if (match == null || match.Groups["seconds"] == null) return;
+        timeToWait = Convert.ToInt32(match.Groups["seconds"].Value);
+    }
+
+    if (timeToWait > MINUTE * 60 * 4) {
+        await this.TelegramClient.SendMessageToMe($"FLOOD_WAIT_{timeToWait}");
+        return;
+    }
+
+    Console.WriteLine($"waiting for {timeToWait} seconds...");
+    await Task.Delay(SECOND * timeToWait);
+}
+
+-
+
+Change logging settings:
+default=Console
+
+* WTelegram.Helpers.Log += (lvl, str) => Debug.WriteLine(str);
+* WTelegram.Helpers.Log = (lvl, str) => File.AppendAllText("WTelegram.log", $"{str}{Environment.NewLine}");
+
+* static StreamWriter WTelegramLogs = new StreamWriter("WTelegram.log", true, Encoding.UTF8) { AutoFlush = true };
+  WTelegram.Helpers.Log = (lvl, str) => WTelegramLogs.WriteLine($"{DateTime.Now:yyyy-MM-dd HH:mm:ss} [{"TDIWE!"[lvl]}] {str}");
+
+* WTelegram.Helpers.Log = (lvl, str) => _logger.Log((LogLevel)lvl, str);
+
+-
+
+WTelegramClient 
+
+sources:
+https://github.com/wiz0u/WTelegramClient
+https://github.com/wiz0u/WTelegramClient/blob/master/README.md
+https://github.com/wiz0u/WTelegramClient/blob/master/EXAMPLES.md
+
+nuget:
+https://www.nuget.org/packages/WTelegramClient/
+> Install-Package WTelegramClient -Version 1.8.3
+> Install-Package WTelegramClient -Version 1.7.6
+
+note! 
+replace TLSharp (deprecated) with this library 
++ Documentation

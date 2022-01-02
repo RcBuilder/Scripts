@@ -1,0 +1,17 @@
+
+Vanilla JS
+----------
+see 'demo.html'
+
+JQuery
+------
+$(<selector>).multiselect();
+
+MVC
+---
+$('#ddlOnlineChapters').multiselect();
+
+@using (@Html.BeginForm("AttachChapter", "OnlineCourse", new { Id = Model.Id }, FormMethod.Post, new { @class = "" })){
+    @Html.DropDownList("ddlOnlineChapters", BLL.DropDownLists.GetOnlineChapters(true, Model.Id), new { @class = "wpcf7-select", multiple = "", })
+    <input type="submit" value="десу" />
+}

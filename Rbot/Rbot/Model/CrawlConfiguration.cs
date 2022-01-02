@@ -4,6 +4,7 @@ namespace Crawler.Rbot
     public class CrawlConfiguration
     {
         public string RootNodeSelector { get; set; }
+        public string LinksSelector { get; set; }
         public int MaxPagesToCrawl { get; set; } = 0; // Pages quantity to scan (0 = all)
         public int MaxDepth { get; set; } = 3; // how deep to crawl
         public float CrawlDelaySeconds { get; set; } = 0F;  // min delay time between requests (0 = no-delay)          
