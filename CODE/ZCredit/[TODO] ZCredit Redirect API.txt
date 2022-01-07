@@ -1,0 +1,7 @@
+ZCredit Redirect API
+====================
+Legacy! use 'ZCredit WebCheckout API' instead.
+
+// TODO ->> 
+openbook
+old api doc + implementation

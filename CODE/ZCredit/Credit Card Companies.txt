@@ -1,0 +1,7 @@
+0	International Card
+1	Isracard
+2	Visa CAL
+3	Diners
+4	Amex
+5	JCB
+6	Max

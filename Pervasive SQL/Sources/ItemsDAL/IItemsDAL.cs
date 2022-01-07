@@ -7,7 +7,10 @@ namespace ItemsDAL
     public interface IItemsDAL {
         string CreateItem(Item item);
         string UpdateItem(Item item);
-        int GetStock(int id, int storeId);
+        int GetStock(string id, int storeId);
+        int GetStockInOrders(string id);
         IEnumerable<Item> Find(ItemSearchParams searchParams);
+        IEnumerable<ItemBarcode> GetBarcodes(string Id);
+        IEnumerable<ItemBarcode> GetBarcodes();
     }
 }

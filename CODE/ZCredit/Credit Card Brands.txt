@@ -1,0 +1,9 @@
+0	Private Label Brand
+1	Mastercard
+2	Visa
+3	Diners
+4	Amex
+5	Isracard
+6	JCB
+7	Discover
+8	Maestro

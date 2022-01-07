@@ -13,6 +13,7 @@ https://www.connectionstrings.com/pervasive/
 
 reference:
 see 'ODBC'
+see 'Creative' project
 
 -
 

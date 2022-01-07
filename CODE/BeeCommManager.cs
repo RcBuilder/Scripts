@@ -8,6 +8,31 @@ using System.Threading.Tasks;
 
 namespace BeeComm
 {
+    /*  
+        HOOK
+        ----
+        [HttpPost]
+        [Route("api/hook/beecomm")]
+        public async Task<HttpResponseMessage> BeeCommHook([FromBody]BeeComm.OrderHook model)
+        {
+            try
+            {
+                if (model.Details.SenderCompanyId == 9999) // MNEW 
+                    return Request.CreateResponse(HttpStatusCode.OK);
+                
+                // CODE HERE ...
+
+                File.AppendAllText($"{AppDomain.CurrentDomain.BaseDirectory}OrdersBK\\order_{Guid.NewGuid()}.txt", JsonConvert.SerializeObject(model));                                
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                LoggerSingleton.Instance.Error("BeeCommHook", ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
+        } 
+    */
+
     #region Entities
     public enum eOrderType { PICKUP, TABLE, DELIVERY }
     public enum ePaymentType { CARD = 1, CASH = 2, EXTERNAL = 6, SODEXO = 10, BIS10 = 12, GOODI = 27 } 
@@ -31,6 +56,21 @@ namespace BeeComm
 
         [JsonProperty(PropertyName = "orderInfo")]
         public OrderDetails Details { get; set; }        
+    }
+
+    public class OrderHook : Order
+    {
+        [JsonProperty(PropertyName = "restaurantName")]
+        public string RestaurantName { get; set; }
+
+        [JsonProperty(PropertyName = "businessNumber")]
+        public string BusinessNumber { get; set; }
+
+        [JsonProperty(PropertyName = "orderID")]
+        public int OrderId { get; set; }
+
+        [JsonProperty(PropertyName = "amountPaid")]
+        public float AmountPaid { get; set; }
     }
 
     public class OrderDetails {
@@ -154,8 +194,6 @@ namespace BeeComm
         [JsonProperty(PropertyName = "companyName")]
         public string CompanyName { get; set; }
     }
-
-
 
     public class OrderResponse
     {

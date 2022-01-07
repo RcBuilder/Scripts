@@ -3,6 +3,8 @@ ZCredit WebCheckout API
 
 Reference:
 https://zcreditwc.docs.apiary.io/#reference
+https://zcreditwc.docs.apiary.io/#introduction/getting-started
+https://zcreditwc.docs.apiary.io/#reference/0/create-webcheckout-session/createsession
 
 Payment Settings:
 go to 'ZCredit Dashboard' > 'Settings' > (tab) 'Clearing Settings'
@@ -15,7 +17,10 @@ note! aka Token
 
 Api URL:
 note! aka ServerURL
-https://pci.zcredit.co.il/webcheckout/api/WebCheckout/CreateSession/
+https://pci.zcredit.co.il/webcheckout/api
+
+Endpoints:
+WebCheckout/CreateSession/
 
 Supported Features: 
 to activate these features, check them on the dashboard's Settings page 
@@ -221,10 +226,3 @@ IPN Respose:
       "InvoiceRecieptDocumentNumber": 1718,
       "InvoiceRecieptNumber": 12
 }
-
----------------
-// TODO ->>
-
-old api doc + implementation
-
--

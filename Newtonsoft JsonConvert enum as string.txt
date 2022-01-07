@@ -1,0 +1,36 @@
+Newtonsoft JsonConvert enum as string 
+-------------------------------------
+enum-based properties are refered as int/byte by default. 
+in order to use their String representation, we need to decorate it 
+with 'JsonConverter' attribute with the 'StringEnumConverter' type
+
+-
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+
+[JsonConverter(typeof(StringEnumConverter))]
+public eCurrency Currency { get; set; }
+
+-
+
+public enum eCurrency { ILS, USD, EUR }
+
+---
+
+Sample:
+public enum eCurrency { ILS = 1, USD = 2, EUR = 3 }
+
+public class Currency1{
+	public eCurrency Value { get; set; } = eCurrency.USD;	
+}
+
+public class Currency2{
+	[JsonConverter(typeof(StringEnumConverter))]
+	public eCurrency Value { get; set; } = eCurrency.USD;
+}
+
+var c1 = new Currency1();
+var c2 = new Currency2();
+Console.WriteLine(JsonConvert.SerializeObject(c1));  // {"Value":2}
+Console.WriteLine(JsonConvert.SerializeObject(c2));  // {"Value":"USD"}

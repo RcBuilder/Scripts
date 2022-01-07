@@ -1,0 +1,30 @@
+Load Derived Class From Base Class Using Clone 
+----------------------------------------------
+public class BaseClass {        
+    public string P1 { get; set; }
+    public int P2 { get; set; }
+    public bool P3 { get; set; }    
+}
+
+public class DerivedClass : BaseClass {        
+    public string P4 { get; set; }
+    public float P5 { get; set; } 
+	
+	public static DerivedClass Clone(BaseClass Source){
+        var serialized = JsonConvert.SerializeObject(Source);
+        var clone = JsonConvert.DeserializeObject<DerivedClass>(serialized);
+        return clone;
+    }
+}
+
+
+var bc = new BaseClass{
+	P1 = "AAA",
+	P2 = 300,
+	P3 = true
+};
+
+var dc = DerivedClass.Clone(bc);
+dc.P4 = "BBB";
+dc.P5 = 12.90F;
+Console.WriteLine(dc);

@@ -1,0 +1,37 @@
+using Dictionary Model
+----------------------
+public HttpResponseMessage Test(Dictionary<string, string> Params){...}
+
+{
+    "key1": "value1",
+    "key2": "value2",
+    "key3": "value3"
+}
+
+
+-----
+
+[HttpPost]
+[Route("queries/run")]
+public HttpResponseMessage RunQuery([FromBody]RunQueryRequest request){...}
+
+-
+
+public class RunQueryRequest {
+        [JsonProperty(PropertyName = "queryId")]
+        public int QueryId { get; set; }
+
+        [JsonProperty(PropertyName = "params")]
+	public Dictionary<string, string> Params { get; set; }}
+
+-
+
+POST /queries/run
+H Content-Type: application/json
+{
+    "queryId": 3,
+    "params": {
+        "p1": "v1",
+        "p2": "v2"
+    }
+}

@@ -1,0 +1,22 @@
+DUMP Json Payload to File
+-------------------------
+[HttpPost]
+[Route("api/hook/beecomm")]
+public async Task<HttpResponseMessage> BeeCommHook([FromBody]BeeComm.OrderHook model)
+{
+    try
+    {        
+        var payload = "";
+        using (var stream = await Request.Content.ReadAsStreamAsync())
+        {
+            stream.Seek(0, SeekOrigin.Begin);
+            using (var sr = new StreamReader(stream))
+                payload = sr.ReadToEnd();
+        }
+        File.AppendAllText($"{AppDomain.CurrentDomain.BaseDirectory}payload_{Guid.NewGuid()}.txt", payload);                                                
+        return Request.CreateResponse(HttpStatusCode.OK);
+    }
+    catch (Exception ex) {        
+        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+    }
+}

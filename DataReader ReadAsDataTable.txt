@@ -1,0 +1,13 @@
+DataReader ReadAsDataTable
+--------------------------
+use 'Load' method of the DataTable object
+
+-
+
+protected DataTable ReadAsDataTable(DbDataReader dr) {
+    if (dr == null || !dr.HasRows) return null;
+
+    var dt = new DataTable();
+    dt.Load(dr);
+    return dt;
+}
