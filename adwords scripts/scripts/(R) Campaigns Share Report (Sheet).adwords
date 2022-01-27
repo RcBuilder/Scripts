@@ -1,0 +1,750 @@
+var SHEET_NAME = 'Campaigns_Share_Report';
+var NUM_OF_WEEKS = 6;  // number of weeks to present
+var EMAIL = 'rcbuilder@walla.com';
+
+function main() {
+  
+  var sheetService = SpreadsheetLoader.loadSheetService(SHEET_NAME);
+  if(!sheetService)  
+    sheetService = SpreadsheetLoader.createSheetService(SHEET_NAME);    
+  sheetService.clear();
+    
+  /*
+    var chartService = ChartService();
+    var lineChartBlob = chartService.createLineChart( 
+    [
+        { name: 'Date', type: 'datetime' },
+        { name: 'clicks', type: 'number' },
+        { name: 'cost', type: 'number' }      
+    ],
+    [
+        [new Date(2016,03,04), 12, 30], 
+        [new Date(2016,03,03), 9, 32],
+        [new Date(2016,03,02), 12, 25],
+        [new Date(2016,03,01), 20, 30],
+        [new Date(2016,02,29), 8, 20]
+    ],
+    { lines: [ // vAxis data      
+        {color:'#AA4643', legend:'clicks'},
+      {color:'#00FF00', legend:'cost'}
+    ]},
+    700, 200, // chart size (width,height)
+    'chart Title'
+    );
+    sheetService.sheet.insertImage(lineChartBlob, 7, 2); // (column, row)
+  */
+  
+  
+  var currentWeek = HELPER.getThePreviousSunday(new Date());
+  var arrDateRanges = []; // { dateRange, date1, date2 }
+  for(var i= NUM_OF_WEEKS; i > 0; i--){
+    var endOfCurrentWeek = HELPER.dateAdd(currentWeek, 6);
+    arrDateRanges.push({
+      dateRange: HELPER.dateFormat(currentWeek) + ',' + HELPER.dateFormat(endOfCurrentWeek),
+      date1: currentWeek,
+      date2: endOfCurrentWeek
+    });  
+    currentWeek = HELPER.dateAdd(currentWeek, -7);
+  }
+  Logger.log(arrDateRanges);  // 	[20220109,20220115, 20220102,20220108, 20211226,20220101, 20211219,20211225]
+  
+  var arrCampaigns = []; // { campaign, isShopping }
+  var campaigns = AdWordsApp.campaigns()
+  .withCondition('Status IN [ENABLED]')    
+  .get();
+  
+  var shoppingCampaigns = AdWordsApp.shoppingCampaigns()
+  .withCondition('Status IN [ENABLED]')    
+  .get(); 
+      
+  Logger.log('found %s campaigns and %s shopping campaigns', campaigns.totalNumEntities(), shoppingCampaigns.totalNumEntities());
+  
+  while(campaigns.hasNext()){
+    arrCampaigns.push({
+      campaign: campaigns.next(),
+      isShopping: 0
+    });
+  }
+  
+  while(shoppingCampaigns.hasNext()){
+    arrCampaigns.push({
+      campaign: shoppingCampaigns.next(),
+      isShopping: 1
+    });    
+  }
+  
+  for(i in arrCampaigns){
+	  ProcessCampaign(arrCampaigns[i], sheetService, arrDateRanges); 
+    sheetService.addRow(['-']); // seperator-row
+  }
+    
+  try{                     
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Campaigns Share Report', '', {
+      htmlBody: 'Script has Executed for Account '.concat(AdWordsApp.currentAccount().getName())
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+function ProcessCampaign(campaignData, sheetService, arrDateRanges){
+  var campaign = campaignData.campaign;
+  var campaignName = campaign.getName();    
+  Logger.log('[campaign] %s', campaignName); 
+  
+  // sheet header
+  sheetService.addRow([          
+    campaignName,        
+    'Absolute Top IS', 
+    'Impression Share', 
+    'Click Share', 
+    'Rank Lost Absolute Top IS', 
+    'Rank Lost IS', 
+    'Budget Lost Top IS', 
+    'Top Impression Share', 
+    'Exact Match IS'
+  ]);
+  
+  for(j in arrDateRanges){
+    var dr = arrDateRanges[j];
+    var dateRange = dr.dateRange;
+    Logger.log('%s', dateRange); 
+
+    // { absoluteTopImpressionShare, impressionShare, clickShare, rankLostAbsoluteTopImpressionShare, rankLostImpressionShare, budgetLostTopImpressionShare, topImpressionShare, exactMatchImpressionShare }
+    var extendedData = GetCampaignExtendedData(campaign, dateRange, campaignData.isShopping);
+
+    sheetService.addRow([
+      PrettifyDateRange(dr.date1, dr.date2),           
+      extendedData.absoluteTopImpressionShare + '%',
+      extendedData.impressionShare + '%',
+      extendedData.clickShare + '%',
+      
+      extendedData.rankLostAbsoluteTopImpressionShare + '%',
+      extendedData.rankLostImpressionShare + '%',
+      extendedData.budgetLostTopImpressionShare + '%',
+      extendedData.topImpressionShare + '%',
+      extendedData.exactMatchImpressionShare + '%'
+    ]);
+  }
+}
+
+// IN:  20220109,20220115 
+// OUT: 2022-01-09 -> 2022-01-15
+// OUT: 09-01-2022 -> 15-01-2022
+function PrettifyDateRange(date1, date2) {
+  /// return dateRange.replace(',', ' -> ');
+    
+  var sDate1 = HELPER.dateFormat_ddMMyyyy(date1, '-');
+  var sDate2 = HELPER.dateFormat_ddMMyyyy(date2, '-');
+  return sDate1 + ' -> ' + sDate2;
+  
+  /*
+  var chars = dateRange.split('');
+  chars.splice(4, 0, '-');
+  chars.splice(7, 0, '-');
+  
+  chars.splice(15, 0, '-');
+  chars.splice(18, 0, '-');
+  return chars.join('').replace(',', ' -> ');
+  */
+}
+
+ // { absoluteTopImpressionShare, impressionShare, clickShare, rankLostAbsoluteTopImpressionShare, rankLostImpressionShare, budgetLostTopImpressionShare, topImpressionShare, exactMatchImpressionShare }
+function GetCampaignExtendedData(campaign, dateRange, isShopping){
+  isShopping = isShopping || 0;
+  
+  var result = { 
+    absoluteTopImpressionShare: 0, 
+    impressionShare: 0, 
+    clickShare: 0,
+    
+    rankLostAbsoluteTopImpressionShare: 0, 
+    rankLostImpressionShare: 0,
+    budgetLostTopImpressionShare: 0,     
+    topImpressionShare: 0, 
+    exactMatchImpressionShare: 0
+  };
+
+  var reportConfig = {
+    includeZeroImpressions: false
+  };
+  
+  var reportName, columns;
+  if(isShopping == 1) {
+    reportName = 'SHOPPING_PERFORMANCE_REPORT';
+    columns = 'CampaignId, CampaignName, SearchAbsoluteTopImpressionShare, SearchImpressionShare, SearchClickShare';
+  }
+  else 
+  {
+    reportName = 'CAMPAIGN_PERFORMANCE_REPORT';
+    columns = 'CampaignId, CampaignName, SearchAbsoluteTopImpressionShare, SearchImpressionShare, SearchClickShare, SearchRankLostAbsoluteTopImpressionShare, SearchRankLostImpressionShare, SearchBudgetLostTopImpressionShare, SearchTopImpressionShare, SearchExactMatchImpressionShare';
+  }
+  
+  
+  var query =  'SELECT ' + columns + ' ' + 
+    'FROM ' + reportName + ' ' + 
+    'WHERE CampaignStatus IN [ENABLED] ' +        
+    'AND CampaignId = ' + campaign.getId() + ' ' + 
+    'DURING ' + dateRange;
+
+  var report = AdWordsApp.report(query, reportConfig);
+  var rows = report.rows(); 
+  while (rows.hasNext())
+  {
+    var row = rows.next();
+    
+    // SearchAbsoluteTopImpressionShare, SearchImpressionShare, SearchClickShare
+    var absoluteTopImpressionShare = row['SearchAbsoluteTopImpressionShare'] || '';  
+    var impressionShare = row['SearchImpressionShare'] || '';  
+    var clickShare = row['SearchClickShare'] || '';  
+        
+    if(clickShare == '--') clickShare = '0';
+    
+    // fixing the '< 10%' value
+    if(absoluteTopImpressionShare == '< 10%') absoluteTopImpressionShare = '5';
+    if(impressionShare == '< 10%') impressionShare = '5';    
+    if(clickShare == '< 10%') clickShare = '5';
+
+    result.absoluteTopImpressionShare = parseFloat(absoluteTopImpressionShare.replace('%', ''));
+    result.impressionShare = parseFloat(impressionShare.replace('%', ''));
+    result.clickShare = parseFloat(clickShare.replace('%', ''));
+    
+    if(isShopping == 1){
+      // SearchRankLostAbsoluteTopImpressionShare, SearchRankLostImpressionShare, SearchLostTopImpressionShare, SearchTopImpressionShare, SearchExactMatchImpressionShare
+      var rankLostAbsoluteTopImpressionShare = row['SearchRankLostAbsoluteTopImpressionShare'] || '';
+      var rankLostImpressionShare = row['SearchRankLostImpressionShare'] || '';
+      var budgetLostTopImpressionShare = row['SearchBudgetLostTopImpressionShare'] || '';
+      var topImpressionShare = row['SearchTopImpressionShare'] || '';
+      var exactMatchImpressionShare = row['SearchExactMatchImpressionShare'] || '';
+      
+      // fixing the '< 10%' value
+      if(rankLostAbsoluteTopImpressionShare == '< 10%') rankLostAbsoluteTopImpressionShare = '5';
+      if(rankLostImpressionShare == '< 10%') rankLostImpressionShare = '5';
+      if(budgetLostTopImpressionShare == '< 10%') budgetLostTopImpressionShare = '5';
+      if(topImpressionShare == '< 10%') topImpressionShare = '5';
+      if(exactMatchImpressionShare == '< 10%') exactMatchImpressionShare = '5';
+
+      result.rankLostAbsoluteTopImpressionShare = parseFloat(rankLostAbsoluteTopImpressionShare.replace('%', ''));
+      result.rankLostImpressionShare = parseFloat(rankLostImpressionShare.replace('%', ''));
+      result.budgetLostTopImpressionShare = parseFloat(budgetLostTopImpressionShare.replace('%', ''));
+      result.topImpressionShare = parseFloat(topImpressionShare.replace('%', ''));
+      result.exactMatchImpressionShare = parseFloat(exactMatchImpressionShare.replace('%', ''));
+    }
+  }
+  
+  Logger.log('[ExtendedData] %s -> %s (%s)', campaign.getName(), result, reportName);
+  return result;
+}
+  
+var HELPER = {  
+  dateFormat: function (date){    
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return year + month + day;
+  },   
+  dateFormat_ddMMyyyy: function (date, divider){
+    divider = divider || '';
+    
+    var year = date.getFullYear().toString();
+    var month = (date.getMonth() +1).toString();
+    var day = date.getDate().toString();
+    
+    if(month.length == 1) month = '0' + month; // return yyyyMMdd
+    if(day.length == 1) day = '0' + day;
+    
+    return day + divider + month + divider + year;
+  },   
+  getThePreviousSunday: function(date){
+    var newDate = new Date(date.getTime());                    
+    newDate.setDate(newDate.getDate() - newDate.getDay());
+    return newDate;  
+  },
+  dateAdd: function(date, value, type){      
+    type = type || 'dd';
+    
+    var newDate = new Date(date.getTime());
+    
+    if(type == 'dd')
+      newDate.setDate(newDate.getDate() + value);
+    else if(type == 'MM')
+      newDate.setMonth(newDate.getMonth() + value);
+    
+    return newDate;  
+  }
+};
+
+
+// ---------------------------------------------------------------
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+	spreadSheet: _spreadSheet, 
+    getName: function(){
+      return _spreadSheet.getName();
+    },
+    getActiveSheet: function(){
+      return SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+         for(var i= 0; i < _sheets.length; i++)
+            if(_sheets[i].sheetName == sheetName)
+              return _sheets[i];
+          return '';
+    },
+    addNewSheet: function(sheetName){
+        var new_sheet = SheetService(_spreadSheet.insertSheet(sheetName));
+        _sheets.push(new_sheet)
+        return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+        return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    },
+	getId: function(){
+      return _spreadSheet.getId();
+    },
+    setName: function(newName){
+      _spreadSheet.rename(newName);  
+    }, 
+	setActiveSheetByIndex: function(index){
+      _spreadSheet.setActiveSheet(_sheets[index].sheet);
+    },
+    clearALL: function(){
+      for(var i= 0; i < _sheets.length; i++)
+        _sheets[i].clear(true, true, true);
+    }
+  }; 
+}
+
+// --------------------
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  // e.g: setFormat('A1'); // set cell
+  // e.g: setFormat('A1:A10'); // set range
+  var setFormat = function(strRange, format){
+    var range = _sheet.getRange(strRange);
+    range.setNumberFormat(format);  
+  }
+  
+  var getBorderStyle = function(value){
+    value = value.toLowerCase();
+    switch(value){
+      case 'dotted': return SpreadsheetApp.BorderStyle.DOTTED;
+      case 'dashed': return SpreadsheetApp.BorderStyle.DASHED;
+      default:
+      case 'solid': return SpreadsheetApp.BorderStyle.SOLID;
+    }
+  }
+  
+  return {   
+    sheet: _sheet,
+    hasSheet: _sheet != null,
+    sheetName: _sheet ? _sheet.getName() : '',
+    spreadSheet: _sheet.getParent(),
+    getURL: function(){
+      return this.spreadSheet.getUrl();
+    },
+    getLastRowIndex: function() { 
+      return _sheet.getLastRow();  
+    }, 
+    getLastColumnIndex: function(){ 
+      return _sheet.getLastColumn();
+    }, 
+    getValue: function(rowPosition, columnPosition){ 
+      return _sheet.getRange(rowPosition, columnPosition).getValue();
+    }, 
+    getValueByRange: function(strRange){ /* A3, B1 etc.*/       
+      return _sheet.getRange(strRange).getValue();
+    },  
+    getValues: function(){
+      return _sheet.getDataRange().getValues();
+    },
+    getValuesByRange: function(strRange){ /* A3:B3, C1:C5 etc.*/       
+      return _sheet.getRange(strRange).getValues();
+    }, 
+    getRowValues:function(rowPosition){       
+      return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
+    },  
+    getRowByIndex:function(rowIndex){       
+      var values = this.getRowValues(rowIndex);
+      return values[0] || [];
+    },     
+    getRowIndex: function(columnPosition, key){
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnPosition - 1] == key)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+    getRowIndexBy2Columns: function(columnAPosition, keyA, columnBPosition, keyB){ 
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnAPosition - 1] == keyA && rows[row][columnBPosition - 1] == keyB)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+    getColumnValues: function(startRowPosition, columnPosition){
+      // getRange(row, column, numRows, numColumns)
+      return _sheet.getRange(startRowPosition, columnPosition, _sheet.getLastRow() - 1, 1).getValues();
+    }, 
+    addRow: function(arrValues){ 
+      //_sheet.appendRow(arrValues);
+      this.addRowAtIndex(arrValues, _sheet.getLastRow() + 1);
+    },
+    addRowAtIndex: function(arrValues, rowPosition){               
+      rowPosition = rowPosition || _sheet.getLastRow() + 1;
+      var range = _sheet.getRange(rowPosition, 1, 1, arrValues.length);
+      range.setValues([arrValues]);
+    },
+    addImageFromURL: function(url, rowPosition, columnPosition, left, top){ 
+      top = top || 0;
+      left = left || 0;
+
+      _sheet.insertImage(url, rowPosition, columnPosition, left, top);
+    },   
+    addImage: function(blob, rowPosition, columnPosition, left, top){ 
+      top = top || 0;
+      left = left || 0;
+
+      _sheet.insertImage(blob, rowPosition, columnPosition, left, top);
+    },   
+    deleteRow: function(rowPosition){
+      _sheet.deleteRow(rowPosition);
+    }, 
+	  copyRange: function(fromRange, toRange){
+        Logger.log('copy range from %s to %s', fromRange, toRange);
+        var valuesToCopy = this.getValuesByRange(fromRange);      
+        this.setRangeValues(toRange, valuesToCopy);           
+    },   
+    sort: function(columnPosition){
+      _sheet.sort(columnPosition);
+    },
+    hasCharts:  _sheet.getCharts().length > 0,
+    findColumnValuesByFilter: function(columnPosition, filterValue, filterColumnPosition){
+      /* 
+        get column values filtered by other column
+
+        e.g: findColumnValuesByFilter(2, '100', 1)          
+        all B column values that the value in A column equals to '100'
+        */
+
+      var result = [];       
+      var rows = _sheet.getDataRange().getValues();
+
+      for(row in rows)
+        if(rows[row][filterColumnPosition - 1] == filterValue)
+          result.push(rows[row][columnPosition]);
+      return result;  
+    }, 
+    findRowsByFilter: function(filterValue, filterColumnPosition){
+      /* 
+        get rows by filter
+
+        e.g: findRowsByFilter('100', 1)          
+        all rows that the value in A column equals to '100'
+        */
+
+      var result = [];       
+      var rows = _sheet.getDataRange().getValues();
+
+      for(row in rows)
+        if(rows[row][filterColumnPosition - 1] == filterValue)
+          result.push(rows[row]);
+      return result;  
+    },
+    freezeHeader: function(){
+      _sheet.setFrozenRows(1);
+    },
+    merge: function(strRange){
+      _sheet.getRange(strRange).merge();
+    },  
+    clearValues: function(strRange) { 
+        var range = _sheet.getRange(strRange);
+        range.clear();        
+        // range.deleteCells(SpreadsheetApp.Dimension.ROWS);
+    },
+    clear: function(charts, format, contents){
+      charts = charts || false;
+      format = format || false;
+      contents = contents || true;
+
+      _sheet.clear({ formatOnly: format, contentsOnly: contents });    
+
+      // clear all notes
+      _sheet.clearNotes();        
+
+      // clear all charts
+      var charts = _sheet.getCharts();
+      for (var i in charts)
+        _sheet.removeChart(charts[i]);
+    },          
+    setValue: function(rowPosition, columnPosition, value){ 
+      _sheet.getRange(rowPosition, columnPosition).setValue(value);
+    },     
+    setRangeValue: function(strRange, value){ 
+      // e.g: setCurrencyFormat('A1'); // set cell
+      _sheet.getRange(strRange).setValue(value);
+    },
+    setRangeValues: function(strRange, values){         
+      _sheet.getRange(strRange).setValues(values);
+    },
+    setColumnWidth: function(columnPosition, width){
+      _sheet.setColumnWidth(columnPosition, width);
+    },  
+    setRowHeight: function(rowPosition, height){
+      _sheet.setRowHeight(rowPosition, height);
+    },  
+    setName: function(newName){
+      _sheet.setName(newName);
+    }, 
+    setNote: function(strRange, note){
+      var range = _sheet.getRange(strRange);
+      range.setNote(note);
+    },         
+    setDataUI: function(strRange, backgroundColor, foreColor, fontSize, hAlign, fontWeight, border /* { color, style } */, vAlign){
+      var range = _sheet.getRange(strRange);
+      if(backgroundColor)
+        range.setBackground(backgroundColor);
+      if(foreColor)
+        range.setFontColor(foreColor);
+      if(fontSize)
+        range.setFontSize(fontSize);
+      if(hAlign)
+        range.setHorizontalAlignment(hAlign);
+      if(vAlign)
+        range.setVerticalAlignment(vAlign)
+      if(fontWeight)
+        range.setFontWeight(fontWeight);
+      if(border)
+        range.setBorder(true, true, true, true, true, true, border.color, getBorderStyle(border.style))
+    }, 
+    setNumberFormat: function(strRange){
+      setFormat(strRange, '0');       
+    },
+    setDecimalFormat: function(strRange){
+      setFormat(strRange, '0.00');
+    },
+    setCurrencyFormat: function(strRange){
+      setFormat(strRange, '$0.00');
+    },
+    setPercentageFormat: function(strRange){
+      // e.g: setPercentageFormat('A1'); // set cell
+      // e.g: setPercentageFormat('A1:A10'); // set range
+
+      setFormat(strRange, '0.00%');
+    },
+    setWeekFormat: function(strRange){
+      setFormat(strRange, 'MMM dd');
+    },
+    setMonthFormat: function(strRange){
+      setFormat(strRange, 'MMM');
+    },
+    setCellSumFormula: function(strRange, strCell){
+      // e.g: setCellSumFormula('A1:A10', 'B1'); 
+      // set SUM value of cells A1 to A10 to cell B1
+
+      var cell = _sheet.getRange(strCell);
+      cell.setFormula('=SUM(' + strRange + ')');
+    },
+    setCellAvgFormula: function(strRange, strCell){
+      // e.g: setCellSumFormula('A1:A10', 'B1'); 
+      // set AVG value of cells A1 to A10 to cell B1
+
+      var cell = _sheet.getRange(strCell);
+      cell.setFormula('=AVERAGE(' + strRange + ')');
+    },
+    setCellFormula: function(formula, strCell){
+      // e.g: setCellFormula('=B3-C3', 'D3');         
+      // e.g: setCellFormula('=$B3-$C3', 'D3:D9');   
+
+      var cell = _sheet.getRange(strCell);
+      cell.setFormula(formula);
+    }        
+  }; 
+}
+
+// --------------------
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  
+  // ---  spreadSheets
+  
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+	if(spreadSheetName == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheetId){
+    if(spreadSheetId == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var file = DriveApp.getFileById(spreadSheetId);
+    if(!file || file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheetId);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetId);
+    return SpreadsheetApp.openById(file.getId());    
+  },  
+  loadSpreadSheetByURL: function(spreadSheetUrl){
+    if(spreadSheetUrl == '') {
+      Logger.log('EMPTY URL!');
+      return null;
+    }
+    
+    Logger.log('LOADING %s ... ', spreadSheetUrl);
+    var spreadSheet = SpreadsheetApp.openByUrl(spreadSheetUrl);    
+    
+    if(!spreadSheet){
+      Logger.log('%s NOT EXISTS!', spreadSheetUrl);
+      return null;
+    }
+    
+    return spreadSheet;
+  }, 
+  
+  // ---  sheet Services
+  
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheetId){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheetId);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSheetServiceByURL: function(spreadSheetUrl){
+    var spreadsheet = this.loadSpreadSheetByURL(spreadSheetUrl);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSheetServiceByName: function(spreadSheetName, sheetName, useDefault){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName);
+    if(!spreadsheet) return null;
+    var sheet = spreadsheet.getSheetByName(sheetName);    
+    if(useDefault) sheet = spreadsheet.getActiveSheet();
+    if(!sheet) return null;
+    return SheetService(sheet);
+  }, 
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },
+  
+  // ---  spreadSheet Services
+  
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  loadSpreadSheetServiceById: function(spreadSheetId){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheetId);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },  
+  loadSpreadSheetServiceByURL: function(spreadSheetUrl){
+    var spreadsheet = this.loadSpreadSheetByURL(spreadSheetUrl);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet);
+  },  
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  }
+}
+
+

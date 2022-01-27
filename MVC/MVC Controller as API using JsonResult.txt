@@ -1,0 +1,61 @@
+MVC Controller as API using JsonResult
+--------------------------------------
+note that the best practices is to use an APIController which represents REST service. 
+to use APIController we need to add WebApiConfig.cs file and define the service configuration. 
+in addition, we'll need to add a Controller which inherit from ApiController class.
+we can still use the below approach for faster development (it uses the MVC infrastructure)
+
+---
+
+[SAMPLE]
+
+// controller 
+public class ApiController : Controller {
+	[HttpPost]
+	public async Task<JsonResult> GetPriceByCoupon(string Code, int ItemId)
+	{
+		try
+		{
+			var bll = new CouponsBLL();
+
+			var coupon = await bll.Find(Code);
+			if (coupon == null)
+				throw new Exception("קופון לא קיים");
+			if (coupon.CapacityInUse + 1 > coupon.Capacity)
+				throw new Exception("קופון לא פעיל");
+			if (coupon.ItemId != ItemId)
+				throw new Exception("קופון לא תואם למוצר זה");
+
+			return Json(new
+			{
+				Status = "OK",
+				CouponPrice = coupon.Price
+			});
+		}
+		catch (Exception ex)
+		{
+			ModelState.AddModelError("Exception", ex.Message);
+			return Json(new { Status = "ERROR", State = Helper.ModelStateToJson(ModelState) });
+		}
+	}
+}
+
+// js
+getCoupon = async e => {
+    const couponURI = 'Api/GetPriceByCoupon';
+    let code = document.querySelector('#coupon').value;
+    if (code.trim() == '') return;
+
+    let response = await fetch(couponURI, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ code, itemId: this.state.packageId })
+    }).then(result => result.json());
+
+    if (response.Status == 'OK')
+        this.setState({ totalPrice: response.CouponPrice });
+    else
+        alert('קוד קופון לא תקין')
+}

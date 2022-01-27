@@ -237,7 +237,7 @@ namespace BeeComm
 
     public class BeeCommManager
     {
-        private const string BASE_URL = "https://biapp.beecomm.co.il:8094";
+        private const string BASE_URL = "https://biapp.beecomm.co.il:8094"; 
         private const string VERSION = "v2";
 
         private static readonly string SERVER_URL = $"{BASE_URL}/api/{VERSION}";

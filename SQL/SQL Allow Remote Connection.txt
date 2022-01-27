@@ -1,0 +1,21 @@
+SQL Allow Remote Connection
+---------------------------
+
+(Steps)
+1. Open the 'SQL Server Management Studio' (SSMS)
+2. Right-click the Server > Properties
+   - (tab) Connections > Check the 'Allow remote connections to this server' option
+     note! can also specify the number of concurrent connections and more ...
+   - (tab) Security > Server authentication > choose 'SQL Server and Windows Authentication mode' option
+3. Open the 'Configuration Manager'
+4. SQL Server Network Configuration > Protocols 
+   - Enable 'TCP/IP' option
+   - Right-click > Properties > (section) IPAll > Set Port to 1433 
+5. SQL Server Services > Restart the Server Instance
+6. Open 'Windows Firewall with Advanced Security'
+7. Inbound Rules > New Rule 
+   - Port > TCP > 1433
+   - Port > UDP > 1434
+8. Open the 'SQL Server Management Studio' > Security > Logins > Add Users (Windows & SQL)
+
+

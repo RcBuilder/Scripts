@@ -1,0 +1,20 @@
+SecurityProtocol TLS & SSL
+--------------------------
+use this 'ServicePointManager' class to set the desired protocol for http/s requests. 
+note that we only need to set it once (usually in the global.asax or webApiConfig)
+
+---
+
+// specific protocol
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
+
+-
+
+// multiply protocol support
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+
+-
+
+// trust all certificates
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);

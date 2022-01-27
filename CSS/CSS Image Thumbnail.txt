@@ -1,0 +1,11 @@
+CSS Image Thumbnail
+-------------------
+
+img.thumb {
+    border: 1px solid #ddd;
+    border-radius: 4px; 
+    padding: 5px;
+    width: 150px;
+}
+
+<img src="https://picsum.photos/id/237/200/300" class="thumb" />

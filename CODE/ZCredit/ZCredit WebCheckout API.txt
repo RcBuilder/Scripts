@@ -5,6 +5,11 @@ Reference:
 https://zcreditwc.docs.apiary.io/#reference
 https://zcreditwc.docs.apiary.io/#introduction/getting-started
 https://zcreditwc.docs.apiary.io/#reference/0/create-webcheckout-session/createsession
+https://zcreditwc.docs.apiary.io/#introduction/checkout-information/the-meaning-of-the-urls:-callbackurl,successurl,cancelurl
+
+Implementation:
+see 'CODE > ZCredit > ZCreditManager'
+see 'OpenBook' Project
 
 Payment Settings:
 go to 'ZCredit Dashboard' > 'Settings' > (tab) 'Clearing Settings'
@@ -122,6 +127,27 @@ Payload properties:
   5. Quantity 
   6. Image - url to an image (must be https)
   7. IsTaxFree - no tax
+
+
+Credit Card Companies:
+0 = International Card
+1 = Isracard
+2 = Visa CAL
+3 = Diners
+4 = Amex
+5 = JCB
+6 = Max
+
+Credit Card Brands:
+0 = Private Label Brand
+1 = Mastercard
+2 = Visa
+3 = Diners
+4 = Amex
+5 = Isracard
+6 = JCB
+7 = Discover
+8 = Maestro
 
 IPN:
 use 'CallbackUrl' property to provide the url for the Server-2-Server IPN!

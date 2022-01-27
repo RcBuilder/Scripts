@@ -1,0 +1,20 @@
+javascript Prettify date-range
+------------------------------
+note: taken from adwords-script
+
+--
+
+// IN:  20220109,20220115 
+// OUT: 2022-01-09 -> 2022-01-15
+function PrettifyDateRange(dateRange) {
+  /// return dateRange.replace(',', ' -> ');
+  var chars = dateRange.split('');
+  chars.splice(4, 0, '-');
+  chars.splice(7, 0, '-');
+  
+  chars.splice(15, 0, '-');
+  chars.splice(18, 0, '-');
+  return chars.join('').replace(',', ' -> ');
+}
+
+Logger.log(PrettifyDateRange('20220109,20220115'));

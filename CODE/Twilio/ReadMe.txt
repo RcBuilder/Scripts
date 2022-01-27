@@ -1,2 +1,3 @@
-full implementation:
-MyMorningLove Project 
+Implementations:
+- MyMorningLove Project 
+- MNew Project

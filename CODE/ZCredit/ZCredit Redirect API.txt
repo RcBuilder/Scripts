@@ -1,0 +1,83 @@
+ZCredit Redirect API
+====================
+Legacy! use 'ZCredit WebCheckout API' instead.
+
+Implementation:
+see 'OpenBook' Project
+
+Dependency:
+add reference to 'ZCreditProxy.dll' file
+
+-
+
+using ZCreditProxy;
+
+BLL.Transactions.PayViaZCredit(price, cart.Id.ToString(), cart.ToZCreditString(), studentSession.UserName, payments);  // redirect to z-credit site
+
+public static void PayViaZCredit(double Amount, string UniqueId, string ItemDescription, string CustomerEmail, int PaymentsQuantity)
+{
+	try{
+		ServicePointManager.SecurityProtocol = (SecurityProtocolType)3072;
+
+        if (ItemDescription.Length > 250)
+            ItemDescription = ItemDescription.Substring(0, 250);
+
+        ZCreditHelper.PayWithInvoice(Config.ZCreditTerminal,  // terminal
+                                    Config.ZCreditUser,  // username
+                                    Amount,  // amount
+                                    PaymentsQuantity,  // payments quantity
+                                    ZCreditProxy.Languages.Hebrew,  // language
+                                    ZCreditProxy.CurrencyType.NIS,  // currency 
+                                    UniqueId,  // unique id 
+                                    ItemDescription,  // item description
+                                    1,  // units
+                                    Config.ZCreditSiteLogo,  // item image url
+                                    Config.ZCreditThankYouPage,  // thank you page
+                                    Config.ZCreditIPN,  // ipn
+                                    true,  // customer can change the payments quantity (till the max defined in PaymentsQuantity param)
+                                    true,  // request customer identity (t.z)
+                                    false,  // J5 transaction (obligo)
+                                    false,  // show customer data in the payment page
+                                    "",  // customer name                                          
+                                    "",  // customer phone                                          
+                                    CustomerEmail,  // customer email                                          
+                                    "",  // customer budiness id 
+                                    0,  // ## not it use ## 
+                                    false);  // ## not it use ##                  
+    }
+    catch (ZCreditException ex) { throw; }
+    catch { throw; }
+}
+
+[HttpPost]
+public string ZCreditIPNHandler()
+{
+    #region ### Request Parameters ###
+    /*
+        GUID - pass from the site request
+        ID - transaction id 
+        Sum - amount
+        Currency - currency type
+        Payments - payments quantity
+        CardNum - credit card last 4 digits
+        CardName - card type
+        UniqueID - pass from the site request
+        Token - unique token, only in 'AuthorizeOnly' mode (authentication)
+        ApprovalNumber - approve number from the end supplier, only in 'AuthorizeOnly' mode
+        CustomerName - customer name 
+        CustomerID - customer id 
+        CustomerPhone - customer phone
+        CustomerEmail - customer email
+        CustomerExtraData - customer data
+    */
+    #endregion
+
+	try {                
+        BLL.Logs.Add(Request.Form.ToString());
+    }
+    catch { }  
+
+	// CODE HERE ...
+        
+    return "OK";
+}

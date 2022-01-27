@@ -1,7 +1,8 @@
 [INTUIT API]
 aka QuickBooksOnline (QBO)
 
-Getting Started:
+Getting Started
+---------------
 (steps)
 1. Go to developer console
    https://developer.intuit.com/app/developer/dashboard
@@ -15,7 +16,8 @@ Create a Sandbox Company:
    note! this will generate a dummy company with dashboard and data, 
    click on the company to login.
 
-sources:
+sources
+-------
 - developer console
   https://developer.intuit.com/app/developer/dashboard
 - reference 
@@ -44,19 +46,25 @@ sources:
   https://sandbox-quickbooks.api.intuit.com/v3/
 - upload files
   https://developer.intuit.com/app/developer/qbo/docs/workflows/attach-images-and-notes#uploading-files-to-the-attachment-list
+- add notes
+  https://developer.intuit.com/app/developer/qbo/docs/workflows/attach-images-and-notes#attaching-a-note-to-an-object
 
-Postman:
+Postman
+-------
 (Collection)
 QuickBooks Online V3API Collections - OAuth2
 
-note:
+Refresh-Token Expiration
+------------------------
 there's no app-level support for oauth meaning user interaction is required! 
 we can generate a token, plant it within the code and keep refreshing it till the refresh-token expires (101 days)
+
 // source
 https://help.developer.intuit.com/s/question/0D54R0000873LCHSA2/api-authentication-without-a-user-logging-in
 
 
-OAuth:
+OAuth
+-----
 [step-1] authorization code
 // request
 GET https://appcenter.intuit.com/connect/oauth2
@@ -118,13 +126,164 @@ H Authorization: Bearer <token>
 B Select * from CompanyInfo
 
 
-Using Query Request:
-.../query
+Using Query Request
+-------------------
+https://{{baseurl}}/v3/company/{{companyid}}/query
 Content-Type: application/text
 B <query>
 
+// <query> sample
+// select top 1000 Vendors
+Select * from Vendor 
+STARTPOSITION 1
+MAXRESULTS  1000
 
-.NET SDK:
+
+Upload Files
+------------
+upload files to the attachment-list.
+support multiple uploads at once.
+use online PDF/Image To Base64 Converter (e.g: https://base64.guru/converter/encode/pdf)
+
+note! 
+to see all uploaded files, go to the attachments section in your QB dashboard
+https://app.qbo.intuit.com/app/attachments
+
+[Schema]
+https://{{baseurl}}/v3/company/{{companyid}}/upload
+H Content-Type: multipart/form-data; boundary=<boundary-name>
+H Accept: application/json
+
+--<boundary-name>
+Content-Disposition: form-data; name="file_content_0"; filename="<file-name>"
+Content-Type: <file-type>
+Content-Transfer-Encoding: base64
+									// note! must be space between headers and content 
+<base64 data>
+--<boundary-name>
+Content-Disposition: form-data; name="file_content_1"; filename="<file-name>"
+Content-Type: <file-type>
+Content-Transfer-Encoding: base64
+									// note! must be space between headers and content 
+<base64 data>
+--<boundary-name>--
+
+
+[sample]
+--37a1965f87babd849241a530ad71e169
+Content-Disposition: form-data; name="file_content_0"; filename="rc_file_1.jpg"
+Content-Type: image/jpeg
+Content-Transfer-Encoding: base64
+
+/9j/4AAQSkZJRgABAQEAYABgAAD/4RCyRXhpZgAATU0AKg
+...
+...
+YGunCt9a4zVjumIPrRRW8dzOHxIoFAaKKKs6j/9k=
+--37a1965f87babd849241a530ad71e169
+Content-Disposition: form-data; name="file_content_1"; filename="rc_file_2.pdf"
+Content-Type: application/pdf
+Content-Transfer-Encoding: base64
+
+JVBERi0xLjcKJeLjz9MKJVBERi0xLjcKJeLjz9MKMy
+...
+...
+MzI0MzkyPj4Kc3RhcnR4cmVmCjM1NzU3NwolJUVPRgo=
+--37a1965f87babd849241a530ad71e169--
+
+Upload Files + Attach To Document
+---------------------------------
+upload a file and attach it to a document
+
+[Schema]
+https://{{baseurl}}/v3/company/{{companyid}}/upload
+H Content-Type: multipart/form-data; boundary=<boundary-name>
+H Accept: application/json
+
+--<boundary-name>
+Content-Disposition: form-data; name="file_metadata_0"
+Content-Type: application/json; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+									// note! must be space between headers and content 
+{
+    "AttachableRef": [
+    {
+      "EntityRef": {
+        "type": "<Invoice, Bill, etc>",
+        "value": "<document-id>"
+      }
+    }
+  ],
+   "FileName": "<file-name>",
+    "ContentType": "<file-type>"	// see 'Upload File Content-Types'
+  }
+--<boundary-name>
+Content-Disposition: form-data; name="file_content_0"; filename="<file-name>"
+Content-Type: <file-type>  // see 'Upload File Content-Types'
+Content-Transfer-Encoding: base64
+									// note! must be space between headers and content 
+<base64 file>
+--<boundary-name>--					// end of border
+
+
+[sample]
+https://{{baseurl}}/v3/company/{{companyid}}/upload
+H Content-Type: multipart/form-data; boundary=37a1965f87babd849241a530ad71e169
+H Accept: application/json
+
+--37a1965f87babd849241a530ad71e169
+Content-Disposition: form-data; name="file_metadata_0"
+Content-Type: application/json; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+{
+    "AttachableRef": [
+    {
+      "EntityRef": {
+        "type": "Bill",
+        "value": "109"
+      }
+    }
+  ],
+   "FileName": "receipt_nov15.jpg",
+    "ContentType": "image/jpg"
+  }
+--37a1965f87babd849241a530ad71e169
+Content-Disposition: form-data; name="file_content_0"; filename="rc_file_1.jpg"
+Content-Type: image/jpeg
+Content-Transfer-Encoding: base64
+
+/9j/4AAQSkZJRgABAQEAlgCWAAD/4ge4SUNDX1BST0ZJTEUAAQEAAAeoYXBwbAIgAABtbnRyUkdC
+...
+...
+XEP7Mfh89bjVOP8AppFx/wCQ69I/Zf8A2d9F0z4hXP2S61Qb9Olzl4z0lh/6Z+9FFY4mT9lLU1oJ
+c6P/2Q==
+
+--37a1965f87babd849241a530ad71e169--
+
+
+Upload File Content-Types
+-------------------------
+- ai = application/postscript
+- csv = text/csv
+- doc = application/msword
+- docx = application/vnd.openxmlformats-officedocument.wordprocessingml.document
+- eps = application/postscript
+- gif = image/gif
+- jpeg = image/jpeg
+- jpg = image/jpg
+- ods = application/vnd.oasis.opendocument.spreadsheet
+- pdf = application/pdf
+- png = image/png
+- rtf = text/rtf
+- tif = image/tif
+- txt = text/plain
+- xls = application/vnd/ms-excel
+- xlsx = application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+- xml = text/xml
+
+
+.NET SDK
+--------
 
 // nuget 
 > Install-Package IppDotNetSdkForQuickBooksApiV3
@@ -151,13 +310,16 @@ string output = JsonConvert.SerializeObject(companyInfo, new JsonSerializerSetti
     NullValueHandling = NullValueHandling.Ignore
 });
 
-POSTMAN:
+POSTMAN
+-------
 see 'QuickBooks Online - Intuit.postman_collection.json'
 
-IMPLEMENTATION:
+IMPLEMENTATION
+--------------
 see 'CODE\IntuitAPIProxy'
 
-PROJECT:
+PROJECT
+-------
 see 'Fintechtic-Solutions-Ltd' > 'WebTools'
 see 'Fintechtic-Solutions-Ltd' > 'IntuitProxy'
 see 'Fintechtic-Solutions-Ltd' > 'TestIntuitProxy'

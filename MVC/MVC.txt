@@ -385,6 +385,15 @@ see 'MVC FromURI binding'
 		public ActionResult Fun3() { ... }
     }
 
+*  Authorize - override Login url
+    public class EditorAuthorize : AuthorizeAttribute
+    {
+        protected override void HandleUnauthorizedRequest(AuthorizationContext filterContext)
+        {
+            filterContext.Result = new RedirectResult("/Editor/Login");
+        }
+    }
+
 * which version of MVC am I using?
   references -> System.Web.Mvc -> properties(F4) -> version 
 
@@ -1668,9 +1677,9 @@ see 'MVC FromURI binding'
 
 	// in the controller 
 	public PartialViewResult Demo() {
-        Thread.Sleep(3000);
-        return PartialView("Partial/Partial1");
-    }
+        	Thread.Sleep(3000);
+        	return PartialView("Partial/Partial1");
+        }
 
 	// partial view content 
 	@DateTime.Now.ToLongTimeString() 

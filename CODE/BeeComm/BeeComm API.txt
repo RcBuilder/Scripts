@@ -1,7 +1,11 @@
 BeeComm API
 ===========
 also see 'Postman > BeeComm.postman_collection.json'
-also see 'CODE > BeeCommManager.cs'
+also see 'BeeCommManager.cs'
+
+Implementations
+---------------
+MNew Project
 
 Base URL
 --------

@@ -1,5 +1,5 @@
 implementation process: 
-1. login to your adwords account
+1. login to your AdWords account
 2. click on 'Tools & Settings' option at the top-right menu (near the account name)
 3. click on 'Scripts' option (under BULK ACTIONS column)
 4. click on '+Script' red button to add a new script
@@ -10,14 +10,14 @@ implementation process:
 the script was added!
 
 after you did those steps - go to your account scripts (steps 1-3) 
-you will see all the account planted scripts. 
-near each you will find 'Run' button for a single manually execution or 'create schedule'. 
+you will see all the account-planted scripts. 
+near each, you will find 'Run' button for a single manual execution or 'create schedule'. 
 use the 'create schedule' button to determine the script execution schedule.
 
-underneath the scripts list you will find the logs arena which contains logs about all your scripts execution
+underneath the scripts list, you will find the logs arena which contains logs about all your scripts execution
 
 hope the implementation note is clear enough
-let me know if i can assist you any further 
+let me know if I can assist you any further
 
 --------------------------------------
 
