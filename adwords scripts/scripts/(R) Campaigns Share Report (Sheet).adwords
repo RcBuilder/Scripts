@@ -8,7 +8,7 @@ function main() {
   if(!sheetService)  
     sheetService = SpreadsheetLoader.createSheetService(SHEET_NAME);    
   sheetService.clear();
-    
+      
   /*
     var chartService = ChartService();
     var lineChartBlob = chartService.createLineChart( 
@@ -35,16 +35,16 @@ function main() {
   */
   
   
-  var currentWeek = HELPER.getThePreviousSunday(new Date());
+  var currentWeek = HELPER.dateAdd(HELPER.getThePreviousSunday(new Date()), -(NUM_OF_WEEKS * 6) + 1);
   var arrDateRanges = []; // { dateRange, date1, date2 }
-  for(var i= NUM_OF_WEEKS; i > 0; i--){
+  for(var i = 0; i < NUM_OF_WEEKS; i++){
     var endOfCurrentWeek = HELPER.dateAdd(currentWeek, 6);
     arrDateRanges.push({
       dateRange: HELPER.dateFormat(currentWeek) + ',' + HELPER.dateFormat(endOfCurrentWeek),
       date1: currentWeek,
       date2: endOfCurrentWeek
     });  
-    currentWeek = HELPER.dateAdd(currentWeek, -7);
+    currentWeek = HELPER.dateAdd(currentWeek, 7);
   }
   Logger.log(arrDateRanges);  // 	[20220109,20220115, 20220102,20220108, 20211226,20220101, 20211219,20211225]
   
@@ -78,10 +78,13 @@ function main() {
     sheetService.addRow(['-']); // seperator-row
   }
     
-  try{                     
+  try{       
+    var body = '<p>Script has Executed for Account {0}</p><p><a href="{1}">click here</a></p>';
+    body = body.replace('{0}', AdWordsApp.currentAccount().getName()).replace('{1}', sheetService.getURL());
+    
     Logger.log('send mail to %s', EMAIL);
     MailApp.sendEmail(EMAIL, 'Campaigns Share Report', '', {
-      htmlBody: 'Script has Executed for Account '.concat(AdWordsApp.currentAccount().getName())
+      htmlBody: body
     });
   }
   catch(ex){
@@ -211,7 +214,7 @@ function GetCampaignExtendedData(campaign, dateRange, isShopping){
     result.impressionShare = parseFloat(impressionShare.replace('%', ''));
     result.clickShare = parseFloat(clickShare.replace('%', ''));
     
-    if(isShopping == 1){
+    if(isShopping == 0){
       // SearchRankLostAbsoluteTopImpressionShare, SearchRankLostImpressionShare, SearchLostTopImpressionShare, SearchTopImpressionShare, SearchExactMatchImpressionShare
       var rankLostAbsoluteTopImpressionShare = row['SearchRankLostAbsoluteTopImpressionShare'] || '';
       var rankLostImpressionShare = row['SearchRankLostImpressionShare'] || '';
@@ -746,5 +749,4 @@ var SpreadsheetLoader = {
     return SpreadSheetService(spreadsheet);
   }
 }
-
 

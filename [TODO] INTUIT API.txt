@@ -143,9 +143,17 @@ Upload Files
 ------------
 upload files to the attachment-list.
 support multiple uploads at once.
-use online PDF/Image To Base64 Converter (e.g: https://base64.guru/converter/encode/pdf)
 
-note! 
+sources:
+https://developer.intuit.com/app/developer/qbo/docs/api/accounting/all-entities/attachable#upload-attachments
+https://developer.intuit.com/app/developer/qbo/docs/workflows/attach-images-and-notes#uploading-files-to-the-attachment-list
+
+convert to base64:
+use online PDF/Image To Base64 Converter 
+https://base64.guru/converter/encode/pdf
+https://codebeautify.org/image-to-base64-converter
+
+attachment-list: 
 to see all uploaded files, go to the attachments section in your QB dashboard
 https://app.qbo.intuit.com/app/attachments
 

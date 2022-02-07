@@ -6,6 +6,7 @@ Alt (press) + Shift (press) + ARROWS // mark a group
 Ctrl + M + O // collapse all regions (C#)
 Ctrl + M + P // open all regions (C#)
 
+Ctrl + M + A 	    // collapse all regions (HTML, XML)
 Ctrl + M, CTRL + A  // collapse all regions (HTML, XML)
 Ctrl + M, CTRL + X  // open all regions (HTML, XML)
 Ctrl + M, CTRL + S  // collapse select regions (HTML, XML)

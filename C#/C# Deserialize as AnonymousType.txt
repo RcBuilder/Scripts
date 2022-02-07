@@ -198,3 +198,40 @@ return responseData?.QueryResponse?.Vendor?.Select(x => new APIVendor {
     Id = x.Id,
     DisplayName = x.DisplayName
 });
+
+-
+
+/*
+{
+  "AttachableResponse": [
+    {
+      "Attachable": {
+        "FileName": "rc_file_20220127.pdf",
+        "FileAccessUri": "",
+        "TempDownloadUri": "",
+        "Size": 357860,
+        "ContentType": "application/pdf",
+        "domain": "QBO",
+        "sparse": false,
+        "Id": "3400000000056250060",
+        "SyncToken": "0",                
+      }
+    }
+  ],  
+}
+*/
+
+var attachableSchema = new
+{
+    Attachable = new {
+        Id = string.Empty
+    }
+};
+
+var modelSchema = new
+{
+    AttachableResponse = new[] { attachableSchema }
+};
+
+var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+return responseData?.AttachableResponse.FirstOrDefault()?.Attachable?.Id;

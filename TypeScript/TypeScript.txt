@@ -132,6 +132,7 @@ in order to add .ts auto-compilation to an existing project with no such support
 
 open a typeScript app:
 Add > New Project > Other Languages > TypeScript > HTML application with TypeScript
+note! add extension if not exists (see 'VS Extension')
 
 using:
 // index.html
@@ -150,6 +151,16 @@ tsconfig.json:
 this file contains all settings relevant to typescript.
 without it the compilation of .ts files will NOT work!
 (see 'tsconfig.json')
+
+-
+
+VS Extension:
+Typescript HTML application 
+
+install:
+1. Extension > Manage Extensions > 
+2. Search > TypeScript HTML Application Template 
+3. Install > Reload VS 
 
 -
 

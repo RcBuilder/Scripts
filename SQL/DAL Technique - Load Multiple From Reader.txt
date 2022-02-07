@@ -1,0 +1,174 @@
+DAL Technique - Load Multiple From Reader
+-----------------------------------------
+this technique uses stored-procedures to load multiple result-sets using sIds using split. 
+once splitted, the procedure returns several result-sets and map them into List of models in the DAL. 
+the mapping process is executed by a "Load" function which parse the values from a reader. 
+
+note that the SQL has a main GET procedure to return the related tables (result-sets) to the app.
+there should be only one procedure to do so! all others should collect the ids to fetch, concatenate them to a string of ids split by comma
+and call the main fetch procedure mentioned above.
+
+to generate a string of ids split by comma using an SQL, use the "FOR XML PATH" along with "STUFF" built-in function.
+see 'sp_Albums_ByClasses_Get' sample
+
+---
+
+namespace DAL
+{    
+    public class AlbumsDAL : IAlbumsDAL
+    {
+        protected string ConnStr { get; set; }
+        public AlbumsDAL(string ConnStr) {
+            this.ConnStr = ConnStr;
+        }
+
+        public async Task<IEnumerable<Album>> Get(IEnumerable<int> Ids) 
+        {            
+            using (var conn = new SqlConnection(ConnStr))
+            {
+                var reader = await conn.QueryMultipleAsync(
+                    "sp_Albums_Get",
+                    commandType: CommandType.StoredProcedure,
+                    param: new { sIds = string.Join(",", Ids) }
+                );
+
+                return this.LoadAlbums(reader);
+            }            
+        }
+
+        public async Task<Album> Get(int Id) 
+        {            
+            using (var conn = new SqlConnection(ConnStr))
+            {
+                var reader = await conn.QueryMultipleAsync(
+                    "sp_Album_Get",
+                    commandType: CommandType.StoredProcedure,
+                    param: new { Id }
+                );
+
+                return this.LoadAlbums(reader)?.FirstOrDefault(); 
+            }         
+        }
+
+		public async Task<IEnumerable<Album>> GetByClass(int ClassId)
+        {            
+            using (var conn = new SqlConnection(ConnStr))
+            {
+                var reader = await conn.QueryMultipleAsync(
+                    "sp_Albums_ByClass_Get",
+                    commandType: CommandType.StoredProcedure,
+                    param: new { ClassId }
+                );
+
+                return this.LoadAlbums(reader);
+            }         
+        }
+
+        // ---
+
+        private IEnumerable<Album> LoadAlbums(SqlMapper.GridReader reader)
+        {
+            var result = new List<Album>();
+
+            //-- 1st table: details --
+            var albums = reader.Read<Album>();
+
+            //-- 2nd table: media --
+            var mediaList = reader.Read<Media>();
+            
+            foreach (var album in albums)
+            {
+                album.MediaList = mediaList?.Where(x => x.AlbumId == album.Id)?.Cast<Media>();                
+                result.Add(album);
+            }
+
+            return result;
+        }
+    }
+}
+
+
+-- =============================================
+-- Author:		<RcBuilder>
+-- sp_Albums_Get '1,2,3,4'
+-- sp_Albums_Get '1'
+-- =============================================
+ALTER PROCEDURE [dbo].[sp_Albums_Get]
+	@sIds VARCHAR(MAX)	
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+		
+	DECLARE @tIds TABLE(Id INT)
+	INSERT INTO @tIds
+		SELECT RTRIM(LTRIM([Value])) FROM STRING_SPLIT(@sIds, ',')
+
+	-- 1st table: details --
+	SELECT	*
+	FROM	[dbo].[Albums] WITH(NOLOCK)
+	WHERE	Id IN (SELECT Id FROM @tIds)
+	AND		IsDeleted = 0
+	ORDER BY UpdatedDate DESC
+
+	-- 2nd table: media --
+	SELECT	*
+	FROM	[dbo].[AlbumsMedia] WITH(NOLOCK)
+	WHERE	AlbumId IN (SELECT Id FROM @tIds)		
+END
+
+
+-- =============================================
+-- Author:		<RcBuilder>
+-- sp_Album_Get 3
+-- =============================================
+ALTER PROCEDURE [dbo].[sp_Album_Get]
+	@Id INT
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+	
+	EXEC sp_Albums_Get @Id
+END
+
+
+-- =============================================
+-- Author:		<RcBuilder>
+-- sp_Albums_ByClasses_Get '1,4'
+-- sp_Albums_ByClasses_Get '1'
+-- =============================================
+ALTER PROCEDURE [dbo].[sp_Albums_ByClasses_Get]
+	@sClassesIds VARCHAR(500) -- splitted by comma --
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+
+	DECLARE @t TABLE(Id INT)
+	INSERT INTO @t SELECT [Value] FROM STRING_SPLIT(@sClassesIds, ',')
+	
+	DECLARE @sIds VARCHAR(MAX) = (
+		SELECT STUFF((
+			SELECT	CONCAT(',', Id)
+			FROM	[dbo].[Albums] WITH(NOLOCK)					
+			WHERE	ClassId IN (SELECT Id FROM @t)
+			AND		IsDeleted = 0
+			FOR XML PATH('')
+		), 1, 1, '')
+	)
+
+	PRINT(@sIds)	
+	EXEC sp_Albums_Get @sIds
+END
+
+
+-- =============================================
+-- Author:		<RcBuilder>
+-- sp_Albums_ByClass_Get 1
+-- =============================================
+ALTER PROCEDURE [dbo].[sp_Albums_ByClass_Get]
+	@ClassId INT
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+
+	EXEC sp_Albums_ByClasses_Get @ClassId
+END
