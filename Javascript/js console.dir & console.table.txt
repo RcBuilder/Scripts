@@ -1,0 +1,28 @@
+js console.dir & console.table
+------------------------------
+
+let model = { 
+	id: 1, 
+	name: 'Roby', 
+	age: 40 
+}
+
+console.log(model); 
+{id: 1, name: 'Roby', age: 40}
+
+-
+
+console.dir(model);
+> Object
+  age: 40
+  id: 1
+  name: 'Roby'
+
+-
+
+console.table(model);
+(index)
+Index 	Value
+id	1
+name	'Roby'
+age	40

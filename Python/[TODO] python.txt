@@ -65,4 +65,7 @@ http server
 deploy
 batch file (.bat)
 input (read-line)
-
+-
+vs code extension
+- 
+vs 2019

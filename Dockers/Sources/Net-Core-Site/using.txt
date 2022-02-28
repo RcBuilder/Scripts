@@ -1,0 +1,4 @@
+> publish using VS
+> docker build -t net-core-site .
+> docker run -d -p 8082:80 net-core-site
+> http://localhost:8082

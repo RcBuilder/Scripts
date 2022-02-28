@@ -8,7 +8,7 @@ using System.Net;
 using System.Text;
 using System.Web;
 
-namespace BLL
+namespace ZCreditManager
 {
     /*
         SOURCES:
@@ -284,7 +284,7 @@ namespace BLL
 
     #endregion
 
-    public class ZCreditManager
+    public class ZCreditWebCheckout
     {
         private const string SERVER = "https://pci.zcredit.co.il/webcheckout/api";
         private static readonly string CREATE_SESSION_ENDPOINT = $"{SERVER}/WebCheckout/CreateSession/";
@@ -294,7 +294,7 @@ namespace BLL
         protected string SuccessURL { get; set; }  
         protected string CancelURL { get; set; }                  
 
-        public ZCreditManager(string Token, string NotifyURL = "", string SuccessURL = "", string CancelURL = "") {            
+        public ZCreditWebCheckout(string Token, string NotifyURL = "", string SuccessURL = "", string CancelURL = "") {            
             this.Token = Token;            
 
             this.NotifyURL = NotifyURL;
@@ -350,6 +350,7 @@ namespace BLL
 
                 using (var client = new WebClient())
                 {
+		    client.Proxy = null;
                     client.Encoding = Encoding.UTF8;
 
                     client.Headers.Clear();

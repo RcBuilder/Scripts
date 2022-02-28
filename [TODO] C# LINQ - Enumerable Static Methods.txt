@@ -1,4 +1,4 @@
-C# LINQ - Enumerable Statis Methods
+C# LINQ - Enumerable Static Methods
 ===================================
 
 // TODO ->> document + sample each + short explanation + references

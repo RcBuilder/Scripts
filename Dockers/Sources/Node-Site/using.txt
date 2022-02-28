@@ -1,0 +1,4 @@
+> npm install
+> docker build -t node-site .
+> docker run -d -p 8081:80 node-site
+> http://localhost:8081

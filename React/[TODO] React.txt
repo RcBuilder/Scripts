@@ -1596,6 +1596,17 @@ ReactDOM.render
 
 -
 
+// same as above using simple function instead of Component
+<script type="text/babel">    
+	function App() {
+        return <h1>Hello World!</h1>;
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+</script>
+
+-
+
 basic sample using 'create-react-app':
 
 // index.js

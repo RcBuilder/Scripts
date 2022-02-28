@@ -1,0 +1,53 @@
+Fody - Embeds .NET dependencies as resources
+--------------------------------------------
+## recommended ##
+Costura.Fody
+
+sources:
+https://www.nuget.org/packages/Costura.Fody/
+https://github.com/Fody/Costura
+
+nuget:
+> Install-Package Costura.Fody -Version 5.7.0
+
+also see: 
+'ILMerge - .NET library for Single-file-application'
+'ILRepack - ILMerge Replacement'
+
+-----
+
+(USING)
+1. Create a project and add some code 
+2. Install Fody library 
+3. ReBuild or Publish
+
+-
+
+using Newtonsoft.Json;  // Install-Package Newtonsoft.Json
+using System;
+
+namespace ConsoleApp1
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine(JsonConvert.SerializeObject(new Dummy
+            {
+                Id = 100,
+                Name = "JOHN DOE"
+            }));
+
+            Console.ReadKey();
+        }
+    }
+
+    class Dummy
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+    }
+}
+
+> Install-Package Fody
+> Install-Package Costura.Fody

@@ -48,51 +48,57 @@ also see 'DOCKER & Containers'
 TODO ->> enter a running container (exec bash??)
 commands:
 
-> docker			// docker help
-> docker help		// print list of options and commands
-> docker <command> --help	// get help about a specific command (usage)
-> docker info		// docker information + summary
-> docker -v			// docker version
-> docker version	// docker version extended
-> docker system df	// disk usage (images, containers etc.)
-> docker login		// login to docker-Hub
-> docker exec -ti <containerId> bash			// enter into the docker
-> docker logs -f <containerId> --tail 1000	// show a docker console logs
-> docker start <containerId>  // start a docker
-> docker stop <containerId>   // stop a docker
-> docker restart <containerId>	// restart a docker
-> docker build -t <imageName> .			// build an image from a Dockerfile (current folder)
-> docker build -t <imageName>:<tag> .	// build an image from a Dockerfile (with tag name) - e.g: MyImage:1.0
-> docker build -t <imageName> "<path>"	// build an image from a Dockerfile (specific path)
-> docker images --help		// get help about 'images' command (usage)
-> docker images		// images list
-> docker images -q  // images-ids list
-> docker images -f <filter>	// filtered images list
-> docker pull <imageName>   // pull an image from the docker-Hub repository
-> docker rmi <imageId>		// delete an image
-> docker history <imageId>	// image history
-> docker inspect <imageName> // inspect an image
-> docker ps --help			// get help about 'ps' command (usage)
-> docker ps -a		// containers list 
-> docker ps			// running containers list 
-> docker inspect <containerId> // container related config
-> docker run --help			// get help about 'run' command (usage)
-> docker run <imageName>  // create a container (create a running instance)
-> docker run --name "<name>" <imageName>  // create a container and specify a name to it
-> docker run -p <port>:<port> <imageName>  // create a container with port mapping
-> docker run -p <port>:<port> -v "<folder>":"<folder>" <imageName>  // create a container with local physical folder mapping
-> docker run -p <port>:<port> -v "<volumName>":"<folder>" <imageName>  // create a container with local volume mapping
-> docker top <containerId>		// process-list (similar to the task-manager in windows)
-> docker stats <containerId>	// container stats (memory, IO, CPU and etc.)
-> docker kill <containerId>		// kil a container instance
-> docker pause <containerId>	// pause a container instance
-> docker unpause <containerId>	// un-pause a container instance
-> docker rm <containerId>		// delete a container
-> docker volume --help			// get help about 'volume' command (usage)
-> docker volume ls				// volume list
-> docker volume create <volumeName>		// create a new volume
-> docker volume inspect <volumeName>	// inspect a volume (get information about the volume including the physical path)
-> docker volume rm <volumeName>			// delete a volume
+> docker												// docker help
+> docker help											// print list of options and commands
+> docker <command> --help								// get help about a specific command (usage)
+> docker info											// docker information + summary
+> docker -v												// docker version
+> docker version										// docker version extended
+> docker system df										// disk usage (images, containers etc.)
+> docker login											// login to docker-Hub
+> docker exec -ti <containerId> bash					// enter into the docker
+> docker logs -f <containerId> --tail 1000				// show a docker console logs
+> docker start -a <containerId>							// start a docker
+> docker stop <containerId>								// stop a docker
+> docker restart <containerId>							// restart a docker
+> docker build -t <imageName> .							// build an image from a Dockerfile (current folder)
+> docker build -t <imageName>:<tag> .					// build an image from a Dockerfile (with tag name) - e.g: MyImage:1.0
+> docker build -t <imageName> "<path>"					// build an image from a Dockerfile (specific path)
+> docker images --help									// get help about 'images' command (usage)
+> docker images											// images list
+> docker images -q										// images-ids list
+> docker images -f <filter>								// filtered images list
+> docker pull <imageName>								// pull an image from the docker-Hub repository
+> docker rmi <imageId>									// delete an image
+> docker history <imageId>								// image history
+> docker inspect <imageName>							// inspect an image
+> docker ps --help										// get help about 'ps' command (usage)
+> docker ps -a											// containers list 
+> docker ps												// running containers list 
+> docker inspect <containerId>							// container related config
+> docker run --help										// get help about 'run' command (usage)
+> docker run <imageName>								// create a container (create a running instance)
+> docker run -d <imageName>								// create a container and run it in background (most fit for web applications)
+> docker run --name "<name>" <imageName>				// create a container and specify a name to it
+> docker run -p <port>:<port> <imageName>				// create a container with port mapping
+> docker run -v "<folder>":"<folder>" <imageName>		// create a container with local physical folder mapping
+> docker run -v "<volumName>":"<folder>" <imageName>	// create a container with local volume mapping
+> docker top <containerId>								// process-list (similar to the task-manager in windows)
+> docker stats <containerId>							// container stats (memory, IO, CPU and etc.)
+> docker kill <containerId>								// kil a container instance
+> docker pause <containerId>							// pause a container instance
+> docker unpause <containerId>							// un-pause a container instance
+> docker rm <containerId>								// delete a container
+> docker volume --help									// get help about 'volume' command (usage)
+> docker volume ls										// volume list
+> docker volume create <volumeName>						// create a new volume
+> docker volume inspect <volumeName>					// inspect a volume (get information about the volume including the physical path)
+> docker volume rm <volumeName>							// delete a volume
+
+note! 
+when using id, we DO NOT need to specify the full id value. we can just provide the first several characters! 
+> docker exec -ti c08 bash
+> docekr rmi e7a
 
 ---
 
@@ -156,13 +162,104 @@ EXPOSE 80
 </body>
 </html>
 
-> docker build -t hello-world .
+// Docker
+> docker build -t static-site .
+> docker run -d -p 8080:80 static-site
+> http://localhost:8080
 
+
+note! to attach an external volume/folder use -v feature:
+/// create a container with port mapping (host-8080 to container-80) and with folder mapping
 /// to map a local folder to the docker
 /// any change in html files will be reflected without the need to re-build the image
 > docker run -p 8080:80 -v "C:\Users\RcBuilder\Desktop\TO_DELETE\testDocker":"/usr/share/nginx/html/" hello-world
 
-go to http://localhost:8080
+---
+
+node web application:
+
+// Dockerfile
+FROM node:16
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 80
+CMD [ "npm", "start" ]
+
+// server.js
+const express = require('express');
+const app = express();
+
+const config = {
+    port: 80
+}
+
+app.get('/', (request, response) => {
+    console.log('root');        
+    response.send('some content...');    
+});
+app.listen(config.port, () => console.log(`Server running at http://127.0.0.1:${config.port}/`)); 
+
+// package.json
+{
+  "name": "test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "RcBuilder",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
+
+
+// Docker
+> docker build -t node-site .
+> docker run -d -p 8081:80 node-site
+> http://localhost:8081
+
+---
+
+.net core web application:
+
+1. create a .net core web application.
+2. deploy it 
+3. copy deployment content
+
+// Dockerfile
+FROM mcr.microsoft.com/dotnet/aspnet:3.1
+WORKDIR /app
+COPY . .
+EXPOSE 80
+ENTRYPOINT ["dotnet", "WEB.dll"]
+
+// Docker
+> docker build -t net-core-site .
+> docker run -d -p 8082:80 net-core-site
+> http://localhost:8082
+
+---
+
+.net console application:
+
+1. create a .net console application
+2. deploy it 
+3. copy deployment content
+
+// Dockerfile
+FROM mcr.microsoft.com/dotnet/aspnet:3.1
+WORKDIR /app
+COPY . .
+ENTRYPOINT [ "dotnet", "ConsoleApp2.dll" ]
+
+// Docker
+> docker build -t console-app .
+> docker run console-app
 
 ---
 
@@ -279,22 +376,23 @@ DockerFile is a text file including instructions on how to generate a docker-ima
 the default file name is 'Dockerfile' with no extension.
 build a DockerFile to create the Image. (command: build)
 
+// commands
 https://docs.docker.com/engine/reference/builder/
 
 // TODO ->> create Dockerfile with custom name 
 
 // TODO ->> instructions
-- FROM <image>				// use base image (images can be found in dockerHub)
-- FROM SCRATCH				// empty image as base, starting from scratch
-- WORKDIR /<folderName>		// make a working directory within the docker
-- EXPOSE <port>				// expose a port
-- ENTRYPOINT ["<command>"]  // command/s to execute once the image was built 
+- FROM <image>							// use base image (images can be found in dockerHub)
+- FROM SCRATCH							// empty image as base, starting from scratch
+- WORKDIR /<folderName>					// make a working directory within the docker
+- EXPOSE <port>							// expose a port
+- ENTRYPOINT ["<command>", "<params>"]	// command/s to execute once the image was built 
 - MAINTAINER 
-- RUN <command>				// run a command 
-- CMD
-
-
-- # <text>					// add comment
+- RUN <command>							// run a command 
+- CMD ["<command>", "<params>"]			// run a cmd command
+- COPY <src> <desc>						// copy files. (note! supports filter such as package*.json and etc.)
+- COPY . .								// copy all files from current directory to the WORKDIR
+- # <text>								// add comment
 
 note!
 to create a Dockerfile with no base image > FROM SCRATCH
@@ -368,5 +466,69 @@ Dockerfile > (command) docker buid > Docker Image > (command) docker run > Docke
 
 docker architecture:
 see chart 'docker_architecture.svg' 
+
+---
+
+.dockerignore file:
+
+// .dockerignore
+node_modules
+npm-debug.log
+...
+...
+
+note!
+to prevent "You must type a file name" error when using windows file-explorer to create the file we nust add a suffix '.' 
+new > file > .dockerignore.
+
+---
+
+Dockerize meaning:
+the word 'Dockerize' refers to the process of packing, deploying, and running applications using Docker containers
+
+// e.g
+Dockerize an ASP.NET Core application
+Dockerize a NodeJS application
+etc.
+
+---
+
+best practices 
+build & deploy using DockerFile instead of copy the manual published folder. 
+this requires the DockerFile to be located at the root of our project.
+
+(??)
+how to dockerize a .net with several stages? 
+1. build stage 
+   this stage should build & publish the project using dotnet cli commands 
+2. deploy stage 
+   this stage copy the published files from the build stage and deploy it as a docker image
+
+// DockerFile 
+# Build Stage
+FROM mcr.microsoft.com/dotnet/sdk:6.0-focal AS build 
+WORKDIR /source 
+COPY . . 
+RUN dotnet restore <csproj-path> --disable-parallel
+RUN dotnet publish <csproj-path> -c release -o /app --no-restore
+
+# Deploy Stage
+FROM mcr.microsoft.com/dotnet/aspnet:6.0-focal
+WORKDIR /app 
+COPY --from=build /app ./
+EXPOSE 5000
+ENTRYPOINT ["dotnet", "<main-dll-path>"]
+
+---
+
+(??)
+can i dockerize a .net framework app?! (requires IIS)
+can i dockerize a self-hosted .net framework app? (NO-IIS)
+
+---
+
+(??)
+-d flag
+docker run -d -p 8082:80 net-core-site
 
 ---

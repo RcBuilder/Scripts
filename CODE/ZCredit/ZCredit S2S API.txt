@@ -1,0 +1,144 @@
+ZCredit S2S API
+===============
+Server to Server 
+
+Reference:
+https://zcreditwc.docs.apiary.io/#reference
+https://zcreditws.docs.apiary.io/#reference/0/make-transaction/commitfulltransaction
+
+Implementation:
+see 'CODE > ZCredit > ZCreditManager'
+see 'Creative' Project
+
+Payment Settings:
+go to 'ZCredit Dashboard' > 'Settings' > (tab) 'Clearing Settings'
+(הגדרות עסק - הגדרות סליקה)
+
+Api_Secret:
+note! aka Token
+1. go to the payment sertings page (see 'Payment Settings')
+2. under 'WebCheckout Settings' > Generate 'Web Checkout ID'
+
+Api URL:
+note! aka ServerURL
+https://pci.zcredit.co.il/ZCreditWS/api
+
+Endpoints:
+Transaction/CommitFullTransaction/
+
+Supported:
+- Credit Card
+- PinPad Number
+
+Currencies:
+- ILS = 1
+- USD = 2
+- EUR = 3
+
+Transaction Types:
+- 01 = Regular
+- 53 = Refund
+
+Credit Types:
+- 1 = רגיל
+- 2 = ישראכרדיט+ / 30
+- 3 = חיוב מיידי
+- 6 = קרדיט
+- 8 = תשלומים
+
+Billing Types:
+aka 'J'
+- 0 - Regular
+- 2 - Authentication Only (Card won't be charged!)
+- 5 - Authorization (The amount will be secured for future use)
+
+
+Payload properties:
+see 'https://zcreditws.docs.apiary.io/#reference/0/make-transaction'
+
+Postman:
+see 'ZCredit API.postman_collection.json'
+
+
+[Samples]
+
+Make Transaction:
+
+POST {{ServerURL}}/Transaction/CommitFullTransaction
+H Content-Type: application/json
+{
+  "TerminalNumber": "{{Terminal}}",
+  "Password": "{{Password}}",
+  "Track2": "",
+  "CardNumber": "4580000000000000",
+  "CVV": "123",
+  "ExpDate_MMYY": "0129",
+  "TransactionSum": "1.00",
+  "NumberOfPayments": "1",
+  "FirstPaymentSum": "0",
+  "OtherPaymentsSum": "0",
+  "TransactionType": "01",
+  "CurrencyType": "1",
+  "CreditType": "1",
+  "J": "0",
+  "IsCustomerPresent": "false",
+  "AuthNum": "",
+  "HolderID": "123456789",
+  "ExtraData": "ref100",
+  "CustomerName": "Roby",
+  "CustomerAddress": "Tel Aviv",
+  "CustomerEmail": "roby@rcb.co.il",
+  "PhoneNumber": "",
+  "ItemDescription": "Some Item",
+  "ObeligoAction": "",
+  "OriginalZCreditReferenceNumber": "",
+  "TransactionUniqueIdForQuery": "",
+  "TransactionUniqueID": "",
+  "UseAdvancedDuplicatesCheck": "false",
+  "AllowFullCardNumberInResponse": "true",
+  "ShowFullCardNumberInPrint": "false"
+}
+
+// Respose
+{
+    "HasError": true,
+    "ReturnCode": 4,
+    "ReturnMessage": "העסקה לא אושרה נא להתקשר לקבלת אישור טלפוני: 03-6177800",
+    "CardNumber": "4580000000000000",
+    "ExpDate_MMYY": "01/29",
+    "CVV": "3",
+    "CardName": "ויזה רגיל",
+    "CardIssuerCode": "2",
+    "CardFinancerCode": "6",
+    "CardBrandCode": "2",
+    "ReferenceNumber": 22755621,
+    "VoucherNumber": "12001011",
+    "ApprovalNumber": "       ",
+    "ApprovalType": "2",
+    "NotePrintData": "",
+    "NotePrintDataSeller": null,
+    "ResultRecord": "",
+    "IntOt_JSON": "{\"output\":{\"status\":\"4\",\"ashStatus\":\"4\",\"ashStatusDes\":\"העסקה לא אושרה\",\"pan\":\"0000\",\"cardName\":\"ויזה רגיל\",\"expirationDate\":\"2901\",\"manpik\":\"2\",\"brand\":\"2\",\"solek\":\"6\",\"amount\":\"100\",\"tranType\":\"01\",\"mti\":\"0110\",\"creditTerms\":\"1\",\"currency\":\"376\",\"currencyName\":\"\",\"fileNo\":\"12\",\"termNo\":\"001\",\"termSeq\":\"011\",\"responseId\":\"0\",\"responseCvv2\":\"3\",\"cavvUcafResult\":\"\",\"authManpikNo\":\"\",\"authCodeManpik\":\"2\",\"authSolekNo\":\"\",\"authCodeSolek\":\"0\",\"firstPayment\":\"\",\"notFirstPayment\":\"\",\"noPayments\":\"\",\"uid\":\"22022311103308820162446\",\"rrn\":\"\",\"addDspBalance\":\"\",\"addDspF111\":\"\",\"authorizedAmount\":\"0\",\"addendum1\":\"\",\"addendum2\":\"\",\"addendum1Settl\":\"\",\"addendum2Settl\":\"\",\"addendum3Settl\":\"\",\"addendum4Settl\":\"\",\"addendum5Settl\":\"\",\"addendumP2PE\":\"\",\"aid\":\"\",\"atc\":\"\",\"appVersion\":\"WEB001623i\",\"cashback\":\"\",\"cardType\":\"0\",\"cardSeqNumber\":\"\",\"compRetailerNum\":\"0300012\",\"deferred\":\"\",\"dueDate\":\"\",\"dspBalance\":\"\",\"dateTime\":\"0223111033\",\"f39Response\":\"04\",\"indxPayment\":\"\",\"ipayAmount\":\"\",\"ipayNumber\":\"\",\"ipayPercent\":\"\",\"mustTz\":\"1\",\"mustCvv\":\"1\",\"mustZip\":\"0\",\"mustAvs\":\"0\",\"phaseRequest2\":\"0\",\"panEntryMode\":\"50\",\"parameterJ\":\"0\",\"responseAvs\":\"3\",\"retailer\":\"0882016016\",\"spType\":\"0\",\"track2\":\"\",\"tranRecord\":\"\",\"terminalName\":\"זד קרדיט\",\"telAuthAbility\":\"1\",\"telNoCom\":\"03-6177800\",\"tip\":\"\",\"tvr\":\"\",\"tsi\":\"\",\"arc\":\"\",\"verifiedByPin\":\"\",\"xmlStr\":\"\",\"zData\":\"\",\"field55\":\"\",\"dccEnabled\":\"0\",\"addOnParamDemand\":\"1\",\"conversionProvider\":\"\",\"integrated\":\"0\"}}",
+    "IntOt": "<output><status>4</status><ashStatus>4</ashStatus><ashStatusDes>העסקה לא אושרה</ashStatusDes><pan>0000</pan><cardName>ויזה רגיל</cardName><expirationDate>2901</expirationDate><manpik>2</manpik><brand>2</brand><solek>6</solek><amount>100</amount><tranType>01</tranType><mti>0110</mti><creditTerms>1</creditTerms><currency>376</currency><currencyName></currencyName><fileNo>12</fileNo><termNo>001</termNo><termSeq>011</termSeq><responseId>0</responseId><responseCvv2>3</responseCvv2><cavvUcafResult></cavvUcafResult><authManpikNo>       </authManpikNo><authCodeManpik>2</authCodeManpik><authSolekNo></authSolekNo><authCodeSolek>0</authCodeSolek><firstPayment></firstPayment><notFirstPayment></notFirstPayment><noPayments></noPayments><uid>22022311103308820162446</uid><rrn>            </rrn><addDspBalance></addDspBalance><addDspF111></addDspF111><authorizedAmount>0</authorizedAmount><addendum1></addendum1><addendum2></addendum2><addendum1Settl></addendum1Settl><addendum2Settl></addendum2Settl><addendum3Settl></addendum3Settl><addendum4Settl></addendum4Settl><addendum5Settl></addendum5Settl><addendumP2PE></addendumP2PE><aid></aid><atc></atc><appVersion>WEB001623i</appVersion><cashback></cashback><cardType>0</cardType><cardSeqNumber></cardSeqNumber><compRetailerNum>0300012</compRetailerNum><deferred></deferred><dueDate></dueDate><dspBalance></dspBalance><dateTime>0223111033</dateTime><f39Response>04</f39Response><indxPayment></indxPayment><ipayAmount></ipayAmount><ipayNumber></ipayNumber><ipayPercent></ipayPercent><mustTz>1</mustTz><mustCvv>1</mustCvv><mustZip>0</mustZip><mustAvs>0</mustAvs><phaseRequest2>0</phaseRequest2><panEntryMode>50</panEntryMode><parameterJ>0</parameterJ><responseAvs>3</responseAvs><retailer>0882016016</retailer><spType>0</spType><track2></track2><tranRecord></tranRecord><terminalName>זד קרדיט</terminalName><telAuthAbility>1</telAuthAbility><telNoCom>03-6177800</telNoCom><tip></tip><tvr></tvr><tsi></tsi><arc></arc><verifiedByPin></verifiedByPin><xmlStr></xmlStr><zData></zData><field55></field55><dccEnabled>0</dccEnabled><addOnParamDemand>1</addOnParamDemand><conversionProvider></conversionProvider><integrated>0</integrated></output>",
+    "TraceGUID": null,
+    "IsTelApprovalNeeded": true,
+    "Token": "",
+    "Logs": [],
+    "ClientReciept": null,
+    "SellerReciept": null,
+    "ClientRecieptPP": null,
+    "SellerRecieptPP": null,
+    "SignatureData": "",
+    "DspBalance": null,
+    "PinpadCommunication": {},
+    "IntIns": {},
+    "IsPinpadRequested": false,
+    "ZCreditInvoiceReceiptResponse": null,
+    "ZCreditPinpadReport": {
+        "PrintData": null,
+        "PrintDataClear": null
+    },
+    "NoteLink": null,
+    "PanEntryMode": "50",
+    "PaymentMethod": 0
+}

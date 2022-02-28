@@ -2867,6 +2867,26 @@ see 'MVC FromURI binding'
             });
     };
 
+* ViewBag object within _ViewStart.cshtml
+	
+	// _ViewStart.cshtml
+	@{
+		Layout = "~/Views/Shared/_Layout.cshtml";
+		ViewContext.Controller.ViewBag.Title = "Default Title";
+		ViewContext.Controller.ViewBag.MetaDescription = "Default MetaDescription";
+		ViewContext.Controller.ViewBag.MetaKeywords = "Default MetaKeywords";
+	}
+
+	// _Layout.cshtml
+	<head>    
+		<title>@ViewBag.Title</title>
+		<meta name="description" content="@ViewBag.MetaDescription" />
+		<meta name="keywords" content="@ViewBag.MetaKeywords" />
+	</head>
+
+* SEO Defaults
+  see 'ViewBag object within _ViewStart.cshtml'
+
 --------------------------------------------------------------
 // TODO Research
 

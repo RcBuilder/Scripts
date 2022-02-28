@@ -4,11 +4,19 @@ ILMerge - .NET library for Single-file-application
 sources:
 https://www.nuget.org/packages/ilmerge/
 https://github.com/dotnet/ILMerge
+https://stackoverflow.com/questions/8077570/how-to-merge-multiple-assemblies-into-one
 
 nuget:
 > Install-Package ilmerge
 
 once installed, any build will generate an additional 
 single-application file (dll or exe) under the bin folder.
+
+also see: 
+'ILRepack - ILMerge Replacement'
+'Fody - Embeds .NET dependencies as resources'
+
+
+
 
 

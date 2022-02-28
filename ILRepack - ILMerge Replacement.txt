@@ -1,0 +1,13 @@
+ILRepack - ILMerge Replacement
+------------------------------
+
+sources:
+https://github.com/gluck/il-repack
+https://www.nuget.org/packages/ILRepack/
+
+nuget:
+> Install-Package ILRepack -Version 2.0.18
+
+also see: 
+'ILMerge - .NET library for Single-file-application'
+'Fody - Embeds .NET dependencies as resources'

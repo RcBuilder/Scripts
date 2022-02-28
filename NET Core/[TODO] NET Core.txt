@@ -12,4 +12,84 @@
 
 --------------------
 // TODO ->> 
+see 'NET Core CLI'
+-
+Dapper:
+> Install-Package Dapper
+> Install-Package System.Data.SqlClient
+-
+Newtonsoft JSON:
+> Install-Package Microsoft.AspNetCore.Mvc.NewtonsoftJson -Version 3.1.22
+-
+HttpContext:
+using Microsoft.AspNetCore.Http;
+-
+Cookies:
+// set
+Context.Response.Cookies.Append(<key>, <value>, <options>);
+Context.Response.Cookies.Append("myCookie", JsonConvert.SerializeObject(Account), new CookieOptions 
+{
+    Expires = DateTime.Now.AddDays(60),
+    Secure = true                
+});
+
+// delete
+Context.Response.Cookies.Delete(<key>);
+Context.Response.Cookies.Delete("myCookie");
+
+// get
+string cookieValue;
+var success = Context.Request.Cookies.TryGetValue(<key>, out cookieValue);
+if (!success) return null;
+return cookieValue;
+
+// options
+Domain			// .mywebsite.com for canonical (match mywebsite.com and www.mywebsite.com)
+Expires			// cookie expiration time
+HttpOnly		// not accessible via javascript
+IsEssential
+Path			// scope. default '/' (all pages), can also set a path such as '/users/' which sets the scope only to pages under 'users' folder 
+SameSite		// Unspecified = 1, None = 0, Lax = 1, Strict = 2
+Secure			// https only
+-
+Sessions:
+
+// Startup > Configure
+app.UseSession(); 
+
+// Startup > ConfigureServices
+services.AddDistributedMemoryCache();
+services.AddSession(options => {
+    options.IdleTimeout = TimeSpan.FromMinutes(20);
+});
+
+// using 
+// set 
+Context.Session.SetInt32(<key>, <value:int>)
+Context.Session.SetString(<key>, <value:string>)
+
+Context.Session.SetInt32("myKey", 100);
+Context.Session.SetString("myKey", "abcd");
+Context.Session.SetString("myKey", JsonConvert.SerializeObject(MyModel));  // complex model
+
+// get 
+int Context.Session.GetInt32(<key>);
+string Context.Session.GetString(<key>);
+
+int value = Context.Session.GetInt32("myKey");
+string value = Context.Session.GetString("myKey");
+T value = JsonConvert.DeserializeObject<T>(Context.Session.GetString("myKey"));  // complex model
+
+// delete
+Context.Session.Remove(<key>);
+
+Context.Session.SetString(KEY_ACCOUNT, "");
+Context.Session.Remove(KEY_ACCOUNT);
+-
+Settings:
+aka Configuration.
+
+
+
+
 

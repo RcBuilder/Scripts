@@ -1,0 +1,16 @@
+Google Ads API
+--------------
+
+Sources:
+https://developers.google.com/google-ads/api/docs/start
+https://developers.google.com/google-ads/api/docs/first-call/overview
+https://github.com/googleads/google-ads-dotnet/blob/HEAD/README.md#running-the-code-examples
+https://developers.google.com/google-ads/api/docs/client-libs/dotnet
+
+Migration:
+AdWords API will no longer be available by April 27, 2022! 
+any project uses the Adwords API needs to Migrate to the Google Ads API. 
+https://developers.google.com/google-ads/api/docs/migration/services
+
+
+
