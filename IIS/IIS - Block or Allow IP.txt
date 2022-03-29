@@ -1,0 +1,6 @@
+IIS - Block/Allow IP
+--------------------
+1. Install 'IP and Domain Restrictions' Role
+   Server Manager >  Server Roles > Web Server (IIS) > Security
+2. Open IIS > Select A Website > IP and Domain Restrictions 
+3. Add Allow/Deny Entry 

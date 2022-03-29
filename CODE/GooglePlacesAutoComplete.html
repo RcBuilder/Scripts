@@ -1,0 +1,188 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .wrapper {
+            width: 800px;
+            margin: 0 auto;
+        }
+
+        #mapCanvas {
+            width: 100%;
+            height: 800px;
+        }
+
+        #address, #options {
+            width: 100%;
+            padding: 8px;
+        }
+
+        #address {
+            width: calc(100% - 20px);            
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <select id="options" onchange="initMap()">
+            <option value="1">Addresses In Israel</option>
+            <option value="2">Addresses With Bounderies (Tel Aviv to Herzlia)</option>
+            <option value="3">Addresses 20KM Radius Of Current Location</option>
+            <option value="4">Businesses In Israel</option>
+            <option value="5">Cities In Israel</option>
+        </select>
+        <input type="text" id="address" placeholder="type an address..." autocomplete="off" />
+        <div id="mapCanvas"></div>
+    </div>
+
+    <script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQkXKEaBXnacmZH0BtaT2on0rdRz-U6mY&libraries=places&callback=initMap"></script>
+    <script>
+        let map = null, autocomplete = null;
+        let centerLocation = { lat: 32.0853, lng: 34.7818 };  // default position: "tel-aviv"
+
+        // async wrapper for getCurrentPosition
+        function getCurrentPositionAsync() {
+            return new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(location => {
+                    resolve(location);
+                });
+            })
+        };
+        
+        async function initMap() {
+            let address = document.querySelector('#address');
+            let mapCanvas = document.querySelector('#mapCanvas');
+
+            // find your current location
+            if (navigator.geolocation) {
+                let location = await getCurrentPositionAsync();
+
+                centerLocation.lat = location.coords.latitude;
+                centerLocation.lng = location.coords.longitude;
+            }
+            
+            // init map
+            let mapOptions = {
+                zoom: 9,
+                center: centerLocation,
+                mapTypeId: 'satellite'
+            };
+            map = new google.maps.Map(mapCanvas, mapOptions);
+
+            // add map marker for your current position
+            new google.maps.Marker({
+                position: centerLocation,
+                title: 'YOU',
+                map: map,
+                icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+            });
+
+            // init autocomplete
+            /*
+                let autocompleteOptions = {
+                    types: ['address'],  // only addresses
+                    fields: ['geometry', 'name'], // fields to fetch
+                    componentRestrictions: { 'country': ['il'] }  // only israel
+                }
+
+                let autocompleteOptions2 = {
+                    types: ['address'],  // only addresses
+                    fields: ['geometry', 'name'], // fields to fetch
+
+                    // only within a specific bounderies
+                    // tel aviv - herzelia
+                    strictBounds: true,
+                    bounds: new google.maps.LatLngBounds(
+                        new google.maps.LatLng(32.0853, 34.7818),
+                        new google.maps.LatLng(32.1663, 34.8433)
+                    )
+                }
+            
+                let circle = new google.maps.Circle({center: centerLocation, radius: 20});            
+                let autocompleteOptions3 = {
+                    types: ['address'],  // only addresses
+                    fields: ['geometry', 'name'], // fields to fetch
+
+                    // only within 20km radius from the center location                
+                    strictBounds: true,
+                    bounds: circle.getBounds()                
+                } 
+            */
+            let autocompleteOptions = LoadAutocompleteOptions();
+            autocomplete = new google.maps.places.Autocomplete(address, autocompleteOptions);
+            autocomplete.addListener('place_changed', () => {
+                const place = autocomplete.getPlace();
+                console.log(`${place.name} (${place.geometry.location})`);
+
+                // add map marker for this current place
+                new google.maps.Marker({
+                    position: place.geometry.location,
+                    title: place.name,
+                    map: map
+                });
+            });
+
+            /*
+                // use as a service
+                let service = new google.maps.places.AutocompleteService();
+                service.getQueryPredictions({
+                    input: 'pizza in new york'
+                }, result => {
+                    console.table(result.map(x => x.description));
+                });
+            */
+        }
+
+        function LoadAutocompleteOptions() {
+            let selected = document.querySelector('#options');
+            let selectedValue = selected.selectedIndex + 1;
+            switch (selectedValue) {
+                default:
+                case 1:
+                return {
+                    types: ['address'],  // only addresses
+                    fields: ['geometry', 'name'], // fields to fetch
+                    componentRestrictions: { 'country': ['il'] }  // only israel
+                }                
+                case 2:
+                return {
+                    types: ['address'],  // only addresses
+                    fields: ['geometry', 'name'], // fields to fetch
+
+                    // only within a specific bounderies
+                    // tel aviv - herzelia
+                    strictBounds: true,
+                    bounds: new google.maps.LatLngBounds(
+                        new google.maps.LatLng(32.0853, 34.7818),
+                        new google.maps.LatLng(32.1663, 34.8433)
+                    )
+                }
+                case 3:
+                    let circle = new google.maps.Circle({ center: centerLocation, radius: 20 });
+                    return {
+                        types: ['address'],  // only addresses
+                        fields: ['geometry', 'name'], // fields to fetch
+
+                        // only within 20km radius from the center location                
+                        strictBounds: true,
+                        bounds: circle.getBounds()                
+                    }
+                case 4:
+                return {
+                    types: ['establishment'],  // only business
+                    fields: ['geometry', 'name'], // fields to fetch
+                    componentRestrictions: { 'country': ['il'] }  // only israel
+                } 
+                case 5:
+                return {
+                    types: ['(cities)'],  // only cities
+                    fields: ['geometry', 'name'], // fields to fetch
+                    componentRestrictions: { 'country': ['il'] }  // only israel
+                } 
+            }
+        }
+    </script>
+</body>
+</html>

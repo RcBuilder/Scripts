@@ -1,0 +1,197 @@
+MVC Upload File Sample - Import From CSV
+----------------------------------------
+this sample imports a list of users from a csv file.
+supports CREATE and UPDATE based on the user identity. 
+it uses .csv file as its import source. 
+
+---
+
+// Models
+using System.ComponentModel.DataAnnotations;
+using System.Web;
+
+public class FileUploadDTO {
+    [Required(ErrorMessage = "לא נבחר קובץ")]
+    public HttpPostedFileBase File1 { get; set; }
+}
+
+-
+
+// View
+@model WEB.FileUploadDTO
+
+@{
+    ViewBag.Title = "טעינת משתמשים מקובץ";
+    Layout = "~/Views/Shared/_LayoutAdmin.cshtml";
+}
+
+<h1>טעינת משתמשים מקובץ</h1>
+
+@using (@Html.BeginForm("ImportUsers", "Editor", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="card">
+        <div class="card-body">
+            <div class="mb-3">
+                <label>
+                    <span class="required">*</span> קובץ &nbsp; 
+                    <span class="required">@Html.ValidationMessageFor(m => m.File1)</span>
+                </label>
+                <div>
+                    @Html.TextBoxFor(m => m.File1, new { type = "file", @class = "form-control", maxlength = 250, accept = ".csv" })
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-lg btn-primary">שמור</button>
+    </div>
+}
+
+<div class="required">
+    @Html.ValidationSummary(true)
+</div>
+
+-
+
+// Controller 
+[HttpGet]
+public async Task<ActionResult> ImportUsers() {
+    return View(new FileUploadDTO());
+}
+
+[HttpPost]
+public async Task<ActionResult> ImportUsers(FileUploadDTO Model) {
+    if (!ModelState.IsValid)
+        return View(Model);
+
+    var editorSession = SessionsManager.GetEditor(System.Web.HttpContext.Current);
+    var schoolId = editorSession.SchoolId;
+
+    var filePath = $"{AppDomain.CurrentDomain.BaseDirectory}Uploads/users_{schoolId}.csv";
+    Model.File1.SaveAs(filePath);
+
+    await new UsersBLL().ProcessUploadedUsers(filePath, schoolId);
+    return RedirectToAction("Users");
+}
+
+-
+
+// Dependencies
+* Create 'Uploads' folder under the project root
+* CsvConnector.cs
+
+-
+
+// BLL
+public async Task<int> ProcessUploadedUsers(string FilePath, int SchoolId)
+{
+    // local methods
+    async Task CreateUser(UploadedUser UploadedUser)
+    {
+        Debug.WriteLine($"CREATE USER #{UploadedUser.TZ}");
+
+        var current = (User)UploadedUser;
+        current.SchoolId = SchoolId;
+
+        current.Id = await this.Save(current);                
+        await this.SetPassword(current.Id, UploadedUser.Password);
+    }
+
+    async Task UpdateUser(UploadedUser UploadedUser, User User)
+    {
+        Debug.WriteLine($"UPDATE USER #{UploadedUser.TZ}");
+
+        var current = UploadedUser.Merge(UploadedUser, User);     
+                
+        current.Id = await this.Save(current);
+        await this.SetPassword(current.Id, UploadedUser.Password);
+    }
+
+    var csvConnector = new CsvConnector(FilePath);
+    var uploadedUsers = await csvConnector.GetAsT<IEnumerable<UploadedUser>>();
+
+    foreach (var uploadedUser in uploadedUsers)
+    {
+        if (string.IsNullOrEmpty(uploadedUser.TZ)) continue; // skip users with no TZ
+
+        var user = await this.Get(uploadedUser.TZ, uploadedUser.Type, SchoolId);
+        if (user == null) await CreateUser(uploadedUser);
+        else await UpdateUser(uploadedUser, user);
+    }
+
+    return uploadedUsers.Count();
+}
+
+-
+
+// Entities
+public class UploadedUser {
+    [JsonProperty(PropertyName = "ת.ז")] 
+    public string TZ { get; set; }
+
+    [JsonProperty(PropertyName = "סוג")] 
+    public eUserType Type { get; set; }
+
+    public int SchoolId { get; set; }
+
+    [JsonProperty(PropertyName = "שם פרטי")] 
+    public string FirstName { get; set; }
+
+    [JsonProperty(PropertyName = "שם משפחה")] 
+    public string LastName { get; set; }
+
+    [JsonProperty(PropertyName = "מייל")] 
+    public string Email { get; set; }
+
+    [JsonProperty(PropertyName = "טלפון")] 
+    public string Phone { get; set; }
+
+    [JsonProperty(PropertyName = "עיר")] 
+    public string City { get; set; }
+
+    [JsonProperty(PropertyName = "כתובת")] 
+    public string Address { get; set; }
+
+    [JsonProperty(PropertyName = "אודות")] 
+    public string About { get; set; }
+
+    [JsonProperty(PropertyName = "סיסמה")]
+    public string Password { get; set; }
+
+    public static explicit operator User(UploadedUser Source)
+    {
+        if (Source == null) return null;
+
+        return new User
+        {
+            TZ = Source.TZ,
+            Type = Source.Type,
+            FirstName = Source.FirstName,
+            LastName = Source.LastName,
+            Email = Source.Email,
+            Phone = Source.Phone,
+            City = Source.City,                
+            Address = Source.Address,
+            About = Source.About
+        };
+    }
+
+    public static User Merge(UploadedUser UploadedUser, User User)
+    {
+        User.TZ = UploadedUser.TZ;
+        User.Type = UploadedUser.Type;
+        User.FirstName = UploadedUser.FirstName;
+        User.LastName = UploadedUser.LastName;
+        User.Email = UploadedUser.Email;
+        User.Phone = UploadedUser.Phone;
+        User.City = UploadedUser.City;
+        User.Address = UploadedUser.Address;
+        User.About = UploadedUser.About;
+        return User;
+    }
+}
+
+Implementations:
+* MNEW 
+* MEMORY-APP

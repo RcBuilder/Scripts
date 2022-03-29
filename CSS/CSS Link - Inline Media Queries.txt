@@ -1,0 +1,99 @@
+CSS Link - Inline Media Queries 
+-------------------------------
+we can load conditionally CSS files from within the HTML using the 'link' tag with the 'media' property.
+this technique allows us to better organize our CSS layouts by loading only the relevant CSS per device. 
+when using Inline Media Queries, the browser download the files but it only processes the one that matches the media filter 
+(as opposed to the CSS media queries which all are being processed)
+
+note!
+we can also use nested media queries. 
+for example, by adding the following media rule for smaller phones within the phone.css (which will only load for 480px and down)
+@media (max-width: 200px){ 
+	... 
+}
+
+---
+
+[SAMPLE-1] desktop base with override layout per device 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title></title>
+    <link rel="stylesheet" href="css/desktop.css" />
+    <link rel="stylesheet" media='screen and (max-width: 1024px)' href="css/laptop.css" />
+    <link rel="stylesheet" media='screen and (max-width: 768px)' href="css/tablet.css" />
+    <link rel="stylesheet" media='screen and (max-width: 480px)' href="css/phone.css" />
+</head>
+<body>
+    <h1>
+        What is Lorem Ipsum?
+    </h1>
+    <p>
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry.         
+    </p>
+    <p>
+        Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.        
+    </p>
+    <p>
+        It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.        
+    </p>
+    <p>
+        It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    </p>
+</body>
+</html>
+
+-
+
+// desktop.css
+h1, p {
+    color: black;
+}
+
+// laptop.css
+h1, p {
+    color: blue;
+}
+
+// phone.css
+h1, p {
+    color: red;
+}
+
+// tablet.css
+h1, p {
+    color: green;
+}
+
+---
+
+[SAMPLE-2] two different layouts with no base
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title></title>
+    <link rel="stylesheet" media='screen and (max-width: 768px)' href="css/small.css" />
+	<link rel="stylesheet" media='screen and (min-width: 769px)' href="css/big.css" />
+</head>
+<body>
+    <h1>
+        What is Lorem Ipsum?
+    </h1>
+    <p>
+        Lorem Ipsum is simply dummy text of the printing and typesetting industry.         
+    </p>
+    <p>
+        Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.        
+    </p>
+    <p>
+        It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.        
+    </p>
+    <p>
+        It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+    </p>
+</body>
+</html>
+
+

@@ -1,0 +1,17 @@
+SQL RESET IDENTITY COUNTER
+--------------------------
+
+// insert identity values 
+// use ON to turn it on, don't forget to turn it off once completed 
+SET IDENTITY_INSERT <table> ON
+-- insert here ...
+SET IDENTITY_INSERT <table> OFF
+
+-
+
+// set identity current counter value 
+DBCC checkident ('<table>', RESEED, <identity value>)
+
+// sample 
+// set identity internal value to 1000, next insert will get the value 1001, 1002 and so on...
+DBCC checkident ('MyTable', RESEED, 1000) -- set identity value

@@ -1,0 +1,176 @@
+Google Autocomplete API 
+=======================
+
+used APIs
+---------
+1. Maps Javascript API
+2. Places API
+
+Process
+-------
+(steps)
+1. go to developer console
+   https://console.developers.google.com/apis/dashboard
+2. create (or select) a project
+   note: enable billing for this project
+   https://console.cloud.google.com/project/_/billing/enable
+3. enable APIs and Services > Enable the following:
+   - Maps Javascript API    // for addresses
+   - Places API     // for businesses
+4. (menu) credentials > create > API Key
+5. add the following script to your page
+   <script async src="https://maps.googleapis.com/maps/api/js?key=<api-key>&libraries=places&callback=<init-function>"></script>
+   note: replace <api-key> with the API Key copied in chapter 4
+   note: replace <init-function> with a callback function to be triggered once the script has loaded
+6. add an input for the autocomplete and a div for the google map
+7. within the init-function
+   - bind element to a google map
+     new google.maps.Map(<elem>, <options>)
+   - init auto complete
+     new google.maps.places.Autocomplete(<elem>, <options>)
+   - register to a 'place_changed' event
+     autocomplete.addListener('place_changed', () => { ... });
+8. add map markers
+   new google.maps.Marker(<options>);
+
+
+Sources
+-------
+https://developers.google.com/maps/documentation/javascript/libraries
+https://developers.google.com/maps/documentation/javascript/places-autocomplete
+https://developers.google.com/maps/documentation/javascript/reference/places-widget#AutocompleteOptions
+
+Autocomplete Options
+--------------------
+https://developers.google.com/maps/documentation/javascript/reference/places-widget#AutocompleteOptions
+- types     // data type to filter (only addresses, only businesses, only cities and etc.) - see 'autocomplete types'
+- fields    // fields to fetch
+- componentRestrictions     // to filter by a country
+
+Autocomplete Types
+------------------
+- address     // only addresses
+- establishment   // only businesses
+- (cities)   // only cities
+- geocode
+- (regions)
+
+Marker Options
+--------------
+https://developers.google.com/maps/documentation/javascript/reference/marker#MarkerOptions
+- position
+- title
+- map
+- icon  // url, icon or symbol
+  https://sites.google.com/site/gmapsdevelopment/
+  https://developers.google.com/maps/documentation/javascript/reference/marker#Symbol
+  https://developers.google.com/maps/documentation/javascript/reference/marker#Icon
+
+Map Options
+-----------
+- zoom    // zoom volume
+- center  // center to a position
+- mapTypeId  // view mode (satellite etc.)
+
+
+Use As a Service
+----------------
+let service = new google.maps.places.AutocompleteService();
+service.getQueryPredictions({
+    input: 'pizza in new york'
+}, result => {
+    console.table(result.map(x => x.description));
+});
+
+References
+----------
+see 'CODE/GooglePlacesAutoComplete.html'
+
+Samples
+-------
+// css
+.wrapper {
+    width: 800px;
+    margin: 0 auto;
+}
+
+#mapCanvas {
+    width: 100%;
+    height: 800px;
+}
+
+#address {
+    width: calc(100% - 20px);
+    padding: 8px;
+}
+
+// html
+<div class="wrapper">
+    <input type="text" id="address" placeholder="type an address..." autocomplete="off" />
+    <div id="mapCanvas"></div>
+</div>
+
+// js
+<script async src="https://maps.googleapis.com/maps/api/js?key=<api-key>&libraries=places&callback=initMap"></script>
+<script>
+    var map = null, autocomplete = null;
+
+    // async wrapper for getCurrentPosition
+    function getCurrentPositionAsync() {
+        return new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(location => {
+                resolve(location);
+            });
+        })
+    };
+        
+    async function initMap() {
+        let centerLocation = { lat: 32.0853, lng: 34.7818 };  // default position: "tel-aviv"
+
+        // find your current location
+        if (navigator.geolocation) {
+            let location = await getCurrentPositionAsync();
+
+            centerLocation.lat = location.coords.latitude;
+            centerLocation.lng = location.coords.longitude;
+        }
+            
+        // init map
+        let mapOptions = {
+            zoom: 9,
+            center: centerLocation,
+            mapTypeId: 'satellite'
+        };
+        map = new google.maps.Map(document.querySelector('#mapCanvas'), mapOptions);
+
+        // add map marker for your current position
+        new google.maps.Marker({
+            position: centerLocation,
+            title: 'YOU',
+            map: map,
+            icon: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
+        });
+
+        // init autocomplete
+        let autocompleteOptions = {
+            types: ['address'],  // only addresses
+            fields: ['geometry', 'name'], // fields to fetch
+            componentRestrictions: { 'country': ['il'] }  // only israel
+        }
+
+        autocomplete = new google.maps.places.Autocomplete(document.querySelector('#address'), autocompleteOptions);
+        autocomplete.addListener('place_changed', () => {
+            const place = autocomplete.getPlace();
+            console.log(`${place.name} (${place.geometry.location})`);
+
+            // add map marker for this current place
+            new google.maps.Marker({
+                position: place.geometry.location,
+                title: place.name,
+                map: map
+            });
+        });
+    }
+</script>
+
+

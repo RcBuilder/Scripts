@@ -51,3 +51,10 @@ GitLab Extension for Visual Studio
 4. restart visual studio  
 
 use the Team Explorer window to communicate with your gitlab server!    
+
+GitLab Extension for VSCode
+---------------------------
+1. (vs) Extensions (menu)
+2. Search 'gitlab' > choose 'GitLab Workflow' > Install
+3. Reload
+4. once Completed, open 'Source Control' (menu)

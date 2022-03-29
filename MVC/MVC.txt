@@ -1496,7 +1496,6 @@ see 'MVC FromURI binding'
           }
       }
 
-
 * CustomValidation Attribute
   - allows us to add a custom validation 
   - context.MemberName returns the current property name

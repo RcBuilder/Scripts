@@ -1,0 +1,8 @@
+*** PostgreSQL ***
+******************
+
+Dashboard:
+https://www.pgadmin.org/
+https://www.pgadmin.org/download/
+https://hub.docker.com/r/dpage/pgadmin4/
+https://www.pgadmin.org/docs/pgadmin4/latest/container_deployment.html

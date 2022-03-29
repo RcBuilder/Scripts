@@ -1,0 +1,8 @@
+javascript NodeList to Array
+----------------------------
+var divNodes = document.querySelectorAll('div');
+var mySpan = document.querySelector('span#mySpan');
+
+var arrNodes = Array.prototype.slice.call(divNodes);
+arrNodes.push(mySpan);
+

@@ -1,0 +1,83 @@
+[Required(ErrorMessage = "שדה חובה - שם מלא")]
+public string ClientName { get; set; }
+
+[Required(ErrorMessage = "שדה חובה - טלפון")]
+[Phone(ErrorMessage = "טלפון לא תקני")]
+public string ClientPhone { get; set; }
+
+[Required(ErrorMessage = "שדה חובה - מייל")]
+[EmailAddress(ErrorMessage = "מייל לא תקני")]
+public string ClientEmail { get; set; }
+
+public string Notes { get; set; }
+public string NameOnReceipt { get; set; }
+
+[PositiveNumberValidation(ErrorMessage = "מספר שולחן לא תקני")]
+public int TableNumber { get; set; } = 0;
+
+[FutureDateValidation(ErrorMessage = "תאריך הזמנה לא תקני")]
+public DateTime OrderDate
+{
+    get
+    {
+
+        var sDate = string.IsNullOrEmpty(this.DatePicker) ? DateTime.Now.ToString("dd/MM/yyyy") : this.DatePicker;
+        var sTime = string.IsNullOrEmpty(this.TimePicker) ? DateTime.Now.ToString("HH:mm") : this.TimePicker;
+
+        try
+        {
+            var culture = new CultureInfo("he-IL");
+            return DateTime.Parse($"{sDate} {sTime}", culture);
+        }
+        catch
+        {
+            throw new Exception($"{sDate} {sTime}");
+            //return DateTime.Now;
+        }
+    }
+}
+
+public string DatePicker { get; set; } = DateTime.Now.ToString("yyyy-MM-dd");
+public string TimePicker { get; set; } = DateTime.Now.ToString("HH:mm");
+
+// <itemRowId|itemId>@@<itemRowId|itemId>
+[Required(ErrorMessage = "אין מוצרים בסל")]             
+public string sCartItemIds { get; set; }
+
+[NotZeroValidation(ErrorMessage = "שדה חובה - מזהה מסעדה")]
+public int RestaurantId { get; set; }
+        
+public ePaymentType PaymentType { get; set; } = ePaymentType.CREDIT;
+public bool IsDelivery { get; set; }
+public string ClientAddress { get; set; }
+
+[CheckedValidation(ErrorMessage = "חובה לאשר את התקנון")]
+public bool Policy { get; set; } = true;
+
+-
+
+[Required(ErrorMessage = "שדה חובה - ערכים")]
+[JsonProperty(PropertyName = "valuesRaw")]
+public string ValuesRaw { 
+    get { return this.Values?.Replace("|", "\n"); } 
+    set { this.Values = value?.Replace("\n", "|"); } 
+}
+        
+[JsonProperty(PropertyName = "isMultiSelect")]
+public bool IsMultiSelect { get; set; }
+
+[Required(ErrorMessage = "שדה חובה - מספר תשובות מקסימלי")]
+[PositiveNumberValidation(ErrorMessage = "מספר תשובות מקסימלי לא תקני")]
+[JsonProperty(PropertyName = "maxSelected")]
+public int MaxSelected { get; set; } = 1;
+
+[JsonIgnore]
+public string Values { get; set; } = string.Empty;
+
+-
+
+if (Model.IsDelivery && string.IsNullOrEmpty(Model.ClientAddress))
+ModelState.AddModelError("ClientAddress", "חובה להגדיר כתובת למשלוח");
+
+if (!ModelState.IsValid)
+return View(Model);

@@ -1,0 +1,25 @@
+js async geolocation getCurrentPosition
+---------------------------------------
+
+[wrapper]
+
+// async wrapper for getCurrentPosition
+function getCurrentPositionAsync() {
+    return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(location => {
+            resolve(location);
+        });
+    })
+};
+
+-
+
+[using]
+
+// find your current location
+if (navigator.geolocation) {
+    let location = await getCurrentPositionAsync();
+
+    console.log(location.coords.latitude);
+    console.log(location.coords.longitude);
+}

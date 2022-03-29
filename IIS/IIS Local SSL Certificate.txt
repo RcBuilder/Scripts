@@ -1,0 +1,19 @@
+IIS Local SSL Certificate
+-------------------------
+
+(steps)
+1. Open PowerShell 
+2. Create a Self-Signed Certificate command:
+   > New-SelfSignedCertificate -Subject "localhost" -TextExtension @("2.5.29.17={text}DNS=localhost&IPAddress=127.0.0.1&IPAddress=::1")
+
+   note! 
+   can add more IPAddresses or DNS hosts if needed (in this case localhost + 127.0.0.1 + ::1 were added)
+
+> Open MMC 
+  Windows + R > MMC
+
+> File > Add Snap-in > Certificates > Computer account
+> Personal > Certificates > find 'localhost' > Copy
+> Trusted Root Certification Authorities > Paste
+> Open CMD > restart IIS
+  > iisreset / restart 

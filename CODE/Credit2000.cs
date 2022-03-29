@@ -7,15 +7,84 @@ namespace PaymentsService
         WCF Services:
         https://www.credit2000.co.il/pci_tkn_ver2/wcf/wscredit2000.asmx
         https://www.credit2000.co.il/pci_tkn_ver4/wcf/wscredit2000.asmx 
+        
+        Projects:
+        see 'Creative\PaymentsService'
 
-        -
-
+        Instance:
         var proxy = new CreditApiProxyV2.wsCredit2000SoapClient();
         var proxy = new CreditApiProxyV4.wsCredit2000SoapClient();
 
-        -
-
+        Methods:
         CreditXMLPro
+
+        Using:
+        var credit2000Response = new Credit2000(Config.ChargeTerminal, Config.ChargePassword, 2).Charge((Credit2000PaymentData)Details);
+        return (PaymentResult)credit2000Response;
+
+        Entities:
+        public class PaymentResult
+        {        
+            public string Provider { get; set; }
+            public string Code { get; set; }
+            public string Message { get; set; }
+
+            public string Token { get; set; }
+            public int ReferenceNumber { get; set; }
+            public string VoucherNumber { get; set; }
+            public string ApprovalNumber { get; set; }
+  
+            public static explicit operator PaymentResult(Credit2000ChargeResponse other) {
+                return new PaymentResult
+                {
+                    Provider = PaymentProviders.Credit2000,
+                    Code = other.Code,
+                    Message = other.Message                
+                };
+            }
+        }
+
+        public class PaymentDetails
+        {        
+            public string CVV { get; set; }
+            public string CardNumber { get; set; }
+            public string CardExpiry { get; set; } // MMYY            
+            public string UserId { get; set; }
+            public string UserFullName { get; set; }
+            public string UserEmail { get; set; }
+            public string UserPhone { get; set; }
+            public string UserFax { get; set; }
+            public string UserAddress { get; set; }        
+            public string UserTZ { get; set; }
+            public string Comments { get; set; }
+            public float Price { get; set; }
+            public string Description { get; set; }
+            public string PinPad { get; set; }
+            public int NumberOfPayments { get; set; } = 1;
+
+            // depends on the provider!
+            public byte TransactionType { get; set; }  // Regular, Refund 
+            public byte CurrencyType { get; set; }  // ILS, USD, EUR etc.
+            public byte CreditType { get; set; }  // Regular, Plus30, Immediate, Credit, Installments
+
+
+            public static explicit operator Credit2000PaymentData(PaymentDetails other) {
+                return new Credit2000PaymentData
+                {
+                    CardExpiry = other.CardExpiry,
+                    CardNumber = other.CardNumber ?? "",
+                    Comments = other.Comments,
+                    CVV = other.CVV,
+                    Price = other.Price,
+                    UserEmail = other.UserEmail,
+                    UserFax = other.UserFax,
+                    UserFullName = other.UserFullName,
+                    UserId = other.UserId,
+                    UserPhone = other.UserPhone,
+                    UserTZ = other.UserTZ
+                };
+            }
+        }  
     */
 
     #region Entities

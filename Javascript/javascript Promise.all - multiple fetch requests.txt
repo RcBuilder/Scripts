@@ -1,0 +1,55 @@
+javascript Promise.all - multiple fetch requests
+------------------------------------------------
+
+async function SaveOrderItemsIsSupplied(row) {
+    const serviceURI = '/Admin/SaveOrderItemIsSupplied';    
+        
+    let rowIds = $(row).attr('data-value');  // ids splitted by pipe
+    console.log(rowIds);
+
+    if (rowIds == '') return;
+
+    let arrRowIds = rowIds.split('|');
+    let promises = arrRowIds.filter(rowId => !isNaN(rowId)).map(rowId => {        
+        return fetch(serviceURI, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                rowId,
+                isSupplied: true
+            })
+        });
+    });
+
+    Promise.all(promises).then(async responses => {
+        /// console.log(responses);
+        /// let response1json = await responses[0].json();        
+        SearchOrders();
+    });   
+}
+
+--
+
+@helper RenderSummary(IEnumerable<Entities.Order> orders)
+{        
+    var flat = orders.SelectMany(o => o.Rows, (o, r) => r);    
+    var group = flat.GroupBy(x => x.ItemName);
+
+    <table class="order-summary">
+        <thead>
+            <tr>
+                <th>ριλεν</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var row in group)
+            {
+                <tr data-value="@string.Join("|", row.Select(v => v.RowId))">
+                    <td>@row.Key <i>(@row.Count())</i></td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
