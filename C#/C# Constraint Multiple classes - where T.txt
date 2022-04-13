@@ -1,0 +1,26 @@
+C# Constraint Multiple classes - where T
+----------------------------------------
+
+public class SaveAccountRequest : SaveIndexRequest<Account>
+{        
+    public override string IndexType { get; set; } = "acc";
+
+    public SaveAccountRequest(Account Account) {
+        this.Rows = new List<Account> { Account };
+    }
+}
+
+public class SaveItemRequest : SaveIndexRequest<Item>
+{
+    public override string IndexType { get; set; } = "itm";
+    
+    public SaveItemRequest(Item Item)
+    {
+        this.Rows = new List<Item> { Item };
+    }
+}
+
+
+public interface IIndex { }
+public class Item : IIndex { }
+public class Account : IIndex {}

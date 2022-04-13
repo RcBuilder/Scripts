@@ -1,0 +1,19 @@
+WebClient - set Request TimeOut
+-------------------------------
+public class HttpServiceWebClient : WebClient {
+        private const int TimeOutSec = 10;
+
+        protected override WebRequest GetWebRequest(Uri uri) {
+            var request = base.GetWebRequest(uri);
+            request.Timeout = TimeOutSec * 1000;
+            return request;
+        }
+    }
+
+--
+
+// using 
+private HttpServiceWebClient client { get; set; } = new HttpServiceWebClient {
+	Proxy = null,
+	Encoding = Encoding.UTF8            
+};

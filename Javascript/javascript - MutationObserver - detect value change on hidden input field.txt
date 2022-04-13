@@ -1,0 +1,28 @@
+javascript - detect value change on hidden input field
+------------------------------------------------------
+// generic mutation-observer to listen to changes on the 'value' attribute
+function valueChangeObserver(element) {
+    let observer = new MutationObserver((mutations, observer) => {
+        if (mutations[0].attributeName == "value") {
+            $(element).trigger("change");
+        }
+    });
+    observer.observe(element, {
+        attributes: true
+    });
+}
+
+-
+
+[USING]
+
+// html
+עלות משלוח: <span id="spnDeliveryCost">@Model.DeliveryCost</span> ₪
+@Html.HiddenFor(m => m.DeliveryCost)
+
+// javascript
+let cost = document.querySelector('#DeliveryCost');
+valueChangeObserver(cost);
+$(cost).on('change', () => {
+     $('#spnDeliveryCost').innerHTML = cost.value;
+});

@@ -1,0 +1,99 @@
+*** Shopify ***
+***************
+
+Free Trial:
+https://meticsmedia.com/shopify
+
+Store:
+https://rcbuilder-6845.myshopify.com
+
+Admin:
+https://rcbuilder-6845.myshopify.com/admin
+
+Dashboards:
+1. Theme Dashboard  
+   - aka 'Theme Editor'
+   - select a theme > customise
+   - /admin/themes/<theme-id>/editor
+2. Admin Dashboard   
+   - aka 'Dashboard'
+   - admin root 
+   - /admin/
+
+Setup a Theme:
+1. Online Store (menu) > Themes > Explore > Choose > Add 
+2. Once Installed > click on 'Actions' > Publish
+
+Setup:
+1. Setup a Theme (see 'Setup a Theme')
+2. Choose a theme > 'Customize' > you'll reach the Theme Dashboard
+3. Choose a page to customize from the top DDL 
+4. Set each Page Component
+
+note! 
+repeat stages 3-4 for every page you want to customize
+
+Theme Settings:
+on the selected theme > click on 'Theme settings' at the bottom. 
+this reveals the overall style of the current theme. use it to change the theme colors, fonts, icons, images and etc.
+
+Device Preview:
+On the top-right corner, there's a device picker, use it to switch the view based on the selected device. 
+available devices are Mobile, Desktop and Fullscreen 
+
+Page Components:
+On the left pane, you'll find all components within the working page. 
+the components structure reflects the page layout and can be modified as per need. 
+we can add, remove, update and change location of each component. 
+e.g - choose Header and upload a logo
+
+Create a Collection:
+1. go to /admin/collections/ > Create
+2. choose 'Manual' collection type in order to add items later on
+3. set a name, description and image 
+
+Add a Product:
+1. go to /admin/products > Add
+2. set a name, image, price and stock
+3. choose collection/s to store the product
+
+note! 
+after adding products, you need to mark them as active 
+products > check all > Actions > Set as active 
+
+Set Policies:
+1. go to /admin/settings/ > Policies
+2. set each policy content or use a built-in template
+3. add generated policies to the footer menu (see 'Navigation')
+
+Navigation:
+Admin Dashboard > Online Store > Navigation 
+we can create new, delete and modify an existing menu
+we can append or delete menu items for each menu
+we can add links to our collections 
+common menus are Footer, Main and etc.
+
+Social Media:
+1. Admin Dashboard > Footer component 
+2. Theme settings
+3. set url for Twitter, Facebook, Pinterest, Instagram, TikTok and etc. 
+
+SEO:
+1. Admin Dashboard > Online Store > Preferences
+2. set meta tags, social image, facebook pixel and etc.  
+
+Store Details:
+1. Admin Dashboard > Settings > Store Details 
+2. set store details 
+
+Payments:
+1. Admin Dashboard > Settings > Payments
+2. set payment providers
+
+Shipping:
+1. Admin Dashboard > Settings > Shipping
+2. Manage Rates > set shipping cost (can also choose Free shipping)
+
+Domains:
+1. Admin Dashboard > Settings > Domains
+2. connect a domain (buy new or connect an existing one)

@@ -1,0 +1,129 @@
+﻿WizColud API חשבשבת
+===================
+
+dashboard
+---------
+https://home.wizcloud.co.il/
+
+api reference
+-------------
+https://docs.wizcloud.co.il/docs/rest-api
+
+user
+----
+RcBuilder@gmail.com
+
+get token
+---------
+(steps)
+1. login to your account
+2. נתונים כלליים > תוכניות עזר > ניהול אסימוני הרשאות 
+
+get server name
+---------------
+the account domain is the server 
+sandbox = lb1.wizcloud.co.il
+
+get database name
+-----------------
+1. login to your account
+2. home page (e.g: https://lb1.wizcloud.co.il/IWIZ/ipass)   
+3. hover the company description 
+sandbox = wizdb493n4
+
+generate an access-token
+------------------------
+POST https://{{ServerName}}/createSession/{{ApiToken}}/{{DBName}}
+note! required only once a day
+
+reports
+-------
+source:
+https://docs.wizcloud.co.il/docs/reportdata/#how-to-export-report-data
+
+(steps)
+1. login to your account
+2. דוחות (tab) > תכנון דוחות > Define a Report 
+3. קביעת מאפייני הדו"ח, טורים, מיונים וחתכים > Save As 
+4. הפקה > External > (a txt file will be downloaded)
+5. open the downloaded file > Copy content 
+6. use the copied content (prev chapter) as the export api payload (/ExportDataApi/exportData)
+
+payload sample:
+{
+  "encrypt_reportData": "0c61e292d66a71326e011b089...c9e0",
+  "params_data": []
+}
+
+export via api:
+see sample below 
+
+postman
+-------
+see 'WizCloud (חשבשבת).postman_collection'
+
+Projects:
+see 'WizColudAPI'
+
+using
+-----
+POST https://{{ServerName}}/CompanyListToTokenApi/TokenCompanies
+H Authorization: Bearer {{AccessToken}}
+-
+POST https://{{ServerName}}/invApi/createDoc
+H Authorization: Bearer {{AccessToken}} 
+H Content-Type:application/json
+{
+    "issueStock": "true",
+    "deleteTemp": "false",
+    "rows": {
+        "StockID": 0,
+        "DocumentID": 1,
+        "AccountKey": "30000",
+        "moves": [
+            {
+                "ItemKey": "1001",
+                "Quantity": 20,
+                "Price":10.5
+            },
+            {
+                "ItemKey": "1002",
+                "Quantity": 5,
+                "Price":100
+            }
+        ]
+    }
+}
+-
+POST https://{{ServerName}}/invApi/getDoc
+H Authorization: Bearer {{AccessToken}} 
+H Content-Type:application/json
+{
+    "stockID": "944"
+}
+-
+POST https://{{ServerName}}/ExportDataApi/exportData
+H Authorization: Bearer {{AccessToken}} 
+H Content-Type:application/json
+{
+  "encrypt_reportData": "0c61e292d66a71326e011b089...c9e0",
+  "params_data": []
+}
+-
+POST https://{{ServerName}}/ExportDataApi/exportData
+H Authorization: Bearer {{AccessToken}} 
+H Content-Type:application/json
+{
+  "encrypt_reportData": "0c61e292d66a71326e011b089...017f",
+  "params_data": [
+		{
+            "p_name": "__MUSTACH_P0__",
+            "id": "0",
+            "type": "long",
+            "name": "SortCode",
+            "defVal": "300",
+            "opName": "שווה",
+            "opOrigin": "from"
+        }
+  ]
+}

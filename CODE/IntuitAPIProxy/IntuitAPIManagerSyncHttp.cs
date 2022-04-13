@@ -42,6 +42,8 @@ namespace IntuitProxy
     */
     public class IntuitAPIManagerSyncHttp : IAPIManager
     {
+        private const string BOUNDARY = "37a1965f87babd849241a530ad71e169";
+
         public EventHandler<TokensUpdatedEventArgs> TokensUpdated;
 
         protected IntuitAPIConfig Config { get; set; }
@@ -499,7 +501,331 @@ namespace IntuitProxy
             return responseData?.VendorCredit?.Id;
         }
 
+        public async Task<APIBillStatus> GetBillStatus(string Id)
+        {
+            var query = $"Select * from Bill Where Id='{Id}'";
+            var response = this.HttpService.POST_DATA($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                query
+            }, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/text",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = this.HttpService.POST_DATA($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                    query
+                }, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/text",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            var billSchema = new
+            {
+                Balance = 0.0F,
+                Id = string.Empty,
+                TotalAmt = 0.0F
+            };
+
+            var modelSchema = new
+            {
+                QueryResponse = new
+                {
+                    Bill = new[] { billSchema }
+                }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            var billData = responseData.QueryResponse.Bill?.FirstOrDefault();
+            if (billData == null) return null;
+
+            return new APIBillStatus
+            {
+                Id = billData.Id,
+                Balance = billData.Balance,
+                Total = billData.TotalAmt
+            };
+        }
+
+        public async Task<string> CreateVendor(APIVendor Vendor)
+        {
+            var response = this.HttpService.POST<APIVendor>($"{this.Config.BaseURL}company/{this.Config.CompanyId}/vendor", Vendor, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/json",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = this.HttpService.POST<APIVendor>($"{this.Config.BaseURL}company/{this.Config.CompanyId}/vendor", Vendor, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/json",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            var modelSchema = new
+            {
+                Vendor = new
+                {
+                    Id = string.Empty
+                }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            return responseData?.Vendor?.Id;
+        }
+
+        public async Task<string> CreateCustomer(APICustomer Customer)
+        {
+            var response = this.HttpService.POST<APICustomer>($"{this.Config.BaseURL}company/{this.Config.CompanyId}/customer", Customer, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/json",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = this.HttpService.POST<APICustomer>($"{this.Config.BaseURL}company/{this.Config.CompanyId}/customer", Customer, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/json",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            var modelSchema = new
+            {
+                Vendor = new
+                {
+                    Id = string.Empty
+                }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            return responseData?.Vendor?.Id;
+        }
+
+        public async Task<string> CreateInvoice(APIInvoice Invoice) {
+            var response = this.HttpService.POST<APIInvoice>($"{this.Config.BaseURL}company/{this.Config.CompanyId}/invoice", Invoice, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/json",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = this.HttpService.POST<APIInvoice>($"{this.Config.BaseURL}company/{this.Config.CompanyId}/invoice", Invoice, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/json",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            var modelSchema = new
+            {
+                Invoice = new
+                {
+                    Id = string.Empty
+                }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            return responseData?.Invoice?.Id;
+        }
+
+        public async Task<string> UploadFile(APIUploadFile UploadFile)
+        {
+            var payload = this.CreateUploadFilePayload(UploadFile);
+
+            var response = this.HttpService.POST<string>($"{this.Config.BaseURL}company/{this.Config.CompanyId}/upload", payload, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = $"multipart/form-data; boundary={BOUNDARY}",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = this.HttpService.POST<string>($"{this.Config.BaseURL}company/{this.Config.CompanyId}/upload", payload, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = $"multipart/form-data; boundary={BOUNDARY}",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+
+            var attachableSchema = new
+            {
+                Attachable = new
+                {
+                    Id = string.Empty
+                }
+            };
+
+            var modelSchema = new
+            {
+                AttachableResponse = new[] { attachableSchema }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            return responseData?.AttachableResponse.FirstOrDefault()?.Attachable?.Id;
+        }
+
+        public async Task<IEnumerable<APIItem>> GetItems()
+        {
+            var query = "Select * from Item STARTPOSITION 1 MAXRESULTS 1000";
+            var response = this.HttpService.POST_DATA($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                query
+            }, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/text",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = this.HttpService.POST_DATA($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                    query
+                }, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/text",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            var modelSchema = new
+            {
+                QueryResponse = new
+                {
+                    Item = new APIItem[] { }
+                }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            return responseData?.QueryResponse?.Item;
+        }
+
+        public async Task<IEnumerable<APINameId>> GetTaxCodes()
+        {
+            var query = "Select Name, Id From TaxCode";
+            var response = this.HttpService.POST_DATA($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                query
+            }, null, new Dictionary<string, string>
+            {
+                ["Accept"] = "application/json",
+                ["Content-Type"] = "application/text",
+                ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+            });
+
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                await this.RefreshToken();
+
+                response = this.HttpService.POST_DATA($"{this.Config.BaseURL}company/{this.Config.CompanyId}/query", new List<string> {
+                    query
+                }, null, new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/text",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                });
+            }
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            var modelSchema = new
+            {
+                QueryResponse = new
+                {
+                    TaxCode = new APINameId[] { }
+                }
+            };
+
+            var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
+            return responseData?.QueryResponse?.TaxCode;
+        }
+
         // --- 
+
+        private string CreateUploadFilePayload(APIUploadFile UploadFile)
+        {
+            // IMPORTANT! DO NOT REMOVE INDENTATION!!
+            return $@"
+--{BOUNDARY}
+Content-Disposition: form-data; name=""file_metadata_0""
+Content-Type: application/json; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+{{
+    ""AttachableRef"": [
+    {{
+        ""EntityRef"": {JsonConvert.SerializeObject(UploadFile.EntityRef)}
+    }}
+    ],
+    ""FileName"": ""{UploadFile.FileName}"",
+    ""ContentType"": ""{UploadFile.ContentType}""
+}}
+--{BOUNDARY}
+Content-Disposition: form-data; name=""file_content_0""; filename=""{UploadFile.FileName}""
+Content-Type: {UploadFile.ContentType}
+Content-Transfer-Encoding: base64
+
+{UploadFile.FileContentBase64}
+--{BOUNDARY}--
+            ";
+        }
 
         private APIErrorResponse ParseError(string ErrorRaw) {
             /*

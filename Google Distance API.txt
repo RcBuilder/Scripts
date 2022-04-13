@@ -1,0 +1,132 @@
+Google Distance API
+-------------------
+
+syntax:
+https://maps.googleapis.com/maps/api/distancematrix/json?key=<key>&origins=<from>&destinations=<to>
+- from -> lat,lng
+- to -> lat,lng
+
+response:
+{
+    "destination_addresses" : [ string ],
+    "origin_addresses" : [ string ],
+    "rows" : [
+        {
+            "elements" : [
+            {
+                "distance" : {
+                    "text" : string,
+                    "value" : int
+                },
+                "duration" : {
+                    "text" : string,
+                    "value" : int
+                },
+                "status" : string
+            }
+            ]
+        }
+    ],
+    "status" : string
+}
+
+-
+
+sample:
+https://maps.googleapis.com/maps/api/distancematrix/json?key=xxxxxxxxxxxxxx&origins=32.1627419,%2034.9321499&destinations=32.166473,34.928285
+
+{
+    "destination_addresses" : [ "עתיר ידע 1 Regues, Kfar Saba, Israel" ],
+    "origin_addresses" : [ "Atir Yeda St 9, Kefar Sava, Israel" ],
+    "rows" : [
+        {
+            "elements" : [
+            {
+                "distance" : {
+                    "text" : "0.6 km",
+                    "value" : 593
+                },
+                "duration" : {
+                    "text" : "2 mins",
+                    "value" : 91
+                },
+                "status" : "OK"
+            }
+            ]
+        }
+    ],
+    "status" : "OK"
+}
+
+---
+
+var details = await new RestaurantsBLL().GetDetails(RestaurantId);
+var apiUrl = $"https://maps.googleapis.com/maps/api/distancematrix/json?key={ConfigSingleton.Instance.GoogleAPIKey}&origins={AddressCoords}&destinations={details.Coords}";
+var result = new HttpServiceHelper().GET<GoogleDistanceResult>(apiUrl);
+
+if (!result.Success) throw new Exception(result.Content);
+return result.Model.Rows.FirstOrDefault().Elements.FirstOrDefault().Distance.Value;  // in meters
+
+-
+
+public class GoogleDistanceResult
+{
+    public class ResultRow
+    {
+        [JsonProperty(PropertyName = "elements")]
+        public IEnumerable<ResultRowElement> Elements { get; set; }
+    }
+
+    public class ResultRowElement
+    {
+		[JsonProperty(PropertyName = "distance")]
+        public ResultRowElementValue Distance { get; set; }
+		
+		[JsonProperty(PropertyName = "duration")]
+		public ResultRowElementValue Duration { get; set; }		
+    }
+	
+	public class ResultRowElementValue
+    {
+        [JsonProperty(PropertyName = "text")]
+        public string Text { get; set; }
+
+        [JsonProperty(PropertyName = "value")]
+        public int Value { get; set; }
+    }
+
+    /*
+        "destination_addresses" : [ string ],
+        "origin_addresses" : [ string ],
+        "rows" : [
+            {
+                "elements" : [
+                {
+                    "distance" : {
+                        "text" : string,
+                        "value" : int
+                    },
+                    "duration" : {
+                        "text" : string,
+                        "value" : int
+                    },
+                    "status" : string
+                }
+                ]
+            }
+        ],
+        "status" : string
+    */
+
+    [JsonProperty(PropertyName = "origin_addresses")]
+    public IEnumerable<string> Source { get; set; }
+
+    [JsonProperty(PropertyName = "destination_addresses")]
+    public IEnumerable<string> Destination { get; set; }
+
+    [JsonProperty(PropertyName = "rows")]
+    public IEnumerable<ResultRow> Rows { get; set; }
+
+    [JsonProperty(PropertyName = "status")]
+    public string Status { get; set; }        
+}
