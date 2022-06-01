@@ -1,0 +1,6 @@
+POSTMAN Download Files
+----------------------
+1. launch postman 
+2. create request which returns a file 
+3. in the Response section > click on 'Save Response' > Save to a file
+4. choose location > Save

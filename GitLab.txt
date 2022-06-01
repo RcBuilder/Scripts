@@ -58,3 +58,22 @@ GitLab Extension for VSCode
 2. Search 'gitlab' > choose 'GitLab Workflow' > Install
 3. Reload
 4. once Completed, open 'Source Control' (menu)
+
+New Project 
+-----------
+(steps)
+[Server]
+1. login to Gitlab > create a new Project 
+2. Clone > Clone with HTTPS > Copy value
+-
+[Local]
+3. open cmd > switch to the project folder 
+4. add .gitignore file 
+5. type the following commands
+   > git init
+   > git remote add GitLabServer <copied-value from chapter 2>
+     https://gitlab.com/RcBuilder/<project>.git
+     https://gitlab.com/RcBuilder/catch-it.git  // sample 
+   > git add .
+   > git commit -m "Init"
+   > git pushLab   // alias

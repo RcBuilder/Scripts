@@ -1,0 +1,8 @@
+POSTMAN Upload Files
+--------------------
+1. launch postman 
+2. set verb as POST
+3. Headers (tab) > set Content-Type as 'multipart/form-data' or 'x-www-form-urlencoded'
+4. Body (tab) > form-data > under 'KEY' column choose a 'File' (instead of Text) 
+   note! a DDL appears at the right end of the input
+5. under 'VALUE' column > click select and upload a file

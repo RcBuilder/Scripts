@@ -1,0 +1,6 @@
+IIS Keep Alive - AlwaysRunning
+------------------------------
+1. launch IIS 
+2. choose Application Pool 
+3. Advanced Settings 
+4. (Tab) General > Start Mode > Set to 'AlwaysRunning'

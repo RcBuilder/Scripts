@@ -1,0 +1,160 @@
+Sources
+-------
+https://www.signserver.org/
+https://hub.docker.com/r/primekey/ejbca-ce
+https://hub.docker.com/r/primekey/signserver-ce
+https://doc.primekey.com/signserver520
+https://doc.primekey.com/signserver520/signserver-installation
+https://doc.primekey.com/signserver520/signserver-introduction
+https://doc.primekey.com/signserver/signserver-integration/client-http-interface
+https://download.primekey.com/docs/SignServer-Enterprise/current/Worker_Status_Summary_Page.html
+https://download.primekey.se/docs/SignServer-Enterprise/4.0.2/manual/integration.html
+
+Binaries
+--------
+see '/Creative/INSTALL/signserver-ce-5.2.0.Final' folder
+
+SignServer container
+--------------------
+https://hub.docker.com/r/primekey/signserver-ce
+> docker run -it --name signserver -p 80:8080 -p 443:8443 -v D:\Cert\TrustedCA.pem:/mnt/external/secrets/tls/cas/ManagementCA.crt -h localhost primekey/signserver-ce:5.2.0 
+notes:
+- it uses internal DB, all data will evaporate once deleted!
+- use --rm to delete container once stopped
+
+web:
+https://localhost/signserver/
+https://localhost/signserver/clientweb
+https://localhost/signserver/adminweb
+https://localhost/signserver/doc/
+
+EJBCA container
+---------------
+https://hub.docker.com/r/primekey/ejbca-ce
+> docker run -it --rm -p 80:8080 -p 443:8443 -h localhost primekey/ejbca-ce
+> https://localhost:443/ejbca/enrol/keystore.jsp
+  copy username + key to login 
+
+// test mode
+> docker run -it -p 80:8080 -p 443:8443 -h localhost -e TLS_SETUP_ENABLED="simple" primekey/ejbca-ce
+
+web:
+https://localhost/ejbca/
+https://localhost/ejbca/retrieve/ca_certs.jsp
+https://localhost/ejbca/adminweb/ca/editcas/managecas.xhtml
+
+Signers
+-------
+https://doc.primekey.com/signserver/signserver-reference/signserver-workers/signserver-signers
+https://doc.primekey.com/signserver/signserver-reference/signserver-workers/signserver-signers/pdf-signer
+
+Create A Crypto Token
+---------------------
+1. run SignServer container
+2. go to https://localhost/signserver/adminweb
+3. (tab) Workers > Add > From Template 
+4. choose 'keystore-crypto.properties'
+5. Remove the "#" before "WORKERGENID1.KEYSTOREPASSWORD=foo123".
+6. apply
+
+Create A PDF Worker
+-------------------
+1. run SignServer container
+2. go to https://localhost/signserver/adminweb
+3. (tab) Workers > Add > From Template 
+4. choose 'pdfsigner.properties'
+5. apply
+
+note! 
+we can customize our signer by changing the worker properties. 
+we can set the page number to add the watermark, can set a custom image and etc.
+to update or add a property, select a worker > switch to 'Configuration' tab > add/edit 
+
+properties:
+// signature position 
+// ll = left lower | ur = upper right
+// llx,lly,urx,ury (e.g: 20,20,120,120)
+VISIBLE_SIGNATURE_RECTANGLE   
+
+Export Workers Properties
+-------------------------
+1. open workers page 
+   https://localhost/signserver/adminweb/workers.xhtml
+2. Export 
+
+API
+---
+https://doc.primekey.com/signserver/signserver-integration/client-http-interface
+
+cURL
+----
+> curl -F workerName=PDFSigner -F file=@D:\\sample.pdf --output D:\\sample-signed.pdf http://localhost/signserver/process
+> curl -F workerName=PDFSigner -F processType=signDocument -F filereceivefile=@D:\\sample.pdf --output D:\\sample-signed.pdf http://localhost/signserver/process
+
+Rest
+----
+POST 	
+H Content-Type=multipart/form-data
+F filereceivefile=<select file>
+F processType=signDocument
+F workerName=PDFSigner
+[Save Response > Save to a file]
+
+Postman
+-------
+see 'SignServer.postman_collection.json'
+
+IMPLEMENTATION
+--------------
+see 'CODE\DocumentSignerManager'
+see 'Creative > DocumentSigner'
+
+WCF
+---
+https://localhost/signserver/ClientWSService/ClientWS?wsdl
+https://doc.primekey.com/signserver520/signserver-integration/client-ws-interface
+
+Setup via Docker
+----------------
+(steps)
+1. run EJBCA container (see 'EJBCA container')
+2. login > go to https://localhost/ejbca/
+3. (menu) Create Browser Certificate > RSA2048 > ENDUSER > Enroll
+4. a new file is downloaded > 'superadmin.p12' > install it as local machine & current user to both Personal & Trusted area
+5. click on 'Certificate chain' link > a new file 'certdist' is downloaded > install it as local machine & current user to both Personal & Trusted area
+6. (menu) Fetch CA certificates >  CA certificate > Download as PEM > 
+7. change the downloaded file 'ManagementCA.pem' to 'TrustedCA.pem'
+8. store certificate password (same password as login)
+9. run SignServer container (see 'SignServer container')
+10. close all browsers (or use other browser such as Edge) 
+11.go to https://localhost/signserver/adminweb/
+12.create a crypto token (see 'Create A Crypto Token')
+13.create a pdf worker (see 'Create A PDF Worker')
+14.go to https://localhost/signserver/clientweb/genericfile.xhtml 
+15.sign a document
+
+MMC
+---
+Windows + R > mmc
+
+BUGS
+----
+issue:
+The notification platform is unavailable.
+
+fix:
+https://forums.docker.com/t/windows-10-docker-error-the-notification-platform-is-unavailable-exception-from-hresult-0x803e0105/89655/3
+
+----------------------------
+chrome://flags/#allow-insecure-localhost
+-
+powershell:
+> New-SelfSignedCertificate -Subject "localhost" -TextExtension @("2.5.29.17={text}DNS=localhost&IPAddress=127.0.0.1&IPAddress=::1")
+> MMC 
+> Personal > Certificates > find 'localhost' > Copy
+> Trusted Root Certification Authorities > Paste
+> iisreset / restart 
+-
+Create a Local Certificate Authority (CA):
+install OpenSSL (Win64OpenSSL_Light-3_0_1.exe)
+> openssl req -newkey rsa:2048 -new -nodes -keyout key.pem -out csr.pem

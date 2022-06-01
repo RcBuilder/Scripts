@@ -418,3 +418,39 @@ I do not use the account features as a regular user but only "under the hood" so
 if you'll need automation scripts (kind of a bot to maintain your account) - I'm always here for your disposal
 
 thanks, Roby (-:
+
+-------------------
+
+hi buddy
+i'm a developer who writes great automation scripts for google ads...
+i can convert almost ANY manual action to a code snippet which can be executed on your own schedule. by using these scripts, you can fully maintain an ads account with no human intervention and by doing so - save lots of time and m-oney.
+
+to create a new account, you need an SEM expert.
+this process includes keywords definition and ads creation...
+only once you have established an account, i can apply my scripts to it
+
+hope it helps
+
+thanks, Roby (-:
+
+-------------------
+
+hi there... 
+i assume when you refer to the tracking script, you mean the conversion script that has been implemented within your website ... 
+
+you should just plant it there (before the closing of the BODY tag within the HTML), nothing more...
+ 
+regarding my services, I provide an automation script of ANY kind for ANY logic to your google ads.
+basically, it's like smalls bots which each provides a specific process on your account entities (campaign, adgroup, ads, keywords, etc.)
+
+we can use those bots for almost ANY action you do manually like checking ad URLs, creating a positive/negative KWs, creating ads automatically based on a data source (like a data feed) or custom logic, and lots more 
+
+just find a process that is time-consuming for you and I'll convert it into a script that executes based on your schedule (minimum interval is 60 min) 
+
+I have several prepared scripts for special prices and I can create any script from scratch for you!
+you'll only be charged for the dev time we invest in creating it. 
+
+hope it helps 
+
+thanks, 
+Roby (-: 

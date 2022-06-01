@@ -1,0 +1,36 @@
+Install MySQL Windows
+---------------------
+
+source:
+https://dev.mysql.com/downloads/mysql/
+https://docs.appspace.com/latest/how-to/setup-mysql-with-mysql-workbench/
+
+installer:
+mysql-installer-web-community-8.0.29.0.msi
+
+account:
+[Oracle Account]
+
+managment tools:
+MySQL Workbench
+
+install:
+(steps)
+1. Run the installer (see 'installer')
+2. Select Products and Features
+   - Applications > MySQL Workbench > choose version to install
+   - MySQL Servers > MySQL Server > choose version to install
+3. Type and Networking 
+   - set port 3306 (default)
+4. Authentication Method
+   - Use Legacy Authentication Method
+5. Accounts and Roles
+   - set password for 'root' account
+6. Windows Service
+   - set service name (e.g: MySQLServer80)
+7. Execute
+
+connect to local db:
+127.0.0.1:3306
+
+

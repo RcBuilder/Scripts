@@ -572,6 +572,7 @@ https://github.com/wiz0u/WTelegramClient/blob/master/EXAMPLES.md
 
 nuget:
 https://www.nuget.org/packages/WTelegramClient/
+> Install-Package WTelegramClient -Version 1.9.1
 > Install-Package WTelegramClient -Version 1.8.3
 > Install-Package WTelegramClient -Version 1.7.6
 

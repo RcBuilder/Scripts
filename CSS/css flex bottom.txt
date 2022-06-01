@@ -1,0 +1,11 @@
+css flex bottom
+---------------
+.content {
+  display: flex;
+  flex-direction: column;
+  justify-items:center;
+  padding-bottom: 10px;
+}
+.content > img { 
+  margin-top: auto;
+}

@@ -1,0 +1,30 @@
+CSS animation & display none
+----------------------------
+css does NOT support animation when switching between display block and none. 
+a recommended workaround that is to use a combination of visibility and opacity. 
+
+-
+
+.alerts-strip {
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
+    min-height: 50px;
+    background: rgba(255, 73, 73, 0.7); // opacity 0.7
+    z-index: 999 !important;
+    color: #fff;
+    font-size: 18px;
+    padding: 10px;
+    text-align: center;
+    transition: all 0.8s linear;
+}
+.alerts-strip.hidden {            
+    opacity: 0;
+    visibility: hidden;
+}
+
+-
+
+note that if changing the 'hidden' class 'visibility' rule to 'display' rule - the animation won't work!

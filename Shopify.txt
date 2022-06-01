@@ -1,30 +1,44 @@
 *** Shopify ***
 ***************
 
-Free Trial:
+Free Trial
+----------
 https://meticsmedia.com/shopify
 
-Store:
+Store
+-----
 https://rcbuilder-6845.myshopify.com
 
-Admin:
+Admin
+-----
 https://rcbuilder-6845.myshopify.com/admin
 
-Dashboards:
+Themes API Reference
+--------------------
+https://shopify.dev/themes/getting-started
+
+Dashboards
+----------
 1. Theme Dashboard  
    - aka 'Theme Editor'
    - select a theme > customise
    - /admin/themes/<theme-id>/editor
-2. Admin Dashboard   
+2. Theme Code Editor   
+   - aka 'Theme Code'
+   - select a theme > Actions > Edit Code
+   - /admin/themes/<theme-id>/
+3. Admin Dashboard   
    - aka 'Dashboard'
    - admin root 
    - /admin/
 
-Setup a Theme:
+Setup a Theme
+-------------
 1. Online Store (menu) > Themes > Explore > Choose > Add 
 2. Once Installed > click on 'Actions' > Publish
 
-Setup:
+Setup
+-----
 1. Setup a Theme (see 'Setup a Theme')
 2. Choose a theme > 'Customize' > you'll reach the Theme Dashboard
 3. Choose a page to customize from the top DDL 
@@ -33,26 +47,31 @@ Setup:
 note! 
 repeat stages 3-4 for every page you want to customize
 
-Theme Settings:
+Theme Settings
+--------------
 on the selected theme > click on 'Theme settings' at the bottom. 
 this reveals the overall style of the current theme. use it to change the theme colors, fonts, icons, images and etc.
 
-Device Preview:
+Device Preview
+--------------
 On the top-right corner, there's a device picker, use it to switch the view based on the selected device. 
 available devices are Mobile, Desktop and Fullscreen 
 
-Page Components:
+Page Components
+---------------
 On the left pane, you'll find all components within the working page. 
 the components structure reflects the page layout and can be modified as per need. 
 we can add, remove, update and change location of each component. 
 e.g - choose Header and upload a logo
 
-Create a Collection:
+Create a Collection
+-------------------
 1. go to /admin/collections/ > Create
 2. choose 'Manual' collection type in order to add items later on
 3. set a name, description and image 
 
-Add a Product:
+Add a Product
+-------------
 1. go to /admin/products > Add
 2. set a name, image, price and stock
 3. choose collection/s to store the product
@@ -61,39 +80,333 @@ note!
 after adding products, you need to mark them as active 
 products > check all > Actions > Set as active 
 
-Set Policies:
+Set Policies
+------------
 1. go to /admin/settings/ > Policies
 2. set each policy content or use a built-in template
 3. add generated policies to the footer menu (see 'Navigation')
 
-Navigation:
+Navigation
+----------
 Admin Dashboard > Online Store > Navigation 
 we can create new, delete and modify an existing menu
 we can append or delete menu items for each menu
 we can add links to our collections 
 common menus are Footer, Main and etc.
 
-Social Media:
+Social Media
+------------
 1. Admin Dashboard > Footer component 
 2. Theme settings
 3. set url for Twitter, Facebook, Pinterest, Instagram, TikTok and etc. 
 
-SEO:
+SEO
+---
 1. Admin Dashboard > Online Store > Preferences
 2. set meta tags, social image, facebook pixel and etc.  
 
-Store Details:
+Store Details
+-------------
 1. Admin Dashboard > Settings > Store Details 
 2. set store details 
 
-Payments:
+Payments
+--------
 1. Admin Dashboard > Settings > Payments
 2. set payment providers
 
-Shipping:
+Shipping
+--------
 1. Admin Dashboard > Settings > Shipping
 2. Manage Rates > set shipping cost (can also choose Free shipping)
 
-Domains:
+Domains
+-------
 1. Admin Dashboard > Settings > Domains
 2. connect a domain (buy new or connect an existing one)
+
+Theme Code Editor
+-----------------
+1. Admin Dashboard > Online Store > Themes 
+2. Choose Active Theme > Actions > Edit Code 
+
+note! 
+we now exposed to the source code of the current theme. 
+we can create Layouts, Templates, Sections, Assets and etc.
+
+Section Schema
+--------------
+https://shopify.dev/themes/architecture/sections/section-schema
+
+- name: string   
+  section name
+
+- tag: string    
+  section wrapper tag (default: div)  
+  article | aside | div | footer | header | section
+
+- class: string  
+  custom class name to append to the section wrapper 
+
+- limit: int
+  how many times a section can be added to a template (default: none)  
+
+- settings: [{
+    type,  // see Setting-types
+    id,
+    label,
+    default,
+    info
+  }]
+  https://shopify.dev/themes/architecture/settings/input-settings  
+
+- blocks: [{}]
+
+Setting-types
+-------------
+checkbox | number | radio | range | select | text | textarea
+article | blog | collection | collection_list | color | color_background | font_picker | html | image_picker | link_list | liquid | page | product | product_list | richtext | url | video_url
+
+Section Structure
+-----------------
+https://shopify.dev/themes/architecture/sections/section-schema
+-
+<html>
+
+{% schema %}
+{% endschema %}
+
+{% javascript %}
+{% endjavascript %}
+
+{% stylesheet %}
+{% endstylesheet %}
+
+Create a Section
+----------------
+1. Theme Code Editor > Sections > Add 
+2. set section name (e.g: demo-section)
+3. set section HTML content, javascript, css and schema (see 'Section Schema')
+4. once created, it'll also apear in the 'Theme Dashboard' menu
+
+note! 
+within a section file, there's a 'schema' block which contains the metadata for the current section, 
+kind of a local object or a section data-source. you can store any data and bind it within your section content.
+
+sample:
+see 'Section samples'
+
+Render a Section Manually
+-------------------------
+1. define a section (see 'Create a Section')
+2. Theme Code Editor > choose a Layout or a Template 
+3. add the following line -> {% section '<section-name>' %}
+
+sample:
+<body>
+    {% section 'demo-section' %}
+</body>
+
+Populate a Section
+------------------
+1. define a section (see 'Create a Section')
+2. Theme Dashboard > select the Section > Locate it 
+3. Set Values
+
+note! 
+we can populate different values for each section added to a page
+
+Liquid API
+----------
+https://shopify.dev/api/liquid/objects
+https://shopify.dev/api/liquid/basics
+
+// all_products
+{% assign producth = all_products['producth'] %}
+<div>  
+  {{producth.title}}
+</div>
+
+-
+
+// ssr 
+{% assign CDN = 'https://cdn.shopify.com/s/files/1/0639/1467/2363/' %}
+<div>  
+  <img src="{{CDN}}{{all_products['producta'].images[0]}}" />    
+</div>
+
+-
+
+// custom settings
+<div>
+  <h3>{{section.settings.header}}</h3>  
+</div>
+{% schema %}
+  {
+    "name": "recommendations",
+    "settings": [
+		{ 
+			"type": "text",  
+			"label": "header:",
+			"id": "header"
+		}
+	],
+	"presets": [
+		{			
+			"name": "recommendations"
+		}
+	]
+  }
+{% endschema %}
+
+
+Section samples
+---------------
+<div>
+  <h3>{{section.settings.header}}</h3>
+  <p class="classA">{{section.settings.description}}</p>
+  
+  {%for block in section.blocks%}
+  	<img src="{{block.settings.image}}" />
+  {%endfor%}
+</div>
+
+{% schema %}
+  {
+    "name": "Some Demo Section",
+    "settings": [
+		{ 
+			"type": "text",  
+			"label": "header:",
+			"id": "header"
+		},
+		{ 
+			"type": "text",  
+			"label": "description:",
+			"id": "description"
+		}
+	],
+	"blocks": [
+		{
+			"type": "image",
+			"name": "images",
+			"settings": [
+				{
+                  "type": "image_picker",
+                  "label": "Some Image",
+                  "id": "image"
+				}
+			]
+		}
+	],
+	"presets": [
+		{			
+			"name": "demo-section"
+		}
+	]
+  }
+{% endschema %}
+
+{% javascript %}
+  console.log('demo-section');
+{% endjavascript %}
+
+{% stylesheet %}
+.classA {
+  color: red;
+}
+{% endstylesheet %}
+
+-
+
+{% assign CDN = 'https://cdn.shopify.com/s/files/1/0639/1467/2363/' %}
+{% assign productsNames = 'producta,producth,productj,productk,productb' | split: ',' %}
+
+<div class="page-width">
+  <div class="catch-it">
+    <h3>{{section.settings.header}}</h3>  
+    <div class="images-wrapper">  
+      {% for pn in productsNames %}
+        <a href="{{all_products[pn].url }}">
+          <img src="{{CDN}}{{all_products[pn].images[0]}}" />  
+        </a>  
+      {% endfor %}
+
+      <!-- 
+		<img src="{{CDN}}{{all_products['producta'].images[0]}}" />   
+		...
+	  --> 
+    </div>
+  </div>
+</div>
+
+{% schema %}
+  {
+    "name": "recommendations",
+    "settings": [
+		{ 
+			"type": "text",  
+			"label": "header:",
+			"id": "header"
+		}
+	],
+	"presets": [
+		{			
+			"name": "recommendations"
+		}
+	]
+  }
+{% endschema %}
+
+{% javascript %}
+  console.log('c_recommendations');  
+{% endjavascript %}
+
+{% stylesheet %}
+.catch-it {	
+	background-color: #fff8f8;		
+	border-radius: 8px;	
+	text-align: center;
+	padding: 5px 0 15px 0;
+}
+.catch-it h3 {	
+	margin: 0;
+	margin-bottom: 4px;
+}
+.catch-it div.images-wrapper {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+    row-gap: 5px;
+    column-gap: 5px;
+	justify-content: center;        
+}
+.catch-it img {	
+	max-width: 200px;
+	border-radius: 8px;	
+}
+{% endstylesheet %}
+
+------------------------------------------------
+// TODO ->> 
+
+section - load from db
+section - call an api
+purchase hook 
+get item details after purchase
+item id (when entering a product page)
+-
+optional: 
+once loaded, call our api which then calls shopify api to fetch related purchases 
+and based on that, calculate best recommendations 
++ caching or/and local storage
+-
+
+{% assign fruits = ["orange", "apple", "peach"] %}  // ERROR! 
+{% assign fruits = "orange,apple,peach" | split: ',' %} // OK 
+
+{% for fruit in fruits %}
+  {{ fruit }}
+{% endfor %}
+
+-

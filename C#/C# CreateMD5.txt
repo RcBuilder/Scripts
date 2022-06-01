@@ -1,0 +1,15 @@
+C# CreateMD5
+------------
+using System.Security.Cryptography
+
+string CreateMD5(string Input) {
+	using (var md5 = MD5.Create()) {
+		var inputBytes = Encoding.UTF8.GetBytes(Input);
+                var hashBytes = md5.ComputeHash(inputBytes);
+
+                var sb = new StringBuilder();
+                for (int i = 0; i < hashBytes.Length; i++)                    
+                        sb.Append(hashBytes[i].ToString("x2"));                    
+                    return sb.ToString();
+       	}
+}

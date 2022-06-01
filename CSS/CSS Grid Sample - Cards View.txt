@@ -1,0 +1,101 @@
+CSS Grid Sample - Cards View
+----------------------------
+.search-result {
+    width: 100%;
+    display: grid;
+    padding: 10px;
+    column-gap: 10px;
+    row-gap: 10px;
+    justify-content: center;
+}
+
+@media (min-width: 468px) {
+    .search-result {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .search-result {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 968px) {
+    .search-result {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+.search-result > a {
+    text-decoration:none;
+}
+
+.search-result > a > div {
+    background-color: #fff;
+    text-align: center;
+    border-radius: 10px;
+    width: 230px;    
+}
+
+.search-result > a > div img {
+    margin-top: 20px;
+    width: 100%;
+    border-radius: 10px;
+}
+
+.search-result > a > div > div:first-child {
+    background-color: #808080;
+    border-radius: 10px 10px 0 0;
+    height: 60px;
+    line-height: 60px;
+    font-size: 20px;
+    color: #fff;
+    margin-bottom: 10px;
+}
+
+---
+
+<div class="search-result">
+
+    <a href="#">
+        <div>
+            <div>
+                פלוני אלמוני
+            </div>
+            <div>
+                <img src="/Resources/default-profile.jpg">
+            </div>
+        </div>
+    </a>
+    <a href="#">
+        <div>
+            <div>
+                פלוני אלמוני
+            </div>
+            <div>
+                <img src="/Resources/default-profile.jpg">
+            </div>
+        </div>
+    </a>
+    <a href="#">
+        <div>
+            <div>
+                פלוני אלמוני
+            </div>
+            <div>
+                <img src="/Resources/default-profile.jpg">
+            </div>
+        </div>
+    </a>
+    <a href="#">
+        <div>
+            <div>
+                פלוני אלמוני
+            </div>
+            <div>
+                <img src="/Resources/default-profile.jpg">
+            </div>
+        </div>
+    </a>
+
+</div>

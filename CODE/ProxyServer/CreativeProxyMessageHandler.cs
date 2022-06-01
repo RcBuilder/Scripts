@@ -95,7 +95,7 @@ namespace ProxyServer
                 client.Timeout = this.Timeout; 
                 var clonedRequest = await CloneHttpRequestMessageAsync(request);
                 clonedRequest.RequestUri = this.BuildTargetRequestUri(request);
-                return await client.SendAsync(clonedRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
+                return await client.SendAsync(clonedRequest, HttpCompletionOption.ResponseContentRead, cancellationToken);
             }                        
         }
 

@@ -1,0 +1,19 @@
+C# RemoveWhiteSpaces
+--------------------
+string RemoveWhiteSpaces(string Input) {                                
+    return string.Concat(Input.Where(c => !Char.IsWhiteSpace(c)));
+
+    /// using Regex
+    /// Console.WriteLine(new Regex(@"\s+").Replace(Input, string.Empty));
+}
+
+-
+
+var input = " AB C D    EF   ";
+Console.WriteLine(RemoveWhiteSpaces(input));  // "ABCDEF"
+
+-
+
+remove whitespaces from json 
+DO NOT remove spaces from the properties value
+return Regex.Replace(Input, @"(""[^""\\]*(?:\\.[^""\\]*)*"")|\s+", "$1");

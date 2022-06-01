@@ -207,12 +207,7 @@ namespace WizColudProxy
         }
 
         public async Task<IEnumerable<ExportAccount>> GetAccounts(string DataFile) {
-            var result = await this.ExportData<ExportDataResult<ExportAccount>>(new ExportDataRequest(DataFile, new ExportDataParameter
-            {
-                FieldName = "SortCode",
-                FieldValue = "300"
-            }));
-
+            var result = await this.ExportData<ExportDataResult<ExportAccount>>(new ExportDataRequest(DataFile));
             return result?.Data;
         }
 

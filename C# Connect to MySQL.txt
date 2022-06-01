@@ -30,6 +30,12 @@ using (var connection = new MySqlConnection(connStr))
 
 Console.ReadKey();
 
+Server
+------
+download:
+https://dev.mysql.com/downloads/mysql/
+mysql-installer-web-community-8.0.29.0.msi
+
 MySQL dashboard
 ---------------
 use 'MySQL Workbench' desktop app to connect to an instance of a MySQL engine. 

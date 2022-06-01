@@ -1,0 +1,40 @@
+Bug:
+error 'read ECONNRESET' on postman
+
+Error:
+read ECONNRESET
+
+Cause:
+one of the servers (target or proxy) has closed the connection
+most chances is that due to slow communication, the proxy has received header bytes but not the content itself
+and then it closed the connection. 
+this can only happens for HttpCompletionOption.ResponseHeadersRead!
+
+Solution:
+change proxy HttpCompletion to ResponseContentRead. 
+HttpCompletionOption.ResponseContentRead! 
+this option tells the proxy server to wait for the Body bytes instead of the Header bytes before closing the connection.
+
+e.g:
+private async Task<HttpResponseMessage> ForwardRequest(HttpRequestMessage request, CancellationToken cancellationToken) {        
+    using (var client = new HttpClient()) {                
+        client.Timeout = this.Timeout; 
+        var clonedRequest = await CloneHttpRequestMessageAsync(request);
+        clonedRequest.RequestUri = this.BuildTargetRequestUri(request);
+        return await client.SendAsync(clonedRequest, HttpCompletionOption.ResponseContentRead, cancellationToken);
+    }                        
+}
+
+--
+
+Bug:
+The underlying connection was closed
+
+Error:
+Invoke-RestMethod : The underlying connection was closed: An unexpected error occurred on a receive.
+
+Cause:
+same as 'read ECONNRESET'
+
+Solution:
+same as 'read ECONNRESET'

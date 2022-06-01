@@ -1,0 +1,88 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .alerts-strip {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;            
+            min-height: 50px;
+            background: rgba(255, 73, 73, 0.7); 
+            z-index: 999 !important;
+            color: #fff;
+            font-size: 18px;
+            padding: 10px;
+            text-align: right;
+            transition: all 0.8s linear;
+        }
+        .alerts-strip.hidden {            
+            opacity: 0;
+            visibility: hidden;
+        }
+        .alerts-strip > a {
+            position: absolute;
+            left: 20px;    
+            cursor: pointer;
+            border: dashed 1px #fff;
+            display: inline-block;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            line-height: 30px;
+            text-align: center;
+        }
+        .alerts-strip > svg {
+            position: absolute;
+            right: 20px;    
+            width: 30px;
+            height: 30px; 
+            fill: #fff;
+        }
+        .alerts-strip > div {
+            width: 80%;
+            padding: 5px 0;
+            border-bottom: dotted 1px #fff;
+            margin: 0 auto;
+        }
+        .alerts-strip > div:last-child {
+            border-bottom: none;
+        }
+
+        .page {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="alerts-strip">
+        <a onclick="this.parentNode.classList.add('hidden')" title="hide strip">X</a>        
+        <svg viewBox="0 0 23 23" xmlns="http://www.w3.org/2000/svg">
+            <path d="M13 17.5a1 1 0 11-2 0 1 1 0 012 0zm-.25-8.25a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5z" />
+            <path fill-rule="evenodd" d="M9.836 3.244c.963-1.665 3.365-1.665 4.328 0l8.967 15.504c.963 1.667-.24 3.752-2.165 3.752H3.034c-1.926 0-3.128-2.085-2.165-3.752L9.836 3.244zm3.03.751a1 1 0 00-1.732 0L2.168 19.499A1 1 0 003.034 21h17.932a1 1 0 00.866-1.5L12.866 3.994z" />
+        </svg>
+
+        <div>בלה בלה בלה</div>
+        <div>בלה בלה בלה</div>
+        <div>בלה בלה בלה</div>
+    </div>
+
+    <div class="page">
+        <h1>
+            Lorem Ipsum
+        </h1>
+        <p>
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+        </p>
+        <p>
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+        </p>
+        <p>
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+        </p>
+    </div>
+</body>
+</html>

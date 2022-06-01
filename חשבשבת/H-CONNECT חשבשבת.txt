@@ -1,0 +1,285 @@
+H-CONNECT חשבשבת
+================
+
+dashboard
+---------
+LOCAL APP (DESKTOP)
+
+api reference
+-------------
+https://api.h-erp.co.il/
+https://api.h-erp.co.il/docs/api
+https://api.h-erp.co.il/docs/setupcust/
+https://api.h-erp.co.il/docs/importintro
+https://api.h-erp.co.il/docs/exportintro
+
+https://h-erp.co.il/wp-content/uploads/2021/03/Hconnect-Documentation4.pdf
+https://h-erp.co.il/wp-content/uploads/2021/05/API-%D7%97%D7%95%D7%91%D7%A8%D7%AA-%D7%97%D7%93%D7%A9%D7%94-%D7%9E%D7%9E%D7%A9%D7%A7_-011-3.pdf
+
+server url
+----------
+https://ws.wizground.com/api
+
+download
+--------
+https://limudit.h-erp.co.il/
+
+process
+-------
+CLIENT <-> SERVER <-> PROVIDER
+
+a client uses the api to integrate with חשבשבת server
+a provider uses a local desktop app which is being synced from and to חשבשבת server. 
+the sync process occurs under-the-hood automatically by the provider app, 2-ways sync! 
+
+a client uses the api to connect with חשבשבת server and send/receive data to/from it. 
+then, the auto sync process merges the data to the provider app. 
+
+note! 
+there's NO direct connection between the client and the provider - it all goes through the חשבשבת server. 
+
+(steps)
+1. get station (see 'get station Id')
+2. get company (see 'get company id')
+3. get provider (see 'get provider id')
+4. get token (see 'generate api token')
+-
+5. create an api request based on the structure defined in the api-reference (see 'api reference')
+6. sign the request (see 'sign the request')
+
+sign the request
+----------------
+in order to sign the request, we need to create a signature using md5 algorithm
+which is based on the request plugin-data along with the company token.
+once created, populate the 'signature' payload property.
+
+-
+
+to sign a request, just concatenate the serialized plugin-data plus the company token, 
+remove any whitespaces and set all properties as string (wrap them with double quotes).
+use md5 to sign it!
+
+syntax:
+signature = md5(<plugin-data> + <api-token>);
+
+note! 
+1. convert plugin-data payload to one line json 
+2. remove any whitespaces 
+3. set all data types as string (e.g: "quantity":"1.00")
+
+-
+
+md5 online generator:
+https://www.md5hashgenerator.com/
+
+remove white spaces online:
+http://jsonviewer.stack.hu/
+
+-
+
+sample:
+{
+    "station": "2efa....732",
+    "plugin": "imovein",
+    "company": "demo",
+    "message": {
+        "netPassportID": "250030",
+        "pluginData": [
+            { 
+                "accountKey":"30001",
+                "Reference":"9000919",
+                "documentid":"34",
+                "itemkey":"4203",
+                "quantity":"1.00"
+            }
+        ]
+    },
+    "signature": "1722d.....f5ad"
+}
+
+// generate signature
+MD5([{"accountKey":"30001","Reference":"9000919","documentid":"34","itemkey":"4203","quantity":"1.00"}]038.......C8C)
+
+-
+
+using:
+let pluginData = [{ "ItemKey": "A2000" }]
+let signature = md5(`${JSON.stringify(pluginData)}xxxxxxxxxxxxx`);  // serialized model + api token 
+let body = {
+    "station": "xxxxxxx",
+    "plugin": "itemin",
+    "company": "demo",
+    "message": {
+        "netPassportID": "250030",
+        "pluginData": pluginData
+    },
+    "signature": signature
+}
+
+import data
+-----------
+use this reference to send data through the api 
+https://api.h-erp.co.il/docs/importintro
+
+export data
+-----------
+use this reference to receive data through the api
+to export data we must first create a report on the provider app! 
+https://api.h-erp.co.il/docs/exportintro
+
+how to:
+1. get company code (see 'get company code')
+2. go to 'דוחות' > then 'מחולל דוחות'
+3. create a report
+   go to 'חדש' > choose data source (כללי, קופה, הנה"ח וכדומה) >
+   customize the report by adding columns to fetch, filters and etc.
+   note! we can create a blank new report or use an existing one as base. 
+4. save your report
+   go to 'דוח' > then 'שמירה בשם'
+5. download your report list > extract it into c:\hash7
+   go to 'דוח' > then 'ייצוא' > choose reports to export 
+6. import the list from chapter 5
+   - option-1
+   go to דוח > then יבוא > load the list > find report id (e.g: 185)
+
+   - option-2
+     if id is not presented in option-1, get the report id from the reports-list built-in report
+	 go to דוחות > then מחולל דוחות > then 'פתיחה' > then 'כללי' > choose 'רשימת דוחות במחולל' > then 'הצגה'
+7. find a report token
+   go to C:\hash7\H-Mobile\H-Mobile-x.x.x\Hconnect > run 'hrep' utility and pass the company code and the report id         
+   > hrep <company-code> <report-id>
+   > hrep 1 185
+
+8. grab the resulted json to use within the api call. 
+   the property 'encrypt_reportData' holds the report-token 
+   the property 'params_data' represents the report filters/params (if any) 
+
+-
+
+code sample:
+TODO ->> 
+
+
+get station Id
+--------------
+1. כלים מתקדמים
+2. פרטי התחברות למובייל
+3. copy the station value 
+
+get company id
+--------------
+1. login to the provider desktop app
+2. find the company you want to connect to
+3. copy its file name (שם הקובץ) - e.g: demo
+
+get company code
+----------------
+1. login to the provider desktop app
+2. find the company you want to connect to
+3. copy its identity (מזהה) - e.g: 1
+
+get provider id
+---------------
+find your provider id
+a 6 digits represents your identity (e.g: 250030)
+
+generate api token
+------------------
+1. הגדרות 
+2. הגדרות H-Connect
+3. create a new row with the following data: 
+   - company name 
+   - provider id 
+   - plugin 
+
+note! 
+each token is related to a provider. 
+same provider with different plugin will get the very same token.
+register a token per provider + plugin (for each plugin in use)
+
+plugins
+-------
+- IMOVEIN		// מסמכים
+- MOVEIN		// פקודות יומן
+- HESHIN		// חשבונות
+- KUPAIN		// קבלות
+- BANKIN		// דפי בנק
+- ITEMIN		// פריטים
+- STOCKHEADERIN	// כותרות למסמכים
+- REPORTS		// משיכת נתונים משרת חשבשבת
+
+postman
+-------
+see 'H-Connect (חשבשבת).postman_collection'
+
+Projects:
+see 'HConnectAPI'
+
+C# Code
+-------
+protected string GenerateSignature<T>(T PluginData) {            
+    string RemoveWhiteSpaces(string Input) {                                
+        return string.Concat(Input.Where(c => !Char.IsWhiteSpace(c)));
+        /// return new Regex(@"\s+").Replace(Input, string.Empty);
+    }
+
+    // MD5([<model>]<token>)
+    string CreateMD5(string Input)
+    {
+        // using System.Security.Cryptography
+        using (var md5 = MD5.Create())
+        {
+            var inputBytes = Encoding.UTF8.GetBytes(Input);
+            var hashBytes = md5.ComputeHash(inputBytes);
+
+            var sb = new StringBuilder();
+            for (int i = 0; i < hashBytes.Length; i++)                    
+                sb.Append(hashBytes[i].ToString("x2"));                    
+            return sb.ToString();
+        }
+    }
+
+    var sPluginData = JsonConvert.SerializeObject(PluginData);
+    return CreateMD5($"[{RemoveWhiteSpaces(sPluginData)}]{this.Config.Token}");
+}
+
+protected APIRequest<T> GenerateAPIRequest<T>(string Plugin, T PluginData)
+{
+    return new APIRequest<T> { 
+        Company = this.Config.Company,
+        Station = this.Config.Station,
+        Signature = this.GenerateSignature(PluginData),
+        Plugin = Plugin,
+        Message = new APIRequestMessage<T> { 
+            Provider = this.Config.Provider,
+            Data = PluginData
+        }
+    };
+}
+
+// using
+var request = this.GenerateAPIRequest(Plugins.MOVEIN, JournalEntry);
+
+using
+-----
+POST https://ws.wizground.com/api
+H Content-Type:application/json
+{
+    "station": "xxxxxxxxxxxxxxxxxxxxx",
+    "plugin": "movein",
+    "company": "demo",
+    "message": {
+        "netPassportID": "250030",
+        "pluginData": [
+            {                 
+                "Reference":"9000919",
+                "transtype":"הוצ",
+                "accountkeydeb1":"30001",
+                "accountkeycred1":"30001",
+                "sufdeb1":"99.00",
+                "sufcred1":"99.00" 
+            }
+        ]
+    },
+    "signature": "xxxxxxxxxxxxxxxx"
+}

@@ -1,0 +1,50 @@
+C# Config Keys Sample Class 
+---------------------------
+
+// Config.cs
+using System.Configuration;
+
+namespace DocumentSigner
+{
+    public class Config
+    {
+        public static string WorkerName
+        {
+            get { return ConfigurationManager.AppSettings["WorkerName"].Trim(); }
+        }
+
+        public static string SrcFolder
+        {
+            get { return ConfigurationManager.AppSettings["SrcFolder"].Trim(); }
+        }
+
+        public static string DestFolder
+        {
+            get { return ConfigurationManager.AppSettings["DestFolder"].Trim(); }
+        }
+
+        public static string Filter
+        {
+            get { return ConfigurationManager.AppSettings["Filter"].Trim(); }
+        }
+
+        public static string ServerURI
+        {
+            get { return ConfigurationManager.AppSettings["ServerURI"].Trim(); }
+        }
+    }
+}
+
+--
+
+// App.Config
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+  <appSettings>
+    <add key="WorkerName" value="PDFSigner" />
+    <add key="SrcFolder" value="D:\FolderA" />
+    <add key="DestFolder" value="D:\FolderB" />
+    <add key="Filter" value="*.pdf" />
+    <add key="ServerURI" value="https://localhost/signserver/process" />
+  </appSettings>
+</configuration>
