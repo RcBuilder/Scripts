@@ -1,0 +1,49 @@
+C# Generic T1 T2 Sample
+-----------------------
+public virtual async Task<bool> SaveAccount(Account Account) {
+    var status = await this.ImportData<Account, ResponseStatus>(this.GenerateAPIRequest(Plugins.HESHIN, Account));
+    return status.Success;
+}
+
+public virtual async Task<bool> SaveJournalEntry(JournalEntry JournalEntry) {
+    var status = await this.ImportData<JournalEntry, ResponseStatus>(this.GenerateAPIRequest(Plugins.MOVEIN, JournalEntry));
+    return status.Success;
+}
+
+public virtual async Task<bool> SaveDocument(Document Document) {
+    var status = await this.ImportData<Document, ResponseStatus>(this.GenerateAPIRequest(Plugins.IMOVEIN, Document));
+    return status.Success;
+}
+
+public virtual async Task<IEnumerable<ExportAccount>> GetAccounts(string DataFile) {
+    var result = await this.ExportData<ExportDataResult<ExportAccount>>(new ExportDataRequest(DataFile));
+    return result?.Data;
+}
+
+// --- 
+
+protected virtual async Task<TOut> ImportData<TIn, TOut>(APIRequest<TIn> Request) {
+    var response = await this.HttpService.POST_ASYNC<APIRequest<TIn>, TOut>($"{HConnectManager.Server}", Request, headers: new Dictionary<string, string>
+    {
+        ["Accept"] = "application/json",
+        ["Content-Type"] = "application/json"
+    });
+    var status = this.ParseResponse(response.Content);
+
+    if (!status.Success)
+        throw new Exception(response.Content);
+    return response.Model;
+}
+
+protected virtual async Task<T> ExportData<T>(ExportDataRequest ExportDataRequest) {           
+    var response = await this.HttpService.POST_ASYNC<ExportDataRequest, T>($"{HConnectManager.Server}", ExportDataRequest, headers: new Dictionary<string, string>
+    {
+        ["Accept"] = "application/json",
+        ["Content-Type"] = "application/json"                
+    });
+    var status = this.ParseResponse(response.Content);
+
+    if (!status.Success)
+        throw new Exception(response.Content);
+    return response.Model;
+}

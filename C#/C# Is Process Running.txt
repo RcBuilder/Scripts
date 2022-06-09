@@ -1,0 +1,13 @@
+C# Is Process Running
+---------------------
+bool isProcessRunning(string ProcessName) {		
+	var processes = Process.GetProcessesByName(ProcessName);			
+	return processes.Length > 0;
+}
+
+---
+
+// check if process is running
+Console.WriteLine(isProcessRunning("Chrome"));
+Console.WriteLine(isProcessRunning("Postman"));
+Console.WriteLine(isProcessRunning("Test"));

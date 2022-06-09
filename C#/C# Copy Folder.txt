@@ -1,0 +1,30 @@
+C# Copy Folder
+--------------
+void CopyFolder(string Source, string Dest, bool IncludeSubFolders = true) {
+	var sourceFolder = new DirectoryInfo(Source);	
+	if (!sourceFolder.Exists)	
+		throw new DirectoryNotFoundException($"Source folder '{Source}' does not exist");
+			
+	if (!Directory.Exists(Dest))	
+		Directory.CreateDirectory(Dest);
+			
+	foreach (var file in sourceFolder.GetFiles())				
+		CopyFile(file.FullName, Path.Combine(Dest, file.Name), true);	
+	
+	if (IncludeSubFolders)
+	{
+		var subFolders = sourceFolder.GetDirectories();
+		foreach (var subFolder in subFolders)						
+			CopyFolder(subFolder.FullName, Path.Combine(Dest, subFolder.Name), IncludeSubFolders);		
+	}
+}
+
+void CopyFile(string Source, string Dest, bool Override = true) {
+	File.Copy(Source, Dest, Override);
+	while (!File.Exists(Dest)) Thread.Sleep(10);		
+}
+
+---
+
+// copy a folder
+CopyFolder(@"D:\TEMP\F1", @"D:\TEMP\F2");

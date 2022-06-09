@@ -1,0 +1,19 @@
+C# Folder Metrics - File Count & Total Size
+-------------------------------------------
+(int Count, long SizeBytes) GetFolderMetrics(string Source) {
+	var size = 0L;
+	var count = 0;
+	
+	var files = Directory.GetFiles(Source, "*.*", SearchOption.AllDirectories);
+	foreach (var file in files)	{		
+		count++;
+		size += new FileInfo(file).Length;
+	}
+	return (count, size);
+}
+
+---
+
+// get folder size and file count
+var metrics = GetFolderMetrics(@"D:\TEMP\F1");
+Console.WriteLine($"{metrics.Count} files, {metrics.SizeBytes} bytes");

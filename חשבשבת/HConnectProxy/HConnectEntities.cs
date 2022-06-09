@@ -23,6 +23,7 @@ namespace HConnectEntities
         public const string HESHIN = "heshin";   // accounts
         public const string KUPAIN = "kupain";   // receipts
         public const string ITEMIN = "itemin";   // items  
+        public const string REPORTS = "Reports"; // reports  
     }
 
     /*
@@ -70,7 +71,7 @@ namespace HConnectEntities
         public string Provider { get; set; }
 
         [JsonProperty(PropertyName = "pluginData")]
-        public IEnumerable<T> Data { get; set; }
+        public T Data { get; set; }
     }
 
     // https://api.h-erp.co.il/docs/imovein#%D7%A1%D7%95%D7%92%D7%99-%D7%94%D7%9E%D7%A1%D7%9E%D7%9B%D7%99%D7%9D-%D7%94%D7%A0%D7%99%D7%AA%D7%A0%D7%99%D7%9D-%D7%9C%D7%A7%D7%9C%D7%99%D7%98%D7%94-%D7%9C%D7%97%D7%A9%D7%91%D7%A9%D7%91%D7%AA--documentid
@@ -232,7 +233,7 @@ namespace HConnectEntities
         [JsonProperty(PropertyName = "Address1")]
         public string Address { get; set; }        
         public string Phone { get; set; }
-        public string ValueDate { get; set; }   // dd-mm-yyyy
+        public string ValueDate { get; set; }   // dd/mm/yyyy
         public string Details { get; set; }
 
         [Required]
@@ -288,104 +289,42 @@ namespace HConnectEntities
 
         public bool Success
         {
-            get { return (this.Body?.Status?.ToLower() ?? "") == "ok"; }
+            get { 
+                return (this.Body?.Status?.ToLower() ?? "") == "ok" || (this.Body?.Result?.ToLower() ?? "") == "ok"; 
+            }
         }
     }
 
     public class ResponseStatusBody
     {
         [JsonProperty(PropertyName = "status")]
-        public string Status { get; set; } = "error";
+        public string Status { get; set; }
+
+        [JsonProperty(PropertyName = "res")]
+        public string Result { get; set; }
 
         [JsonProperty(PropertyName = "err")]
         public string Error { get; set; }        
         public string Message { get; set; }
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    // ---------------------------
-
-
-
-    public interface IExportDataResult<T> {         
-        IEnumerable<T> Data { get; set; }
-    }
-
-    public class ExportDataResult<T> : IExportDataResult<T>
+    // https://api.h-erp.co.il/docs/reports
+    public class ExportDataRequest
     {
-        [JsonProperty(PropertyName = "repdata")]
-        public IEnumerable<T> Data { get; set; }
-    }
-
-    public class ExportAccount
-    {
-        [JsonProperty(PropertyName = "קוד סוג תנועה")]
-        public string MonetaryCodeId { get; set; }
-
-        [JsonProperty(PropertyName = "שם סוג התנועה")]
-        public string MonetaryCodeName { get; set; }
-
-        [JsonProperty(PropertyName = "קוד מיון")]
-        public string SortCodeId { get; set; }
-
-        [JsonProperty(PropertyName = "שם קוד מיון")]
-        public string SortCodeName { get; set; }
-
-        [JsonProperty(PropertyName = "שם חשבון")]
-        public string Name { get; set; }
-
-        [JsonProperty(PropertyName = "מפתח חשבון")]
-        public string Key { get; set; }
-
-        [JsonProperty(PropertyName = "עיר")]
-        public string City { get; set; }
-
-        [JsonProperty(PropertyName = "כתובת")]
-        public string Address { get; set; }
-
-        [JsonProperty(PropertyName = "מיקוד")]
-        public string ZipCode { get; set; }
-
-        [JsonProperty(PropertyName = "טלפון")]
-        public string Phone { get; set; }
-
-        [JsonProperty(PropertyName = "דואר אלקטרוני")]
-        public string Email { get; set; }
-
-        [JsonProperty(PropertyName = "חשבון ראשי")]
-        public string MainAccount { get; set; }
-
-        [JsonProperty(PropertyName = "מספר תיק מס הכנסה")]
-        public string TaxDocId { get; set; }
-    }
-
-    // https://docs.wizcloud.co.il/docs/reportdata/
-    public class ExportDataRequest {         
-        [JsonProperty(PropertyName = "datafile")]
+        [JsonProperty(PropertyName = "encrypt_reportData")]
         public string DataFile { get; set; }
 
-        [JsonProperty(PropertyName = "parameters")]
+        [JsonProperty(PropertyName = "params_data")]
         public IEnumerable<ExportDataParameter> Parameters { get; set; } = Enumerable.Empty<ExportDataParameter>();
 
         public ExportDataRequest(string DataFile) : this(DataFile, null) { }
-        public ExportDataRequest(string DataFile, ExportDataParameter Parameter) {
+        public ExportDataRequest(string DataFile, ExportDataParameter Parameter)
+        {
             this.DataFile = DataFile;
-            if(Parameter != null) this.Parameters = new List<ExportDataParameter> { Parameter };
+            if (Parameter != null) this.Parameters = new List<ExportDataParameter> { Parameter };
         }
     }
 
-    // https://docs.wizcloud.co.il/docs/reportdata#json-example-with-client-changes
     public class ExportDataParameter
     {
         [JsonProperty(PropertyName = "p_name")]
@@ -434,5 +373,62 @@ namespace HConnectEntities
         InsuranceFee = 2,
         IRSRegulations = 3,
         Interest = 4
+    }
+
+    public class ExportDataResultWrapper<T>
+    {        
+        [JsonProperty(PropertyName = "apiRes")]
+        public ExportDataResult<T> Result { get; set; }
+    }
+
+    public class ExportDataResult<T>
+    {
+        [JsonProperty(PropertyName = "res")]
+        public string Status { get; set; }
+
+        [JsonProperty(PropertyName = "data")]
+        public IEnumerable<T> Data { get; set; }
+    }
+
+    public class ExportAccount
+    {
+        [JsonProperty(PropertyName = "קוד סוג תנועה")]
+        public string MonetaryCodeId { get; set; }
+
+        [JsonProperty(PropertyName = "שם סוג התנועה")]
+        public string MonetaryCodeName { get; set; }
+
+        [JsonProperty(PropertyName = "קוד מיון")]
+        public string SortCodeId { get; set; }
+
+        [JsonProperty(PropertyName = "שם קוד מיון")]
+        public string SortCodeName { get; set; }
+
+        [JsonProperty(PropertyName = "שם חשבון")]
+        public string Name { get; set; }
+
+        [JsonProperty(PropertyName = "מפתח חשבון")]
+        public string Key { get; set; }
+
+        [JsonProperty(PropertyName = "עיר")]
+        public string City { get; set; }
+
+        [JsonProperty(PropertyName = "כתובת")]
+        public string Address { get; set; }
+
+        [JsonProperty(PropertyName = "מיקוד")]
+        public string ZipCode { get; set; }
+
+        [JsonProperty(PropertyName = "טלפון")]
+        public string Phone { get; set; }
+
+        [JsonProperty(PropertyName = "דואר אלקטרוני")]
+        public string Email { get; set; }
+
+        [JsonProperty(PropertyName = "חשבון ראשי")]
+        public string MainAccount { get; set; }
+
+        [JsonProperty(PropertyName = "מספר תיק מס הכנסה")]
+        public string TaxDocId { get; set; }
     }
 }

@@ -1,0 +1,22 @@
+C# Write Event Log
+------------------
+
+/// using System.Diagnostics;
+/// EventViewer
+bool WriteEventLog(string Message, string Source = "DefaultSource") {	
+	try{
+		var eventLog = new EventLog();
+		eventLog.Source = Source;
+		eventLog.WriteEntry(Message);
+		return true;
+	}
+	catch {
+		return false;
+	}
+}
+
+---
+
+// write to event log
+WriteEventLog("Test Log 1!");	
+WriteEventLog("Test Log 2!");

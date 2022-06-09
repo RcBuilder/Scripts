@@ -1,0 +1,19 @@
+C# Windows Services - Get Service Status
+----------------------------------------
+
+/// using System.ServiceProcess;
+string GetServiceStatus(string ServiceName) {
+	try{		
+		var sc = new ServiceController(ServiceName);
+		return sc.Status.ToString();
+	}
+	catch(Exception ex){
+		return "NotExists";
+	}
+}
+
+---
+
+// check service status (windows-services)	
+var serviceName = "MongoDB Server";
+Console.WriteLine($"'{serviceName}' is {GetServiceStatus(serviceName)}");

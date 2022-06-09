@@ -1,0 +1,23 @@
+C# Is Within Time Range
+-----------------------
+// HH:mm-HH:mm (e.g: 05:00-18:00)
+bool IsWithinTimeRange(string sTimeRange) {
+    var partsStart = sTimeRange.Split('-')[0].Split(':');
+    var partsEnd = sTimeRange.Split('-')[1].Split(':');
+
+    var start = new TimeSpan(Convert.ToInt32(partsStart[0]), Convert.ToInt32(partsStart[1]), 0); 
+    var end = new TimeSpan(Convert.ToInt32(partsEnd[0]), Convert.ToInt32(partsEnd[1]), 0);
+    var now = DateTime.Now.TimeOfDay;
+    
+	var isAlternateMode = Convert.ToInt32(partsEnd[0]) < Convert.ToInt32(partsStart[0]);
+	
+    return isAlternateMode ? (now >= start || now <= end) : (now >= start && now <= end);
+}
+
+---
+
+// check is current time within the provided range
+// usually used for checking working hours
+Console.WriteLine(IsWithinTimeRange("13:00-01:00"));
+Console.WriteLine(IsWithinTimeRange("13:00-16:00"));
+Console.WriteLine(IsWithinTimeRange("23:00-01:00"));

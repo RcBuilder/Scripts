@@ -107,32 +107,33 @@ namespace HConnectProxy
 
         public virtual async Task<bool> SaveAccount(Account Account)
         {
-            var status = await this.ImportData<Account, ResponseStatus>(this.GenerateAPIRequest(Plugins.HESHIN, Account));
+            var status = await this.ImportData<Account, ResponseStatus>(Plugins.HESHIN, Account);
             return status.Success;
         }
 
         public virtual async Task<bool> SaveJournalEntry(JournalEntry JournalEntry)
         {
-            var status = await this.ImportData<JournalEntry, ResponseStatus>(this.GenerateAPIRequest(Plugins.MOVEIN, JournalEntry));
+            var status = await this.ImportData<JournalEntry, ResponseStatus>(Plugins.MOVEIN, JournalEntry);
             return status.Success;
         }
 
         public virtual async Task<bool> SaveDocument(Document Document)
         {
-            var status = await this.ImportData<Document, ResponseStatus>(this.GenerateAPIRequest(Plugins.IMOVEIN, Document));
+            var status = await this.ImportData<Document, ResponseStatus>(Plugins.IMOVEIN, Document);
             return status.Success;
         }
 
         public virtual async Task<IEnumerable<ExportAccount>> GetAccounts(string DataFile) {
-            var result = await this.ExportData<ExportDataResult<ExportAccount>>(new ExportDataRequest(DataFile));
-            return result?.Data;
+            var result = await this.ExportData<ExportAccount>(new ExportDataRequest(DataFile));
+            return result?.Data;            
         }
 
         // --- 
 
-        protected virtual async Task<TOut> ImportData<TIn, TOut>(APIRequest<TIn> Request)
+        protected virtual async Task<TOut> ImportData<TIn, TOut>(string Plugin, TIn Model)
         {
-            var response = await this.HttpService.POST_ASYNC<APIRequest<TIn>, TOut>($"{HConnectManager.Server}", Request, headers: new Dictionary<string, string>
+            var Request = this.GenerateAPIRequest(Plugin, new List<TIn> { Model });
+            var response = await this.HttpService.POST_ASYNC<APIRequest<List<TIn>>, TOut>($"{HConnectManager.Server}", Request, headers: new Dictionary<string, string>
             {
                 ["Accept"] = "application/json",
                 ["Content-Type"] = "application/json"
@@ -144,9 +145,10 @@ namespace HConnectProxy
             return response.Model;
         }
 
-        protected virtual async Task<T> ExportData<T>(ExportDataRequest ExportDataRequest)
-        {           
-            var response = await this.HttpService.POST_ASYNC<ExportDataRequest, T>($"{HConnectManager.Server}", ExportDataRequest, headers: new Dictionary<string, string>
+        protected virtual async Task<ExportDataResult<T>> ExportData<T>(ExportDataRequest ExportDataRequest)
+        {
+            var Request = this.GenerateAPIRequest(Plugins.REPORTS, ExportDataRequest);
+            var response = await this.HttpService.POST_ASYNC<APIRequest<ExportDataRequest>, ExportDataResultWrapper<T>>($"{HConnectManager.Server}", Request, headers: new Dictionary<string, string>
             {
                 ["Accept"] = "application/json",
                 ["Content-Type"] = "application/json"                
@@ -155,7 +157,7 @@ namespace HConnectProxy
 
             if (!status.Success)
                 throw new Exception(response.Content);
-            return response.Model;
+            return response.Model.Result;
         }
 
         protected string GenerateSignature<T>(T PluginData)
@@ -194,7 +196,7 @@ namespace HConnectProxy
                 Plugin = Plugin,
                 Message = new APIRequestMessage<T> { 
                     Provider = this.Config.Provider,
-                    Data = new T[] { PluginData }
+                    Data = PluginData
                 }
             };
 
@@ -211,6 +213,17 @@ namespace HConnectProxy
                     "status": "ok"
                 },
                 "actionType": "movein",
+                "messType": "apiReplay"
+            }
+
+            EXPORT
+            ------
+            {
+                "apiRes": {
+                    "res": "ok",
+                    "data": []
+                },
+                "actionType": "Reports",
                 "messType": "apiReplay"
             }
 
@@ -235,15 +248,25 @@ namespace HConnectProxy
         {
             var result = new ResponseStatus();
 
-            var parts = ErrorRaw.Split('|');
-            if (parts != null && parts.Length > 1)
+            try
             {
-                result = JsonConvert.DeserializeObject<ResponseStatus>(parts[1]);
-                result.Body.Message = parts[0];
+                var parts = ErrorRaw.Split('|');
+                if (parts != null && parts.Length > 1)
+                {
+                    result = JsonConvert.DeserializeObject<ResponseStatus>(parts[1].Trim());
+                    result.Body.Message = parts[0];
+                }
+                else
+                {
+                    result = JsonConvert.DeserializeObject<ResponseStatus>(parts[0].Trim());
+                }
             }
-            else 
-            {
-                result = JsonConvert.DeserializeObject<ResponseStatus>(parts[0]);                
+            catch (Exception Ex) {
+                result.Body = new ResponseStatusBody
+                {
+                    Error = Ex.Message,
+                    Status = "error"
+                };
             }
 
             return result;

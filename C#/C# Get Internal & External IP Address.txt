@@ -1,0 +1,48 @@
+C# Get Internal & External IP Address
+-------------------------------------
+
+/// using System.Net;
+/// using System.Net.Sockets;
+string GetInternalIP() {
+	var host = Dns.GetHostEntry(Dns.GetHostName());
+    foreach (var ip in host.AddressList)    
+        if (ip.AddressFamily == AddressFamily.InterNetwork)
+            return ip.ToString();        
+
+	/*
+	using (var socket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.IP)) {
+		socket.Connect("8.8.8.8", 65530);
+		var iPEndPoint = socket.LocalEndPoint as IPEndPoint;
+		return iPEndPoint.Address.ToString();
+	}
+	*/
+	
+	return null;	
+}
+
+/// using System.Net.Http;
+string GetExternalIP() {
+	var provider = "http://icanhazip.com";
+	var strIP = new WebClient().DownloadString(provider).Replace("\\r\\n", "").Replace("\\n", "").Trim();
+    return IPAddress.Parse(strIP)?.ToString();
+}
+
+---
+
+// get internal ip address
+try{
+	var result = GetInternalIP();
+	Console.WriteLine(result);
+}
+catch (Exception ex) {
+    Console.WriteLine(ex.Message);
+}
+	
+// get external ip address
+try{
+	var result = GetExternalIP();
+	Console.WriteLine(result);
+}
+catch (Exception ex) {
+    Console.WriteLine(ex.Message);
+}

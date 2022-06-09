@@ -1,0 +1,20 @@
+C# Is File Locked
+-----------------
+bool IsFileLocked(FileInfo File) {
+	FileStream fileStream = null;	
+	try {
+		fileStream = File.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+		return false;
+	}
+	catch (IOException) {
+		return true;
+	}
+	finally {
+		if (fileStream != null) fileStream.Close();		
+	}		
+}
+
+---
+
+// check if file is locked 
+Console.WriteLine(IsFileLocked(new FileInfo("D:\\tbl1.csv")) ? "LOCKED" : "OK");

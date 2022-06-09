@@ -1,0 +1,41 @@
+C# Execute CMD Commands
+-----------------------
+
+/// using System.Diagnostics;
+string ExecuteProcess(string FileName, string Arguments) {
+	var process = new Process {
+        StartInfo = new ProcessStartInfo
+        {
+			WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden,
+			WorkingDirectory = new FileInfo(FileName).DirectoryName,
+            FileName = FileName,
+            Arguments = Arguments,
+            UseShellExecute = false, 
+			RedirectStandardOutput = true,
+            CreateNoWindow = true
+        }
+    };
+	
+	process.Start();
+	var result = process.StandardOutput.ReadToEnd();
+	
+	process.WaitForExit();
+	process.Dispose();
+	
+	return result;
+}
+
+string ExecuteCMDCommand(string Command) {
+	return ExecuteProcess("C:\\Windows\\system32\\cmd.exe", $"/C {Command}");
+}
+
+---
+
+// execute a CMD commands
+try {
+	var result = ExecuteCMDCommand("echo HELLO WORLD");
+	Console.WriteLine(result);
+}
+catch (Exception ex) {
+    Console.WriteLine(ex.Message);
+}
