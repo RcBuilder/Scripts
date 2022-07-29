@@ -1,0 +1,22 @@
+IO File ReadAllLines
+--------------------
+
+string[] File.ReadAllLines(<path>, <encoding>)
+
+-
+
+var lines = File.ReadAllLines($"{AppDomain.CurrentDomain.BaseDirectory}\\Kill.txt", Encoding.UTF8);
+foreach (var line in lines)
+	WindowsHelper.KillProcess(line.Trim());
+
+-
+
+var folder = new DirectoryInfo(@"C:\Creative");
+var file = folder.GetFiles(@"Manager\Application.ini")?.FirstOrDefault();	
+Console.WriteLine($"{file.FullName}");
+
+var rows = File.ReadAllLines(file.FullName);
+var row = rows.FirstOrDefault(r => r.StartsWith("ApplicationName"));
+Console.WriteLine(row ?? "NULL");
+
+-

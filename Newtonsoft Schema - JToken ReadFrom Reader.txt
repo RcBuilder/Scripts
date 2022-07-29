@@ -1,0 +1,64 @@
+Newtonsoft Schema - JToken ReadFrom Reader
+------------------------------------------
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+-
+
+var entities = new List<EntityObject>();
+
+var filePath = AppDomain.CurrentDomain.BaseDirectory + "Resources\\schema.json";
+
+JObject schema;
+using (var file = System.IO.File.OpenText(filePath))
+using (var reader = new JsonTextReader(file))
+    schema = (JObject)JToken.ReadFrom(reader);
+
+// schema.data.__schema.types
+var items = schema["data"]["__schema"]["types"];
+
+foreach (var item in items)  
+{
+    var entity = item.ToObject<EntityObject>();
+    if (entity.Name.StartsWith("__")) continue; // special objects - skip
+    if (entity.Kind == "SCALAR") continue; // primitive objects - skip
+    entities.Add(entity);
+}
+
+-
+
+public class Entity
+{
+    [JsonProperty("kind")]
+    public string Kind { get; set; }
+
+    [JsonProperty("name")]
+    public string Name { get; set; }
+
+    [JsonProperty("description")]
+    public string Description { get; set; }
+
+    [JsonProperty("type")]
+    public FieldType Type { get; set; }
+
+    [JsonProperty("ofType")]
+    public FieldType OfType { get; set; }
+}
+
+public class EntityObject : Entity
+{
+    [JsonProperty("fields")]
+    public List<Field> Fields { get; set; }
+
+    [JsonProperty("enumValues")]
+    public List<EnumItem> EnumItems { get; set; }
+}
+
+public class Field : Entity
+{
+    [JsonProperty("args")]
+    public List<Arg> Args { get; set; }
+}
+
+ public class EnumItem : Entity { }

@@ -70,3 +70,16 @@ public async Task<ActionResult> AddInventory(Entities.Inventory Model)
 @Html.DropDownListFor(m => m.Id, (IEnumerable<SelectListItem>)ViewBag.InventoryDDL, new { @class = "input-1" })
 
 -
+
+@Html.DropDownListFor(m => m.OrderBy, new List<SelectListItem> {
+    new SelectListItem{  Value = "OrderDateASC",  Text = "ת.אספקה - ישן קודם" },
+    new SelectListItem{  Value = "OrderDateDESC", Text = "ת.אספקה - חדש קודם" },
+    new SelectListItem{  Value = "StatusASC", Text = "סטטוס הזמנה" }
+}, new { @class = "select select-150" })
+
+@Html.DropDownListFor(m => m.BusinessType, new List<SelectListItem> {
+    new SelectListItem{  Value = "0",  Text = "מסעדה" },
+    new SelectListItem{  Value = "1", Text = "אונליין" },                        
+})
+
+-

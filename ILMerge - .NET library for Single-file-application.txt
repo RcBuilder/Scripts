@@ -8,6 +8,7 @@ https://stackoverflow.com/questions/8077570/how-to-merge-multiple-assemblies-int
 
 nuget:
 > Install-Package ilmerge
+> Install-Package ILMerge.MSBuild.Task
 
 once installed, any build will generate an additional 
 single-application file (dll or exe) under the bin folder.

@@ -20,6 +20,7 @@ Stack
 
 System.Collections.Concurrent
 -----------------------------
+BlockingCollection<T>
 ConcurrentBag<T>	
 ConcurrentDictionary<TKey,TValue>	
 ConcurrentQueue<T>	

@@ -6,6 +6,7 @@ Interview Questions
 [N] Note
 [A] Answer
 [R] Result
+[S] Sample
 -------------------
 
 [Q] SQL
@@ -318,3 +319,61 @@ event loop
 see 'javascript event loop'
 
 -------
+
+[Q] Code Issues
+whats wrong with this code 
+
+[G]
+static void Main(string[] args) {
+    var worker = new MyWorkerClass();
+    var task1 = worker.DoWorkAsync(1000);
+    var task2 = worker.DoWorkAsync(2000);
+    Task.WaitAll(task1, task2);
+    Console.WriteLine($"{worker.ItemsProcessed}");
+}
+
+public class MyWorkerClass {    
+    public int ItemsProcessed = 0;    
+
+    public Task DoWorkAsync(int num)
+    {
+        return Task.Factory.StartNew(() =>
+        {
+            for (int i = 0; i < num; i++)                            
+                ItemsProcessed++;            
+        });
+    }
+}
+
+
+[A]
+the output can be any value between 1 and 2000 and it might differ per execution!
+
+due to the usage of the same class instance in 2 threads and the fact that the data-member 'ItemsProcessed' is NOT threadsafe, 
+we can get different output for each execution. 
+the reason lies in the way the compiler handles the '++' operator. it reads the current value to a temp variable, promote it by 1 and save it again. 
+in between, other thread might override the value (cause both threads try to update the same data member)
+
+ItemsProcessed++ statement under the hood:
+var temp = ItemsProcessed
+temp = temp + 1
+ItemsProcessed = temp
+
+[R]
+to solve that behaviour, use 'lock' statement or 'Interlocked.Increment' function. 
+
+[S]
+public class MyWorkerClass {    
+    public int ItemsProcessed = 0;    
+
+    public Task DoWorkAsync(int num)
+    {
+        return Task.Factory.StartNew(() =>
+        {
+            for (int i = 0; i < num; i++)                            
+                Interlocked.Increment(ref this.ItemsProcessed);
+        });
+    }
+}
+
+------- 	

@@ -1,0 +1,9 @@
+C# string.Join Sample
+---------------------
+IEnumerable<int> Ids1 = new List<int>{ 1,2,3 };
+IEnumerable<int> Ids2 = new List<int>();
+IEnumerable<int> Ids3 = null;
+
+Console.WriteLine("1: " + string.Join(",", Ids1 ?? Enumerable.Empty<int>()));  // 1,2,3
+Console.WriteLine("2: " + string.Join(",", Ids2 ?? Enumerable.Empty<int>()));  // Empty
+Console.WriteLine("3: " + string.Join(",", Ids3 ?? Enumerable.Empty<int>()));  // Empty

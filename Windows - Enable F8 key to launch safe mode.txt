@@ -1,0 +1,6 @@
+Windows - Enable F8 key to launch safe mode
+-------------------------------------------
+run cmd as administrator:
+> bcdedit /set {default} bootmenupolicy legacy
+
+restart using F8 key for safe mode 

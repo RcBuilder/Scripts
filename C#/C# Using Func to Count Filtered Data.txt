@@ -1,0 +1,33 @@
+C# Using Func to Count Filtered Data
+------------------------------------
+
+// filter data from the last 1 hours
+Func<long, bool> CountBy1HoursFilter = timestamp =>
+{
+    var ts = DateTime.Now - new DateTime(timestamp);
+    return ts.TotalHours <= 1;
+};
+
+// filter data from the last 24 hours
+Func<long, bool> CountBy24HoursFilter = timestamp =>
+{
+    var ts = DateTime.Now - new DateTime(timestamp);
+    return ts.TotalHours <= 24;
+};
+
+-
+
+var latestFailures = new List<long>{
+	DateTime.Now.Ticks,	
+	DateTime.Now.AddMinutes(-30).Ticks,	
+	DateTime.Now.AddHours(-1).Ticks,
+	DateTime.Now.AddHours(-2).Ticks,
+	DateTime.Now.AddHours(-3).Ticks,
+	DateTime.Now.AddDays(-2).Ticks,
+};
+
+var countBy1Hours = latestFailures.Count(CountBy1HoursFilter);
+var countBy24Hours = latestFailures.Count(CountBy24HoursFilter);
+
+Console.WriteLine($"Last Hour: {countBy1Hours}");  // 3
+Console.WriteLine($"Last 24 Hours: {countBy24Hours}");	// 5

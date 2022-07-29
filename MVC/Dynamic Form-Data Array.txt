@@ -1,0 +1,135 @@
+Dynamic Form-Data Array
+-----------------------
+allows us to upload multiple rows of form data. 
+
+two or more form data using the same name will be passed to the server as a concatenation of these values splitted by comma,
+in the below example, we use a custom binder to convert them into an array of objects (IEnumerable<DataRow>). 
+we use javascript to allow the user to automatically add more rows of the same schema (in this sample: name & age).
+
+request.Form[<key>] returns an input value based on it's name, when multiple values is sent - the values are joined together as a single comma-seperated string. 
+we use the Linq 'Zip' function to merge the splitted values of each input by index. 
+
+for example
+row-1 -> name = 'A', age = 10
+row-2 -> name = 'B', age = 20
+row-3 -> name = 'C', age = 30
+
+request.Form["name"]  // A,B,C
+request.Form["age"]  // 10,20,30
+
+-----------------------
+
+
+-- SERVER --
+
+// Controller
+[HttpPost]
+public ActionResult DynamicFormDataArray([ModelBinder(typeof(DataRowBinder))]IEnumerable<DataRow> Model)
+{
+    return View(Model);
+}
+
+// Model
+public class DataRow {
+    [JsonProperty("name")]
+    public string Name { get; set; }
+
+    [JsonProperty("age")]
+    public int Age { get; set; }
+
+}
+
+// Custom Binder
+public class DataRowBinder : DefaultModelBinder
+{
+    public override object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+    {
+        var request = controllerContext.HttpContext.Request;
+        var merged = request.Form["name"].Split(',').Zip(request.Form["age"].Split(','), (name, age) => new DataRow
+        {
+            Name = name,
+            Age = Convert.ToInt32(age)
+        });
+
+        return merged;
+    }
+}
+
+
+-- CLIENT --
+
+// Model Reference
+@model IEnumerable<DataRow>
+
+--
+
+// Css
+.data-wrapper {
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    margin-bottom: 20px;
+}
+
+--
+
+// Js
+<script>
+    $('#btnAdd').click(addDataRow)
+
+    const dataWrapper = $('.data-wrapper');        
+    const oName = $('#name-new');
+    const oAge = $('#age-new');
+
+    const rowTemplate = `<div>
+        <input type="text" name="name" placeholder="name" value='{0}' />
+        <input type="number" name="age" placeholder="age" value='{1}' />
+    </div>`;
+
+    function addDataRow() {
+        let name = oName.val();
+        let age = oAge.val();
+        if (name == '' || age == '') return;
+
+        dataWrapper.append(rowTemplate.replace('{0}', name).replace('{1}', age));
+        clear();
+    }
+
+    function clear() {
+        oName.val(''); oAge.val('');
+    }
+</script>
+
+--
+
+// Html
+<div>
+    <h1>Dynamic Form Data Array</h1>
+
+    @using (@Html.BeginForm("DynamicFormDataArray", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+    {
+        <div class="data-wrapper">
+            <div>
+                <input id="name-new" type="text" placeholder="name" />
+                <input id="age-new" type="number" placeholder="age" />
+
+                <button id="btnAdd" type="button" class="btn btn-lg btn-default">+</button>
+            </div>
+            @if (Model != null) {
+                foreach (var row in Model) { 
+                    <div>
+                        <input type="text" name="name" placeholder="name" value='@row.Name' />
+                        <input type="number" name="age" placeholder="age" value='@row.Age' />
+                    </div>
+                }
+            }
+        </div>
+
+        <button type="submit" class="btn btn-lg btn-default">POST</button>
+    }    
+</div>
+
+-----------------------
+
+-- Usage --
+see 'TestProjects/TestMVC2/DynamicFormDataArray' 

@@ -1,0 +1,122 @@
+Google Gmail API
+----------------
+
+reference:
+https://developers.google.com/gmail/api/
+https://developers.google.com/gmail/api/reference/rest
+https://developers.google.com/gmail/api/quickstart/dotnet
+https://mycodebit.com/send-emails-in-asp-net-core-5-using-gmail-api/
+
+scopes:
+https://googleapis.dev/dotnet/Google.Apis.Gmail.v1/latest/api/Google.Apis.Gmail.v1.GmailService.Scope.html
+
+process:
+(steps)
+1. go to Google Cloud Platform
+   https://console.cloud.google.com/
+2. Enable 'Gmail API'
+3. Credentials > Create > OAuth Client ID > (app type) Desktop app 
+4. Download json credentials > copy it to the app folder 
+5. OAuth consent screen > Publish app
+5. install library via nuget 
+   > Install-Package Google.Apis.Gmail.v1
+6. see sample code below
+
+implementations:
+- see 'CODE > GmailServiceManager.cs'
+- see 'Creative > Mailer'
+
+issues:
+Google hasn’t verified this app
+https://support.google.com/cloud/answer/7454865
+
+nuget:
+> Install-Package Google.Apis.Gmail.v1 -Version 1.57.0.2650
+
+---
+
+[SAMPLE CODE]
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Gmail.v1.Data;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+
+ServicePointManager.Expect100Continue = true;
+ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+
+// user credentials token
+// if no token.json exists, a consent screen will be shown. once the user approve it, a new token.json file will be created!
+UserCredential credential;            
+using (var stream = new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
+{                                
+    credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+        GoogleClientSecrets.FromStream(stream).Secrets,
+        new string[] { GmailService.Scope.GmailReadonly, GmailService.Scope.GmailSend },
+        "user",
+        CancellationToken.None,
+        new FileDataStore("token.json", true)).Result;
+}
+            
+// create gmail service 
+var service = new GmailService(new BaseClientService.Initializer
+{
+    HttpClientInitializer = credential,
+    ApplicationName = "Test"
+});
+
+
+// read labels
+// scope: GmailService.Scope.GmailReadonly
+var request = service.Users.Labels.List("me");            
+var labels = request.Execute().Labels;
+                        
+foreach (var labelItem in labels)
+    Console.WriteLine("{0}", labelItem.Name);  
+
+-
+
+// send email on behalf
+// scope: GmailService.Scope.GmailSend
+var messageRawBody = CreateMessage();
+service.Users.Messages.Send(new Message {      
+    Raw = this.Base64UrlEncode(messageRawBody)
+}, "me").Execute();
+
+-
+
+// CreateMessage method
+
+// [OPTION-1]
+var messageRawBody = "To: RcBuilder@gmail.com\r\n" +
+        "Subject: Test Subject\r\n" +
+        "Content-Type: text/html; charset=utf-8\r\n\r\n" +
+        "<h1>Body Test 3</h1>";
+            
+
+// [OPTION-2]
+var emailData = new
+{
+    To = "RcBuilder@gmail.com",
+    Subject = "Test Subject",
+    Body = "<h1>Body Test 3</h1>"
+};
+
+var messageRawBody = $"To: {emailData.To}\r\nSubject: {emailData.Subject}\r\nContent-Type: text/html;charset=utf-8\r\n\r\n<h1>{emailData.Body}</h1>";
+
+
+// [OPTION-3]
+// Using MimeKit
+// https://www.nuget.org/packages/MimeKit/
+// Install-Package MimeKit
+
+using (var mailMessage = new MailMessage()){
+	mail.Subject = "Test Subject";
+	mail.Body = "<h1>Body Test 4</h1>";            
+	mail.IsBodyHtml = true;            
+	mail.To.Add(new MailAddress("RcBuilder@gmail.com"));            
+	mail.Attachments.Add(new Attachment(@"D:\TEMP\Mailer\Outbox_signed\40086-he.pdf"));
+	mail.Attachments.Add(new Attachment(@"D:\TEMP\Mailer\Outbox_signed\1.txt"));
+	var mimeMessage = MimeKit.MimeMessage.CreateFromMailMessage(mail);            
+	var messageRawBody = mimeMessage.ToString();
+}

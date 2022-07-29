@@ -1,0 +1,16 @@
+DirectoryInfo Bug - Relative Path
+---------------------------------
+for cases where the current executor (linqpad, windows service, etc.) is located 
+in the same drive as the loaded path - we MUST use '\' as suffix of the populated value.
+
+e.g:
+// when the executor is located under drive C, it's relative path will be loaded as folder 
+var folder = new DirectoryInfo("C:"); 
+
+// to fix that behaviour, we need to add '\' suffix 
+var folder = new DirectoryInfo("C:\"); 
+
+--
+
+Console.WriteLine(new DirectoryInfo("C:").FullName);   // C:\ProgramData\LINQPad\Updates50\543
+Console.WriteLine(new DirectoryInfo("C:\\").FullName); // C:\

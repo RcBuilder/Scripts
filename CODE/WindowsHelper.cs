@@ -5,20 +5,27 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Reflection;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Net.NetworkInformation;
 
 namespace Helpers
 {
     /*
-         // check service status (windows-services)	
+        // check service status (windows-services)	
 	    var serviceName = "PervasiveEngineMonitorService";
 	    Console.WriteLine($"'{serviceName}' is {GetServiceStatus(serviceName)}");
 	
         ///StartService("PervasiveEngineMonitorService");
 	    ///StopService("PervasiveEngineMonitorService");
+
+        // ---
+
+        // kill a process (all workers)
+        var killCount = KillProcess("Manager");
 
 	    // ---
 	
@@ -101,6 +108,19 @@ namespace Helpers
 	    Console.WriteLine(IsWithinTimeRange("13:00-16:00"));
 	    Console.WriteLine(IsWithinTimeRange("23:00-01:00"));
 
+        // --
+
+        // computer name
+	    Console.WriteLine(GetMachineName());
+
+        // --
+
+        var dsnList = this.GetOdbcDsnList();
+	    foreach(var dsn in dsnList)
+		    Console.WriteLine(dsn);
+
+        var dsnCN1234 = this.FindOdbcDsnByPrefix("CN1234")?.FirstOrDefault();
+        Console.WriteLine(dsnCN1234);
     */
 
     public class WindowsHelper
@@ -164,6 +184,17 @@ namespace Helpers
         {
             File.Copy(Source, Dest, Override);
             while (!File.Exists(Dest)) Thread.Sleep(10);
+        }
+
+        public static void MoveFile(string Source, string Dest)
+        {
+            File.Move(Source, Dest);
+            while (!File.Exists(Dest)) Thread.Sleep(10);
+        }
+
+        public static void DeleteFile(string Source)
+        {
+            File.Delete(Source);            
         }
 
         public static bool IsFileLocked(FileInfo File)
@@ -230,6 +261,26 @@ namespace Helpers
             return ExecuteProcess("C:\\Windows\\system32\\cmd.exe", $"/C {Command}");
         }
 
+        public static int KillProcess(string ProcessName)
+        {
+            try
+            {
+                var workers = Process.GetProcessesByName(ProcessName);
+                foreach (var worker in workers)
+                {
+                    worker.Kill();
+                    worker.WaitForExit();
+                    worker.Dispose();
+                }
+
+                return workers.Length;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
         public static string GetServiceStatus(string ServiceName)
         {
             try
@@ -239,7 +290,7 @@ namespace Helpers
                 // Running, Stopped, Paused      
                 return sc.Status.ToString();
             }
-            catch (Exception ex)
+            catch
             {
                 return "NotExists";
             }
@@ -251,6 +302,8 @@ namespace Helpers
             {
                 var sc = new ServiceController(ServiceName);                
                 sc.Start();
+
+                Thread.Sleep(500);
                 return true;
             }
             catch { return false; }
@@ -262,6 +315,20 @@ namespace Helpers
             {
                 var sc = new ServiceController(ServiceName);
                 if(sc.CanStop) sc.Stop();
+
+                Thread.Sleep(500);
+                return true;
+            }
+            catch { return false; }
+        }
+
+        public static bool ReStartService(string ServiceName)
+        {
+            try
+            {
+                WindowsHelper.StopService(ServiceName);                
+                Thread.Sleep(2000);
+                WindowsHelper.StartService(ServiceName);
                 return true;
             }
             catch { return false; }
@@ -292,6 +359,15 @@ namespace Helpers
             return IPAddress.Parse(strIP)?.ToString();
         }
 
+        public static string GetMachineName() {
+            try {
+                return Environment.MachineName;
+            }
+            catch {
+                return "UNKNOWN";
+            }
+        }
+
         public static void Restart(int DelayInSec = 0) {
             var args = DelayInSec == 0 ? "/r" : $"/r /t {DelayInSec}";
             var process = Process.Start("shutdown", args);            
@@ -300,6 +376,43 @@ namespace Helpers
         public static void Shutdown(int DelayInSec = 0) {
             var args = DelayInSec == 0 ? "/s" : $"/s /t {DelayInSec}";
             var process = Process.Start("shutdown", args);
-        }       
+        }
+
+        public static string GetAssemblyPath() {
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        }
+
+        public static IEnumerable<string> GetOdbcDsnList()
+        {
+            /*
+                (powershell) 
+                > Get-OdbcDsn
+                > Get-OdbcDsn -Name "cn31179App*"  // e.g: cn31179Application
+            */
+
+            // using Microsoft.Win32
+            var registryPath = @"Software\ODBC\ODBC.INI\ODBC Data Sources";
+            var userKey = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(registryPath);
+            var machineKey = Microsoft.Win32.Registry.LocalMachine.OpenSubKey(registryPath);
+
+            var result = new List<string>();
+            if (userKey != null) result.AddRange(userKey.GetValueNames());
+            if (machineKey != null) result.AddRange(machineKey.GetValueNames());
+
+            return result?.Distinct();
+        }
+
+        public static IEnumerable<string> FindOdbcDsnByPrefix(string Prefix) {
+            return GetOdbcDsnList()?.Where(x => x.StartsWith(Prefix, StringComparison.OrdinalIgnoreCase));
+        }
+
+        public static string GetMACAddress()
+        {
+            return (
+                  from nic in NetworkInterface.GetAllNetworkInterfaces()
+                  where nic.OperationalStatus == OperationalStatus.Up
+                  select nic.GetPhysicalAddress().ToString()
+            ).FirstOrDefault();
+        }
     }
 }

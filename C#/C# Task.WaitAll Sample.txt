@@ -1,0 +1,14 @@
+C# Task.WaitAll Sample
+----------------------
+
+async Task Run() {
+    var folderInfo = new DirectoryInfo(Path);
+    var files = folderInfo.GetFiles();
+
+    var tasks = files.Select(file => this.ProcessFile(file));
+    Task.WaitAll(tasks.ToArray());
+}
+
+async Task ProcessFile(FileInfo FileToProcess) {
+   ...	
+}

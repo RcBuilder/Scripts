@@ -1,0 +1,94 @@
+*** Google reCAPTCHA ***
+************************
+
+Sources
+-------
+https://www.google.com/recaptcha/about/
+https://developers.google.com/recaptcha/docs/display#js_api
+https://developers.google.com/recaptcha/docs/verify
+
+Admin Console
+-------------
+https://www.google.com/recaptcha/admin/
+
+Generate New
+------------
+- go to 'Admin Console'
+- click on +
+- choose reCAPTCHA version (e.g: reCAPTCHA v2)
+- choose type (e.g: I'm not a robot)
+- add domains access (e.g: localhost + mydomain.com)
+- set custom name 
+- accept Tetms of Service
+- SUBMIT
+
+note! 
+two keys will be generated - SITE KEY & SECRET KEY
+
+Get Keys
+--------
+- go to 'Admin Console'
+- select the active captcha from the top-left dropdown
+- click on settings (cogwheel icon) 
+- under 'reCAPTCHA keys' - find both site & secret keys
+
+Using Sample [v2]
+-----------------
+// Config
+<add key="CaptchaKey" value="xxxxxxxxxxxxxxxxxxx" />
+<add key="CaptchaSecret" value="xxxxxxxxxxxxxxxxxxxxx" />
+
+-
+
+public class Config {
+	public static string CaptchaSecret {
+        get { return ConfigurationManager.AppSettings["CaptchaSecret"].Trim(); }
+    }
+
+    public static string CaptchaKey {
+        get { return ConfigurationManager.AppSettings["CaptchaKey"].Trim(); }
+    }
+}
+
+---
+
+// View
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>     
+<script>
+    function doSubmit() {
+        $('#CaptchaToken').val(grecaptcha.getResponse());            
+        return true;
+    }
+</script>
+
+-
+
+<div class="g-recaptcha" data-sitekey="@BLL.Config.CaptchaKey"></div>
+<input type="hidden" id="CaptchaToken" name="CaptchaToken" value="" />
+@Html.ValidationMessage("Captcha")
+
+---
+
+// Controller
+if(!this.VerifyCaptcha(Request.Form["CaptchaToken"]))
+    ModelState.AddModelError("Captcha", "Invalid Captcha");
+            
+if (!ModelState.IsValid)
+    return View();     
+
+-
+
+[NonAction]
+private bool VerifyCaptcha (string token) {
+    using (var client = new WebClient())
+    {
+        var modelSchema = new {
+            success = false
+        };
+
+        client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
+        var sResponse = client.UploadString("https://www.google.com/recaptcha/api/siteverify", $"secret={BLL.Config.CaptchaSecret}&response={token}");
+        var result = JsonConvert.DeserializeAnonymousType(sResponse, modelSchema);
+        return result.success;                    
+    }
+}

@@ -1,0 +1,29 @@
+[TestMethod]
+public void TestMethod6()
+{
+    try
+    {
+        var ConnetionString = "Driver={Pervasive ODBC Client Interface};ServerName=RcBuilder-PC;dbq=MANAGER1r7627db;Client_CSet=UTF-8;Server_CSet=CP850;";
+        using (var connection = new OdbcConnection(ConnetionString))
+        {
+            connection.Open();
+            var query = $@"SELECT * FROM TEST_1";
+
+            var command = new OdbcCommand(query);
+            command.Connection = connection;
+            using (var reader = command.ExecuteReader()) {
+                while(reader.Read())
+                    Console.WriteLine($"{reader["c1"]}");
+            }
+        }
+    }
+    catch (Exception ex) { }
+}
+
+
+[TestMethod]
+public void TestMethod7() {
+    Debug.WriteLine(PervasiveDBHelper.IsDBStable("RcBuilder-PC", "MANAGER1r7627db"));
+    Debug.WriteLine(PervasiveDBHelper.IsDBStable("RcBuilder-PC", "Nodb"));
+    Debug.WriteLine(PervasiveDBHelper.IsDBStable("NoServer", "MANAGER1r7627db"));
+}
