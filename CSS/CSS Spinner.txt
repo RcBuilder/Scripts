@@ -1,0 +1,7 @@
+CSS Spinner
+-----------
+source:
+https://projects.lukehaas.me/css-loaders/
+
+sample:
+see 'CssSpinner.html' 

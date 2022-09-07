@@ -1,0 +1,1 @@
+Driver={{Pervasive ODBC Client Interface}};ServerName=xxxxxx;dbq=xxxxxxx;Client_CSet=UTF-8;Server_CSet=CP850;

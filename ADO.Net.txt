@@ -1,0 +1,384 @@
+*** ADO.Net ***
+***************
+
+Working with Access DB
+----------------------
+public string ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source={0};Persist Security Info=False";
+ConnectionString = String.Format(ConnectionString,Server.MapPath(@"~\DB\Test.mdb"));
+
+Execute Reader
+--------------
+public static OleDbDataReader GetDataReaderBySql(string StrSql, params object[] prms)
+{
+    OleDbConnection conn = new OleDbConnection(ConnectionString);
+    OleDbCommand cmd = new OleDbCommand(StrSql, conn);
+
+    for (int i = 0; i < prms.Length; i += 2)
+    {
+        OleDbParameter p = new OleDbParameter();
+        p.ParameterName = prms[i].ToString();
+        p.Value = prms[i + 1].ToString();
+        cmd.Parameters.Add(p);
+    }
+    conn.Open();
+
+    return cmd.ExecuteReader(CommandBehavior.CloseConnection);
+}
+
+Execute Scalar
+--------------
+public static Object GetScalarBySql(string StrSql, params object[] prms)
+{
+    OleDbConnection conn = new OleDbConnection(ConnectionString);
+    OleDbCommand cmd = new OleDbCommand(StrSql, conn);
+
+    for (int i = 0; i < prms.Length; i += 2)
+    {
+        OleDbParameter p = new OleDbParameter();
+        p.ParameterName = prms[i].ToString();
+        p.Value = prms[i + 1].ToString();
+        cmd.Parameters.Add(p);
+    }
+    conn.Open();
+    Object res = cmd.ExecuteScalar();
+    conn.Close();
+    return res;
+}
+
+Execute NonQuery
+----------------
+public static void ExecuteNonQueryBySql(string StrSql, params object[] prms)
+{
+    OleDbConnection conn = new OleDbConnection(ConnectionString);
+    OleDbCommand cmd = new OleDbCommand(StrSql, conn);
+
+    for (int i = 0; i < prms.Length; i += 2)
+    {
+        OleDbParameter p = new OleDbParameter();
+        p.ParameterName = prms[i].ToString();
+        p.Value = prms[i + 1].ToString();
+        cmd.Parameters.Add(p);
+    }
+    conn.Open();
+    cmd.ExecuteNonQuery();
+    conn.Close();
+}
+
+Execute NonQuery + Identity
+---------------------------
+public static Object GetIdentityByQuery(string StrSql, params object[] prms)
+{
+    OleDbConnection conn = new OleDbConnection(ConnectionString);
+    OleDbCommand cmd = new OleDbCommand(StrSql, conn);
+
+    for (int i = 0; i < prms.Length; i += 2)
+    {
+        OleDbParameter p = new OleDbParameter();
+        p.ParameterName = prms[i].ToString();
+        p.Value = prms[i + 1].ToString();
+        cmd.Parameters.Add(p);
+    }
+    conn.Open();
+    cmd.ExecuteNonQuery();
+
+    cmd.CommandText = "SELECT @@IDENTITY";
+    object res = cmd.ExecuteScalar();
+    conn.Close();
+    return res;
+}
+
+Working with DataSet
+--------------------
+
+// Basic 
+public static DataSet GetDataSetBySql(string StrSql, params object[] prms)
+{
+    OleDbConnection conn = new OleDbConnection(ConnectionString);
+    OleDbCommand cmd = new OleDbCommand(StrSql, conn);
+    OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+    DataSet ds = new DataSet();
+
+    for (int i = 0; i < prms.Length; i += 2)
+    {
+        OleDbParameter p = new OleDbParameter();
+        p.ParameterName = prms[i].ToString();
+        p.Value = prms[i + 1].ToString();
+        cmd.Parameters.Add(p);
+    }
+    da.Fill(ds);
+
+    return ds;
+}
+
+--
+
+// Range Filter
+public static DataSet GetDataSetByRange(string StrSql, int StartIndex, int Amount, params object[] prms)
+{
+    OleDbConnection conn = new OleDbConnection(ConnectionString);
+    OleDbCommand cmd = new OleDbCommand(StrSql, conn);
+    OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+    DataSet ds = new DataSet();
+
+    for (int i = 0; i < prms.Length; i += 2)
+    {
+        OleDbParameter p = new OleDbParameter();
+        p.ParameterName = prms[i].ToString();
+        p.Value = prms[i + 1].ToString();
+        cmd.Parameters.Add(p);
+    }
+    da.Fill(ds, StartIndex, Amount, "ByRange");
+
+    return ds;
+}
+
+EXAMPLE
+-------
+using System.Data;
+using System.Data.OleDb;
+
+public OleDbDataReader GetUserDetails(int id) {
+    string GetUserByID = @"select * from Users where UserNumber=@ID";
+    return GetDataReaderBySql(GetUserByID, "@ID", id);
+}
+
+OleDbDataReader dr = GetUserDetails(76332);
+if(dr.HasRows) {
+	dr.Read();
+	.....
+	.....
+	dr.Close();
+}
+
+==============================
+
+Working with MSSQL DB
+---------------------
+public string ConnectionString = @"server=RCBUILDER;database=Test;User id=xxxx;Password=xxxxx";
+
+Execute Reader
+--------------
+public static SqlDataReader GetDataReaderBySP(string SpName, params object[] prms)
+{
+    SqlConnection conn = new SqlConnection(ConnectionString);
+    SqlCommand cmd = new SqlCommand(SpName, conn);
+    cmd.CommandType = CommandType.StoredProcedure;
+
+    for (int i = 0; i < prms.Length; i += 3)
+    {
+        SqlParameter p = new SqlParameter();
+        p.ParameterName = prms[i].ToString();
+        p.SqlDbType = (SqlDbType)prms[i + 1];
+        p.Value = prms[i + 2];
+        cmd.Parameters.Add(p);
+    }
+
+    conn.Open();
+    return cmd.ExecuteReader();
+}
+
+Execute Scalar
+--------------
+public static object GetScalarBySP(string SpName, params object[] prms)
+{
+    SqlConnection conn = new SqlConnection(ConnectionString);
+    SqlCommand cmd = new SqlCommand(SpName, conn);
+    cmd.CommandType = CommandType.StoredProcedure;
+
+    for (int i = 0; i < prms.Length; i += 3)
+    {
+        SqlParameter p = new SqlParameter(); 
+        p.ParameterName = prms[i].ToString();
+        p.SqlDbType = (SqlDbType)prms[i + 1];
+        p.Value = prms[i + 2];
+        cmd.Parameters.Add(p);
+    }
+
+    conn.Open();
+    object res = cmd.ExecuteScalar();
+    conn.Close();
+
+    return res;
+}
+
+Execute NonQuery
+----------------
+public static void ExecuteNonQueryBySP(string SpName, params object[] prms)
+{
+    SqlConnection conn = new SqlConnection(ConnectionString);
+    SqlCommand cmd = new SqlCommand(SpName, conn);
+    cmd.CommandType = CommandType.StoredProcedure;
+
+    for (int i = 0; i < prms.Length; i += 3)
+    {
+        SqlParameter p = new SqlParameter();
+        p.ParameterName = prms[i].ToString();
+        p.SqlDbType = (SqlDbType)prms[i + 1];
+        p.Value = prms[i + 2];
+        cmd.Parameters.Add(p);
+    }
+
+    conn.Open();
+    cmd.ExecuteNonQuery();
+    conn.Close();
+}
+
+Working with DataSet
+--------------------
+
+// Basic
+public static DataSet GetDatasetBySP(string SpName, params object[] prms)
+{
+    SqlConnection conn = new SqlConnection(ConnectionString);
+    SqlCommand cmd = new SqlCommand(SpName, conn);
+    cmd.CommandType = CommandType.StoredProcedure;
+    SqlDataAdapter da = new SqlDataAdapter(cmd);
+    DataSet ds = new DataSet();
+    
+    for (int i = 0; i < prms.Length; i += 3)
+    {
+        SqlParameter p = new SqlParameter();
+        p.ParameterName = prms[i].ToString();
+        p.SqlDbType = (SqlDbType)prms[i + 1];
+        p.Value = prms[i + 2];
+        cmd.Parameters.Add(p);
+    }
+
+    da.Fill(ds);
+    return ds;
+}
+
+// Range Filter
+public static DataSet GetDSByRange(string SpName, int StartIndex, int Amount, params object[] prms)
+{
+    SqlConnection conn = new SqlConnection(ConnectionString);
+    SqlCommand cmd = new SqlCommand(SpName, conn);
+    cmd.CommandType = CommandType.StoredProcedure;
+    SqlDataAdapter da = new SqlDataAdapter(cmd);
+    DataSet ds = new DataSet();
+
+    for (int i = 0; i < prms.Length; i += 3)
+    {
+        SqlParameter p = new SqlParameter();
+        p.ParameterName = prms[i].ToString();
+        p.SqlDbType = (SqlDbType)prms[i + 1];
+        p.Value = prms[i + 2];
+        cmd.Parameters.Add(p);
+    }
+
+    da.Fill(ds, StartIndex, Amount, "ByRange");
+    return ds;
+}
+
+EXAMPLE
+-------
+using System.Data;
+using System.Data.SqlClient;
+
+public SqlDataReader GetUserDetails(int id)
+{
+    return GetDataReaderBySP("GetUserByID","@ID",SqlDbType.SmallInt,id);
+}
+
+SqlDataReader dr = GetUserDetails(76332);
+if(dr.HasRows)
+{
+	dr.Read();
+	.....
+	.....
+	dr.Close();
+}
+
+==============================
+
+Microsoft SqlHelper
+-------------------
+using Microsoft.ApplicationBlocks.Data; (import dll)
+
+public string ConnectionString = @"server=RCBUILDER;database=Test;User id=xxxx;Password=xxxxx";
+
+Execute Dataset
+---------------
+public DataSet ExecuteDataset(string spName,SqlParameter[] arrParams)
+{ 
+    return  SqlHelper.ExecuteDataset(
+            ConnectionString,
+            CommandType.StoredProcedure,
+            spName,
+            arrParams);
+}
+
+Execute Reader
+--------------
+public SqlDataReader ExecuteReader(string spName, SqlParameter[] arrParams)
+{
+    return SqlHelper.ExecuteReader(
+            ConnectionString,
+            CommandType.StoredProcedure,
+            spName,
+            arrParams);
+}
+
+Execute NonQuery
+----------------
+public void ExecuteNonQuery(string spName, SqlParameter[] arrParams)
+{
+    SqlHelper.ExecuteNonQuery(
+            ConnectionString,
+            CommandType.StoredProcedure,
+            spName,
+            arrParams);
+}
+
+Execute Scalar
+--------------
+public object ExecuteScalar(string spName, SqlParameter[] arrParams)
+{
+    return SqlHelper.ExecuteScalar(
+            ConnectionString,
+            CommandType.StoredProcedure,
+            spName,
+            arrParams);
+}
+
+Execute XmlReader
+-----------------
+public XmlReader ExecuteXmlReader(string spName, SqlParameter[] arrParams)
+{
+    return SqlHelper.ExecuteXmlReader(
+            new SqlConnection(ConnectionString),
+            CommandType.StoredProcedure,
+            spName,
+            arrParams);
+}
+
+EXAMPLE 
+-------
+// xmlDoc From Query xml Auto
+
+using System.Data;
+using System.Data.SqlClient;
+using System.Text;
+using System.Xml;
+using System.Xml.Xsl;
+
+string XMLEncoding = "<?xml version='1.0' encoding='windows-1255'?>";
+System.Xml.XmlReader xmlr = ExecuteXmlReader(......);
+xmlr.Read();
+System.Text.StringBuilder sb = new System.Text.StringBuilder();
+sb.Append(XMLEncoding + "<root>");
+while (xmlr.ReadState != System.Xml.ReadState.EndOfFile)
+    sb.Append(xmlr.ReadOuterXml());
+xmlr.Close();
+sb.Append("</root>");
+
+XmlDocument xmlDoc = new XmlDocument();
+xmlDoc.LoadXml(sb.ToString());
+
+==============================
+
+Dapper
+------
+see 'C# Dapper ORM - SqlConnection'
+
+==============================

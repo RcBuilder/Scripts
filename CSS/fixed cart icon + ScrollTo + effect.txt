@@ -1,0 +1,58 @@
+fixed cart icon + ScrollTo + effect
+-----------------------------------
+
+implementation:
+see 'MNew'
+
+--
+
+// css
+.cart-icon {
+    display: block;
+    position: fixed;
+    bottom: 10%;
+    left: 0;
+    z-index: 2000;
+    padding: 8px 14px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    background: rgba(190, 190, 190, 0.5);
+    cursor: pointer;
+    /* box-shadow: 1px 2px #808080; */
+}
+
+.cart-icon::after {
+    position: absolute;
+    left: 50px;
+    content: attr(data-content);
+    text-align: center;
+    color: #11263C;
+    font-size: 13px;
+    font-weight: bold;
+    background-color: #fff;
+    height: 24px;
+    line-height: 24px;
+    width: 24px;
+    border-radius: 50%;
+}
+
+-
+
+// html
+<a class="cart-icon" data-content="0">
+    <img src="~/img/icons/cart-icon-48.png">
+</a>
+
+// js
+$('.cart-icon').on('click', function (e) {
+    JumpTo('cart-view');        
+});
+
+function JumpTo(anchorName) {
+    //document.location = '#' + anchorName;
+    var offset = $('a[name="' + anchorName + '"]').offset();
+    if (!offset) return;
+
+    var top = offset.top;
+    $("html:not(:animated), body:not(:animated)").animate({ scrollTop: top }, 1100, null);
+}

@@ -1,0 +1,3 @@
+CSS set after content using attribute
+-------------------------------------
+see 'CSS dynamic content using attr'

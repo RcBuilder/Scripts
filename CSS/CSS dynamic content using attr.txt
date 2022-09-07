@@ -1,0 +1,26 @@
+CSS set after content using attribute
+-------------------------------------
+.cart-icon::after {
+    position: absolute;
+    left: 50px;
+    content: attr(data-content);  // dynamic
+    text-align: center;
+    color: #11263C;
+    font-size: 13px;
+    font-weight: bold;
+    background-color: #fff;
+    height: 24px;
+    line-height: 24px;
+    width: 24px;
+    border-radius: 50%;
+}
+
+-
+
+<a class="cart-icon" data-content="0">
+    <img src="~/img/icons/cart-icon-48.png">
+</a>
+
+-
+
+document.querySelector('.cart-icon').attributes['data-content'].value = 11

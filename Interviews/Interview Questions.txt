@@ -377,3 +377,24 @@ public class MyWorkerClass {
 }
 
 ------- 	
+
+[Q] what is the Output
+floating point in C#
+
+[G]
+Console.WriteLine("{0:R}", .1 + .2); // reminder: .1 = 0.1
+
+[A]
+~0.30000000000000004 
+
+[R]
+We can only express fractions that use a prime factor of the base.
+In base-10 system, these are 1/2, 1/4, 1/5, 1/8, and 1/10
+In base-2 system, the only prime factor is 2, so 1/2, 1/4, 1/8 would be expressed cleanly as decimals, while 1/5 or 1/10 would be repeating decimals.
+we end up with leftovers from the converting a base-2 number into a base-10 representation.
+
+[N]
+Console.WriteLine("{0:R}", .1f + .2f);  // 0.3
+Console.WriteLine("{0:R}", .1m + .2m);  // 0.3
+
+------- 	

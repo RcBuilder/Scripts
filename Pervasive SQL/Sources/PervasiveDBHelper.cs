@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Odbc;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -123,7 +124,10 @@ namespace Helpers
 
             public static string ToString(object o)
             {
-                try{
+                if (o == null) return string.Empty;
+
+                try
+                {
                     return FixHebrewWithNumbers(ToStringWithEncoding(o, Encoding.GetEncoding("windows-1255"), Encoding.GetEncoding(862)));
 
                     //if (o == null) return string.Empty;
@@ -150,11 +154,12 @@ namespace Helpers
                 return ChangeEncoding(o.ToString()?.Trim(), sourceEncoding, targetEncoding);
             }
 
-            public static string ToPervasiveString(string value)
+            public static string ToPervasiveString(string value, bool fixOnly = false)
             {
                 try
                 {
                     value = value.Replace("'", "''");
+                    if (fixOnly) return FixHebrewWithNumbers(value);
                     return ToStringWithEncoding(FixHebrewWithNumbers(value), Encoding.GetEncoding(862), Encoding.GetEncoding("windows-1255"));
                 }
                 catch { return string.Empty; }
@@ -170,7 +175,7 @@ namespace Helpers
             {
                 var result = new Dictionary<string, string>();
                 for (var i = 0; i < dr.VisibleFieldCount; i++)
-                    result.Add(dr.GetName(i), dr[i].ToString().Trim());
+                    result.Add(dr.GetName(i), SafeConvert.ToString(dr[i]));
                 results.Add(result);
             }
 
@@ -180,6 +185,22 @@ namespace Helpers
         public static T ReadAsT<T>(OdbcDataReader dr)
         {
             return JsonConvert.DeserializeObject<T>(ReadAsJson(dr));
+        }
+
+        public static bool IsDBStable(string Server, string Database) {
+            try
+            {
+                var ConnetionString = $"Driver={{Pervasive ODBC Client Interface}};ServerName={Server};dbq={Database};Client_CSet=UTF-8;Server_CSet=CP850;";
+                using (var connection = new OdbcConnection(ConnetionString))
+                {
+                    connection.Open();
+                    return true;
+                }
+            }
+            catch (Exception ex) {
+                Debug.WriteLine($"ERROR: {ex.Message}");
+                return false;
+            }
         }
     }
 }

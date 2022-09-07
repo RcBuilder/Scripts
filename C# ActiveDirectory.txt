@@ -1,0 +1,61 @@
+C# ActiveDirectory
+------------------
+see 'LINQPad-Queries\AD.linq'
+see 'CODE\ActiveDirectoryHelper.cs'
+
+-
+
+Namespace:
+using System.DirectoryServices;
+
+-
+
+Sample:
+
+[HttpPut]
+[Route("ad/{account}")]
+public HttpResponseMessage UpdateADAccount([FromBody]ADAccount adAccount)
+{
+
+    DirectorySearcher InitSearcher(string doamin, string user, string password) {
+        var ldapAddress = $"LDAP://{doamin}";  // LDAP://rootDSE
+        var de = new DirectoryEntry(ldapAddress, user, password);
+        var ds = new DirectorySearcher(de);
+        ds.SearchScope = SearchScope.Subtree;
+        return ds;
+    }
+
+    SearchResult FindAccountByUserName(DirectorySearcher ds, string userName) {
+        ds.Filter = $"(&((&(objectCategory=Person)(objectClass=User)))(samaccountname={userName}))";  // by userName
+
+        var rs = ds.FindOne();
+        if (rs == null) throw new Exception("No Such Account");
+        return rs;
+    }
+
+    void SetProperty(DirectoryEntry entry, string key, string value) {                
+        if (entry.Properties.Contains(key)) // ADD
+            entry.Properties[key][0] = value;
+        else  // UPDATE
+            entry.Properties[key].Add(value);
+
+        entry.CommitChanges(); // save changes
+    }
+
+    try
+    {
+        var ds = InitSearcher("crtv.local", "xxxxx", "xxxxxxx");
+        var rs = FindAccountByUserName(ds, adAccount.UserName);
+        var current = rs.GetDirectoryEntry();
+
+        SetProperty(current, "telephonenumber", adAccount.Phone);
+        SetProperty(current, "mail", adAccount.Email);
+
+        var response = Request.CreateResponse(HttpStatusCode.OK);
+        return response;
+    }
+    catch (Exception ex)
+    {
+        return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+    }
+}

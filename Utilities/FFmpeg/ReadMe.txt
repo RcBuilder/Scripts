@@ -12,6 +12,9 @@ sources
 -------
 https://www.ffmpeg.org/
 https://www.ffmpeg.org/documentation.html
+-
+https://unix.stackexchange.com/questions/28803/how-can-i-reduce-a-videos-size-with-ffmpeg
+https://stackoverflow.com/questions/18468334/compressing-mp4-files
 
 files
 -----
@@ -21,12 +24,14 @@ ffprobe.exe
 
 capabilities
 ------------
-decode, encode, transcode, mux, demux, stream, filter and play
+decode, encode, transcode, mux, demux, stream, filter and play, compress
 
 commands
 --------
 https://www.ffmpeg.org/documentation.html
 > ffmpeg -i input.avi -r 24 output.avi
+> ffmpeg -i input.mp4 -vcodec libx264 -crf 28 output.mp4   // compress a video
+> ffmpeg -i input.mp4 -b 800k output.mp4   // compress a video using custom bitrate of 800 kbit/s
 
 FFmpegWrapper.cs
 ----------------
