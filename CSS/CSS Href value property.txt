@@ -1,0 +1,28 @@
+CSS Href value property
+-----------------------
+
+/* default */
+a {
+    color: #000;
+}
+
+a[href="#"] {
+    color:red;
+}
+a[href="#a"] {
+    color:green;
+}
+a[href="#b"] {
+    color:blue;
+}
+a[href="https://rcb.co.il"] {
+    color:purple;
+}
+
+-
+
+<h4>Href value</h4>
+<a href="#">Link</a>
+<a href="#a">Link</a>
+<a href="#b">Link</a>
+<a href="https://rcb.co.il">Link</a>

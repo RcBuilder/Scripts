@@ -1,0 +1,17 @@
+Kill Process
+------------
+
+process-name: 
+wmiprvse.exe
+
+how to:
+Resource Monitor > CPU > right-click 'wmiprvse.exe' > End Process
+
+-
+
+fixing NOT Responsing action:
+1. run the following command to determine whether the Pervasive engine is stuck
+  [powershell]
+  > Get-OdbcDsn -Name "DefaultDB" -DsnType "System" -Platform "32-bit"
+2. if no response returned - kill the prvs process!
+3. Resource Monitor > CPU > Kill wmiprvse.exe

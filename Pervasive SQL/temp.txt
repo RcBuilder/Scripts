@@ -1,0 +1,126 @@
+Pervasive ODBC DSN 
+------------------
+
+Drivers:
+Pervasive ODBC Engine Interface
+Pervasive ODBC Client Interface
+
+-
+
+Platform Target 32bit:
+Project Properties > (tab) Build > Platform Target > Choose x86 (32bit)
+
+Location:
+C:\PVSW\Bin\
+
+DTO:
+Distributed Tuning Objects
+
+Files:
+1. dto.dll
+2. dto2.dll
+
+Tech:
+VB6 DLL
+
+Register VB6 Dll:
+[CMD]
+> regsvr32 <path>                        
+> regsvr32 "C:\PVSW\Bin\dto.dll"
+> regsvr32 "C:\PVSW\Bin\dto2.dll"
+
+UnRegister VB6 Dll:
+[CMD]
+> regsvr32 <path> /u
+> regsvr32 "C:\PVSW\Bin\dto.dll" /u
+> regsvr32 "C:\PVSW\Bin\dto2.dll" /u
+
+Reference:
+Project > Add > Reference > (tab) COM > Browse > Choose Dlls > OK
+
+C# Code: 
+https://mirtheil.com/creating-actian-pervasive-psql-database-using-dto-and-c/
+
+-
+
+Powershell DTO (x86):
+$mdtoSession = New-Object -ComObject DTO.DtoSession
+>> $connected = $mdtoSession.connect('localhost', '', '')
+>> $mdtoDatabase = New-Object -Com DTO.DtoDatabase
+>> $mdtoDatabase.DataPath = 'C:\Creative\Manager\Userdata\'
+>> $mdtoDatabase.DdfPath = 'C:\Creative\Manager\Userdata\'
+>> $mdtoDatabase.Name = 'TestDB'
+>> $mdtoDatabase.Flags = 0
+>> $mdtoSession.Databases.Add($mdtoDatabase)
+
+-
+
+fixing NOT Responsing action:
+1. run the following command to determine whether the Pervasive engine is stuck
+  [powershell]
+  > Get-OdbcDsn -Name "DefaultDB" -DsnType "System" -Platform "32-bit"
+2. if no response returned - kill the prvs process!
+3. Resource Monitor > CPU > Kill wmiprvse.exe
+
+-
+
+Powershell:
+> odbcconf configsysdsn "Pervasive ODBC Engine Interface" "DBALIAS=GENERAL2;Description=General;DictionaryLocation=C:\Creative\Manager\Userdata\;DataFileLocation=C:\Creative\Manager\Userdata\"
+> odbcconf configsysdsn "Pervasive ODBC Engine Interface" "DatabaseName=Test3db;Description=General;DictionaryLocation=C:\Creative\Manager\Userdata\;DataFileLocation=C:\Creative\Manager\Userdata\"
+> odbcconf.exe /a {CONFIGSYSDSN "Pervasive ODBC Engine Interface" "DSN=TESTDSN|DBQ=C:\Creative\Manager\Userdata\|DDFPATH=C:\Creative\Manager\Userdata\"}
+> odbcconf.exe/a {CONFIGSYSDSN "Pervasive ODBC Client Interface" "DSN=TESTDSN|Description=TestName|SERVERNAME=RcBuilder|SERVERDSN=C:\Creative\Manager\Userdata\"}
+
+// get specific DSN info
+> Get-OdbcDsn -Name "DefaultDB" -DsnType "System" -Platform "32-bit"
+
+// existing database
+> Add-OdbcDsn -Name "Test901" -DriverName "Pervasive ODBC Engine Interface" -DsnType "System" -Platform "32-bit" -SetPropertyValue @("DBQ=TEST901DB","OpenMode=0")
+
+> Add-OdbcDsn -Name "Test6" -DriverName "Pervasive ODBC Engine Interface" -DsnType "User" -Platform "32-bit" -SetPropertyValue @("DBALIAS=Test6DB","Description=General","DictionaryLocation=C:\Creative\Manager\Userdata\","DataFileLocation=C:\Creative\Manager\Userdata\")
+> Add-OdbcDsn -Name "Test6" -DriverName "Pervasive ODBC Engine Interface" -DsnType "System" -Platform "32-bit" -SetPropertyValue @("Name=Test6DB","Description=General","DataPath=C:\Creative\Manager\Userdata\","DdfPath=C:\Creative\Manager\Userdata\")
+> Add-OdbcDsn -Name "Test6" -DriverName "Pervasive ODBC Engine Interface" -DsnType "System" -Platform "32-bit" -SetPropertyValue @("DBQ=TEST6DB","OpenMode=0", "DDFPATH=C:\Creative\Manager\Userdata\")
+
+
+$splat = @{
+     Name = 'Test3'
+     DriverName = 'Pervasive ODBC Engine Interface'
+     DsnType = 'System'
+     Platform = '32-bit'
+     SetPropertyValue = @('DBALIAS=GENERAL2','Description=General','DictionaryLocation=C:\Creative\Manager\Userdata\','DataFileLocation=C:\Creative\Manager\Userdata\')
+}
+Add-OdbcDsn @splat
+
+
+$splat = @{
+      Name = 'Test3'
+      DriverName = 'Microsoft Access Driver (*.mdb, *.accdb)'
+      DsnType = 'System'
+      Platform = '32-bit'
+      SetPropertyValue = @('Dbq=D:\database.mdb','Description=Basic Notes')
+}
+Add-OdbcDsn @splat
+
+
+$splat = @{
+     Name = 'Test3'
+     DriverName = 'Pervasive ODBC Engine Interface'
+     DsnType = 'System'
+     Platform = '32-bit'
+     SetPropertyValue = @('DatabaseName=Testdb','Description=General','DictionaryLocation=C:\Creative\Manager\Userdata\','DataFileLocation=C:\Creative\Manager\Userdata\')
+}
+Add-OdbcDsn @splat
+
+-
+
+CMD > C:\Creative\Manager\Bin  - utility (ODBC.exe) 
+PsqlDbCreate.exe -DBName=TestDBN -DDFLocation=C:\Creative\Manager\Userdata\ -DataLocation=C:\Creative\Manager\Userdata\
+PsqlDbCreate.exe -DBName=TestDBN -DDFLocation="C:\Creative\Manager\Userdata" -DataLocation="C:\Creative\Manager\Userdata" -CreateDDFFlag
+
+-
+
+CONFIGSYSDSN 
+Pervasive ODBC Engine Interface
+DSN=TESTDSN
+DBQ=C:\Creative\Manager\Userdata\
+DDFPATH=C:\Creative\Manager\Userdata\
+

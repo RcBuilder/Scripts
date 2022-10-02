@@ -1,0 +1,24 @@
+CSS special seperator using var
+-------------------------------
+
+<li class="seperator">             
+	<span></span>
+    <span style="--bg-color: #000"></span>
+    <span style="--bg-color: #3b7ddd"></span>                
+</li>  
+
+----
+
+:root {
+    --bg-color: #ddd;
+}
+
+.seperator {
+    display: flex;
+    margin: 0 10px;
+    flex-direction: row-reverse;
+}
+.seperator > span {
+    background-color: var(--bg-color);
+    width: 5px;
+}

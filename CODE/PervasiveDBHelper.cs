@@ -154,11 +154,12 @@ namespace Helpers
                 return ChangeEncoding(o.ToString()?.Trim(), sourceEncoding, targetEncoding);
             }
 
-            public static string ToPervasiveString(string value)
+            public static string ToPervasiveString(string value, bool fixOnly = false)
             {
                 try
                 {
                     value = value.Replace("'", "''");
+                    if (fixOnly) return FixHebrewWithNumbers(value);
                     return ToStringWithEncoding(FixHebrewWithNumbers(value), Encoding.GetEncoding(862), Encoding.GetEncoding("windows-1255"));
                 }
                 catch { return string.Empty; }

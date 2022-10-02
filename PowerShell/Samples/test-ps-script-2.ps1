@@ -1,0 +1,1 @@
+ Get-OdbcDsn -Name "DefaultDB" -DsnType "System" -Platform "32-bit"

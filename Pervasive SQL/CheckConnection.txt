@@ -1,0 +1,24 @@
+CheckConnection
+---------------
+
+const string CONNETION_STRING_TPL = "Driver={{Pervasive ODBC Client Interface}};ServerName=RcBuilder-PC;dbq={0}";
+
+CheckConnection(string.Format(CONNETION_STRING_TPL, "MANAGER11r9831db"));
+CheckConnection(string.Format(CONNETION_STRING_TPL, "Testdb"));
+
+void CheckConnection(string ConnStr){
+	try
+	{   
+		using(var connection = new OdbcConnection(ConnStr)){		
+			connection.Open();		
+	    	Console.WriteLine("Connection Open!");	    	
+			
+			var command = new OdbcCommand("select 1");
+			command.Connection = connection;
+			command.ExecuteNonQuery();
+		}    
+	}
+	catch (Exception ex){
+	    Console.WriteLine(ex.Message);
+	}
+}

@@ -1,0 +1,19 @@
+CSS Placeholder property
+------------------------
+
+/* default */
+::placeholder {
+    color: green;
+}
+
+.input-1 {
+    color: blue;
+}
+.input-1::placeholder {
+    color: red;
+}
+
+-
+
+<input class="input-1" type="text" placeholder="Enter some text" />
+<input type="text" placeholder="Enter some text" />

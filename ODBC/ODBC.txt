@@ -63,6 +63,7 @@ samples:
 
 pervasive implementation:
 see PROJECT 'Creative'
-
+see 'CODE/ODBCManager.cs'
+see 'LINQPad-Queries/OBDC_DSN.linq'
 
 

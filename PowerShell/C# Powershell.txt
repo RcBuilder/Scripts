@@ -1,0 +1,72 @@
+*** C# Powershell ***
+*********************
+
+namespace:
+System.Management.Automation;
+
+usage sample:
+see 'ODBCManager.cs'
+
+note! 
+for 32bit use the following dll path 
+C:\Program Files (x86)\Reference Assemblies\Microsoft\WindowsPowerShell\3.0
+		
+create powershell object:
+var ps = PowerShell.Create();
+		
+commands:
+AddCommand(<command>)
+AddParameter(<name>, <value>)
+AddScript("<content>", <useLocalScope>)
+AddStatement()
+		
+execute script (.ps1):
+var scriptContent = File.ReadAllText(@"D:\test-ps-script.ps1");			
+ps.AddScript(scriptContent, true);
+var res = ps.Invoke();			        
+
+---
+
+get command output (filter):
+use "Out-String" filter
+
+ps.AddScript("<command> | Out-String");
+ps.AddScript("ls | Out-String");
+
+---
+
+var ps = PowerShell.Create();
+ps.AddCommand("Get-OdbcDsn");
+ps.AddParameter("Name", "DefaultDB");
+ps.AddParameter("DsnType", "System");
+ps.AddParameter("Platform", "32-bit");
+var res1 = ps.Invoke();
+Console.WriteLine(res1);
+			
+var scriptContent = File.ReadAllText(@"D:\test-ps-script-2.ps1");			
+ps.AddScript(scriptContent, true);
+var res2 = ps.Invoke();
+Console.WriteLine(res2);
+	
+ps.AddScript("Get-OdbcDsn -Name 'DefaultDB' -DsnType 'System' -Platform '32-bit'", true);
+var res3 = ps.Invoke();
+Console.WriteLine(res3);
+
+---
+
+test-ps-script.ps1:
+$mdtoSession = New-Object -ComObject DTO.DtoSession
+$connected = $mdtoSession.connect('localhost', '', '')
+$mdtoDatabase = New-Object -Com DTO.DtoDatabase
+$mdtoDatabase.DataPath = 'C:\Creative\Manager\Userdata\'
+$mdtoDatabase.DdfPath = 'C:\Creative\Manager\Userdata\'
+$mdtoDatabase.Name = 'Test901DB'
+$mdtoDatabase.Flags = 0
+$mdtoSession.Databases.Add($mdtoDatabase)
+
+-
+
+test-ps-script-2.ps1:
+Get-OdbcDsn -Name "DefaultDB" -DsnType "System" -Platform "32-bit"
+
+---

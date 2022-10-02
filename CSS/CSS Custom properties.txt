@@ -1,0 +1,108 @@
+CSS Custom properties
+---------------------
+
+/* default */
+[data-value] {
+    color: #000;
+}
+
+[data-value="1"] {
+    color:red;
+}
+[data-value="2"] {
+    color:green;
+}
+[data-value="3"] {
+    color:blue;
+}
+[data-value="4"] {
+    color:purple;
+}
+
+
+/* default */
+[data-color] {
+    color: #000;
+}        
+
+[data-color="red"] {
+    color:red;
+}
+[data-color="green"] {
+    color:green;
+}
+[data-color="blue"] {
+    color:blue;
+}
+[data-color="purple"] {
+    color:purple;
+}
+
+
+/* default */
+[data-background] {
+    color: unset;
+}
+
+[data-background] {
+    background-color: #fff;
+}
+
+[data-background="red"] {
+    background-color:red;
+}
+[data-background="green"] {
+    background-color:green;
+}
+[data-background="blue"] {
+    background-color:blue;
+}
+[data-background="purple"] {
+    background-color:purple;
+}
+
+[data-border] {            
+    border: 1px solid red;
+}
+[data-border-dotted] {            
+    border-style: dotted;
+}
+[data-border-dashed] {            
+    border-style: dashed;
+}
+[data-border-solid] {            
+    border-style: solid;
+}
+
+-
+
+<h4>custom property value</h4>
+<div>
+    <span data-value="1">Span</span>
+    <span data-value="2">Span</span>
+    <span data-value="3">Span</span>
+    <span data-value="4">Span</span>
+    <span>Span</span>
+</div>
+<div>
+    <span data-color="red">Span</span>
+    <span data-color="green">Span</span>
+    <span data-color="blue">Span</span>
+    <span data-color="purple">Span</span>
+    <span>Span</span>
+</div>
+<div>
+    <span data-background="blue">Span</span>
+    <span data-background="red">Span</span>
+    <span data-background="purple">Span</span>
+    <span data-background="green">Span</span>
+    <span>Span</span>
+</div>
+
+<h4>Multiple properties</h4>
+<div>
+    <span data-border>Span</span>
+    <span data-border data-border-solid>Span</span>
+    <span data-border data-border-dotted>Span</span>
+    <span data-border data-border-dashed>Span</span>
+</div>
