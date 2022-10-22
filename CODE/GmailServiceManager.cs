@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Text;
 using System.Threading;
-// Install-Package Google.Apis.Gmail.v1 -Version 1.57.0.2650
 using Google.Apis.Auth.OAuth2;
-using Google.Apis.Gmail.v1; 
+using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
@@ -22,7 +21,6 @@ using System.Reflection;
 
     var gmailServiceManager = new GmailServiceManager();
 
-    // Send 
     await gmailServiceManager.SendEmail(new GmailServiceEntities.EmailData
     {
         Subject = "TEST SUBJECT",
@@ -30,7 +28,6 @@ using System.Reflection;
         To = "RcBuilder@walla.com",
     });
 
-    // Send 
     await gmailServiceManager.SendEmail(new GmailServiceEntities.EmailData
     {
         Subject = "TEST SUBJECT",
@@ -41,14 +38,6 @@ using System.Reflection;
             @"D:\TEMP\Mailer\Outbox_signed\40086-he.pdf",
             @"D:\TEMP\Mailer\Outbox_signed\1.txt"
         }
-    });
-
-    // Draft
-    await gmailServiceManager.SaveDraft(new GmailServiceEntities.EmailData
-    {
-        Subject = "TEST SUBJECT",
-        Body = "<p>Bla Bla Bla ....</>",
-        To = "RcBuilder@walla.com",
     });
 
             
@@ -74,7 +63,7 @@ using System.Reflection;
         Console.WriteLine(label);
 */
 
-namespace Gmail
+namespace Mailer
 {
     public class GmailServiceEntities {
         public class EmailData {
@@ -102,8 +91,7 @@ namespace Gmail
 
         protected static readonly string[] SCOPES = new string[] { 
             GmailService.Scope.GmailReadonly, 
-            GmailService.Scope.GmailSend,
-            GmailService.Scope.GmailCompose  // Draft
+            GmailService.Scope.GmailSend 
         };
 
         protected GmailService Service { get; set; }
@@ -161,7 +149,8 @@ namespace Gmail
                 mailMessage.Subject = EmailData.Subject ?? "";
                 mailMessage.Body = EmailData.Body ?? "";
                 mailMessage.IsBodyHtml = EmailData.IsBodyHtml;
-                mailMessage.To.Add(new MailAddress(EmailData.To));
+                /// mailMessage.To.Add(new MailAddress(EmailData.To)); // single addressee
+                mailMessage.To.Add(EmailData.To); // supports multiple addressees (splitted by ',')
 
                 if (!string.IsNullOrEmpty(EmailData.Bcc))
                     mailMessage.Bcc.Add(new MailAddress(EmailData.Bcc));
@@ -188,43 +177,6 @@ namespace Gmail
             return true;
         }
 
-        public async Task<bool> SaveDraft(GmailServiceEntities.EmailData EmailData)
-        {
-            await this.InitService();
-            
-            using (var mailMessage = new MailMessage())
-            {
-                mailMessage.Subject = EmailData.Subject ?? "";
-                mailMessage.Body = EmailData.Body ?? "";
-                mailMessage.IsBodyHtml = EmailData.IsBodyHtml;
-                mailMessage.To.Add(new MailAddress(EmailData.To));
-
-                if (!string.IsNullOrEmpty(EmailData.Bcc))
-                    mailMessage.Bcc.Add(new MailAddress(EmailData.Bcc));
-
-                if (EmailData.Attachments != null)
-                    foreach (var file in EmailData.Attachments)
-                        mailMessage.Attachments.Add(new Attachment(file));
-
-                return await this.SaveDraft(mailMessage);
-            }
-        }
-
-        public async Task<bool> SaveDraft(MailMessage MailMessage) {
-            await this.InitService();
-
-            var mimeMessage = MimeMessage.CreateFromMailMessage(MailMessage);
-            var messageRawBody = mimeMessage.ToString();
-
-            this.Service.Users.Drafts.Create(new Draft {
-                Message = new Message {
-                    Raw = this.Base64UrlEncode(messageRawBody)
-                }
-            }, ACTIVE_USER).Execute();
-
-            return true;
-        }
-
         private async Task CreateService() {
             ServicePointManager.Expect100Continue = true;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Ssl3 | SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
@@ -240,20 +192,6 @@ namespace Gmail
                     CancellationToken.None,
                     new FileDataStore(TOKEN_FILE_NAME, true));
             }
-
-            /*
-                string credPath = @"C:\Users\RcBuilder\Desktop\TestProjects\TestConsole7\token.json";
-                credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-                    new ClientSecrets
-                    {
-                        ClientId = "xxxxxxxxxxxxxxxxxxx",
-                        ClientSecret = "xxxxxxxxxxxxxxx"
-                    },
-                    SCOPES,
-                    "user",
-                    CancellationToken.None,
-                    new FileDataStore(credPath, true)).Result;
-            */
 
             this.Service = new GmailService(new BaseClientService.Initializer
             {

@@ -70,3 +70,47 @@ test-ps-script-2.ps1:
 Get-OdbcDsn -Name "DefaultDB" -DsnType "System" -Platform "32-bit"
 
 ---
+
+// get errors
+ps.Streams.Error  // array of error-records
+ps.Streams.Error.Count 
+
+-
+
+var ps = PowerShell.Create();
+var scriptContent = $@"Add-OdbcDsn -Name 'TEST108' -DriverName 'Pervasive ODBC Engine Interface' -DsnType 'System' -Platform '32-bit' -SetPropertyValue @('DBQ=TEST108DB','OpenMode=0')";
+
+ps.AddScript($"{scriptContent}");
+var result = ps.Invoke();
+
+var hasError = ps.Streams.Error.Count > 0;
+if(hasError) {
+	var error = ps.Streams.Error[0];  // 1st error
+	Console.WriteLine(error.ToString());  // The DSN exists already     
+}
+
+---
+
+// get output result 
+var ps = PowerShell.Create();
+ps.AddScript($"Get-Process");
+var result = ps.Invoke();
+
+foreach (PSObject obj in result)
+    Console.WriteLine(obj.ToString());
+
+---
+
+// use BeginInvoke to get output stream 
+var ps = PowerShell.Create();
+
+var output = new PSDataCollection<PSObject>();
+output.DataAdded += (s, e) => {
+    var newRecord = ((PSDataCollection<PSObject>)s)[e.Index];
+    Console.WriteLine(newRecord);
+};
+
+ps.AddScript($"Get-Process");
+ps.BeginInvoke<PSObject, PSObject>(null, output);
+
+---

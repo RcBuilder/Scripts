@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.DirectoryServices;
 
 namespace Helpers
@@ -6,12 +7,51 @@ namespace Helpers
     /*
         USING
         -----
+
+        // update account data
+        // best for single property
         var ds = ActiveDirectoryHelper.InitSearcher(AD_DOMAIN, AD_USER, AD_PASSWORD);
         var rs = ActiveDirectoryHelper.FindAccountByUserName(ds, adAccount.UserName);
         var current = rs.GetDirectoryEntry();
 
         ActiveDirectoryHelper.SetProperty(current, "telephonenumber", adAccount.Phone);
         ActiveDirectoryHelper.SetProperty(current, "mail", adAccount.Email);
+
+        current.Close();
+
+        -
+
+        // update account data 
+        // best for multiple properties
+        var ds = ActiveDirectoryHelper.InitSearcher(AD_DOMAIN, AD_USER, AD_PASSWORD);
+        var rs = ActiveDirectoryHelper.FindAccountByUserName(ds, adAccount.UserName);
+        var current = rs.GetDirectoryEntry();
+
+        var properties = new Dictionary<string, string> {
+            { "telephonenumber", adAccount.Phone },
+            { "mail", adAccount.Email }
+        };
+
+        ActiveDirectoryHelper.SetProperties(current, properties);                
+
+        current.Close();
+       
+        -
+
+        // reset account password
+        var ds = ActiveDirectoryHelper.InitSearcher(AD_DOMAIN, AD_USER, AD_PASSWORD);
+        var rs = ActiveDirectoryHelper.FindAccountByUserName(ds, adAccountPassword.UserName);
+        var current = rs.GetDirectoryEntry();
+
+        ActiveDirectoryHelper.SetProperty(current, "userAccountControl", "0x200"); // Enable Account (if disabled)                
+        current.Invoke("SetPassword", new object[] { adAccountPassword.Password });
+
+        // Force the user to change password at next logon
+        if (adAccountPassword.Force)
+            ActiveDirectoryHelper.SetProperty(current, "pwdlastset", "0");
+
+        current.Close();
+
     */
 
     public class ActiveDirectoryHelper
@@ -49,6 +89,14 @@ namespace Helpers
                 entry.Properties[key][0] = value;
             else  // UPDATE
                 entry.Properties[key].Add(value);
+
+            entry.CommitChanges(); // save changes
+        }
+
+        public static void SetProperties(DirectoryEntry entry, Dictionary<string, string> dicKeyValue) 
+        {            
+            foreach (var kv in dicKeyValue)
+                SetProperty(entry, kv.Key, kv.Value);
 
             entry.CommitChanges(); // save changes
         }

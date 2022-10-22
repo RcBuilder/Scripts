@@ -186,8 +186,10 @@ namespace Helpers
             while (!File.Exists(Dest)) Thread.Sleep(10);
         }
 
-        public static void MoveFile(string Source, string Dest)
+        public static void MoveFile(string Source, string Dest, bool Override = true)
         {
+            if (Override && File.Exists(Dest)) DeleteFile(Dest);
+
             File.Move(Source, Dest);
             while (!File.Exists(Dest)) Thread.Sleep(10);
         }

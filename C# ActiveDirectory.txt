@@ -10,6 +10,14 @@ using System.DirectoryServices;
 
 -
 
+Reference:
+https://learn.microsoft.com/en-us/dotnet/api/system.directoryservices?view=dotnet-plat-ext-6.0
+https://learn.microsoft.com/en-us/dotnet/api/system.directoryservices.directoryentry?view=dotnet-plat-ext-6.0
+https://learn.microsoft.com/en-us/dotnet/api/system.directoryservices.directorysearcher?view=dotnet-plat-ext-6.0
+https://www.codeproject.com/Articles/18102/Howto-Almost-Everything-In-Active-Directory-via-C
+
+-
+
 Sample:
 
 [HttpPut]

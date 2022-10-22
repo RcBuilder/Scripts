@@ -1,0 +1,28 @@
+C# Response.Redirect - Thread was being aborted
+-----------------------------------------------
+
+protected void Page_Load(object sender, EventArgs e)
+{
+  try
+  {
+      Response.Redirect("https://rcb.co.il", true);
+  }
+  catch (ThreadAbortException ex){ 
+	// ex: Thread was being aborted
+  }
+  catch (Exception ex){ } 
+}
+
+--
+
+Solution-1:
+Response.Redirect("https://rcb.co.il", false);
+Context.ApplicationInstance.CompleteRequest();
+
+-
+
+Solution-2:
+Response.Clear();
+Response.Status = "302 Object Moved";
+Response.RedirectLocation = "https://rcb.co.il";
+Response.End();

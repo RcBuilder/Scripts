@@ -39,7 +39,18 @@
 	var res = ps.Invoke();		
 */	
 
-const string CONNETION_STRING_TPL = "Driver={{Pervasive ODBC Client Interface}};ServerName=RcBuilder-PC;dbq={0}";
+// CONNETION_STRING
+// Driver={Pervasive ODBC Client Interface};serverName=RcBuilder-PC;dbq=Testdb
+// Driver={SQL Server};ServerName=RCBUILDER-PC\RCBUILDERSQL2016;dbq=TEST
+// Driver={Microsoft Text Driver (*.txt; *.csv)};dbq=D:\;Extensions=asc,csv,tab,txt;
+// Driver={Microsoft Access Driver (*.MDB)};dbq=D:\database.mdb
+// Driver={Microsoft Excel Driver (*.xls)};DriverId=790;dbq=D:\testDB.xls
+const string CONNETION_STRING_PERVASIVE_TPL = "Driver={{Pervasive ODBC Client Interface}};serverName={0};dbq={1}";
+const string CONNETION_STRING_SQL_TPL = "Driver={{SQL Server}};server={0};database={1};trusted_connection=YES";
+const string CONNETION_STRING_EXCEL_TPL = "Driver={{Microsoft Excel Driver (*.xls)}};DriverId=790;dbq={0}";  // DO NOT Support '.xlsx' files
+const string CONNETION_STRING_ACCESS_TPL = "Driver={{Microsoft Access Driver (*.MDB)}};dbq={0}";
+const string CONNETION_STRING_TXT_TPL = "Driver={{Microsoft Text Driver (*.txt; *.csv)}};dbq={0};Extensions=asc,csv,tab,txt;";
+const string CONNETION_STRING_CSV_TPL = "Driver={{Microsoft Text Driver (*.txt; *.csv)}};dbq={0};Extensions=asc,csv,tab,txt;";
 
 void Main()
 {	
@@ -62,30 +73,42 @@ void Main()
 	Console.WriteLine(res3);
 	*/
 	
-	///Build_SystemDSN1("Test2", @"D:\database.mdb");
-	///Build_SystemDSN2("Test4", @"D:\testDB.xlsx");
-	Build_SystemDSN3("Test5", @"C:\Creative\Manager\Userdata\");	
-
-	// 'DBALIAS=Test3db','Description=General','DictionaryLocation=C:\Creative\Manager\Userdata\','DataFileLocation=C:\Creative\Manager\Userdata\'
-	// 'DatabaseName=Test3db','Description=General','DictionaryLocation=C:\Creative\Manager\Userdata\','DataFileLocation=C:\Creative\Manager\Userdata\'
+	/// Build_SystemDSN1("Test201", @"D:\database.mdb");
+	/// Build_SystemDSN2("Test400", @"D:\testDB.xlsx");
+	/// Build_SystemDSN3("Test300", @"C:\Creative\Manager\Userdata\");	// TODO ->> Not Working 
+	/// Build_SystemDSN4("Test600", @"D:\ttt.csv");	
+	/// Build_SystemDSN5("Test700", @"TEST", @"RCBUILDER-PC\RCBUILDERSQL2016");	
+	/// Build_SystemDSN4("Test800", @"D:\ttt.txt");	
+	
 	/// var success = SQLConfigDataSource(IntPtr.Zero, 4, "Pervasive ODBC Engine Interface", $@"DatabaseName=Test3db\0Description=General\0DictionaryLocation=C:\Creative\Manager\Userdata\\0DataFileLocation=C:\Creative\Manager\Userdata\");
 	/// Console.WriteLine(success);
 
 	/// ODBCManager.CreateDSN("Test1", "Bla bla bla", "Pervasive ODBC Engine Interface", "Testdb");
 	/// ODBCManager.RemoveDSN("Test1");
-	
-	/// CheckConnection(string.Format(CONNETION_STRING_TPL, "MANAGER11r9831db"));
-	/// CheckConnection(string.Format(CONNETION_STRING_TPL, "Testdb"));
+		
+	/// CheckConnection(string.Format(CONNETION_STRING_PERVASIVE_TPL, "RcBuilder-PC", "Testdb"));
+	/// CheckConnection(string.Format(CONNETION_STRING_SQL_TPL, @"RCBUILDER-PC\RCBUILDERSQL2016", "TEST"));			
+	/// CheckConnection(string.Format(CONNETION_STRING_TXT_TPL, @"D:\"));
+	/// CheckConnection(string.Format(CONNETION_STRING_CSV_TPL, @"D:\"));		
+	/// CheckConnection(string.Format(CONNETION_STRING_ACCESS_TPL, @"D:\database.mdb"));	
+	/// CheckConnection(string.Format(CONNETION_STRING_EXCEL_TPL, @"D:\testDB.xls"));
+
+	/// ExecuteQuery(string.Format(CONNETION_STRING_PERVASIVE_TPL, "RcBuilder-PC", "Testdb"), "SELECT TOP 3 * FROM Accounts");
+	/// ExecuteQuery(string.Format(CONNETION_STRING_SQL_TPL, @"RCBUILDER-PC\RCBUILDERSQL2016", "TEST"), "SELECT TOP 3 * FROM Products");
+	/// ExecuteQuery(string.Format(CONNETION_STRING_TXT_TPL, @"D:\"), "SELECT TOP 3 * FROM ttt.txt");
+	/// ExecuteQuery(string.Format(CONNETION_STRING_CSV_TPL, @"D:\"), "SELECT TOP 3 * FROM ttt.csv");
+	/// ExecuteQuery(string.Format(CONNETION_STRING_ACCESS_TPL, @"D:\database.mdb"), "SELECT TOP 3 * FROM Table1");
+	/// ExecuteQuery(string.Format(CONNETION_STRING_EXCEL_TPL, @"D:\testDB.xls"), "SELECT TOP 3 * FROM [Sheet1$]");
 
 	/// Console.WriteLine("");
 }
 
 public void Build_SystemDSN1(string DSN_NAME, string Db_Path)
 {
+	// https://learn.microsoft.com/nb-no/sql/odbc/microsoft/sqlconfigdatasource-access-driver?view=azure-sqldw-latest
     var Driver = "Microsoft Access Driver (*.MDB)" + '\0';
 	var Attributes = "";
-    Attributes = Attributes + "DSN=" + DSN_NAME + '\0';
-    Attributes = Attributes + "Uid=" + '\0' + "pwd=" + '\0';
+    Attributes = Attributes + "DSN=" + DSN_NAME + '\0';    
     Attributes = Attributes + "DBQ=" + Db_Path + '\0';
 
     var res = SQLConfigDataSource(IntPtr.Zero, 4, Driver, Attributes);
@@ -95,15 +118,13 @@ public void Build_SystemDSN1(string DSN_NAME, string Db_Path)
 
 public void Build_SystemDSN2(string DSN_NAME, string Db_Path)
 {
+	// https://learn.microsoft.com/nb-no/sql/odbc/microsoft/odbc-jet-sqlconfigdatasource-excel-driver?view=azure-sqldw-latest
     var Driver = "Microsoft Excel Driver (*.xls)" + '\0';
 	var Attributes = "";
-    Attributes = Attributes + "DSN=" + DSN_NAME + '\0';
-	Attributes = Attributes + "FileType=Excel" + '\0';
-    Attributes = Attributes + "Uid=" + '\0' + "pwd=" + '\0';
-    Attributes = Attributes + "DataDirectory=" + Db_Path + '\0';
-	Attributes = Attributes + "MaxScanRows=20" + '\0' + '\0';
+    Attributes = Attributes + "DSN=" + DSN_NAME + '\0';	  
+    Attributes = Attributes + "DBQ=" + Db_Path + '\0';	
 
-    var res = SQLConfigDataSource(IntPtr.Zero, 5, Driver, Attributes);
+    var res = SQLConfigDataSource(IntPtr.Zero, 4, Driver, Attributes);
 	
 	Console.WriteLine(res);
 }
@@ -129,16 +150,73 @@ public void Build_SystemDSN3(string DSN_NAME, string Db_Path)
 	*/
 }
 
+public void Build_SystemDSN4(string DSN_NAME, string Db_Path)
+{
+	// https://learn.microsoft.com/nb-no/sql/odbc/microsoft/sqlconfigdatasource-text-file-driver?view=azure-sqldw-latest
+    var Driver = "Microsoft Text Driver (*.txt; *.csv)" + '\0';
+	var Attributes = "";
+    Attributes = Attributes + "DSN=" + DSN_NAME + '\0';	
+    Attributes = Attributes + "DefaultDir=" + Db_Path + '\0';
+    Attributes = Attributes + "EXTENSIONS=txt" + '\0';
+	Attributes = Attributes + "CHARACTERSET=ANSI" + '\0';
+	Attributes = Attributes + "FORMAT=CSVDELIMITED" + '\0';
+	Attributes = Attributes + "COLNAMEHEADER=FALSE" + '\0';
+	Attributes = Attributes + "FIL=Text" + '\0';
+
+    var res = SQLConfigDataSource(IntPtr.Zero, 4, Driver, Attributes);
+	
+	Console.WriteLine(res);
+}
+
+public void Build_SystemDSN5(string DSN_NAME, string Db_Name, string Server)
+{
+	// https://learn.microsoft.com/nb-no/sql/odbc/microsoft/sqlconfigdatasource-text-file-driver?view=azure-sqldw-latest
+    var Driver = "SQL Server" + '\0';
+	var Attributes = "";
+    Attributes = Attributes + "DSN=" + DSN_NAME + '\0';	    
+    Attributes = Attributes + "Trusted_Connection=Yes" + '\0';
+	Attributes = Attributes + "Server=" + Server + '\0';
+	Attributes = Attributes + "Database=" + Db_Name + '\0';
+	
+    var res = SQLConfigDataSource(IntPtr.Zero, 4, Driver, Attributes);
+	
+	Console.WriteLine(res);
+}
+
 void CheckConnection(string ConnStr){
 	try
 	{   
+		Console.WriteLine($"{ConnStr}");
+		
 		using(var connection = new OdbcConnection(ConnStr)){		
 			connection.Open();		
-	    	Console.WriteLine("Connection Open!");	    	
+	    	Console.WriteLine($"Connection Open!");	    	
 			
 			var command = new OdbcCommand("select 1");
 			command.Connection = connection;
 			command.ExecuteNonQuery();
+		}    
+	}
+	catch (Exception ex){
+	    Console.WriteLine(ex.Message);
+	}
+}
+
+void ExecuteQuery(string ConnStr, string Query){
+	try
+	{   
+		Console.WriteLine($"{ConnStr}");
+		
+		using(var connection = new OdbcConnection(ConnStr)){		
+			connection.Open();		
+	    	Console.WriteLine($"Connection Open!");	    	
+			
+			var command = new OdbcCommand(Query);
+			command.Connection = connection;
+			using(var reader = command.ExecuteReader()){
+				while (reader.Read())        
+            		Console.WriteLine(reader[0]); 			
+			}
 		}    
 	}
 	catch (Exception ex){

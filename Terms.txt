@@ -47,6 +47,7 @@
 * NLP = Natural Language Processing
 * NFC = Near-Field Communication (a set of communication protocols for communication between two electronic devices over a distance of 4 cm)
 * WAF = Web Application Firewall
+* SMB = Server Message Block (פרוטוקול תקשורת המספק גישה משותפת אל קבצים, מדפסות, יציאות טוריות ותקשורת בין מחשבים ברשת)
 
 * OLAP = Online Analytical Processing (analysis of data)
 * OLTP = Online Transaction Processing (transaction-oriented application)
@@ -136,6 +137,7 @@
 
 * Podcast = iPod (apple player) + Broadcast
 * אמל"ק = ארוך מדיי לא קראתי
+* רבש"ץ = רכז ביטחון שוטף צבאי
 
 * LINQ = Language Integrated Query
 * PLINQ = Parallel LINQ
@@ -159,6 +161,7 @@
 * 10x = Thanks
 * Gr8 = Great
 * LML = love my life
+* NTH = nice-to-have
 
 (commands)
 * > TSC = TypeScript Compile

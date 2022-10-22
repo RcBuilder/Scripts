@@ -38,9 +38,45 @@ namespace Helpers
 
         -
 
-        // CHECK CONNECTION
-        var status = ODBCManager.CheckConnection("Pervasive ODBC Client Interface", dbName, "RcBuilder-PC");
+        // CONNECTION STRINGS: 
+        Driver={Pervasive ODBC Client Interface};serverName=RcBuilder-PC;dbq=Testdb
+        Driver={SQL Server};ServerName=RCBUILDER-PC\RCBUILDERSQL2016;dbq=TEST
+        Driver={Microsoft Text Driver (*.txt; *.csv)};dbq=D:\;Extensions=asc,csv,tab,txt;
+        Driver={Microsoft Access Driver (*.MDB)};dbq=D:\database.mdb
+        Driver={Microsoft Excel Driver (*.xls)};DriverId=790;dbq=D:\testDB.xls            
+
+        -
+
+        // CHECK CONNECTION (SYNTAX)
+        var status = ODBCManager.CheckConnection(<connStr>);
         Console.WriteLine($"Connection Status = {status}");
+        
+        -
+
+        // CHECK CONNECTION (USAGE)
+        const string CONNETION_STRING_PERVASIVE_TPL = "Driver={{Pervasive ODBC Client Interface}};serverName={0};dbq={1}";
+        const string CONNETION_STRING_SQL_TPL = "Driver={{SQL Server}};server={0};database={1};trusted_connection=YES";
+        const string CONNETION_STRING_EXCEL_TPL = "Driver={{Microsoft Excel Driver (*.xls)}};DriverId=790;dbq={0}";  // DO NOT Support '.xlsx' files
+        const string CONNETION_STRING_ACCESS_TPL = "Driver={{Microsoft Access Driver (*.MDB)}};dbq={0}";
+        const string CONNETION_STRING_TXT_TPL = "Driver={{Microsoft Text Driver (*.txt; *.csv)}};dbq={0};Extensions=asc,csv,tab,txt;";
+        const string CONNETION_STRING_CSV_TPL = "Driver={{Microsoft Text Driver (*.txt; *.csv)}};dbq={0};Extensions=asc,csv,tab,txt;";
+
+        CheckConnection(string.Format(CONNETION_STRING_PERVASIVE_TPL, "RcBuilder-PC", "Testdb"));
+	    CheckConnection(string.Format(CONNETION_STRING_SQL_TPL, @"RCBUILDER-PC\RCBUILDERSQL2016", "TEST"));			
+	    CheckConnection(string.Format(CONNETION_STRING_TXT_TPL, @"D:\"));
+	    CheckConnection(string.Format(CONNETION_STRING_CSV_TPL, @"D:\"));		
+	    CheckConnection(string.Format(CONNETION_STRING_ACCESS_TPL, @"D:\database.mdb"));	
+	    CheckConnection(string.Format(CONNETION_STRING_EXCEL_TPL, @"D:\testDB.xls"));        
+
+        -
+    
+        // EXECUTE QUERY (USAGE) 
+	    ExecuteQuery(string.Format(CONNETION_STRING_PERVASIVE_TPL, "RcBuilder-PC", "Testdb"), "SELECT TOP 3 * FROM Accounts");
+	    ExecuteQuery(string.Format(CONNETION_STRING_SQL_TPL, @"RCBUILDER-PC\RCBUILDERSQL2016", "TEST"), "SELECT TOP 3 * FROM Products");
+	    ExecuteQuery(string.Format(CONNETION_STRING_TXT_TPL, @"D:\"), "SELECT TOP 3 * FROM ttt.txt");
+	    ExecuteQuery(string.Format(CONNETION_STRING_CSV_TPL, @"D:\"), "SELECT TOP 3 * FROM ttt.csv");
+	    ExecuteQuery(string.Format(CONNETION_STRING_ACCESS_TPL, @"D:\database.mdb"), "SELECT TOP 3 * FROM Table1");
+	    ExecuteQuery(string.Format(CONNETION_STRING_EXCEL_TPL, @"D:\testDB.xls"), "SELECT TOP 3 * FROM [Sheet1$]");
 
         -        
 
@@ -84,11 +120,14 @@ namespace Helpers
             Project > Add > Reference > (tab) COM > Browse > Choose Dlls > OK
         */
         public static class DTO
-        {                       
-            public static bool CreateDTODatabase(string dbName, string dbPath) {
+        {
+            public static bool CreateDTODatabase(string dbName, string dbPath)
+            {
+                DtoSession mDtoSession = null;
 
-                try {
-                    var mDtoSession = new DtoSession();
+                try
+                {
+                    mDtoSession = new DtoSession();
 
                     var result = mDtoSession.Connect("localhost", "", "");
                     if (result != 0) throw new Exception($"Error connecting to server [{result}]");
@@ -96,23 +135,24 @@ namespace Helpers
                     var db = new DtoDatabase();
                     db.Name = dbName;
                     db.DdfPath = dbPath;
-                    db.DataPath = dbPath;                    
+                    db.DataPath = dbPath;
                     db.Flags = dtoDbFlags.dtoDbFlagNotApplicable;
                     result = mDtoSession.Databases.Add(db);
 
                     var success = result == dtoResult.Dto_Success || result == dtoResult.Dto_errDuplicateName;
                     if (!success) throw new Exception($"Error creating database {dbName} [{result}]");
-                    
+
                     Debug.WriteLine(string.Format("Database ({0}) created. ", dbName));
-
-                    result = mDtoSession.Disconnect();                    
-
                     return true;
                 }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"[ERROR] {ex.Message}");
                     throw;
+                }
+                finally {
+                    if(mDtoSession != null && mDtoSession.Connected)
+                        mDtoSession.Disconnect();
                 }
             }
         }
@@ -136,11 +176,11 @@ namespace Helpers
             }
 
             public static bool CreateDSN(string dsnName, string driverName, string dbName)
-            {                
+            {
                 var driverKey = Registry.LocalMachine.CreateSubKey(ODBCINST_INI_REG_PATH + driverName);
                 if (driverKey == null) throw new Exception(string.Format("ODBC Registry key for driver '{0}' does not exist", driverName));
                 var driverPath = driverKey.GetValue("Driver").ToString();
-               
+
                 var datasourcesKey = Registry.LocalMachine.CreateSubKey(ODBC_INI_REG_PATH + "ODBC Data Sources");
                 if (datasourcesKey == null) throw new Exception("ODBC Registry key for datasources does not exist");
                 datasourcesKey.SetValue(dsnName, driverName);
@@ -184,26 +224,27 @@ namespace Helpers
 
                 var result = new List<string>();
 
-                foreach (var driverName in driverNames)                
+                foreach (var driverName in driverNames)
                     if (driverName != "(Default)")
-                        result.Add(driverName);                                    
+                        result.Add(driverName);
 
                 return result.ToArray();
             }
         }
 
-        public static class POWERSHELL {
+        public static class POWERSHELL
+        {
             // Reference: see 'C# Powershell.txt'
 
             private const string OUTPUT_FILTER = "Out-String";
 
             public static bool CreatePervasiveDSN(string dsnName, string dbName)
             {
-                return CreateDSN(dsnName, "Pervasive ODBC Engine Interface", dbName);                
+                return CreateDSN(dsnName, "Pervasive ODBC Engine Interface", dbName);
             }
             public static bool CreateExcelDSN(string dsnName, string dbName)
             {
-                return CreateDSN(dsnName, "Microsoft Excel Driver (*.xls)", dbName);                
+                return CreateDSN(dsnName, "Microsoft Excel Driver (*.xls)", dbName);
             }
             public static bool CreateAccessDSN(string dsnName, string dbName)
             {
@@ -211,24 +252,35 @@ namespace Helpers
             }
 
             // TODO ->> TOFIX! - read output
-            public static bool CreateDSN(string dsnName, string driverName, string dbName) {
+            public static bool CreateDSN(string dsnName, string driverName, string dbName)
+            {
+                // TODO ->> Kill 'wmiprvse.exe' process if needed 
 
-                using (var ps = PowerShell.Create()) {
-                    var scriptContent = $@"Add-OdbcDsn -Name '{dsnName}' -DriverName '{driverName}' -DsnType 'System' -Platform '32-bit' -SetPropertyValue @('DBQ={dbName}','OpenMode=0')";
+                var ps = PowerShell.Create();                
+                var scriptContent = $@"Add-OdbcDsn -Name '{dsnName}' -DriverName '{driverName}' -DsnType 'System' -Platform '32-bit' -SetPropertyValue @('DBQ={dbName}','OpenMode=0')";
 
-                    ps.AddScript($"{scriptContent}|{OUTPUT_FILTER}", true);
-                    var result = ps.Invoke();
-                    Debug.WriteLine(result);
+                /// throw new Exception(scriptContent);
 
-                    return result.Count > 0;
+                ps.AddScript($"{scriptContent}", true);
+                var result = ps.Invoke();
+
+                var hasError = ps.Streams.Error.Count > 0;
+                if (hasError)
+                {
+                    var error = ps.Streams.Error[0];  // 1st error
+                    Debug.WriteLine(error.ToString());  // The DSN exists already     
                 }                
+
+                return !hasError;
             }
 
-            public static bool CreateDTODatabase(string dbName, string dbPath, string server = null) {
-
-                try {
-                    using (var ps = PowerShell.Create()) {
-                        var scriptContent = $@"
+            public static bool CreateDTODatabase(string dbName, string dbPath, string server = null)
+            {
+                try
+                {
+                    var ps = PowerShell.Create();
+                    
+                    var scriptContent = $@"
                         $mdtoSession = New-Object -ComObject DTO.DtoSession
                         $connected = $mdtoSession.connect('{server ?? "localhost"}', '', '')
                         $mdtoDatabase = New-Object -Com DTO.DtoDatabase
@@ -239,14 +291,13 @@ namespace Helpers
                         $mdtoSession.Databases.Add($mdtoDatabase)
                     ";
 
-                        // CREATE DB
-                        ps.AddScript($"{scriptContent} | {OUTPUT_FILTER}", true);
-                        var result = ps.Invoke();
-                        Debug.WriteLine(result);
+                    // CREATE DB
+                    ps.AddScript($"{scriptContent}", true);
+                    var result = ps.Invoke();
+                    Debug.WriteLine(result);
 
-                        if (result == null || result.Count == 0) throw new Exception($"Error creating database {dbName}");
-                    }
-
+                    if (result == null || result.Count == 0) throw new Exception($"Error creating database {dbName}");
+                    
                     return true;
                 }
                 catch (Exception ex)
@@ -263,13 +314,14 @@ namespace Helpers
                     var ps = PowerShell.Create();
 
                     var scriptContent = $"Get-OdbcDsn -Name '{dsnName}' -DsnType 'System' -Platform '32-bit'";
-                    ps.AddScript($"{scriptContent} | {OUTPUT_FILTER}", true);
+                    ps.AddScript($"{scriptContent}", true);
                     var result = ps.Invoke();
                     Debug.WriteLine(result);
 
                     return true;
                 }
-                catch (Exception ex) {
+                catch (Exception ex)
+                {
                     Debug.WriteLine($"[ERROR] {ex.Message}");
                     return false;
                 }
@@ -286,64 +338,122 @@ namespace Helpers
             private static extern bool SQLInstallerError(int iError, ref int pfErrorCode, StringBuilder lpszErrorMsg, int cbErrorMsgMax, ref int pcbErrorMsg);
 
             // TODO ->> TOFIX! - ERROR (Pervasive)
-            public static bool CreatePervasiveDSN(string dsnName, string dbPath) {
+            public static bool CreatePervasiveDSN(string dsnName, string dbPath)
+            {
                 return CreateDSN("Pervasive ODBC Engine Interface", new List<string> {
-                    $"DSN={dsnName}", 
+                    $"DSN={dsnName}",
                     $"DBQ={dbPath}",
                     $"DDFPATH={dbPath}",
                     $"Description=",
                     $"OpenMode=0"
                 });
             }
-            public static bool CreateExcelDSN(string dsnName, string dbPath) {
+            public static bool CreateExcelDSN(string dsnName, string dbPath)
+            {
+                // https://learn.microsoft.com/nb-no/sql/odbc/microsoft/odbc-jet-sqlconfigdatasource-excel-driver?view=azure-sqldw-latest
+
                 return CreateDSN("Microsoft Excel Driver (*.xls)", new List<string> {
-                    $"DSN={dsnName}",
-                    $"FileType=Excel",
-                    $"Uid=",
-                    $"pwd=",
-                    $"Description=",
-                    $"DataDirectory={dbPath}"
+                    $"DSN={dsnName}",                                        
+                    $"DBQ={dbPath}"
                 });
             }
             public static bool CreateAccessDSN(string dsnName, string dbPath)
             {
+                // https://learn.microsoft.com/nb-no/sql/odbc/microsoft/sqlconfigdatasource-access-driver?view=azure-sqldw-latest
+
                 return CreateDSN("Microsoft Access Driver (*.MDB)", new List<string> {
                     $"DSN={dsnName}",
                     $"DBQ={dbPath}",
-                    $"Uid=",
-                    $"pwd=",
-                    $"Description="
+                    /// $"Uid=",
+                    /// $"pwd=",
+                    /// $"Description="
+                });
+            }
+            public static bool CreateTextDSN(string dsnName, string dbPath)
+            {
+                // https://learn.microsoft.com/nb-no/sql/odbc/microsoft/sqlconfigdatasource-text-file-driver?view=azure-sqldw-latest
+
+                return CreateDSN("Microsoft Text Driver (*.txt; *.csv)", new List<string> {
+                    $"DSN={dsnName}",
+                    $"DefaultDir={dbPath}",
+                    $"EXTENSIONS=txt",
+                    $"CHARACTERSET=ANSI",
+                    $"FORMAT=CSVDELIMITED",
+                    $"COLNAMEHEADER=FALSE",
+                    $"FIL=Text"
+                });
+            }
+            public static bool CreateCsvDSN(string dsnName, string dbPath) {
+                return CreateTextDSN(dsnName, dbPath);
+            }
+            public static bool CreateSqlServerDSN(string dsnName, string dbName, string server)
+            {
+                // https://learn.microsoft.com/nb-no/sql/odbc/microsoft/sqlconfigdatasource-text-file-driver?view=azure-sqldw-latest
+
+                return CreateDSN("SQL Server", new List<string> {
+                    $"DSN={dsnName}",
+                    $"Server={server}",
+                    $"Database={dbName}",                    
+                    $"Trusted_Connection=Yes"
                 });
             }
 
             public static bool CreateDSN(string driverName, List<string> attributesList)
-            {                
-                var attributes = string.Join("\0", attributesList);                
+            {
+                var attributes = string.Join("\0", attributesList);
                 var result = SQLConfigDataSource(IntPtr.Zero, 4, driverName, attributes);
                 Debug.WriteLine(result);
 
                 return result;
             }
         }
-
-        public static bool CheckConnection(string driverName, string dbq, string server = null) {
-            return CheckConnection($"Driver={{{driverName}}};ServerName={server ?? "localhost"};dbq={dbq}");
-        }
+        
         public static bool CheckConnection(string ConnStr)
         {
             try
             {
+                Debug.WriteLine($"{ConnStr}");
+
                 using (var connection = new OdbcConnection(ConnStr))
                 {
                     connection.Open();
-                    Debug.WriteLine($"Connection Open! ({ConnStr})");
+                    Debug.WriteLine($"Connection Open!");
 
                     var command = new OdbcCommand("select 1");
                     command.Connection = connection;
-                    command.ExecuteNonQuery();                    
+                    command.ExecuteNonQuery();
                 }
 
                 return true;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[ERROR] {ex.Message}");
+                return false;
+            }
+        }
+
+        public static bool ExecuteQuery(string ConnStr, string Query)
+        {
+            try
+            {
+                Debug.WriteLine($"{ConnStr}");
+
+                using (var connection = new OdbcConnection(ConnStr))
+                {
+                    connection.Open();
+                    Debug.WriteLine($"Connection Open!");
+
+                    var command = new OdbcCommand(Query);
+                    command.Connection = connection;
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                            Debug.WriteLine(reader[0]);
+                    }
+
+                    return true;
+                }
             }
             catch (Exception ex)
             {
