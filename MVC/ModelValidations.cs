@@ -39,4 +39,33 @@ namespace Entities
             return Convert.ToBoolean(value);
         }
     }
+
+    // [TagsValidation(3, 30, ErrorMessage = "תגיות לא תיקניות")]
+    // e.g: tagA,tagB,tagC,tagD
+    public class TagsValidation : ValidationAttribute
+    {
+        private int minLength { get; set; }
+        private int maxLength { get; set; }
+
+        public TagsValidation() : this(3, 30) { }
+        public TagsValidation(int minLength, int maxLength)
+        {
+            this.minLength = minLength;
+            this.maxLength = maxLength;
+        }
+
+        public override bool IsValid(object value)
+        {
+            var sTags = value.ToString()?.Split(',')?.Select(x => x.Trim());
+            if (sTags != null)
+            {
+                foreach (var tag in sTags)
+                {
+                    if (tag.Trim().Length >= this.minLength && tag.Trim().Length <= this.maxLength) continue;
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
 }

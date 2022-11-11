@@ -1,0 +1,14 @@
+C# Reverse String
+-----------------
+
+string Reverse(string value) {
+    if (value == null) return null;
+
+    var array = value.ToCharArray();
+    Array.Reverse(array);
+    return new string(array);
+}
+
+-
+
+Reverse("תוכן בעברית");

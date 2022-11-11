@@ -1,0 +1,17 @@
+WebPI - Web Platform Installer
+------------------------------
+aka WebPI
+WebPI = Web Platform Installer
+
+provider > microsoft 
+a free package management tool to install non-commercial web development tools and their dependencies.
+use this app to install common web platforms on your windows.
+e.g: php 
+
+-
+
+installation file:
+WebPlatformInstaller_x64_en-US.msi
+
+download:
+https://www.microsoft.com/web/downloads/platform.aspx

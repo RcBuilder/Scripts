@@ -1,0 +1,9 @@
+** Redis Enterprise **
+**********************
+
+------
+
+5 Pillars of Redis Enterprise:
+Redis Enterprise: The Fast, Flexible, Cost-Effective Data Platform
+https://www.youtube.com/watch?v=vyxdC1qK4NE
+https://www.youtube.com/watch?v=mCOX-2ez-m4&list=PL83Wfqi-zYZF3d52AmEKE2kV-m3izZOjq

@@ -1,0 +1,30 @@
+SQL - CREATE VIEW Sample
+------------------------
+
+Syntax:
+
+CREATE VIEW <View-Name> AS		
+	<Select Clause>
+
+-
+
+Sample:
+
+[PostsTags]
+- PostId, 
+- Tag
+
+[Posts]
+- Id 
+- AccountId
+- Title
+- Body
+
+CREATE VIEW vAccountTags AS		
+	SELECT	AccountId, [Tag], COUNT(Tag) As [Count] 
+	FROM	PostsTags T WITH(NOLOCK) 
+		INNER JOIN 
+		Posts P WITH(NOLOCK) 
+		ON(P.Id = T.PostId)			
+	GROUP BY P.AccountId, [Tag]
+

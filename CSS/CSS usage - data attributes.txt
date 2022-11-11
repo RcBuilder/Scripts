@@ -1,0 +1,160 @@
+CSS usage - data attributes
+---------------------------
+
+// Syntax
+
+*[<attr>]
+*[<attr>=<value>]
+
+-
+
+// Reference
+
+CSS/Menus.html
+
+-
+
+// Usage
+
+<a href="#" data-fill="red">RED</a>
+<a href="#" data-fill="blue">BLUE</a>
+<a href="#" data-fill="green">GREEN</a>
+
+a[data-fill=red]{
+	color: red;
+}
+a[data-fill=green]{
+	color: green;
+}
+a[data-fill=blue]{
+	color: blue;
+}
+
+-
+
+// Sample
+
+<div class="menu menu-2">
+    <a href="#" data-fill="red">
+        <div>
+            <img src="icons/document-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            טיפול במסמכים
+        </div>
+    </a>
+    <a href="#" data-fill="turquoise">
+        <div>
+            <img src="icons/plus-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            מסמך חדש
+        </div>
+    </a>
+    <a href="#" data-fill="blue">
+        <div>
+            <img src="icons/growth-report-graph-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            דוחות
+        </div>
+    </a>
+    <a href="#" data-fill="mustard">
+        <div>
+            <img src="icons/archive-box-fill-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            ארכיון
+        </div>
+    </a>
+    <a href="#" data-fill="green">
+        <div>
+            <img src="icons/user-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            חשבון
+        </div>
+    </a>
+</div>
+
+
+.menu-2 {            
+    display: grid;            
+    grid-gap: 20px;                 
+}
+.menu-2 > a {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;                     
+    text-align: center;      
+    min-width: 220px;     
+    text-decoration: none;
+}
+.menu-2 > a > div:nth-child(1) {            
+    width: 100%;
+    padding: 20px 0 16px 0;
+    border-radius: 8px 8px 0 0;   
+    background-color: #fff;
+    box-sizing: border-box;
+    border: dotted 1px #ddd;   
+    border-bottom: none;
+}
+.menu-2  img {
+    width: 100px;                 
+}
+.menu-2 > a > div:nth-child(2) {
+    width: 100%;
+    background-color: #000;
+    color: #fff;  
+    font-size: 20px;
+    padding: 8px 0;
+    border-radius: 0 0 8px 8px;  
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.menu-2 > a[data-fill=blue] > div:nth-child(2) {
+    background-color: #5A8DEE;
+}
+.menu-2 > a[data-fill=blue] img {
+    /* set svg icon color */
+    filter: invert(51%) sepia(50%) saturate(2140%) hue-rotate(198deg) brightness(98%) contrast(90%);
+}
+.menu-2 > a[data-fill=green] > div:nth-child(2) {
+    background-color: #39DA8A;
+}
+.menu-2 > a[data-fill=green] img {   
+    filter: brightness(0) saturate(100%) invert(100%) sepia(36%) saturate(4039%) hue-rotate(70deg) brightness(90%) contrast(89%);
+}
+.menu-2 > a[data-fill=lite-green] > div:nth-child(2) {
+    background-color: #71F1B2;
+}
+.menu-2 > a[data-fill=lite-green] img {
+    filter: brightness(0) saturate(100%) invert(90%) sepia(5%) saturate(3637%) hue-rotate(87deg) brightness(101%) contrast(83%);
+}
+.menu-2 > a[data-fill=red] > div:nth-child(2) {
+    background-color: #FF5B5C;
+}
+.menu-2 > a[data-fill=red] img {    
+    filter: brightness(0) saturate(100%) invert(35%) sepia(70%) saturate(1811%) hue-rotate(331deg) brightness(114%) contrast(101%);
+}
+.menu-2 > a[data-fill=mustard] > div:nth-child(2) {
+    background-color: #FDAC41;
+}
+.menu-2 > a[data-fill=mustard] img {    
+    filter: brightness(0) saturate(100%) invert(73%) sepia(57%) saturate(782%) hue-rotate(328deg) brightness(105%) contrast(98%);
+}
+.menu-2 > a[data-fill=lite-blue] > div:nth-child(2) {
+    background-color: #A3BFF3;
+}
+.menu-2 > a[data-fill=lite-blue] img {
+    filter: brightness(0) saturate(100%) invert(70%) sepia(56%) saturate(355%) hue-rotate(190deg) brightness(97%) contrast(97%);
+}
+.menu-2 > a[data-fill=turquoise] > div:nth-child(2) {
+    background-color: #00CFDD;
+}
+.menu-2 > a[data-fill=turquoise] img {
+    filter: brightness(0) saturate(100%) invert(58%) sepia(98%) saturate(1060%) hue-rotate(136deg) brightness(95%) contrast(101%);
+} 

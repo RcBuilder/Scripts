@@ -1,0 +1,162 @@
+CSS Grid Menu Sample
+--------------------
+Reference: 
+CSS\Menus.html
+
+---
+
+[HTML]
+
+<div class="management-menu">
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/document-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            טיפול במסמכים
+        </div>
+    </div>
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/plus-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            מסמך חדש
+        </div>
+    </div>
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/growth-report-graph-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            דוחות
+        </div>
+    </div>
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/archive-box-fill-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            ארכיון
+        </div>
+    </div>
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/user-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            חשבון
+        </div>
+    </div>
+
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/document-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            טיפול במסמכים
+        </div>
+    </div>
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/plus-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            מסמך חדש
+        </div>
+    </div>
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/growth-report-graph-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            דוחות
+        </div>
+    </div>
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/archive-box-fill-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            ארכיון
+        </div>
+    </div>
+    <div>
+        <div>
+            <img src="/Sale/app-assets/icons/user-svgrepo-com.svg" alt="" />
+        </div>
+        <div>
+            חשבון
+        </div>
+    </div>
+
+</div>
+
+
+[CSS]
+
+.management-menu {
+    display: grid;       
+    grid-gap: 20px;
+    margin-bottom: 30px;    
+}
+
+@media (min-width: 468px) {
+    .management-menu {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+    .management-menu {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (min-width: 968px) {
+    .management-menu {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+@media (min-width: 1500px) {
+    .management-menu {
+        grid-template-columns: repeat(5, 1fr);
+    }
+}
+
+.management-menu > div {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    min-width: 220px;
+}
+
+.management-menu > div > div:nth-child(1) {
+    width: 100%;
+    padding: 20px 0 16px 0;
+    border-radius: 8px 8px 0 0;
+    background-color: #fff;
+    box-sizing: border-box;
+    border: dotted 1px #ddd;
+    border-bottom: none;
+}
+
+.management-menu img {
+    width: 100px;
+}
+
+.management-menu > div > div:nth-child(2) {
+    width: 100%;
+    background-color: #000;
+    color: #fff;
+    font-size: 20px;
+    padding: 8px 0;
+    border-radius: 0 0 8px 8px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

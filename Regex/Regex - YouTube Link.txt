@@ -1,0 +1,23 @@
+Regex - YouTube Link
+--------------------
+
+pattern:
+@"youtu(?:\.be|be\.com)/(?:(.*)v(/|=)|(.*/)?)(?<id>[a-zA-Z0-9-_]+)
+
+-
+
+usage:
+Regex YoutubeVideoRegex = new Regex(@"youtu(?:\.be|be\.com)/(?:(.*)v(/|=)|(.*/)?)(?<id>[a-zA-Z0-9-_]+)", RegexOptions.IgnoreCase);
+var youtubeMatch = YoutubeVideoRegex.Match(post.YoutubeURL);
+if (youtubeMatch.Success)
+{
+    var youtubeId = youtubeMatch.Groups["id"].Value;
+    //string youtube_embed_code = $"<iframe allowfullscreen=\"\" frameborder=\"0\" height=\"360\" src=\"//www.youtube.com/embed/{youtubeId}?rel=0\" width=\"640\"></iframe>";
+    body += $"<div style=\"position:relative;padding-bottom:56.25%;padding-top:30px;height:0;overflow:hidden;\"><iframe allowfullscreen=\"\" frameborder=\"0\" height=\"360\" src=\"//www.youtube.com/embed/{youtubeId}?rel=0\" style=\"position: absolute;top: 0;left: 0;width: 100%;height: 100%;\" width=\"640\"></iframe></div>";
+    //body += $"<p>{youtube_embed_code}</p>";
+}
+else 
+{
+    ModelState.AddModelError("", "כתובת הקישור ליוטיוב לא זוהתה");
+    return View(post);
+}

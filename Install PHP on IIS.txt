@@ -1,0 +1,27 @@
+Install PHP on IIS
+------------------
+
+(steps)
+1. use WebPI to install PHP Package for IIS on windows. 
+   see 'WebPI - Web Platform Installer'
+2. WebPI > (tab) Products > select PHP package and version 
+   e.g: PHP 8.0.0 (x64)
+3. create a sample php file displaying information about the platform
+
+   // info.php
+   // use the following php code to receive information about the installed engine 
+   // if the IIS manages to process this code-line, the php engine is installed!
+   <?php phpinfo(); ?>
+
+   // website
+   http://localhost/info.php
+
+
+-
+
+config:
+\config\config.php
+\config\*.ini
+
+database:
+\utils\db\schema.sql

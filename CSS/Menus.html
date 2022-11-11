@@ -1,0 +1,319 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    
+    <style>
+        body {
+            font-family: 'IBM Plex Sans', Helvetica, Arial, serif;    
+            background-color: #F2F4F4;
+            direction: rtl;            
+        }
+        .wrapper {
+            max-width: 1024px;            
+            margin: 0 auto;                     
+        }
+        .wrapper .menu {
+            margin-bottom: 30px;
+        } 
+
+        /* Menu 1 */
+        .menu-1 {            
+            display: grid;            
+            grid-gap: 20px;                 
+        }
+        .menu-1 > div {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;                     
+            text-align: center;      
+            min-width: 220px;                    
+        }
+        .menu-1 > div > div:nth-child(1) {            
+            width: 100%;
+            padding: 20px 0 16px 0;
+            border-radius: 8px 8px 0 0;   
+            background-color: #fff;
+            box-sizing: border-box;
+            border: dotted 1px #ddd;   
+            border-bottom: none;
+        }
+        .menu-1  img {
+            width: 100px;                 
+        }
+        .menu-1 > div > div:nth-child(2) {
+            width: 100%;
+            background-color: #000;
+            color: #fff;  
+            font-size: 20px;
+            padding: 8px 0;
+            border-radius: 0 0 8px 8px;  
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        /* Menu 2 */
+        .menu-2 {            
+            display: grid;            
+            grid-gap: 20px;                 
+        }
+        .menu-2 > a {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;                     
+            text-align: center;      
+            min-width: 220px;     
+            text-decoration: none;
+        }
+        .menu-2 > a > div:nth-child(1) {            
+            width: 100%;
+            padding: 20px 0 16px 0;
+            border-radius: 8px 8px 0 0;   
+            background-color: #fff;
+            box-sizing: border-box;
+            border: dotted 1px #ddd;   
+            border-bottom: none;
+        }
+        .menu-2  img {
+            width: 100px;                 
+        }
+        .menu-2 > a > div:nth-child(2) {
+            width: 100%;
+            background-color: #000;
+            color: #fff;  
+            font-size: 20px;
+            padding: 8px 0;
+            border-radius: 0 0 8px 8px;  
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .menu-2 > a[data-fill=blue] > div:nth-child(2) {
+            background-color: #5A8DEE;
+        }
+        .menu-2 > a[data-fill=blue] img {
+            /* set svg icon color */
+            filter: invert(51%) sepia(50%) saturate(2140%) hue-rotate(198deg) brightness(98%) contrast(90%);
+        }
+        .menu-2 > a[data-fill=green] > div:nth-child(2) {
+            background-color: #39DA8A;
+        }
+        .menu-2 > a[data-fill=green] img {   
+            filter: brightness(0) saturate(100%) invert(100%) sepia(36%) saturate(4039%) hue-rotate(70deg) brightness(90%) contrast(89%);
+        }
+        .menu-2 > a[data-fill=lite-green] > div:nth-child(2) {
+            background-color: #71F1B2;
+        }
+        .menu-2 > a[data-fill=lite-green] img {
+            filter: brightness(0) saturate(100%) invert(90%) sepia(5%) saturate(3637%) hue-rotate(87deg) brightness(101%) contrast(83%);
+        }
+        .menu-2 > a[data-fill=red] > div:nth-child(2) {
+            background-color: #FF5B5C;
+        }
+        .menu-2 > a[data-fill=red] img {    
+            filter: brightness(0) saturate(100%) invert(35%) sepia(70%) saturate(1811%) hue-rotate(331deg) brightness(114%) contrast(101%);
+        }
+        .menu-2 > a[data-fill=mustard] > div:nth-child(2) {
+            background-color: #FDAC41;
+        }
+        .menu-2 > a[data-fill=mustard] img {    
+            filter: brightness(0) saturate(100%) invert(73%) sepia(57%) saturate(782%) hue-rotate(328deg) brightness(105%) contrast(98%);
+        }
+        .menu-2 > a[data-fill=lite-blue] > div:nth-child(2) {
+            background-color: #A3BFF3;
+        }
+        .menu-2 > a[data-fill=lite-blue] img {
+            filter: brightness(0) saturate(100%) invert(70%) sepia(56%) saturate(355%) hue-rotate(190deg) brightness(97%) contrast(97%);
+        }
+        .menu-2 > a[data-fill=turquoise] > div:nth-child(2) {
+            background-color: #00CFDD;
+        }
+        .menu-2 > a[data-fill=turquoise] img {
+            filter: brightness(0) saturate(100%) invert(58%) sepia(98%) saturate(1060%) hue-rotate(136deg) brightness(95%) contrast(101%);
+        }
+
+        /* Menu 3 */
+        .menu-3 {
+            display: grid;
+            grid-gap: 20px;                        
+        }
+        .menu-3 > div {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;                     
+            text-align: center;      
+            min-width: 220px;                    
+        }        
+        .menu-3  img {
+            width: 100%;  
+            height: 150px;
+            border-radius: 8px 8px 0 0;   
+        }
+        .menu-3 > div > div:nth-child(2) {
+            width: 100%;
+            background-color: #000;
+            color: #fff;  
+            font-size: 20px;
+            padding: 8px 0;
+            border-radius: 0 0 8px 8px;  
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        /* Shared */
+        @media (min-width: 468px) {
+            .menu {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .menu {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 968px) {
+            .menu {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1500px) {
+            .menu {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="menu menu-1">
+            <div>
+                <div>
+                    <img src="icons/document-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    טיפול במסמכים
+                </div>
+            </div>
+            <div>
+                <div>
+                    <img src="icons/plus-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    מסמך חדש
+                </div>
+            </div>
+            <div>
+                <div>
+                    <img src="icons/growth-report-graph-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    דוחות
+                </div>
+            </div>
+            <div>
+                <div>
+                    <img src="icons/archive-box-fill-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    ארכיון
+                </div>
+            </div>
+            <div>
+                <div>
+                    <img src="icons/user-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    חשבון
+                </div>
+            </div>
+        </div>
+
+        <div class="menu menu-2">
+            <a href="#" data-fill="red">
+                <div>
+                    <img src="icons/document-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    טיפול במסמכים
+                </div>
+            </a>
+            <a href="#" data-fill="turquoise">
+                <div>
+                    <img src="icons/plus-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    מסמך חדש
+                </div>
+            </a>
+            <a href="#" data-fill="blue">
+                <div>
+                    <img src="icons/growth-report-graph-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    דוחות
+                </div>
+            </a>
+            <a href="#" data-fill="mustard">
+                <div>
+                    <img src="icons/archive-box-fill-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    ארכיון
+                </div>
+            </a>
+            <a href="#" data-fill="green">
+                <div>
+                    <img src="icons/user-svgrepo-com.svg" alt="" />
+                </div>
+                <div>
+                    חשבון
+                </div>
+            </a>
+        </div>
+
+        <div class="menu menu-3">
+            <div>
+                <img src="Resources/272980_440x300.jpg" alt="" />
+                <div>
+                    מסמכים
+                </div>
+            </div>
+            <div>
+                <img src="Resources/661108-2177_440x300.jpg" alt="" />
+                <div>
+                    מסמך חדש
+                </div>
+            </div>
+            <div>
+                <img src="Resources/106344_440x300.jpg" alt="" />
+                <div>
+                    דוחות
+                </div>
+            </div>
+            <div>
+                <img src="Resources/357514_440x300.jpg" alt="" />
+                <div>
+                    ארכיון
+                </div>
+            </div>
+            <div>
+                <img src="Resources/170667a_440x300.jpg" alt="" />
+                <div>
+                    חשבון
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

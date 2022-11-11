@@ -20,6 +20,10 @@ using System.Net.WebSockets;
 using System.Collections.Generic;
 using System.Diagnostics;
 
+// ---------------------
+// TODO ->> TO COMPLETE! 
+// ---------------------
+
 namespace Helpers
 {
     /*
@@ -131,29 +135,40 @@ namespace Helpers
         }
     }
 
-    public class PdfPuppeteerBrowserProvider : PdfSharpProviderBase, IPdfBrowserProvider
+    public class PdfPuppeteerBrowserProvider : PdfSharpProviderBase, IPdfBrowserProvider, IDisposable
     {
+        private Browser browser { get; set; } = null;
+        private int delayInMS { get; set; } = 2000;
+
         public virtual async Task<Stream> CreateFromScreenshot(string URL, string ChromePath = null, eImageMode ImageMode = eImageMode.None)
         {
-            var browser = await this.CreateWebBrowser(ChromePath);
-            var webPage = await browser.NewPageAsync();
+            if(this.browser == null)
+                this.browser = await this.CreateWebBrowser(ChromePath);
+            
+            var webPage = await this.browser.NewPageAsync();
             await webPage.GoToAsync(URL);
+
+            await Task.Delay(this.delayInMS);
 
             var screenshotOptions = new ScreenshotOptions
             {
                 FullPage = true,
                 Quality = 100,
-                Type = ScreenshotType.Jpeg
+                Type = ScreenshotType.Jpeg 
             };
-            
-            return await webPage.ScreenshotStreamAsync(screenshotOptions);
+
+            return await webPage.ScreenshotStreamAsync(screenshotOptions);            
         }
 
         public virtual async Task<Stream> CreateFromBrowser(string URL, string ChromePath = null)
         {
-            var browser = await this.CreateWebBrowser(ChromePath);
-            var webPage = await browser.NewPageAsync();
+            if (this.browser == null)
+                this.browser = await this.CreateWebBrowser(ChromePath);
+            
+            var webPage = await this.browser.NewPageAsync();
             await webPage.GoToAsync(URL);
+            
+            await Task.Delay(this.delayInMS);
 
             /// return await webPage.PdfDataAsync(); // as bytes
             return await webPage.PdfStreamAsync();   // as stream           
@@ -161,9 +176,13 @@ namespace Helpers
 
         public virtual async Task SaveFromScreenshot(string URL, string FilePath, string ChromePath = null)
         {
-            var browser = await this.CreateWebBrowser(ChromePath);
-            var webPage = await browser.NewPageAsync();
+            if (this.browser == null)
+                this.browser = await this.CreateWebBrowser(ChromePath);
+
+            var webPage = await this.browser.NewPageAsync();
             await webPage.GoToAsync(URL);
+
+            await Task.Delay(this.delayInMS);
 
             var screenshotOptions = new ScreenshotOptions
             {
@@ -174,17 +193,21 @@ namespace Helpers
 
             using (var screenshotStream = await webPage.ScreenshotStreamAsync(screenshotOptions))
             using (var image = Image.FromStream(screenshotStream))
-                image.Save(FilePath);
+                image.Save(FilePath);            
         }
 
         public virtual async Task SaveFromBrowser(string URL, string FilePath, string ChromePath = null)
         {
-            var browser = await this.CreateWebBrowser(ChromePath);
-            var webPage = await browser.NewPageAsync();
+            if (this.browser == null)
+                this.browser = await this.CreateWebBrowser(ChromePath);
+
+            var webPage = await this.browser.NewPageAsync();
             await webPage.GoToAsync(URL);
 
+            await Task.Delay(this.delayInMS);
+
             var pdfOptions = new PdfOptions { };
-            await webPage.PdfAsync(FilePath, pdfOptions);
+            await webPage.PdfAsync(FilePath, pdfOptions);            
         }
 
         // --- 
@@ -228,6 +251,12 @@ namespace Helpers
 
             var browser = await Puppeteer.LaunchAsync(launchOptions);
             return browser;
+        }
+
+        public void Dispose()
+        {
+            if (this.browser != null)
+                this.browser.Dispose();
         }
     }
 
@@ -639,7 +668,7 @@ namespace Helpers
     }
 
     // TODO ->> QA (all providers!)
-    public class PdfManager : IPdfManager
+    public class PdfManager : IPdfManager, IDisposable
     {
         private IPdfProvider PdfProvider { get; set; } = new PdfSharpProvider();        
         
@@ -706,6 +735,12 @@ namespace Helpers
         public void Save(Stream PdfStream, string FilePath, bool CloseStream = true)
         {
             this.PdfProvider.Save(PdfStream, FilePath, CloseStream);
+        }
+
+        public void Dispose()
+        {            
+            if (this.PdfProvider is IDisposable)
+                ((IDisposable)this.PdfProvider).Dispose();
         }
     }
 }

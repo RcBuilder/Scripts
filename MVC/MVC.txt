@@ -1544,6 +1544,7 @@ see 'MVC FromURI binding'
   - allows us to make ajax calls for server validation (Email exists etc.)
   - are performed by an ajax call to the pre-defined server method
   - note: Remote attributes are being called only on the client side !! 
+  - reference: ModelValidations.cs
 
   1. create a method which will serve as our validation method 
      should return true/false in json format

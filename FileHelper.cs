@@ -120,5 +120,30 @@ namespace Common
             }
         }
         #endregion
+
+        #region Html2String:
+        public static string Html2String(string filePath)
+        {
+            return Html2String(filePath, Encoding.UTF8);
+        }
+        public static string Html2String(string filePath, Encoding encoding)
+        {
+            if (filePath == string.Empty) return string.Empty;
+            using (var sr = new StreamReader(filePath, encoding))
+                return sr.ReadToEnd();
+        }
+        #endregion
+
+        #region LoadEmailTemplate:
+        public static string LoadEmailTemplate(string TemplateName, string TemplateFolder = "EmailTemplates\\")
+        {
+            try
+            {
+                TemplateFolder = string.Concat(AppDomain.CurrentDomain.BaseDirectory, TemplateFolder);
+                return FileHelper.Html2String(string.Concat(TemplateFolder, TemplateName));
+            }
+            catch { return string.Empty; }
+        }
+        #endregion
     }
 }

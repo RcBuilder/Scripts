@@ -1,0 +1,20 @@
+BUG - xxx is not recognized as an internal or external command
+--------------------------------------------------------------
+
+error:
+'git' is not recognized as an internal or external command
+
+cause:
+need to add PATH environment variable for the utility's source folder 
+
+solution:
+WINDOWS > environment variable
+
+sample:
+- environment variable
+- PATH 
+- New > C:\Program Files\Git\bin\
+- New > C:\Program Files\Git\cmd\
+
+test:
+> git status

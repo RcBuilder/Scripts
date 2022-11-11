@@ -1,0 +1,61 @@
+_ViewStart
+----------
+Views > _ViewStart.cshtml
+
+-
+
+async-await within a view 
+Task.Run(<async-action>).GetAwaiter().GetResult();
+
+e.g:
+var active = SessionsManager.GetManager(System.Web.HttpContext.Current);
+var account = Task.Run(() => new AccountsBLL().Get(AccountId)).GetAwaiter().GetResult();
+
+-
+
+Sample:
+
+// _ViewStart.cshtml
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewContext.Controller.ViewBag.Title = "אתר זכרון דיגיטלי";
+    ViewContext.Controller.ViewBag.MetaDescription = "השילוב בין אלבום תמונות ורשת חברתית. התחברו וצרו את רשת האלבומים שלכם.";
+    ViewContext.Controller.ViewBag.MetaKeywords = "אלבום תמונות, ספר מחזור, ספר מחזור דיגיטלי, ספר מחזור בית ספר, אלבום שנתי";
+
+    var active = SessionsManager.GetManager(System.Web.HttpContext.Current);
+    ViewContext.Controller.ViewBag.Active = active;
+
+    var accountId = active?.AccountId ?? ViewContext.Controller.ViewBag.AccountId ?? string.Empty;    
+
+    if (!string.IsNullOrEmpty(accountId)) {
+        var account = AccountsBLL.StaticGet(accountId);
+        ViewContext.Controller.ViewBag.Account = ViewContext.Controller.ViewBag.Account ?? account;
+        ViewContext.Controller.ViewBag.Tags = TagsBLL.StaticGetByAccount(accountId);
+    }
+}
+
+
+// BLL 
+public class AccountsBLL{
+	public static Account StaticGet(string AccountId){
+            return Task.Run(() => new AccountsBLL().Get(AccountId)).GetAwaiter().GetResult();
+        }
+
+	public async Task<Account> Get(string Id)
+        {
+            if (string.IsNullOrEmpty(Id)) return null;
+            return await this.DAL.Get(Id);
+        }
+}
+
+public class TagsBLL{
+	public static IEnumerable<Tag> StaticGetByAccount(string AccountId) {
+            return Task.Run(() => new TagsBLL().GetByAccount(AccountId)).GetAwaiter().GetResult();
+        }
+
+	public async Task<IEnumerable<Tag>> GetByAccount(string AccountId)
+        {
+            if (string.IsNullOrEmpty(AccountId)) return null;
+            return await this.DAL.GetByAccount(AccountId);
+        }
+}

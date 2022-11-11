@@ -1,0 +1,32 @@
+Install phpMyAdmin on Windows
+-----------------------------
+https://docs.phpmyadmin.net/en/latest/index.html
+
+
+(steps)
+1. download phpMyAdmin from the official site 
+   https://www.phpmyadmin.net/downloads/
+
+   e.g: 
+   phpMyAdmin-5.2.0-all-languages.zip
+
+2. extract it
+   a new folder 'phpMyAdmin...' will be created
+
+3. enter the phpMyAdmin folder > 
+   change 'config.sample.inc.php' to 'config.inc.php' (remove the sample)
+
+   note!
+   config.inc.php contains All configurable data of phpMyAdmin
+
+4. open IIS > create a new website > reference it to the phpMyAdmin folder 
+
+   tip: 
+   create a copy of the folder within the wwwroot    
+
+5. open website in the browser 
+   
+   e.g:
+   http://localhost:8888/index.php
+
+6. login with the MySQL root user 

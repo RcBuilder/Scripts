@@ -1,0 +1,17 @@
+Set img .svg color using CSS
+----------------------------
+use filter rule to set svg element color!
+
+-
+
+color-2-filter converter online:
+https://angel-rs.github.io/css-color-filter-generator/
+
+-
+
+[sample]
+
+<img src="sample.svg" alt="" />
+
+// set svg icon color
+filter: invert(12%) sepia(63%) saturate(6234%) hue-rotate(246deg) brightness(87%) contrast(156%);

@@ -1,0 +1,532 @@
+CSS Share Buttons
+-----------------
+Reference: 
+CSS\ShareButtons.html
+
+---
+
+[HTML]
+
+<div class="share-button-1">
+    <div class="share-button">
+        <img src="icons/share-icon-32.png" alt="share this page" />
+    </div>
+    <div class="share-options">
+        <div class="social">
+            <a href="#" title="share on facebook">
+                <img src="icons/facebook.png" alt="share on facebook" />
+            </a>
+            <a href="#" title="share on instagram">
+                <img src="icons/instagram.png" alt="share on instagram" />
+            </a>
+            <a href="#" title="share on linkedin">
+                <img src="icons/linkedin.png" alt="share on linkedin" />
+            </a>
+            <a href="#" title="share on twitter">
+                <img src="icons/twitter.png" alt="share on twitter" />
+            </a>
+            <a href="#" title="share on whatsapp">
+                <img src="icons/whatsapp.png" alt="share on whatsapp" />
+            </a>
+            <a href="#" title="share on tiktok">
+                <img src="icons/tiktok.png" alt="share on tiktok" />
+            </a>
+            <a href="#" title="share on telegram">
+                <img src="icons/telegram.png" alt="share on telegram" />
+            </a>
+            <a href="#" title="share via email">
+                <img src="icons/email.png" alt="share via email" />
+            </a>
+        </div>
+        <div class="copy-link">
+            <p>https://example.com/share</p>
+            <a title="copy link">Copy</a>
+        </div>
+    </div>
+</div>
+
+<div class="share-button-2">
+    <div class="share-button">
+        <i class="fa-solid fa-share-nodes"></i>
+    </div>
+    <div class="share-options">
+        <div class="social">
+            <a href="#" title="share on facebook">
+                <i class="fa-brands fa-facebook"></i>
+            </a>
+            <a href="#" title="share on instagram">
+                <i class="fa-brands fa-square-instagram"></i>
+            </a>
+            <a href="#" title="share on linkedin">
+                <i class="fa-brands fa-linkedin"></i>
+            </a>
+            <a href="#" title="share on twitter">
+                <i class="fa-brands fa-square-twitter"></i>
+            </a>
+            <a href="#" title="share on whatsapp">
+                <i class="fa-brands fa-square-whatsapp"></i>
+            </a>
+            <a href="#" title="share on tiktok">
+                <i class="fa-brands fa-tiktok"></i>
+            </a>
+            <a href="#" title="share on telegram">
+                <i class="fa-brands fa-telegram"></i>
+            </a>
+            <a href="#" title="share via email">
+                <i class="fa-solid fa-envelope"></i>
+            </a>
+        </div>
+        <div class="copy-link">
+            <p>https://example.com/share</p>
+            <a title="copy link">Copy</a>
+        </div>
+    </div>
+</div>
+
+<div class="share-button-3">
+    <div class="share-button">
+        <img src="icons/share-icon-32.png" alt="share this page" />
+    </div>
+    <div class="share-options">
+        <a href="#" title="share on facebook">
+            <img src="icons/facebook.png" alt="share on facebook" />
+        </a>
+        <a href="#" title="share on instagram">
+            <img src="icons/instagram.png" alt="share on instagram" />
+        </a>
+        <a href="#" title="share on linkedin">
+            <img src="icons/linkedin.png" alt="share on linkedin" />
+        </a>
+        <a href="#" title="share on twitter">
+            <img src="icons/twitter.png" alt="share on twitter" />
+        </a>
+        <a href="#" title="share on whatsapp">
+            <img src="icons/whatsapp.png" alt="share on whatsapp" />
+        </a>
+        <a href="#" title="share on tiktok">
+            <img src="icons/tiktok.png" alt="share on tiktok" />
+        </a>
+        <a href="#" title="share on telegram">
+            <img src="icons/telegram.png" alt="share on telegram" />
+        </a>
+        <a href="#" title="share via email">
+            <img src="icons/email.png" alt="share via email" />
+        </a>
+    </div>
+</div>
+
+<div class="share-button-4">
+    <div class="share-button">
+        <img src="icons/share-icon-32.png" alt="share this page" />
+    </div>
+    <div class="share-options">
+        <a href="#" title="share on facebook">
+            <img src="icons/facebook.png" alt="share on facebook" />
+        </a>
+        <a href="#" title="share on instagram">
+            <img src="icons/instagram.png" alt="share on instagram" />
+        </a>
+        <a href="#" title="share on linkedin">
+            <img src="icons/linkedin.png" alt="share on linkedin" />
+        </a>
+        <a href="#" title="share on twitter">
+            <img src="icons/twitter.png" alt="share on twitter" />
+        </a>
+        <a href="#" title="share on whatsapp">
+            <img src="icons/whatsapp.png" alt="share on whatsapp" />
+        </a>
+        <a href="#" title="share on tiktok">
+            <img src="icons/tiktok.png" alt="share on tiktok" />
+        </a>
+        <a href="#" title="share on telegram">
+            <img src="icons/telegram.png" alt="share on telegram" />
+        </a>
+        <a href="#" title="share via email">
+            <img src="icons/email.png" alt="share via email" />
+        </a>
+    </div>
+</div>
+
+<div class="share-button-5">
+    <div class="share-button">
+        <img src="icons/share-icon-32.png" alt="share this page" />
+    </div>
+    <div class="share-options">
+        <a href="#" title="share on facebook">
+            <img src="icons/facebook.png" alt="share on facebook" />
+        </a>
+        <a href="#" title="share on instagram">
+            <img src="icons/instagram.png" alt="share on instagram" />
+        </a>
+        <a href="#" title="share on linkedin">
+            <img src="icons/linkedin.png" alt="share on linkedin" />
+        </a>
+        <a href="#" title="share on twitter">
+            <img src="icons/twitter.png" alt="share on twitter" />
+        </a>
+        <a href="#" title="share on whatsapp">
+            <img src="icons/whatsapp.png" alt="share on whatsapp" />
+        </a>
+        <a href="#" title="share on tiktok">
+            <img src="icons/tiktok.png" alt="share on tiktok" />
+        </a>
+        <a href="#" title="share on telegram">
+            <img src="icons/telegram.png" alt="share on telegram" />
+        </a>
+        <a href="#" title="share via email">
+            <img src="icons/email.png" alt="share via email" />
+        </a>
+    </div>
+</div>
+
+-
+
+[CSS]
+
+body {
+    font-family: 'IBM Plex Sans', Helvetica, Arial, serif;
+    background-color: #f6b68b;
+    direction: ltr;
+}
+
+/* SHARE-1 */
+.share-button-1 {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+}
+.share-button-1 .share-button, 
+.share-button-2 .share-button 
+{
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: solid 1px #cac9c9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+.share-button-1 .share-button > img {
+    width: 28px;
+}
+.share-button-1 .share-options, 
+.share-button-2 .share-options 
+{
+    position: absolute;
+    bottom: 50%;
+    left: 50%;
+    width: 220px;
+    height: 200px;
+    background: rgba(15, 15, 15, 0.5);
+    padding: 20px;
+    border-top-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    transform-origin: bottom left;
+    transition: 0.5s;
+    transition-delay: 0.3s;
+    transform: scale(0);
+    display: grid;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+}
+.share-button-1 .share-options.active, 
+.share-button-2 .share-options.active 
+{
+    transform: scale(1);
+    transition-delay: 0s;
+}
+.share-button-1 .social, 
+.share-button-2 .social 
+{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    justify-content: center;
+    align-items: center;
+    grid-gap: 8px;
+}
+.share-button-1 .social img {
+    width: 48px;
+}
+.share-button-1 .copy-link, 
+.share-button-2 .copy-link 
+{
+    position: relative;
+    font-size: 12px;
+}
+.share-button-1 .copy-link > p, 
+.share-button-2 .copy-link > p 
+{
+    background-color: #fff;
+    padding: 0px 8px;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 20px;
+    text-align: left;
+}
+.share-button-1 .copy-link > a, 
+.share-button-2 .copy-link > a 
+{
+    background-color: #000;
+    height: 30px;
+    width: 55px;
+    line-height: 30px;
+    border-radius: 0 20px 20px 0;
+    text-align: center;
+    vertical-align: middle;
+    position: absolute;
+    top: 12px;
+    right: 0;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+/* SHARE-2 */
+.share-button-2 {
+    position: fixed;
+    bottom: 330px;
+    left: 30px;
+}
+.share-button-2 .share-button > i {
+    font-size: 32px;
+}
+.share-button-2 .social i {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    color: #000;
+    text-align: center;
+}
+
+/* SHARE-3 */
+:root {
+    --social-icon-width: 58px;
+    --social-icon-span: 10px;
+    --translate-value: calc(var(--social-icon-width) + var(--social-icon-span));
+}
+.share-button-3 {
+    position: fixed;
+    top: 50px;
+    left: 50vw;
+}
+.share-button-3 .share-button, 
+.share-button-4 .share-button,
+.share-button-5 .share-button
+{
+    position: absolute;
+    cursor: pointer;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #fff;
+    border: solid 1px #cac9c9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+.share-button-3 .share-button > img, 
+.share-button-4 .share-button > img, 
+.share-button-5 .share-button > img 
+{
+    width: 28px;
+}
+.share-button-3 .share-options, 
+.share-button-4 .share-options 
+.share-button-5 .share-options
+{
+    position: relative;
+    z-index: 1;
+}
+.share-button-3 .share-options img, 
+.share-button-4 .share-options img, 
+.share-button-5 .share-options img
+{
+    width: 58px;
+}
+.share-button-3 .share-options a, 
+.share-button-4 .share-options a, 
+.share-button-5 .share-options a
+{
+    position: absolute;
+    transform: translate(2px,2px);
+    transition: all 0.3s;
+    transition-delay: 0s;
+}
+.share-button-3 .share-options.active a, 
+.share-button-4 .share-options.active a, 
+.share-button-5 .share-options.active a
+{
+    transition: all 0.3s;
+    transition-delay: 0.2s;
+}
+.share-button-3 .share-options.active a:nth-child(1) {                        
+    transform: translateX(calc(var(--translate-value) * 1));
+}   
+.share-button-3 .share-options.active a:nth-child(2) {            
+    transform: translateX(calc(var(--translate-value) * 2));
+}   
+.share-button-3 .share-options.active a:nth-child(3) {            
+    transform: translateX(calc(var(--translate-value) * 3));
+}  
+.share-button-3 .share-options.active a:nth-child(4) {            
+    transform: translateX(calc(var(--translate-value) * 4));
+}  
+.share-button-3 .share-options.active a:nth-child(5) {            
+    transform: translateX(calc(var(--translate-value) * -1));
+}   
+.share-button-3 .share-options.active a:nth-child(6) {            
+    transform: translateX(calc(var(--translate-value) * -2));
+}   
+.share-button-3 .share-options.active a:nth-child(7) {            
+    transform: translateX(calc(var(--translate-value) * -3));
+}  
+.share-button-3 .share-options.active a:nth-child(8) {                        
+    transform: translateX(calc(var(--translate-value) * -4));
+}     
+
+/* SHARE-4 */
+.share-button-4 {
+    position: fixed;
+    top: 200px;
+    left: 30px;
+}
+.share-button-4 .share-options.active a:nth-child(1) {
+    transform: translateX(calc(var(--translate-value) * 1));
+}
+.share-button-4 .share-options.active a:nth-child(2) {
+    transform: translateX(calc(var(--translate-value) * 2));
+}
+.share-button-4 .share-options.active a:nth-child(3) {
+    transform: translateX(calc(var(--translate-value) * 3));
+}
+.share-button-4 .share-options.active a:nth-child(4) {
+    transform: translateX(calc(var(--translate-value) * 4));
+}
+.share-button-4 .share-options.active a:nth-child(5) {
+    transform: translateX(calc(var(--translate-value) * 5));
+}
+.share-button-4 .share-options.active a:nth-child(6) {
+    transform: translateX(calc(var(--translate-value) * 6));
+}
+.share-button-4 .share-options.active a:nth-child(7) {
+    transform: translateX(calc(var(--translate-value) * 7));
+}
+.share-button-4 .share-options.active a:nth-child(8) {
+    transform: translateX(calc(var(--translate-value) * 8));
+}
+
+/* SHARE-5 */
+.share-button-5 {
+    position: fixed;
+    top: 50vh;
+    left: 50vw;
+}
+.share-button-5 .share-options.active a:nth-child(1) {
+    transform: translate(calc(var(--translate-value) * 1), 0);            
+}
+.share-button-5 .share-options.active a:nth-child(2) {
+    transform: translate(calc(var(--translate-value) * 1), var(--translate-value));            
+}
+.share-button-5 .share-options.active a:nth-child(3) {
+    transform: translate(0, var(--translate-value));
+}
+.share-button-5 .share-options.active a:nth-child(4) {
+    transform: translate(calc(var(--translate-value) * -1), var(--translate-value));
+}
+.share-button-5 .share-options.active a:nth-child(5) {
+    transform: translate(calc(var(--translate-value) * -1), 0);
+}
+.share-button-5 .share-options.active a:nth-child(6) {
+    transform: translate(calc(var(--translate-value) * -1), calc(var(--translate-value) * -1));
+}
+.share-button-5 .share-options.active a:nth-child(7) {
+    transform: translate(0, calc(var(--translate-value) * -1));
+}
+.share-button-5 .share-options.active a:nth-child(8) {
+    transform: translate(var(--translate-value), calc(var(--translate-value) * -1));
+}
+
+-
+
+[SCRIPTS]
+
+<script src="https://kit.fontawesome.com/fc4cf9bdc3.js" crossorigin="anonymous"></script>
+<script>
+    const shareWrapper1 = document.querySelector('.share-button-1');
+    const shareButton1 = shareWrapper1.querySelector('.share-button');
+    const shareOptions1 = shareWrapper1.querySelector('.share-options');
+    shareButton1.addEventListener('click', () => {
+        shareOptions1.classList.toggle('active');
+    });
+
+    const copyLink1 = shareWrapper1.querySelector('.copy-link > a');
+    const copyText1 = shareWrapper1.querySelector('.copy-link > p');
+    copyLink1.addEventListener('click', () => {
+        navigator.clipboard.writeText(copyText1.innerText);
+        copyLink1.innerText = "copied";
+        setTimeout(() => { copyLink1.innerText = "copy"; }, 2000);
+    });
+
+    // ---
+
+    const shareWrapper2 = document.querySelector('.share-button-2');
+    const shareButton2 = shareWrapper2.querySelector('.share-button');
+    const shareOptions2 = shareWrapper2.querySelector('.share-options');
+    shareButton2.addEventListener('click', () => {
+        shareOptions2.classList.toggle('active');
+    });
+
+    const copyLink2 = shareWrapper2.querySelector('.copy-link > a');
+    const copyText2 = shareWrapper2.querySelector('.copy-link > p');
+    copyLink2.addEventListener('click', () => {
+        navigator.clipboard.writeText(copyText2.innerText);
+        copyLink2.innerText = "copied";
+        setTimeout(() => { copyLink2.innerText = "copy"; }, 2000);
+    });
+
+    // ---
+
+    const shareWrapper3 = document.querySelector('.share-button-3');
+    const shareButton3 = shareWrapper3.querySelector('.share-button');
+    const shareOptions3 = shareWrapper3.querySelector('.share-options');
+    shareButton3.addEventListener('click', () => {
+        shareOptions3.classList.toggle('active');
+    });
+
+    // ---
+
+    const shareWrapper4 = document.querySelector('.share-button-4');
+    const shareButton4 = shareWrapper4.querySelector('.share-button');
+    const shareOptions4 = shareWrapper4.querySelector('.share-options');
+    shareButton4.addEventListener('click', () => {
+        shareOptions4.classList.toggle('active');
+    });
+
+    // ---
+
+    const shareWrapper5 = document.querySelector('.share-button-5');
+    const shareButton5 = shareWrapper5.querySelector('.share-button');
+    const shareOptions5 = shareWrapper5.querySelector('.share-options');
+    shareButton5.addEventListener('click', () => {
+        shareOptions5.classList.toggle('active');
+    });
+
+    // ---
+
+    /*
+            https://twitter.com/share?url=<URL>&text=<TEXT>via=<USERNAME>
+            https://www.facebook.com/sharer/sharer.php?u=<URL>
+            https://reddit.com/submit?url=<URL>&title=<TITLE>
+            https://news.ycombinator.com/submitlink?u=<URL>&t=<TITLE>
+            https://www.linkedin.com/shareArticle?url=<URL>&title=<TITLE>&summary=<SUMMARY>&source=<SOURCE_URL>
+            mailto:?subject=<SUBJECT>&body=<BODY>
+    */
+
+</script>
