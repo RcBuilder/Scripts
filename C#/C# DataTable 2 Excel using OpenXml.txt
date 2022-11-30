@@ -1,0 +1,151 @@
+C# DataTable 2 Excel using OpenXml
+----------------------------------
+
+Nuget: 
+> Install-Package DocumentFormat.OpenXml -Version 2.18.0
+
+Sources:
+https://www.nuget.org/packages/DocumentFormat.OpenXml/
+https://github.com/OfficeDev/Open-XML-SDK
+
+Namespace:
+using DocumentFormat.OpenXml.Packaging;
+using nsOpenXml = DocumentFormat.OpenXml;
+
+Known Issues:
+* we get an error while trying to open the generated xlsx file.
+  [Error] 
+  We found a problem with some content...Do you want to try to recover as much as we can?
+
+  [Exception] 
+  Repaired Records: Worksheet properties from /xl/workbook.xml part (Workbook)
+
+  [Cause] 
+  sheet name is over 31 characters 
+
+  [Note] 
+  in case of getting the sheet name from the data table name, we must set a valid name to the table source! default name is NOT valid - too long!  
+
+  [Samples]
+  dt.TableName = new string('A', 40);  // ERROR (40 characters)
+  dt.TableName = new string('A', 32);  // ERROR (32 characters)
+  dt.TableName = "AAAAAAAAAA_BBBBBBBBBB_CCCCCCCCCC";  // ERROR (32 characters)             
+  dt.TableName = new string('A', 31);  // OK
+  dt.TableName = $"test-{DateTime.Now.ToString("yyyy-MM-dd")}";  // OK
+  dt.TableName = $"table-1";  // OK
+
+-----
+
+- USAGE -
+
+var dt = new DataTable();            
+dt.TableName = $"test-{DateTime.Now.ToString("yyyy-MM-dd")}";
+
+var col1 = new DataColumn("סוג מסמך");
+var col2 = new DataColumn("לקוח");
+var col3 = new DataColumn("ע.מ");
+var col4 = new DataColumn("מספר מסמך");
+var col5 = new DataColumn("תאריך");
+var col6 = new DataColumn("סה\"כ לפני מע\"מ");
+var col7 = new DataColumn("מע\"מ");
+var col8 = new DataColumn("סה\"כ כולל מע\"מ");
+var col9 = new DataColumn("תאריך ערך");
+
+dt.Columns.Add(col1);
+dt.Columns.Add(col2);
+dt.Columns.Add(col3);
+dt.Columns.Add(col4);
+dt.Columns.Add(col5);
+dt.Columns.Add(col6);
+dt.Columns.Add(col7);
+dt.Columns.Add(col8);
+dt.Columns.Add(col9);
+
+var row = dt.NewRow();
+
+row[col1] = "CSV";
+row[col2] = "רובי";
+row[col3] = "000000001";
+row[col4] = "1000";
+row[col5] = "2022-11-14";
+row[col6] = 100.ToString("0.00", CultureInfo.InvariantCulture);
+row[col7] = 17.ToString("0.00", CultureInfo.InvariantCulture); ;
+row[col8] = 117.ToString("0.00", CultureInfo.InvariantCulture);
+row[col9] = "2022-11-11";
+dt.Rows.Add(row);
+
+ExportToExcel(dt, "D:\\test-1.xlsx");
+
+-
+
+void ExportToExcel(DataTable table, string filePath)
+{
+    const int HEADER_MAX_LENGTH = 31;
+
+    using (var ms = new MemoryStream()) 
+    {
+        using (var objSpreadsheet = SpreadsheetDocument.Create(ms, nsOpenXml.SpreadsheetDocumentType.Workbook))
+        {
+            var workbookPart = objSpreadsheet.AddWorkbookPart();
+
+            objSpreadsheet.WorkbookPart.Workbook = new nsOpenXml.Spreadsheet.Workbook();
+            objSpreadsheet.WorkbookPart.Workbook.Sheets = new nsOpenXml.Spreadsheet.Sheets();
+
+            uint sheetId = 1;
+
+            var sheetPart = objSpreadsheet.WorkbookPart.AddNewPart<WorksheetPart>();
+            var sheetData = new nsOpenXml.Spreadsheet.SheetData();
+            sheetPart.Worksheet = new nsOpenXml.Spreadsheet.Worksheet(sheetData);
+
+            var sheets = objSpreadsheet.WorkbookPart.Workbook.GetFirstChild<nsOpenXml.Spreadsheet.Sheets>();
+            var relationshipId = objSpreadsheet.WorkbookPart.GetIdOfPart(sheetPart);
+
+            if (sheets.Elements<nsOpenXml.Spreadsheet.Sheet>().Count() > 0)                    
+                sheetId = sheets.Elements<nsOpenXml.Spreadsheet.Sheet>().Select(s => s.SheetId.Value).Max() + 1;
+
+			// fix sheet name
+            var sheetName = table.TableName;
+            if (string.IsNullOrWhiteSpace(sheetName))
+                sheetName = $"{DateTime.Now.ToString("yyyyMMddHHmm")}";
+            if (table.TableName.Length > HEADER_MAX_LENGTH)
+                sheetName = table.TableName.Substring(0, HEADER_MAX_LENGTH);
+
+            var sheet = new nsOpenXml.Spreadsheet.Sheet {
+                Id = relationshipId,
+                SheetId = sheetId,
+                Name = sheetName
+            };
+
+            sheets.Append(sheet);
+
+            var columns = new List<string>();
+
+            var headerRow = new nsOpenXml.Spreadsheet.Row();                    
+            foreach (DataColumn column in table.Columns)
+            {
+                columns.Add(column.ColumnName);
+
+                var cell = new nsOpenXml.Spreadsheet.Cell();
+                cell.DataType = nsOpenXml.Spreadsheet.CellValues.String;
+                cell.CellValue = new nsOpenXml.Spreadsheet.CellValue(column.ColumnName);
+                headerRow.AppendChild(cell);
+            }
+            sheetData.AppendChild(headerRow);
+
+            foreach (DataRow dsrow in table.Rows)
+            {
+                var newRow = new nsOpenXml.Spreadsheet.Row();
+                foreach (var col in columns)
+                {
+                    var cell = new nsOpenXml.Spreadsheet.Cell();
+                    cell.DataType = nsOpenXml.Spreadsheet.CellValues.String;
+                    cell.CellValue = new nsOpenXml.Spreadsheet.CellValue(dsrow[col].ToString());
+                    newRow.AppendChild(cell);
+                }
+                sheetData.AppendChild(newRow);
+            }
+        }
+                
+        File.WriteAllBytes(filePath, ms.ToArray());
+    }
+}

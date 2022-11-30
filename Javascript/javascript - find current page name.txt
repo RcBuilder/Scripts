@@ -1,0 +1,22 @@
+javascript - find current page name
+-----------------------------------
+
+let pathname = document.location.pathname.toLowerCase();
+let current = pathname.split('/')[pathname.split('/').length - 1].trim();
+if (current.startsWith('/')) current = current.substring(1);
+console.log(`page: ${current}`);
+
+-
+
+(() => {
+    const pages = ['invoices.aspx', 'addinvoice.aspx'];
+    let pathname = document.location.pathname.toLowerCase();
+    let current = pathname.split('/')[pathname.split('/').length - 1].trim();
+    if (current.startsWith('/')) current = current.substring(1);
+    if (pages.indexOf(current) == -1) return;
+    
+    ...
+    // - CODE HERE -
+    ...
+
+})(); // self-invoke

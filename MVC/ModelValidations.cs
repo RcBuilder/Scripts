@@ -68,4 +68,24 @@ namespace Entities
             return true;
         }
     }
+
+    // [PasswordLengthValidation(ErrorMessage = "הסיסמה צריכה להכיל לפחות 6 ספרות")]
+    // [PasswordLengthValidation(10, ErrorMessage = "הסיסמה צריכה להכיל לפחות 10 ספרות")]
+    public class PasswordLengthValidation : ValidationAttribute
+    {
+        private int maxLength { get; set; }
+
+        public PasswordLengthValidation() : this(6) { }
+        public PasswordLengthValidation(int maxLength)
+        {
+            this.maxLength = maxLength;
+        }
+
+        public override bool IsValid(object value)
+        {
+            if (value == null) return true;
+            string v = (string)value;
+            return v.Length >= this.maxLength || v.Length == 0;
+        }
+    }
 }

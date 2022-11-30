@@ -1,0 +1,19 @@
+Regex - Extract Images From HTML Sample
+---------------------------------------
+
+var images = new List<string>();
+var matches = Regex.Matches(Body, "<img[^>]+src[\\s]*=[\\s]*[\"']([^\"']*?)[\"']", RegexOptions.IgnoreCase | RegexOptions.Multiline);
+if (matches.Count == 0) return null;
+
+foreach (Match match in matches) {
+    try {
+        var src = match.Groups[1].Value;
+        if (src.StartsWith("http"))
+            images.Add(src);
+        else 
+            images.Add(Path.GetFileName(src));
+    }
+    catch { }
+}
+
+return images[rnd.Next(0, images.Count)];  // return a random image from the extracted images list

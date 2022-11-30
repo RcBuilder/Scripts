@@ -1,0 +1,80 @@
+javascript web-workers
+----------------------
+background services in javascript!
+
+// main.js
+// register workers 
+if (typeof (Worker) !== "undefined") {
+    const wk1 = new Worker("/js/workers/demo-1.js");    
+    wk1.onmessage = (event) => {
+        console.log(event.data);
+    };
+
+    const wk2 = new Worker("/js/workers/demo-2.js");
+    wk2.onmessage = (event) => {
+        console.log(event.data);
+    };
+}
+
+-
+
+// demo-1.js
+// note! using local-scope to prevent duplicate variables (config, doWork and etc.)
+{
+	console.log('Init demo-1 Worker');
+
+    const config = {
+        timerId: null,
+        interval: 5 * 1000  // 10 seconds
+    };
+    
+    function doWork() {
+        postMessage(`demo: ${Math.random()}`);
+    }
+
+    (() => {
+        config.timerId = setInterval(doWork, config.interval);
+    })(); // self-invoke
+}
+
+-
+
+// demo-2.js
+// note! using local-scope to prevent duplicate variables (config, doWork and etc.)
+{
+	console.log('Init demo-2 Worker');
+
+    const config = {
+        timerId: null,
+        interval: 10 * 1000  // 10 seconds
+    };
+    
+    function doWork() {
+        postMessage(`auto-logout: ${Math.random()}`);
+    }
+
+    (() => {
+        config.timerId = setInterval(doWork, config.interval);
+    })(); // self-invoke
+}
+
+-----------------------------
+
+// workers-registration.js
+function RegisterWorker(source, callback) {    
+    if (typeof (Worker) === "undefined") return; 
+
+    const wk = new Worker(source);
+    wk.onmessage = (event) => {
+        console.log(event.data);
+        if (callback) callback.call(null, event.data);        
+    };
+}
+
+function RegisterKeepAliveService() {
+    RegisterWorker('/Scripts/workers/keep-alive.js', (data) => { });
+}
+
+function RegisterDemoService() {
+    RegisterWorker('/Scripts/workers/demo.js', (data) => { });
+}

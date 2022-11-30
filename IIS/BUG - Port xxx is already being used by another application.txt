@@ -1,0 +1,16 @@
+Bug:
+Port xxx is already being used by another application.
+
+Issue:
+while trying to launch a website locally, an exception of port in-use is thrown.
+
+Cause:
+duplicate port number 
+
+Config:
+.vs folder > appName > config > applicationhost.config
+
+Solution:
+1. within the .vs folder, find the 'applicationhost.config' > edit
+2. under 'sites' tag > find the site 
+3. bindings > set port (http & https)

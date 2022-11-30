@@ -1,0 +1,15 @@
+Bug:
+SQL-Server Restore .bak file Error. 
+access exception while trying to restore a .bak file to a NEW data-source! 
+e.g - duplicate a database
+
+Error:
+Exclusive access could not be obtained because the database is in use
+
+Cause:
+backup configuration issue 
+
+Solution:
+on the Restore Window, go to 'Options' tab > set the following
+- Uncheck "Take tail-log backup before restoring" option
+- Check "Close existing connections to destination database" option.

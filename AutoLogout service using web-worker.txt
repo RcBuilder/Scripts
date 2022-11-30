@@ -1,0 +1,60 @@
+AutoLogout service using web-worker
+-----------------------------------
+
+// # workers-registration.js #
+function RegisterWorker(source, callback) {    
+    if (typeof (Worker) === "undefined") return; 
+
+    const wk = new Worker(source);
+    wk.onmessage = (event) => {
+        console.log(event.data);
+        if (callback) callback.call(null, event.data);        
+    };
+}
+
+function RegisterAutoLogoutService() {
+    RegisterWorker('/Scripts/workers/auto-logout.js', (data) => {
+        if (data.message == 'TIMEOUT')
+            window.location = '/LogIn.aspx?timeout=1';
+    });
+}
+
+// register workers
+(() => {
+    const pages = ['invoices.aspx', 'addinvoice.aspx'];
+    let pathname = document.location.pathname.toLowerCase();
+    let current = pathname.split('/')[pathname.split('/').length - 1].trim();
+    if (current.startsWith('/')) current = current.substring(1);
+
+    console.log(`page: ${current}`);
+    if (pages.indexOf(current) == -1) return;
+    RegisterAutoLogoutService();
+})(); // self-invoke
+
+-
+
+// # auto-logout.js #
+// local scope 
+{
+    console.log('Init auto-logout Worker');
+
+    const MINUTE = (60 * 1000);
+    const config = {
+        timerId: null,
+        sessionTimeout: 40 * MINUTE  // <%=Session.Timeout %>
+    };
+    
+    async function doWork() {                
+        postMessage({
+            provider: 'auto-logout',
+            rnd: Math.random(),
+            timestamp: new Date(),
+            message: 'TIMEOUT'
+        });
+    }
+
+    (() => {
+        console.log(`sessionTimeout: ${config.sessionTimeout}`);
+        config.timerId = setTimeout(doWork, config.sessionTimeout);
+    })(); // self-invoke
+}

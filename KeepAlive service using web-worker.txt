@@ -1,0 +1,73 @@
+KeepAlive service using web-worker
+----------------------------------
+
+// # LogStateService.ashx #
+public class LogStateService : IHttpHandler, IReadOnlySessionState {    
+    public void ProcessRequest(HttpContext context) {            
+        context.Response.ContentType = "text/plain";
+        context.Response.Write(context.Session["user"] == null ? "ERROR" : "OK");
+    }
+
+    public bool IsReusable {
+        get { return false; }
+    }
+}
+
+-
+
+// # workers-registration.js #
+function RegisterWorker(source, callback) {    
+    if (typeof (Worker) === "undefined") return; 
+
+    const wk = new Worker(source);
+    wk.onmessage = (event) => {
+        console.log(event.data);
+        if (callback) callback.call(null, event.data);        
+    };
+}
+
+function RegisterKeepAliveService() {
+    RegisterWorker('/Scripts/workers/keep-alive.js', (data) => {
+        if (data.responseText == 'ERROR')
+            window.location = '/LogIn.aspx?timeout=1';
+    });
+}
+
+// register workers
+(() => {
+    const pages = ['invoices.aspx', 'addinvoice.aspx'];
+    let pathname = document.location.pathname.toLowerCase();
+    let current = pathname.split('/')[pathname.split('/').length - 1].trim();
+    if (current.startsWith('/')) current = current.substring(1);
+
+    console.log(`page: ${current}`);
+    if (pages.indexOf(current) == -1) return;
+    RegisterKeepAliveService();
+})(); // self-invoke
+
+-
+
+// # keep-alive.js #
+// local scope
+{
+    console.log('Init keep-alive Worker');
+
+    const MINUTE = (60 * 1000);
+    const config = {
+        timerId: null,
+        interval: 1 * MINUTE  // 1 minutes
+    };
+    
+    async function doWork() {        
+        let responseText = await fetch('/Services/LogStateService.ashx').then(response => response.text());  ///.then(response => response.json());
+        postMessage({
+            provider: 'keep-alive',
+            rnd: Math.random(),
+            timestamp: new Date(),
+            responseText
+        });
+    }
+
+    (() => {
+        config.timerId = setInterval(doWork, config.interval);
+    })(); // self-invoke

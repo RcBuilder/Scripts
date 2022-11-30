@@ -1,0 +1,42 @@
+javascript scope basic
+----------------------
+types:
+1. Block scope
+2. Function scope
+3. Global scope
+
+local scope:
+use 'Block' scope
+use this technique when working with several files using the same variable names (web-workers and etc.)
+see sample at 'javascript web-workers'
+
+-
+
+[Block]
+use curly brackets
+
+{
+  let x = 1;
+}
+// x can NOT be accessed here
+
+-
+
+[Function]
+every function has its own scope
+
+function fun1() {
+  let x = 2;
+}
+// x can NOT be accessed here
+
+-
+
+[Global]
+any variable declared outside a function
+
+let x = 3;
+function fun1() {
+   console.log(x); // ok
+}
+console.log(x); // ok

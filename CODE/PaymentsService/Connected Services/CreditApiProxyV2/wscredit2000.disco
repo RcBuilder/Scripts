@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<discovery xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://schemas.xmlsoap.org/disco/">
+  <contractRef ref="https://www.credit2000.co.il/pci_tkn_ver2/wcf/wscredit2000.asmx?wsdl" docRef="https://www.credit2000.co.il/pci_tkn_ver2/wcf/wscredit2000.asmx" xmlns="http://schemas.xmlsoap.org/disco/scl/" />
+  <soap address="https://www.credit2000.co.il/pci_tkn_ver2/wcf/wscredit2000.asmx" xmlns:q1="http://tempuri.org/" binding="q1:wsCredit2000Soap" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
+  <soap address="https://www.credit2000.co.il/pci_tkn_ver2/wcf/wscredit2000.asmx" xmlns:q2="http://tempuri.org/" binding="q2:wsCredit2000Soap12" xmlns="http://schemas.xmlsoap.org/disco/soap/" />
+</discovery>
