@@ -11,3 +11,11 @@ References
 - provider: Creative
   project: BrokerServicesBLL
   file: WebHooksProcess.cs  
+
+- provider: MNew
+  project: WEB
+  file: HangfireManager.cs  
+
+- provider: OpenBook
+  project: Website
+  file: HangfireManager.cs  

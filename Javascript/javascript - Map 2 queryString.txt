@@ -1,0 +1,41 @@
+javascript - Map 2 QueryString
+------------------------------
+let queryMap = new Map();
+queryMap.set('a', '1');
+queryMap.set('b', '2');
+queryMap.set('c', '3');
+
+let query = [...map].map(x => `${x[0]}=${x[1]}`).join('&');  // 'a=1&b=2&c=3'
+
+
+--
+
+// SAMPLE
+
+/*
+    let queryMap = new Map();
+    queryMap.set('a', '1');
+    queryMap.set('b', '2');
+    queryMap.set('c', '3');
+
+    let query = [...map].map(x => `${x[0]}=${x[1]}`).join('&');  // 'a=1&b=2&c=3'
+*/
+function exportToExcel(exportType, mapParams) {
+    let query = '';
+
+    if (mapParams) {
+        query = [...mapParams].map(x => `${x[0]}=${x[1]}`).join('&');
+        if (query != '') query = `&${query}`;
+    }
+
+    $.ajax({
+        type: "POST",
+        url: `/Services/ExcelExporterService.ashx?t=${exportType}${query}`,
+        data: "",
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (htmlData) {
+            window.open(htmlData.d);
+        }
+    });    
+}

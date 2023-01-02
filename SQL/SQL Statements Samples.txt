@@ -6,3 +6,10 @@ CREATE TABLE PostsTags(PostId INT NOT NULL, Tag NVARCHAR(30) NOT NULL)
 CREATE NONCLUSTERED INDEX IX_Tag ON PostsTags(PostId, Tag)
 -
 ALTER TABLE PostsDraft ADD sTags NVARCHAR(MAX) NOT NULL DEFAULT ''
+-
+CREATE TABLE [dbo].[Permissions](
+	UserId INT NOT NULL,
+	OrganizationId BIGINT NOT NULL
+
+	CONSTRAINT PK_Permissions PRIMARY KEY (UserId, OrganizationId)
+)	

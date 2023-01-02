@@ -6,8 +6,10 @@
 </Query>
 
 void Main()
-{
+{		
 	Console.WriteLine(ExtractEmailTo("(test1@cpa.co.il)O550970_11673.pdf").To);
+	Console.WriteLine(ExtractEmailTo("(test1@cpa.co.il;)O550970_11673.pdf").To);
+	Console.WriteLine(ExtractEmailTo("(test1@cpa.co.il;;;)O550970_11673.pdf").To);	
 	Console.WriteLine(ExtractEmailTo("(test2@cpa.co.il;test2_2@cpa.co.il)O550970_11673.pdf").To);
 	Console.WriteLine(ExtractEmailTo("(test3@cpa.co.il,test3_2@cpa.co.il)O550970_11673.pdf").To);
 	Console.WriteLine(ExtractEmailTo("(test4@cpa.co.il ; test4_2@cpa.co.il)O550970_11673.pdf").To);
@@ -26,7 +28,9 @@ void Main()
 	/// (test7@cpa.co.il,test7_2@cpa.co.il;test3_2@cpa.co.il)O550970_11673.pdf
 
     string ConvertMultiple(string Origin, char Seperator) {
-        return string.Join(Seperator.ToString(), Origin.Split(Seperator)?.Select(o => o.Trim()) ?? Enumerable.Empty<string>());
+		var lst = Origin.Split(new char[] { Seperator }, StringSplitOptions.RemoveEmptyEntries)?.Select(o => o.Trim()) ?? Enumerable.Empty<string>();
+        return string.Join(Seperator.ToString(), lst);
+        /// return string.Join(Seperator.ToString(), Origin.Split(Seperator)?.Select(o => o.Trim()) ?? Enumerable.Empty<string>());
     }
 
     var regex = new Regex(@"\((?<to>[\s\S]+)\)(?<file>.*)", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
@@ -47,6 +51,8 @@ void Main()
 
 /*
 	OUTPUT:
+	test1@cpa.co.il
+	test1@cpa.co.il
 	test1@cpa.co.il
 	test2@cpa.co.il,test2_2@cpa.co.il
 	test3@cpa.co.il,test3_2@cpa.co.il

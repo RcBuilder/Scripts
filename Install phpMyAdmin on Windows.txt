@@ -2,6 +2,9 @@ Install phpMyAdmin on Windows
 -----------------------------
 https://docs.phpmyadmin.net/en/latest/index.html
 
+required:
+mysql server installed 
+(see 'Install MySQL Windows')
 
 (steps)
 1. download phpMyAdmin from the official site 
@@ -29,4 +32,4 @@ https://docs.phpmyadmin.net/en/latest/index.html
    e.g:
    http://localhost:8888/index.php
 
-6. login with the MySQL root user 
+6. login with the MySQL root user (installed MySQL Server)

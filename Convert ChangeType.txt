@@ -18,3 +18,10 @@ var propP3 = c.GetType().GetProperty("P3");
 propP1.SetValue(c, Convert.ChangeType("123", propP1.PropertyType));
 propP2.SetValue(c, Convert.ChangeType("True", propP2.PropertyType));
 propP3.SetValue(c, Convert.ChangeType(123, propP3.PropertyType));
+
+--
+
+// dynamic cast
+public static dynamic Convert(dynamic source, Type dest) {
+  return Convert.ChangeType(source, dest);
+}

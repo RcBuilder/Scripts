@@ -1,0 +1,26 @@
+Reflection - Switch PropertyType Using TypeCode
+-----------------------------------------------
+syntax:
+<TypeCode> Type.GetTypeCode(<PropertyType>);
+
+-
+
+CellValues ConvertFromPropertyType(Type PropertyType) {                
+                switch (Type.GetTypeCode(PropertyType)) {
+                    default:
+                    case TypeCode.String: return CellValues.String;
+                    case TypeCode.Boolean: return CellValues.Boolean;
+                    case TypeCode.DateTime: return CellValues.Date;
+                    case TypeCode.Decimal:
+                    case TypeCode.Double:
+                    case TypeCode.Int16:
+                    case TypeCode.Int32:
+                    case TypeCode.Int64:
+                    case TypeCode.Byte:
+                    case TypeCode.SByte:
+                    case TypeCode.Single:
+                    case TypeCode.UInt16:
+                    case TypeCode.UInt32:                    
+                    case TypeCode.UInt64: return CellValues.Number;                    
+                }
+            } 

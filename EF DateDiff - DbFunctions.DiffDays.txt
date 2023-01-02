@@ -1,0 +1,20 @@
+EF DateDiff - DbFunctions.DiffDays
+----------------------------------
+
+public static List<Entities.Log> GetDailyErrors(DateTime dt) {
+            using (var context = new Entities.OpenBookDBContext())
+            {
+                /*
+                    DECLARE @dt DATETIME = GETDATE() - 1;
+
+                    SELECT	* 
+                    FROM	Logs WITH(NOLOCK)
+                    WHERE	LogType = 1 -- error --
+                    AND		DATEDIFF(day, CreatedDate, @dt) = 0
+                    ORDER BY CreatedDate DESC
+                */           
+     
+                return context.Logs
+                    .Where(x => x.LogType == (byte)Entities.eLogType.Error && DbFunctions.DiffDays(x.CreatedDate, dt) == 0).OrderByDescending(x => x.CreatedDate).ToList();
+            }
+        }

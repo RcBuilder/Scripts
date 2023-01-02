@@ -1,0 +1,22 @@
+C# Dynamic Cast
+---------------
+also see 'Convert ChangeType'
+
+--
+
+public static dynamic Convert(dynamic source, Type dest) {
+    return Convert.ChangeType(source, dest);
+}
+
+--
+
+var type = typeof(T);
+var columns = new List<(string Name, Type Type)>();
+foreach (var p in type.GetProperties())    
+    columns.Add(p.Name, p.PropertyType);
+
+foreach (var c in columns) {
+    dynamic callValue = Convert.ChangeType(type.GetProperty(c.Name).GetValue(item, null), c.Type);
+    ...
+    ...
+}

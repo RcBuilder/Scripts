@@ -1,0 +1,14 @@
+SQL Duplicate Transactions Sample
+---------------------------------
+
+-- Duplicate Transactions
+;WITH CTE_Duplicates(Id, CNT) AS (
+	SELECT	TransactionId, COUNT(*) 
+	FROM	[dbo].[Transactions] 
+	GROUP BY TransactionId 
+	HAVING COUNT(*) > 1
+)
+SELECT	* 
+FROM	[Transactions] 
+WHERE	TransactionId IN(SELECT Id FROM CTE_Duplicates) 
+ORDER BY TransactionId, CreatedDate DESC

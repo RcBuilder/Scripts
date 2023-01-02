@@ -1,0 +1,30 @@
+Include HTML within another HTML 
+--------------------------------
+can be used for shared components within a pure HTML file.
+
+---
+
+// OuterHTML.html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+</head>
+<body>
+    <div id="includedContent"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js" integrity="sha256-o88AwQnZB+VDvE9tvIXrMQaPlFFSUTR+nldQm1LuPXQ=" crossorigin="anonymous"></script>
+    <script>
+        $(function(){
+          $("#includedContent").load("InnerHTML.html"); 
+        });        
+    </script>
+</body>
+</html>
+
+-
+
+// InnerHTML.html
+<p>HELLO WORLD</p>

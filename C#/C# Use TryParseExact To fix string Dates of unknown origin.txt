@@ -1,0 +1,18 @@
+C# Use TryParseExact To fix string Dates of unknown origin
+----------------------------------------------------------
+e.g: 11/29/2022
+
+-
+
+var tempDate = DateTime.MinValue;
+if (invoiceDate.Value.Trim().Length > 7) {
+	var invdate = invoiceDate.Value.Replace('-', '/');
+                        
+	var success = DateTime.TryParseExact(invdate, "yyyy/MM/dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out tempDate);
+	success = success || DateTime.TryParseExact(invdate, "dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out tempDate);
+	success = success || DateTime.TryParseExact(invdate, "MM/dd/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out tempDate);
+	if(!success) tempDate = doc.CreatedDate;
+}
+else tempDate = doc.CreatedDate;
+
+d.InvoiceDate = tempDate.ToString("yyyy/MM/dd");

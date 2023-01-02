@@ -1,0 +1,56 @@
+javascript Promise All Sample
+-----------------------------
+
+const p1 = 100
+const p2 = Promise.resolve(200);
+const p3 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve("ABC");
+  }, 1000);
+});
+
+Promise.all([p1, p2, p3]).then((values) => {
+  console.log(values); // [100, 200, "ABC"]
+});
+
+----
+
+async function DoSearch(period, year) {
+
+    $('#loaderImage').show();
+    
+    const p1 = $.ajax({
+        type: "POST",
+        url: "/Services/ServiceA",
+        data: JSON.stringify({
+            period: period,
+            year: year
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+    });
+
+    const p2 = $.ajax({
+        type: "POST",
+        url: "/Services/ServiceB",
+        data: JSON.stringify({
+            period: period,
+            year: year
+        }),
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+    });
+
+    let arrPromises = [p1, p2];
+    Promise.all(arrPromises).then(function(arrResults) {
+        $('#loaderImage').hide();
+
+        // p1 result
+        let r1 = arrResults[0];
+	...        
+
+        // p2 result 
+        let r2 = arrResults[1];
+	...
+    });
+};

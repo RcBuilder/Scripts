@@ -26,10 +26,42 @@ public abstract class Car {
     }
 }
 
--------------------------------------------------
+----
 
 string car_name = car4; // implicit casting (operator)
 Console.WriteLine(car_name);
 
 int car_distance = (int)car4; // explicit casting (operator)
 Console.WriteLine(string.Concat(car_distance, " KM"));
+
+-------------------------------------------------
+
+public class AStore {
+    public int StoreNo { get; set; }
+    public int Position { get; set; }
+    public string Title { get; set; }
+    public string Email { get; set; }
+
+    public static explicit operator BStore(AStore Source) {
+	return new BStore {                
+	    No = Source.StoreNo,
+	    Name = Source.Title
+	};
+    }        
+}
+
+public class BStore {
+    public int No { get; set; }
+    public string Name { get; set; }
+}
+
+---
+
+var a = new AStore { 
+   StoreNo = 100,
+   Position = 1,
+   Title = "Some Store",
+   Email = "store@gmail.com"
+};
+
+var b = (BStore)a;

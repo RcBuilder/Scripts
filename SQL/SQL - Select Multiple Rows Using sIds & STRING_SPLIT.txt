@@ -1,0 +1,41 @@
+SQL - Select Multiple Rows Using sIds & STRING_SPLIT 
+----------------------------------------------------
+
+@sIds VARCHAR(MAX)
+
+;WITH CTE_Ids (Id) AS (		
+	SELECT * FROM STRING_SPLIT(@sIds, ',')
+)		
+SELECT	*
+FROM	[dbo].[Contents] WITH(NOLOCK)		
+WHERE	RowId IN (SELECT Id FROM CTE_Ids)
+
+---
+
+SAMPLE:
+
+=============================================
+-- Author:		<RcBuilder>
+-- sp_Contents_Get ''
+-- =============================================
+CREATE PROCEDURE [dbo].[sp_Contents_Get]
+	@sIds VARCHAR(MAX)
+AS
+BEGIN	
+	SET NOCOUNT ON;    
+			
+	IF(@sIds = '') -- ALL --
+	BEGIN
+		SELECT	*
+		FROM	[dbo].[Contents] WITH(NOLOCK)
+	END 
+	ELSE -- By Ids filter --
+	BEGIN
+		;WITH CTE_Ids (Id) AS (		
+			SELECT * FROM STRING_SPLIT(@sIds, ',')
+		)		
+		SELECT	*
+		FROM	[dbo].[Contents] WITH(NOLOCK)		
+		WHERE	RowId IN (SELECT Id FROM CTE_Ids)
+	END 
+END

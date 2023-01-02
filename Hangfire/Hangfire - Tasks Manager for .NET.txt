@@ -26,6 +26,7 @@ see 'TPL - QueueBackgroundWorkItem'
 - ASP Support
 - Using Global.asax
 - Installation Steps
+- Security
 - BUGs
 ============================
 
@@ -448,7 +449,6 @@ public class NotificationsProcess : IProcess {
 	}
 }
 
-
 ASP Support
 -----------
 for best practices, use OWIN (see 'Using OWIN')
@@ -531,6 +531,44 @@ projects:
 Installation Steps
 ------------------
 see 'Hangfire Installation Steps'
+
+More Samples
+------------
+Reference: 
+see 'Interface & Tasks'
+
+-
+
+var tasks = new List<BLL.HangfireTasks.IHangfireTask>() 
+{
+    new BLL.HangfireTasks.CartCompletionReminderTask()
+};
+
+tasks.ForEach(task => {
+    RecurringJob.AddOrUpdate(task.GetType().Name, () => task.Exexute(), task.CronExpressions);
+});
+
+-
+
+var p1 = new NotificationsProcess();
+RecurringJob.AddOrUpdate("NotificationsProcess", () => p1.RunAsync(), Cron.Minutely);
+
+var p2 = new RedialProcess();
+RecurringJob.AddOrUpdate("RedialProcess", () => p2.RunAsync(), Cron.MinuteInterval(10));
+
+Security
+--------
+public class Startup1 {
+        public void Configuration(IAppBuilder app)
+        {            
+            // trust all certificates & protocols
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12 | SecurityProtocolType.Ssl3;
+            ServicePointManager.ServerCertificateValidationCallback = ((sender, certificate, chain, sslPolicyErrors) => true);
+
+            BLL.HangfireManager.Init(app);
+            BLL.HangfireManager.Start();
+        }
+    }
 
 BUGs
 ----

@@ -7,6 +7,12 @@ using System.Data;
 using System.Linq;
 using System.Data.Common;
 using Newtonsoft.Json;
+using System.IO;
+
+/// Install-Package DocumentFormat.OpenXml -Version 2.18.0
+using DocumentFormat.OpenXml;
+using DocumentFormat.OpenXml.Packaging;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace BLL
 {
@@ -18,8 +24,12 @@ namespace BLL
 
         DEPENDENCY
         ----------
-        AccessDatabaseEngine_X32.exe
-        AccessDatabaseEngine_X64.exe
+        * AccessDatabaseEngine_X32.exe
+        * AccessDatabaseEngine_X64.exe
+
+        ATTRIBUTES
+        ----------
+        * ExcelColumn        
 
         USING
         -----        
@@ -31,26 +41,80 @@ namespace BLL
         ---
 
         // set the default sheet name
-        var excelConnector = new ExcelConnector(@"C:\test-transactions.xlsx");            
+        var excelConnector = new ExcelConnector(@"C:\test.xlsx");            
         excelConnector.SheetName = excelConnector.GetDefaultSheet();    
 
         ---
 
         // get as json string
-        var excelConnector = new ExcelConnector(@"C:\test-transactions.xlsx");
+        var excelConnector = new ExcelConnector(@"C:\test.xlsx");
         var sJson = await excelConnector.GetAsJson();
 
         ---
 
         // get as data-table
-        var excelConnector = new ExcelConnector(@"C:\test-transactions.xlsx");
+        var excelConnector = new ExcelConnector(@"C:\test.xlsx");
         var dt = await excelConnector.GetAsDataTable();
 
         ---
 
         // get as T object (generic) 
-        var excelConnector = new ExcelConnector(@"C:\test-transactions.xlsx");
+        var excelConnector = new ExcelConnector(@"C:\test.xlsx");
         var lst = await excelConnector.GetAsT<IEnumerable<SomeModel>>();
+
+        ---
+
+        // create a sheet from List<T>
+        var items = new List<Item>();
+        items.Add(new Item("1000", "Item-A", 399));
+        items.Add(new Item("1001", "Item-B", 250));
+        items.Add(new Item("1002", "Item-C", 209));
+        
+        var excelConnector = new ExcelConnector(@"C:\test.xlsx");
+        var sheetPath = await excelConnector.Create(items);
+
+        ---
+
+        // create a sheet from DataTable
+        var dt = new DataTable();
+        dt.Columns.Add(new DataColumn("COLUMN-1"));
+        dt.Columns.Add(new DataColumn("COLUMN-2"));
+        dt.Columns.Add(new DataColumn("COLUMN-3"));        
+
+        foreach (var item in items) {
+            DataRow row = dt.NewRow();
+            row["COLUMN-1"] = item.Id;
+            row["COLUMN-2"] = item.Name;
+            row["COLUMN-3"] = item.Price;            
+            dt.Rows.Add(row);
+        }
+
+        var excelConnector = new ExcelConnector(@"C:\test.xlsx");
+        var sheetPath = await excelConnector.Create(dt);
+
+        --- 
+
+        // using custom attributes
+        // note! only Entities support this feature
+        class Item
+        {
+            [ExcelColumn("Identity")]
+            public string Id { get; set; }
+            public string Name { get; set; }
+            public float Price { get; set; }
+
+            public Item(string Id, string Name, float Price) {
+                this.Id = Id;
+                this.Name = Name;
+                this.Price = Price;
+            }
+        }        
+        ...
+        ...
+        var excelConnector = new ExcelConnector(@"C:\test.xlsx");
+        var sheetPath = await excelConnector.Create(items);
+
+        ---
     */
 
     public interface IExcelConnector {
@@ -60,24 +124,36 @@ namespace BLL
         Task<DataTable> GetAsDataTable();
         Task<string> GetAsJson();
         Task<T> GetAsT<T>();
+        Task<string> Create(DataTable Source);
+        Task<string> Create<T>(IEnumerable<T> Source);
+    }
+
+    [AttributeUsage(AttributeTargets.Property)]
+    public class ExcelColumnAttribute : Attribute {
+        public string Name { get; protected set; }
+        public ExcelColumnAttribute(string Name) {
+            this.Name = Name;            
+        }
     }
 
     public abstract class ExcelConnector : IExcelConnector
     {
+        public const int HEADER_MAX_LENGTH = 31;
+
         public string ConnStr { get; set; }
+        public string FilePath { get; set; }
         public string SheetName { get; set; }
-        
-        public ExcelConnector(string ConnStr, string SheetName = "Sheet1")
+
+        public ExcelConnector(string ConnStr) : this(ConnStr, ConnStr) { }
+        public ExcelConnector(string ConnStr, string FilePath) : this(ConnStr, FilePath, "Sheet1") { }
+        public ExcelConnector(string ConnStr, string FilePath, string SheetName)
         {
             this.ConnStr = ConnStr;
-            this.SheetName = SheetName;
-
-            // fix sheet name - must ends with $
-            if (!this.SheetName.EndsWith("$"))
-                this.SheetName = $"{this.SheetName}$";
+            this.FilePath = FilePath;
+            this.SheetName = this.FixSheetName(SheetName);
         }
 
-        public string GetDefaultSheet() {
+        public virtual string GetDefaultSheet() {
             return this.GetSheetList()?.FirstOrDefault() ?? "";
         }
 
@@ -85,6 +161,8 @@ namespace BLL
         public abstract Task<DataTable> GetAsDataTable();
         public abstract Task<string> GetAsJson();
         public abstract Task<T> GetAsT<T>();
+        public abstract Task<string> Create(DataTable Source);
+        public abstract Task<string> Create<T>(IEnumerable<T> Source);
 
         protected DataTable ReadAsDataTable(DbDataReader dr) {
             if (dr == null || !dr.HasRows) return null;
@@ -120,6 +198,33 @@ namespace BLL
         protected T ReadAsT<T>(DbDataReader dr) {
             return JsonConvert.DeserializeObject<T>(this.ReadAsJson(dr));
         }
+
+        protected string FixSheetName(string Value) {
+            // empty name
+            if (string.IsNullOrWhiteSpace(Value))
+                Value = $"{DateTime.Now.ToString("yyyyMMddHHmm")}";
+
+            // too long
+            if (Value.Length > HEADER_MAX_LENGTH)
+                Value = Value.Substring(0, HEADER_MAX_LENGTH);
+
+            // must ends with $
+            ////if (!Value.EndsWith("$"))
+            ////    Value = $"{Value}$";
+
+            return Value;
+        }
+
+        protected async Task<bool> SaveAsync(byte[] data) {
+            using (var fs = new FileStream(this.FilePath, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true))
+                await fs.WriteAsync(data, 0, data.Length);
+            return true;
+        }
+
+        protected bool Save(byte[] data) {
+            File.WriteAllBytes(this.FilePath, data);
+            return true;
+        }
     }
 
     /*
@@ -144,7 +249,7 @@ namespace BLL
     public class ExcelOleDbConnector : ExcelConnector
     {        
         public ExcelOleDbConnector(string FilePath, string SheetName = "Sheet1") 
-            : base($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={FilePath};Extended Properties='Excel 12.0 Xml;HDR=YES;IMEX=1;MAXSCANROWS=0'", SheetName) { }                    
+            : base($"Provider=Microsoft.ACE.OLEDB.12.0;Data Source={FilePath};Extended Properties='Excel 12.0 Xml;HDR=YES;IMEX=1;MAXSCANROWS=0'", FilePath, SheetName) { }                    
 
         public override IEnumerable<string> GetSheetList() {
             var sheetList = new List<string>();
@@ -164,7 +269,7 @@ namespace BLL
         }
 
         public override async Task<DataTable> GetAsDataTable() {
-            var query = $"SELECT * FROM [{this.SheetName}]";
+            var query = $"SELECT * FROM [{this.SheetName}$]";
             using (var conn = new OleDbConnection(this.ConnStr)) {
                 conn.Open();
                 var cmd = new OleDbCommand(query, conn);
@@ -174,7 +279,7 @@ namespace BLL
         }
 
         public override async Task<string> GetAsJson() {
-            var query = $"SELECT * FROM [{this.SheetName}]";
+            var query = $"SELECT * FROM [{this.SheetName}$]";
             using (var conn = new OleDbConnection(this.ConnStr))
             {
                 conn.Open();
@@ -186,7 +291,7 @@ namespace BLL
 
         public override async Task<T> GetAsT<T>()
         {
-            var query = $"SELECT * FROM [{this.SheetName}]";
+            var query = $"SELECT * FROM [{this.SheetName}$]";
             using (var conn = new OleDbConnection(this.ConnStr))
             {
                 conn.Open();
@@ -194,6 +299,15 @@ namespace BLL
                 using (var dr = await cmd.ExecuteReaderAsync())
                     return this.ReadAsT<T>(dr);
             }
+        }
+
+        // TODO ->> Implement!
+        public override Task<string> Create(DataTable Source) {
+            throw new NotImplementedException();
+        }
+
+        public override Task<string> Create<T>(IEnumerable<T> Source) {
+            throw new NotImplementedException();
         }
     }
 
@@ -215,7 +329,7 @@ namespace BLL
     public class ExcelOdbcConnector : ExcelConnector
     {        
         public ExcelOdbcConnector(string FilePath, string SheetName = "Sheet1") 
-            : base($"Driver={{Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)}};Dbq={FilePath}", SheetName) { }
+            : base($"Driver={{Microsoft Excel Driver (*.xls, *.xlsx, *.xlsm, *.xlsb)}};Dbq={FilePath}", FilePath, SheetName) { }
        
         public override IEnumerable<string> GetSheetList()
         {
@@ -239,7 +353,7 @@ namespace BLL
         
         public override async Task<DataTable> GetAsDataTable()
         {            
-            var query = $"SELECT * FROM [{this.SheetName}]";
+            var query = $"SELECT * FROM [{this.SheetName}$]";
             using (var conn = new OdbcConnection(this.ConnStr))
             {
                 conn.Open();
@@ -251,7 +365,7 @@ namespace BLL
 
         public override async Task<string> GetAsJson()
         {
-            var query = $"SELECT * FROM [{this.SheetName}]";
+            var query = $"SELECT * FROM [{this.SheetName}$]";
             using (var conn = new OdbcConnection(this.ConnStr))
             {
                 conn.Open();
@@ -263,7 +377,7 @@ namespace BLL
 
         public override async Task<T> GetAsT<T>()
         {
-            var query = $"SELECT * FROM [{this.SheetName}]";
+            var query = $"SELECT * FROM [{this.SheetName}$]";
             using (var conn = new OdbcConnection(this.ConnStr))
             {
                 conn.Open();
@@ -271,6 +385,230 @@ namespace BLL
                 using (var dr = await cmd.ExecuteReaderAsync())
                     return this.ReadAsT<T>(dr);
             }
+        }
+
+        // TODO ->> Implement!
+        public override Task<string> Create(DataTable Source) {
+            throw new NotImplementedException();
+        }
+
+        public override Task<string> Create<T>(IEnumerable<T> Source) {
+            throw new NotImplementedException();
+        }
+    }
+
+    // TODO ->> Implement! (ALL but Create)
+    /*                
+        [OpenXml]
+        Nuget:
+        > Install-Package DocumentFormat.OpenXml -Version 2.18.0
+
+        Source:
+        https://github.com/OfficeDev/Open-XML-SDK
+
+        Namespaces:
+        using DocumentFormat.OpenXml;
+        using DocumentFormat.OpenXml.Packaging;
+        using DocumentFormat.OpenXml.Spreadsheet;
+
+        Aliases: (optional)
+        using nsOpenXml = DocumentFormat.OpenXml;        
+    */
+    public class ExcelOpenXmlConnector : ExcelConnector
+    {
+        public ExcelOpenXmlConnector(string FilePath, string SheetName = "Sheet1")
+            : base(FilePath, FilePath, SheetName) { }
+
+        public override IEnumerable<string> GetSheetList()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override async Task<DataTable> GetAsDataTable()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override async Task<string> GetAsJson()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override async Task<T> GetAsT<T>()
+        {
+            throw new NotImplementedException();
+        }
+
+        public async override Task<string> Create(DataTable Source)
+        {
+            using (var ms = new MemoryStream())
+            {
+                using (var spreadsheet = SpreadsheetDocument.Create(ms, SpreadsheetDocumentType.Workbook))
+                {
+                    var workbookPart = spreadsheet.AddWorkbookPart();
+                    workbookPart.Workbook = new Workbook();
+
+                    var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+                    var sheetData = new SheetData();
+                    worksheetPart.Worksheet = new Worksheet(sheetData);
+
+                    var sheets = spreadsheet.WorkbookPart.Workbook.AppendChild(new Sheets());
+                    var sheetsCount = sheets?.Elements<Sheet>()?.Count() ?? 0;
+
+                    var sheetId = sheetsCount > 0 ? sheets.Elements<Sheet>()?.Max(x => x.SheetId.Value) : 1;
+                    var sheet = new Sheet()
+                    {
+                        Id = spreadsheet.WorkbookPart.GetIdOfPart(worksheetPart),
+                        SheetId = sheetId,
+                        Name = this.SheetName
+                    };
+
+                    // -- DATA --
+
+                    var columns = new List<(string Name, string DisplayName, Type Type)>();
+                    foreach (DataColumn column in Source.Columns)
+                        columns.Add((column.ColumnName, column.ColumnName, column.DataType));                    
+
+                    // add header row
+                    var rowHeader = new Row();
+                    rowHeader.Append(columns.Select(c => new Cell
+                    {
+                        DataType = CellValues.String,
+                        CellValue = new CellValue(c.DisplayName)
+                    }));
+                    sheetData.Append(rowHeader);
+
+                    // add items rows
+                    foreach (DataRow item in Source.Rows)
+                    {
+                        var row = new Row();
+                        foreach (var c in columns)
+                            row.Append(new Cell
+                            {
+                                DataType = this.PropertyType2CellType(c.Type),
+                                CellValue = new CellValue(item[c.Name].ToString())
+                            });
+                        sheetData.Append(row);
+                    }
+
+                    // -- END OF DATA --
+
+                    sheets.Append(sheet);
+                }
+
+                this.Save(ms.ToArray());
+            }
+
+            return this.FilePath;
+        }
+
+        public async override Task<string> Create<T>(IEnumerable<T> Source)
+        {
+            using (var ms = new MemoryStream())
+            {
+                using (var spreadsheet = SpreadsheetDocument.Create(ms, SpreadsheetDocumentType.Workbook))
+                {
+                    var workbookPart = spreadsheet.AddWorkbookPart();
+                    workbookPart.Workbook = new Workbook();
+
+                    var worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+                    var sheetData = new SheetData();
+                    worksheetPart.Worksheet = new Worksheet(sheetData);
+
+                    var sheets = spreadsheet.WorkbookPart.Workbook.AppendChild(new Sheets());
+                    var sheetsCount = sheets?.Elements<Sheet>()?.Count() ?? 0;
+
+                    var sheetId = sheetsCount > 0 ? sheets.Elements<Sheet>()?.Max(x => x.SheetId.Value) : 1;
+                    var sheet = new Sheet()
+                    {
+                        Id = spreadsheet.WorkbookPart.GetIdOfPart(worksheetPart),
+                        SheetId = sheetId,
+                        Name = this.SheetName
+                    };
+
+                    // -- DATA --
+
+                    var type = typeof(T);
+                    var columns = new List<(string Name, string DisplayName, Type Type)>();
+                    foreach (var p in type.GetProperties()) {
+                        var attr = (p.GetCustomAttributes(typeof(ExcelColumnAttribute), false).FirstOrDefault() as ExcelColumnAttribute);
+                        columns.Add((p.Name, attr != null ? attr.Name : p.Name, p.PropertyType));
+                    }
+
+                    // add header row
+                    var rowHeader = new Row();
+                    rowHeader.Append(columns.Select(c => new Cell
+                    {
+                        DataType = CellValues.String,
+                        CellValue = new CellValue(c.DisplayName)
+                    }));
+                    sheetData.Append(rowHeader);
+
+                    // add items rows
+                    foreach (var item in Source)
+                    {
+                        var row = new Row();
+                        foreach (var c in columns)                            
+                            row.Append(new Cell
+                            {
+                                DataType = this.PropertyType2CellType(c.Type),
+                                CellValue = DynamicCellValue(type.GetProperty(c.Name).GetValue(item, null), c.Type)
+                            });                        
+                        sheetData.Append(row);
+                    }
+
+                    // -- END OF DATA --
+
+                    sheets.Append(sheet);                    
+                }
+
+                this.Save(ms.ToArray());               
+            }
+
+            return this.FilePath;
+        }
+
+        protected CellValues PropertyType2CellType(Type PropertyType)
+        {
+            switch (Type.GetTypeCode(PropertyType))
+            {
+                default:
+                case TypeCode.String: return CellValues.String;
+                case TypeCode.Boolean: return CellValues.Boolean;
+                case TypeCode.DateTime: return CellValues.Date;
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Int16:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Byte:
+                case TypeCode.SByte:
+                case TypeCode.Single:
+                case TypeCode.UInt16:
+                case TypeCode.UInt32:
+                case TypeCode.UInt64: return CellValues.Number;
+            }
+        }
+
+        protected CellValue DynamicCellValue(object Value, Type PropertyType) {            
+            switch (Type.GetTypeCode(PropertyType))
+            {
+                default:
+                case TypeCode.String:   return new CellValue((string)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.Boolean:  return new CellValue((bool)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.DateTime: return new CellValue((DateTime)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.Decimal:  return new CellValue((decimal)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.Double:   return new CellValue((double)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.UInt16:
+                case TypeCode.Int16:    return new CellValue((byte)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.UInt32:
+                case TypeCode.Int32:    return new CellValue((int)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.UInt64:
+                case TypeCode.Int64:    return new CellValue((double)(long)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.Byte:     return new CellValue((byte)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.SByte:    return new CellValue((sbyte)Convert.ChangeType(Value, PropertyType));
+                case TypeCode.Single:   return new CellValue((float)Convert.ChangeType(Value, PropertyType));                
+            }            
         }
     }
 }

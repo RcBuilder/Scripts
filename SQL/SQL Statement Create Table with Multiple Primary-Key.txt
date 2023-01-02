@@ -1,0 +1,9 @@
+SQL Statement Create Table with Multiple Primary-Key
+----------------------------------------------------
+
+CREATE TABLE [dbo].[Permissions] (
+	UserId INT NOT NULL,
+	OrganizationId BIGINT NOT NULL
+
+	CONSTRAINT PK_Permissions PRIMARY KEY (UserId, OrganizationId)
+)

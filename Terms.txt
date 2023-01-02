@@ -48,6 +48,7 @@
 * NFC = Near-Field Communication (a set of communication protocols for communication between two electronic devices over a distance of 4 cm)
 * WAF = Web Application Firewall
 * SMB = Server Message Block (פרוטוקול תקשורת המספק גישה משותפת אל קבצים, מדפסות, יציאות טוריות ותקשורת בין מחשבים ברשת)
+* DSN = Data Source Name
 
 * OLAP = Online Analytical Processing (analysis of data)
 * OLTP = Online Transaction Processing (transaction-oriented application)
@@ -151,6 +152,7 @@
 * AR = Augmented Reality (מציאות רבודה (שילוב  של אנימציה על רקעים אמיתיים
 * TOC = Table Of Contents
 * IVR = Interactive Voice Response (מענה קולי אינטראקטיבי)
+* eSIM = embedded SIM סים וירטואלי
 
 (phrases)
 * TDLR = Too Damn Lazy to Reply
