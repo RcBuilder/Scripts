@@ -83,3 +83,18 @@ public async Task<ActionResult> AddInventory(Entities.Inventory Model)
 })
 
 -
+
+@Html.DropDownList("color", new SelectList(
+        new List<Object>{
+            new { value = 0 , text = "Red"  },
+            new { value = 1 , text = "Blue" },
+            new { value = 2 , text = "Green"}
+        }, "value", "text", "Red"),
+        new
+                {
+            placeholder = @BLL.ContentManager.Translate("event_name"),
+            minLength = 3,
+            maxLength = 200,
+            @class = "flat-input",
+            tabindex = 1
+        })

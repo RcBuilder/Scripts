@@ -1,0 +1,56 @@
+var attributes = [
+  "US_H2_1",
+  "US_H2_2",
+  "US_H3_1",
+  "US_D1_1",
+  "US_D1_2",
+  "US_D2_1",
+  "US_Path1",
+  "US_Path2"
+]
+
+function main() {  
+  var adCustomizerSourceItr = AdsApp.adCustomizerSources()    
+    .withLimit(1)
+    .get();
+  
+  var adCustomizerSource = null;
+  if(!adCustomizerSourceItr.hasNext())
+  {
+    Logger.log('No Feed, Creating ....');
+    var adCustomizerSourceBuilder = AdsApp.newAdCustomizerSourceBuilder();    
+    
+    adCustomizerSourceBuilder.withName("TestFeed"); // required
+    
+    for(i in attributes)
+      adCustomizerSourceBuilder.addAttribute(attributes[i], "text"); // at least one attribute is required
+    
+    var adCustomizerSourceOperation = adCustomizerSourceBuilder.build();
+
+    Logger.log(adCustomizerSourceOperation.isSuccessful());
+    if(adCustomizerSourceOperation.isSuccessful())
+      adCustomizerSource = adCustomizerSourceOperation.getResult();
+  }
+  else
+    adCustomizerSource = adCustomizerSourceItr.next();
+  
+  Logger.log(adCustomizerSource.getName());
+  
+  
+  adCustomizerSource.adCustomizerItemBuilder()
+  .withAttributeValue("US_H2_1", "A")
+  .withAttributeValue("US_H2_2", "B")
+  .withAttributeValue("US_H3_1", "C")
+  .build();
+  
+  var adCustomizerItems = adCustomizerSource
+    .items()
+    .get();
+  
+  Logger.log('%s items found', adCustomizerItems.totalNumEntities());
+  
+  while (adCustomizerItems.hasNext()) {
+    var adCustomizerItem = adCustomizerItems.next();
+    Logger.log(adCustomizerItem.getAttributeValues());
+  }
+}

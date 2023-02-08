@@ -1,0 +1,22 @@
+javascript - array groupBy
+--------------------------
+const attributes = [
+    {account: '100', name: 'A1', value: 'VA1'}, 
+    {account: '100', name: 'A2', value: 'VA2'},
+    {account: '200', name: 'B1', value: 'VB1'},
+    {account: '100', name: 'A3', value: 'VA3'},
+    {account: '200', name: 'B2', value: 'VB2'},
+    {account: '200', name: 'B3', value: 'VB3'},
+    {account: '300', name: 'C1', value: 'VC1'}
+];
+
+let grouped = attributes.reduce(function(res, cur) { 
+    res[cur.account] = res[cur.account] || [];
+    res[cur.account].push(cur);   
+    return res;
+}, Object.create(null));  // can use {} instead
+  
+Logger.log(grouped); // {100: Array(3), 200: Array(3), 300: Array(1)}
+
+let accountIds = Object.keys(grouped);
+Logger.log(accountIds);  // ['100', '200', '300']

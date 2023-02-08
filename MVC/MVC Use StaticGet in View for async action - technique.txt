@@ -1,0 +1,17 @@
+MVC - Use StaticGet in View for async action - technique
+--------------------------------------------------------
+// BLL 
+public async Task<IEnumerable<Account>> Search(string FreeText) {
+	return await this.DAL.Search(FreeText.Trim());
+}
+
+public static IEnumerable<Account> StaticSearch(string FreeText)
+{
+	return Task.Run(() => new AccountsBLL().Search(FreeText)).GetAwaiter().GetResult();
+}
+
+// VIEW
+@{ 
+    var accounts = BLL.AccountsBLL.StaticSearch("").Take(6);
+};
+

@@ -80,6 +80,7 @@
 * VP R&D - VP Research & Development סמנכ"ל  מחקר ופיתוח
 * CTO - Chief Technology Officer 
 * CEO - Chief Executive Officer
+* CPA - Certified Public Accountant
 
 * GPU - Graphics Processing Unit
 * 2FA = Two-Factor Authentication
@@ -139,6 +140,7 @@
 * Podcast = iPod (apple player) + Broadcast
 * אמל"ק = ארוך מדיי לא קראתי
 * רבש"ץ = רכז ביטחון שוטף צבאי
+* חזל"ש = חזרה לשִגרה
 
 * LINQ = Language Integrated Query
 * PLINQ = Parallel LINQ

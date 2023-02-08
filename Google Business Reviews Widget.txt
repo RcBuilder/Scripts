@@ -1,0 +1,58 @@
+Google Business Reviews Widget
+------------------------------
+usage:
+see 'https://rcb.co.il' 
+
+-
+
+(steps)
+1. create a new 'elfsight' account:
+   https://apps.elfsight.com/panel/applications/
+   note! or choose other provider 
+  
+2. applications > add >  choose 'Google Reviews' widget
+3. select a template (e.g: Floating Badge)
+4. find your business source by providing your google place-id 
+   note! to find your business id, see 'find your business id'
+5. configure your widget (source, layout, review, appearance, settings)
+6. apply and save (top-right corner)
+7. once configured - click on 'Add to website' button (Installation tab)
+8. copy code and paste it within your website
+
+-
+
+note that once planted within your site html, 
+all widget settings are controlled from 'elfsight' dashboard!
+any change will update the widget on your website.
+
+-
+
+implementation:
+// business = RcBuilder
+
+<div>
+    <style>
+        .ewnaMt, .jgQaGU {
+            direction: ltr !important;
+        }
+        .cutpdg {
+            display: none;
+        }
+        .fPRFQE {
+            align-items: center;
+        }
+        .cowHlg {
+            justify-content: center;
+        }
+        .jzjByd .dLPuDk:after {
+            content: 'ביקורת חדשה';
+        }
+        .kBUAPv .dLPuDk:after {
+            content: 'קרא עוד';
+        }
+    </style>
+    <script src="https://apps.elfsight.com/p/platform.js" defer></script>
+    <div class="elfsight-app-e742d170-0d2e-488f-bbab-a8dbf91ead56"></div>
+</div>
+
+-

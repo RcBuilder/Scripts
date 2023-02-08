@@ -1,0 +1,4 @@
+C# Exchange Rates API
+---------------------
+Reference:
+CODE\ExchangeRatesManager.cs

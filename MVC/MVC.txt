@@ -310,6 +310,48 @@ see 'MVC FromURI binding'
 		  e.g: this address 'http://mydomain.com/Lecturer/Register' is not matching our 'EntityDetails' rule  
 			   so it passses on to the next rule/s in the list (if any)
 
+* Routing Sample (RouteConfig):
+  
+  public class RouteConfig
+    {
+        public static void RegisterRoutes(RouteCollection routes)
+        {
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+
+            routes.MapRoute(
+                name: "ManagerDefault",
+                url: "Manager/{action}",                
+                defaults: new { controller = "Manager", action = "Index" }
+            );
+
+            routes.MapRoute(
+                name: "HomeDetails",
+                url: "{action}/{id}",
+                constraints: new { action = "Post|Profile" },
+                defaults: new { controller = "Home" }
+            );
+
+            routes.MapRoute(
+                name: "TagPosts",
+                url: "Profile/{id}/{tag}",
+                defaults: new { controller = "Home", action = "TagPosts" }
+            );
+
+            routes.MapRoute(
+                name: "HomeStatic",
+                url: "{action}",
+                constraints: new { action = "Register|Search|Policy" },
+                defaults: new { controller = "Home" }                
+            );
+            
+            routes.MapRoute(
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            );
+        }
+    }
+
 * constraints regex groups
 	url: "{controller}/{id}",
     defaults: new { action = "Index" },

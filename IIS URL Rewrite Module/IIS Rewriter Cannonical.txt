@@ -1,0 +1,16 @@
+IIS Rewriter Cannonical
+-----------------------
+<system.webServer>
+    <rewrite>      
+      <rules>
+        <rule name="Cannonical" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions logicalGrouping="MatchAny">	    
+            <add input="{HTTPS}" pattern="^OFF$" />      
+            <add input="{HTTP_HOST}" pattern="^www\.rcb\.co\.il$" />
+          </conditions>
+          <action type="Redirect" url="https://rcb.co.il/{R:1}" />
+        </rule>   
+      </rules>
+    </rewrite>
+  </system.webServer>

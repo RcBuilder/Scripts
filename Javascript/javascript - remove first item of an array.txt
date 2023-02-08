@@ -1,0 +1,10 @@
+javascript - remove first item of an array
+------------------------------------------
+const arr = ['A', 'B', 'C', 'D'];
+
+var removed = arr.shift();
+- OR -
+var removed = arr.splice(0, 1);
+
+console.log(removed);  // A
+console.log(arr); // ['B', 'C', 'D']

@@ -1,0 +1,37 @@
+C# NIS Exchange Rates - Bank Public API
+---------------------------------------
+Reference:
+GetNISExchangeRatesAPI.linq
+
+---
+
+const string SERVER_URL = "http://www.boi.org.il/currency.xml"; 
+
+async void Main()
+{	
+    using(var client = new HttpClient()) {    	    
+	    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));	    
+	    var sJson = await client.GetStringAsync(SERVER_URL);	  
+		var rates = JsonConvert.DeserializeObject<ExchangeRatesDTO>(sJson);
+		Console.WriteLine(rates);
+	}
+	
+	/*
+	using(var client = new System.Net.WebClient()) {    	    
+	    client.Headers["Content-Type"] = "application/json";	    
+	    var sJson = client.DownloadString(SERVER_URL);	  
+		var rates = JsonConvert.DeserializeObject<ExchangeRatesDTO>(sJson);
+		Console.WriteLine(rates);
+	}
+	*/
+}
+
+class ExchangeRatesDTO {
+	public ExchangeRate[] exchangeRates { get; set; }
+}
+class ExchangeRate {
+	public string key { get; set; }
+	public float currentExchangeRate { get; set; }
+	public float currentChange { get; set; }	
+	public DateTime lastUpdate { get; set; }	
+}

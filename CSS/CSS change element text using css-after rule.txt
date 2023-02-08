@@ -1,0 +1,20 @@
+CSS change element text using css-after rule
+--------------------------------------------
+
+.text {
+    direction: ltr !important;
+    font-size: 35px;
+    color: #000;
+}
+.text > span {
+    display: none;
+}
+.text:after{ 
+    content: 'override content';
+}
+
+-
+
+<div class="text">
+    <span>some content</span>
+</div>

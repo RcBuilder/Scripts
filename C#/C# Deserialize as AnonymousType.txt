@@ -235,3 +235,379 @@ var modelSchema = new
 
 var responseData = JsonConvert.DeserializeAnonymousType(response.Content, modelSchema);
 return responseData?.AttachableResponse.FirstOrDefault()?.Attachable?.Id;
+
+-
+
+/*
+	{	  
+	  "success": true,
+	  "base": "ILS",
+	  "date": "2023-01-09",
+	  "rates": {   
+		"EUR": 0.267098,
+		"GBP": 0.235214,   
+		"USD": 0.285113  
+	  }
+	}
+*/
+
+using (var client = new HttpClient()) {
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+    var lstParams = Request.GetAsParams();
+    var endpoint = $"{SERVER_URL}latest?{string.Join("&", lstParams)}";
+    var sJson = await client.GetStringAsync(endpoint);
+
+    var ModelSchema = new
+    {
+        success = false,                    
+        date = "",
+        rates = new Dictionary<string, float>()
+    };
+
+    var response = JsonConvert.DeserializeAnonymousType(sJson, ModelSchema);
+
+    if (response?.success ?? false)
+        return response?.rates.Select(x => new ExchangeRate 
+        { 
+            SrcCurrency = Request.SrcCurrency,
+            DestCurrency = x.Key.ToUpper(),
+            RateValue = x.Value
+        });
+
+    return null;
+}
+
+-
+
+/*
+	{  
+	  "success": true,
+	  "query": {
+		"from": "USD",
+		"to": "ILS",
+		"amount": 1
+	  },
+	  "info": {
+		"rate": 3.507387
+	  },
+	  "historical": false,
+	  "date": "2023-01-09",
+	  "result": 3.507387
+	}
+*/
+using (var client = new HttpClient()) {
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+    var lstParams = Request.GetAsParams();
+    var endpoint = $"{SERVER_URL}convert?{string.Join("&", lstParams)}";
+    var sJson = await client.GetStringAsync(endpoint);
+                
+    var ModelSchema = new {
+        query = new {
+            from = "",
+            to = "",
+            amount = 0.0F
+        },
+        success = false,
+        date = "",
+        result = 0.0F
+    };
+
+    var response = JsonConvert.DeserializeAnonymousType(sJson, ModelSchema);
+
+    if (response?.success ?? false)                     
+        return new ExchangeRate
+        {
+            SrcCurrency = response?.query?.from?.ToUpper(),
+            DestCurrency = response?.query?.to?.ToUpper(),
+            RateValue = response?.result ?? 0
+        };
+
+    return null;
+}
+
+-
+
+/*
+	{
+	  "success": true,
+	  "fluctuation": true,
+	  "start_date": "2022-01-08",
+	  "end_date": "2023-01-08",
+	  "rates": {
+		"EUR": {
+		  "start_rate": 0.282761,
+		  "end_rate": 0.268366,
+		  "change": 0.014395,
+		  "change_pct": 0.050909
+		},
+		"GBP": {
+		  "start_rate": 0.23636,
+		  "end_rate": 0.236198,
+		  "change": 0.000162,
+		  "change_pct": 0.000685
+		},
+		"USD": {
+		  "start_rate": 0.321173,
+		  "end_rate": 0.285613,
+		  "change": 0.03556,
+		  "change_pct": 0.110719
+		}
+	  }
+	}
+*/
+using (var client = new HttpClient()) {
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+    var lstParams = Request.GetAsParams();
+    var endpoint = $"{SERVER_URL}fluctuation?{string.Join("&", lstParams)}";
+    var sJson = await client.GetStringAsync(endpoint);
+
+    var RateSchema = new
+    {
+        start_rate = 0.0F,
+        end_rate = 0.0F,
+        change = 0.0F,
+        change_pct = 0.0F
+    };
+
+    var ModelSchema = new
+    {
+        success = false,
+        start_date = "",
+        end_date = "",
+        rates = new Dictionary<string, dynamic>()
+    };
+
+    var response = JsonConvert.DeserializeAnonymousType(sJson, ModelSchema);
+
+    if (response?.success ?? false)
+        return response?.rates.Select(x => {
+            var rateInfo = JsonConvert.DeserializeAnonymousType(x.Value.ToString(), RateSchema);
+
+            return new ExchangeRatesComparison
+            {
+                SrcCurrency = Request.SrcCurrency,
+                DestCurrency = x.Key.ToUpper(),
+                RateValue = rateInfo.change,
+                RatePercentage = rateInfo.change_pct,
+                StartDate = Request.StartDate,
+                EndDate = Request.EndDate,
+                StartRate = rateInfo.start_rate,
+                EndRate = rateInfo.end_rate
+            };
+        });
+
+    return null;
+}
+
+-
+
+/*
+	{
+	  "success": true,
+	  "symbols": {
+		"EUR": {
+		  "description": "Euro",
+		  "code": "EUR"
+		},
+		"GBP": {
+		  "description": "British Pound Sterling",
+		  "code": "GBP"
+		},
+		"USD": {
+		  "description": "United States Dollar",
+		  "code": "USD"
+		}
+	  }
+	}
+*/
+using (var client = new HttpClient()) {
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                
+    var endpoint = $"{SERVER_URL}symbols";
+    var sJson = await client.GetStringAsync(endpoint);
+
+    var CurrencySchema = new
+    {
+        code = "",
+        description = "",                    
+    };
+
+    var ModelSchema = new
+    {
+        success = false,
+        symbols = new Dictionary<string, dynamic>()
+    };
+
+    var response = JsonConvert.DeserializeAnonymousType(sJson, ModelSchema);
+
+    if (response?.success ?? false)
+        return response?.symbols.Select(x => {
+            var currencyInfo = JsonConvert.DeserializeAnonymousType(x.Value.ToString(), CurrencySchema);
+
+            return new Currency
+            {
+                Code = currencyInfo.code,
+                Description = currencyInfo.description
+            };
+        });
+
+    return null;
+}
+
+-
+
+/*
+    {
+	  "success": true,
+	  "rates": {
+		"BE": {
+		  "country_name": "Belgium",
+		  "standard_rate": 21,
+		  "reduced_rates": [
+			6,
+			12
+		  ],
+		  "super_reduced_rates": [
+        
+		  ],
+		  "parking_rates": [
+			12
+		  ]
+		},
+		"CY": {
+		  "country_name": "Cyprus",
+		  "standard_rate": 19,
+		  "reduced_rates": [
+			5,
+			9
+		  ],
+		  "super_reduced_rates": [
+        
+		  ],
+		  "parking_rates": [
+        
+		  ]
+		},
+		"DE": {
+		  "country_name": "Germany",
+		  "standard_rate": 19,
+		  "reduced_rates": [
+			7
+		  ],
+		  "super_reduced_rates": [
+        
+		  ],
+		  "parking_rates": [
+        
+		  ]
+		}
+	  }
+	}
+*/
+
+using (var client = new HttpClient()) {
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+    var lstParams = Request.GetAsParams();
+    var endpoint = $"{SERVER_URL}vat_rates?{string.Join("&", lstParams)}";
+    var sJson = await client.GetStringAsync(endpoint);
+    
+    var VatRateSchema = new
+    {
+        country_name = "",
+        standard_rate = 0.0F
+    };
+
+    var ModelSchema = new
+    {
+        success = false,
+        rates = new Dictionary<string, dynamic>()
+    };
+
+    var response = JsonConvert.DeserializeAnonymousType(sJson, ModelSchema);
+
+    if (response?.success ?? false)
+        return response?.rates.Select(x => {
+            var rateInfo = JsonConvert.DeserializeAnonymousType(x.Value.ToString(), VatRateSchema);
+
+            return new VatRate
+            {
+                CountryCode = x.Key,
+                DefaultRate = rateInfo.standard_rate,                            
+            };
+        });
+
+    return null;
+}
+
+-
+
+/*
+	{
+	  "success": true,
+	  "timeseries": true,
+	  "base": "ILS",
+	  "start_date": "2023-01-01",
+	  "end_date": "2023-01-05",
+	  "rates": {
+		"2023-01-01": {
+		  "EUR": 0.265719,
+		  "GBP": 0.234961,
+		  "USD": 0.283954
+		},
+		"2023-01-02": {
+		  "EUR": 0.267318,
+		  "GBP": 0.236636,
+		  "USD": 0.285269
+		},
+		"2023-01-03": {
+		  "EUR": 0.268402,
+		  "GBP": 0.236616,
+		  "USD": 0.283249
+		},
+		"2023-01-04": {
+		  "EUR": 0.267319,
+		  "GBP": 0.235435,
+		  "USD": 0.283665
+		},
+		"2023-01-05": {
+		  "EUR": 0.267649,
+		  "GBP": 0.236323,
+		  "USD": 0.281706
+		}
+	  }
+	}
+*/
+using (var client = new HttpClient()) {
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+    var lstParams = Request.GetAsParams();
+    var endpoint = $"{SERVER_URL}timeseries?{string.Join("&", lstParams)}";
+    var sJson = await client.GetStringAsync(endpoint);
+                
+    var ModelSchema = new
+    {
+        success = false,
+        start_date = "",
+        end_date = "",
+        rates = new Dictionary<string, Dictionary<string, float>>()
+    };
+
+    var response = JsonConvert.DeserializeAnonymousType(sJson, ModelSchema);
+
+    if (response?.success ?? false)
+        return response?.rates.Select(x => new ExchangeRateSeries { 
+            Date = DateTime.Parse(x.Key),
+            Rates = x.Value.Select(r => new ExchangeRate
+            {
+                SrcCurrency = Request.SrcCurrency,
+                DestCurrency = r.Key.ToUpper(),
+                RateValue = r.Value
+            }).ToList()
+    });
+                
+    return null;
+}

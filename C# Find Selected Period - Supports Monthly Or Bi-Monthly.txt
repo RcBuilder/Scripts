@@ -1,0 +1,4 @@
+C# Find Selected Period - Supports Monthly Or Bi-Monthly
+--------------------------------------------------------
+Reference:
+GetSelectedPeriod.linq

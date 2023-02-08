@@ -1,0 +1,3 @@
+WebForms - aspx - add client script
+-----------------------------------
+Page.ClientScript.RegisterStartupScript(this.GetType(), $"errorCode_{Guid.NewGuid().ToString()}", $"document.querySelector('#ErrorMessage').setHTML('{errorMessage}');", true);

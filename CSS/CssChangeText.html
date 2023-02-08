@@ -1,0 +1,25 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .text {
+            direction: ltr !important;
+            font-size: 35px;
+            color: #000;
+        }
+        .text > span {
+          display: none;
+        }
+        .text:after{ 
+          content: 'override content';
+        }
+    </style>
+</head>
+<body>
+    <div class="text">
+        <span>some content</span>
+    </div>
+</body>
+</html>

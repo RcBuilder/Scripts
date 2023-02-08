@@ -1,0 +1,73 @@
+C# Build Period List - Supports Monthly Or Bi-Monthly
+-----------------------------------------------------
+
+Reference:
+- GetSelectedPeriod.linq
+- C# Find Selected Period - Supports Monthly Or Bi-Monthly
+
+------
+
+[USING]
+
+public static readonly string[] MONTHS_HE = new string[] { 
+    "ינואר", 
+    "פברואר", 
+    "מרץ", 
+    "אפריל", 
+    "מאי", 
+    "יוני", 
+    "יולי", 
+    "אוגוסט", 
+    "ספטמבר", 
+    "אוקטובר", 
+    "נובמבר", 
+    "דצמבר" 
+};
+
+// Build Period List (Monthly Or Bi-Monthly)
+(List<SelectJs> Options, int SelectedIndex) GetPeriods(int periodType) {
+    var periodsList = new List<string>();
+
+    var c = 1;
+    if (periodType == 2) // Bi-monthly
+    {                
+        for (var i = 0; i < MONTHS_HE.Length; i+=2)
+            periodsList.Add($"{MONTHS_HE[i]}-{MONTHS_HE[i+1]}");
+    }
+    else   // Monthly
+    {
+        for (var i = 0; i < MONTHS_HE.Length; i++)
+            periodsList.Add(MONTHS_HE[i]);
+    }
+
+--
+
+// OPTION-1: Monthly
+var lst = GetPeriods(1);
+
+lst = { 
+    "ינואר", 
+    "פברואר", 
+    "מרץ", 
+    "אפריל", 
+    "מאי", 
+    "יוני", 
+    "יולי", 
+    "אוגוסט", 
+    "ספטמבר", 
+    "אוקטובר", 
+    "נובמבר", 
+    "דצמבר" 
+};
+
+// OPTION-2: Bi-Monthly
+var lst = GetPeriods(2);
+
+lst = { 
+    "ינואר-פברואר",     
+    "מרץ-אפריל",     
+    "מאי-יוני",     
+    "יולי-אוגוסט",     
+    "ספטמבר-אוקטובר",     
+    "נובמבר-דצמבר"    
+};

@@ -1,0 +1,4 @@
+DeserializeAnonymousType
+------------------------
+Reference:
+C# Deserialize as AnonymousType

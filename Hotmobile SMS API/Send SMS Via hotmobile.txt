@@ -1,0 +1,11 @@
+GET https://5gfsms2.hotmobile.co.il:4849/sms/sendsms
+username
+password
+from    // 1234
+to  	// 972...
+text
+
+--
+
+Sample:
+https://5gfsms2.hotmobile.co.il:4849/sms/sendsms?username=yyyy&password=xxxxx&from=1234&to=972545614020&text=Hello

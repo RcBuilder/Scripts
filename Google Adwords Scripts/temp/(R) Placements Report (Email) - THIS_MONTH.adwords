@@ -1,0 +1,129 @@
+var EMAIL = 'Lempsam@gmail.com';  // RcBuilder@walla.com | Lempsam@gmail.com;
+var TIME_SLICE = 'THIS_MONTH';      // ALL_TIME | LAST_MONTH | THIS_MONTH
+    
+function main() {
+  
+  var htmlBuilderService = HTMLBuilderService();
+  
+  htmlBuilderService.add('<div style="text-align:left;direction:ltr">');  
+  htmlBuilderService.add('<h2>' + TIME_SLICE + '<h2>');  
+  htmlBuilderService.add('<table cellspacing="3" cellpadding="3" border="1">');
+  htmlBuilderService.add(
+    '<tr>'+
+      '<th>#</th>' +      
+      '<th>URL</th>' +
+      '<th>Campaign</th>' +
+      '<th>AdGroup</th>' +
+      '<th>Clicks</th>' +
+      '<th>Conversions</th>' +                        
+      '<th>Impressions</th>' +   
+    '</tr>');  
+    
+  var matCampaigns = {};
+    
+  var placements = AdsApp
+    .display()
+    .placements()
+    .forDateRange(TIME_SLICE)
+    //.withLimit(50)
+    .get();
+  
+  while (placements.hasNext()) {
+    var placement = placements.next();
+    Logger.log('%s (#%s)', placement.getUrl(), placement.getId());
+    
+    var stats = placement.getStatsFor(TIME_SLICE);
+    var campaignName = placement.getCampaign().getName();
+    
+    var matKeys = Object.keys(matCampaigns);
+    if(matKeys.indexOf(campaignName) == -1)
+      matCampaigns[campaignName] = [];    
+    
+    matCampaigns[campaignName].push({
+      id: placement.getId(),    
+      url: placement.getUrl(),      
+      adgroupName: placement.getAdGroup().getName(),
+      clicks: stats.getClicks(),
+      conversions: stats.getConversions(),
+      impressions: stats.getImpressions()
+    });
+  }  
+  
+  /*
+  var report = AdWordsApp.report(
+    'SELECT Id, Criteria, Clicks, Conversions, Impressions, CampaignId, AdGroupId, CampaignName, AdGroupName ' +
+    'FROM PLACEMENT_PERFORMANCE_REPORT');
+  
+  var rows = report.rows();    
+  while(rows.hasNext()) {
+    var row = rows.next();
+    var campaignName = row['CampaignName'];
+    
+    if(Object.keys(matCampaigns).indexOf(campaignName) == -1)
+      matCampaigns[campaignName] = [];    
+    matCampaigns.push[campaignName].push(row);
+  }
+  */
+  
+  Logger.log('%s campaigns found', matKeys.length.toFixed(0));
+  
+  for(c in matCampaigns) { 
+	  var campaignPlacements = matCampaigns[c];
+    var campaignName = c;
+    Logger.log('[%s]', campaignName);
+    
+    for(j in campaignPlacements) {
+      var placement = campaignPlacements[j];
+      Logger.log(placement);
+    
+      htmlBuilderService.add(
+        '<tr>'+
+            '<td>' + placement.id + '</td>' +            
+            '<td>' + placement.url + '</td>' +
+            '<td>' + campaignName + '</td>' +
+            '<td>' + placement.adgroupName + '</td>' +
+            '<td>' + placement.clicks.toFixed(0) + '</td>' +
+            '<td>' + placement.conversions.toFixed(0) + '</td>' +                       
+            '<td>' + placement.impressions.toFixed(0) + '</td>' +
+         '</tr>');
+    }
+  }
+   
+  htmlBuilderService.add('</table>');
+  htmlBuilderService.add('</div>');
+  
+  try{                 
+    Logger.log('send mail to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Placements Report', '', {
+      htmlBody: htmlBuilderService.get()
+    });
+  }
+  catch(ex){
+    Logger.log('exception occured: %s', ex.message);
+  }
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = date.getMonth().toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}
+
+/* HTML BUILDER SERVICE */
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}
