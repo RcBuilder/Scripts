@@ -517,16 +517,26 @@ body {
     shareButton5.addEventListener('click', () => {
         shareOptions5.classList.toggle('active');
     });
-
-    // ---
-
-    /*
-            https://twitter.com/share?url=<URL>&text=<TEXT>via=<USERNAME>
-            https://www.facebook.com/sharer/sharer.php?u=<URL>
-            https://reddit.com/submit?url=<URL>&title=<TITLE>
-            https://news.ycombinator.com/submitlink?u=<URL>&t=<TITLE>
-            https://www.linkedin.com/shareArticle?url=<URL>&title=<TITLE>&summary=<SUMMARY>&source=<SOURCE_URL>
-            mailto:?subject=<SUBJECT>&body=<BODY>
-    */
-
 </script>
+
+-------------
+
+[SCHEMA]
+            
+https://twitter.com/share?url=<URL>&text=<TEXT>&via=<USERNAME>
+https://www.facebook.com/sharer/sharer.php?u=<URL>
+https://reddit.com/submit?url=<URL>&title=<TITLE>
+https://news.ycombinator.com/submitlink?u=<URL>&t=<TITLE>
+https://www.linkedin.com/shareArticle?url=<URL>&title=<TITLE>&summary=<SUMMARY>&source=<SOURCE_URL>
+mailto:?subject=<SUBJECT>&body=<BODY>
+
+[SAMPLES]
+
+<a href="https://www.facebook.com/sharer/sharer.php?u=https://memo-events.co.il/post/@(Model.Id)" id="facebook-btn" title="@(Model.Title)"><i class="ti ti-facebook"></i></a>
+<a href="https://twitter.com/share?url=https://memo-events.co.il/post/@(Model.Id)&text=@(Model.Title)&via=@(Model.AuthorName)" id="twitter-btn" title="@(Model.Title)"><i class="ti ti-twitter"></i>
+<a href="https://www.instagram.com/?url=https://memo-events.co.il/post/@(Model.Id)" id="instagram-btn" title="@(Model.Title)"><i class="ti ti-instagram"></i>            
+            
+<a href="https://www.facebook.com/sharer/sharer.php?u=https://memo-events.co.il/profile/@(Model.User.Id)" title="@(Model.User.Name)"><i class="ti ti-facebook gla_icon_box"></i></a>
+<a href="https://twitter.com/share?url=https://memo-events.co.il/profile/@(Model.User.Id)&text=@(Model.User.Name)&via=@(Model.User.Name)" title="@(Model.User.Name)"><i class="ti ti-twitter gla_icon_box"></i></a>
+<a href="https://www.instagram.com/?url=https://memo-events.co.il/profile/@(Model.User.Id)" title="@(Model.User.Name)"><i class="ti ti-instagram gla_icon_box"></i></a>
+    */

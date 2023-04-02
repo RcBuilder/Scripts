@@ -1,0 +1,56 @@
+*****************************
+*** Microsoft Ads Scripts ***
+*****************************
+aka 'Bing Ads'
+
+
+-- REFERENCE ------
+
+https://learn.microsoft.com/en-us/advertising/guides/
+https://learn.microsoft.com/en-us/advertising/scripts/get-started
+https://learn.microsoft.com/en-us/advertising/scripts/
+https://learn.microsoft.com/en-us/advertising/scripts/examples/
+
+-
+
+Ad customizer Feeds & Attributes:
+Tools > Setup > Business data
+
+upload 'ad customizer attributes'
+1. Tools > Setup > Business data > Ad customizer attributes
+2. click on 'Upload'
+3. load template
+
+https://learn.microsoft.com/en-us/answers/questions/204778/access-business-data-feed-using-scripts?orderBy=Oldest
+
+
+-- SAMPLES ------
+
+// logger 
+function main() {
+    Logger.log("Hello World");
+}
+
+-
+
+/// for loop
+var attributes = [
+	{name: 'A-1', type: 'text', value: 'V-1'},
+	{name: 'A-2', type: 'number', value: 399},
+	{name: 'A-3', type: 'price', value: 199.99}
+]
+   
+for(var i in attributes)
+	Logger.log(attributes[i].name);
+
+-
+
+
+
+// --------------------------------
+TODO ->> 
+
+
+
+
+

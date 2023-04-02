@@ -1,0 +1,49 @@
+ExtendedTextAd (ETA) to ResponsiveSearchAd (RSA)
+------------------------------------------------
+ETA = ExtendedTextAd
+RSA = ResponsiveSearchAd
+
+note! 
+expanded-text ads will be deprecated on 31.03.2023 
+therefore, use responsive-search ad instead.
+
+error:
+"Cannot create already deprecated ads"
+see 'ETA & RSA Ad creation - deprecated.jpeg'
+
+sources:
+https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_adgroup#newAd_0
+https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_adbuilderspace#responsiveDisplayAdBuilder_0
+  
+--
+
+var header1 = 'header-1', header2 = 'header-2', header3 = 'header-3';
+var pathURL1 = 'AA', pathURL2 = 'BB';
+var description1 = 'lorem ipsum', description2 = 'bla bla bla';
+var destinationURL = 'https://rcb.co.il';
+  
+  
+var adGroup = AdsApp.adGroups().withIds([68114095871]).get().next();  
+  
+// ETA
+var builder1 = adGroup.newAd().expandedTextAdBuilder()
+    .withHeadlinePart1(header1)
+    .withHeadlinePart2(header2)
+    .withHeadlinePart3(header3)
+    .withPath1(pathURL1)
+    .withPath2(pathURL2)
+    .withDescription1(description1)
+    .withDescription2(description2)
+    .withFinalUrl(destinationURL) // 255 characters    
+    .withMobileFinalUrl(destinationURL);
+var result1 = builder1.build(); // "Cannot create already deprecated ads"
+  
+// RSA
+var builder2 = adGroup.newAd().responsiveSearchAdBuilder()
+    .withHeadlines([ header1, header2, header3 ])                
+    .withPath1(pathURL1)
+    .withPath2(pathURL2)
+    .withDescriptions([ description1, description2 ])  
+    .withFinalUrl(destinationURL)
+    .withMobileFinalUrl(destinationURL);
+var result2 = builder2.build();  // OK

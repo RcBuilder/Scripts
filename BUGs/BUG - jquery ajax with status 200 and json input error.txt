@@ -1,5 +1,5 @@
-BUG - jquery ajax with status 200 and json input error
-------------------------------------------------------
+Bug:
+jquery ajax with status 200 and json input error
 
 error:
 $.ajax() returns syntax error: Unexpected end of json input

@@ -6,6 +6,10 @@ System.Management.Automation;
 
 usage sample:
 see 'ODBCManager.cs'
+see 'SystemBrokersService > PSController.cs'
+
+reference:
+https://www.pdq.com/powershell/
 
 note! 
 for 32bit use the following dll path 
@@ -114,3 +118,66 @@ ps.AddScript($"Get-Process");
 ps.BeginInvoke<PSObject, PSObject>(null, output);
 
 ---
+
+Sample Usage: 
+
+/*
+    POST /ps/execute
+    {
+        "fileName": "test-1.ps1",
+        "prms": [ ]
+    }
+
+    -
+
+    POST /ps/execute
+    {
+        "fileName": "test-2.ps1",
+        "prms": [ "d:\\hello.txt" ]
+    }
+
+    -
+
+    POST /ps/execute
+    {
+        "fileName": "test-3.ps1",
+        "prms": [ "A", "B", "C" ]
+    }
+*/
+
+public class PSController : ApiController  {
+    [HttpPost]
+    [Route("ps/execute")]
+    public HttpResponseMessage ExecutePSScript([FromBody]PSScript psScript)
+    {
+        try
+        {  
+            // no file has provided
+            if (string.IsNullOrWhiteSpace(psScript.FileName))
+                throw new Exception("Invalid PS File Name!");
+
+            // fix file name
+            if (!psScript.FileName.EndsWith(".ps1"))
+                psScript.FileName = $"{psScript}.ps1";
+
+            var scriptPath = $"{AppContext.BaseDirectory}\\PSScripts\\{psScript.FileName}";
+            var scriptContent = File.ReadAllText(scriptPath);
+            
+            int index = 1;
+            foreach (var p in psScript.ScriptPrms)
+                scriptContent = scriptContent.Replace($"$p{index++}", p);
+            scriptContent += " | Out-String";
+                
+            var ps = PowerShell.Create();
+            ps.AddScript(scriptContent, true);
+            var result = ps.Invoke();
+
+            var response = Request.CreateResponse(HttpStatusCode.OK, result.FirstOrDefault()?.ToString().Replace("\r\n", " ; "));
+            return response;
+        }
+        catch (Exception ex)
+        {
+            return Request.CreateResponse(HttpStatusCode.InternalServerError, ex.Message);
+        }
+    }
+}

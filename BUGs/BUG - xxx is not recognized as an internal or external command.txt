@@ -1,5 +1,5 @@
-BUG - xxx is not recognized as an internal or external command
---------------------------------------------------------------
+bug:
+xxx is not recognized as an internal or external command
 
 error:
 'git' is not recognized as an internal or external command

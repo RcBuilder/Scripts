@@ -182,7 +182,7 @@ scripts capabilities:
 - can set non-converting keywords as negative 
 - send notification on each new conversion 
 - send daily report on non converting keywords 
-- monitor the landing pages (check each status - if it down - pause ad or notify via email) 
+- monitor the landing pages (check each status - if it down - pause ad or notify via e-mail) 
 - account (etc.) daily or monthly stats with charts 
 - working on topics, placements and audiences
 - convert converted search queries into actual keywords 
@@ -453,4 +453,45 @@ you'll only be charged for the dev time we invest in creating it.
 hope it helps 
 
 thanks, 
+Roby (-: 
+
+
+-------------------
+
+[hi, I'm interrest about this, can you tell me more about this ? how is going wo work ?]
+
+of course. 
+
+we can convert almost ANY manual action to a code snippet which can be executed on your own schedule!  by using these scripts, you can fully maintain an ads account with no human intervention and by doing so - save lots of time and m-oney.
+
+these script supports over 90% of the activities you can do manually, meaning we can automate almost any process. 
+
+scripts capabilities: 
+- creating  adgroups, ads etc. based on some sheet file or even an outer feed (site xml, json etc.)
+- use the adwords BULK operations which allows you to upload full campaigns in an async manner 
+- update ads content based on a website input using crawlers or based on any other requested logic
+- generate script which manage the position by pre-defined settings
+- set keywords position to always be at the 1st page
+- promote or demote keywords position and price by performance (conversions etc.)
+- set non-converting keywords as negative 
+- send notification on each new conversion
+- send daily report on non converting keywords
+- monitor the landing pages (check each status - if it down - pause ad or notify via e-mail) 
+- account (etc.) daily or monthly stats with charts 
+- working on topics, placements and audiences
+- convert converted search queries into actual keywords
+- increase cost per converted
+- we can generate a forecast script for budget - to check if we are going to exceed the budget etc.
+- low quality score keywords daily report 
+- top 10 daily reports - spending, converting etc.
+- creating ads based on search queries 
+- campaign statistics by requested period (weekly, monthly etc.) or period vs period (7 days vs 30 days stats etc.)
+
+and so on.....
+
+hope you'll find those suggestions effective, there's a lot of more options of course
+
+always at your service 
+
+Thanks, 
 Roby (-: 

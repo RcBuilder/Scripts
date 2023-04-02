@@ -13,3 +13,11 @@ CREATE TABLE [dbo].[Permissions](
 
 	CONSTRAINT PK_Permissions PRIMARY KEY (UserId, OrganizationId)
 )	
+-
+ALTER VIEW vAccountTags AS
+	SELECT  P.AccountId, T.Tag, COUNT(T.Tag) AS Count
+	FROM    dbo.PostsTags AS T WITH (NOLOCK) INNER JOIN
+		dbo.Posts AS P WITH (NOLOCK) ON P.Id = T.PostId
+	WHERE	P.IsDeleted = 0
+	GROUP BY P.AccountId, T.Tag
+-

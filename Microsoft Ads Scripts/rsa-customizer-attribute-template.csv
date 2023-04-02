@@ -1,0 +1,12 @@
+# "With this example template, you can upload your ad customizer attributes and customizer values for responsive search ads at the account, campaign, ad group, and keyword level in bulk.",,,,,,,,,
+# Required: Please ensure that your attribute rows come before the customizer value rows.,,,,,,,,,
+Attribute,Data type,Account value,Campaign,Ad group,Keyword,Customizer:Name,Customizer:Count,Customizer:Discount,Customizer:Cost
+Name,Text,Furniture,,,,,,,
+Count,Number,3000,,,,,,,
+Discount,Percent,,,,,,,,
+Cost,Price,,,,,,,,
+,,,Campaign A,,,Living Room Furniture,1000,10%,"$2,000 "
+,,,Campaign A,Ad group #1,,Modern Sectionals,500,10%,"$2,000 "
+,,,Campaign A,Ad group #1,corner sectionals,Modern Corner Sectionals,100,25%,"$2,500 "
+,,,Campaign A,Ad group #1,leather sectionals,Modern Leather Sectionals,100,15%,"$4,000 "
+,,,Campaign A,Ad group #1,luxury sectionals,Modern Luxury Sectionals,200,5%,"$3,000 "

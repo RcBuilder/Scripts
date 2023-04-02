@@ -1,0 +1,10 @@
+Action,Attribute status,Customer ID,Attribute ID,Attribute,Data type,Account value
+"# Optional.
+Supported values: Add; Edit; Remove.","Optional.
+Supported values: Unknown; Enabled; Removed.","Optional.
+Example(s): 123-456-7890.","Optional.
+Example(s): 1234.","Required on create.
+Example(s): Attribute Product.","Required on create.
+Supported values: Unknown; Text; Number; Price; Percent.","Optional.
+Example(s): Account value.
+Supports remove_value."

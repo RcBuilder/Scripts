@@ -3,24 +3,30 @@
 
 Sources
 -------
-https://www.google.com/recaptcha/about/
+https://www.google.com/recaptcha/about
+https://www.google.com/recaptcha/admin
 https://developers.google.com/recaptcha/docs/display#js_api
 https://developers.google.com/recaptcha/docs/verify
 
 Admin Console
 -------------
-https://www.google.com/recaptcha/admin/
+google reCaptcha dashboard:
+https://www.google.com/recaptcha/admin
 
 Generate New
 ------------
-- go to 'Admin Console'
-- click on +
-- choose reCAPTCHA version (e.g: reCAPTCHA v2)
-- choose type (e.g: I'm not a robot)
-- add domains access (e.g: localhost + mydomain.com)
-- set custom name 
-- accept Tetms of Service
-- SUBMIT
+(steps)
+1. go to 'Admin Console' (google reCaptcha dashboard)
+2. click on [+] to register a new site
+3. configure the captcha:
+   - Label - set captcha name for identification
+   - reCAPTCHA type - choose type and version
+     e.g: reCAPTCHA v2 > "I'm not a robot" tickbox
+   - Domains - specify the authorized dest domain/s 
+     e.g: localhost & rcb.co.il
+   - Owners - add email/s for notifications
+4. accept Tetms of Service > SUBMIT
+5. grab the generated site KEY & SECRET
 
 note! 
 two keys will be generated - SITE KEY & SECRET KEY
@@ -60,6 +66,11 @@ public class Config {
         return true;
     }
 </script>
+
+-
+
+// Form Tag
+onsubmit = "return doSubmit();"
 
 -
 

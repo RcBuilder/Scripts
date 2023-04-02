@@ -9,3 +9,15 @@ text
 
 Sample:
 https://5gfsms2.hotmobile.co.il:4849/sms/sendsms?username=yyyy&password=xxxxx&from=1234&to=972545614020&text=Hello
+
+--
+
+Notes:
+* Provider = HotMobile
+
+* IPs
+  ask the provider to open api for the specified IPs
+
+* IL Number as sender
+  by default, IL numbers are blocked by the provider.
+  ask hotmobile to release it in order to use IL number as sender 

@@ -1,0 +1,29 @@
+C# WebForms WebMethod
+---------------------
+
+async function ConvertToNis() {
+            
+            let result = await fetch('/Invoices.aspx/ConvertToNis', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json; charset=utf-8'
+                },
+                body: JSON.stringify({
+                    amount: $("#TotalIncludeVat").val(),
+                    currency: $("#CoinSelect").val()
+                })
+            }).then(response => response.json());
+
+            console.log(result.d);
+        }
+
+[WebMethod]
+        public static float ConvertToNis(float amount, byte currency)
+        {
+            try {
+                ...
+		...
+            }
+            catch { return 0; }
+        }

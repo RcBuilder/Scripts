@@ -1,0 +1,24 @@
+MVC DropDownListFor Constant List
+---------------------------------
+
+<div class="form-group">
+                <label for="Type">                    
+                    סוג ארוע
+                    @Html.ValidationMessageFor(m => m.Type, "", new { @class = "required" })
+                </label>
+                @Html.DropDownListFor(m => m.Type, new SelectList(
+                                     new List<Object>{
+                                               new { value = 0 , text = "ארוע כללי"},
+                                               new { value = 1 , text = "חתונה"  },
+                                               new { value = 2 , text = "בת/בר מצווה" },
+                                               new { value = 3 , text = "ברית/ה"},
+                                      }, "value", "text", "0"),
+                                      new
+                                      {
+                                          placeholder = "סוג ארוע",
+                                          minLength = 3,
+                                          maxLength = 200,
+                                          @class = "form-control",
+                                          tabindex = 1
+                                      })
+            </div>

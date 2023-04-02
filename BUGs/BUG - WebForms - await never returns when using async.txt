@@ -1,0 +1,61 @@
+Bug:
+WebForms - await never returns when using async
+
+Error:
+no error! both await and GetAwaiter never returns
+
+Cause:
+a deadlock occured
+
+Solution:
+add a ConfigureAwait with false flag! 
+
+Usage:
+using (var client = new HttpClient()){        
+	...
+    var sJson = await client.GetStringAsync(endpoint).ConfigureAwait(false);
+    ..
+}
+
+-
+
+Sample:
+
+[WebMethod]
+public static float ConvertToNis(float amount, string currency)
+{
+    try
+    {
+        var exchangeRatesManager = new ExchangeRatesManager();
+
+        var convertedRateUsdNis = exchangeRatesManager.ConvertRates(new ConvertRatesRequest
+        {
+            SrcCurrency = currency.ToUpper().Trim(),
+            DestCurrency = "ILS"
+        }).GetAwaiter().GetResult();
+
+        return convertedRateUsdNis.RateValue * amount;
+    }
+    catch (AggregateException ae) { 
+        Debug.WriteLine(ae.Message);
+        return 0;
+    }
+    catch { 
+        return 0; 
+    }
+}
+
+public async Task<string> CompareRates(CompareRatesRequest Request, eOutputFormats OutputFormat)
+{
+    using (var client = new HttpClient())
+    {
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+        var lstParams = Request.GetAsParams();
+        lstParams.Add($"format={OutputFormat}");
+
+        var endpoint = $"{SERVER_URL}fluctuation?{string.Join("&", lstParams)}";
+        var sJson = await client.GetStringAsync(endpoint).ConfigureAwait(false);
+        return sJson;
+    }
+}

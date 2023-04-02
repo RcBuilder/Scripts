@@ -1,0 +1,620 @@
+/*
+  Sync feed attributes from a spreadsheet 
+
+  --
+
+  INFO:
+  https://support.google.com/google-ads/answer/6093368?hl=en
+  https://www.karooya.com/blog/ad-customizers-update-for-rsa/
+  
+  https://developers.google.com/google-ads/scripts/docs/features/bulk-upload  
+  https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_bulkuploads
+  https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_csvupload
+  
+  --
+  
+  upload 'ad customizer attributes'
+  Tools > Bulk Actions > Uploads
+  Tools > Setup > Business data > Ad customizer attributes
+*/
+
+var SHEET_URL = 'https://docs.google.com/spreadsheets/d/1m3mcPs_3SnLs_rEJeHQZE_c7ZskhuDyAVmkG0bQ798Q/edit?usp=sharing';
+
+function main() {  
+  var sheetService = SpreadsheetLoader.loadSheetServiceByURL(SHEET_URL); // load   
+  var sheetNotExists = !sheetService;
+  if(sheetNotExists){
+    Logger.log('data source does NOT exists - stop processing...');
+    return;
+  }
+  
+  // read attributes from sheet
+  var adCustomizerDataService = AdCustomizerDataService(sheetService);
+  var attributes = adCustomizerDataService.getAttributes();  // [{name, type, value, account}]
+  var grouped = attributes.reduce(function(res, cur) { 
+    res[cur.account] = res[cur.account] || [];
+    res[cur.account].push(cur);   
+    return res;
+  }, Object.create(null));
+  
+  var accountIds = Object.keys(grouped);
+  Logger.log(accountIds);
+  
+  for(i in accountIds){
+    var accountId = accountIds[i];   
+    
+    if(!MccSelect(accountId)){
+      Logger.log('no such account #%s - skipping...', accountId);
+      continue; 
+    }
+        
+    processAccount(accountId, grouped[accountId]); 
+  }
+}
+
+function MccSelect(accountId){
+  ///return true; // regular account support
+  
+  var managedAccountItr = MccApp.accounts().withIds([accountId]).get();
+  if(managedAccountItr.totalNumEntities() == 0) return false;
+  MccApp.select(managedAccountItr.next());
+  return true;
+}
+
+function processAccount(accountId, attributes) {
+  Logger.log('#' + accountId);
+  
+  // print attributes
+  for(i in attributes)
+    Logger.log(attributes[i]);
+        
+  // save items
+  var adCustomizerItems = saveAdCustomizerItems(attributes);
+  if(adCustomizerItems == null) {
+    Logger.log('some error occured while trying to build an adCustomizer items');
+    return null;
+  }    
+  
+  var adCustomizerItems = adCustomizerSource
+    .items()
+    .get();
+    
+  Logger.log('%s items found', adCustomizerItems.totalNumEntities());
+  
+  while (adCustomizerItems.hasNext()) {
+    var adCustomizerItem = adCustomizerItems.next();
+    Logger.log(adCustomizerItem.getAttributeValues());
+  }
+}
+
+function saveAdCustomizerItems(attributes) {
+  const columns = [
+     "Attribute","Data type","Account value"
+  ];
+  
+  const upload = AdsApp.bulkUploads().newCsvUpload(columns);
+
+  for(i in attributes) {
+    var attribute = attributes[i];
+    
+    upload.append({
+         "Attribute": attribute.name,
+         "Data type": attribute.type,
+         "Account value": attribute.value
+      });     
+    }
+
+  upload.forCampaignManagement();   
+  upload.apply();
+  ///upload.preview();
+}
+
+// --- SERVICES ------------------------------------------------------------
+
+/* AD-CUSTOMIZER DATA SERVICE */
+var AdCustomizerDataService = function(sheetService) {   
+  return {    
+    getAttributes: function(){
+      var values = [];
+      
+      /*
+       return [
+        "US_H2_1",
+        "US_H2_2",
+        "US_H3_1",
+        "US_D1_1",
+        "US_D1_2",
+        "US_D2_1",
+        "US_Path1",
+        "US_Path2"
+      ];
+      */
+      
+      var range = sheetService.getValues() || [];
+      for(r in range) {
+        var attribute = {
+          name: range[r][0],	
+          type: range[r][1].toLowerCase(),	
+          value: range[r][2],
+          account: range[r][3].toString(),
+        };
+        
+        switch(attribute.type){
+          default:
+          case 'date':
+          case 'text': attribute.value = attribute.value.toString().trim();
+            break;
+          case 'number': attribute.value = parseInt(attribute.value);
+            break;
+          case 'price': attribute.value = parseFloat(attribute.value);
+            break;          
+        }        
+        values.push(attribute);
+      }
+           
+      // remove header
+      values.shift();
+      
+      // [{name, type, value, account}]
+      return values;
+    }  
+  }
+}
+
+/* SPREADSHEET SERVICE */
+var SpreadSheetService = function(spreadSheet) {
+  var _spreadSheet = spreadSheet;
+  var _sheets = [];
+
+  (function(){
+    var sheetServices = [];
+    var temp_sheets = spreadSheet.getSheets();
+    for(var i= 0; i < temp_sheets.length; i++)
+      _sheets.push(new SheetService(temp_sheets[i]));   
+  })();   
+  
+  return {      
+    sheets: _sheets,
+	  spreadSheet: _spreadSheet, 
+    getName: function(){
+      return _spreadSheet.getName();
+    },
+    getActiveSheet: function(){
+      return SheetService(_spreadSheet.getActiveSheet());
+    },
+    getSheetByName: function(sheetName) { 
+      for(var i= 0; i < _sheets.length; i++)
+        if(_sheets[i].sheetName == sheetName)
+          return _sheets[i];
+      return '';
+    },
+    addNewSheet: function(sheetName){
+      var new_sheet = SheetService(_spreadSheet.insertSheet(sheetName));
+      _sheets.push(new_sheet)
+      return new_sheet;         
+    },
+    isSheetExists: function(sheetName){
+        return this.getSheetByName(sheetName) != '';
+    }, 
+    getURL: function(){
+      return _spreadSheet.getUrl();
+    },
+	  getId: function(){
+      return _spreadSheet.getId();
+    },
+    setName: function(newName){
+      _spreadSheet.rename(newName);  
+    }, 
+	  setActiveSheetByIndex: function(index){
+      _spreadSheet.setActiveSheet(_sheets[index].sheet);
+    },
+    clearALL: function(){
+      for(var i= 0; i < _sheets.length; i++)
+        _sheets[i].clear(true, true, true);
+    }
+  }; 
+}
+
+// --------------------
+
+/* SHEET SERVICE */
+var SheetService = function(sheet) { 
+  var _sheet = sheet;
+  
+  // e.g: setFormat('A1'); // set cell
+  // e.g: setFormat('A1:A10'); // set range
+  var setFormat = function(strRange, format){
+    var range = _sheet.getRange(strRange);
+    range.setNumberFormat(format);  
+  }
+  
+  var getBorderStyle = function(value){
+    value = value.toLowerCase();
+    switch(value){
+      case 'dotted': return SpreadsheetApp.BorderStyle.DOTTED;
+      case 'dashed': return SpreadsheetApp.BorderStyle.DASHED;
+      default:
+      case 'solid': return SpreadsheetApp.BorderStyle.SOLID;
+    }
+  }
+  
+  return {   
+    sheet: _sheet,
+    hasSheet: _sheet != null,
+    sheetName: _sheet ? _sheet.getName() : '',
+    spreadSheet: _sheet.getParent(),
+    getURL: function(){
+      return this.spreadSheet.getUrl();
+    },
+    getLastRowIndex: function() { 
+      return _sheet.getLastRow();  
+    }, 
+    getLastColumnIndex: function(){ 
+      return _sheet.getLastColumn();
+    }, 
+    getValue: function(rowPosition, columnPosition){ 
+      return _sheet.getRange(rowPosition, columnPosition).getValue();
+    }, 
+    getValueByRange: function(strRange){ /* A3, B1 etc.*/       
+      return _sheet.getRange(strRange).getValue();
+    },  
+    getValues: function(){
+      return _sheet.getDataRange().getValues();
+    },
+    getValuesByRange: function(strRange){ /* A3:B3, C1:C5 etc.*/       
+      return _sheet.getRange(strRange).getValues();
+    }, 
+    getRowValues:function(rowPosition){       
+      return _sheet.getRange(rowPosition, 1, 1, this.getLastColumnIndex()).getValues();
+    },      
+    getRowIndex: function(columnPosition, key){
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnPosition - 1] == key)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+    getRowIndexBy2Columns: function(columnAPosition, keyA, columnBPosition, keyB){ 
+      var rows = _sheet.getDataRange().getValues();
+      
+      // row index is 0 based but range is 1 based
+      for(row in rows)
+        if(rows[row][columnAPosition - 1] == keyA && rows[row][columnBPosition - 1] == keyB)
+          return parseInt(row) + 1;
+      return -1;  
+    },
+    getColumnValues: function(startRowPosition, columnPosition){
+      // getRange(row, column, numRows, numColumns)
+      return _sheet.getRange(startRowPosition, columnPosition, _sheet.getLastRow() - 1, 1).getValues();
+    }, 
+    addRow: function(arrValues){ 
+      //_sheet.appendRow(arrValues);
+      this.addRowAtIndex(arrValues, _sheet.getLastRow() + 1);
+    },
+    addRowAtIndex: function(arrValues, rowPosition){               
+      rowPosition = rowPosition || _sheet.getLastRow() + 1;
+      var range = _sheet.getRange(rowPosition, 1, 1, arrValues.length);
+      range.setValues([arrValues]);
+    },
+    addImageFromURL: function(url, rowPosition, columnPosition, left, top){ 
+      top = top || 0;
+      left = left || 0;
+
+      _sheet.insertImage(url, rowPosition, columnPosition, left, top);
+    },   
+    addImage: function(blob, rowPosition, columnPosition, left, top){ 
+      top = top || 0;
+      left = left || 0;
+
+      _sheet.insertImage(blob, rowPosition, columnPosition, left, top);
+    },   
+    deleteRow: function(rowPosition){
+      _sheet.deleteRow(rowPosition);
+    }, 
+    letter2index: function(columnLetter){
+      const numOfLetters = 26;
+      const startIndex = 'A'.charCodeAt(0); 
+      /*
+        get column index by it's letter/s representation 
+        e.g: A=1, C=3 
+      */
+      
+      // TODO 
+      
+    },
+	  copyRange: function(fromRange, toRange){
+        Logger.log('copy range from %s to %s', fromRange, toRange);
+        var valuesToCopy = this.getValuesByRange(fromRange);      
+        this.setRangeValues(toRange, valuesToCopy);           
+    },   
+    sort: function(columnPosition){
+      _sheet.sort(columnPosition);
+    },
+    hasCharts:  _sheet.getCharts().length > 0,
+    findColumnValuesByFilter: function(columnPosition, filterValue, filterColumnPosition){
+      /* 
+        get column values filtered by other column
+
+        e.g: findColumnValuesByFilter(2, '100', 1)          
+        all B column values that the value in A column equals to '100'
+        */
+
+      var result = [];       
+      var rows = _sheet.getDataRange().getValues();
+
+      for(row in rows)
+        if(rows[row][filterColumnPosition - 1] == filterValue)
+          result.push(rows[row][columnPosition]);
+      return result;  
+    }, 
+    findRowsByFilter: function(filterValue, filterColumnPosition){
+      /* 
+        get rows by filter
+
+        e.g: findRowsByFilter('100', 1)          
+        all rows that the value in A column equals to '100'
+        */
+
+      var result = [];       
+      var rows = _sheet.getDataRange().getValues();
+
+      for(row in rows)
+        if(rows[row][filterColumnPosition - 1] == filterValue)
+          result.push(rows[row]);
+      return result;  
+    }, 
+	  freezeHeader: function(){
+      _sheet.setFrozenRows(1);
+    },
+    merge: function(strRange){
+      _sheet.getRange(strRange).merge();
+    },  
+    clear: function(charts, format, contents){
+      charts = charts || false;
+      format = format || false;
+      contents = contents || true;
+
+      _sheet.clear({ formatOnly: format, contentsOnly: contents });    
+
+      // clear all notes
+      _sheet.clearNotes();        
+
+      // clear all charts
+      var charts = _sheet.getCharts();
+      for (var i in charts)
+        _sheet.removeChart(charts[i]);
+    },          
+    setValue: function(rowPosition, columnPosition, value){ 
+      _sheet.getRange(rowPosition, columnPosition).setValue(value);
+    },     
+    setRangeValue: function(strRange, value){ 
+      // e.g: setCurrencyFormat('A1'); // set cell
+      _sheet.getRange(strRange).setValue(value);
+    },
+	  setRangeValues: function(strRange, values){         
+      _sheet.getRange(strRange).setValues(values);
+    },
+    setColumnWidth: function(columnPosition, width){
+      _sheet.setColumnWidth(columnPosition, width);
+    },  
+    setRowHeight: function(rowPosition, height){
+      _sheet.setRowHeight(rowPosition, height);
+    },  
+    setName: function(newName){
+      _sheet.setName(newName);
+    }, 
+    setNote: function(strRange, note){
+      var range = _sheet.getRange(strRange);
+      range.setNote(note);
+    },         
+    setDataUI: function(strRange, backgroundColor, foreColor, fontSize, hAlign, fontWeight, border /* { color, style } */, vAlign){
+      var range = _sheet.getRange(strRange);
+      if(backgroundColor)
+        range.setBackground(backgroundColor);
+      if(foreColor)
+        range.setFontColor(foreColor);
+      if(fontSize)
+        range.setFontSize(fontSize);
+      if(hAlign)
+        range.setHorizontalAlignment(hAlign);
+      if(vAlign)
+        range.setVerticalAlignment(vAlign)
+      if(fontWeight)
+        range.setFontWeight(fontWeight);
+      if(border)
+        range.setBorder(true, true, true, true, true, true, border.color, getBorderStyle(border.style))
+    }, 
+    setNumberFormat: function(strRange){
+      setFormat(strRange, '0');       
+    },
+    setDecimalFormat: function(strRange){
+      setFormat(strRange, '0.00');
+    },
+    setCurrencyFormat: function(strRange){
+      setFormat(strRange, '$0.00');
+    },
+    setPercentageFormat: function(strRange){
+      // e.g: setPercentageFormat('A1'); // set cell
+      // e.g: setPercentageFormat('A1:A10'); // set range
+
+      setFormat(strRange, '0.00%');
+    },
+    setWeekFormat: function(strRange){
+      setFormat(strRange, 'MMM dd');
+    },
+    setMonthFormat: function(strRange){
+      setFormat(strRange, 'MMM');
+    },
+    setCellSumFormula: function(strRange, strCell){
+      // e.g: setCellSumFormula('A1:A10', 'B1'); 
+      // set SUM value of cells A1 to A10 to cell B1
+
+      var cell = _sheet.getRange(strCell);
+      cell.setFormula('=SUM(' + strRange + ')');
+    },
+    setCellAvgFormula: function(strRange, strCell){
+      // e.g: setCellSumFormula('A1:A10', 'B1'); 
+      // set AVG value of cells A1 to A10 to cell B1
+
+      var cell = _sheet.getRange(strCell);
+      cell.setFormula('=AVERAGE(' + strRange + ')');
+    },
+    setCellFormula: function(formula, strCell){
+      // e.g: setCellFormula('=B3-C3', 'D3');         
+      // e.g: setCellFormula('=$B3-$C3', 'D3:D9');   
+
+      var cell = _sheet.getRange(strCell);
+      cell.setFormula(formula);
+    }        
+  }; 
+}
+
+// --------------------
+
+/* SPREADSHEET LOADER */
+var SpreadsheetLoader = {
+  
+  // ---  spreadSheets
+  
+  createSpreadSheet: function(spreadSheetName, folderName){
+    Logger.log('CREATING %s ... ', spreadSheetName);
+    var spreadsheet = SpreadsheetApp.create(spreadSheetName); // create new file         
+    
+    if(!folderName || folderName == '') 
+      return spreadsheet; // folder not specified  - return spreadsheet
+     
+    // save in specific folder 
+    
+    for(var i=0;i<500000; i++); // delay
+
+    var root_folder = DriveApp.getRootFolder();     
+    var folder_iterator = root_folder.getFoldersByName(folderName);
+    var folderExists = folder_iterator.hasNext();
+    
+    if(!folderExists) // no such folder - return the spreadsheet
+    {
+      Logger.log('%s NOT EXISTS!', folderName);
+      return spreadsheet;
+    }
+    
+    var folder = root_folder.getFoldersByName(folderName).next();
+    var file = root_folder.getFilesByName(spreadSheetName).next();
+    folder.addFile(file);
+    root_folder.removeFile(file);
+
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheet: function(spreadSheetName, folderName){
+	if(spreadSheetName == '') {
+      Logger.log('EMPTY NAME!');
+      return null;
+    }
+
+    var root_folder = DriveApp.getRootFolder();
+    var folder = root_folder; // default 
+    if(folderName && folderName != '')
+    {
+      var folder_iterator = root_folder.getFoldersByName(folderName);
+      var folderExists = folder_iterator.hasNext();
+      
+      if(folderExists)
+      {
+        Logger.log('FOLDER %s', folderName);
+        folder = root_folder.getFoldersByName(folderName).next();
+      }
+    }
+    
+    var file_iterator = folder.getFilesByName(spreadSheetName);
+    var fileExists = file_iterator.hasNext();
+    
+    if(!fileExists){
+      Logger.log('%s NOT EXISTS!', spreadSheetName);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetName);
+    var file = file_iterator.next();
+    return SpreadsheetApp.openById(file.getId());    
+  }, 
+  loadSpreadSheetById: function(spreadSheetId){
+    if(spreadSheetId == '') {
+      Logger.log('EMPTY ID!');
+      return null;
+    }
+    
+    var file = DriveApp.getFileById(spreadSheetId);
+    if(!file || file.isTrashed()){
+      Logger.log('%s NOT EXISTS!', spreadSheetId);
+      return null;
+    }
+    
+    // file exists - load it
+    Logger.log('LOADING %s ... ', spreadSheetId);
+    return SpreadsheetApp.openById(file.getId());    
+  },  
+  loadSpreadSheetByURL: function(spreadSheetUrl){
+    if(spreadSheetUrl == '') {
+      Logger.log('EMPTY URL!');
+      return null;
+    }
+    
+    Logger.log('LOADING %s ... ', spreadSheetUrl);
+    var spreadSheet = SpreadsheetApp.openByUrl(spreadSheetUrl);    
+    
+    if(!spreadSheet){
+      Logger.log('%s NOT EXISTS!', spreadSheetUrl);
+      return null;
+    }
+    
+    return spreadSheet;
+  }, 
+  
+  // ---  sheet Services
+  
+  loadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  }, 
+  loadSheetServiceById: function(spreadSheetId){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheetId);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  loadSheetServiceByURL: function(spreadSheetUrl){
+    var spreadsheet = this.loadSpreadSheetByURL(spreadSheetUrl);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },  
+  createSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet.getActiveSheet());
+  },
+  
+  // ---  spreadSheet Services
+  
+  loadSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.loadSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },
+  loadSpreadSheetServiceById: function(spreadSheetId){
+    var spreadsheet = this.loadSpreadSheetById(spreadSheetId);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  },  
+  loadSpreadSheetServiceByURL: function(spreadSheetUrl){
+    var spreadsheet = this.loadSpreadSheetByURL(spreadSheetUrl);
+    if(!spreadsheet) return null;
+    return SheetService(spreadsheet);
+  },  
+  createSpreadSheetService: function(spreadSheetName, folderName){
+    var spreadsheet = this.createSpreadSheet(spreadSheetName, folderName);
+    if(!spreadsheet) return null;
+    return SpreadSheetService(spreadsheet);
+  }
+}

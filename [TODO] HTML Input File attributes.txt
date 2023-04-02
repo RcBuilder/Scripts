@@ -1,0 +1,134 @@
+HTML Input File attributes
+--------------------------
+
+syntax:
+<input accept="file_extension|audio/*|video/*|image/*|media_type">
+<input type="file" accept=".FILETYPE" />
+<input type="file" accept=".MIME-Type" />
+
+attributes:
+- accept
+- multiple
+
+---
+
+accept types:
+
+// excel 97-2003 (.xls)
+<input type="file" accept="application/vnd.ms-excel" />
+
+// excel 2007+ (.xlsx)
+<input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+
+// text (.txt)
+<input type="file" accept="text/plain" />
+
+// html (.htm,.html)
+<input type="file" accept="text/html" />
+
+// video (.avi, .mpg, .mpeg, .mp4)
+<input type="file" accept="video/*" />
+
+// audio (.mp3, .wav, etc)
+<input type="file" accept="audio/*" />
+
+<input type="file" accept=".pdf" /> 
+
+<input type="file" accept=".csv" />
+
+---
+
+samples:
+
+
+
+
+------------------
+// TODO ->> 
+
+// accept (filter)
+<input type="file" accept="image/png, image/gif, image/jpeg" />
+
+<input type="file" accept="image/*" />
+
+<input type="file" accept=".png, .jpg, .jpeg" />
+
+<input type="file" accept="video/mp4,video/x-m4v,video/*" /> 
+
+<input type="file" accept="audio/*,video/*,image/*" />
+
+<input type="file" accept="application/pdf,application/vnd.ms-excel" />
+
+<input type="file" accept ="application/pdf,.csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+
+<input type="file" accept=".xlsx, .xls, .csv" />
+
+--
+
+// multiple
+<input type="file" multiple accept='image/*'>
+
+--
+
+// validate onchange
+<input name="image" type="file" id="fileName" accept=".jpg,.jpeg,.png" onchange="validateFileType()"/>
+<script type="text/javascript">
+    function validateFileType(){
+        var fileName = document.getElementById("fileName").value;
+        var idxDot = fileName.lastIndexOf(".") + 1;
+        var extFile = fileName.substr(idxDot, fileName.length).toLowerCase();
+        if (extFile=="jpg" || extFile=="jpeg" || extFile=="png"){
+            //TO DO
+        }else{
+            alert("Only jpg/jpeg and png files are allowed!");
+        }   
+    }
+</script>
+
+--
+
+// validate onchange
+<input #imageInput accept="image/*" (change)="processFile(imageInput)" name="upload-photo" type="file" id="upload-photo" />
+processFile(imageInput) {
+    if (imageInput.files[0]) {
+      const file: File = imageInput.files[0];
+      var pattern = /image-*/;
+
+      if (!file.type.match(pattern)) {
+        alert('Invalid format');
+        return;
+      }
+
+      // here you can do whatever you want with your image. Now you are sure that it is an image
+    }
+  }
+
+--
+
+// react
+import React from 'react';
+
+const ImageUploader = () => {
+
+    const handleImageUpload = (e) => {
+        // If no file selected, return
+        if (e.target.files.length === 0) return false;
+        const file = e.target.files[0];
+
+        // If no image selected, return
+        if (!/^image\//.test(file.type)) {
+            alert(`File ${file.name} is not an image.`);
+            return false;
+        }
+
+        // ...
+    };
+
+    return (
+        <>
+            <input type='file' accept='image/*' onChange={(e) => handleImageUpload(e)} />
+        </>
+    );
+};
+
+export default ImageUploader;

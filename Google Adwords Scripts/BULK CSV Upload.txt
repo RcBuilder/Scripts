@@ -1,0 +1,35 @@
+/*
+  INFO:
+  https://support.google.com/google-ads/answer/6093368?hl=en
+  https://www.karooya.com/blog/ad-customizers-update-for-rsa/
+  
+  https://developers.google.com/google-ads/scripts/docs/features/bulk-upload  
+  https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_bulkuploads
+  https://developers.google.com/google-ads/scripts/docs/reference/adsapp/adsapp_csvupload
+  
+  --
+  
+  upload 'ad customizer attributes'
+  Tools > Bulk Actions > Uploads
+  Tools > Setup > Business data > Ad customizer attributes
+*/
+
+
+function main() 
+{
+  const columns = [
+     "Attribute","Data type","Account value"
+  ];
+  
+  const upload = AdsApp.bulkUploads().newCsvUpload(columns);
+
+  upload.append({
+     "Attribute":"A1",
+     "Data type":"Text",
+     "Account value":"V1"
+  });
+  
+  upload.forCampaignManagement();   
+  upload.apply();
+  ///upload.preview();
+}

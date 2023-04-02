@@ -1,0 +1,45 @@
+MailGun API
+-----------
+External Email Provider
+
+Info
+----
+https://www.mailgun.com
+
+support:
+support@mailgun.net
+help@mailgun.com
+
+Send Email Via MailGun
+----------------------
+syntax:
+POST https://api.eu.mailgun.net/v3/<domain>/messages
+H Content-Type: application/json
+U <credential> (see 'credential')
+P from
+P to
+P bcc
+P subject
+P text
+
+-
+
+credential:
+type=basic auth
+user=api 
+password=<api-key>
+
+-
+
+sample:
+POST https://api.eu.mailgun.net/v3/xenaai.com/messages
+H Content-Type: application/json
+U api/ xxxxxxxxxxxxxxxxx
+
+// query params
+from=Mailgun Sandbox <postmaster@xenaai.com>
+to=test-235bf8@test.mailgenius.com
+bcc=rcbuilder@walla.co.il
+subject=TEST
+text=bla bla bla
+

@@ -1,0 +1,69 @@
+SQL Identity Jumping 1000 Issue
+-------------------------------
+Identity Jumping 1000 – IDENTITY_CACHE.
+
+a known old issue where suddenly an identity column value has auto-incremented by 1000! 
+this usually happens if SQL Server is not shutdown properly (unexpected shutdown). 
+when identity cache is OFF, SQL Server takes a very little performance hit.
+
+(steps) how to solve this issue?
+1. disable IDENTITY_CACHE flag:
+   ALTER DATABASE SCOPED CONFIGURATION SET IDENTITY_CACHE = OFF
+2. set the identity-seed value to a new value
+   DBCC CHECKIDENT ('<table_name>', RESEED, <new_seed>)
+
+cause:
+to improve the performance of the INSERT statements, SQL engine allocates and caches the next 1000 identity values for the table. 
+in cases of an unexpected crash scenario, it loses those pre-generated identity values and that behavior causes the 1000 value jump!
+
+source:
+https://blog.sqlauthority.com/2018/01/24/sql-server-identity-jumping-1000-identity_cache/
+
+note! 
+to learn how to reproduce the issue, read the above blog-article
+
+---
+
+ALTER DATABASE SCOPED CONFIGURATION SET IDENTITY_CACHE = OFF
+
+CREATE TABLE TEMP(Id INT IDENTITY(1,1), [Name] NCHAR(1))
+INSERT INTO TEMP VALUES('A'), ('B')
+INSERT INTO TEMP VALUES('C'), ('D')
+SELECT * FROM TEMP
+DBCC CHECKIDENT ('TEMP', RESEED, 6)
+INSERT INTO TEMP VALUES('E'), ('F')
+
+output:
+Id	Name
+1	A
+2	B
+3	C
+4	D
+7	E
+8	F
+
+
+---
+
+// usage samples (impact)
+
+-- RCPS.aspx
+select * from dbo.RCP where RCP_ID > 20812
+-- SELECT MAX(RCP_ID) FROM RCP
+-- DELETE FROM RCP where RCP_ID > 20812
+-- DBCC CHECKIDENT ('RCP', RESEED, 20812)
+
+-- BILLS.aspx
+select * from BILL where BILL_ID > 36380
+-- SELECT MAX(BILL_ID) BILL RCP
+-- DELETE FROM BILL where BILL_ID > 36380
+-- DBCC CHECKIDENT ('BILL', RESEED, 36380)
+
+-- BILLS_M.aspx
+select * from Bill_M where Bill_M_ID > 34550
+-- SELECT MAX(Bill_M_ID) FROM Bill_M
+-- DELETE FROM Bill_M where Bill_M_ID > 34550
+-- DBCC CHECKIDENT ('Bill_M', RESEED, 34550)
+
+
+

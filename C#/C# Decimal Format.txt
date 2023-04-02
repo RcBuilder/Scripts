@@ -1,0 +1,7 @@
+C# Decimal Format
+-----------------
+Console.WriteLine(40842.12.ToString("N"));	// 40,842.12
+Console.WriteLine(40842.12.ToString("C"));	// $40,842.12
+Console.WriteLine(40842.12.ToString("C", CultureInfo.CreateSpecificCulture("ja-JP")));	// ¥40,842
+Console.WriteLine(string.Format("{0:N}", 40842.12));  // 40,842.12
+Console.WriteLine(string.Format("{0:C}", 40842.12));  // $40,842.12
