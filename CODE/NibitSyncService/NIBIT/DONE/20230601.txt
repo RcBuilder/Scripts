@@ -1,0 +1,15 @@
+ERROR - CreateAccountingTransaction - The ConnectionString property has not been initialized.
+{"Column2":"","Column3":"140","Column4":"200000111","Column5":"140523","AsmacDate":"2023-05-14T00:00:00","Column6":"140523","ValueDate":"2023-05-14T00:00:00","Column7":"$","Column8":"…€—‘’ \"’","Column9":"","AccountDebit1":0,"Column10":"","AccountDebit2":0,"Column11":"51300","AccountCrebit1":51300,"Column12":"","AccountCrebit2":0,"Column13":"","SumDebit1":0.0,"Column14":"","SumDebit2":0.0,"Column15":"3933.84","SumCrebit1":3933.84,"Column16":"","SumCrebit2":0.0}
+-----
+ERROR - CreateAccountingTransaction - The ConnectionString property has not been initialized.
+{"Column2":"","Column3":"0","Column4":"200000111","Column5":"140523","AsmacDate":"2023-05-14T00:00:00","Column6":"140523","ValueDate":"2023-05-14T00:00:00","Column7":"$","Column8":"1 …‰‰‡ …‘‹„","Column9":"","AccountDebit1":0,"Column10":"","AccountDebit2":0,"Column11":"900002","AccountCrebit1":900002,"Column12":"","AccountCrebit2":0,"Column13":"","SumDebit1":0.0,"Column14":"","SumDebit2":0.0,"Column15":"23140.67","SumCrebit1":23140.67,"Column16":"","SumCrebit2":0.0}
+-----
+ERROR - CreateAccountingTransaction - The ConnectionString property has not been initialized.
+{"Column2":"","Column3":"0","Column4":"200000111","Column5":"140523","AsmacDate":"2023-05-14T00:00:00","Column6":"140523","ValueDate":"2023-05-14T00:00:00","Column7":"$","Column8":"1 …˜…ˆ” …‘‹„","Column9":"","AccountDebit1":0,"Column10":"","AccountDebit2":0,"Column11":"900900","AccountCrebit1":900900,"Column12":"","AccountCrebit2":0,"Column13":"","SumDebit1":0.0,"Column14":"","SumDebit2":0.0,"Column15":"13.50","SumCrebit1":13.5,"Column16":"","SumCrebit2":0.0}
+-----
+ERROR - CreateAccountingTransaction - The ConnectionString property has not been initialized.
+{"Column2":"","Column3":"200000111","Column4":"200000111","Column5":"140523","AsmacDate":"2023-05-14T00:00:00","Column6":"140523","ValueDate":"2023-05-14T00:00:00","Column7":"$","Column8":"ƒ˜€‹ ‰…€ ”…— 1","Column9":"157001","AccountDebit1":157001,"Column10":"","AccountDebit2":0,"Column11":"","AccountCrebit1":0,"Column12":"","AccountCrebit2":0,"Column13":"13231.20","SumDebit1":13231.2,"Column14":"","SumDebit2":0.0,"Column15":"","SumCrebit1":0.0,"Column16":"","SumCrebit2":0.0}
+-----
+ERROR - CreateAccountingTransaction - ERROR [07001] [Pervasive][ODBC Client Interface]SQLBindParameter has not been called for parameter #1.
+{"Column2":"","Column3":"140","Column4":"200000111","Column5":"140523","AsmacDate":"2023-05-14T00:00:00","Column6":"140523","ValueDate":"2023-05-14T00:00:00","Column7":"$","Column8":"…€—‘’ \"’","Column9":"","AccountDebit1":0,"Column10":"","AccountDebit2":0,"Column11":"51300","AccountCrebit1":51300,"Column12":"","AccountCrebit2":0,"Column13":"","SumDebit1":0.0,"Column14":"","SumDebit2":0.0,"Column15":"3933.84","SumCrebit1":3933.84,"Column16":"","SumCrebit2":0.0}
+-----

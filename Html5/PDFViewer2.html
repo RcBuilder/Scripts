@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <!--
+        adobe developer console:
+        https://developer.adobe.com/console/home
+
+        services:
+        - pdf-embed-api
+
+        sources:
+        https://developer.adobe.com/apis
+        https://developer.adobe.com/developer-console/docs/guides/getting-started/
+        https://developer.adobe.com/developer-console/docs/guides/credentials/
+        https://developer.adobe.com/document-services/apis/pdf-services/
+
+        -- pdf-embed-api
+        https://developer.adobe.com/document-services/docs/overview/pdf-embed-api/
+        https://developer.adobe.com/document-services/docs/overview/pdf-embed-api/howtos/
+        https://developer.adobe.com/document-services/docs/overview/pdf-embed-api/howtos_ui/
+
+        token:
+        - per domain
+        - developer console
+
+
+    -->
+
+    <div id="adobe-dc-view" data-file-name="Sample.pdf"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.slim.min.js" integrity="sha256-a2yjHM4jnF9f54xUQakjZGaqYs/V1CYvWpoqZzC2/Bw=" crossorigin="anonymous"></script>
+    <script src="https://documentservices.adobe.com/view-sdk/viewer.js"></script>
+    <script type="text/javascript">
+        const adobeViewer = $('#adobe-dc-view');
+
+        const previewConfig = {
+            embedMode: "FULL_WINDOW",
+            defaultViewMode: "FIT_PAGE"
+        }
+
+        document.addEventListener("adobe_dc_view_sdk.ready", function () {
+
+            let fileName = adobeViewer.attr('data-file-name');
+            let fileSrc = fileName == '' ? '' : `/Resources/${fileName}`;
+
+            var adobeDCView = new AdobeDC.View({
+                clientId: "efb02b9c0d024fe7908929a5d5416b51",
+                divId: "adobe-dc-view"
+            });
+
+            adobeDCView.previewFile({
+                content: {
+                    location: {
+                        url: fileSrc
+                    }
+                },
+                metaData: {
+                    fileName: fileName
+                }
+            }, previewConfig);
+        });
+    </script>
+</body>
+</html>

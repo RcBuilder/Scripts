@@ -1,0 +1,30 @@
+SQL Categories Using CTE Recursive
+----------------------------------
+DECLARE @T TABLE(Id INT, [Name] VARCHAR(50), Parent INT)
+INSERT INTO @T
+VALUES
+(1 ,          'ROOT ITEM'      ,             NULL),
+(2 ,          'PARENT 1'       ,             1),
+(3 ,          'PARENT 2'       ,             1),
+(4 ,          'PARENT 3'       ,             1),
+(5 ,          'PARENT 1 SON 1' ,             2),
+(6 ,          'PARENT 1 SON 2' ,             2),
+(7 ,          'PARENT 1 SON 3' ,             2),
+(8 ,          'PARENT 2 SON 1' ,             3),
+(9 ,          'PARENT 2 SON 2' ,             3),
+(10,          'PARENT 2 SON 3' ,             3),
+(11,          'PARENT 2 SON 4' ,             3),
+(12,          'PARENT 2 SON 5',				 3),
+(13,          'PARENT 7 SON 1' ,             7),
+(14,          'PARENT 7 SON 2' ,             7)
+
+-- SELECT * FROM @T
+
+
+declare @input int = 2
+;WITH CTE_LEVELS(Id, Name, Parent) AS (
+	select * from @T where Id = @input
+	UNION ALL
+	select a.* from @T a inner join CTE_LEVELS b on(a.Parent = b.Id)
+)
+select * from CTE_LEVELS 

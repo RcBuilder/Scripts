@@ -1,3 +1,10 @@
+
+CREATE NONCLUSTERED INDEX [IX_<name>] 
+ON [dbo].[OnlineCourses] ([<index-col-1>], [<index-col-2>]... [<index-call-N>]) 
+INCLUDE ([col-on-leaf-1], [col-on-leaf-2]... [col-on-leaf-N])
+
+------
+
 use [MHGradebook]
 
 

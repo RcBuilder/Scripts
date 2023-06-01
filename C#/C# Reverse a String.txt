@@ -1,0 +1,4 @@
+C# Reverse a String
+-------------------
+var value = "abc123";
+var reverse = new string(value.Reverse().ToArray()));  // 321cba

@@ -1,0 +1,45 @@
+OAuth 2.0 Basics
+----------------
+OAuth = Open Authorization
+
+about:
+get access to resources hosted by other web apps on behalf of a user.
+oauth 2.0 uses Access Token as part of each request. 
+oauth 2.0 supports scopes to limit an access to specific resources.
+the Authorization process usually contains a dedicated server to generate an Authorization code
+which later can be converted into an Access Token. 
+
+roles:
+- Resource Owner  
+  the resources provider
+
+- Client
+  the user requires access to the resources
+
+- Authorization Server
+  a dedicated server for authorization, generate authorization codes and access tokens.
+
+- Resource Server
+  a server to return resources
+
+grant Types:
+- Authorization Code
+  to get an authorization Code to exchange into access token.
+
+- Implicit
+  to get access token directly.
+
+- Authorization Code Grant with Proof Key for Code Exchange (PKCE)
+  similar to Authorization Code but with additional steps for extra security. 
+
+- Resource Owner Credentials Grant Type    
+
+- Client Credentials Grant Type
+  for non-interactive applications (automated processes, microservices, etc).
+  authenticated by client id and secret.
+
+- Device Authorization Flow
+  for smart TVs.
+
+- Refresh Token Grant
+  generate a token from Refresh Token.

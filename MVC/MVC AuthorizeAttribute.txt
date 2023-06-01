@@ -1,0 +1,37 @@
+MVC AuthorizeAttribute
+----------------------
+
+using System.Configuration;
+using System.Net;
+using System.Web;
+using System.Web.Mvc;
+
+public class APIAuthorization : AuthorizeAttribute
+    {
+        public override void OnAuthorization(AuthorizationContext filterContext)
+        {
+            var context = filterContext.RequestContext.HttpContext;
+            
+            // [AllowAnonymous]
+            if (filterContext.ActionDescriptor.IsDefined(typeof(AllowAnonymousAttribute), true)
+                || filterContext.ActionDescriptor.ControllerDescriptor.IsDefined(typeof(AllowAnonymousAttribute), true))
+            {                
+                return;
+            }
+
+            var apiKey = context.Request.Headers["Authorization"]?.Trim();
+            if (string.IsNullOrEmpty(apiKey) || apiKey != ConfigurationManager.AppSettings["ApiKey"]?.Trim())
+                throw new HttpException((int)HttpStatusCode.Unauthorized, "Unauthorized Access");            
+        }
+    }
+
+-
+
+POST /Avitanz/SyncDocuments
+H Authorization: <api-key>
+
+-
+
+[APIAuthorization]
+[HttpPost]
+public async Task<JsonResult> SyncDocuments() {...}

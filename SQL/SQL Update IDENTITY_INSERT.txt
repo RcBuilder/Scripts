@@ -1,0 +1,22 @@
+SQL Update IDENTITY_INSERT 
+--------------------------
+can't update an identity column - use insert+delete instead 
+see sample below:
+
+
+
+-- change organisation code
+
+DECLARE @ORG_CODE_SRC INT = 4101
+DECLARE @ORG_CODE_TRG INT = 4300
+
+SET IDENTITY_INSERT ORG ON
+
+INSERT INTO ORG
+([ORG_CODE], [ORG_NAME], [CONTACT], [ADRESS], [CITY_CODE], [PHONE], [CELL], [FAX], [EMAIL], [ZIP], [2DEL], [OSEK], [Hoz_ID])
+SELECT 
+@ORG_CODE_TRG, [ORG_NAME], [CONTACT], [ADRESS], [CITY_CODE], [PHONE], [CELL], [FAX], [EMAIL], [ZIP], [2DEL], [OSEK], [Hoz_ID] FROM ORG WHERE ORG_CODE = @ORG_CODE_SRC
+
+DELETE FROM ORG WHERE ORG_CODE = @ORG_CODE_SRC
+
+SET IDENTITY_INSERT ORG OFF

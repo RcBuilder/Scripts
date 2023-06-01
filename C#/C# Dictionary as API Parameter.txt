@@ -1,0 +1,37 @@
+C# Dictionary as API Parameter
+------------------------------
+POST http://localhost:59660/Avitanz/SyncDocumentsStatus
+H Content-Type: application/json
+{
+    "statuses": {
+        "1":true,
+        "2":false,
+        "3":true
+    }
+}
+
+-
+
+// response
+{
+    "result": "OK",
+    "details": "2 | 1"
+}
+
+-
+
+[HttpPost]
+public async Task<JsonResult> SyncDocumentsStatus(SyncDocumentsStatusRequest Request) {
+    var statuses = Request?.Statuses ?? new Dictionary<string, bool>();
+
+    return Json(new
+    {
+        result = "OK",
+        details = $"{statuses.Count(s => s.Value)} | {statuses.Count(s => !s.Value)}"
+    });
+}
+
+public class SyncDocumentsStatusRequest {
+    [JsonProperty(PropertyName = "statuses")]
+    public Dictionary<string, bool> Statuses { get; set; }
+}

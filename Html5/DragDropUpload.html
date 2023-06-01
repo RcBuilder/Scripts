@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            padding: 0px;
+            margin: 0px;
+            background-color: #f6f8fa;
+            font-size: 15px;
+            color: #000000;
+            font-family: Arial;
+            direction: rtl;
+        }        
+
+        .upload-files-page {
+            width: 100%;
+            max-width: 1000px;
+            margin: auto;
+            padding: 40px 20px;
+        }
+        .upload-files-page .file-upload-wrapper {
+            min-height: 400px;
+            border: dashed 6px #c8cace;
+            background-color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .upload-files-page .file-upload-wrapper.simple-upload-dragover {
+            background-color: #ededed;
+        }
+        .upload-files-page .file-upload-wrapper .upload-icon {
+            height: 150px;
+            background: url("/icons/upload-icon.png") no-repeat center center;
+            background-size: 150px 150px;
+        }
+        .upload-files-page .file-upload-wrapper .upload-text {
+            padding-top: 10px;
+            font-size: 45px;
+            color: #c8cace;
+        }
+        .upload-files-page .file-upload-wrapper .upload-or {
+            padding-top: 10px;
+            font-size: 35px;
+            color: #c8cace;
+        }
+        .upload-files-page .file-upload-wrapper .file-upload {
+            padding-top: 12px;           
+        }
+        .upload-files-page .file-upload-wrapper .file-upload input[type=file] {
+            display: none;
+        }
+        .upload-files-page .file-upload-wrapper .file-upload label {
+            display: inline-block;
+            vertical-align: middle;
+            width: 250px;
+            height: 60px;
+            background-color: #5A8DEE;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ffffff;
+            text-align: center;
+            padding-top: 14px;
+        }
+
+        #basic_message {
+            margin-top:20px;
+            background-color: #E74C3C;
+            border: none;
+            color: #fff;
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            border: 1px solid transparent;
+            border-radius: 0.25rem;
+        }    
+    </style>
+</head>
+<body>
+    <!--
+	Reference:
+        https://github.com/kanety/jquery-simple-upload
+        https://www.jqueryscript.net/form/drag-drop-upload.html
+        https://www.jqueryscript.net/demo/drag-drop-upload/
+    -->
+
+    <div class="upload-files-page">
+        <div class="file-upload-wrapper" id="basic_drop_zone">
+            <div class="upload-icon"></div>
+            <div class="upload-text"> Drag & Drop your files here </div>
+            <div class="upload-or"> or </div>
+            <div class="file-upload">
+                <input type="file" id="basic-file-upload" data-type="file" multiple="true" />
+                <label for="basic-file-upload">העלה קבצים</label>
+            </div>
+        </div>
+
+        <div id="basic_progress"></div>
+        <div id="basic_message"></div>
+    </div>
+
+    <script src="/scripts/jquery-3.6.3.min.js"></script>
+    <script src="/scripts/jquery-simple-upload.js"></script>
+    <script>
+        const CONFIG = {
+            SERVER: '/api/UploadFiles'
+        };
+
+        const uploader = $('#basic-file-upload').simpleUpload({
+            url: CONFIG.SERVER,
+            method: 'POST',
+            params: {},
+            ajax: {
+                headers: { 'X-Test': 'test' },
+                statusCode: {
+                    200: function () {
+                        console.log('success!');
+                    }
+                }
+            },
+            dropZone: '#basic_drop_zone',
+            progress: '#basic_progress'
+        });
+
+        uploader.on('upload:before', function (e, files) {
+            console.log('before');
+            console.log(files);
+        });
+
+        uploader.on('upload:after', function (e, files) {
+            console.log('after');
+            console.log(files);
+        });
+
+        uploader.on('upload:start', function (e, file, i) {
+            console.log('start ' + i);
+            console.log(file);
+        });
+
+        uploader.on('upload:progress', function (e, file, i, loaded, total) {
+            console.log('progress ' + i + ' ' + loaded + '/' + total);
+        });
+
+        uploader.on('upload:end', function (e, file, i) {
+            console.log('end ' + i);
+            console.log(file);
+        });
+
+        uploader.on('upload:done', function (e, file, i) {
+            console.log('done ' + i);
+            console.log(file);
+            $('#basic_message').prepend('<p>done: ' + file.name + '</p>');
+        });
+
+        uploader.on('upload:fail', function (e, file, i) {
+            console.log('fail ' + i);
+            console.log(file);
+            $('#basic_message').prepend('<p>fail: ' + file.name + '</p>');
+        });
+    </script>
+</body>
+</html>

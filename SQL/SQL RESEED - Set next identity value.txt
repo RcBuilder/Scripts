@@ -1,0 +1,8 @@
+SQL RESEED - Set next identity value
+------------------------------------
+
+select MAX(Bill_ID) FROM BILL
+DBCC checkident ('BILL', RESEED, 37395) -- set identity value
+
+select MAX(Bill_M_ID) FROM BILL_M
+DBCC checkident ('BILL_M', RESEED, 35550) -- set identity value

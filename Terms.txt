@@ -166,6 +166,7 @@
 * Gr8 = Great
 * LML = love my life
 * NTH = nice-to-have
+* FOMO = Fear of missing out
 
 (commands)
 * > TSC = TypeScript Compile

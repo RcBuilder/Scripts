@@ -1,0 +1,11 @@
+C# Environment Variables
+------------------------
+Windows > System Properties > Environment Variables
+
+-
+
+Environment.SetEnvironmentVariable("testVar1", "value1");
+Console.WriteLine(Environment.GetEnvironmentVariable("testVar1"));
+		
+Console.WriteLine(Environment.GetEnvironmentVariable("testVar2", EnvironmentVariableTarget.Machine)); // Machine OR User	
+Console.WriteLine(Environment.GetEnvironmentVariable("windir"));

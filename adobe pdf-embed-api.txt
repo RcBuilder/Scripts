@@ -1,0 +1,133 @@
+adobe pdf-embed-api
+-------------------
+adobe developer console:
+https://developer.adobe.com/console/home
+
+services:
+- pdf-embed-api
+
+sources:
+https://developer.adobe.com/apis
+https://developer.adobe.com/developer-console/docs/guides/getting-started/
+https://developer.adobe.com/developer-console/docs/guides/credentials/
+https://developer.adobe.com/document-services/apis/pdf-services/
+
+-- pdf-embed-api
+https://developer.adobe.com/document-services/docs/overview/pdf-embed-api/
+https://developer.adobe.com/document-services/docs/overview/pdf-embed-api/howtos/
+https://developer.adobe.com/document-services/docs/overview/pdf-embed-api/howtos_ui/
+
+token:
+- per domain
+- developer console
+
+samples:
+- see PDFViewer2.html
+
+---
+
+//  sample usage
+<div id="adobe-dc-view" data-file-name="Sample.pdf"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.slim.min.js" integrity="sha256-a2yjHM4jnF9f54xUQakjZGaqYs/V1CYvWpoqZzC2/Bw=" crossorigin="anonymous"></script>
+<script src="https://documentservices.adobe.com/view-sdk/viewer.js"></script>
+<script type="text/javascript">
+    const adobeViewer = $('#adobe-dc-view');
+
+    const previewConfig = {
+        embedMode: "FULL_WINDOW",
+        defaultViewMode: "FIT_PAGE"
+    }
+
+    document.addEventListener("adobe_dc_view_sdk.ready", function () {
+
+        let fileName = adobeViewer.attr('data-file-name');
+        let fileSrc = fileName == '' ? '' : `/Resources/${fileName}`;
+
+        var adobeDCView = new AdobeDC.View({
+            clientId: "efb02b9c0d024fe7908929a5d5416b51",
+            divId: "adobe-dc-view"
+        });
+
+        adobeDCView.previewFile({
+            content: {
+                location: {
+                    url: fileSrc
+                }
+            },
+            metaData: {
+                fileName: fileName
+            }
+        }, previewConfig);
+
+        // set zoom level to 130%
+        previewFilePromise.then(adobeViewer => {
+            adobeViewer.getAPIs().then(apis => {
+                    apis.getZoomAPIs().setZoomLevel(1.3)  // 130%
+                            .then(result => console.log(result))
+                            .catch(error => console.log(error));
+            });
+        });
+
+    });
+</script>
+
+---
+
+//  sample usage
+
+<div id="adobe-dc-view" data-file-name="<%=SelectedDoc %>"></div>
+<div id="adobe-dc-popup1-view" data-file-name="<%=SelectedDoc %>"></div>
+<div id="adobe-dc-popup2-view" data-file-name="<%=SelectedDoc %>"></div>
+
+
+<script src="https://documentservices.adobe.com/view-sdk/viewer.js"></script>
+<script type="text/javascript">        
+    document.addEventListener("adobe_dc_view_sdk.ready", function () {            
+        registerPdfReader('adobe-dc-view', "<%=ConfigurationManager.AppSettings["PDFReaderToken"]%>");
+        registerPdfReader('adobe-dc-popup1-view', "<%=ConfigurationManager.AppSettings["PDFReaderToken"]%>", 1);
+        registerPdfReader('adobe-dc-popup2-view', "<%=ConfigurationManager.AppSettings["PDFReaderToken"]%>", 0.8);
+    });
+
+    function registerPdfReader(readerId, token, zoomLevel = 1.5)
+    {
+        let adobeViewer = $('#' + readerId);
+
+        let fileName = adobeViewer.attr('data-file-name');
+        fileName = 'GI_207e4791-efa8-4dd1-a6f4-651360db733dBatch20996.pdf';
+        let fileSrc = fileName == '' ? '' : `../Images/Docs/${fileName}`;
+
+        const previewConfig = {
+            embedMode: "FULL_WINDOW",
+            defaultViewMode: "FIT_PAGE"
+        }
+            
+        var adobeDCView = new AdobeDC.View({
+            clientId: token,
+            divId: readerId
+        });
+
+        var previewFilePromise = adobeDCView.previewFile({
+            content: {
+                location: {
+                    url: fileSrc
+                }
+            },
+            metaData: {
+                fileName: fileName
+            }
+        }, previewConfig);
+
+        // set zoom level to 150%
+        previewFilePromise.then(adobeViewer => {
+            adobeViewer.getAPIs().then(apis => {
+                apis.getZoomAPIs().setZoomLevel(zoomLevel)  // 1.5 = 150%
+                    .then(result => console.log(result))
+                    .catch(error => console.log(error));
+            });
+        });
+
+        ///let wrapperHeight = $('#adobe-dc-view').closest('.card').css('height');
+        ///$('#adobe-dc-view').css('height', wrapperHeight);
+    }
+</script>

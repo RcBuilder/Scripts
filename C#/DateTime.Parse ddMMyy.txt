@@ -1,0 +1,9 @@
+DateTime.Parse ddMMyy
+---------------------
+var sValueDate = "140523";
+Console.WriteLine(sValueDate.Insert(2, "-").Insert(5, "-")); // 14-05-23
+
+-
+
+DateTime.Parse(sValueDate.Insert(2, "-").Insert(5, "-")); // OK
+DateTime.Parse(sValueDate); // Exception!!

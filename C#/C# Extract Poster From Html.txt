@@ -1,0 +1,92 @@
+C# Extract Poster From Html
+---------------------------
+
+// Install-Package MediaToolkit -Version 1.1.0.1
+// https://github.com/AydinAdn/MediaToolkit
+// MediaToolkit is a .NET wrapper for FFmpeg
+using MediaToolkit;
+using MediaToolkit.Model;
+using MediaToolkit.Options;
+
+private static Random rnd = new Random();
+public static string ExtractPosterFromHtml(string Body) {
+    var images = new List<string>();
+
+    // LOCAL METHODS
+    string ConvertExtensionToJPG(string path) {
+        return Regex.Replace(path, @"(\.\w{3,4})$", ".jpg");
+    }
+
+    void LoadPhotos() {
+        var pattern = "<img[^>]+src[\\s]*=[\\s]*[\"']([^\"']*?)[\"']";
+        var matches = Regex.Matches(Body, pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        if (matches.Count == 0) return;
+                
+        foreach (Match match in matches) {
+            try
+            {
+                var src = match.Groups[1].Value;
+                if (src.StartsWith("http"))
+                    images.Add(src);
+                else
+                    images.Add(Path.GetFileName(src));
+            }
+            catch { }
+        }                
+    }
+
+    void LoadVideoFrames() {
+        var pattern = @"<video.*\ssrc=""([^""]+\.\w{3,4})""";
+        var matches = Regex.Matches(Body, pattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        if (matches.Count == 0) return;
+
+        foreach (Match match in matches)
+        {
+            try
+            {
+                var vid_src = match.Groups[1].Value;
+                var videoPath = AppContext.BaseDirectory + vid_src.Replace("/", "\\");
+
+                var framePath = ConvertExtensionToJPG(videoPath);
+                var frame_src = ConvertExtensionToJPG(vid_src);
+
+                var outputFile = new MediaFile { Filename = framePath };
+                if (!File.Exists(framePath)) {
+                    var engine = new Engine();
+                    var inputFile = new MediaFile { Filename = videoPath };
+                    engine.GetMetadata(inputFile);
+                    double frameTime = inputFile.Metadata.Duration.TotalSeconds / 3;
+                    var options = new ConversionOptions { Seek = TimeSpan.FromSeconds(frameTime) };
+                    engine.GetThumbnail(inputFile, outputFile, options);
+                }
+
+                images.Add(Path.GetFileName(frame_src));
+            }
+            catch { }
+        }                                
+    }
+    // -------------
+
+    LoadPhotos();
+    if(images.Count == 0)
+        LoadVideoFrames();
+
+    return images.Count > 0 ? images[rnd.Next(0, images.Count)] : string.Empty;
+}
+
+--
+
+public string CheckExtractPoster() {
+    var poster = Helper.ExtractPosterFromHtml($@"
+        <div>
+            <img src=""/assets/images/posts/sample1.jpg"" />
+            <img src=""/assets/images/posts/sample2.jpg"" />
+            <img src=""/assets/images/posts/sample3.jpg"" />
+
+            <video controls controlslist=""nodownload"" src=""/assets/images/posts/sample1.mp4"">&nbsp;</video>
+            <video controls controlslist=""nodownload"" src=""/assets/images/posts/sample2.mp4"">&nbsp;</video>                    
+        </div>
+    ");
+
+    return poster;
+}

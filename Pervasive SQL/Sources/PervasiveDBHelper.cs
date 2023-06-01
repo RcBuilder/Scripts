@@ -202,5 +202,10 @@ namespace Helpers
                 return false;
             }
         }
+
+        public static string Reverse(string value) {
+            value = value ?? "";
+            return new string(value.Reverse().ToArray());
+        }
     }
 }

@@ -1,0 +1,64 @@
+XML to JSON & JSON to XML
+-------------------------
+var sXML = @"
+	<Books>
+		<Book>
+			<Id>1000</Id>
+			<Name>Book-A</Name>
+		</Book>
+		<Book>
+			<Id>1001</Id>
+			<Name>Book-B</Name>
+		</Book>
+		<Book>
+			<Id>1002</Id>
+			<Name>Book-C</Name>
+		</Book>
+	</Books>
+";
+
+// XML-2-JSON
+var docIn = new XmlDocument();
+docIn.LoadXml(sXML);
+var sJson = JsonConvert.SerializeXmlNode(docIn);
+Console.WriteLine(sJson);
+/*
+	{
+	  "Books": {
+	    "Book": [
+	      {
+	        "Id": "1000",
+	        "Name": "Book-A"
+	      },
+	      {
+	        "Id": "1001",
+	        "Name": "Book-B"
+	      },
+	      {
+	        "Id": "1002",
+	        "Name": "Book-C"
+	      }
+	    ]
+	  }
+	}
+*/
+
+// JSON-2-XML
+var docOut = JsonConvert.DeserializeXmlNode(sJson);
+Console.WriteLine(docOut);
+/*
+	<Books>
+	   <Book>
+	      <Id>1000</Id>
+	      <Name>Book-A</Name>
+	   </Book>
+	   <Book>
+	      <Id>1001</Id>
+	      <Name>Book-B</Name>
+	   </Book>
+	   <Book>
+	      <Id>1002</Id>
+	      <Name>Book-C</Name>
+	   </Book>
+	</Books>
+*/

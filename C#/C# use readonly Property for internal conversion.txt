@@ -1,0 +1,51 @@
+C# use readonly Property for internal conversion
+------------------------------------------------
+...
+...
+
+[JsonProperty(PropertyName = "Column13")]
+public string sSumDebit1 { get; set; } 
+public float SumDebit1 { 
+        get {
+            float converted;
+            return float.TryParse(this.sSumDebit1, out converted) ? converted : 0;
+        } 
+}
+
+...
+...
+
+[JsonProperty(PropertyName = "Column5")]
+public string sAsmacDate { get; set; }
+public DateTime AsmacDate {
+        get {
+            DateTime converted;
+            return DateTime.TryParse(this.sAsmacDate, out converted) ? converted : DateTime.Now;
+        }
+}
+
+...
+...
+
+[JsonProperty(PropertyName = "Column9")]
+public string sAccountDebit1 { get; set; }
+public int AccountDebit1 {
+        get {
+            int converted;
+            return int.TryParse(this.sAccountDebit1, out converted) ? converted : 0;
+        }
+}
+
+...
+...
+
+-
+
+m.sSumDebit1 // returns string 
+m.SumDebit1  // returns converted as float
+
+m.sAsmacDate // returns string 
+m.AsmacDate  // returns converted as DateTime
+
+m.sAccountDebit1 // returns string 
+m.AccountDebit1  // returns converted as int

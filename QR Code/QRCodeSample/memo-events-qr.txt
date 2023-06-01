@@ -1,0 +1,117 @@
+
+// GenerateAlbumQRCode.cshtml
+// View
+<section id="gla_content" class="gla_content mb-20">        
+    <div class="container m-auto qr-page">
+        @QRHelper.RenderQRImage(ViewBag.img1, Model)
+        @QRHelper.RenderQRImage(ViewBag.img2, Model, "#A020F0")
+        @QRHelper.RenderQRImage(ViewBag.img3, Model, "#D21312")
+        @QRHelper.RenderQRImage(ViewBag.img4, Model, "#3AB0FF")
+    </div>
+</section>
+
+---
+
+// App_Code/QRHelper.cshtml
+// global helper
+@helper RenderQRImage(string QRUrl, Entities.Account Profile, string Color = "000000")
+{
+    <div>
+        <div class="header">
+            <div class="share">
+                <a href="#" class="gla_post_more_link" data-toggle="dropdown" aria-expanded="false">
+                    <i class="ti ti-sharethis" style="color: @Color"></i>
+                </a>
+                <ul class="gla_post_more_social_menu dropdown-menu dropdown-menu-right" role="menu">
+                    <li><a href="https://www.facebook.com/sharer/sharer.php?u=https://memo-events.co.il/profile/@(Profile.Id)" id="facebook-btn" title="@(Profile.Name)" target="_share"><i class="ti ti-facebook"></i></a></li>
+                    <li><a href="https://twitter.com/share?url=https://memo-events.co.il/profile/@(Profile.Id)&text=@(Profile.Name)" id="twitter-btn" title="@(Profile.Name)" target="_share"><i class="ti ti-twitter"></i></a>
+                    <li><a href="https://www.instagram.com/?url=https://memo-events.co.il/profile/@(Profile.Id)" id="instagram-btn" title="@(Profile.Name)" target="_share"><i class="ti ti-instagram"></i></a>
+                </ul>
+            </div>
+            <h3 style="color: @Color">@Profile.Name</h3>
+        </div>
+        <img src="@QRUrl" title="@Profile.Name">
+        <a class="download" style="color: @Color" href="@QRUrl" download>הורדה</a>
+    </div>
+}
+
+---
+
+// CSS
+.qr-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+}
+.qr-page > div {
+    margin-top: 40px;
+    text-align: center;
+}
+.qr-page > div .header {
+    position: relative;
+}
+.qr-page > div img {
+    width: 300px;
+    height: auto;
+}
+.qr-page > div .share {
+    display: inline-block;
+    transform: translateY(20px);
+}
+.qr-page > div h3 {
+    margin: 0;
+    padding: 0;
+    display: inline-block;
+    transform: translateY(20px);
+}
+.qr-page > div .download {
+    font-size: 13px;
+    font-weight: bold;
+    display: block;
+    transform: translateY(-20px);
+}
+
+---
+
+
+[HttpGet]
+public async Task<ActionResult> GenerateAlbumQRCode()
+{
+    var active = SessionsManager.GetManager(System.Web.HttpContext.Current);
+    var account = await new AccountsBLL().Get(active.SelectedAccountId);
+
+    var url = "https://memo-events.co.il/profile/" + active.SelectedAccountId;
+
+    string fileName1 = get_QR_file(1, account, url, "#000000", "#FFFFFF");
+    string fileName2 = get_QR_file(2, account, url, "#A020F0", "#FFFFFF");
+    string fileName3 = get_QR_file(3, account, url, "#D21312", "#FFFFFF");
+    string fileName4 = get_QR_file(4, account, url, "#3AB0FF", "#FFFFFF");
+
+    ViewBag.url = url;
+    ViewBag.img1 = "/assets/images/qr/" + fileName1;
+    ViewBag.img2 = "/assets/images/qr/" + fileName2;
+    ViewBag.img3 = "/assets/images/qr/" + fileName3;
+    ViewBag.img4 = "/assets/images/qr/" + fileName4;
+
+    return View(account);
+}
+
+private static string get_QR_file(int index, Account account, string url, string darkColorHtmlHex, string lightColorHtmlHex)
+{
+    string fileName;
+    var payload = new PayloadGenerator.Url(url);
+    var qrCodeData = new QRCodeGenerator().CreateQrCode(payload, QRCodeGenerator.ECCLevel.Q);
+    var qrCode = new QRCode(qrCodeData);
+    var qrCodeImage = qrCode.GetGraphic(20, darkColorHtmlHex, lightColorHtmlHex);
+
+    fileName = string.Concat(account.Id + " " + index, ".jpg"); // Guid.NewGuid().ToString().Replace("-", string.Empty)
+
+    var folder = HelperBLL.POSTS_QRIMAGES_FOLDER;
+    if (!Directory.Exists(folder))
+        Directory.CreateDirectory(folder);
+
+    var filePath = string.Concat(folder, "\\", fileName);
+
+    qrCodeImage.Save(filePath, System.Drawing.Imaging.ImageFormat.Jpeg);
+    return fileName;
+}

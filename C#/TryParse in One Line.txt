@@ -1,0 +1,9 @@
+TryParse in One Line
+--------------------
+
+// accountId = 1234
+// TryParse = trueint accountId = int.TryParse("1234", out accountId) ? accountId : 0;
+
+// accountId = 0
+// TryParse = false
+int accountId = int.TryParse("abcd", out accountId) ? accountId : 0;
