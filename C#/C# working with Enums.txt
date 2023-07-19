@@ -1,0 +1,98 @@
+C# working with Enums 
+---------------------
+
+ePaymentType paymentType;
+var success = Enum.TryParse("Cash".Trim(), true, out paymentType);
+Console.WriteLine(paymentType);
+
+-
+	
+var list = Enum.GetValues(typeof(ePaymentType)).Cast<ePaymentType>().ToList();
+Console.WriteLine(list);
+
+-
+
+var list = Enum.GetValues(typeof(ePaymentType)).Cast<ePaymentType>().ToList();
+var match = list.SingleOrDefault(x => string.Equals(x.GetDescription(), KupaName.Trim(), StringComparison.OrdinalIgnoreCase));
+Console.WriteLine((int)match);
+
+-----
+
+public enum ePaymentType{       
+    [Description("ללא")]
+        NULL,
+        [Description("המחאה")]
+        Paycheck,
+        [Description("לא סחיר")]
+        NonTradable,
+        [Description("מזומן")]
+        Cash,
+        [Description("ויזה")]
+        Visa,
+        [Description("לאומי קארד")]
+        LeumiCard,
+        [Description("אמריקן אקס")]
+        AmericanExpress,
+        [Description("ישרכרט")]
+        IsraCard,
+        [Description("מסטרכרט")]
+        MasterCard,
+        [Description("יורוכרט")]
+        EuroCard,
+        [Description("דיינרס")]
+        Diners,
+        [Description("ויזה כאל")]
+        VisaCal,
+        [Description("העברה בנקאית")]
+        BankTransfer,
+        [Description("ה.בנקאית")]
+        BankDeposit,
+        [Description("ביט")]
+        Bit,
+        [Description("אחר")]
+        Other
+}
+
+
+-----
+
+public static class Extensions
+    {
+        public static string GetDescription(this Enum me)
+        {
+            var enumItem = me.GetType().GetMember(me.ToString())[0];
+            var descriptionAttribute = enumItem.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (descriptionAttribute == null || descriptionAttribute.Length == 0)
+                return string.Empty;
+            return ((DescriptionAttribute)descriptionAttribute[0]).Description;
+        }
+
+        public static T ToEnum<T>(this string me) where T : struct { // constraint
+            try
+            {
+                if (!typeof(T).IsEnum)
+                    throw new ArgumentException("T is not an ENUM!");
+                return (T)Enum.Parse(typeof(T), me, true);
+            }
+            catch
+            {
+                return default(T); // item 0
+            }
+        }
+
+        public static object ReadOrDefault<T>(this OdbcDataReader me, string columnName) 
+        {
+            try {
+                /*
+				    /// var typeT = typeof(T);
+				    /// if(typeT.IsPrimitive || typeT == typeof(string)) ...
+				    return (T)Convert.ChangeType(me[columnName], typeof(T));
+			    */
+
+                return me[columnName];
+            }
+            catch {
+                return default(T);
+            }
+        }
+    }

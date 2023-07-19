@@ -1,0 +1,16 @@
+Entity Framework EF - Disbale/Enable LazyLoading
+------------------------------------------------
+EF uses lazy loading to fetch the data, 
+once connection is closed (also by using statement) - the data is NOT reachable!
+
+// disable 'LazyLoadingEnabled' feature of the context configuration
+using (var context = new Entities.OpenBookDBContext()) {
+	context.Configuration.LazyLoadingEnabled = false;
+	...
+	...
+}
+
+
+also see:
+Entity Framework EF - Disposed Context BugFix
+

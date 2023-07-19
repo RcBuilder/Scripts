@@ -1,0 +1,72 @@
+EntityFramework EF - Execute SP 
+-------------------------------
+// Using Loader Method 
+using (var context = new Entities.OpenBookDBContext())
+{
+    context.Configuration.LazyLoadingEnabled = false;
+
+    var cmd = context.Database.Connection.CreateCommand();
+    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+    cmd.CommandText = "[dbo].[sp_OnlineCourses_Get]";
+
+    context.Database.Connection.Open();
+
+    var reader = cmd.ExecuteReader();
+    return LoadOnlineCourses(reader, context);
+}
+
+
+private static IEnumerable<Entities.OnlineCourse> LoadOnlineCourses(DbDataReader reader, Entities.OpenBookDBContext context) {
+    var onlineCourses = ((IObjectContextAdapter)context).ObjectContext.Translate<Entities.OnlineCourse>(reader, "OnlineCourses", MergeOption.AppendOnly).ToList();
+
+    reader.NextResult();
+    var onlineChapters = ((IObjectContextAdapter)context).ObjectContext.Translate<Entities.OnlineChapter>(reader, "OnlineChapters", MergeOption.AppendOnly).ToList();
+
+    reader.NextResult();
+    var onlineMovies = ((IObjectContextAdapter)context).ObjectContext.Translate<Entities.OnlineMovie>(reader, "OnlineMovies", MergeOption.AppendOnly).ToList();
+
+    reader.NextResult();
+    var categories = ((IObjectContextAdapter)context).ObjectContext.Translate<Entities.Category>(reader, "Categories", MergeOption.AppendOnly).ToList();
+
+    reader.NextResult();
+    var sections = ((IObjectContextAdapter)context).ObjectContext.Translate<Entities.Section>(reader, "Sections", MergeOption.AppendOnly).ToList();
+
+    reader.NextResult();
+    var universities = ((IObjectContextAdapter)context).ObjectContext.Translate<Entities.University>(reader, "Universities", MergeOption.AppendOnly).ToList();
+
+    reader.NextResult();
+    var onlineCourseChapters = ((IObjectContextAdapter)context).ObjectContext.Translate<Entities.OnlineCourseChapter>(reader).ToList();
+
+    reader.NextResult();
+    var onlineChapterMovies = ((IObjectContextAdapter)context).ObjectContext.Translate<Entities.OnlineChapterMovie>(reader).ToList();
+
+    context.Database.Connection.Close();
+
+    if (onlineCourses == null) return null;
+
+    foreach (var onlineCourse in onlineCourses)
+    {
+        var chaptersMapIds = onlineCourseChapters.Where(x => x.OnlineCourseId == onlineCourse.Id).Select(x => x.OnlineChapterId).ToList();
+        onlineCourse.OnlineChapters = onlineChapters.Where(x => chaptersMapIds.Contains(x.Id)).ToList();
+        if (onlineCourse.OnlineChapters != null)
+        {
+            foreach (var chapter in onlineCourse.OnlineChapters)
+            {
+                var moviesMapIds = onlineChapterMovies.Where(x => x.OnlineChapterId == chapter.Id).Select(x => x.OnlineMovieId).ToList();
+                chapter.OnlineMovies = onlineMovies.Where(x => moviesMapIds.Contains(x.Id)).ToList();
+            }
+        }
+    }
+
+    return onlineCourses;
+}
+
+----
+
+// With Parameters
+cmd.Parameters.Add(new SqlParameter {
+                    ParameterName = "Id", 
+                    DbType = DbType.Int32,
+                    Direction = ParameterDirection.Input,
+                    Value = Id            
+                });

@@ -1,0 +1,25 @@
+C# ShuffleList
+--------------
+var list = new List<string>{ "A", "B", "C", "D" };
+
+Console.WriteLine(string.Join("|", list));
+ShuffleList(ref list);
+Console.WriteLine(string.Join("|", list));
+ShuffleList(ref list);
+Console.WriteLine(string.Join("|", list));
+
+---
+
+private static Random RND = new Random();
+public static void ShuffleList(ref List<string> list)
+{
+    int n = list.Count;
+    while (n > 1)
+    {
+        n--;
+        int k = RND.Next(n + 1);
+        string value = list[k];
+        list[k] = list[n];
+        list[n] = value;
+    }                                
+}

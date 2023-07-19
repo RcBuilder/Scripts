@@ -1,52 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Text;
-using System.Text.RegularExpressions;
+C# Extract Poster From sHtml
+----------------------------
 
-// Install-Package MediaToolkit -Version 1.1.0.1
-using MediaToolkit;
-using MediaToolkit.Model;
-using MediaToolkit.Options;
-
-namespace Common
-{
-    public class Helper
-    {
-        private static readonly string FFMPEG_PATH =  $"{AppDomain.CurrentDomain.BaseDirectory}assets/ffmpeg/ffmpeg.exe";
-        private static readonly Random RND = new Random();
-
-        #region Time2Seconds:
-        /// <summary>
-        /// convert time to seconds
-        /// </summary>
-        /// <param name="time">FORMAT HH:mm:ss</param>
-        /// <returns>seconds</returns>
-        public static int Time2Seconds(string time) // FORMAT HH:mm:ss
-        {
-            var pattern = @"^(?<H>\d{2})\:(?<M>\d{2})\:(?<S>\d{2})$"; // e.g: 00:02:05
-            var match = Regex.Match(time, pattern);
-            if (match == null) return 0;
-            return Convert.ToByte(match.Groups["S"].Value) + (Convert.ToByte(match.Groups["M"].Value) * 60 /*MINUTE*/) + (Convert.ToByte(match.Groups["H"].Value) * 3600 /*HOUR*/);
-        }
-        #endregion
-
-        #region Html2String:
-        public static string Html2String(string filePath)
-        {
-            return Html2String(filePath, Encoding.UTF8);
-        }
-        public static string Html2String(string filePath, Encoding encoding)
-        {
-            if (filePath == string.Empty) return string.Empty;
-            using (var sr = new StreamReader(filePath, encoding))
-                return sr.ReadToEnd();
-        }
-        #endregion
-
-        #region ExtractPosterFromHtml:
-        public static string ExtractPosterFromHtml(string Body, string folder)
+public static string ExtractPosterFromHtml(string Body, string folder)
         {
             var images = new List<string>();
 
@@ -132,6 +87,3 @@ namespace Common
                 return string.Empty;
             }
         }
-        #endregion
-    }
-}

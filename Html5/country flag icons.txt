@@ -1,0 +1,16 @@
+country flag icons
+------------------
+<img src="https://dyclassroom.com/image/flags/co.png" alt="Colombia" title="Colombia" />
+<img src="https://dyclassroom.com/image/flags/fr.png" alt="France" title="France" />
+<img src="https://dyclassroom.com/image/flags/tr.png" alt="Turkey" title="Turkey" />
+<img src="https://dyclassroom.com/image/flags/il.png" alt="Israel" title="Israel" />
+
+-
+
+let flags = new Map([...document.querySelectorAll('img[src^="https://dyclassroom.com/image/flags/"]')].map(e => [e.getAttribute('src').replace('https://dyclassroom.com/image/flags/', ''), e.getAttribute('title')]))
+
+// output
+{"co.png" => "Colombia"}
+{"fr.png" => "France"}
+{"tr.png" => "Turkey"}
+{"il.png" => "Israel"}

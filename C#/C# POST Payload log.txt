@@ -1,0 +1,66 @@
+C# POST Payload log 
+-------------------
+
+// form payload
+var payload = "";
+using (var stream = await Request.Content.ReadAsStreamAsync()) {
+    stream.Seek(0, SeekOrigin.Begin);
+    using (var sr = new StreamReader(stream))
+        payload = sr.ReadToEnd();
+}
+
+---
+
+[HttpPost]
+public async Task<TwiMLResult> Index(SmsRequest request, int numMedia)
+{
+	/* DUMP */
+	// log payload
+	try
+	{
+		if (!Directory.Exists(PAYLOADS_FOLDER))
+                    Directory.CreateDirectory(PAYLOADS_FOLDER);
+
+                var dump = new {
+                    request,
+                    numMedia,
+                    formKeys = string.Join(",", Request.Form.AllKeys)
+                };
+
+                var logId = Guid.NewGuid();
+                File.WriteAllText($"{PAYLOADS_FOLDER}_IN_{logId}.txt", JsonConvert.SerializeObject(dump));
+	}
+	catch { }
+
+	...
+	...
+}
+
+---
+
+[HttpPost]
+[Route("konimbo/hook")]
+public async Task<HttpResponseMessage> KonimboOrderAfterPaymentHook(KonimboHookRequest HookData)
+{            
+	/* DUMP */
+	// log payload
+	try
+	{
+        	if (!Directory.Exists(PAYLOADS_FOLDER))
+            		Directory.CreateDirectory(PAYLOADS_FOLDER);
+
+        	var payload = "";
+        	using (var stream = await Request.Content.ReadAsStreamAsync())
+        	{
+            		stream.Seek(0, SeekOrigin.Begin);
+            		using (var sr = new StreamReader(stream))
+                		payload = sr.ReadToEnd();
+        	}
+
+        	File.WriteAllText($"{PAYLOADS_FOLDER}{orderId}_{Guid.NewGuid()}.txt", payload);
+    	}
+    	catch { }
+
+    	...
+    	...
+}

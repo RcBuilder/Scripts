@@ -1,0 +1,57 @@
+ENUM Description Extension
+--------------------------
+
+var paymentType = ePaymentType
+var desc = ((ePaymentType)paymentType).GetDescription();
+
+---
+
+public static class Extensions
+    {
+        public static string GetDescription(this Enum me)
+        {
+            var enumItem = me.GetType().GetMember(me.ToString())[0];
+            var descriptionAttribute = enumItem.GetCustomAttributes(typeof(DescriptionAttribute), false);
+            if (descriptionAttribute == null || descriptionAttribute.Length == 0)
+                return string.Empty;
+            return ((DescriptionAttribute)descriptionAttribute[0]).Description;
+        }        
+    }
+
+---
+
+public enum ePaymentType
+    {
+        [Description("ללא")]
+        NULL,
+        [Description("המחאה")]
+        Paycheck,
+        [Description("לא סחיר")]
+        NonTradable,
+        [Description("מזומן")]
+        Cash,
+        [Description("ויזה")]
+        Visa,
+        [Description("לאומי קארד")]
+        LeumiCard,
+        [Description("אמריקן אקס")]
+        AmericanExpress,
+        [Description("ישרכרט")]
+        IsraCard,
+        [Description("מסטרכרט")]
+        MasterCard,
+        [Description("יורוכרט")]
+        EuroCard,
+        [Description("דיינרס")]
+        Diners,
+        [Description("ויזה כאל")]
+        VisaCal,
+        [Description("העברה בנקאית")]
+        BankTransfer,
+        [Description("ה.בנקאית")]
+        BankDeposit,
+        [Description("ביט")]
+        Bit,
+        [Description("אחר")]
+        Other
+    }

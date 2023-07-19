@@ -1,0 +1,16 @@
+C# DateTime TryParse with CultureInfo
+-------------------------------------
+
+[JsonProperty(PropertyName = "extra_field_date")]
+public string sDate { get; set; }            
+public DateTime Date {
+	get {
+		DateTime converted;
+		return DateTime.TryParse(
+			this.sDate, 
+			CultureInfo.GetCultureInfo("he-IL"), 
+			DateTimeStyles.None, 
+			out converted
+		) ? converted : DateTime.Now;
+	}
+}

@@ -1,0 +1,14 @@
+Css NOT
+-------
+:not(<selector>)
+
+--
+
+input:not([type='checkbox']):not([type='radio']), select, textarea {
+    padding: 10px;
+    width: 80%;
+    border-radius: 5px;
+    border-color: #be912c;
+    margin: 15px 15px 15px 15px;
+    color: #be912c;
+}

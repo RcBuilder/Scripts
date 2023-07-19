@@ -1,0 +1,42 @@
+MVC JsonResult maxJsonLength
+----------------------------
+
+syntax:
+var jsonResult = Json(<model>, JsonRequestBehavior.AllowGet);
+jsonResult.MaxJsonLength = int.MaxValue;
+return jsonResult;
+
+---
+
+json length exception:
+
+// error message
+Error during serialization or deserialization using the JSON JavaScriptSerializer. 
+The length of the string exceeds the value set on the maxJsonLength property
+
+// doesn't work!
+<system.web.extensions>
+    <scripting>
+      <webServices>
+        <jsonSerialization maxJsonLength="2147483647"/>
+      </webServices>
+    </scripting>
+</system.web.extensions>
+
+// works! 
+jsonResult.MaxJsonLength = int.MaxValue;
+
+---
+
+sample:
+public async Task<JsonResult> SyncDocuments(){
+	...
+	...
+	...
+	
+	var jsonResult = Json(new SyncDocumentsResponse(result), JsonRequestBehavior.AllowGet);
+	jsonResult.MaxJsonLength = int.MaxValue;
+	return jsonResult;
+
+	/// return Json(new SyncDocumentsResponse(result));  // exception
+}

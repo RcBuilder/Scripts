@@ -1,0 +1,33 @@
+feather icons
+-------------
+
+sources:
+https://github.com/feathericons/feather
+https://feathericons.com
+
+script:
+<script src="https://unpkg.com/feather-icons"></script>
+-OR-
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+
+-
+
+(steps)
+1. include a reference to the feather-icons script
+2. add feather.replace() on page load
+3. use icons using the data-feather attribute 
+
+-
+
+using:
+
+<i data-feather="circle"></i>
+
+<script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+<script>
+  $(document).ready(function () {
+      // feather icons - data-feather attributes
+      feather.replace();
+  });
+</script>

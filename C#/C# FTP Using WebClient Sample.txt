@@ -1,0 +1,15 @@
+C# FTP Using WebClient
+----------------------
+
+using (var client = new WebClient()) {
+	client.Credentials = new NetworkCredential("<user>", "<password>");
+	client.UploadFile($"<ftp-server>/{dest-file-name}", WebRequestMethods.Ftp.UploadFile, <src-file-path>);
+}
+
+--
+
+// sample
+using (var client = new WebClient()) {
+	client.Credentials = new NetworkCredential("xxxxxx", "xxxxxxx");
+	client.UploadFile($"ftp://62.219.222.111:4433/1.pdf", WebRequestMethods.Ftp.UploadFile, "d:\\1.pdf");
+}

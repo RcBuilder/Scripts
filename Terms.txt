@@ -117,6 +117,7 @@
 * CDC = Centers for Disease Control and Prevention
 
 * VPC = Virtual Private Cloud
+* WAF = Web Application Firewall
 
 (marketing)
 * CPC = Cost per Click
@@ -128,6 +129,7 @@
 * SKAG = Single Keyword Ad Groups
 * SQR = Search Query Report
 * ROAS - Return On Advertising Spend
+* SMB = Small/Medium-sized Businesses
 
 * GDN - Google Display Network (google engine to present your ads in other websites)
 
@@ -141,6 +143,7 @@
 * אמל"ק = ארוך מדיי לא קראתי
 * רבש"ץ = רכז ביטחון שוטף צבאי
 * חזל"ש = חזרה לשִגרה
+* הפס"ד = הפרת סדר
 
 * LINQ = Language Integrated Query
 * PLINQ = Parallel LINQ

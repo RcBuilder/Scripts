@@ -1,0 +1,56 @@
+C# POST T using WebClient 
+-------------------------
+
+private WebClient client { get; set; } = new WebClient {
+            Proxy = null,
+            Encoding = Encoding.UTF8
+        };
+
+private (bool Success, HttpStatusCode StatusCode, string Content) POST<T>(string URL, T Payload, string PayloadMode = "JSON" /*JSON|DATA*/, string Method = "POST", string QueryString = null, Dictionary<string, string> Headers = null) {
+            try
+            {
+                client.Headers.Clear();
+                if (Headers != null)
+                    foreach (var header in Headers)
+                        client.Headers.Add(header.Key, header.Value);
+
+                if (!string.IsNullOrEmpty(QueryString))
+                    URL = string.Concat(URL, "?", QueryString);
+
+                string response = null;
+
+                // as form-variables (aka post-data)
+                if (PayloadMode == "DATA")
+                {
+                    response = Encoding.UTF8.GetString(client.UploadData(URL, Method, Encoding.UTF8.GetBytes(Payload.ToString())));
+                }
+                else // as json payload                
+                {
+                    var payloadType = Payload.GetType();
+                    string sPayload;
+                    if (payloadType.IsPrimitive || payloadType == typeof(System.String))
+                        sPayload = Payload.ToString();
+                    else
+                        sPayload = JsonConvert.SerializeObject(Payload);
+
+                    response = client.UploadString(URL, Method, sPayload);
+                }
+
+                return (true, HttpStatusCode.OK, response);
+            }
+            catch (WebException ex)
+            {
+                var webRespEX = ((HttpWebResponse)ex.Response);
+                var statusCode = webRespEX?.StatusCode ?? HttpStatusCode.BadRequest;
+
+                var stream = ex?.Response?.GetResponseStream();
+                if (stream == null) return (false, statusCode, $"{ex.Message}");
+
+                using (var reader = new StreamReader(stream))
+                    return (false, statusCode, $"{ex.Message} | {reader.ReadToEnd()}");
+            }
+            catch (Exception ex)
+            {
+                return (false, HttpStatusCode.BadRequest, ex.Message);
+            }
+        }

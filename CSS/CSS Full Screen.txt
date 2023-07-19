@@ -1,0 +1,43 @@
+CSS Full Screen
+---------------
+
+reference:
+see 'javascript SlideTo animation'
+see 'CssFullscreen.html'
+
+-----
+
+-- CSS --
+:root {
+    --bg-color: red;
+}
+
+.page {
+    background: var(--bg-color);
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 50px;
+}
+
+-- HTML --
+<div class="page" page-num="1">
+    PAGE-1
+</div>
+<div class="page" page-num="2" style="--bg-color: green;">
+    PAGE-2
+</div>
+<div class="page" page-num="3" style="--bg-color: blue;">
+    PAGE-3
+</div>
+<div class="page" page-num="4" style="--bg-color: black;">
+    PAGE-4
+</div>
+<div class="page" page-num="5" style="--bg-color: purple;">
+    PAGE-5
+</div>
+<div class="page" page-num="6" style="--bg-color: brown;">
+    PAGE-6
+</div>

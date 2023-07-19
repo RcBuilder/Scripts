@@ -1,0 +1,79 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style type="text/css">
+        :root {
+          --bg-color: red;
+        }
+        
+        .page {
+          background: var(--bg-color);
+          height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          font-size: 50px;
+        }
+
+        #btnNextPage {
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+            border: none;
+            background-color: #fff;
+            border-radius: 50%;
+            height: 100px;
+            width: 100px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <button id="btnNextPage">NEXT</button>
+
+    <div class="page" page-num="1">
+        PAGE-1
+    </div>
+    <div class="page" page-num="2" style="--bg-color: green;">
+        PAGE-2
+    </div>
+    <div class="page" page-num="3" style="--bg-color: blue;">
+        PAGE-3
+    </div>
+    <div class="page" page-num="4" style="--bg-color: black;">
+        PAGE-4
+    </div>
+    <div class="page" page-num="5" style="--bg-color: purple;">
+        PAGE-5
+    </div>
+    <div class="page" page-num="6" style="--bg-color: brown;">
+        PAGE-6
+    </div>
+
+    <script>
+        // [(page, num)]
+        const pages = [...document.querySelectorAll('[page-num]')].map(p => {
+            return {
+                page: p,
+                num: p.getAttribute('page-num')
+            };
+        });
+
+        const btnNextPage = document.querySelector('#btnNextPage');
+        let current = 0;
+        btnNextPage.addEventListener('click', () => {
+
+            current++;
+            if (pages.length == current) current = 0;
+
+            let top = pages[current].page.offsetTop;
+            window.scrollTo({ top: top, behavior: "smooth" })
+        });
+
+    </script>
+</body>
+</html>

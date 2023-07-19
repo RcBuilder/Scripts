@@ -1,0 +1,19 @@
+Entity Framework EF - Disposed Context BugFix
+---------------------------------------------
+error:
+The ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
+
+cause:
+EF uses lazy loading to fetch the data, once connection is closed (also by using statement) - the data is NOT reachable!
+
+solution:
+disable 'LazyLoadingEnabled' feature of the context configuration
+
+code:
+using (var context = new Entities.OpenBookDBContext()) {
+	context.Configuration.LazyLoadingEnabled = false;
+	...
+	...
+}
+
+
