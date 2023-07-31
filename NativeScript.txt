@@ -2999,7 +2999,7 @@ JS Modules
   params.push('origin='+fromAddress);
   params.push('destination='+toAddress);
   params.push('mode='+'driving');
-  params.push('key='+'AIzaSyBhVm2XXfP9BWKX6oTaBmMEig1Jw1J0m5U');
+  params.push('key='+'xxxxxxxxxxxxxxxxxxx');
   
   var query = '?' + params.join('&');
   var endpoint = 'https://maps.googleapis.com/maps/api/directions/json' + query;
