@@ -1,0 +1,35 @@
+CSS aspect-ratio - match height as width
+----------------------------------------
+
+#album-content {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-content: space-between;
+    align-items: center;
+    grid-gap: 4px;
+}
+@media (max-width: 468px) {
+    #album-content {        
+        grid-gap: 2px;
+    }
+}
+
+.post_item.mini img {
+    width: 100%;
+    aspect-ratio: 1 / 1;  /* match height as width */
+}
+
+-
+
+<div id="album-content">        
+        @foreach (var post in Model) {
+            @Html.Partial("Partial/PostGallery", post)
+        }
+</div>
+
+// Partial/PostGallery
+<div class="post_item mini">
+    <a href="/post/@Model.Id" title="@Model.Title">
+        <img src="~/assets/images/posts/@(post.PhotoOrDefault)" alt="@post.Title" class="fluid img-thumbnail" />
+    </a>
+</div>

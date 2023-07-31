@@ -1,0 +1,658 @@
+
+/*
+   range:
+   <value> = 0 - 1
+   
+   syntax:
+   top-<value>
+   top-abs-<value>
+ 
+   e.g:
+   top-0.83
+   top-abs-0.7
+*/
+
+var config = {};
+config['default'] = { 
+  maxBid: 3.00, 
+  minBid: 0.15, 
+  firstPageMaxBid: 0.90, 
+  useFirstPageBidsOnKeywordsWithNoImpressions: true, 
+  bidIncreaseProportion: 0.2,
+  bidDecreaseProportion: 0.2,
+  targetPositionTolerance: 0.05
+};
+
+config['325-081-1984‬'] = { 
+  maxBid: 9.00, 
+  minBid: 3.01,
+  targetPositionTolerance: 0.25,
+  firstPageMaxBid: 9.90,
+};
+config['503-692-6663‬‬'] = { 
+  maxBid: 22.00, 
+  minBid: 3.01,
+  targetPositionTolerance: 0.25,
+  firstPageMaxBid: 22.90,
+};
+config['350-440-3925'] = { 
+  maxBid: 22.00, 
+  minBid: 3.01,
+  targetPositionTolerance: 0.25,
+  firstPageMaxBid: 22.90,
+};
+var dataFile = "AveragePositionDataMcc.txt";
+
+function main() 
+{    
+    /// https://developers.google.com/google-ads/api/fields/v14/keyword_view#keyword_view
+    /// https://cloud.google.com/bigquery/docs/google-ads-transformation
+    /*
+    var report = AdWordsApp.report(
+      'SELECT keyword_view.resource_name, ad_group.id, ad_group.name, campaign.name, metrics.impressions, segments.ad_network_type, ad_group_criterion.cpc_bid_micros, ad_group.labels, bidding_strategy.type, ad_group_criterion.position_estimates.first_page_cpc_micros, metrics.search_top_impression_share, metrics.search_absolute_top_impression_share ' +
+      'FROM keyword_view ' +
+      'WHERE ad_group.status = ENABLED ' + 
+      //'AND campaign.status = ENABLED ' + 
+      //'AND bidding_strategy.status = ENABLED ' + 
+      ///'AND ad_group.labels CONTAINS ANY (' + labelIds.join(",") + ') ' +
+      'AND ad_group.labels CONTAINS ANY ("customers/3504403925/labels/TEST") ' +
+      'AND segments.ad_network_type = SEARCH '    
+      //'AND segments.date DURING TODAY'
+    );
+    
+    ///var report = AdWordsApp.report(
+    ///  'SELECT ad_group_criterion.keyword.text,ad_group.name,campaign.name,metrics.impressions,metrics.clicks,metrics.ctr,metrics.average_cpc ' +
+    ///  'FROM keyword_view ' +
+    ///  'WHERE segments.date ' +
+    ///  'DURING LAST_30_DAYS'
+    ///);
+    
+    var rows = report.rows();
+    Logger.log(rows.totalNumEntities());
+    while(rows.hasNext()){
+      var row = rows.next();
+      Logger.log('%s [%s]',row["keyword_view.resource_name"], row["segments.ad_network_type"]);
+    }
+
+    return;
+    
+  
+    var accountConfig = config['503-692-6663'] || {};
+    accountConfig = {
+      maxBid: accountConfig.maxBid || config['default'].maxBid,
+      minBid: accountConfig.minBid || config['default'].minBid,
+      firstPageMaxBid: accountConfig.firstPageMaxBid || config['default'].firstPageMaxBid,
+      useFirstPageBidsOnKeywordsWithNoImpressions: accountConfig.useFirstPageBidsOnKeywordsWithNoImpressions || config['default'].useFirstPageBidsOnKeywordsWithNoImpressions,
+      bidIncreaseProportion: accountConfig.bidIncreaseProportion || config['default'].bidIncreaseProportion,
+      bidDecreaseProportion: accountConfig.bidDecreaseProportion || config['default'].bidDecreaseProportion,
+      targetPositionTolerance: accountConfig.targetPositionTolerance || config['default'].targetPositionTolerance
+    };
+      
+    ProcessAccount(accountConfig);  
+    */
+  
+    /*    */
+    var accounts = MccApp.accounts().get();  
+    while(accounts.hasNext())
+    {
+      var account = accounts.next();
+      var accountId = account.getCustomerId();
+
+      Logger.log('### account: %s (%s) ###', account.getName(), );  
+      
+      // [TEMPORARY]
+      ///if(accountId != '503-692-6663') continue; // skip
+
+      var accountConfig = config[accountId] || {};
+      accountConfig = {
+        accountId: accountId,
+        maxBid: accountConfig.maxBid || config['default'].maxBid,
+        minBid: accountConfig.minBid || config['default'].minBid,
+        firstPageMaxBid: accountConfig.firstPageMaxBid || config['default'].firstPageMaxBid,
+        useFirstPageBidsOnKeywordsWithNoImpressions: accountConfig.useFirstPageBidsOnKeywordsWithNoImpressions || config['default'].useFirstPageBidsOnKeywordsWithNoImpressions,
+        bidIncreaseProportion: accountConfig.bidIncreaseProportion || config['default'].bidIncreaseProportion,
+        bidDecreaseProportion: accountConfig.bidDecreaseProportion || config['default'].bidDecreaseProportion,
+        targetPositionTolerance: accountConfig.targetPositionTolerance || config['default'].targetPositionTolerance
+      };
+  
+      Logger.log(accountConfig)
+      
+      MccApp.select(account);
+      ProcessAccount(accountConfig);
+      ///ProcessAccountTEST(accountConfig);
+
+      Logger.log('--------------------------');
+    }
+
+}
+
+function ProcessAccountTEST(accountConfig){
+    var report = AdWordsApp.report(
+      'SELECT keyword_view.resource_name, ad_group.id, ad_group.name, campaign.name, metrics.impressions, segments.ad_network_type, ad_group_criterion.cpc_bid_micros, ad_group.labels, bidding_strategy.type, ad_group_criterion.position_estimates.first_page_cpc_micros, metrics.search_top_impression_share, metrics.search_absolute_top_impression_share ' +
+      'FROM keyword_view ' +
+      'WHERE ad_group.status = ENABLED ' + 
+      //'AND campaign.status = ENABLED ' + 
+      //'AND bidding_strategy.status = ENABLED ' + 
+      ///'AND ad_group.labels CONTAINS ANY (' + labelIds.join(",") + ') ' +
+      'AND ad_group.labels CONTAINS ANY ("customers/3504403925/labels/TEST") ' +
+      'AND segments.ad_network_type = SEARCH ' +   
+      'AND segments.date DURING TODAY'
+    );
+  
+    var rows = report.rows();
+    Logger.log(rows.totalNumEntities());
+    while(rows.hasNext()){
+      var row = rows.next();
+      Logger.log('%s [%s]',row["keyword_view.resource_name"], row["segments.ad_network_type"]);
+    }
+}
+
+function ProcessAccount(accountConfig) {
+     
+  var fieldJoin = ",";
+  var lineJoin = "$";
+  var idJoin = "#";
+     
+  var files = DriveApp.getFilesByName(dataFile);
+  if (!files.hasNext()) {
+    var file = DriveApp.createFile(dataFile,"\n");
+    Logger.log("File '" + dataFile + "' has been created.");
+  } else {
+    var file = files.next();
+    if (files.hasNext()) {
+      Logger.log("Error - more than one file named '" + dataFile + "'");
+      return;
+    }
+    Logger.log("File '" + dataFile + "' has been read.");
+  }
+ 
+  var labels = getPositionLabels();
+    
+  if (labels.length == 0) {
+    Logger.log("No position labels found.");
+    return;
+  };
+  
+  Logger.log(labels.length + " position labels have been found.");   
+  
+  var keywordData = {};     
+  var ids = [];
+  var uniqueIds = [];   
+  
+  var arrReport = getKeywordsReportConverted();      
+  for(row of arrReport){    
+    Logger.log('keyword: #%s %s', row['Id'], row['Criteria']);
+    Logger.log(row);
+    
+    if (row["BiddingStrategyType"] != "MANUAL_CPC") {
+      if (row["BiddingStrategyType"] == "Enhanced CPC" || row["BiddingStrategyType"] == "Target search page location" || row["BiddingStrategyType"] == "Target Outranking Share" || row["BiddingStrategyType"] == "None" || row["BiddingStrategyType"] == "unknown") {
+        Logger.log("Warning: keyword " + row["Criteria"] + "' in campaign '" + row["CampaignName"] + "' uses '" + row["BiddingStrategyType"] + "' rather than manual CPC. This may overrule keyword bids and interfere with the script working.");
+      } else {
+        Logger.log("Warning: keyword " + row["Criteria"] + "' in campaign '" + row["CampaignName"] + "' uses the bidding strategy '" + row["BiddingStrategyType"] + "' rather than manual CPC. This keyword will be skipped.");
+        continue;
+      }
+    }
+       
+    var positionTarget = '';
+    var positionType = ''; // top or top-abs 
+    
+    var kwLabels = row['Labels'];
+    if (kwLabels == null || kwLabels.length == 0) {      
+      continue;
+    }
+    
+    for (var i=0; i<kwLabels.length; i++) {
+      var temp = labels.filter(l => l.ResourceName == kwLabels[i])[0];
+      var labelName = temp ? temp.Name : '--';
+      // Logger.log('label: %s', labelName);
+      if (labelName.indexOf('top-abs-') == 0) {
+        positionTarget = parseFloat(labelName.replace('top-abs-', '').replace(/,/g,'.'), 10);
+        positionType = 'top-abs';
+        break;
+      }
+      else if (labelName.indexOf('top-') == 0) {
+        positionTarget = parseFloat(labelName.replace('top-', '').replace(/,/g,'.'), 10);
+        positionType = 'top';
+        break;
+      }      
+    };
+    
+    Logger.log('position target %s (%s)', positionTarget, positionType);
+        
+    if (positionTarget == '' || isNaN(positionTarget)) {
+      continue;
+    };
+    
+    ids.push(row['Id']);
+    var uniqueId = row['AdGroupId'] + idJoin + row['Id'];
+    uniqueIds.push(uniqueId);
+       
+    keywordData[uniqueId] = {};
+    keywordData[uniqueId]['Criteria'] = row['Criteria'];    
+    keywordData[uniqueId]['Impressions'] = parseFloat(row['Impressions'].replace(/,/g,""),10);    
+    keywordData[uniqueId]['CpcBid'] = parseFloat(row['CpcBid'].replace(/,/g,""),10);
+    keywordData[uniqueId]['FirstPageCpc'] = parseFloat(row['FirstPageCpc'].replace(/,/g,""),10);
+    
+    var absTopSearchShare = customParseFloat(row['SearchAbsoluteTopImpressionShare']); // very first ad
+    var topSearchShare = customParseFloat(row['SearchTopImpressionShare']); // top 4 ads    
+    keywordData[uniqueId]['AbsTopSearchShare'] = absTopSearchShare;    
+    keywordData[uniqueId]['TopSearchShare'] = topSearchShare;    
+       
+    setPositionTargets(uniqueId, positionTarget, positionType);
+  }
+    
+  Logger.log(uniqueIds.length + " labelled keywords found");
+        
+  setBidChange();
+  setMinMaxBids(accountConfig);
+  
+  //Batch the keyword IDs, as the iterator can't take them all at once
+  var idBatches = [];
+  var batchSize = 5000;
+  for (var i=0; i<uniqueIds.length; i += batchSize) {
+    idBatches.push(uniqueIds.slice(i,i+batchSize));
+  }
+    
+  Logger.log("Updating keywords");
+     
+  // Update each batch
+  for (var i=0; i<idBatches.length; i++) {
+    try {
+      updateKeywords(idBatches[i]);
+    } catch (e) {
+      Logger.log("Error updating keywords: " + e);
+      Logger.log("Retrying after one minute.");
+      Utilities.sleep(60000);
+      updateKeywords(idBatches[i]);
+    }
+  }
+     
+  Logger.log("Writing file.");  
+  file.setContent(resultsString());    
+  Logger.log("Finished.");
+  
+  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+
+  function getPositionLabels() {
+    var labels = [];
+    
+    /*
+      var labels = AdWordsApp.labels()
+      //.withCondition("KeywordsCount > 0")
+      .withCondition("")
+      .get();
+    */     
+    var report = AdWordsApp.report(`
+      SELECT label.id, label.name, label.text_label.description, label.resource_name 
+      FROM ad_group_criterion_label
+      WHERE label.name LIKE 'top-%'
+    `);  
+
+    var rows = report.rows();
+    while(rows.hasNext()){
+      var row = rows.next();    
+      ///Logger.log('#%s %s (%s)', row['label.id'], row['label.name'], row['label.resource_name']);
+
+      var exists = labels.filter(l => l.Id == row['label.id']).length > 0;      
+      if(!exists){        
+        labels.push({
+          Id: row['label.id'], 
+          Name: row['label.name'], 
+          Description: row['label.text_label.description'], 
+          ResourceName: row['label.resource_name']
+        });    
+      }
+    }
+    
+    Logger.log(labels.map(l => l.Name));
+    return labels;
+  }
+  
+  function getKeywordsReportConverted(){      
+    var convertedReport = [];
+    
+    /*
+      Id
+      Criteria
+      AdGroupId
+      AdGroupName
+      CampaignName
+      Impressions
+      CpcBid
+      FirstPageCpc
+      Labels
+      BiddingStrategyType
+      SearchTopImpressionShare
+      SearchAbsoluteTopImpressionShare
+      
+      ---
+    
+      ad_group_criterion.criterion_id,
+      ad_group_criterion.keyword.text,
+      ad_group.id, 
+      ad_group.name,
+      campaign.name, 
+      metrics.impressions, 
+      ad_group_criterion.effective_cpc_bid_micros, 
+      ad_group_criterion.position_estimates.first_page_cpc_micros,
+      ad_group_criterion.labels,
+      campaign.bidding_strategy_type, 
+      metrics.search_top_impression_share,
+      metrics.search_absolute_top_impression_share,
+      keyword_view.resource_name,
+      segments.ad_network_type
+    */
+    
+    var report = getKeywordsReport();   
+    
+    var rows = report.rows();
+    Logger.log(rows.totalNumEntities());
+    
+    while(rows.hasNext()){
+        var row = rows.next();        
+        ///Logger.log('%s [%s] [%s]',row["ad_group_criterion.keyword.text"], row["segments.ad_network_type"], row["campaign.bidding_strategy_type"]);
+      
+        convertedReport.push({
+          Id: row["ad_group_criterion.criterion_id"].toString(),
+          Criteria: row["ad_group_criterion.keyword.text"],
+          AdGroupId: row["ad_group.id"].toString(),
+          AdGroupName: row["ad_group.name"],
+          CampaignName: row["campaign.name"],
+          Impressions: row["metrics.impressions"],
+          CpcBid: row["ad_group_criterion.effective_cpc_bid_micros"],
+          FirstPageCpc: row["ad_group_criterion.position_estimates.first_page_cpc_micros"],
+          Labels: row["ad_group_criterion.labels"],
+          BiddingStrategyType: row["campaign.bidding_strategy_type"],
+          SearchTopImpressionShare: row["metrics.search_top_impression_share"],
+          SearchAbsoluteTopImpressionShare: row["metrics.search_absolute_top_impression_share"]
+        });
+      }
+    
+    /// return report;
+    return convertedReport;
+  }
+  
+  function getKeywordsReport(){
+     /*
+      var report = AdWordsApp.report(
+        'SELECT Id, Criteria, AdGroupId, AdGroupName, CampaignName, Impressions, CpcBid, FirstPageCpc, Labels, BiddingStrategyType, SearchTopImpressionShare, SearchAbsoluteTopImpressionShare ' +
+        'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+        'WHERE AdGroupStatus = ENABLED AND CampaignStatus = ENABLED ' +
+        ///'AND Status = ENABLED ' +
+        'AND LabelIds CONTAINS_ANY [' + labelIds.join(",") + '] ' +
+        'AND AdNetworkType2 = SEARCH ' +
+        ///'AND Device NOT_IN ["HIGH_END_MOBILE"] ' +
+        'DURING TODAY'
+      );
+
+      var rows = report.rows();
+      Logger.log('keywords -> %s rows', rows.totalNumEntities());
+
+      return;  
+    */
+
+    /*  
+      var report = AdWordsApp.report(
+          `SELECT 
+            ad_group_criterion.criterion_id,
+            ad_group_criterion.keyword.text,
+            ad_group.id, 
+            ad_group.name,
+            campaign.name, 
+            metrics.impressions, 
+            ad_group_criterion.effective_cpc_bid_micros, 
+            ad_group_criterion.position_estimates.first_page_cpc_micros,          
+            campaign.bidding_strategy_type, 
+            metrics.search_top_impression_share,
+            metrics.search_absolute_top_impression_share,
+            keyword_view.resource_name,
+            segments.ad_network_type
+          FROM keyword_view 
+          WHERE ad_group.status = ENABLED 
+          AND campaign.status = ENABLED         
+          AND segments.ad_network_type = SEARCH 
+          AND segments.date DURING TODAY`
+      );
+
+      var rows = report.rows();
+      Logger.log(rows.totalNumEntities());
+      while(rows.hasNext()){
+        var row = rows.next();        
+        Logger.log('%s [%s] [%s]',row["ad_group_criterion.keyword.text"], row["segments.ad_network_type"], row["campaign.bidding_strategy_type"]);
+      }
+
+      return;
+    */
+
+    /*
+    var report = AdWordsApp.report(
+      'SELECT Id, Criteria, AdGroupId, AdGroupName, CampaignName, Impressions, CpcBid, FirstPageCpc, Labels, BiddingStrategyType, SearchTopImpressionShare, SearchAbsoluteTopImpressionShare ' +
+      'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+      'WHERE Status = ENABLED AND AdGroupStatus = ENABLED AND CampaignStatus = ENABLED ' +
+      'AND LabelIds CONTAINS_ANY [' + labelIds.join(",") + '] ' +
+      'AND AdNetworkType2 = SEARCH ' +
+      'AND Device NOT_IN ["HIGH_END_MOBILE"] ' +
+      'DURING TODAY'
+    );
+    */
+    
+    /*
+    var report = AdWordsApp.report(
+      'SELECT Id, Criteria, AdGroupId, AdGroupName, CampaignName, Impressions, CpcBid, FirstPageCpc, Labels, BiddingStrategyType, SearchTopImpressionShare, SearchAbsoluteTopImpressionShare ' +
+      'FROM KEYWORDS_PERFORMANCE_REPORT ' +
+      'WHERE AdGroupStatus = ENABLED AND CampaignStatus = ENABLED ' +
+      ///'AND Status = ENABLED ' +
+      'AND LabelIds CONTAINS_ANY [' + labelIds.join(",") + '] ' +
+      'AND AdNetworkType2 = SEARCH ' +
+      ///'AND Device NOT_IN ["HIGH_END_MOBILE"] ' +
+      'DURING TODAY'
+    );
+    */
+    
+    var report = AdWordsApp.report(
+        `SELECT 
+          ad_group_criterion.criterion_id,
+          ad_group_criterion.keyword.text,
+          ad_group.id, 
+          ad_group.name,
+          campaign.name, 
+          metrics.impressions, 
+          ad_group_criterion.effective_cpc_bid_micros, 
+          ad_group_criterion.position_estimates.first_page_cpc_micros, 
+          ad_group_criterion.labels,
+          campaign.bidding_strategy_type, 
+          metrics.search_top_impression_share,
+          metrics.search_absolute_top_impression_share,
+          keyword_view.resource_name,
+          segments.ad_network_type
+        FROM keyword_view 
+        WHERE ad_group.status = ENABLED 
+        AND campaign.status = ENABLED         
+        AND segments.ad_network_type = SEARCH 
+        AND segments.date DURING TODAY`
+    );
+    
+    return report;
+  }
+  
+  function printLabels(){
+    var report = AdWordsApp.report(
+      `SELECT 
+        label.id, 
+        label.name 
+       FROM ad_group_criterion_label`
+    );  
+    var rows = report.rows();
+    while(rows.hasNext()){
+      var row = rows.next();
+      Logger.log('label: #%s %s', row['label.id'], row['label.name'])
+    }
+  }
+  
+  function getLabelDetails(id){
+    Logger.log('get label #%s', id);
+    
+     var report = AdWordsApp.report(
+      `SELECT        
+        label.id,
+        label.name
+      FROM ad_group_criterion_label
+      WHERE label.id = ${id}`
+    );  
+    var rows = report.rows();
+    if(rows.hasNext())
+      return rows.next()
+    return null;
+  }
+  
+  function setPositionTargets(uniqueId, positionTarget, positionType){    
+    keywordData[uniqueId]['HigherPositionTarget'] = Math.min(positionTarget + accountConfig.targetPositionTolerance, 1);
+    keywordData[uniqueId]['LowerPositionTarget'] = Math.max(positionTarget - accountConfig.targetPositionTolerance, 0);
+    keywordData[uniqueId]['PositionTarget'] = positionTarget;
+    keywordData[uniqueId]['PositionType'] = positionType;       
+  }
+     
+  function bidChange(uniqueId){    
+    var newBid = -1;
+    if(keywordData[uniqueId]['HigherPositionTarget'] === -1){
+      return newBid;
+    }
+       
+    var cpcBid = keywordData[uniqueId]['CpcBid'];
+    var minBid = keywordData[uniqueId]['MinBid'];
+    var maxBid = keywordData[uniqueId]['MaxBid'];
+       
+    if (isNaN(keywordData[uniqueId]['FirstPageCpc'])) {
+      Logger.log("Warning: first page CPC estimate is not a number for keyword '" + keywordData[uniqueId]['Criteria'] + "'. This keyword will be skipped");
+      return -1;
+    }
+       
+    var firstPageBid = Math.min(keywordData[uniqueId]['FirstPageCpc'], keywordData[uniqueId]['FirstPageMaxBid'], maxBid);
+           
+    var positionType = keywordData[uniqueId]['PositionType'];
+    var currentPosition = keywordData[uniqueId][positionType == 'top-abs' ? 'AbsTopSearchShare' : 'TopSearchShare'];
+
+    var positionTarget = keywordData[uniqueId]['PositionTarget'];
+    var higherPositionTarget = keywordData[uniqueId]['HigherPositionTarget'];
+    var lowerPositionTarget = keywordData[uniqueId]['LowerPositionTarget'];
+       
+    var bidIncrease = keywordData[uniqueId]['BidIncrease'];
+    var bidDecrease = keywordData[uniqueId]['BidDecrease'];
+       
+    if((currentPosition > lowerPositionTarget) && (currentPosition !== 0)){
+      var linearBidModel = Math.min(2*bidIncrease,(2*bidIncrease/lowerPositionTarget)*(currentPosition-lowerPositionTarget));
+      var newBid = Math.min((cpcBid + linearBidModel), maxBid);
+    }
+    if((currentPosition < higherPositionTarget) && (currentPosition !== 0)) {
+      var linearBidModel = Math.min(2*bidDecrease,((-4)*bidDecrease/higherPositionTarget)*(currentPosition-higherPositionTarget));
+      var newBid = Math.max((cpcBid-linearBidModel),minBid);
+      if (cpcBid > firstPageBid) {
+        var newBid = Math.max(firstPageBid,newBid);
+      }
+    }
+    if((currentPosition === 0) && accountConfig.useFirstPageBidsOnKeywordsWithNoImpressions && (cpcBid < firstPageBid)){
+      var newBid = firstPageBid;
+    }
+       
+    if (isNaN(newBid)) {
+      Logger.log("Warning: new bid is not a number for keyword '" + keywordData[uniqueId]['Criteria'] + "'. This keyword will be skipped");
+      return -1;
+    }
+       
+    Logger.log('positionType: %s, currentPosition: %s, positionTarget: %s, positionRange: %s > %s, bidIncrease: %s, bidDecrease: %s, minBid: %s, maxBid: %s', 
+               positionType, 
+               currentPosition.toFixed(2), 
+               positionTarget,
+               lowerPositionTarget.toFixed(2), 
+               higherPositionTarget.toFixed(2), 
+               bidIncrease.toFixed(2), 
+               bidDecrease.toFixed(2),
+               minBid,
+               maxBid
+    )
+    
+    if(newBid !== -1)
+      Logger.log('bid should changed from %s to %s', cpcBid, newBid)    
+    
+    return newBid;
+       
+  }
+     
+  function keywordUniqueId(keyword){
+    var id = keyword.getId();
+    ///Logger.log('id: %s (%s)', id, ids);      
+    
+    
+    var idsIndex = ids.indexOf(id);
+    if(idsIndex === ids.lastIndexOf(id)){
+      return uniqueIds[idsIndex];
+    }
+    else{
+      var adGroupId = keyword.getAdGroup().getId();
+      return adGroupId + idJoin + id;
+    }
+  }
+      
+  function setMinMaxBids(){
+    for(var x in keywordData){
+      keywordData[x]['MinBid'] = accountConfig.minBid;
+      keywordData[x]['MaxBid'] = accountConfig.maxBid;
+      keywordData[x]['FirstPageMaxBid'] = accountConfig.firstPageMaxBid;
+    }
+  }
+      
+  function setBidChange(){
+    for(var x in keywordData){
+      keywordData[x]['BidIncrease'] = keywordData[x]['CpcBid'] * accountConfig.bidIncreaseProportion/2;
+      keywordData[x]['BidDecrease'] = keywordData[x]['CpcBid'] * accountConfig.bidDecreaseProportion/2;
+    }
+  }
+
+  function updateKeywords(idBatch) {    
+    var keywords = AdWordsApp.keywords()
+    .withIds(idBatch.map(function(str){return str.split(idJoin);}))
+    .get();
+    
+    Logger.log('keywords: %s', keywords.totalNumEntities());
+    
+    while(keywords.hasNext()){
+      var keyword = keywords.next();      
+      var uniqueId = keywordUniqueId(keyword);  
+      var newBid = bidChange(uniqueId);
+         
+      if(newBid !== -1){
+        keyword.bidding().setMaxCpc(newBid);
+      }         
+    }
+  }
+       
+  function resultsString(){
+       
+    var results = [];
+    for(var uniqueId in keywordData){
+      var resultsRow = [uniqueId, keywordData[uniqueId]['Impressions'], keywordData[uniqueId]['AbsTopSearchShare'], keywordData[uniqueId]['TopSearchShare']];
+      results.push(resultsRow.join(fieldJoin));
+    }
+       
+    return results.join(lineJoin);
+  }
+  
+  function customParseFloat(value){    
+    /*
+      value = value.replace('%', '');
+
+      if(value.indexOf('<') != -1)
+        value = '5';
+
+      if(value.indexOf('--') != -1)
+        value = '0';
+
+      value = parseFloat(value);
+    */
+    
+    if(value > 1)
+      value = value / 100;
+    
+    return Math.round(value * 100) / 100;
+  }
+}

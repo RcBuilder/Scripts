@@ -1,0 +1,61 @@
+C# Extract Poster From Image Or Video
+-------------------------------------
+
+#region ExtractPosterFromImage
+        public static string ExtractPosterFromImage(string imagePath, string folder, int width, int height, bool autoScale)
+        {
+            if (string.IsNullOrWhiteSpace(imagePath)) 
+                return string.Empty;
+            
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            var fileName = GenerateFileName(imagePath, false, "-poster");
+            var filePath = string.Concat(folder, "\\", fileName);
+
+            var image = Image.FromFile(imagePath);
+
+            // calculate the crop rectangle                        
+            // when the requested size is bigger than the original image - x and y should be 0
+            // e.g: width = 500, image.Width = 500 >>> (500 - 500) / 2 = 0
+            int cropX = Math.Abs(image.Width - width) / 2; 
+            int cropY = Math.Abs(image.Height - height) / 2;
+
+            using (var bitmap = ResizeImage(image, width, height, autoScale, (cropX, cropY)))
+                bitmap.Save(filePath, ImageFormat.Jpeg);
+            return fileName;
+        }
+        #endregion
+
+        #region ExtractPosterFromVideo
+        public static string ExtractPosterFromVideo(string videoPath, int secondInVideo, string folderPath = null, string overrideFileName = null)
+        {
+            if (string.IsNullOrWhiteSpace(videoPath)) 
+                return string.Empty;
+
+            (string Name, string Ext, string Folder) videoNameParts = (
+                Path.GetFileNameWithoutExtension(videoPath),
+                Path.GetExtension(videoPath),
+                $"{Path.GetDirectoryName(videoPath)}\\"
+            );
+
+            if (folderPath == null)
+                folderPath = videoNameParts.Folder; // relative path
+
+            try
+            {
+                var frameName = $"{videoNameParts.Name}-frame-{secondInVideo}s";
+                if (!string.IsNullOrWhiteSpace(overrideFileName)) frameName = overrideFileName;
+
+                var framePath = $"{folderPath}{frameName}.bmp";
+
+                // > Install-Package NReco.VideoConverter
+                var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
+                ffMpeg.GetVideoThumbnail(videoPath, framePath, 10);
+                return framePath;
+            }
+            catch{
+                return string.Empty;
+            }
+        }
+        #endregion

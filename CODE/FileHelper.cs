@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Shell32;
+using System;
+using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;
-using Shell32;
-using System.Text.RegularExpressions;
-using System.Diagnostics;
-using System.Net.Http;
 
 namespace Common
 {
@@ -80,7 +79,7 @@ namespace Common
             if (file == null || file.ContentLength == 0) 
                 return string.Empty;
 
-            string fileName = GenerateFileName(file, useGuidName);
+            string fileName = GenerateFileName(file, useGuidName, "_original");
 
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
@@ -93,26 +92,31 @@ namespace Common
         #endregion 
 
         #region SaveUploadedImageWithResize        
-        public static string SaveUploadedImageWithResize(HttpPostedFileBase file, string folder, int width, int height, bool autoScale, bool useGuidName = false)
-        {
+        public static string SaveUploadedImageWithResize(HttpPostedFileBase file, string folder, int width, int height, bool autoScale, bool useGuidName = false, string overrideFileName = null) {
             if (file == null || file.ContentLength == 0) return string.Empty;
-
-            string FileName = GenerateFileName(file, useGuidName);
+            return SaveUploadedImageWithResize(file.FileName, folder, width, height, autoScale, useGuidName, overrideFileName);
+        }
+        public static string SaveUploadedImageWithResize(string file, string folder, int width, int height, bool autoScale, bool useGuidName = false, string overrideFileName = null)
+        {
+            var fileName = GenerateFileName(file, useGuidName);
+            var fileNameSrc = fileName;
+            if (!string.IsNullOrWhiteSpace(overrideFileName)) fileName = overrideFileName;
 
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
 
-            var filePath = string.Concat(folder, "\\", FileName);
+            var filePath = string.Concat(folder, fileName);
+            var filePathSrc = string.Concat(folder, fileNameSrc);
 
-            using (var bitmap = ResizeImage(file.InputStream, width, height, autoScale))
+            using (var bitmap = ResizeImage(filePathSrc, width, height, autoScale))
                 bitmap.Save(filePath, ImageFormat.Jpeg);
 
-            return FileName;
+            return fileName;
         }
         #endregion
 
-        #region ExtractPoster
-        public static string ExtractPoster(string imagePath, string folder, int width, int height, bool autoScale)
+        #region ExtractPosterFromImage
+        public static string ExtractPosterFromImage(string imagePath, string folder, int width, int height, bool autoScale)
         {
             if (string.IsNullOrWhiteSpace(imagePath)) 
                 return string.Empty;
@@ -124,6 +128,7 @@ namespace Common
             var filePath = string.Concat(folder, "\\", fileName);
 
             var image = Image.FromFile(imagePath);
+            image = ResizeImage(image, 1000, 750, true, null);
 
             // calculate the crop rectangle                        
             // when the requested size is bigger than the original image - x and y should be 0
@@ -133,7 +138,34 @@ namespace Common
 
             using (var bitmap = ResizeImage(image, width, height, autoScale, (cropX, cropY)))
                 bitmap.Save(filePath, ImageFormat.Jpeg);
-            return filePath;
+            return fileName;
+        }
+        #endregion
+
+        #region ExtractPosterFromVideo
+        public static string ExtractPosterFromVideo(string videoPath, int secondInVideo, string folderPath = null, string overrideFileName = null)
+        {
+            if (string.IsNullOrWhiteSpace(videoPath)) 
+                return string.Empty;
+
+            (string Name, string Ext, string Folder) videoNameParts = (
+                Path.GetFileNameWithoutExtension(videoPath),
+                Path.GetExtension(videoPath),
+                $"{Path.GetDirectoryName(videoPath)}\\"
+            );
+
+            if (folderPath == null)
+                folderPath = videoNameParts.Folder; // relative path
+            
+            var frameName = $"{videoNameParts.Name}-frame-{secondInVideo}s";
+            if (!string.IsNullOrWhiteSpace(overrideFileName)) frameName = overrideFileName;
+
+            var framePath = $"{folderPath}{frameName}.bmp";
+
+            // > Install-Package NReco.VideoConverter
+            var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
+            ffMpeg.GetVideoThumbnail(videoPath, framePath, 10);
+            return framePath;            
         }
         #endregion
 
@@ -150,8 +182,8 @@ namespace Common
         #endregion
 
         #region GenerateFileName
-        public static string GenerateFileName(HttpPostedFileBase file, bool useGuidName) {
-            return GenerateFileName(file.FileName, useGuidName);
+        public static string GenerateFileName(HttpPostedFileBase file, bool useGuidName, string suffix = null) {
+            return GenerateFileName(file.FileName, useGuidName, suffix);
         }
         public static string GenerateFileName(string filePath, bool useGuidName, string suffix = null)
         {
@@ -159,8 +191,19 @@ namespace Common
             var fileName = Path.GetFileNameWithoutExtension(filePath);
 
             string prefix = null;
-            if (useGuidName) prefix = string.Concat(Guid.NewGuid().ToString().Replace("-", string.Empty), "-");
-            return string.Concat(prefix ?? string.Empty, fileName, suffix ?? string.Empty, fileExtension);
+            if (useGuidName) prefix = string.Concat(Guid.NewGuid().ToString().Replace("-", string.Empty), "-");            
+            return string.Concat(prefix ?? string.Empty, fileName?.Substring(0, Math.Min(10, fileName.Length)), suffix ?? string.Empty, fileExtension);
+        }
+        #endregion 
+
+        #region StretchImage        
+        public static Image StretchImage(Image image, int width, int height) {
+            if (image.Height > height || image.Width > width) return image; // no changes
+            return ResizeImage(image, width, height, true, null);
+        }
+        public static Image StretchImage(string imagePath, int width, int height)
+        {
+            return StretchImage(Image.FromFile(imagePath), width, height);
         }
         #endregion 
 
@@ -176,12 +219,13 @@ namespace Common
                 return ResizeImage(image, width, height, autoScale, null);            
         }
         public static Bitmap ResizeImage(Image image, int width, int height, bool autoScale, (int x, int y)? position) {
+            var enlargeRequired = image.Height < height && image.Width < width;
             var isHorizontalImage = image.Width >= image.Height;
 
             int w = width, h = height;
 
             if (autoScale) // calculate size by the image direction, auto scale 
-            {
+            {                
                 if (isHorizontalImage) // horizontal image
                     h = (int)(image.Height * ((float)w / image.Width));
                 else // vertical image
@@ -233,7 +277,7 @@ namespace Common
             }            
         }
         #endregion
-
+        
         #region Html2String:
         public static string Html2String(string filePath)
         {

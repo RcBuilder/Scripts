@@ -225,6 +225,326 @@ namespace TwilioBLL
         Console.WriteLine($"{result.ContentSid} ({result.ApproveStatus})");
     */
 
+    /*
+        [WHATSAPP]
+
+        REFERENCE:                
+        https://www.twilio.com/docs/whatsapp/quickstart/csharp
+        https://www.twilio.com/docs/whatsapp/api
+        https://www.twilio.com/docs/whatsapp/tutorial/send-whatsapp-notification-messages-templates
+        https://www.twilio.com/docs/whatsapp/api/media-resource
+        -- Content API --
+        https://www.twilio.com/docs/content/whatsappauthentication
+        https://www.twilio.com/docs/content/send-templates-created-with-the-content-editor#send-messages-with-a-messagingservicesid-field
+        https://www.twilio.com/docs/content/content-api-resources#create-templates
+        https://console.twilio.com/us1/develop/sms/content-editor            
+
+
+        Signup Process
+        --------------
+        Enable WhatsApp feature on twilio:                
+        https://www.twilio.com/docs/whatsapp/api#connect-your-meta-business-manager-account
+        WA uses your (Facebook) Meta Business Manager account to identify your business and associate your WA Business Account (WABA) with it.
+
+        to create or connect a Meta Business Manager account to Twilio, use a Signup process
+        1. Self-Signup process -> for an end-user
+            https://www.twilio.com/docs/whatsapp/self-sign-up
+        2. Global-Signup process -> for ISV (Independent Software Vendor)
+            https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile
+
+        create a Meta Business Manager account:
+        https://www.facebook.com/business/help/1710077379203657?id=180505742745347
+
+        get your Meta Business Manager ID:                
+        Business Settings > Business Info > #Id
+
+        Self-Signup process:
+        1.  Create WA Sender:
+            Messaging > Senders > WhatsApp senders > New
+        2.  Link WA Account with Twilio Account
+            Click on 'Continue With Facebook' button > OAuth Popup 
+            note! if Must have a 'Meta Business Account'.
+        3. Verify your WA Number
+
+        WA Content Process
+        ------------------
+        (Steps)
+        1. Messaging > Content Editor > Create Templates > Submit for Approval
+        2. Messaging > Services > Create a Messaging Service
+        3. Use API to send a Template 
+
+            POST {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json
+            H Authorization:Basic {{SID}}{{Token}}
+            ContentVariables:{"1":"Roby"}
+            From:whatsapp:{{From}}
+            To:whatsapp:+972xxxxxxxxxx
+            ContentSid:HXxxxxxxxxxxxxxxxxxxxxxxxxx
+            MessagingServiceSid:MGxxxxxxxxxxxxxxxxxxxx
+
+        4. once a user sent a message, we'll get a 24-hour window to send ANY message to this user. 
+            for new users or existing users who have not sent you a message for more than 24 hours - we MUST use Templates.                       
+            templates are used to contact a user with pre-defined & approved messages by the Twilio team. 
+            use these techniques to send reminders, alerts and etc. OR to cause the user to reply and by that, to gain the 24h permission's allocation
+
+            note!
+            the use consent also known as 24-hour window or 24-hour session.
+        -
+
+        Params:
+        1. ContentSid  (HXxxxxxxxxxxxxxxxxxxxxxxx)
+        2. ContentVariables  ({"<ph-num>":"<value>"})  e.g: {"1":"AAA", "2":"BBB"}
+
+            note: use {{1}}... {{N}} to add variables 
+            e.g: "hello {{1}}"
+
+            to set variables, use the ContentVariables post-data parameter
+            e.g: ContentVariables: {"1":"Roby"}  // replace ph-1 with the value "Roby" -> "hello Roby"
+
+            note!
+            can use Content API
+            https://www.twilio.com/docs/content/send-templates-created-with-the-content-editor#send-messages-with-a-messagingservicesid-field                
+
+        3. MessagingServiceSid   (MGxxxxxxxxxxxxxxxxxxxxxx) 
+            https://www.twilio.com/docs/content/create-and-send-your-first-content-api-template
+
+            https://console.twilio.com/us1/develop/sms/services
+            > Messaging > Services > Create a Messaging Service > Set Name > Create
+            > Add Senders > Choose Phone Number
+
+            > Messaging > Services > Choose Service > Copy SID (MessagingServiceSid)
+
+            note!                
+            we can remove the 'MessagingServiceSid' param and set the MessagingServiceSid in the 'from' param
+            From:MGxxxxxxxxxxxxxxxxxxxx
+
+        Content Template
+        ----------------
+        aka as conversation starter. use templates to create pre-defined & approved messages. 
+        each template must be verified by the Twilio team and once approved - can be sent to any user via WhatsApp. 
+        note that WhatsApp API is restricted from sending messages to users without their consent. we can use a template to gain consent for 24 hours. 
+        after this period, regular messages will NOT pass through until a new consent has taken place. 
+        because templates are verified and allowed to be sent without a user's consent, we should use it to trigger a reply from a user in order to get 24-hours consent. 
+        any outgoing message from the end-user provides consent to send messages to the user for up to 24 hours!
+
+        https://console.twilio.com/us1/develop/sms/content-editor
+        > Messaging > Content Editor > Create New > Set Name > Select Content-Type > Create 
+        > Set Template Body 
+
+        https://www.twilio.com/docs/content/content-types-overview
+        https://console.twilio.com/us1/develop/sms/content-editor/template/create
+        Content-Types:
+        - Text
+        - Media
+        - Quick reply
+        - Call to action
+        - List picker                
+        - Card 
+        - Authentication (OTP)
+
+        https://www.twilio.com/docs/content/content-types-overview#whatsapp-template-approval-statuses
+        Approval Status:
+        - Unsubmitted
+        - Received
+        - Pending
+        - Approved
+        - Rejected
+        - Paused
+        - Disabled
+
+
+        Create a Content Template via API
+        ---------------------------------
+        https://www.twilio.com/docs/content/content-api-resources#create-templates
+        https://www.twilio.com/docs/content/content-types-overview
+
+        Params:
+        - friendly_name
+        - language
+        - ContentVariables
+        - types  // https://www.twilio.com/docs/content/content-types-overview
+
+
+        Usage:
+        POST {{ServerContent}}v1/Content
+        H Content-Type:application/json
+        H Authorization:Basic {{SID}}{{Token}}
+        {
+            "friendly_name": "rc_tmp_8",
+            "language": "en",
+            "variables": {"1":"John Doe", "2":"RcBuilder"},
+            "types": {
+                "twilio/text":{
+                "body": "Hi {{1}},\n Thanks for contacting {{2}}..."        
+                }
+            }
+        }
+
+
+        Get Content Templates
+        ---------------------
+        GET {{ServerContent}}v1/Content                
+        H Authorization:Basic {{SID}}{{Token}}
+
+
+        Get a specific Content Template
+        -------------------------------
+        GET {{ServerContent}}v1/Content/{{ContentSID}}                
+        H Authorization:Basic {{SID}}{{Token}}
+
+
+        Delete a specific Content Template
+        ----------------------------------
+        DELETE {{ServerContent}}v1/Content/{{ContentSID}}                
+        H Authorization:Basic {{SID}}{{Token}}
+
+
+        Get Template Approval Status
+        ----------------------------
+        GET {{ServerContent}}v1/Content/{{ContentSID}}/ApprovalRequests
+        H Authorization:Basic {{SID}}{{Token}}
+
+        Pricing
+        -------
+        https://www.twilio.com/en-us/whatsapp/pricing
+
+        Send Message
+        ------------            
+        - body
+        - from
+        - to
+        - mediaUrl
+        - statusCallback
+
+        usage:
+        POST {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json
+        H Authorization:Basic {{SID}}{{Token}}
+        Body:Hello from Twilio
+        From:whatsapp:{{From}}
+        To:whatsapp:+972xxxxxxxxxx                
+        mediaUrl: ["https://domain.com/a.jpg"]
+        StatusCallback: https://rcbuilder.free.beeceptor.com
+
+
+        Callback Status Notifications
+        -----------------------------
+        twilio supports callback notifications when sending an SMS or WA message. 
+        use 'StatusCallback' param to set a callback URL to receive the status notifications. 
+
+        e.g:
+        for WA message we'll get 'sent' and 'delivered' callback requests. 
+        any status change triggers a new status notification to be sent to the callback URL defined in the StatusCallback param. 
+
+        usage:
+        POST {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json
+        H Authorization:Basic {{SID}}{{Token}}
+        Body:Hello from Twilio
+        From:whatsapp:{{From}}
+        To:whatsapp:+972xxxxxxxxxx                
+        StatusCallback: https://rcbuilder.free.beeceptor.com
+
+
+        Schedule a Message
+        ------------------
+        - ScheduleType  // fixed
+        - SendAt        // sent UTC time (ISO-8601 format - yyyy-MM-ddThh:mm:ssZ)
+
+        usage:
+        POST {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json
+        H Authorization:Basic {{SID}}{{Token}}
+        Body:Hello from Twilio
+        From:whatsapp:{{From}}
+        To:whatsapp:+972xxxxxxxxxx                
+        MessagingServiceSid:MGxxxxxxxxxxxxxxxxxxxxx
+        ScheduleType:fixed
+        SendAt:2023-07-01T10:30:27Z
+
+
+        Cancel a Scheduled Message
+        --------------------------
+        {{Server}}{{Version}}/Accounts/{{SID}}/Messages/SMxxxxxxxxxxxxxxxxxxxxxxxxxx.json
+        Status:canceled
+
+
+        Fetch a specific Message
+        ------------------------                
+        usage:
+        GET {{Server}}{{Version}}/Accounts/{{SID}}/Messages/SMxxxxxxxxxxxxxxxxxxxxxxxx.json
+        H Authorization:Basic {{SID}}{{Token}}
+
+
+        Fetch Messages
+        --------------
+        search-engine for messages. optional filters
+        - pageSize 
+        - accountSid
+        - from
+        - to
+        - dateSent
+
+        usage:
+        GET {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json?pageSize=10
+        H Authorization:Basic {{SID}}{{Token}}
+
+
+        Delete a Message
+        ----------------
+        usage:
+        DELETE {{Server}}{{Version}}/Accounts/{{SID}}/Messages/SMxxxxxxxxxxxxxxxxxxxxxxxx.json
+        H Authorization:Basic {{SID}}{{Token}}
+
+        -------------
+
+        DASHBOARD:                
+        Home -> Programmable Messaging
+
+        JOIN (SANDBOX):
+        1. https://www.twilio.com/console/sms/whatsapp/sandbox    
+        2. invite users to the sendbox by sending a whatsapp message to your twilio number with the provided code (e.g: "join least-dull")
+            notes: 
+            we can also use invitation link (whatsapp://send?phone=<TwilioNumber>&text=<Code(URL-Encoded)>)
+            we can also use QRCode to generate the invitation link
+
+        WEBHOOK (SANDBOX):
+        1. https://www.twilio.com/console/sms/whatsapp/sandbox
+        2. set a webhook URL in both "WHEN A MESSAGE COMES IN" and\or "STATUS CALLBACK URL" options                    
+
+
+        PRODUCTION:                
+        (1) Facebook > Verify your Facebook Business Manager in order to setup WhatsApp Business API using Twilio.
+            business.facebook > Business settings > Business Information > Business Verification Status 
+            note! if status is not verified > click on "start verification" and follow the instructions 
+            https://business.facebook.com/
+            https://business.facebook.com/settings/info
+            https://business.facebook.com/settings/security
+
+        (2) Twilio > Purchase a new mobile phone number for WhatsApp Business API
+            https://www.twilio.com/console/phone-numbers/search
+
+        (3) To purchase the phone number, you'll need to submit a regulation-document fit to your country.
+            https://www.twilio.com/guidelines/regulatory
+
+        (4) Then, you'll have to fill-out an access-request-form and send it to whatsapp team for approval.
+            note! twilio will contact you within 10 days with the outcome.
+            https://www.twilio.com/whatsapp/request-access
+
+            to get Facebook Business Id: 
+            FB > Setting > Business Manager
+            https://business.facebook.com/settings/info
+
+            to approve twilio on facebook bussiness:
+            FB > Settings > Received > "Approve" Twilio
+            https://business.facebook.com/settings/requests
+
+        (5) add a new WhatsApp Sender using the approved phone number
+            https://www.twilio.com/console/sms/whatsapp/senders
+
+        sources:
+        - https://support.salescandy.com/hc/en-us/articles/360053590431-How-to-apply-and-set-up-WhatsApp-Business-API-number-in-Twilio-
+        - https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile    
+        - https://www.twilio.com/docs/whatsapp/api
+        - https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile
+    */
+
     public class TwilioEntities
     {
         public enum eScheduleType : byte {
@@ -598,323 +918,6 @@ namespace TwilioBLL
             return message.Sid;
         }
 
-        /*
-            REFERENCE:                
-            https://www.twilio.com/docs/whatsapp/quickstart/csharp
-            https://www.twilio.com/docs/whatsapp/api
-            https://www.twilio.com/docs/whatsapp/tutorial/send-whatsapp-notification-messages-templates
-            https://www.twilio.com/docs/whatsapp/api/media-resource
-            -- Content API --
-            https://www.twilio.com/docs/content/whatsappauthentication
-            https://www.twilio.com/docs/content/send-templates-created-with-the-content-editor#send-messages-with-a-messagingservicesid-field
-            https://www.twilio.com/docs/content/content-api-resources#create-templates
-            https://console.twilio.com/us1/develop/sms/content-editor
-
-
-            Signup Process
-            --------------
-            Enable WhatsApp feature on twilio:                
-            https://www.twilio.com/docs/whatsapp/api#connect-your-meta-business-manager-account
-            WA uses your (Facebook) Meta Business Manager account to identify your business and associate your WA Business Account (WABA) with it.
-
-            to create or connect a Meta Business Manager account to Twilio, use a Signup process
-            1. Self-Signup process -> for an end-user
-                https://www.twilio.com/docs/whatsapp/self-sign-up
-            2. Global-Signup process -> for ISV (Independent Software Vendor)
-                https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile
-
-            create a Meta Business Manager account:
-            https://www.facebook.com/business/help/1710077379203657?id=180505742745347
-
-            get your Meta Business Manager ID:                
-            Business Settings > Business Info > #Id
-
-            Self-Signup process:
-            1.  Create WA Sender:
-                Messaging > Senders > WhatsApp senders > New
-            2.  Link WA Account with Twilio Account
-                Click on 'Continue With Facebook' button > OAuth Popup 
-                note! if Must have a 'Meta Business Account'.
-            3. Verify your WA Number
-            
-            WA Content Process
-            ------------------
-            (Steps)
-            1. Messaging > Content Editor > Create Templates > Submit for Approval
-            2. Messaging > Services > Create a Messaging Service
-            3. Use API to send a Template 
-                   
-                POST {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json
-                H Authorization:Basic {{SID}}{{Token}}
-                ContentVariables:{"1":"Roby"}
-                From:whatsapp:{{From}}
-                To:whatsapp:+972xxxxxxxxxx
-                ContentSid:HXxxxxxxxxxxxxxxxxxxxxxxxxx
-                MessagingServiceSid:MGxxxxxxxxxxxxxxxxxxxx
-                
-            4. once a user sent a message, we'll get a 24-hour window to send ANY message to this user. 
-                for new users or existing users who have not sent you a message for more than 24 hours - we MUST use Templates.                       
-                templates are used to contact a user with pre-defined & approved messages by the Twilio team. 
-                use these techniques to send reminders, alerts and etc. OR to cause the user to reply and by that, to gain the 24h permission's allocation
-
-                note!
-                the use consent also known as 24-hour window or 24-hour session.
-            -
-
-            Params:
-            1. ContentSid  (HXxxxxxxxxxxxxxxxxxxxxxxx)
-            2. ContentVariables  ({"<ph-num>":"<value>"})  e.g: {"1":"AAA", "2":"BBB"}
-                                  
-                note: use {{1}}... {{N}} to add variables 
-                e.g: "hello {{1}}"
-                
-                to set variables, use the ContentVariables post-data parameter
-                e.g: ContentVariables: {"1":"Roby"}  // replace ph-1 with the value "Roby" -> "hello Roby"
-
-                note!
-                can use Content API
-                https://www.twilio.com/docs/content/send-templates-created-with-the-content-editor#send-messages-with-a-messagingservicesid-field                
-
-            3. MessagingServiceSid   (MGxxxxxxxxxxxxxxxxxxxxxx) 
-                https://www.twilio.com/docs/content/create-and-send-your-first-content-api-template
-
-                https://console.twilio.com/us1/develop/sms/services
-                > Messaging > Services > Create a Messaging Service > Set Name > Create
-                > Add Senders > Choose Phone Number
-                   
-                > Messaging > Services > Choose Service > Copy SID (MessagingServiceSid)
-
-                note!                
-                we can remove the 'MessagingServiceSid' param and set the MessagingServiceSid in the 'from' param
-                From:MGxxxxxxxxxxxxxxxxxxxx
-            
-            Content Template
-            ----------------
-            aka as conversation starter. use templates to create pre-defined & approved messages. 
-            each template must be verified by the Twilio team and once approved - can be sent to any user via WhatsApp. 
-            note that WhatsApp API is restricted from sending messages to users without their consent. we can use a template to gain consent for 24 hours. 
-            after this period, regular messages will NOT pass through until a new consent has taken place. 
-            because templates are verified and allowed to be sent without a user's consent, we should use it to trigger a reply from a user in order to get 24-hours consent. 
-            any outgoing message from the end-user provides consent to send messages to the user for up to 24 hours!
-
-            https://console.twilio.com/us1/develop/sms/content-editor
-            > Messaging > Content Editor > Create New > Set Name > Select Content-Type > Create 
-            > Set Template Body 
-
-            https://www.twilio.com/docs/content/content-types-overview
-            https://console.twilio.com/us1/develop/sms/content-editor/template/create
-            Content-Types:
-            - Text
-            - Media
-            - Quick reply
-            - Call to action
-            - List picker                
-            - Card 
-            - Authentication (OTP)
-
-            https://www.twilio.com/docs/content/content-types-overview#whatsapp-template-approval-statuses
-            Approval Status:
-            - Unsubmitted
-            - Received
-            - Pending
-            - Approved
-            - Rejected
-            - Paused
-            - Disabled
-
-
-            Create a Content Template via API
-            ---------------------------------
-            https://www.twilio.com/docs/content/content-api-resources#create-templates
-            https://www.twilio.com/docs/content/content-types-overview
-                
-            Params:
-            - friendly_name
-            - language
-            - ContentVariables
-            - types  // https://www.twilio.com/docs/content/content-types-overview
-
-                
-            Usage:
-            POST {{ServerContent}}v1/Content
-            H Content-Type:application/json
-            H Authorization:Basic {{SID}}{{Token}}
-            {
-                "friendly_name": "rc_tmp_8",
-                "language": "en",
-                "variables": {"1":"John Doe", "2":"RcBuilder"},
-                "types": {
-                    "twilio/text":{
-                    "body": "Hi {{1}},\n Thanks for contacting {{2}}..."        
-                    }
-                }
-            }
-
-
-            Get Content Templates
-            ---------------------
-            GET {{ServerContent}}v1/Content                
-            H Authorization:Basic {{SID}}{{Token}}
-
-
-            Get a specific Content Template
-            -------------------------------
-            GET {{ServerContent}}v1/Content/{{ContentSID}}                
-            H Authorization:Basic {{SID}}{{Token}}
-
-
-            Delete a specific Content Template
-            ----------------------------------
-            DELETE {{ServerContent}}v1/Content/{{ContentSID}}                
-            H Authorization:Basic {{SID}}{{Token}}
-
-
-            Get Template Approval Status
-            ----------------------------
-            GET {{ServerContent}}v1/Content/{{ContentSID}}/ApprovalRequests
-            H Authorization:Basic {{SID}}{{Token}}
-       
-            Pricing
-            -------
-            https://www.twilio.com/en-us/whatsapp/pricing
-            
-            Send Message
-            ------------            
-            - body
-            - from
-            - to
-            - mediaUrl
-            - statusCallback
-
-            usage:
-            POST {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json
-            H Authorization:Basic {{SID}}{{Token}}
-            Body:Hello from Twilio
-            From:whatsapp:{{From}}
-            To:whatsapp:+972xxxxxxxxxx                
-            mediaUrl: ["https://domain.com/a.jpg"]
-            StatusCallback: https://rcbuilder.free.beeceptor.com
-
-
-            Callback Status Notifications
-            -----------------------------
-            twilio supports callback notifications when sending an SMS or WA message. 
-            use 'StatusCallback' param to set a callback URL to receive the status notifications. 
-
-            e.g:
-            for WA message we'll get 'sent' and 'delivered' callback requests. 
-            any status change triggers a new status notification to be sent to the callback URL defined in the StatusCallback param. 
-
-            usage:
-            POST {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json
-            H Authorization:Basic {{SID}}{{Token}}
-            Body:Hello from Twilio
-            From:whatsapp:{{From}}
-            To:whatsapp:+972xxxxxxxxxx                
-            StatusCallback: https://rcbuilder.free.beeceptor.com
-                
-
-            Schedule a Message
-            ------------------
-            - ScheduleType  // fixed
-            - SendAt        // sent UTC time (ISO-8601 format - yyyy-MM-ddThh:mm:ssZ)
-
-            usage:
-            POST {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json
-            H Authorization:Basic {{SID}}{{Token}}
-            Body:Hello from Twilio
-            From:whatsapp:{{From}}
-            To:whatsapp:+972xxxxxxxxxx                
-            MessagingServiceSid:MGxxxxxxxxxxxxxxxxxxxxx
-            ScheduleType:fixed
-            SendAt:2023-07-01T10:30:27Z
-
-                
-            Cancel a Scheduled Message
-            --------------------------
-            {{Server}}{{Version}}/Accounts/{{SID}}/Messages/SMxxxxxxxxxxxxxxxxxxxxxxxxxx.json
-            Status:canceled
-
-
-            Fetch a specific Message
-            ------------------------                
-            usage:
-            GET {{Server}}{{Version}}/Accounts/{{SID}}/Messages/SMxxxxxxxxxxxxxxxxxxxxxxxx.json
-            H Authorization:Basic {{SID}}{{Token}}
-
-                
-            Fetch Messages
-            --------------
-            search-engine for messages. optional filters
-            - pageSize 
-            - accountSid
-            - from
-            - to
-            - dateSent
-
-            usage:
-            GET {{Server}}{{Version}}/Accounts/{{SID}}/Messages.json?pageSize=10
-            H Authorization:Basic {{SID}}{{Token}}
-
-
-            Delete a Message
-            ----------------
-            usage:
-            DELETE {{Server}}{{Version}}/Accounts/{{SID}}/Messages/SMxxxxxxxxxxxxxxxxxxxxxxxx.json
-            H Authorization:Basic {{SID}}{{Token}}
-
-            -------------
-            
-            DASHBOARD:                
-            Home -> Programmable Messaging
-
-            JOIN (SANDBOX):
-            1. https://www.twilio.com/console/sms/whatsapp/sandbox    
-            2. invite users to the sendbox by sending a whatsapp message to your twilio number with the provided code (e.g: "join least-dull")
-                notes: 
-                we can also use invitation link (whatsapp://send?phone=<TwilioNumber>&text=<Code(URL-Encoded)>)
-                we can also use QRCode to generate the invitation link
-
-            WEBHOOK (SANDBOX):
-            1. https://www.twilio.com/console/sms/whatsapp/sandbox
-            2. set a webhook URL in both "WHEN A MESSAGE COMES IN" and\or "STATUS CALLBACK URL" options                    
-
-
-            PRODUCTION:                
-            (1) Facebook > Verify your Facebook Business Manager in order to setup WhatsApp Business API using Twilio.
-                business.facebook > Business settings > Business Information > Business Verification Status 
-                note! if status is not verified > click on "start verification" and follow the instructions 
-                https://business.facebook.com/
-                https://business.facebook.com/settings/info
-                https://business.facebook.com/settings/security
-
-            (2) Twilio > Purchase a new mobile phone number for WhatsApp Business API
-                https://www.twilio.com/console/phone-numbers/search
-
-            (3) To purchase the phone number, you'll need to submit a regulation-document fit to your country.
-                https://www.twilio.com/guidelines/regulatory
-
-            (4) Then, you'll have to fill-out an access-request-form and send it to whatsapp team for approval.
-                note! twilio will contact you within 10 days with the outcome.
-                https://www.twilio.com/whatsapp/request-access
-
-                to get Facebook Business Id: 
-                FB > Setting > Business Manager
-                https://business.facebook.com/settings/info
-
-                to approve twilio on facebook bussiness:
-                FB > Settings > Received > "Approve" Twilio
-                https://business.facebook.com/settings/requests
-
-            (5) add a new WhatsApp Sender using the approved phone number
-                https://www.twilio.com/console/sms/whatsapp/senders
-
-            sources:
-            - https://support.salescandy.com/hc/en-us/articles/360053590431-How-to-apply-and-set-up-WhatsApp-Business-API-number-in-Twilio-
-            - https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile    
-            - https://www.twilio.com/docs/whatsapp/api
-            - https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile
-        */
         public string SendWAMessage(string sTwilioPhone, string sToPhone, string Body, List<string> Images = null, string StatusCallbackURL = null) {
             var fromPhone = new Twilio.Types.PhoneNumber($"whatsapp:{CleanPhoneNumber(sTwilioPhone)}");  // https://www.twilio.com/console/phone-numbers
             var toPhone = new Twilio.Types.PhoneNumber($"whatsapp:{CleanPhoneNumber(sToPhone)}"); 

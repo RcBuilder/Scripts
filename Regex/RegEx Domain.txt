@@ -4,3 +4,21 @@ RegEx Domain:
 With Params:
 (?<domain>https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256})(?<params>[-a-zA-Z0-9()@:%_\+.~#?&//=]*)
 (?<domain>https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6})\b(?<params>[-a-zA-Z0-9()@:%_\+.~#?&//=]*)
+
+
+--
+
+Is Domain?
+^(https?)://(www.)?([\w-]+\.)+[a-zA-Z]{2,6}/?$
+
+code:
+var regex = new Regex(@"^(https?)://(www.)?([\w-]+\.)+[a-zA-Z]{2,6}/?$", RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
+return regex.IsMatch(value);
+
+tests:
+[] http://www.google.com/segment1/segment2
+[] http://www.google.com/segment1
+[] http://www.google.com/
+[] http://www.google.com
+[] https://www.google.com
+[] http://www.google.com?p=1

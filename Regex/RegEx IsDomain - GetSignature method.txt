@@ -1,0 +1,34 @@
+RegEx IsDomain - GetSignature method
+------------------------------------
+
+string GetSignature((string URL, int DocNo) doc) {
+    bool IsDomain(string value) {
+        var regex = new Regex(@"^(https?)://(www.)?([\w-]+\.)+[a-zA-Z]{2,6}/?$", RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
+        return regex.IsMatch(value);
+    }
+
+    if (string.IsNullOrWhiteSpace(doc.URL)) return string.Empty;
+    if (!doc.URL.StartsWith("http")) return doc.URL;
+    if(!IsDomain(doc.URL)) return doc.URL;
+	
+	var domain = !doc.URL.EndsWith("/") ? $"{doc.URL}/" : doc.URL;  // add missing / suffix (if needed)
+    return $"{doc.URL}crtv/ordersgn/{doc.DocNo}";
+}
+
+-- 
+
+// usage sample
+Console.WriteLine(GetSignature(("http://www.google.com/segment1/segment2", 1000)));
+Console.WriteLine(GetSignature(("http://www.google.com/segment1", 1000)));
+Console.WriteLine(GetSignature(("http://www.google.com/", 1000)));  // use formula
+Console.WriteLine(GetSignature(("http://www.google.com", 1000)));	// use formula
+Console.WriteLine(GetSignature(("https://www.google.com", 1000)));	// use formula
+Console.WriteLine(GetSignature(("http://www.google.com?p=1", 1000)));
+
+output:
+http://www.google.com/segment1/segment2
+http://www.google.com/segment1
+http://www.google.com/crtv/ordersgn/1000
+http://www.google.comcrtv/ordersgn/1000
+https://www.google.comcrtv/ordersgn/1000
+http://www.google.com?p=1

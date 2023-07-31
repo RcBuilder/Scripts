@@ -6,9 +6,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 
 // Install-Package MediaToolkit -Version 1.1.0.1
-using MediaToolkit;
-using MediaToolkit.Model;
-using MediaToolkit.Options;
+///using MediaToolkit;
+///using MediaToolkit.Model;
+///using MediaToolkit.Options;
 
 namespace Common
 {
@@ -42,6 +42,23 @@ namespace Common
             if (filePath == string.Empty) return string.Empty;
             using (var sr = new StreamReader(filePath, encoding))
                 return sr.ReadToEnd();
+        }
+        #endregion
+
+        #region ExtractPosterFromImage:
+        public static string ExtractPosterFromImage(string ImagePath, string folder) {            
+            var selected = ImagePath;
+
+            try
+            {
+                var posterFile = FileHelper.ExtractPosterFromImage($"{folder}{selected}", folder, 500, 500, false);
+                return posterFile;
+            }
+            catch (Exception ex)
+            {
+                LoggerSingleton.Instance.Error($"Common.Helper.ExtractPosterFromImage: failed to create Poster for: {selected}", ex);
+                return string.Empty;
+            }
         }
         #endregion
 
@@ -80,9 +97,10 @@ namespace Common
 
                 foreach (Match match in matches)
                 {
+                    var vid_src = "";
                     try
                     {
-                        var vid_src = match.Groups[1].Value;
+                        vid_src = match.Groups[1].Value;
                         if (vid_src.ToLower().StartsWith("http"))
                         {
                             // TODO: remote video file is not supported.
@@ -95,6 +113,9 @@ namespace Common
 
                         ///throw new Exception(framePath);
 
+                        var saved10s = FileHelper.ExtractPosterFromVideo(videoPath, 10);
+                        
+                        /*
                         var outputFile = new MediaFile { Filename = framePath };
                         if (!File.Exists(framePath)) {
                             var engine = new Engine(FFMPEG_PATH);
@@ -104,10 +125,14 @@ namespace Common
                             var options = new ConversionOptions { Seek = TimeSpan.FromSeconds(frameTime) };
                             engine.GetThumbnail(inputFile, outputFile, options);
                         }
+                        */
 
-                        images.Add(Path.GetFileName(frame_src));
+                        images.Add(Path.GetFileName(saved10s));
                     }
-                    catch { throw; }
+                    catch(Exception ex) {
+                        LoggerSingleton.Instance.Error($"Common.Helper.ExtractPosterFromHtml: failed to load a video frame for: {vid_src}", ex);
+                        throw; 
+                    }
                 }                                
             }
 
@@ -124,7 +149,7 @@ namespace Common
             var selected = images[RND.Next(0, images.Count)];
 
             try {                
-                var posterFile = FileHelper.ExtractPoster($"{folder}{selected}", folder, 500, 500, false);
+                var posterFile = FileHelper.ExtractPosterFromImage($"{folder}{selected}", folder, 500, 500, false);
                 return posterFile;
             }
             catch (Exception ex) {

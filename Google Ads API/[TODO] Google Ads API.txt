@@ -14,3 +14,192 @@ https://developers.google.com/google-ads/api/docs/migration/services
 
 
 
+---------------------------
+TODO ->> 
+
+/// https://developers.google.com/google-ads/api/fields/v14/label
+function printLabels(){
+    var report = AdWordsApp.report(`SELECT label.id, label.name FROM ad_group_criterion_label`);  
+    var rows = report.rows();
+    while(rows.hasNext()){
+      var row = rows.next();
+      Logger.log('label: #%s %s', row['label.id'], row['label.name'])
+    }
+  }
+  
+  function getLabelDetails(id){
+    Logger.log('get label #%s', id);
+    
+     var report = AdWordsApp.report(
+      `SELECT        
+        label.id,
+        label.name
+      FROM ad_group_criterion_label
+      WHERE label.id = ${id}`
+    );  
+    var rows = report.rows();
+    if(rows.hasNext())
+      return rows.next()
+    return null;
+  }
+
+-
+
+function getPositionLabels() {
+    var labels = [];
+       
+    var report = AdWordsApp.report(`
+      SELECT label.id, label.name, label.text_label.description, label.resource_name 
+      FROM ad_group_criterion_label
+      WHERE label.name LIKE 'top-%'
+    `);  
+
+    var rows = report.rows();
+    while(rows.hasNext()){
+      var row = rows.next();    
+      ///Logger.log('#%s %s (%s)', row['label.id'], row['label.name'], row['label.resource_name']);
+
+      var exists = labels.filter(l => l.Id == row['label.id']).length > 0;      
+      if(!exists){        
+        labels.push({
+          Id: row['label.id'], 
+          Name: row['label.name'], 
+          Description: row['label.text_label.description'], 
+          ResourceName: row['label.resource_name']
+        });    
+      }
+    }
+    
+    Logger.log(labels.map(l => l.Name));
+    return labels;
+  }
+  
+-
+
+  function getKeywordsReportConverted(){      
+    var convertedReport = [];
+    
+    /*
+      Id
+      Criteria
+      AdGroupId
+      AdGroupName
+      CampaignName
+      Impressions
+      CpcBid
+      FirstPageCpc
+      Labels
+      BiddingStrategyType
+      SearchTopImpressionShare
+      SearchAbsoluteTopImpressionShare
+      
+      ---
+    
+      ad_group_criterion.criterion_id,
+      ad_group_criterion.keyword.text,
+      ad_group.id, 
+      ad_group.name,
+      campaign.name, 
+      metrics.impressions, 
+      ad_group_criterion.effective_cpc_bid_micros, 
+      ad_group_criterion.position_estimates.first_page_cpc_micros,
+      ad_group_criterion.labels,
+      campaign.bidding_strategy_type, 
+      metrics.search_top_impression_share,
+      metrics.search_absolute_top_impression_share,
+      keyword_view.resource_name,
+      segments.ad_network_type
+    */
+    
+    var report = getKeywordsReport();   
+    
+    var rows = report.rows();
+    Logger.log(rows.totalNumEntities());
+    
+    while(rows.hasNext()){
+        var row = rows.next();        
+        ///Logger.log('%s [%s] [%s]',row["ad_group_criterion.keyword.text"], row["segments.ad_network_type"], row["campaign.bidding_strategy_type"]);
+      
+        convertedReport.push({
+          Id: row["ad_group_criterion.criterion_id"],
+          Criteria: row["ad_group_criterion.keyword.text"],
+          AdGroupId: row["ad_group.id"],
+          AdGroupName: row["ad_group.name"],
+          CampaignName: row["campaign.name"],
+          Impressions: row["metrics.impressions"],
+          CpcBid: row["ad_group_criterion.effective_cpc_bid_micros"],
+          FirstPageCpc: row["ad_group_criterion.position_estimates.first_page_cpc_micros"],
+          Labels: row["ad_group_criterion.labels"],
+          BiddingStrategyType: row["campaign.bidding_strategy_type"],
+          SearchTopImpressionShare: row["metrics.search_top_impression_share"],
+          SearchAbsoluteTopImpressionShare: row["metrics.search_absolute_top_impression_share"]
+        });
+      }
+    
+    /// return report;
+    return convertedReport;
+  }
+  
+-
+
+  function getKeywordsReport(){
+    
+    var report = AdWordsApp.report(
+        `SELECT 
+          ad_group_criterion.criterion_id,
+          ad_group_criterion.keyword.text,
+          ad_group.id, 
+          ad_group.name,
+          campaign.name, 
+          metrics.impressions, 
+          ad_group_criterion.effective_cpc_bid_micros, 
+          ad_group_criterion.position_estimates.first_page_cpc_micros, 
+          ad_group_criterion.labels,
+          campaign.bidding_strategy_type, 
+          metrics.search_top_impression_share,
+          metrics.search_absolute_top_impression_share,
+          keyword_view.resource_name,
+          segments.ad_network_type
+        FROM keyword_view 
+        WHERE ad_group.status = ENABLED 
+        AND campaign.status = ENABLED         
+        AND segments.ad_network_type = SEARCH 
+        AND segments.date DURING TODAY`
+    );
+    
+    return report;
+  }
+
+-
+  
+  function printLabels(){
+    var report = AdWordsApp.report(
+      `SELECT 
+        label.id, 
+        label.name 
+       FROM ad_group_criterion_label`
+    );  
+    var rows = report.rows();
+    while(rows.hasNext()){
+      var row = rows.next();
+      Logger.log('label: #%s %s', row['label.id'], row['label.name'])
+    }
+  }
+
+-
+  
+  function getLabelDetails(id){
+    Logger.log('get label #%s', id);
+    
+     var report = AdWordsApp.report(
+      `SELECT        
+        label.id,
+        label.name
+      FROM ad_group_criterion_label
+      WHERE label.id = ${id}`
+    );  
+    var rows = report.rows();
+    if(rows.hasNext())
+      return rows.next()
+    return null;
+  }
