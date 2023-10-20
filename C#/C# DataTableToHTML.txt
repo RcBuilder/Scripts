@@ -1,0 +1,21 @@
+C# DataTableToHTML
+------------------
+static string DataTableToHTML(DataTable dt) {
+            var sb = new StringBuilder();
+            sb.Append("<table border='1px' cellpadding='1' cellspacing='1' bgcolor='lightyellow' style='font-family:Garamond; font-size:smaller'>");
+
+            sb.Append("<tr>");
+            foreach (DataColumn col in dt.Columns)
+                sb.AppendFormat("<th>{0}</th>", col.ColumnName);
+            sb.Append("</tr>");
+
+            foreach (DataRow row in dt.Rows)
+            {
+                sb.Append("<tr>");
+                foreach (DataColumn col in dt.Columns)
+                    sb.AppendFormat("<td>{0}</td>", row[col.ColumnName]);                
+                sb.Append("</tr>");
+            }
+
+            return sb.ToString();            
+        }

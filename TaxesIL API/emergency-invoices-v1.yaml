@@ -1,0 +1,438 @@
+swagger: '2.0'
+info:
+  version: v1
+  title: emergency-invoices
+  description: 'רשות המיסים נערכת למצבים של כשל חריג במערכת המיחשוב ו/או של ספק התקשורת, שבעטיין מסיבות טכנולוגיות לא התאפשרה הקצאת מספר על ידי רשות המיסים. יש להיערך מראש על ידי פניה לשירות לקבלת מספרי הקצאה לשעת חרום, לשמור את המספרים לעת הצורך ולעדכן את רשות המיסים בשימוש במספרי החרום לאחר סיום הכשל. '
+  x-ibm-name: emergency-invoices
+host: openapi.taxes.gov.il
+basePath: /shaam/tsandbox/emergency-invoices/v1
+schemes:
+  - https
+paths:
+  /Approval:
+    post:
+      tags:
+        - EmergencyApproval
+      description: ''
+      operationId: post_create_Emergency_Approval
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: reqEmergencyApproval
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/reqEmergencyApproval'
+      responses:
+        '200':
+          description: OK. An approved invoice will receive a confirmation number. If the value of the confirmation number is 0, check the error list.
+          schema:
+            $ref: '#/definitions/resErrors'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '406':
+          description: Not Acceptable
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+  /ConfirmationNumbers:
+    post:
+      tags:
+        - confirmationNumbers
+      description: ''
+      operationId: post_create_confirmation_numbers
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: reqConfirmationNumbers
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/reqConfirmationNumbers'
+      responses:
+        '200':
+          description: OK / The maximum amount of unused emergency confirmation numbers has been reached.
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '406':
+          description: Not Acceptable
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+  /Health:
+    get:
+      tags:
+        - Health
+      description: ''
+      operationId: get_InvoiceInformation_Health
+      parameters: []
+      responses:
+        '200':
+          description: OK
+definitions:
+  reqEmergencyApproval:
+    type: object
+    properties:
+      Invoice_ID:
+        type: string
+        maxLength: 50
+        example: '987654321'
+        description: "מספר קשר פנימי (מספר זמני של הנה\"ח)\t"
+      Invoice_Type:
+        format: int32
+        type: integer
+        enum:
+          - 300
+          - 305
+          - 310
+          - 306
+          - 320
+          - 330
+          - 331
+          - 332
+          - 340
+          - 345
+        maximum: 9999
+        example: 305
+        description: "סוג חשבונית. 300\t- חשבונית/חשבונית עסקה, 305 - חשבונית-מס, 306 - חשבונית-מס 1, 310 - חשבונית ריכוז, 320 - חשבונית מס / קבלה, 330 - חשבונית מס זיכוי, 331 - חשבונית מס זיכוי 1, 332 - חשבון עסקה / פרופורמה, 340 - חשבונית שריון, 345 - חשבונית סוכן"
+      Vat_Number:
+        format: int32
+        type: integer
+        maximum: 999999999
+        minimum: 1
+        example: 777777715
+        description: 'מספר תיק מע"מ (ספק) בשלב זה יש לנסות הקצאת חשבוניות לעוסקים מדומים: 777777715, 777777723, 777777731,777777749'
+      Union_Vat_Number:
+        format: int32
+        type: integer
+        maximum: 999999999
+        minimum: 0
+        example: 125847553
+        description: מספר העוסק באיחוד העוסקים
+      Invoice_Reference_Number:
+        type: string
+        maxLength: 20
+        example: '975626515'
+        description: מספר אסמכתא חשבונית
+      Customer_VAT_Number:
+        format: int32
+        type: integer
+        maximum: 999999999
+        minimum: 0
+        example: 18
+        description: מספר תיק מע"מ לקוח
+      Customer_Name:
+        type: string
+        maxLength: 25
+        example: שם הלקוח
+        description: שם הלקוח
+      Invoice_Date:
+        type: string
+        format: date
+        maxLength: 10
+        example: '2023-04-08'
+        description: YYYY-MM-DD תאריך החשבונית. יש לשלוח תאריך לא מוקדם משבועיים מהיום
+      Invoice_Issuance_Date:
+        type: string
+        format: date
+        maxLength: 10
+        example: '2023-04-08'
+        description: YYYY-MM-DD תאריך הפקת המסמך
+      Branch_ID:
+        type: string
+        maxLength: 7
+        example: '533'
+        description: מזהה סניף
+      Accounting_Software_Number:
+        format: int32
+        type: integer
+        maximum: 99999999
+        minimum: 1
+        example: 36955574
+        description: מספר רישום תכנה
+      Client_Software_Key:
+        type: string
+        maxLength: 50
+        example: '76857'
+        description: מפתח הלקוח של מפיק החשבונית אצל בית התוכנה
+      Amount_Before_Discount:
+        format: decimal
+        type: number
+        maximum: 999999999999.99
+        minimum: 0
+        example: 552.75
+        description: סכום לפני הנחת מסמך
+      Discount:
+        format: decimal
+        type: number
+        maximum: 999999999999.99
+        minimum: 0
+        example: 52.75
+        description: 'הנחת מסמך '
+      Payment_Amount:
+        format: decimal
+        type: number
+        maximum: 999999999999.99
+        minimum: 0
+        example: 500
+        description: סכום סופי ללא מע"מ
+      VAT_Amount:
+        format: decimal
+        type: number
+        maximum: 999999999999.99
+        minimum: 0
+        example: 85
+        description: סכום המע"מ
+      Payment_Amount_Including_VAT:
+        format: decimal
+        type: number
+        maximum: 999999999999.99
+        minimum: 0
+        example: 585
+        description: סכום סופי כולל מע"מ
+      Invoice_Note:
+        type: string
+        maxLength: 100
+        example: הערות
+        description: הערה לחשבונית
+      Action:
+        format: int16
+        type: integer
+        enum:
+          - 0
+          - 1
+          - 2
+          - 3
+          - 4
+        maximum: 999
+        example: 0
+        description: סימון 3 אם נבחר היפוך חיוב, סכום מע"מ חייב להיות 0. סימון 4 - חשבון עסקה / פרופורמה.
+      Vehicle_License_Number:
+        format: int64
+        type: integer
+        maximum: 9999999999
+        minimum: 0
+        example: 584752145
+        description: מספר רישוי רכב
+      Phone_Of_Driver:
+        type: string
+        maxLength: 10
+        example: '0505674235'
+        description: מספר הנייד של הנהג
+      Arrival_Date:
+        type: string
+        format: date
+        maxLength: 10
+        example: '2023-02-26'
+        description: YYYY-MM-DD תאריך הגעה
+      Estimated_Arrival_Time:
+        type: string
+        maxLength: 5
+        example: '13:25'
+        description: HH:MM שעת הגעה משוערת
+      Transition_Location:
+        format: int16
+        type: integer
+        maximum: 99
+        minimum: 0
+        example: 12
+        description: מיקום המעבר על פי טבלת קודים
+      Delivery_Address:
+        type: string
+        maxLength: 60
+        example: כתובת אספקה
+        description: כתובת אספקה
+      Additional_Information:
+        format: int16
+        type: integer
+        maximum: 9999
+        minimum: 0
+        example: 0
+        description: לשימוש עתידי
+      Emergency_Confirmation_Number:
+        type: string
+        maxLength: 30
+        example: '20230620223959908171910927'
+        description: מספר הקצאה חרום
+      Items:
+        type: array
+        items:
+          type: object
+          properties:
+            Index:
+              format: int32
+              type: integer
+              maximum: 999999
+              minimum: 0
+              example: 7446
+              description: מספר שורה
+            Catalog_ID:
+              type: string
+              maxLength: 13
+              example: '5569875437'
+              description: "מספר פריט (מק\"ט) , 1.\tכאשר מדובר בחשבונית ריכוז המתבססת על תעודות משלוח אין את פרטי החשבונית. בשדה \"מספר פריט\" (1259) יירשמו מספרי תעודות המשלוח בדומה לחשבוניות אוטונומיה."
+            Category:
+              format: int32
+              type: integer
+              maximum: 999999
+              minimum: 1
+              example: 15
+              description: 'קטגוריית הפריט תו ראשון ישמש לסימון טובין (1) או שירות (2). 5 תווים נוספים לקטגוריית משנה כמצורף בנספח קטגורית משנה. '
+            Description:
+              type: string
+              maxLength: 30
+              example: תיאור הפריט
+              description: תיאור הפריט
+            Measure_Unit_Description:
+              type: string
+              maxLength: 20
+              example: קילו
+              description: תיאור יחידת מידה
+            Quantity:
+              format: decimal
+              type: number
+              maximum: 999999999999.99
+              minimum: 0
+              example: 100.5
+              description: כמות
+            Price_Per_Unit:
+              format: decimal
+              type: number
+              maximum: 999999999999.99
+              minimum: 0
+              example: 5.5
+              description: מחיר ליחידה
+            Discount:
+              format: decimal
+              type: number
+              maximum: 999999999999.99
+              minimum: 0
+              example: 52.75
+              description: הנחת פריט
+            Total_Amount:
+              format: decimal
+              type: number
+              maximum: 999999999999.99
+              minimum: 0
+              example: 500
+              description: סך סכום לפריט ללא מע"מ בניכוי הנחת פריט
+            VAT_Rate:
+              format: decimal
+              type: number
+              maximum: 99.99
+              minimum: 0
+              example: 17
+              description: שיעור מע"ם
+            VAT_Amount:
+              format: decimal
+              type: number
+              maximum: 999999999999.99
+              minimum: 0
+              example: 85
+              description: סכום מע"ם
+    required:
+      - Invoice_ID
+      - Invoice_Type
+      - Vat_Number
+      - Invoice_Date
+      - Invoice_Issuance_Date
+      - Accounting_Software_Number
+      - Amount_Before_Discount
+      - Discount
+      - Payment_Amount_Including_VAT
+      - Payment_Amount
+      - VAT_Amount
+      - Emergency_Confirmation_Number
+  reqConfirmationNumbers:
+    type: object
+    properties:
+      Vat_Number:
+        format: int32
+        type: integer
+        maxLength: 9
+        minimum: 1
+        example: 777777715
+        description: מספר תיק מע"מ (ספק)
+    required:
+      - Vat_Number
+  resErrors:
+    type: object
+    properties:
+      '432':
+        type: string
+        example: Customer VAT Number is incorrect
+        description: Customer VAT Number is incorrect
+      '433':
+        type: string
+        example: Invoice type is incorrect
+        description: Invoice type is incorrect
+      '434':
+        type: string
+        example: Invoice date is more than two weeks old
+        description: Invoice date is more than two weeks old
+      '435':
+        type: string
+        example: Invoice date is in the future
+        description: Invoice date is in the future
+      '436':
+        type: string
+        example: VAT amount is greater than the calculated VAT
+        description: VAT amount is greater than the calculated VAT
+      '437':
+        type: string
+        example: VAT amount is greater than 0
+        description: VAT amount is greater than 0
+x-ibm-configuration:
+  cors:
+    enabled: true
+  phase: realized
+  enforced: true
+  type: rest
+  testable: true
+  servers:
+    - url: https://openapi.taxes.gov.il/shaam/tsandbox/emergency-invoices/v1
+      description: ''
+      type:
+        - production
+        - development
+  oauth-servers:
+    Oauth:
+      tokenUrls:
+        - https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/token
+      authorizationUrls:
+        - https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/authorize
+      refreshUrls: []
+securityDefinitions:
+  clientID:
+    type: apiKey
+    in: header
+    name: X-IBM-Client-Id
+  Oauth:
+    type: oauth2
+    x-ibm-oauth-provider: longtimetoken
+    flow: accessCode
+    authorizationUrl: /longtimetoken/oauth2/authorize
+    tokenUrl: /longtimetoken/oauth2/token
+    scopes:
+      scope: Shaam scope
+security:
+  - Oauth:
+      - scope

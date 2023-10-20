@@ -94,12 +94,16 @@ namespace Common
         #region SaveUploadedImageWithResize        
         public static string SaveUploadedImageWithResize(HttpPostedFileBase file, string folder, int width, int height, bool autoScale, bool useGuidName = false, string overrideFileName = null) {
             if (file == null || file.ContentLength == 0) return string.Empty;
-            return SaveUploadedImageWithResize(file.FileName, folder, width, height, autoScale, useGuidName, overrideFileName);
+
+            var uploadedFileName = GenerateFileName(file, true);
+            file.SaveAs(uploadedFileName);
+
+            return SaveUploadedImageWithResize(uploadedFileName, folder, width, height, autoScale, useGuidName, overrideFileName);
         }
         public static string SaveUploadedImageWithResize(string file, string folder, int width, int height, bool autoScale, bool useGuidName = false, string overrideFileName = null)
         {
             var fileName = GenerateFileName(file, useGuidName);
-            var fileNameSrc = fileName;
+            var fileNameSrc = file;
             if (!string.IsNullOrWhiteSpace(overrideFileName)) fileName = overrideFileName;
 
             if (!Directory.Exists(folder))

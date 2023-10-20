@@ -4,7 +4,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Routing;
 
-namespace Helpers
+namespace RestAPITests
 {
     /*
         INFO
@@ -46,6 +46,7 @@ namespace Helpers
 
         // Sample.cshtml
         @inherits System.Web.Mvc.WebViewPage
+        @using System.Web.Mvc.Html;
         @{
             Layout = null;
             var MyModel = (Model as RestAPITests.SampleModel);
@@ -58,12 +59,21 @@ namespace Helpers
             <title></title>
         </head>
         <body>
+            @Html.Partial("~/Partial/Header.cshtml")
             <h2>Hello @MyModel.FirstName @MyModel.LastName</h2>
             <div>
                 bla bla bla ...
-            </div>
+            </div>            
         </body>
         </html>
+
+        -
+
+        // Header.cshtml
+        @inherits System.Web.Mvc.WebViewPage
+        <header>
+            ...
+        </header>
     */
 
 

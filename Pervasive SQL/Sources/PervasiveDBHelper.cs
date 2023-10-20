@@ -205,6 +205,7 @@ namespace Helpers
 
         public static string Reverse(string value) {
             value = value ?? "";
+            value = value.Replace("'", "''");
             return new string(value.Reverse().ToArray());
         }
     }

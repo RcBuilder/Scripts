@@ -22,13 +22,13 @@ namespace Helpers
 
     public class EmailService
     {
-        public async Task SendAsync(string MailTo, string Body, string Subject, string Bcc = "rcbuilder@walla.com")
+        public async Task SendAsync(string MailTo, string Body, string Subject, string Bcc = "", bool IsBodyHtml = true)
         {
             try
             {
                 await Task.Factory.StartNew(() =>
                 {
-                    Send(MailTo, Body, Subject, Bcc);
+                    Send(MailTo, Body, Subject, Bcc, IsBodyHtml);
                 });
             }
             catch
@@ -37,7 +37,7 @@ namespace Helpers
             }
         }
 
-        public void Send(string MailTo, string Body, string Subject, string Bcc = "rcbuilder@walla.com")
+        public void Send(string MailTo, string Body, string Subject, string Bcc = "", bool IsBodyHtml = true)
         {
             try
             {
@@ -47,7 +47,7 @@ namespace Helpers
                     myMessage.Bcc.Add(new MailAddress(Bcc));
                 myMessage.Subject = Subject;
                 myMessage.Body = Body;
-                myMessage.IsBodyHtml = true;
+                myMessage.IsBodyHtml = IsBodyHtml;
 
                 var mySmtp = new SmtpClient();
                 mySmtp.Send(myMessage);

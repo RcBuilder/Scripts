@@ -1,0 +1,123 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style type="text/css">
+        body {
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+        .wrapper {
+            width: 1000px;
+            margin: 0 auto;
+        }
+
+        .mob-menu {            
+            width: 300px;
+            position: relative;
+            margin: 20px;
+        }
+        .mob-menu > ul {        
+            list-style-type: none;
+            position: absolute;
+            visibility: hidden;
+            top: 25px;
+            opacity: 0;
+            transition: visibility 0s, opacity 0.5s linear;            
+            background-color: black;
+            padding: 12px;
+            color: #fff;            
+            z-index: 80;
+            width: inherit;
+            border-radius: 12px;
+        }
+        
+        .mob-menu > ul.show {
+            visibility: visible;
+            opacity: 0.9;
+        }
+
+        .mob-menu > ul li {            
+            padding: 20px 0;
+            border-bottom: solid 1px #808080;
+        }
+        .mob-menu > ul li:last-child {
+            border-bottom: unset;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <div class="mob-menu">
+            <a>
+                <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="36" height="36" rx="8" fill="#000" />
+                    <g clip-path="url(#clip0_453_2217)">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M10.2151 18.0863C10.2151 17.3499 10.812 16.7529 11.5484 16.7529H24.4516C25.188 16.7529 25.785 17.3499 25.785 18.0863C25.785 18.8226 25.188 19.4196 24.4516 19.4196H11.5484C10.812 19.4196 10.2151 18.8226 10.2151 18.0863Z"
+                              fill="white" />
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M10.2151 12.6024C10.2151 11.866 10.812 11.269 11.5484 11.269H24.4516C25.188 11.269 25.785 11.866 25.785 12.6024C25.785 13.3388 25.188 13.9357 24.4516 13.9357H11.5484C10.812 13.9357 10.2151 13.3388 10.2151 12.6024Z"
+                              fill="white" />
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M10.2151 23.3978C10.2151 22.6614 10.812 22.0645 11.5484 22.0645H24.4516C25.188 22.0645 25.785 22.6614 25.785 23.3978C25.785 24.1342 25.188 24.7311 24.4516 24.7311H11.5484C10.812 24.7311 10.2151 24.1342 10.2151 23.3978Z"
+                              fill="white" />
+                    </g>
+                    <defs>
+                        <clipPath id="clip0_453_2217">
+                            <rect width="16" height="16" fill="white" transform="translate(10 10)" />
+                        </clipPath>
+                    </defs>
+                </svg>
+            </a>
+
+            <ul>
+                <li>Link-1</li>
+                <li>Link-2</li>
+                <li>Link-3</li>
+                <li>Link-4</li>
+                <li>Link-5</li>
+                <li>Link-6</li>
+            </ul>
+        </div>
+
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+    <script>
+        const mobileMenuItems = $('.mob-menu > ul');
+        $('.mob-menu > a').on('click', function () {
+            mobileMenuItems.toggleClass('show');
+        });
+
+        $('body').not('.mob-menu > a').on('click', function () {
+            let target = $(event.target).closest('.mob-menu');
+            let mobileMenu = $('.mob-menu');
+            let isMenuArea = (target.is(mobileMenu) || mobileMenu.has(target).length > 0);
+            if (isMenuArea) return;
+
+            mobileMenuItems.removeClass('show');
+            //event.preventDefault();
+        });
+    </script>
+</body>
+</html>

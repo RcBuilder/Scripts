@@ -1,0 +1,43 @@
+{
+  "Invoice_ID": "987654321",
+  "Invoice_Type": 305,
+  "Vat_Number": 777777715,
+  "Union_Vat_Number": 125847553,
+  "Invoice_Reference_Number": "975626515",
+  "Customer_VAT_Number": 18,
+  "Customer_Name": "שם הלקוח",
+  "Invoice_Date": "2023-10-03",
+  "Invoice_Issuance_Date": "2023-10-03",
+  "Branch_ID": "533",
+  "Accounting_Software_Number": 36955574,
+  "Client_Software_Key": "76857",
+  "Amount_Before_Discount": 552.75,
+  "Discount": 52.75,
+  "Payment_Amount": 500,
+  "VAT_Amount": 85,
+  "Payment_Amount_Including_VAT": 585,
+  "Invoice_Note": "הערות",
+  "Action": 0,
+  "Vehicle_License_Number": 584752145,
+  "Phone_Of_Driver": "0505674235",
+  "Arrival_Date": "2023-02-26",
+  "Estimated_Arrival_Time": "13:25",
+  "Transition_Location": 12,
+  "Delivery_Address": "כתובת אספקה",
+  "Additional_Information": 0,
+  "Items": [
+    {
+      "Index": 7446,
+      "Catalog_ID": "5569875437",
+      "Category": 15,
+      "Description": "תיאור הפריט",
+      "Measure_Unit_Description": "קילו",
+      "Quantity": 100.5,
+      "Price_Per_Unit": 5.5,
+      "Discount": 52.75,
+      "Total_Amount": 500,
+      "VAT_Rate": 17,
+      "VAT_Amount": 85
+    }
+  ]
+}

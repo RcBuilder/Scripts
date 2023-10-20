@@ -1,0 +1,243 @@
+swagger: '2.0'
+info:
+  version: v1
+  title: invoice-information
+  description: הקצאת חשבוניות ישראל - קבלת פרטי חשבונית באמצעות מספר ההקצאה (מספר ארוך או 9 ספרות ימניות). מטרת השרות היא להנגיש את פרטי החשבונית על מנת לייעל את תהליך הזנת החשבונית במערכת החשבונות של הלקוח.
+  x-ibm-name: invoice-information
+host: openapi.taxes.gov.il
+basePath: /shaam/tsandbox/invoice-information/v1
+schemes:
+  - https
+paths:
+  /details:
+    post:
+      tags:
+        - PostInvoiceInformation
+      description: ''
+      operationId: post_InvoiceInformation
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: reqDetails
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/reqDetails'
+      responses:
+        '200':
+          description: OK / For correct information please send VAT number.
+          schema:
+            $ref: '#/definitions/resDetails'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '406':
+          description: Not Acceptable
+        '422':
+          description: Unprocessable Entity
+        '500':
+          description: Internal Server Error
+  /Health:
+    get:
+      tags:
+        - Health
+      description: ''
+      operationId: get_InvoiceInformation_Health
+      parameters: []
+      responses:
+        '200':
+          description: OK
+definitions:
+  reqDetails:
+    type: object
+    properties:
+      Customer_VAT_Number:
+        format: int32
+        type: integer
+        maximum: 999999999
+        minimum: 1
+        example: 777777715
+        description: 'מספר תיק מע"מ לקוח. בשלב זה יש לנסות הקצאת חשבוניות ללקוחות מדומים: 777777715, 777777723, 777777731, 777777749'
+      Confirmation_Number:
+        type: string
+        maxLength: 30
+        example: '987654321'
+        description: מספר ההקצאה (מספר מלא או 9 ספרות ימניות)
+      Vat_Number:
+        format: int32
+        type: integer
+        maximum: 999999999
+        minimum: 0
+        example: 18
+        description: מספר תיק מע"מ (ספק). נדרש לשלוח רק במקרה והפניה חוזרת עם בקשה לשלוח מספר ספק.
+    required:
+      - Customer_VAT_Number
+      - Confirmation_Number
+  resDetails:
+    type: object
+    properties:
+      Invoice_Type:
+        format: int16
+        type: integer
+        example: 305
+        description: "סוג חשבונית. 300\t- חשבונית/חשבונית עסקה, 305 - חשבונית-מס, 306 - חשבונית-מס 1, 310 - חשבונית ריכוז, 320 - חשבונית מס / קבלה, 330 - חשבונית מס זיכוי, 331 - חשבונית מס זיכוי 1, 332 - חשבון עסקה / פרופורמה, 340 - חשבונית שריון, 345 - חשבונית סוכן"
+      Vat_Number:
+        format: int32
+        type: integer
+        example: 777777715
+        description: מספר תיק מע"מ (ספק)
+      Union_Vat_Number:
+        format: int32
+        type: integer
+        example: 125847553
+        description: מספר העוסק באיחוד העוסקים
+      Invoice_Reference_Number:
+        type: string
+        example: '975626515'
+        description: מספר אסמכתא חשבונית
+      Customer_VAT_Number:
+        format: int32
+        type: integer
+        example: 18
+        description: מספר תיק מע"מ לקוח
+      Customer_Name:
+        type: string
+        example: שם הלקוח
+        description: שם הלקוח
+      Invoice_Date:
+        type: string
+        example: '2023-04-08'
+        description: YYYY-MM-DD תאריך החשבונית
+      Invoice_Issuance_Date:
+        type: string
+        example: '2023-04-08'
+        description: YYYY-MM-DD תאריך הפקת המסמך
+      Amount_Before_Discount:
+        format: decimal
+        type: number
+        example: 10000.8
+        description: סכום לפני הנחת מסמך
+      Discount:
+        format: decimal
+        type: number
+        example: 1700.14
+        description: 'הנחת מסמך '
+      Payment_Amount:
+        format: decimal
+        type: number
+        example: 8300.66
+        description: סכום סופי ללא מע"מ
+      VAT_Amount:
+        format: decimal
+        type: number
+        example: 170.17
+        description: סכום המע"מ
+      Payment_Amount_Including_VAT:
+        format: decimal
+        type: number
+        example: 10000.8
+        description: סכום סופי כולל מע"מ
+      Invoice_Note:
+        type: string
+        example: הערות
+        description: הערה לחשבונית
+      Items:
+        type: array
+        items:
+          type: object
+          properties:
+            Index:
+              format: int32
+              type: integer
+              example: 7446
+              description: מספר שורה
+            Catalog_ID:
+              type: string
+              example: '5569875437'
+              description: מספר פריט (מק"ט).
+            Category:
+              format: int32
+              type: integer
+              example: 15
+              description: 'קטגוריית הפריט תו ראשון ישמש לסימון טובין (1) או שירות (2). 5 תווים נוספים לקטגוריית משנה כמצורף בנספח קטגורית משנה. '
+            Description:
+              type: string
+              example: תיאור הפריט
+              description: תיאור הפריט
+            Measure_Unit_Description:
+              type: string
+              example: קילו
+              description: תיאור יחידת מידה
+            Quantity:
+              format: decimal
+              type: number
+              example: 450.5
+              description: כמות
+            Price_Per_Unit:
+              format: decimal
+              type: number
+              example: 99.9
+              description: מחיר ליחידה
+            Discount:
+              format: decimal
+              type: number
+              example: 5.8
+              description: הנחת פריט
+            Total_Amount:
+              format: decimal
+              type: number
+              example: 115.8
+              description: סך סכום לפריט ללא מע"מ בניכוי הנחת פריט
+            VAT_Rate:
+              format: decimal
+              type: number
+              example: 17
+              description: שיעור מע"ם
+            VAT_Amount:
+              format: decimal
+              type: number
+              example: 5.8
+              description: סכום מע"ם
+x-ibm-configuration:
+  cors:
+    enabled: true
+  phase: realized
+  enforced: true
+  type: rest
+  testable: true
+  servers:
+    - url: https://openapi.taxes.gov.il/shaam/tsandbox/invoice-information/v1
+      description: ''
+      type:
+        - production
+        - development
+  oauth-servers:
+    Oauth:
+      tokenUrls:
+        - https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/token
+      authorizationUrls:
+        - https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/authorize
+      refreshUrls: []
+securityDefinitions:
+  clientID:
+    type: apiKey
+    in: header
+    name: X-IBM-Client-Id
+  Oauth:
+    type: oauth2
+    x-ibm-oauth-provider: longtimetoken
+    flow: accessCode
+    authorizationUrl: /longtimetoken/oauth2/authorize
+    tokenUrl: /longtimetoken/oauth2/token
+    scopes:
+      scope: Shaam scope
+security:
+  - Oauth:
+      - scope

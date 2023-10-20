@@ -492,7 +492,6 @@ namespace Helpers
                     else
                         sPayload = JsonConvert.SerializeObject(payload);
 
-					/// File.AppendAllText($"{AppDomain.CurrentDomain.BaseDirectory}TEST.txt", sPayload);
                     response = await client.UploadStringTaskAsync(url, method, sPayload);                    
                 }
 

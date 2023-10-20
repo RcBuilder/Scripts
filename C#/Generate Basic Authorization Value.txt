@@ -1,0 +1,22 @@
+Generate Basic Authorization Value
+----------------------------------
+see 'HttpServiceHelper'
+
+--
+
+public string Base64Encode(string Value)
+        {
+            var valueBytes = Encoding.UTF8.GetBytes(Value);
+            return Convert.ToBase64String(valueBytes);
+        }
+
+        public string Base64Decode(string Base64Value)
+        {
+            var base64ValueBytes = Convert.FromBase64String(Base64Value);
+            return Encoding.UTF8.GetString(base64ValueBytes);
+        }
+
+        public string GenerateBasicAuthorizationValue(string UserName, string Password)
+        {
+            return $"Basic {this.Base64Encode($"{UserName}:{Password}")}";
+        }

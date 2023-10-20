@@ -145,9 +145,17 @@ namespace Helpers
         }
 
         public string ExtractBearerToken(HttpContext context) {
-            var header = this.ExtractAuthorizationHeader(context);
-            if (header == null || !header.StartsWith("Bearer")) return null;
-            return header.Replace("Bearer", string.Empty).Trim();
+            // return from Authorization Header
+            var header = this.ExtractAuthorizationHeader(context);         
+            if (header != null && header.StartsWith("Bearer"))
+                return header.Replace("Bearer", string.Empty).Trim();
+
+            // return from Query
+            var queryParams = this.ExtractQueryAsDictionary(context);
+            if (queryParams.ContainsKey("token"))
+                return queryParams["token"];
+
+            return null;
         }
     }
 }

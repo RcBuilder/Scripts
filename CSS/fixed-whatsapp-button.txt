@@ -1,0 +1,25 @@
+fixed-whatsapp-button
+---------------------
+<a href="https://wa.me/972543265672" target="_blank" class="whatsapp-icon">
+	<img src="/images/whatsapp_icon_128.png">
+</a>
+
+--
+
+.whatsapp-icon {
+    display: block;
+    position: fixed;
+    bottom: 10%;
+    left: 0;
+    z-index: 2000;
+    padding: 8px 14px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    background: rgba(128, 128, 128, 0.5);
+    /* box-shadow: 1px 2px #808080; */
+}
+
+.whatsapp-icon > img {
+    width: 50px;
+    border-radius: 20px;
+}

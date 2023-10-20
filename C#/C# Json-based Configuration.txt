@@ -1,0 +1,53 @@
+C# Json-based Configuration
+---------------------------
+static void Main(string[] args) {            
+    var CONFIG = JsonConvert.DeserializeObject<Config>(File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}Config.json"));
+    Console.WriteLine(CONFIG.ConnStr);
+    Console.ReadKey();
+}
+
+-
+
+public class Config {
+    public class MailSettings {
+        public string From { get; set; }
+        public string To { get; set; }
+        public string Bcc { get; set; }
+        public string Subject { get; set; }
+        public string Server { get; set; }
+        public int Port { get; set; }
+        public bool EnableSsl { get; set; }
+        public string UserName { get; set; }
+        public string Password { get; set; }
+    }
+
+    public string ConnStr { get; set; }
+    public string Dir { get; set; }
+    public bool AutoClose { get; set; }
+    public MailSettings Mail { get; set; }
+    public List<string> Queries { get; set; }
+}
+
+-
+
+{
+    "ConnStr": "Driver={Pervasive ODBC Client Interface};ServerName=CRTV73;dbq=CN31026998r6641db;Client_CSet=UTF-8;Server_CSet=CP850;",
+    "Dir": "RTL", // RTL | LTR
+    "AutoClose": true,
+    "Mail": {
+    "From": "rcbuilder@gmail.com",
+    "To": "rcbuilder@walla.com",
+    "Bcc": "rcbuilder@walla.com",
+    "Subject": "TEST",
+    "Server": "smtp.gmail.com",
+    "Port": 587,
+    "EnableSsl": true,
+    "UserName": "rcbuilder@gmail.com",
+    "Password": "xxxxxxx"
+    },
+    "Queries": [
+    "SELECT 1",
+    "SELECT 2",
+    "SELECT 3"
+    ]
+}

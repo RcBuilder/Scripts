@@ -1,0 +1,15 @@
+C# WinForms WebBrowser
+----------------------
+
+var browser = new WebBrowser();
+browser.DocumentCompleted += (s, e) => {
+	Console.WriteLine(browser.Document.Body.InnerHtml);                
+};
+browser.Navigate("https://www.example.com/");
+
+---
+            
+Process.Start("https://www.example.com/");
+Process.Start("IExplore.exe", "https://www.example.com/");
+Process.Start("Chrome.exe", "https://www.example.com/");
+            

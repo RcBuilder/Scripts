@@ -1,0 +1,74 @@
+swagger: '2.0'
+info:
+  version: v1
+  title: general-information
+  description: ' הקצאת חשבוניות - מידע כללי  שירות להנגשת מידע כללי ליצרני תכנות בנושא הקצאת חשבוניות ישראל .דוגמא למידע כללי: סכום מינימלי לפניה להקצאת חשבונית.'
+  x-ibm-name: general-information
+host: openapi.taxes.gov.il
+basePath: /shaam/tsandbox/general-information/v1
+schemes:
+  - https
+paths:
+  /MinimumAmount:
+    get:
+      tags:
+        - getMinimumAmount
+      description: ''
+      operationId: get_getMinimumAmount
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: OK
+        '500':
+          description: Internal Server Error
+  /Health:
+    get:
+      tags:
+        - Health
+      description: ''
+      operationId: get_Health
+      parameters: []
+      responses:
+        '200':
+          description: OK
+definitions: {}
+x-ibm-configuration:
+  cors:
+    enabled: true
+  phase: realized
+  enforced: true
+  type: rest
+  testable: true
+  servers:
+    - url: https://openapi.taxes.gov.il/shaam/tsandbox/general-information/v1
+      description: ''
+      type:
+        - production
+        - development
+  oauth-servers:
+    Oauth:
+      tokenUrls:
+        - https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/token
+      authorizationUrls:
+        - https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/authorize
+      refreshUrls: []
+securityDefinitions:
+  clientID:
+    type: apiKey
+    in: header
+    name: X-IBM-Client-Id
+  Oauth:
+    type: oauth2
+    x-ibm-oauth-provider: longtimetoken
+    flow: accessCode
+    authorizationUrl: /longtimetoken/oauth2/authorize
+    tokenUrl: /longtimetoken/oauth2/token
+    scopes:
+      scope: Shaam scope
+security:
+  - Oauth:
+      - scope

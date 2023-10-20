@@ -1,0 +1,44 @@
+C# APIResponse T Sample - HttpServiceHelper
+-------------------------------------------
+
+public class APIResponse<T>
+        {
+            public string Status { get; set; }
+            public T Message { get; set; }
+        }
+
+public class GetInvoiceDetailsRequest
+        {
+            [JsonProperty(PropertyName = "Customer_VAT_Number")]
+            public int CustomerVATNumber { get; set; }
+
+            [JsonProperty(PropertyName = "Confirmation_Number")]
+            public string ConfirmationNumber { get; set; }
+
+            [JsonProperty(PropertyName = "Vat_Number")]
+            public int VatNumber { get; set; }
+        }
+
+        public class GetInvoiceDetailsResponse : APIResponse<Invoice> { }
+
+
+
+public async Task<Invoice> GetInvoiceDetails(GetInvoiceDetailsRequest Request) 
+        {
+            var response = await this.HttpService.POST_ASYNC<GetInvoiceDetailsRequest, GetInvoiceDetailsResponse>(
+                $"{this.Config.ServerURL}/invoice-information/v1/details",
+                Request,
+                null,
+                new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/json",
+                    ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                }
+            );
+
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            return response.Model?.Message;
+        }
