@@ -1,0 +1,44 @@
+OAuth 2.0 - auth code using HttpListener
+----------------------------------------
+var authorizaionCode = string.Empty;
+using (var process = Process.Start(this.OAuthURL))
+{
+                using (var listener = new HttpListener())
+                {
+                    // callback 
+                    listener.Prefixes.Add($"http://localhost:{ListenerPort}/");
+                    listener.Start();
+
+                    //wait for server captures redirect_uri  
+                    var context = listener.GetContext();
+                    var request = context.Request;
+
+                    var requestedURL = request.RawUrl.TrimStart('/');
+                    /// Debug.WriteLine(requestedURL == "" ? "-" : requestedURL);
+                    
+                    authorizaionCode = request.QueryString.Get("code");
+                    Console.WriteLine(authorizaionCode);
+
+                    context.Response.Close();
+                    listener.Stop();
+                }
+}
+return authorizaionCode;
+
+--
+
+call:
+/authorize?
+	response_type=code&
+	client_id=<apiKey>&
+	scope=scope
+	&redirect_uri=<redirectURI>
+
+
+redirectURI:
+http://localhost:<port>
+http://localhost:9999
+
+httpListener:
+http://localhost:<port>/
+http://localhost:9999/

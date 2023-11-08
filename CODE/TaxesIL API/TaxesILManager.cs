@@ -37,12 +37,20 @@ using System.Diagnostics;
 
     PROCESS
     -------
-    (steps)
-    1. Client Registration        
-    2. Developer Registration
-    3. CREATE AN APP
-    4. ENABLE SERVICES FOR API APP    
+    (steps)    
+    -USER-
+    1. Client Registration (Taxes Authority)        
+    2. Send API Permissions Request
 
+    -DEVELOPER-    
+    1. Client Registration (Taxes Authority)        
+    2. Approve API Permissions Request
+    3. Developer Registration
+    4. CREATE AN APP
+    5. ENABLE SERVICES FOR API APP    
+
+    note! 
+    need to register to both SANDBOX and PROD portals
 
     CLIENT REGISTRATION
     -------------------
@@ -58,16 +66,22 @@ using System.Diagnostics;
     * enable services for api app (demoApp + Invoices) 
 
 
+    APPROVE API PERMISSIONS REQUEST
+    -------------------------------
+    once the end user (company owner) has registered the api, a permissions request will be sent to be approved by the developer.
+    - https://secapp.taxes.gov.il/srsherutatzmi/#/clientDashboard
+    - https://secapp.taxes.gov.il/SrHasmacha/main/MainHasmacha?fromsystem=ezorIshi
+
+
     DEVELOPER REGISTRATION
     ----------------------
     * after a client send a developer invitation (see 'Client Registration > invite developers')
     * an email with token will be sent to the developer 
     * need to click and sign-up (if you haven't singed up already) with your id  
     * after the registration, you could find your clients organizations in the taxes api portal
-
+ 
     note! 
-    this phase connect the client account with the developer account.
-
+    this phase connect the client account with the developer account.    
 
     CREATE AN APP
     -------------
@@ -106,6 +120,15 @@ using System.Diagnostics;
     note! 
     must be registered to the sandbox prior the prod.  
 
+    API BASE URL
+    ------------
+    * SANDBOX 
+      https://openapi.taxes.gov.il/shaam/tsandbox
+      https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2
+
+    * PROD
+      https://openapi.taxes.gov.il/shaam/production
+      https://openapi.taxes.gov.il/shaam/production/longtimetoken/oauth2
 
     SERVICE TYPES
     -------------
@@ -122,8 +145,8 @@ using System.Diagnostics;
     IMPLEMENTATIONS
     ---------------
     - see 'CODE > TaxesILManager.cs'
-    - see 'Creative > TaxesIL'    
-    - see 'DocSee > TaxesIL'    
+    - see 'Creative > TaxesILGateway'    
+    - see 'DocSee > TaxesILGateway'    
 
     
     RESEARCH
@@ -135,7 +158,7 @@ using System.Diagnostics;
     ----
     * AUTHORIZATION CODE:
     
-      GET https://openapi.taxes.gov.il/shaam/Tsandbox/longtimetoken/oauth2/authorize
+      GET https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/authorize
 
       query params:
       response_type=code
@@ -146,7 +169,7 @@ using System.Diagnostics;
 
     * TOKEN:
     
-      POST https://openapi.taxes.gov.il/shaam/Tsandbox/longtimetoken/oauth2/token
+      POST https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/token
       H Authorization: basic base64(clientid:clientsecret)
       H Content-type: application/x-www-form-urlencoded
       
@@ -214,6 +237,29 @@ using System.Diagnostics;
 
     callback:
     await taxesILManager.Authorize(Request.QueryString["code"]);
+
+    --
+
+    var taxesILManager = new TaxesILManager(taxesILConfig);
+
+    taxesILManager.TokensUpdated += (sender, eventArgs) => {
+        Console.WriteLine($"Tokens Updated: {eventArgs}");
+        Config.TaxesIL.RefreshToken = eventArgs.RefreshToken;
+        UpdateTaxesConfig(Config);
+    };
+
+    var healthResult = await taxesILManager.HealthCheck();
+    Console.WriteLine(healthResult); // OK
+
+    if (healthResult != "OK") {
+        var code = taxesILManager.RequestAuthorizaionCode(9999);
+        await taxesILManager.Authorize(code);
+    }
+            
+    var created = await taxesILManager.CreateInvoice(invoiceToCreate);
+    Console.WriteLine(created);
+            
+    return created.Confirmation;
     
 */
 
@@ -390,11 +436,11 @@ namespace TaxesIL
 
             [JsonProperty(PropertyName = "Catalog_ID")]
             public string CatalogId { get; set; }
-            public int Category { get; set; }
-            public string Description { get; set; }
+            public int Category { get; set; } = 1; // Must be > 0 
+            public string Description { get; set; } = "";  // null not allowed 
 
             [JsonProperty(PropertyName = "Measure_Unit_Description")]
-            public string MeasureUnitDescription { get; set; }
+            public string MeasureUnitDescription { get; set; } = "";  // null not allowed 
             public double Quantity { get; set; }
 
             [JsonProperty(PropertyName = "Price_Per_Unit")]
@@ -615,6 +661,24 @@ namespace TaxesIL
                 }
             );
 
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == HttpStatusCode.Unauthorized && !string.IsNullOrWhiteSpace(this.Config.RefreshToken))
+            {
+                await this.RefreshToken();
+
+                response = await this.HttpService.POST_ASYNC<GetInvoiceDetailsRequest, GetInvoiceDetailsResponse>(
+                    $"{this.Config.ServerURL}/invoice-information/v1/details",
+                    Request,
+                    null,
+                    new Dictionary<string, string>
+                    {
+                        ["Accept"] = "application/json",
+                        ["Content-Type"] = "application/json",
+                        ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                    }
+                );
+            }
+
             if (!response.Success)
                 throw new APIException(this.ParseError(response.Content));
 
@@ -635,6 +699,24 @@ namespace TaxesIL
                 }
             );
 
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == HttpStatusCode.Unauthorized && !string.IsNullOrWhiteSpace(this.Config.RefreshToken))
+            {
+                await this.RefreshToken();
+
+                response = await this.HttpService.POST_ASYNC<Invoice, CreateInvoiceResponse>(
+                    $"{this.Config.ServerURL}/Invoices/v1/Approval",
+                    Request,
+                    null,
+                    new Dictionary<string, string>
+                    {
+                        ["Accept"] = "application/json",
+                        ["Content-Type"] = "application/json",
+                        ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                    }
+                );
+            }
+
             if (!response.Success)
                 throw new APIException(this.ParseError(response.Content));
 
@@ -642,7 +724,7 @@ namespace TaxesIL
         }
 
         public async Task<string> HealthCheck() 
-        {
+        {            
             var response = await this.HttpService.GET_ASYNC(
                 $"{this.Config.ServerURL}/Invoices/v1/Health",
                 null,                
@@ -653,10 +735,24 @@ namespace TaxesIL
                 }
             );
 
-            if (!response.Success)
-                throw new APIException(this.ParseError(response.Content));
+            // Unauthorized (401) - refresh token and try again
+            if (!response.Success && response.StatusCode == HttpStatusCode.Unauthorized && !string.IsNullOrWhiteSpace(this.Config.RefreshToken))
+            {
+                await this.RefreshToken();
 
-            return response.Content;
+                response = await this.HttpService.GET_ASYNC(
+                    $"{this.Config.ServerURL}/Invoices/v1/Health",
+                    null,
+                    new Dictionary<string, string> {
+                        ["Accept"] = "application/json",
+                        ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+                    }
+                );
+            }
+
+            if (!response.Success)
+                return $"ERROR | {this.ParseError(response.Content).InnerMessage.Error}";
+            return "OK";
         }
 
         // ---
@@ -689,6 +785,21 @@ namespace TaxesIL
                     "error_description": "Redirect URI specified in the request is not configured in the client subscription"
                 }
 
+                {
+                  "Status": 400,
+                  "Message": {
+                    "errors": [
+                      {
+                        "value": " ",
+                        "msg": "Value should be numeric of type int ",
+                        "param": "Phone_Of_Driver",
+                        "location": "body"
+                      }
+                    ]
+                  },
+                  "Error_Id": "04565273934"
+                }
+
             */
             var errorRawParts = ErrorRaw.Split('|');
             var httpError = errorRawParts[0];
@@ -711,6 +822,30 @@ namespace TaxesIL
                 result.InnerMessage = (
                     exData?.error?.Trim() ?? string.Empty,
                     exData?.error_description?.Trim() ?? string.Empty
+                );
+            }
+            else if(requestError.Contains("Error_Id")) {
+                var itemSchema = new
+                {
+                    value = string.Empty,
+                    msg = string.Empty,
+                    param = string.Empty
+                };
+
+                var messageSchema = new
+                {                    
+                    errors = new[] { itemSchema }
+                };
+
+                var errorSchema = new
+                {
+                    Message = messageSchema
+                };
+
+                var exData = JsonConvert.DeserializeAnonymousType(requestError, errorSchema);
+                result.InnerMessage = (
+                    exData?.Message?.errors.FirstOrDefault().msg?.Trim() ?? string.Empty,
+                    exData?.Message?.errors.FirstOrDefault().param?.Trim() ?? string.Empty
                 );
             }
             else if (requestError.Contains("httpCode")) 

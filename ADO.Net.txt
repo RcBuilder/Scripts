@@ -352,6 +352,7 @@ public XmlReader ExecuteXmlReader(string spName, SqlParameter[] arrParams)
             arrParams);
 }
 
+
 EXAMPLE 
 -------
 // xmlDoc From Query xml Auto
@@ -380,5 +381,30 @@ xmlDoc.LoadXml(sb.ToString());
 Dapper
 ------
 see 'C# Dapper ORM - SqlConnection'
+
+==============================
+
+ReadAsJson
+----------
+public static string ReadAsJson(OdbcDataReader dr)
+{
+    if (dr == null || !dr.HasRows) return "[]";
+
+    var results = new List<Dictionary<string, string>>();
+    while (dr.Read())
+    {
+        var result = new Dictionary<string, string>();
+        for (var i = 0; i < dr.VisibleFieldCount; i++)
+            result.Add(dr.GetName(i), SafeConvert.ToString(dr[i]));
+        results.Add(result);
+    }
+
+    return JsonConvert.SerializeObject(results);
+}
+
+public static T ReadAsT<T>(OdbcDataReader dr)
+{
+    return JsonConvert.DeserializeObject<T>(ReadAsJson(dr));
+}
 
 ==============================

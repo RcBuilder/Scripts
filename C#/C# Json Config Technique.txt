@@ -1,0 +1,60 @@
+C# Json Config Technique
+------------------------
+
+var CONFIG = JsonConvert.DeserializeObject<Config>(File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}Config.json"));
+
+--
+
+{
+  "ConnStr": "Driver={Pervasive ODBC Client Interface};ServerName=RcBuilder-PC;dbq=MANAGER1r7627db;Client_CSet=UTF-8;Server_CSet=CP850;",
+  "Dir": "RTL", // RTL | LTR
+  "AutoClose": true,
+  "Mail": {
+    "From": "test@domain.com",
+    "To": "test@domain.com",
+    "Bcc": "",
+    "Subject": "TEST",
+    "Server": "smtp.domain.com",
+    "Port": 25,
+    "EnableSsl": false,
+    "UserName": "test",
+    "Password": "1234"
+  },
+  "Queries": [
+    "SELECT 1",
+    "SELECT 2",
+    "SELECT 3 As Result, _NOW As CreatedDate, 9999.9999, 1001"
+  ],
+  "Formats": {
+    "Number": "3,4"
+  }
+}
+
+--
+
+public class Config
+    {
+        public class MailSettings
+        {
+            public string From { get; set; }
+            public string To { get; set; }
+            public string Bcc { get; set; }
+            public string Subject { get; set; }
+            public string Server { get; set; }
+            public int Port { get; set; }
+            public bool EnableSsl { get; set; }
+            public string UserName { get; set; }
+            public string Password { get; set; }
+        }
+
+        public class ColumnFormats {
+            public string Number { get; set; }
+        }
+
+        public string ConnStr { get; set; }
+        public string Dir { get; set; }
+        public bool AutoClose { get; set; }
+        public MailSettings Mail { get; set; }
+        public string[] Queries { get; set; }
+        public ColumnFormats Formats { get; set; }
+    }

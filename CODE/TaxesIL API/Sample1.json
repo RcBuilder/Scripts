@@ -1,0 +1,33 @@
+{
+  'Header': {
+    "Invoice_ID": 32648,
+    "Invoice_Type": 305,
+    "Vat_Number": "514338045",
+    "Union_Vat_Number": "514338045",
+    "Invoice_Reference_Number": 32648,
+    "Customer_Vat_Number": "516087210",
+    "Customer_Name": "ע.רופין מסעדות בע``מ",
+    "Invoice_Date": "2023-10-23",
+    "Invoice_Issuance_Date": "2023-10-23",
+    "Branch_ID": 0,
+    "Accounting_Software_Number": 89602,
+    "Client_Software_Key": 944,
+    "Amount_Before_DIscount": 47000.00,
+    "Discount": 0,
+    "Payment_Amount": 47000.00,
+    "VAT_Amount": 7990.00,
+    "Payment_Amount_Including_VAT": 54990.00,
+    "Action": 0,
+    "Vehicle_licence_Number": " ",
+    "Phone_Of_Driver": "0",
+    "Arrival_date": "2023-10-23",
+    "Estimated_Arrival_Time": "",
+    "Transition_Location": 0,
+    "Delivary_Address": "",
+    "Additional_Information": ""
+  },
+  'Body': {
+    'Index': 1,
+    'Catalog_id': 1
+  }
+}

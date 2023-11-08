@@ -1,0 +1,62 @@
+Multiple Commands
+-----------------
+using (var connection = new OdbcConnection(this.ConnetionString))
+{
+    connection.Open();
+    var command = new OdbcCommand();
+    command.Connection = connection;
+
+    /*
+        -- SAVE (CREATE OR UPDATE)
+        IF NOT EXISTS(SELECT 1 FROM <table> WHERE Id = @Id) -- CREATE --
+        BEGIN 
+	        INSERT INTO <table>(<column-1>, <column-2>...)
+	        VALUES (<value-1>, <value-1>...)
+
+	        SET @Id = SCOPE_IDENTITY();
+        END 
+
+        -- UPDATE --
+        UPDATE	<table>
+        SET		<column-1> = <value-1>,
+		        <column-2> = <value-2>
+		        ...
+		        ...
+        WHERE	Id = @Id
+	
+        SELECT @Id as 'Res' 
+    */
+                    
+    var existsQuery = $@"
+        SELECT 1 FROM  MismHak                        
+        WHERE   MismNo = {MismNo} AND MismCode = '{MismCode}'
+    ";
+    command.CommandText = existsQuery;
+    var isExists = Convert.ToInt32(command.ExecuteScalar()) == 1;
+
+
+    var updateQuery = $@"
+        UPDATE  MismHak
+        SET     HAK = '{TaxesResultId}'
+        WHERE   MismNo = {MismNo} AND MismCode = '{MismCode}'
+    ";
+
+    var insertQuery = $@"
+        INSERT INTO MismHak
+        (
+            HAK,
+            MismNo,
+            MismCode                            
+        )                        
+        (
+            SELECT 
+            '{TaxesResultId}',
+            {MismNo},
+            '{MismCode}'
+        )
+    ";
+
+    command.CommandText = isExists ? updateQuery : insertQuery;
+    command.ExecuteNonQuery();
+    return true;
+}

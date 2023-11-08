@@ -611,3 +611,45 @@ using (var client = new HttpClient()) {
                 
     return null;
 }
+
+-
+
+/*
+	{
+	  "Status": 400,
+	  "Message": {
+		"errors": [
+		  {
+			"value": " ",
+			"msg": "Value should be numeric of type int ",
+			"param": "Phone_Of_Driver",
+			"location": "body"
+		  }
+		]
+	  },
+	  "Error_Id": "04565273934"
+	}
+*/
+
+var itemSchema = new
+{
+    value = string.Empty,
+    msg = string.Empty,
+    param = string.Empty
+};
+
+var messageSchema = new
+{                    
+    errors = new[] { itemSchema }
+};
+
+var errorSchema = new
+{
+    Message = messageSchema
+};
+
+var exData = JsonConvert.DeserializeAnonymousType(requestError, errorSchema);
+result.InnerMessage = (
+    exData?.Message?.errors.FirstOrDefault().msg?.Trim() ?? string.Empty,
+    exData?.Message?.errors.FirstOrDefault().param?.Trim() ?? string.Empty
+);

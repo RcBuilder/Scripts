@@ -15,8 +15,8 @@ namespace PCN874
 
         EntryType
         ---------
-        תשומות - INPUT
-        הכנסות - SALES
+        תשומות - INPUT (הוצאות)
+        הכנסות - SALES (הכנסות)
 
 
         Structure
@@ -39,9 +39,14 @@ namespace PCN874
         * תשומות אחרות - סכום כלל העסקאות מע"מ T  
         * סכום להחזר - 'תשומות אחרות' פחות 'מע"מ עסקאות חייבות'
 
+        BUGS
+        ----
+        input incorrect format:
+        2.58.ToString() // "2,58"
+        2.58.ToString(CultureInfo.InvariantCulture) // "2.58"
         
         USING
-        ----- 
+        -----         
         // Export from CSV
         var manager = new PCN874Manager();
 
@@ -51,90 +56,236 @@ namespace PCN874
         var config = new ExportConfig(destPath, "514457282", (2023, 8));
         manager.Export(csvPath, config);
 
-        -
+        --
 
         // Export from Entries
         var manager = new PCN874Manager();
 
         var destPath = $"{AppContext.BaseDirectory}pcn784_{DateTime.Now.Ticks}.txt";
+        var transactionEntries = GetEntries();
 
-        var transactionEntries = new List<TransactionEntry>();
-        transactionEntries.Add(new L_SalesUnidentifiedTrn
-        { 
-            IdentificationNumber = "001495706".PadLeft(9, '0'),
-            InvoiceDate = "20230811",
-            ReferenceGroup = "0000",
-            InvoiceReferenceNumber = "101".PadLeft(9, '0'),
-            TotalVatAmount = "0".PadLeft(9, '0'),
-            CreditSymbol = "+",
-            TotalInvoiceAmount = "558505".PadLeft(10, '0'),
-            FutureData = "".PadLeft(9, '0')
-        });
-        transactionEntries.Add(new S_RegularSalesTrn {
-            IdentificationNumber = "515219731".PadLeft(9, '0'),
-            InvoiceDate = "20230811",
-            ReferenceGroup = "0000",
-            InvoiceReferenceNumber = "201".PadLeft(9, '0'),
-            TotalVatAmount = "20400".PadLeft(9, '0'),
-            CreditSymbol = "+",
-            TotalInvoiceAmount = "120000".PadLeft(10, '0'),
-            FutureData = "".PadLeft(9, '0')
-        });
-        transactionEntries.Add(new T_InputRegularTrn {
-            IdentificationNumber = "515948321".PadLeft(9, '0'),
-            InvoiceDate = "20230511",
-            ReferenceGroup = "0000",
-            InvoiceReferenceNumber = "301".PadLeft(9, '0'),
-            TotalVatAmount = "8500".PadLeft(9, '0'),
-            CreditSymbol = "+",
-            TotalInvoiceAmount = "50000".PadLeft(10, '0'),
-            FutureData = "".PadLeft(9, '0')
-        });
-        transactionEntries.Add(new T_InputRegularTrn {
-            IdentificationNumber = "514486547".PadLeft(9, '0'),
-            InvoiceDate = "20230411",
-            ReferenceGroup = "0000",
-            InvoiceReferenceNumber = "401".PadLeft(9, '0'),
-            TotalVatAmount = "6800".PadLeft(9, '0'),
-            CreditSymbol = "+",
-            TotalInvoiceAmount = "40000".PadLeft(10, '0'),
-            FutureData = "".PadLeft(9, '0')
-        });
-        transactionEntries.Add(new T_InputRegularTrn {
-            IdentificationNumber = "013360714".PadLeft(9, '0'),
-            InvoiceDate = "20230311",
-            ReferenceGroup = "0000",
-            InvoiceReferenceNumber = "501".PadLeft(9, '0'),
-            TotalVatAmount = "5100".PadLeft(9, '0'),
-            CreditSymbol = "+",
-            TotalInvoiceAmount = "30000".PadLeft(10, '0'),
-            FutureData = "".PadLeft(9, '0')
-        });            
-        transactionEntries.Add(new T_InputRegularTrn {
-            IdentificationNumber = "515948321".PadLeft(9, '0'),
-            InvoiceDate = "20230215",
-            ReferenceGroup = "0000",
-            InvoiceReferenceNumber = "701".PadLeft(9, '0'),
-            TotalVatAmount = "7650".PadLeft(9, '0'),
-            CreditSymbol = "+",
-            TotalInvoiceAmount = "45000".PadLeft(10, '0'),
-            FutureData = "".PadLeft(9, '0')
-        });            
-            
         var config = new ExportConfig(destPath, "514457282", (2023, 10));
         manager.Export(transactionEntries, config);
 
+        --
+        
+        // Generate from CSV
+        var manager = new PCN874Manager();
+
+        var destPath = $"{AppContext.BaseDirectory}pcn784_{DateTime.Now.Ticks}.txt";
+        var csvPath = $"{AppContext.BaseDirectory}pcn_csv_input1.txt";
+
+        var config = new ExportConfig(destPath, "514457282", (2023, 8));
+        var sContent = manager.Generate(csvPath, config);
+                    
+        File.WriteAllText(destPath, sContent);
+
+        --
+
+        // Generate from Entries
+        var manager = new PCN874Manager();
+
+        var destPath = $"{AppContext.BaseDirectory}pcn784_{DateTime.Now.Ticks}.txt";
+        var transactionEntries = GetEntries();
+
+        var config = new ExportConfig(destPath, "514457282", (2023, 10));
+        var sContent = manager.Generate(transactionEntries, config);
+        
+        File.WriteAllText(destPath, sContent);
+
+        --
+
+        // GetEntries - Sample-1
+        List<TransactionEntry> GetEntries() {
+            var transactionEntries = new List<TransactionEntry>();
+
+            transactionEntries.Add(new S_RegularSalesTrn
+            {
+                IdentificationNumber = "001495706",
+                InvoiceDate = "20230811",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "101",
+                TotalVatAmount = "17",
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "100",
+                FutureData = ""
+            });
+            transactionEntries.Add(new S_RegularSalesTrn
+            {
+                IdentificationNumber = "515219731",
+                InvoiceDate = "20230811",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "201",
+                TotalVatAmount = "34",
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "200",
+                FutureData = ""
+            });
+            transactionEntries.Add(new T_InputRegularTrn
+            {
+                IdentificationNumber = "515948321",
+                InvoiceDate = "20230511",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "301",
+                TotalVatAmount = "42",
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "250",
+                FutureData = ""
+            });
+
+            return transactionEntries;
+        }
+
+        -- 
+
+        // GetEntries - Sample-2
+        List<TransactionEntry> GetEntries() {
+            var transactionEntries = new List<TransactionEntry>();
+
+            transactionEntries.Add(new L_SalesUnidentifiedTrn
+            {
+                IdentificationNumber = "001495706",
+                InvoiceDate = "20230811",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "101",
+                TotalVatAmount = "0",
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "558505",
+                FutureData = ""
+            });
+            transactionEntries.Add(new S_RegularSalesTrn
+            {
+                IdentificationNumber = "515219731",
+                InvoiceDate = "20230811",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "201",
+                TotalVatAmount = "20400",
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "120000",
+                FutureData = ""
+            });
+            transactionEntries.Add(new T_InputRegularTrn
+            {
+                IdentificationNumber = "515948321",
+                InvoiceDate = "20230511",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "301",
+                TotalVatAmount = "8500",
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "50000",
+                FutureData = ""
+            });
+            transactionEntries.Add(new T_InputRegularTrn
+            {
+                IdentificationNumber = "514486547",
+                InvoiceDate = "20230411",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "401",
+                TotalVatAmount = "6800",
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "40000",
+                FutureData = ""
+            });
+            transactionEntries.Add(new T_InputRegularTrn
+            {
+                IdentificationNumber = "013360714",
+                InvoiceDate = "20230311",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "501",
+                TotalVatAmount = "5100",
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "30000",
+                FutureData = ""
+            });
+            transactionEntries.Add(new T_InputRegularTrn
+            {
+                IdentificationNumber = "515948321",
+                InvoiceDate = "20230215",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "701",
+                TotalVatAmount = "7650",
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "45000",
+                FutureData = ""
+            });
+
+            return transactionEntries;
+        }
+
+        -- 
+
+        // Using Javascript                
+        $.ajax({
+            type: "POST",
+            url: "/Vatreport.aspx/GeneratePcn874File",
+            data: JSON.stringify({ period, year }),        
+
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (data) {
+                console.log(data);
+
+                var link = document.createElement('a');            
+                link.download = `Pcn874-${year}_${currentPeriod}.txt`;
+                link.href = 'data:text/plain;charset=utf-8;base64,' + data.d;                        
+                link.click();
+            
+                console.log(link.download);           
+            }
+        });
+       
+        // Server
+        // Vatreport.aspx/GeneratePcn874File
+        var config = new ExportConfig("", "514457282", (2023, 10));
+        var sContent = manager.Generate(transactionEntries, config);
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(sContent));
+
+        --
+
+        var documents = GetVatReportDocuments(periods, year);
+        foreach (var doc in documents)
+        {
+            if(doc.IsExpense)
+                transactionEntries.Add(new T_InputRegularTrn
+                {
+                    IdentificationNumber = doc.InvoiceNumber.Trim(),
+                    InvoiceDate = doc.InvoiceDate.Trim(),
+                    ReferenceGroup = "0000",
+                    InvoiceReferenceNumber = doc.DocInstanceID.ToString(),
+                    TotalVatAmount = doc.Vat.ToString(CultureInfo.InvariantCulture),
+                    CreditSymbol = "+",
+                    TotalInvoiceAmount = doc.TotalIncludeVat.ToString(CultureInfo.InvariantCulture),
+                    FutureData = ""
+                });
+            else
+                transactionEntries.Add(new S_RegularSalesTrn
+                {
+                    IdentificationNumber = doc.InvoiceNumber.Trim(),
+                    InvoiceDate = doc.InvoiceDate.Trim(),
+                    ReferenceGroup = "0000",
+                    InvoiceReferenceNumber = doc.DocInstanceID.ToString(),
+                    TotalVatAmount = doc.Vat.ToString(CultureInfo.InvariantCulture),
+                    CreditSymbol = "+",
+                    TotalInvoiceAmount = doc.TotalIncludeVat.ToString(CultureInfo.InvariantCulture),
+                    FutureData = ""
+                });
+        }
+
+        var config = new ExportConfig("", "514457282", (2023, 10));
+        var sContent = manager.Generate(transactionEntries, config);
+
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(sContent));
     */
     public class PCN874Entities
     {
         public enum eTransactionType
         {
-            S = 0,  // Sales - Regular
-            L = 1,  // Sales - Unidentified
+            S = 0,  // Sales - Regular | עסקה רגילה מזוהה
+            L = 1,  // Sales - Unidentified | עסקה רגילה לא מזוהה
             M = 2,
             Y = 3,
             I = 4,
-            T = 5,  // Input - Regular
+            T = 5,  // Input - Regular | תשומה רגילה
             K = 6,
             R = 7,
             P = 8,
@@ -178,14 +329,14 @@ namespace PCN874
             {
                 var sbRow = new StringBuilder();
                 sbRow.Append(TransactionType.ToString());
-                sbRow.Append(IdentificationNumber);
-                sbRow.Append(InvoiceDate);
+                sbRow.Append(IdentificationNumber.PadLeft(9, '0'));
+                sbRow.Append(InvoiceDate.Replace("/", "").Trim());
                 sbRow.Append(ReferenceGroup);
-                sbRow.Append(InvoiceReferenceNumber);
-                sbRow.Append(TotalVatAmount);
+                sbRow.Append(InvoiceReferenceNumber.PadLeft(9, '0'));
+                sbRow.Append(TotalVatAmount.PadLeft(9, '0'));
                 sbRow.Append(CreditSymbol);
-                sbRow.Append(TotalInvoiceAmount);
-                sbRow.Append(FutureData);
+                sbRow.Append(TotalInvoiceAmount.PadLeft(10, '0'));
+                sbRow.Append(FutureData.PadLeft(9, '0'));
                 return sbRow.ToString();
             }
         }
@@ -254,7 +405,7 @@ namespace PCN874
                 var sb = new StringBuilder();
 
                 sb.Append(EntryType);
-                this.IdentificationNumber = Config.IdentificationNumber;
+                this.IdentificationNumber = Config.IdentificationNumber; ///(Config.IdentificationNumber?.Trim() ?? "0").PadLeft(9, '0');
                 sb.Append(this.IdentificationNumber);
 
                 var month = Config.ReportPeriod.Month.ToString().PadLeft(2, '0');
@@ -300,7 +451,7 @@ namespace PCN874
                 this.TotalNumberOfRecordsForInputs = CalcTotalRecordsInputs(transactionEntries);
                 sb.Append(TotalNumberOfRecordsForInputs);
 
-                var diffTotalVATtoToPayReceive = long.Parse(this.TotalVatTaxableSales) - long.Parse(this.TotalVATonOtherInputs);
+                var diffTotalVATtoToPayReceive = Convert.ToDecimal(this.TotalVatTaxableSales) - Convert.ToDecimal(this.TotalVATonOtherInputs);
                 if (diffTotalVATtoToPayReceive <= 0)
                 {
                     this.SymbolTotalVATToPayReceive = "-";
@@ -331,13 +482,13 @@ namespace PCN874
 
             private string CalcTotalVATonOtherInputs(IEnumerable<TransactionEntry> transactionEntries)
             {               
-                var sumTotalVat = transactionEntries.Where(e => e.TransactionType == eTransactionType.T).Sum(e => Convert.ToInt32(e.TotalVatAmount));
+                var sumTotalVat = transactionEntries.Where(e => e.TransactionType == eTransactionType.T).Sum(e => Convert.ToSingle(e.TotalVatAmount));
                 return sumTotalVat.ToString().PadLeft(9, '0');
             }
 
             private string CalcTotalZeroValueExemptSales(IEnumerable<TransactionEntry> transactionEntries)
             {           
-                var sumTotal = transactionEntries.Where(e => e.TransactionType == eTransactionType.L).Sum(e => Convert.ToInt32(e.TotalInvoiceAmount));
+                var sumTotal = transactionEntries.Where(e => e.TransactionType == eTransactionType.L).Sum(e => Convert.ToSingle(e.TotalInvoiceAmount));
                 return sumTotal.ToString().PadLeft(11, '0');
             }
 
@@ -349,13 +500,13 @@ namespace PCN874
 
             private string CalcTotalAmountTaxableSales(IEnumerable<TransactionEntry> transactionEntries)
             {
-                var sumTotal = transactionEntries.Where(e => e.TransactionType == eTransactionType.S).Sum(e => Convert.ToInt32(e.TotalInvoiceAmount));
+                var sumTotal = transactionEntries.Where(e => e.TransactionType == eTransactionType.S).Sum(e => Convert.ToSingle(e.TotalInvoiceAmount));
                 return sumTotal.ToString().PadLeft(11, '0');
             }
 
             private string CalcTotalAmountVATSales(IEnumerable<TransactionEntry> transactionEntries)
             {                
-                var sumTotalVat = transactionEntries.Where(e => e.TransactionType == eTransactionType.S).Sum(e => Convert.ToInt32(e.TotalVatAmount));
+                var sumTotalVat = transactionEntries.Where(e => e.TransactionType == eTransactionType.S).Sum(e => Convert.ToSingle(e.TotalVatAmount));
                 return sumTotalVat.ToString().PadLeft(9, '0');
             }
         }
@@ -365,6 +516,9 @@ namespace PCN874
     {
         bool Export(IEnumerable<TransactionEntry> transactionEntries, ExportConfig Config);
         bool Export(string csvFilePath, ExportConfig Config);
+
+        string Generate(IEnumerable<TransactionEntry> transactionEntries, ExportConfig Config);
+        string Generate(string csvFilePath, ExportConfig Config);
     }
 
     public class PCN874Manager : IPCN874Manager
@@ -372,8 +526,7 @@ namespace PCN874
         public bool Export(IEnumerable<TransactionEntry> transactionEntries, ExportConfig Config)
         {
             try
-            {
-                var sb = new StringBuilder();
+            {                
                 var headerRow = new HeaderEntry().BuildHeader(transactionEntries, Config);
                 var footerRow = $"X{Config.IdentificationNumber}";
 
@@ -389,66 +542,107 @@ namespace PCN874
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"[PCN874Manager.Export] {ex.Message}");
+                Console.WriteLine($"[ERROR] PCN874Manager.Export: {ex.Message}");
                 return false;
             }
         }
 
         public bool Export(string csvFilePath, ExportConfig Config)
-        {
-            var transactionEntries = new List<TransactionEntry>();
-
+        {            
             try
             {
-                using (var filestream = new FileStream(csvFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                {
-                    using (var file = new StreamReader(filestream, Encoding.UTF8, true, 128))
-                    {
-                        string line = "";
-
-                        while ((line = file.ReadLine()) != null)
-                        {
-                            TransactionEntry entry = null;
-
-                            var lineValues = line.Split(',').ToList();
-                            var enumValue = (eTransactionType)Enum.Parse(typeof(eTransactionType), lineValues[0]);
-
-                            switch (enumValue)
-                            {
-                                case eTransactionType.L:
-                                    entry = new L_SalesUnidentifiedTrn();
-                                    break;
-                                case eTransactionType.S:
-                                    entry = new S_RegularSalesTrn();
-                                    break;
-                                case eTransactionType.T:
-                                    entry = new T_InputRegularTrn();
-                                    break;
-                                default:
-                                    break;
-                            }
-
-                            entry.IdentificationNumber = lineValues[1].PadLeft(9, '0');
-                            entry.InvoiceDate = lineValues[2];
-                            entry.ReferenceGroup = lineValues[3];
-                            entry.InvoiceReferenceNumber = lineValues[4].PadLeft(9, '0');
-                            entry.TotalVatAmount = lineValues[5].PadLeft(9, '0');
-                            entry.CreditSymbol = lineValues[6];
-                            entry.TotalInvoiceAmount = lineValues[7].PadLeft(10, '0');
-                            entry.FutureData = "".PadLeft(9, '0');
-
-                            transactionEntries.Add(entry);
-                        }
-                    }
-
-                    return this.Export(transactionEntries, Config);
-                }
+                var entries = this.ConvertToEntries(csvFilePath);
+                return this.Export(entries, Config);                
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Exception occurred in ExportPCN874FromCsv {e}");
+                Console.WriteLine($"[ERROR] PCN874Manager.Export: {ex.Message}");
                 return false;
             }
+        }
+
+        public string Generate(IEnumerable<TransactionEntry> transactionEntries, ExportConfig Config)
+        {
+            try
+            {                
+                var headerRow = new HeaderEntry().BuildHeader(transactionEntries, Config);
+                var footerRow = $"X{Config.IdentificationNumber}";
+
+                var sb = new StringBuilder();
+                sb.AppendLine(headerRow);
+                foreach (var entry in transactionEntries)
+                    sb.AppendLine(entry.Build());
+                sb.AppendLine(footerRow);
+
+                return sb.ToString();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] PCN874Manager.Generate: {ex.Message}");
+                return null;
+            }
+        }
+
+        public string Generate(string csvFilePath, ExportConfig Config)
+        {
+            try
+            {
+                var entries = this.ConvertToEntries(csvFilePath);
+                return this.Generate(entries, Config);                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] PCN874Manager.Generate: {ex.Message}");
+                return null;
+            }
+        }
+
+        // --
+
+        private List<TransactionEntry> ConvertToEntries(string csvFilePath) 
+        {
+            var transactionEntries = new List<TransactionEntry>();
+            using (var filestream = new FileStream(csvFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)) {
+                using (var file = new StreamReader(filestream, Encoding.UTF8, true, 128)) {
+                    string line = "";
+
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        TransactionEntry entry = null;
+
+                        var lineValues = line.Split(',').ToList();
+                        var enumValue = (eTransactionType)Enum.Parse(typeof(eTransactionType), lineValues[0]);
+
+                        switch (enumValue)
+                        {
+                            case eTransactionType.L:
+                                entry = new L_SalesUnidentifiedTrn();
+                                break;
+                            case eTransactionType.S:
+                                entry = new S_RegularSalesTrn();
+                                break;
+                            case eTransactionType.T:
+                                entry = new T_InputRegularTrn();
+                                break;
+                            default:
+                                break;
+                        }
+
+                        entry.IdentificationNumber = lineValues[1].PadLeft(9, '0');
+                        entry.InvoiceDate = lineValues[2];
+                        entry.ReferenceGroup = lineValues[3];
+                        entry.InvoiceReferenceNumber = lineValues[4].PadLeft(9, '0');
+                        entry.TotalVatAmount = lineValues[5].PadLeft(9, '0');
+                        entry.CreditSymbol = lineValues[6];
+                        entry.TotalInvoiceAmount = lineValues[7].PadLeft(10, '0');
+                        entry.FutureData = "".PadLeft(9, '0');
+
+                        transactionEntries.Add(entry);
+                    }
+                }
+            }
+
+            return transactionEntries;
         }
     }
 }

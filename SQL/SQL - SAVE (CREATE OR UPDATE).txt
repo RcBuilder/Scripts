@@ -1,0 +1,19 @@
+SAVE (CREATE OR UPDATE)
+-----------------------
+IF NOT EXISTS(SELECT 1 FROM <table> WHERE Id = @Id) -- CREATE --
+BEGIN 
+	INSERT INTO <table>(<column-1>, <column-2>...)
+	VALUES (<value-1>, <value-1>...)
+
+	SET @Id = SCOPE_IDENTITY();
+END 
+
+-- UPDATE --
+UPDATE	<table>
+SET		<column-1> = <value-1>,
+		<column-2> = <value-2>
+		...
+		...
+WHERE	Id = @Id
+	
+SELECT @Id as 'Res'

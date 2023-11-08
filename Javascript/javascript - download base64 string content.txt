@@ -1,0 +1,69 @@
+javascript - download base64 string content
+-------------------------------------------
+
+function ExportAsPcn874() {
+    var year = $("#YearReportSelect option:selected").text();
+    var currentPeriod = $("#SelectedPeriodReport").val();
+
+    $.ajax({
+        type: "POST",
+        url: "/Vatreport.aspx/GeneratePcn874File",
+        data: JSON.stringify({
+            periods: currentPeriod,
+            year
+        }),        
+
+        contentType: "application/json; charset=utf-8",
+        dataType: "json",
+        success: function (data) {
+            console.log(data);
+
+            var link = document.createElement('a');            
+            link.download = `Pcn874-${year}_${currentPeriod}.txt`;
+            link.href = 'data:text/plain;charset=utf-8;base64,' + data.d;                        
+            link.click();
+            
+            console.log(link.download);           
+        }
+    });
+}
+
+
+--
+
+[WebMethod]
+public static string GeneratePcn874File(int periods, int year)
+{
+    try
+    {
+        ...
+		...
+
+        using (MemoryStream ms = new MemoryStream())
+        {                    
+            var manager = new PCN874Manager();
+
+            var transactionEntries = new List<TransactionEntry>();
+            transactionEntries.Add(new L_SalesUnidentifiedTrn
+            {
+                IdentificationNumber = "001495706".PadLeft(9, '0'),
+                InvoiceDate = "20230811",
+                ReferenceGroup = "0000",
+                InvoiceReferenceNumber = "101".PadLeft(9, '0'),
+                TotalVatAmount = "0".PadLeft(9, '0'),
+                CreditSymbol = "+",
+                TotalInvoiceAmount = "558505".PadLeft(10, '0'),
+                FutureData = "".PadLeft(9, '0')
+            });
+
+            var config = new ExportConfig("", "514457282", (2023, 10));
+            var sContent = manager.Generate(transactionEntries, config);
+
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(sContent));
+        }
+    }
+    catch (Exception ex)
+    {
+        return string.Empty;
+    }
+}
