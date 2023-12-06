@@ -1,0 +1,87 @@
+IIS Rewrite Rules - Samples
+---------------------------
+
+<rewrite>
+    <outboundRules>
+		<rule... />
+		<rule... />
+		<preConditions... />
+	</outboundRules>
+	<rules>
+		<rule... />
+		<rule... />		
+	</rules>
+</rewrite>
+
+--
+
+// outboundRules
+<outboundRules>
+    <rule name="Add SameSite" preCondition="No SameSite">
+        <match serverVariable="RESPONSE_Set_Cookie" pattern=".*" negate="false" />
+        <action type="Rewrite" value="{R:0}; SameSite=Lax" />
+        <conditions>
+        </conditions>
+    </rule>
+    <preConditions>
+        <preCondition name="No SameSite">
+        <add input="{RESPONSE_Set_Cookie}" pattern="." />
+        <add input="{RESPONSE_Set_Cookie}" pattern="; SameSite=Lax" negate="true" />
+        </preCondition>
+    </preConditions>
+</outboundRules>
+
+--
+
+// Rules
+<rule name="Maintenance" stopProcessing="true">
+    <match url="Home/Maintenance$" negate="true" />
+    <action type="Redirect" url="/Home/Maintenance" redirectType="Temporary" />
+</rule>
+
+<rule name="Cannonical" stopProcessing="true">
+    <match url="(.*)" />
+    <conditions>
+    <add input="{HTTP_HOST}" pattern="^www\.openbook\.co\.il$" />
+    </conditions>
+    <action type="Redirect" url="http://openbook.co.il/{R:1}" />
+</rule>
+        
+<!-- 
+    <rule name="Cannonical" stopProcessing="true">
+    <match url="(.*)" />
+    <conditions logicalGrouping="MatchAny">	    
+        <add input="{HTTPS}" pattern="^OFF$" />      
+        <add input="{HTTP_HOST}" pattern="^www\.openbook\.co\.il$" />
+    </conditions>
+    <action type="Redirect" url="https://openbook.co.il/{R:1}" />
+    </rule>         
+-->
+
+<rule name="BlockVideos" stopProcessing="true">
+    <match url=".*\.(mp4)$" />
+    <conditions logicalGrouping="MatchAll">
+    <add input="{HTTP_REFERER}" pattern="^http://openbook\.co\.il/.*$" negate="true" />
+    </conditions>
+    <action type="Rewrite" url="/blocked.jpg" />
+</rule>
+        
+<rule name="RedirectLecturerPage" stopProcessing="true">
+    <match url="^Lecturer/\d+" />
+    <action type="Redirect" url="/" />
+</rule>
+        
+<rule name="RedirectStudentPage" stopProcessing="true">
+    <match url="^Student/\d+" />
+    <action type="Redirect" url="/" />
+</rule>
+        
+<rule name="RedirectSearchPage" stopProcessing="true">
+    <match url="^Search/(Students|Lecturers|IndexOLD)" />
+    <action type="Redirect" url="/" />
+</rule>
+                
+<rule name="RedirectSearchPageRoot" stopProcessing="true">
+    <match url="^Search$" />
+    <action type="Redirect" url="/" />
+</rule>

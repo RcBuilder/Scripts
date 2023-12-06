@@ -1,5 +1,8 @@
 Send Email Method
 -----------------
+also see 'OpenBookProject_Email.cs'
+
+
 using System;
 using System.Net.Mail;
 using System.Threading.Tasks;

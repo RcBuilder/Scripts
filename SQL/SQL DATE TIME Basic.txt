@@ -1,0 +1,13 @@
+SQL DATE TIME Basic
+-------------------
+DECLARE 
+@LessonDate DATE = DATEADD(MONTH, 1, GETDATE()), 
+@LessonTime TIME = DATEADD(MONTH, 1, GETDATE())
+
+SELECT 
+@LessonDate, @LessonTime  
+
+-
+
+output:
+2023-12-11, 19:48:25.3700000

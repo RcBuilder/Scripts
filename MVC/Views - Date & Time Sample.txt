@@ -1,0 +1,18 @@
+Views - Date & Time Sample
+--------------------------
+
+LessonDate = DateTime.Now,
+LessonTime = DateTime.Now.TimeOfDay
+
+-
+
+@{
+    var date = Model.LessonDate.ToString("yyyy-MM-dd");
+}                        
+@Html.TextBox("LessonDate", date, new { placeholder = "תאריך השיעור", maxLength = 10, @class = "wpcf7-text", style = "padding-right: 6px; text-align: right;", type = "date", min = DateTime.Now.ToString("yyyy-MM-dd"), max = DateTime.Now.AddYears(1).ToString("yyyy-MM-dd") })
+
+@{ 
+    /// var time = string.Concat(Model.LessonTime.ToString("hh"), ":", Model.LessonTime.ToString("mm"));
+    var time = Model.LessonTime.ToString(@"hh\:mm");
+}                        
+@Html.TextBox("LessonTime", time, new { placeholder = "שעה", maxLength = 10, @class = "wpcf7-text", style = "padding-right: 6px;text-align: right;", type = "time" })

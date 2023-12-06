@@ -1,0 +1,32 @@
+C# IFactory TIn-TOut Implementation
+-----------------------------------
+var dal = new DBProviderFactory().Produce(new DBProviderMetadata
+            {
+                ProviderName = this.Broker.DBProviderName,
+                ConnetionString = this.Broker.ConnectionString
+            });
+
+-
+
+public class DBProviderFactory : IFactory<DBProviderMetadata, IInventoryDAL>
+    {
+        public IInventoryDAL Produce(DBProviderMetadata MetaData) {
+            switch (MetaData.ProviderName) {
+                default:
+                case "Pervasive": return new PervasiveDBProvider(MetaData.ConnetionString);
+                case "TextFile": return new TextFileDBProvider(MetaData.ConnetionString);
+                case "Dummy": return new DummyDBProvider();
+            }                       
+        }
+    }
+
+public interface IFactory<TIn, TOut>
+    {
+        TOut Produce(TIn metadata);
+    }
+
+    public interface IFactoryAsync<TIn, TOut> : IFactory<TIn, TOut>
+    {
+        Task<TOut> ProduceAsync(TIn metadata);
+    }
+

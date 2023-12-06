@@ -1,0 +1,20 @@
+RedirectToAction Custom Errors using TempData
+-----------------=================-----------
+
+// Action = Index
+@Html.ActionLink("שלח הזמנה", string.Concat("SendInvitation", "/", Model.course.Id), null, new { @class = "btn btn-join", onclick = "return confirm('האם אתה בטוח ?');" })                        
+<div class="validation-summary-errors clearfix">@TempData["SendInvitationMessage"]</div>
+
+-
+
+public ActionResult SendInvitation(int Id) {
+	...
+	...
+        var course = BLL.Courses.Get(Id);
+        if (string.IsNullOrWhiteSpace(course.LessonLink)){
+		TempData.Add("SendInvitationMessage", "לינק לשיעור חובה");
+                return RedirectToAction($"Index/{Id}");
+        }
+	...
+	...
+}

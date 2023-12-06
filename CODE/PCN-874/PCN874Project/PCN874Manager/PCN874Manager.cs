@@ -105,9 +105,9 @@ namespace PCN874
                 InvoiceDate = "20230811",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "101",
-                TotalVatAmount = "17",
+                TotalVatAmount = 17,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "100",
+                TotalInvoiceAmount = 100,
                 FutureData = ""
             });
             transactionEntries.Add(new S_RegularSalesTrn
@@ -116,9 +116,9 @@ namespace PCN874
                 InvoiceDate = "20230811",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "201",
-                TotalVatAmount = "34",
+                TotalVatAmount = 34,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "200",
+                TotalInvoiceAmount = 200,
                 FutureData = ""
             });
             transactionEntries.Add(new T_InputRegularTrn
@@ -127,9 +127,9 @@ namespace PCN874
                 InvoiceDate = "20230511",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "301",
-                TotalVatAmount = "42",
+                TotalVatAmount = 42.6F,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "250",
+                TotalInvoiceAmount = 250,
                 FutureData = ""
             });
 
@@ -148,9 +148,9 @@ namespace PCN874
                 InvoiceDate = "20230811",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "101",
-                TotalVatAmount = "0",
+                TotalVatAmount = 0,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "558505",
+                TotalInvoiceAmount = 558505,
                 FutureData = ""
             });
             transactionEntries.Add(new S_RegularSalesTrn
@@ -159,9 +159,9 @@ namespace PCN874
                 InvoiceDate = "20230811",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "201",
-                TotalVatAmount = "20400",
+                TotalVatAmount = 20400,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "120000",
+                TotalInvoiceAmount = 120000,
                 FutureData = ""
             });
             transactionEntries.Add(new T_InputRegularTrn
@@ -170,9 +170,9 @@ namespace PCN874
                 InvoiceDate = "20230511",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "301",
-                TotalVatAmount = "8500",
+                TotalVatAmount = 8500,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "50000",
+                TotalInvoiceAmount = 50000,
                 FutureData = ""
             });
             transactionEntries.Add(new T_InputRegularTrn
@@ -181,9 +181,9 @@ namespace PCN874
                 InvoiceDate = "20230411",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "401",
-                TotalVatAmount = "6800",
+                TotalVatAmount = 6800,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "40000",
+                TotalInvoiceAmount = 40000,
                 FutureData = ""
             });
             transactionEntries.Add(new T_InputRegularTrn
@@ -192,9 +192,9 @@ namespace PCN874
                 InvoiceDate = "20230311",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "501",
-                TotalVatAmount = "5100",
+                TotalVatAmount = 5100,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "30000",
+                TotalInvoiceAmount = 30000,
                 FutureData = ""
             });
             transactionEntries.Add(new T_InputRegularTrn
@@ -203,9 +203,9 @@ namespace PCN874
                 InvoiceDate = "20230215",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "701",
-                TotalVatAmount = "7650",
+                TotalVatAmount = 7650,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "45000",
+                TotalInvoiceAmount = 45000,
                 FutureData = ""
             });
 
@@ -248,25 +248,25 @@ namespace PCN874
             if(doc.IsExpense)
                 transactionEntries.Add(new T_InputRegularTrn
                 {
-                    IdentificationNumber = doc.InvoiceNumber.Trim(),
-                    InvoiceDate = doc.InvoiceDate.Trim(),
+                    IdentificationNumber = doc.InvoiceNumber,
+                    InvoiceDate = doc.InvoiceDate,
                     ReferenceGroup = "0000",
                     InvoiceReferenceNumber = doc.DocInstanceID.ToString(),
-                    TotalVatAmount = doc.Vat.ToString(CultureInfo.InvariantCulture),
+                    TotalVatAmount = (float)doc.Vat,
                     CreditSymbol = "+",
-                    TotalInvoiceAmount = doc.TotalIncludeVat.ToString(CultureInfo.InvariantCulture),
+                    TotalInvoiceAmount = (float)doc.TotalIncludeVat,
                     FutureData = ""
                 });
             else
                 transactionEntries.Add(new S_RegularSalesTrn
                 {
-                    IdentificationNumber = doc.InvoiceNumber.Trim(),
-                    InvoiceDate = doc.InvoiceDate.Trim(),
+                    IdentificationNumber = doc.InvoiceNumber,
+                    InvoiceDate = doc.InvoiceDate,
                     ReferenceGroup = "0000",
                     InvoiceReferenceNumber = doc.DocInstanceID.ToString(),
-                    TotalVatAmount = doc.Vat.ToString(CultureInfo.InvariantCulture),
+                    TotalVatAmount = (float)doc.Vat,
                     CreditSymbol = "+",
-                    TotalInvoiceAmount = doc.TotalIncludeVat.ToString(CultureInfo.InvariantCulture),
+                    TotalInvoiceAmount = (float)doc.TotalIncludeVat,
                     FutureData = ""
                 });
         }
@@ -307,9 +307,9 @@ namespace PCN874
             string InvoiceDate { get; set; }                // 8 digits
             string ReferenceGroup { get; set; }             // 4 digits
             string InvoiceReferenceNumber { get; set; }     // 9 digits
-            string TotalVatAmount { get; set; }             // 9 digits
+            float TotalVatAmount { get; set; }             // 9 digits
             string CreditSymbol { get; set; }               // 1 digits  +/-  Cancellation/credit from supplier or customer – always in minus
-            string TotalInvoiceAmount { get; set; }         // 10 digits   
+            float TotalInvoiceAmount { get; set; }         // 10 digits   
             string FutureData { get; set; }                 // 9 digits  (all zero)
         }
 
@@ -320,9 +320,9 @@ namespace PCN874
             public string InvoiceDate { get; set; }
             public string ReferenceGroup { get; set; }
             public string InvoiceReferenceNumber { get; set; }
-            public string TotalVatAmount { get; set; }
+            public float TotalVatAmount { get; set; }
             public string CreditSymbol { get; set; }
-            public string TotalInvoiceAmount { get; set; }
+            public float TotalInvoiceAmount { get; set; }
             public string FutureData { get; set; }
 
             public virtual string Build()
@@ -333,9 +333,9 @@ namespace PCN874
                 sbRow.Append(InvoiceDate.Replace("/", "").Trim());
                 sbRow.Append(ReferenceGroup);
                 sbRow.Append(InvoiceReferenceNumber.PadLeft(9, '0'));
-                sbRow.Append(TotalVatAmount.PadLeft(9, '0'));
+                sbRow.Append(Math.Round(TotalVatAmount).ToString().PadLeft(9, '0'));
                 sbRow.Append(CreditSymbol);
-                sbRow.Append(TotalInvoiceAmount.PadLeft(10, '0'));
+                sbRow.Append(Math.Round(TotalInvoiceAmount).ToString().PadLeft(10, '0'));
                 sbRow.Append(FutureData.PadLeft(9, '0'));
                 return sbRow.ToString();
             }
@@ -405,7 +405,7 @@ namespace PCN874
                 var sb = new StringBuilder();
 
                 sb.Append(EntryType);
-                this.IdentificationNumber = Config.IdentificationNumber; ///(Config.IdentificationNumber?.Trim() ?? "0").PadLeft(9, '0');
+                this.IdentificationNumber = (Config.IdentificationNumber?.Trim() ?? "0").PadLeft(9, '0');
                 sb.Append(this.IdentificationNumber);
 
                 var month = Config.ReportPeriod.Month.ToString().PadLeft(2, '0');
@@ -421,12 +421,12 @@ namespace PCN874
                 sb.Append(this.SymbolTotalTaxableSales);
 
                 this.TotalAmountTaxableSales = CalcTotalAmountTaxableSales(transactionEntries);
-                sb.Append(this.TotalAmountTaxableSales);
+                sb.Append(this.TotalAmountTaxableSales.PadLeft(11, '0'));
 
                 sb.Append(SymbolTotalVatOnTaxableSales);
 
                 this.TotalVatTaxableSales = CalcTotalAmountVATSales(transactionEntries);
-                sb.Append(this.TotalVatTaxableSales);
+                sb.Append(this.TotalVatTaxableSales.PadLeft(9, '0'));
 
                 sb.Append(this.SymbolDifferentRateTaxableSales);
                 sb.Append(this.TotalSalesTaxableDifferentRate);
@@ -434,22 +434,22 @@ namespace PCN874
                 sb.Append(this.TotalVATonSalesTaxableDifferentRate);
 
                 this.TotalNumberOfRecordsForSales = CalcTotalNumberOfSales(transactionEntries);
-                sb.Append(TotalNumberOfRecordsForSales);
+                sb.Append(TotalNumberOfRecordsForSales.PadLeft(9, '0'));
 
                 sb.Append(SymbolTotalOfZeroValueAndExemptSales);
                 this.TotalZeroValueExemptSales = CalcTotalZeroValueExemptSales(transactionEntries);
 
-                sb.Append(this.TotalZeroValueExemptSales);
+                sb.Append(this.TotalZeroValueExemptSales.PadLeft(11, '0'));
                 sb.Append(SymbolTotalVATonOtherInputs);
 
                 this.TotalVATonOtherInputs = CalcTotalVATonOtherInputs(transactionEntries);
-                sb.Append(this.TotalVATonOtherInputs);
+                sb.Append(this.TotalVATonOtherInputs.PadLeft(9, '0'));
 
                 sb.Append(SymbolTotalVATOnEquipment);
                 sb.Append(this.TotalVATonEquipment);
 
                 this.TotalNumberOfRecordsForInputs = CalcTotalRecordsInputs(transactionEntries);
-                sb.Append(TotalNumberOfRecordsForInputs);
+                sb.Append(TotalNumberOfRecordsForInputs.PadLeft(9, '0'));
 
                 var diffTotalVATtoToPayReceive = Convert.ToDecimal(this.TotalVatTaxableSales) - Convert.ToDecimal(this.TotalVATonOtherInputs);
                 if (diffTotalVATtoToPayReceive <= 0)
@@ -466,7 +466,7 @@ namespace PCN874
                     sb.Append(this.SymbolTotalVATToPayReceive);
                 }
 
-                this.TotalVATtoToPayReceive = diffTotalVATtoToPayReceive.ToString().PadLeft(11, '0');
+                this.TotalVATtoToPayReceive = diffTotalVATtoToPayReceive.ToString();
                 sb.Append(this.TotalVATtoToPayReceive.ToString().PadLeft(11, '0'));
 
                 return sb.ToString();
@@ -477,37 +477,37 @@ namespace PCN874
             private string CalcTotalRecordsInputs(IEnumerable<TransactionEntry> transactionEntries)
             {                
                 var rowCount = transactionEntries.Count(e => e.TransactionType == eTransactionType.T);
-                return rowCount.ToString().PadLeft(9, '0');
+                return rowCount.ToString();
             }
 
             private string CalcTotalVATonOtherInputs(IEnumerable<TransactionEntry> transactionEntries)
             {               
-                var sumTotalVat = transactionEntries.Where(e => e.TransactionType == eTransactionType.T).Sum(e => Convert.ToSingle(e.TotalVatAmount));
-                return sumTotalVat.ToString().PadLeft(9, '0');
+                var sumTotalVat = transactionEntries.Where(e => e.TransactionType == eTransactionType.T).Sum(e => Math.Round(e.TotalVatAmount));
+                return sumTotalVat.ToString();
             }
 
             private string CalcTotalZeroValueExemptSales(IEnumerable<TransactionEntry> transactionEntries)
             {           
-                var sumTotal = transactionEntries.Where(e => e.TransactionType == eTransactionType.L).Sum(e => Convert.ToSingle(e.TotalInvoiceAmount));
-                return sumTotal.ToString().PadLeft(11, '0');
+                var sumTotal = transactionEntries.Where(e => e.TransactionType == eTransactionType.L).Sum(e => Math.Round(e.TotalInvoiceAmount));
+                return sumTotal.ToString();
             }
 
             private string CalcTotalNumberOfSales(IEnumerable<TransactionEntry> transactionEntries)
             {              
                 var rowCount = transactionEntries.Count(e => e.TransactionType == eTransactionType.S || e.TransactionType == eTransactionType.L);
-                return rowCount.ToString().PadLeft(9, '0');
+                return rowCount.ToString();
             }
 
             private string CalcTotalAmountTaxableSales(IEnumerable<TransactionEntry> transactionEntries)
             {
-                var sumTotal = transactionEntries.Where(e => e.TransactionType == eTransactionType.S).Sum(e => Convert.ToSingle(e.TotalInvoiceAmount));
-                return sumTotal.ToString().PadLeft(11, '0');
+                var sumTotal = transactionEntries.Where(e => e.TransactionType == eTransactionType.S).Sum(e => Math.Round(e.TotalInvoiceAmount));
+                return sumTotal.ToString();
             }
 
             private string CalcTotalAmountVATSales(IEnumerable<TransactionEntry> transactionEntries)
             {                
-                var sumTotalVat = transactionEntries.Where(e => e.TransactionType == eTransactionType.S).Sum(e => Convert.ToSingle(e.TotalVatAmount));
-                return sumTotalVat.ToString().PadLeft(9, '0');
+                var sumTotalVat = transactionEntries.Where(e => e.TransactionType == eTransactionType.S).Sum(e => Math.Round(e.TotalVatAmount));
+                return sumTotalVat.ToString();
             }
         }
     }
@@ -528,7 +528,7 @@ namespace PCN874
             try
             {                
                 var headerRow = new HeaderEntry().BuildHeader(transactionEntries, Config);
-                var footerRow = $"X{Config.IdentificationNumber}";
+                var footerRow = $"X{(Config.IdentificationNumber?.Trim() ?? "0").PadLeft(9, '0')}";
 
                 using (var sw = new StreamWriter(Config.FilePath))
                 {
@@ -566,7 +566,7 @@ namespace PCN874
             try
             {                
                 var headerRow = new HeaderEntry().BuildHeader(transactionEntries, Config);
-                var footerRow = $"X{Config.IdentificationNumber}";
+                var footerRow = $"X{(Config.IdentificationNumber?.Trim() ?? "0").PadLeft(9, '0')}";
 
                 var sb = new StringBuilder();
                 sb.AppendLine(headerRow);
@@ -628,14 +628,14 @@ namespace PCN874
                                 break;
                         }
 
-                        entry.IdentificationNumber = lineValues[1].PadLeft(9, '0');
+                        entry.IdentificationNumber = lineValues[1];
                         entry.InvoiceDate = lineValues[2];
                         entry.ReferenceGroup = lineValues[3];
-                        entry.InvoiceReferenceNumber = lineValues[4].PadLeft(9, '0');
-                        entry.TotalVatAmount = lineValues[5].PadLeft(9, '0');
+                        entry.InvoiceReferenceNumber = lineValues[4];
+                        entry.TotalVatAmount = Convert.ToSingle(lineValues[5]);
                         entry.CreditSymbol = lineValues[6];
-                        entry.TotalInvoiceAmount = lineValues[7].PadLeft(10, '0');
-                        entry.FutureData = "".PadLeft(9, '0');
+                        entry.TotalInvoiceAmount = Convert.ToSingle(lineValues[7]);
+                        entry.FutureData = "";
 
                         transactionEntries.Add(entry);
                     }

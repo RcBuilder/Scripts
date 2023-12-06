@@ -1,0 +1,25 @@
+SendSMS Base BLL Wrapper - Twilio
+---------------------------------
+public static string SendSMS(string ToPhone, string Body) {
+            if (!ConfigSingleton.Instance.SMSEnabled) return null;
+            if (string.IsNullOrEmpty(ToPhone)) return null;
+            if (ToPhone.Length <= 5) return null;
+
+            var origin = ToPhone;
+
+            // fix phone numer if necessary (+972 instead of prefix 0)
+            if (ToPhone.StartsWith("0"))
+                ToPhone = $"+972{ToPhone.Remove(0, 1)}";
+
+            try
+            {
+                return twilioInstance.SendSMS(ConfigSingleton.Instance.TwilioPhoneNumber, ToPhone, Body);
+            }
+            catch (Exception ex) {                                
+                ex.Data.Add("Method", "SMSManager.SendSMS");
+                ex.Data.Add("ToPhone(1)", origin);
+                ex.Data.Add("ToPhone(2)", ToPhone);
+                LoggerSingleton.Instance.Error("SMSManager", ex);                
+                return null;
+            }
+        }

@@ -38,3 +38,41 @@ CREATE NONCLUSTERED INDEX [IX_OrderDate] ON [dbo].[Products] (OrderDate DESC)
 ------
 
 CREATE UNIQUE NONCLUSTERED INDEX [IX_OrderDate] ON [dbo].[Products](OrderDate ASC) WHERE [IX_OrderDate] IS NOT NULL
+
+------
+
+CREATE NONCLUSTERED INDEX [IX_SectionId] 
+ON [dbo].[OnlineCourses] ([SectionId]) 
+
+CREATE NONCLUSTERED INDEX [IX_UniversityId] 
+ON [dbo].[OnlineCourses] ([UniversityId]) 
+
+CREATE NONCLUSTERED INDEX [IX_IsPublish_IsDeleted] 
+ON [dbo].[OnlineCourses] ([IsPublish], [IsDeleted]) 
+
+CREATE NONCLUSTERED INDEX [IX_OnlineChapterId] 
+ON [dbo].[OnlineCourseChapters] ([OnlineChapterId]) 
+
+CREATE NONCLUSTERED INDEX [IX_OnlineCourseId] 
+ON [dbo].[OnlineCourseChapters] ([OnlineCourseId]) 
+
+CREATE NONCLUSTERED INDEX [IX_OnlineMovieId] 
+ON [dbo].[OnlineChapterMovies] ([OnlineMovieId]) 
+
+CREATE NONCLUSTERED INDEX [IX_OnlineChapterId] 
+ON [dbo].[OnlineChapterMovies] ([OnlineChapterId]) 
+
+CREATE NONCLUSTERED INDEX [IX_IsDeleted] 
+ON [dbo].[Pages] ([IsDeleted]) 
+
+CREATE NONCLUSTERED INDEX [IX_CategoryId] 
+ON [dbo].[OnlineCourses] ([CategoryId]) 
+
+CREATE NONCLUSTERED INDEX [IX_IsPublish_IsDeleted] 
+ON [dbo].[Pages] ([IsPublish], [IsDeleted]) 
+WITH (ONLINE = OFF)
+
+CREATE NONCLUSTERED INDEX [IX_Position_Priority_IsPublish] 
+ON [dbo].[Pages] ([Position] DESC, [Priority] DESC, [IsPublish] DESC) 
+
+------

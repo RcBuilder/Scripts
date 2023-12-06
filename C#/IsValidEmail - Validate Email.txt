@@ -1,0 +1,12 @@
+IsValidEmail - Validate Email 
+-----------------------------
+static bool IsValidEmail(string value)
+        {
+            try {
+                var m = new MailAddress(value);
+                return true;
+            }
+            catch (FormatException) {
+                return false;
+            }
+        }

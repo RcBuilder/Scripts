@@ -1,0 +1,36 @@
+EF SaveChanges catch DbEntityValidationException
+------------------------------------------------
+
+public static int Save(Entities.Course course)
+        {
+            try
+            {
+                using (var context = new Entities.OpenBookDBContext())
+                {
+                    if (course.Id == 0) // add
+                        context.Courses.Add(course);
+                    else // edit
+                    {
+                        var current = context.Courses.Find(course.Id);
+                        context.Entry<Entities.Course>(current).CurrentValues.SetValues(course);  // update model
+                        context.Entry(current).State = EntityState.Modified; // mark as modified
+
+                        current.CourseCities.Clear();
+                        foreach (var city in course.CourseCities)
+                            current.CourseCities.Add(city);
+                    }
+
+                    context.SaveChanges();  // update db
+                    return course.Id;
+                }
+            }
+            catch (DbEntityValidationException ex)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (var error in ex.EntityValidationErrors.Where(x => !x.IsValid))
+                    foreach (var message in error.ValidationErrors)
+                        sb.AppendFormat("{0}\n", message.ErrorMessage);
+                throw new Exception(sb.ToString());
+            }
+            catch { throw; }
+        }

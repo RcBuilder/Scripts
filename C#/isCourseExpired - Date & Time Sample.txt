@@ -1,0 +1,11 @@
+isCourseExpired - Date & Time Sample
+------------------------------------
+var dt = DateTime.Now.AddDays(1).AddMinutes(-10);
+var LessonDate = dt.Date;
+var LessonTime = dt.TimeOfDay;
+
+var ts = LessonDate - DateTime.Now.Date;
+var tsTime = LessonTime - DateTime.Now.TimeOfDay;
+
+var isCourseExpired = ts.Days < 0 || (ts.Days == 0  && tsTime.Minutes <= 0);
+Console.WriteLine(isCourseExpired);

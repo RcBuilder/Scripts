@@ -10,8 +10,8 @@ namespace PCN874Tests
     {
         static void Main(string[] args)
         {
-            TestExport();return;
-            TestExportFromCSV();
+            TestExport(); return;
+            TestExportFromCSV();            
 
             TestGenerate();
             TestGenerateFromCSV();
@@ -78,9 +78,9 @@ namespace PCN874Tests
                 InvoiceDate = "20230811",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "101",
-                TotalVatAmount = "17",
+                TotalVatAmount = 17,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "100",
+                TotalInvoiceAmount = 100,
                 FutureData = ""
             });
             transactionEntries.Add(new S_RegularSalesTrn
@@ -89,9 +89,9 @@ namespace PCN874Tests
                 InvoiceDate = "20230811",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "201",
-                TotalVatAmount = "34",
+                TotalVatAmount = 34,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "200",
+                TotalInvoiceAmount = 200,
                 FutureData = ""
             });
             transactionEntries.Add(new T_InputRegularTrn
@@ -100,11 +100,80 @@ namespace PCN874Tests
                 InvoiceDate = "20230511",
                 ReferenceGroup = "0000",
                 InvoiceReferenceNumber = "301",
-                TotalVatAmount = "42",
+                TotalVatAmount = 42.6F,
                 CreditSymbol = "+",
-                TotalInvoiceAmount = "250",
+                TotalInvoiceAmount = 250,
                 FutureData = ""
             });
+
+            /*
+                transactionEntries.Add(new L_SalesUnidentifiedTrn
+                {
+                    IdentificationNumber = "001495706",
+                    InvoiceDate = "20230811",
+                    ReferenceGroup = "0000",
+                    InvoiceReferenceNumber = "101",
+                    TotalVatAmount = 0,
+                    CreditSymbol = "+",
+                    TotalInvoiceAmount = 558505,
+                    FutureData = ""
+                });
+                transactionEntries.Add(new S_RegularSalesTrn
+                {
+                    IdentificationNumber = "515219731",
+                    InvoiceDate = "20230811",
+                    ReferenceGroup = "0000",
+                    InvoiceReferenceNumber = "201",
+                    TotalVatAmount = 20400,
+                    CreditSymbol = "+",
+                    TotalInvoiceAmount = 120000,
+                    FutureData = ""
+                });
+                transactionEntries.Add(new T_InputRegularTrn
+                {
+                    IdentificationNumber = "515948321",
+                    InvoiceDate = "20230511",
+                    ReferenceGroup = "0000",
+                    InvoiceReferenceNumber = "301",
+                    TotalVatAmount = 8500,
+                    CreditSymbol = "+",
+                    TotalInvoiceAmount = 50000,
+                    FutureData = ""
+                });
+                transactionEntries.Add(new T_InputRegularTrn
+                {
+                    IdentificationNumber = "514486547",
+                    InvoiceDate = "20230411",
+                    ReferenceGroup = "0000",
+                    InvoiceReferenceNumber = "401",
+                    TotalVatAmount = 6800,
+                    CreditSymbol = "+",
+                    TotalInvoiceAmount = 40000,
+                    FutureData = ""
+                });
+                transactionEntries.Add(new T_InputRegularTrn
+                {
+                    IdentificationNumber = "013360714",
+                    InvoiceDate = "20230311",
+                    ReferenceGroup = "0000",
+                    InvoiceReferenceNumber = "501",
+                    TotalVatAmount = 5100,
+                    CreditSymbol = "+",
+                    TotalInvoiceAmount = 30000,
+                    FutureData = ""
+                });
+                transactionEntries.Add(new T_InputRegularTrn
+                {
+                    IdentificationNumber = "515948321",
+                    InvoiceDate = "20230215",
+                    ReferenceGroup = "0000",
+                    InvoiceReferenceNumber = "701",
+                    TotalVatAmount = 7650,
+                    CreditSymbol = "+",
+                    TotalInvoiceAmount = 45000,
+                    FutureData = ""
+                }); 
+            */
 
             return transactionEntries;
         }

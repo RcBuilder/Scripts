@@ -9,7 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static Helpers.PervasiveDBHelper;
 
-namespace AccountStatusSenderService
+namespace DAL
 {
     public class PervasiveDAL
     {

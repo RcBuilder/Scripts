@@ -1,0 +1,19 @@
+Json-Based Config 
+-----------------
+
+var CONFIG = JsonConvert.DeserializeObject<Config>(File.ReadAllText($"{AppDomain.CurrentDomain.BaseDirectory}Config.json"));
+
+
+-
+
+// Config.json
+{
+  "ConnStr": "Driver={Pervasive ODBC Client Interface};ServerName=RcBuilder-PC;dbq=MANAGER1r7627db;Client_CSet=UTF-8;Server_CSet=CP850;",  
+  "AutoClose": false  
+}
+
+public class Config
+{
+   public string ConnStr { get; set; }        
+   public bool AutoClose { get; set; }                    
+}

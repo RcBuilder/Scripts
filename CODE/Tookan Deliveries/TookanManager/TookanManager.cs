@@ -21,6 +21,29 @@ namespace Tookan
 
         -
 
+        Custom Fields:
+        in order to pass custom fields, we need to create a template via the tookan's dashboard! 
+        add some custom fields to the created template. 
+        once created use the very same name as the 'meta_data' and set the template name as 'custom_field_template' 
+        
+        ...
+        ...
+        "custom_field_template": "Konimbo-Order",
+        "meta_data": [
+            {
+                "label": "Price",
+                "data": "100"
+            },
+            {
+                "label": "Quantity",
+                "data": "3"
+            }
+        ]
+        ...
+        ...
+
+        -
+
         Using:        
         var manager = new TookanManager(new TookanConfig
         {
@@ -66,7 +89,7 @@ namespace Tookan
           "layout_type": "0",
           "tracking_link": 1,
           "timezone": "+180",
-          "custom_field_template": "",
+          "custom_field_template": "Konimbo-Order",
           "meta_data": [
             {
               "label": "Price",
