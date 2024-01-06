@@ -27,6 +27,13 @@ using System.Diagnostics;
     OpenAPI@taxes.gov.il
     invoices@taxes.gov.il
     lakohot-bt@taxes.gov.il
+    itaOpenApiSupport@taxes.gov.il
+
+
+    SANDBOX USERS
+    -------------
+    199999996 / HH1773/ QQ1234(OTP)
+    199999988 / PK2175 / qq1234(OTP)
 
 
     DEMO (SOURCES)
@@ -112,7 +119,7 @@ using System.Diagnostics;
     CLIENT PORTAL
     -------------
     * SANDBOX 
-      https://openapi-portal.taxes.gov.il/sandbox
+      https://openapi-portal.taxes.gov.il/sandbox  
 
     * PROD
       https://openapi-portal.taxes.gov.il/shaam/production
@@ -123,12 +130,19 @@ using System.Diagnostics;
     API BASE URL
     ------------
     * SANDBOX 
-      https://openapi.taxes.gov.il/shaam/tsandbox
+      https://openapi.taxes.gov.il/shaam/tsandbox   // deprecated on 01.01.2024
+      https://ita-api.taxes.gov.il/shaam/tsandbox   // new
       https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2
-
+            
     * PROD
-      https://openapi.taxes.gov.il/shaam/production
+      https://openapi.taxes.gov.il/shaam/production     // deprecated on 01.01.2024
+      https://ita-api.taxes.gov.il/shaam/production     // new
       https://openapi.taxes.gov.il/shaam/production/longtimetoken/oauth2
+
+    note! 
+    oauth2 uses the old base url, the rest of the services will use the new updated url
+    https://openapi.taxes.gov.il/shaam/<env>/longtimetoken/oauth2
+
 
     SERVICE TYPES
     -------------
@@ -139,7 +153,14 @@ using System.Diagnostics;
 
     POSTMAN
     -------
-    Taxes API.postman_collection.json
+    - see 'ISLTaxesOpenAPI.postman_collection.json'
+    - see 'Taxes API.postman_collection.json' 
+
+
+    DEMO (sources)
+    --------------
+    https://github.com/ISRTaxesOpenAPI/nodeJSExample
+    https://github.com/ISRTaxesOpenAPI/-postmanExample
 
 
     IMPLEMENTATIONS
@@ -184,14 +205,14 @@ using System.Diagnostics;
     -----
     var taxesILConfig = new TaxesILConfig
     {
-        ServerURL = "https://openapi.taxes.gov.il/shaam/tsandbox",
+        ServerURL = "https://ita-api.taxes.gov.il/shaam/tsandbox",
         AuthorizeURL = "https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2",
         ApiKey = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
         ApiSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"                    
     };
 
     // optional
-    taxesILConfig.RefreshToken = "AAI1YVCbCLP4CUyWtrL1jiXgEiaIB8CaF-Ima4EnOd0XWpK5URJqPLbnH7LAGqIYYjubIDAVPLj2-QfCRLTMuLAm9zEHhvKwmuoyz8mfClvPUw";
+    taxesILConfig.RefreshToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
     taxesILConfig.RedirectURI = "http://localhost:9999";
 
     var taxesILManager = new TaxesILManager(taxesILConfig);
@@ -211,7 +232,7 @@ using System.Diagnostics;
     Console.WriteLine(created);
 
     var details = await taxesILManager.GetInvoiceDetails(new GetInvoiceDetailsRequest { 
-        ConfirmationNumber = "20231009105110808282010549",
+        ConfirmationNumber = "202310091xxxxxxxxxxxx",
         CustomerVATNumber = 777777715,
         VatNumber = 18
     });
@@ -259,8 +280,7 @@ using System.Diagnostics;
     var created = await taxesILManager.CreateInvoice(invoiceToCreate);
     Console.WriteLine(created);
             
-    return created.Confirmation;
-    
+    return created.Confirmation;    
 */
 
 namespace TaxesIL

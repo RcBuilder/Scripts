@@ -2929,6 +2929,16 @@ see 'MVC FromURI binding'
 * SEO Defaults
   see 'ViewBag object within _ViewStart.cshtml'
 
+* RenderAmount helper 
+// currency format
+@helper RenderAmount(float Value)
+{
+    var CURRENCY_FORMAT = "{0:n}"; // "{0:C2}"
+    <text>@string.Format(CURRENCY_FORMAT, Math.Abs(Value))</text>
+}
+
+@RenderAmount(item.UnitPriceBeforeVAT)
+
 --------------------------------------------------------------
 // TODO Research
 

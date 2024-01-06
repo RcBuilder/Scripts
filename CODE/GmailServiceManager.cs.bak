@@ -428,8 +428,7 @@ namespace Gmail
                 mailMessage.Subject = EmailData.Subject ?? "";
                 mailMessage.Body = EmailData.Body ?? "";
                 mailMessage.IsBodyHtml = EmailData.IsBodyHtml;
-                mailMessage.To.Add(new MailAddress(EmailData.To)); // single addressee
-				///mailMessage.To.Add(EmailData.To); // supports multiple addressees (splitted by ',')
+                mailMessage.To.Add(new MailAddress(EmailData.To));
 
                 if (!string.IsNullOrEmpty(EmailData.Bcc))
                     mailMessage.Bcc.Add(new MailAddress(EmailData.Bcc));
