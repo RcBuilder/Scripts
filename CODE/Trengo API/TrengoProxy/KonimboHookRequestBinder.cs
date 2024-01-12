@@ -131,7 +131,7 @@ namespace TrengoProxy
                                 Street = data["order[additional_inputs][extra_field_street]"]?.Trim(),
                             },
                             CartDetails = new KonimboHookRequest.CartDetails { 
-                                TotalPrice = data["order[cart][total_price]"]?.Trim()
+                                TotalPrice = Convert.ToSingle(data["order[cart][total_price]"]?.Trim() ?? "0")
                             }
                         }
                     };

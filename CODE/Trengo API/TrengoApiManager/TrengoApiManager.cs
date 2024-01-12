@@ -504,7 +504,7 @@ namespace TrengoApi
         public async Task<int> CreateTicket(CreateTicketRequest Request)
         {
             var response = await this.HttpService.POST_ASYNC<CreateTicketRequest, Ticket>(
-                $"{this.Config.ApiUrl}contacts/{Request.ContactId}/notes",
+                $"{this.Config.ApiUrl}tickets",
                 Request,
                 null,
                 new Dictionary<string, string>
@@ -518,9 +518,9 @@ namespace TrengoApi
             return response.Model.Id;
         }
 
-        public async Task<int> CreateTicketMessage(CreateTicketMessageRequest Request)
+        public async Task<long> CreateTicketMessage(CreateTicketMessageRequest Request)
         {
-            var response = await this.HttpService.POST_ASYNC<CreateTicketMessageRequest, TicketMessage>(
+            var response = await this.HttpService.POST_ASYNC<CreateTicketMessageRequest, TicketMessageResponse>(
                 $"{this.Config.ApiUrl}tickets/{Request.TicketId}/messages",
                 Request,
                 null,
@@ -532,7 +532,7 @@ namespace TrengoApi
                 }
             );
 
-            return response.Model.Id;
+            return response.Model.Message.Id;
         }
 
         public async Task<int> SetContactCustomField(SetContactCustomFieldRequest Request)
@@ -552,7 +552,7 @@ namespace TrengoApi
             return response.Model.Id;
         }
 
-        public async Task<int> LabelATicket(LabelATicketRequest Request)
+        public async Task<bool> LabelATicket(LabelATicketRequest Request)
         {
             var response = await this.HttpService.POST_ASYNC<LabelATicketRequest, Label>(
                 $"{this.Config.ApiUrl}tickets/{Request.TicketId}/labels",
@@ -566,7 +566,7 @@ namespace TrengoApi
                 }
             );
 
-            return response.Model.Id;
+            return response.Success;
         }
 
         public async Task<IEnumerable<CustomField>> GetCustomFields()

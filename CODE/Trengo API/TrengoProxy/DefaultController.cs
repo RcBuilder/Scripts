@@ -26,8 +26,7 @@ namespace TrengoProxy.Controllers
         {
             return Request.CreateResponse("TrengoProxy");
         }
-
-        // TODO ->> Implement Hook
+        
         [HttpPost]
         [Route("konimbo/hook")]
         public async Task<HttpResponseMessage> KonimboOrderAfterPaymentHook([ModelBinder(typeof(KonimboHookRequestBinder))]KonimboHookRequest HookData)
@@ -58,20 +57,20 @@ namespace TrengoProxy.Controllers
             }
             catch { }
 
-            step = 1;
-
-            if (!HookData.IsPaid)
-                throw new Exception("Order is not paid!");
-
-            step = 2;
-
-            if (!HookData.IsNewsletterEnabled)
-                throw new Exception("Newsletter flag is disabled!");
-
-            step = 3;
-
             try
             {
+                step = 1;
+
+                if (!HookData.IsPaid)
+                    throw new Exception("Order is not paid!");
+
+                step = 2;
+
+                if (!HookData.IsNewsletterEnabled)
+                    throw new Exception("Newsletter flag is disabled!");
+
+                step = 3;
+            
                 var manager = new TrengoApiManager(new TrengoApiConfig
                 {
                     ApiUrl = ConfigurationManager.AppSettings["TrengoApiUrl"].Trim(),
@@ -83,7 +82,7 @@ namespace TrengoProxy.Controllers
                 /// 1306497 = wa_business
                 const int WA_BUSINESS_CHANNEL = 1306497;
                 
-                var contactRequest = new CreateContactRequest(HookData.Order.ExtraInfo.Phone, HookData.Order.ExtraInfo.Name, WA_BUSINESS_CHANNEL);
+                var contactRequest = new CreateContactRequest(HookData.PhoneFormatted, HookData.Order.Name, WA_BUSINESS_CHANNEL);
                 var contactId = await manager.CreateContact(contactRequest);
 
                 step = 5;
@@ -94,12 +93,12 @@ namespace TrengoProxy.Controllers
                 /// 609992 = customer_123
                 /// 614854 = contact email
 
-                var customField1Request = new SetContactCustomFieldRequest(contactId, 609842, HookData.Order.ExtraInfo.Name);
+                var customField1Request = new SetContactCustomFieldRequest(contactId, 609842, HookData.Order.Name);
                 var customField1Id = await manager.SetContactCustomField(customField1Request);
 
                 step = 6;
 
-                var customField2Request = new SetContactCustomFieldRequest(contactId, 609835, HookData.Order.ExtraInfo.Phone);
+                var customField2Request = new SetContactCustomFieldRequest(contactId, 609835, HookData.PhoneFormatted);
                 var customField2Id = await manager.SetContactCustomField(customField2Request);
 
                 step = 7;
@@ -114,7 +113,7 @@ namespace TrengoProxy.Controllers
 
                 step = 9;
 
-                var contactNoteRequest = new CreateContactNoteRequest(contactId, HookData.ToString());  // TODO ->> [NOTE]
+                var contactNoteRequest = new CreateContactNoteRequest(contactId, HookData.ToString());
                 var contactNoteId = await manager.CreateContactNote(contactNoteRequest);
 
                 step = 10;
@@ -128,11 +127,11 @@ namespace TrengoProxy.Controllers
                 /// 1701915 = Konimbo
 
                 var ticketLabelRequest = new LabelATicketRequest(ticketId, 1701915); 
-                var ticketLabelId = await manager.LabelATicket(ticketLabelRequest);
+                var ticketLabelSuccess = await manager.LabelATicket(ticketLabelRequest);
 
                 step = 12;
 
-                var ticketMessageRequest = new CreateTicketMessageRequest(ticketId, HookData.ToString(), true); // TODO ->> [MESSAGE]
+                var ticketMessageRequest = new CreateTicketMessageRequest(ticketId, HookData.ToString(), true);
                 var ticketMessageId = await manager.CreateTicketMessage(ticketMessageRequest);
 
                 var result = new
@@ -152,7 +151,7 @@ namespace TrengoProxy.Controllers
                     ticketRequest,
                     ticketId,
                     ticketLabelRequest,
-                    ticketLabelId,
+                    ticketLabelSuccess,
                     ticketMessageRequest,
                     ticketMessageId
                 };

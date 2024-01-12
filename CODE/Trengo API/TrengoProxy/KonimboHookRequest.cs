@@ -4,8 +4,6 @@ using System.Globalization;
 
 namespace TrengoProxy
 {
-    // TODO ->> Implement - Set Models
-
     /*       
         {
           "order": {
@@ -216,7 +214,7 @@ namespace TrengoProxy
         {
             get
             {
-                return this.Order?.PaymentStatus == "שולם";
+                return !string.IsNullOrEmpty(this.Order?.PaymentStatus);
             }
         }
 
@@ -225,6 +223,29 @@ namespace TrengoProxy
             get
             {
                 return this.Order?.Newsletter ?? false;
+            }
+        }
+        
+        public float CartTotal
+        {
+            get
+            {
+                return this.Order?.CartDetails?.TotalPrice ?? 0;
+            }
+        }
+
+        public string PhoneFormatted
+        {
+            get
+            {
+                var temp = this.Order?.Phone;
+                if (temp == null) return null;
+
+                // fix phone numer if necessary (+972 instead of prefix 0)
+                if (temp.StartsWith("0"))
+                    temp = $"972{temp.Remove(0, 1)}";
+                
+                return temp;
             }
         }
 
@@ -333,12 +354,12 @@ namespace TrengoProxy
         public class CartDetails
         {
             [JsonProperty(PropertyName = "total_price")]
-            public string TotalPrice { get; set; }
+            public float TotalPrice { get; set; }
         }
 
         public override string ToString()
         {
-            return $""; // TODO ->> override ToString
+            return $"NEW ORDER #{this.Order.OrderId}\n CLIENT: {this.Order.Name}\n CART-TOTAL: {this.CartTotal}";
         }
     }
 }

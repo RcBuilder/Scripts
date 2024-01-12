@@ -1,0 +1,66 @@
+RegEx ExtractEmailTo
+--------------------
+split file name into email-to, file name and account id
+
+--
+
+public void RunTests() {
+            var test1 = ExtractEmailTo("(test1@cpa.co.il)uO550970_11673.pdf");
+            var test2 = ExtractEmailTo("(test2@cpa.co.il;test2_2@cpa.co.il)uO550970_11673.pdf");
+            var test3 = ExtractEmailTo("(test3@cpa.co.il,test3_2@cpa.co.il)uO550970_11673.pdf");
+            var test4 = ExtractEmailTo("(test4@cpa.co.il ; test4_2@cpa.co.il)uO550970_11673.pdf");
+            var test5 = ExtractEmailTo("(test5@cpa.co.il     ,     test5_2@cpa.co.il)uO550970_11673.pdf");
+            var test6 = ExtractEmailTo("(    test6@cpa.co.il     )uO550970_11673.pdf");
+            var test7 = ExtractEmailTo("(test7@cpa.co.il,test7_2@cpa.co.il;test3_2@cpa.co.il)uO550970_11673.pdf");
+
+            Console.WriteLine($"{test1.FileName} | {test1.To} | {test1.AccountId}");
+            Console.WriteLine($"{test2.FileName} | {test2.To} | {test2.AccountId}");
+            Console.WriteLine($"{test3.FileName} | {test3.To} | {test3.AccountId}");
+            Console.WriteLine($"{test4.FileName} | {test4.To} | {test4.AccountId}");
+            Console.WriteLine($"{test5.FileName} | {test5.To} | {test5.AccountId}");
+            Console.WriteLine($"{test6.FileName} | {test6.To} | {test6.AccountId}");
+            Console.WriteLine($"{test7.FileName} | {test7.To} | {test7.AccountId}");
+        }
+
+
+
+protected (string To, string FileName, int AccountId) ExtractEmailTo(string FileName)
+        {
+            /// (test1@cpa.co.il)uO550970_11673.pdf
+            /// (test2@cpa.co.il;test2_2@cpa.co.il)uO550970_11673.pdf
+            /// (test3@cpa.co.il,test3_2@cpa.co.il)uO550970_11673.pdf
+            /// (test4@cpa.co.il ; test4_2@cpa.co.il)uO550970_11673.pdf
+            /// (test5@cpa.co.il     ,     test5_2@cpa.co.il)uO550970_11673.pdf
+            /// (    test6@cpa.co.il     )uO550970_11673.pdf
+            /// (test7@cpa.co.il,test7_2@cpa.co.il;test3_2@cpa.co.il)uO550970_11673.pdf
+
+            string ConvertMultiple(string Origin, char Seperator)
+            {
+                var lst = Origin.Split(new char[] { Seperator }, StringSplitOptions.RemoveEmptyEntries)?.Select(o => o.Trim()) ?? Enumerable.Empty<string>();
+                return string.Join(Seperator.ToString(), lst);
+            }
+
+            var regex = new Regex(@"\((?<to>[\s\S]+)\)(?<file>.*)", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+            var match = regex.Match(FileName);
+
+            if (match == null || match.Groups == null)
+                return ("", FileName, 0);
+
+            // fix 'to' value - support multiple by ',' or ';' and remove whitespaces
+            var to = match.Groups["to"].Value.Trim();
+
+            if (to.Contains(",")) to = ConvertMultiple(to, ',');
+            if (to.Contains(";")) to = ConvertMultiple(to, ';');
+            to = to.Replace(";", ",");
+
+            var fileName = match.Groups["file"].Value.Trim();
+
+            // extract account id 
+            var accountId = 0;
+            try {
+                accountId = Convert.ToInt32(Path.GetFileNameWithoutExtension(fileName).Split('_')[1]);
+            }
+            catch { }
+
+            return (to, fileName, accountId);
+        }

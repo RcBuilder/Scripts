@@ -9,10 +9,10 @@ namespace TrengoApi
         Task<int> CreateContact(CreateContactRequest Request);                
         Task<int> CreateContactNote(CreateContactNoteRequest Request);
         Task<int> CreateTicket(CreateTicketRequest Request);
-        Task<int> CreateTicketMessage(CreateTicketMessageRequest Request);
+        Task<long> CreateTicketMessage(CreateTicketMessageRequest Request);
 
         Task<int> SetContactCustomField(SetContactCustomFieldRequest Request);
-        Task<int> LabelATicket(LabelATicketRequest Request);        
+        Task<bool> LabelATicket(LabelATicketRequest Request);        
 
         Task<IEnumerable<CustomField>> GetCustomFields();
         Task<IEnumerable<Label>> GetLabels();
