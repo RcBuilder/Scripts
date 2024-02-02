@@ -1,0 +1,96 @@
+MVC Google Authentication
+-------------------------
+aka Login with Gmail.
+
+
+-- STEPS --
+1.	Google Developers Console > New Project > Set properties:
+	- Project name = Memo-Events
+
+2.	OAuth consent screen > External > Set properties:
+	- App name = MemoGoogleLoginScreen
+	- App logo 
+	- (tab) Scopes
+	- (tab) Test users
+2.1.Save
+
+3.	Credentials > Create > OAuth client ID > Set properties:
+	- Application type = Web application
+	- Name = MemoGoogleLoginClient
+	- JavaScript origins = "http://localhost:1068"
+	- Redirect URIs = "http://localhost:1068/Manager/LoginWithGoogle"
+3.1.Create
+3.2.Copy generated Credentials (Client Id and Secret OR download Json)
+ 
+4.	Library > Google+ API > Enable
+
+5.	Publish and verify app  
+	- OAuth consent screen > Publishing status > (button) PUBLISH APP > Confirm
+	- Verification status > (Needs verification) > (button) PREPARE FOR VERIFICATION
+	- set missing details > (button) SUBMIT FOR VERIFICATION
+
+
+----------------
+
+-- USAGE --
+> Install-Package GoogleAuthentication
+
+[AllowAnonymous]
+[HttpGet]
+public async Task<ActionResult> LoginWithGoogle()
+{
+    var managersBLL = new ManagersBLL();
+    var clientId = ConfigSingleton.Instance.GoogleAuthClientId;
+    var clientSecret = ConfigSingleton.Instance.GoogleAuthClientSecret;
+    var callback = ConfigSingleton.Instance.GoogleAuthCallback;
+
+    // Callback
+    if (Request.QueryString["code"] != null) {
+        var code = Request.QueryString["code"].Trim();
+        var token = await GoogleAuth.GetAuthAccessToken(code, clientId, clientSecret, callback);
+        var profileResponse = await GoogleAuth.GetProfileResponseAsync(token.AccessToken);
+        var profile = JsonConvert.DeserializeObject<GoogleProfileDTO>(profileResponse);
+
+        var details = new Entities.Manager
+        {
+            Email = profile.Email,
+            Phone = profile.Mobile,                    
+            FirstName = profile.FirstName,
+            LastName = profile.LastName,
+            Photo = "" // profile.Picture
+        };
+
+        var result = await managersBLL.Register(details);
+
+        if(result.Exists)
+            return RedirectToAction("", "Manager");
+        else 
+            return RedirectToAction("SuccessRegister", "Home");
+
+        /*
+            ViewBag.GoogleResponse = profile;
+            return View("Login", new LoginDTO { 
+                Email = profile.Email                    
+            });
+        */
+    }
+
+    // Auth Redirect Url
+    var authUrl = GoogleAuth.GetAuthUrl(clientId, callback);
+    Response.Redirect(authUrl, true);
+    return null;
+
+    /*
+        ViewBag.GoogleResponse = authUrl;
+        return View("Login");
+    */
+}
+
+// Login View 
+<a href="~/Manager/LoginWithGoogle">GOOGLE</a>
+@ViewBag.GoogleResponse
+
+// Keys.config
+<add key="GoogleAuthClientId" value="xxxxxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxx" />
+<add key="GoogleAuthClientSecret" value="xxxxxxxxxxxxxxxxx" />
+<add key="GoogleAuthCallback" value="http://localhost:1068/Manager/LoginWithGoogle" />

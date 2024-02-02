@@ -1,0 +1,10 @@
+SQL Server Manager can NOT be found in Windows-10
+-------------------------------------------------
+> C:\Windows\System32
+
+SQLServerManager15.msc for [SQL Server 2019]
+SQLServerManager14.msc for [SQL Server 2017]
+SQLServerManager13.msc for [SQL Server 2016]
+SQLServerManager12.msc for [SQL Server 2014]
+SQLServerManager11.msc for [SQL Server 2012]
+SQLServerManager10.msc for [SQL Server 2008]

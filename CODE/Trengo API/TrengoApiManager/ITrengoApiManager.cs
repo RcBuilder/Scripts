@@ -12,7 +12,8 @@ namespace TrengoApi
         Task<long> CreateTicketMessage(CreateTicketMessageRequest Request);
 
         Task<int> SetContactCustomField(SetContactCustomFieldRequest Request);
-        Task<bool> LabelATicket(LabelATicketRequest Request);        
+        Task<bool> LabelATicket(LabelATicketRequest Request);
+        Task<bool> SetContactProfile(SetContactProfileRequest Request);
 
         Task<IEnumerable<CustomField>> GetCustomFields();
         Task<IEnumerable<Label>> GetLabels();

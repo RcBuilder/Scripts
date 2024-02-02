@@ -1,0 +1,10 @@
+Improve PC Performance Tips
+---------------------------
+WINDOWS + R > sysdm.cpl > Advanced > (Performance) Settings
+Choose 'Adjust for best performance' > Apply
+-
+WINDOWS + R > msconfig > Boot > Advanced Options 
+Check 'Number of processors' > choose the max > Apply
+-
+Settings > System > Display > Graphics Settings
+Turn-on 'Optimizations for Windows' > Restart

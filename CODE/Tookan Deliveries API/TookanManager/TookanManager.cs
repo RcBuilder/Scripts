@@ -12,6 +12,7 @@ namespace Tookan
         Reference:
         https://tookanapi.docs.apiary.io/#reference
         https://tookanapi.docs.apiary.io/#reference/task/create-task/create-a-pickup-and-delivery-task
+	https://help.jungleworks.com/knowledge-base/tookans-api-documentation/#gsc.tab=0
 
         Dashboard:
         https://app.tookanapp.com/

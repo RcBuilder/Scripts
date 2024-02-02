@@ -1,0 +1,6 @@
+ToUniversalTime UTC
+-------------------
+Console.WriteLine(DateTime.Now.ToUniversalTime().ToString("r"));
+
+output:
+Sat, 20 Jan 2024 20:14:27 GMT

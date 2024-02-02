@@ -404,17 +404,17 @@ namespace TaxesIL
             public string InvoiceIssuanceDate { get; set; }
 
             [JsonProperty(PropertyName = "Amount_Before_Discount")]
-            public float AmountBeforeDiscount { get; set; }
-            public float Discount { get; set; }
+            public double AmountBeforeDiscount { get; set; }
+            public double Discount { get; set; }
 
             [JsonProperty(PropertyName = "Payment_Amount")]
-            public float PaymentAmount { get; set; }
+            public double PaymentAmount { get; set; }
 
             [JsonProperty(PropertyName = "VAT_Amount")]
-            public float VATAmount { get; set; }
+            public double VATAmount { get; set; }
 
             [JsonProperty(PropertyName = "Payment_Amount_Including_VAT")]
-            public float PaymentAmountIncludingVAT { get; set; }
+            public double PaymentAmountIncludingVAT { get; set; }
 
             [JsonProperty(PropertyName = "Invoice_Note")]
             public string InvoiceNote { get; set; }
@@ -461,20 +461,20 @@ namespace TaxesIL
 
             [JsonProperty(PropertyName = "Measure_Unit_Description")]
             public string MeasureUnitDescription { get; set; } = "";  // null not allowed 
-            public float Quantity { get; set; }
+            public double Quantity { get; set; }
 
             [JsonProperty(PropertyName = "Price_Per_Unit")]
-            public float UnitPrice { get; set; }
-            public float Discount { get; set; }
+            public double UnitPrice { get; set; }
+            public double Discount { get; set; }
 
             [JsonProperty(PropertyName = "Total_Amount")]
-            public float Total { get; set; }
+            public double Total { get; set; }
 
             [JsonProperty(PropertyName = "VAT_Rate")]
             public int VATRate { get; set; }
 
             [JsonProperty(PropertyName = "VAT_Amount")]
-            public float VATAmount { get; set; }
+            public double VATAmount { get; set; }
         }
 
         public class GetInvoiceDetailsRequest

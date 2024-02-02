@@ -44,7 +44,7 @@
 * CMS = Content Management System
 * CRM = Customer-Relationship Management
 * WASM = WebAssembly
-* NLP = Natural Language Processing
+* NLP = Natural Language Processing (a machine learning technology that gives computers the ability to interpret, manipulate, and comprehend human language)
 * NFC = Near-Field Communication (a set of communication protocols for communication between two electronic devices over a distance of 4 cm)
 * WAF = Web Application Firewall
 * SMB = Server Message Block (פרוטוקול תקשורת המספק גישה משותפת אל קבצים, מדפסות, יציאות טוריות ותקשורת בין מחשבים ברשת)

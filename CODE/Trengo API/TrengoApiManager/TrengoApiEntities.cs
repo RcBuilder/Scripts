@@ -26,7 +26,6 @@ namespace TrengoApi
         public IEnumerable<string> Errors { get; set; }
     }
 
-
     public class CreateContactRequest {
         [JsonProperty(PropertyName = "identifier")]
         public string Identifier { get; set; } // phone or email (unique)
@@ -154,6 +153,26 @@ namespace TrengoApi
             this.ContactId = ContactId;
             this.CustomFieldId = CustomFieldId;
             this.Value = Value;
+        }
+    }
+    
+    public class SetContactProfileRequest
+    {
+        [JsonProperty(PropertyName = "contact_id")]
+        public int ContactId { get; set; }
+
+        [JsonProperty(PropertyName = "profile_id")]
+        public int ProfileId { get; set; }
+
+        // EMAIL, CHAT, WHATSAPP, WA_BUSINESS, FACEBOOK, TELEGRAM, TWITTER, SMS, VOIP, WECHAT, CUSTOM, INSTAGRAM, GBM
+        [JsonProperty(PropertyName = "type")]
+        public string Type { get; set; }
+
+        public SetContactProfileRequest(int ContactId, int ProfileId, string Type = "EMAIL")
+        {
+            this.ContactId = ContactId;
+            this.ProfileId = ProfileId;
+            this.Type = Type;
         }
     }
 

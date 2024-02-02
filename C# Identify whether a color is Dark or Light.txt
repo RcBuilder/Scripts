@@ -1,0 +1,11 @@
+C# Identify whether a color is Dark or Light 
+--------------------------------------------
+
+if (colorDialog1.ShowDialog() == DialogResult.OK)
+{
+	var textbox = ((TextBox)((Panel)cPanel).Controls[2]);
+	textbox.BackColor = colorDialog1.Color;
+
+	var isDarkColor = (colorDialog1.Color.R <= 128 || colorDialog1.Color.G <= 128 || colorDialog1.Color.B <= 128);
+	textbox.ForeColor = isDarkColor ? Color.White : Color.Black;
+}

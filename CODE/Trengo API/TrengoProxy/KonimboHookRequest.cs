@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
+using System.Text;
 
 namespace TrengoProxy
 {
@@ -355,11 +358,76 @@ namespace TrengoProxy
         {
             [JsonProperty(PropertyName = "total_price")]
             public float TotalPrice { get; set; }
+
+            [JsonProperty(PropertyName = "lines")]
+            public IEnumerable<CartLine> CartLines { get; set; }
+            
+            public IEnumerable<CartLine> CartItems { 
+                get {
+                    return this.CartLines?.Where(x => x.Type.ToLower() == "line_item");
+                } 
+            }
+
+            [JsonProperty(PropertyName = "shipping")]
+            public Shipping Shipping { get; set; }
+        }
+
+        public class CartLine
+        {
+            [JsonProperty(PropertyName = "item_id")]
+            public long ItemId { get; set; }
+
+            [JsonProperty(PropertyName = "line_item_id")]
+            public long LineItemId { get; set; }
+
+            [JsonProperty(PropertyName = "price")]
+            public float price { get; set; }
+
+            [JsonProperty(PropertyName = "unit_price")]
+            public float UnitPrice { get; set; }
+
+            [JsonProperty(PropertyName = "title")]
+            public string Title { get; set; }
+
+            [JsonProperty(PropertyName = "type")]
+            public string Type { get; set; } // line_item | upgrade
+
+            [JsonProperty(PropertyName = "quantity")]
+            public float Quantity { get; set; }
+
+            [JsonProperty(PropertyName = "code")]
+            public string Code { get; set; }
+
+            [JsonProperty(PropertyName = "image_url")]
+            public string ImageUrl { get; set; }
+
+            [JsonProperty(PropertyName = "brand_title")]
+            public string BrandTitle { get; set; }
+
+            [JsonProperty(PropertyName = "category_title")]
+            public string CategoryTitle { get; set; }
+        }
+
+        public class Shipping {
+            [JsonProperty(PropertyName = "price")]
+            public float Price { get; set; }
+
+            [JsonProperty(PropertyName = "title")]
+            public string Title { get; set; }
         }
 
         public override string ToString()
         {
-            return $"NEW ORDER #{this.Order.OrderId}\n CLIENT: {this.Order.Name}\n CART-TOTAL: {this.CartTotal}";
+            var sb = new StringBuilder();
+            sb.AppendLine($"NEW ORDER #{this.Order.OrderId}");
+            foreach (var item in this.Order.CartDetails?.CartItems)
+                sb.AppendLine($"{item.Title} ({item.Quantity} units)");
+            sb.AppendLine($"Payment Status: {this.Order.PaymentStatus}");
+            sb.AppendLine($"Client: {this.Order.Name}");
+            sb.AppendLine($"Cart Total: {this.CartTotal}");
+            sb.AppendLine($"Shipping: {this.Order.CartDetails?.Shipping?.Title}");            
+
+            return sb.ToString();
         }
     }
 }

@@ -1,0 +1,31 @@
+C# WINFORMS Resources
+---------------------
+
+add a resource:
+1. Properties > Resources.resx
+2. Choose Resource type on the top-left dropdown (e.g: Images)
+3. Add Resource > Add Existing File > Choose file
+
+remove a resource:
+1. Properties > Resources.resx
+2. Choose Resource type on the top-left dropdown (e.g: Images)
+3. Choose a resource > Remove Resource 
+
+use a resource:
+
+var panel = new Panel {
+	AutoSize = true,
+	Dock = DockStyle.Fill,
+	Padding = Padding.Empty,
+	Margin = Padding.Empty                
+};
+var deleteIcon = new PictureBox {                 
+	BackgroundImage = Properties.Resources.Delete16x16,
+	BackgroundImageLayout = ImageLayout.Center,
+	BorderStyle = BorderStyle.FixedSingle,
+	Width = 20,
+	Height = 20,
+	Top = 2,
+ 	Left = textBox.Width - 20 - 2
+};
+panel.Controls.Add(deleteIcon);

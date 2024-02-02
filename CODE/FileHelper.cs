@@ -215,7 +215,21 @@ namespace Common
         public static Bitmap ResizeImage(string imagePath, int width, int height, bool autoScale, (int x, int y)? position = null)
         {
             using (var image = Image.FromFile(imagePath))
+            {
+                // fix JPEG orienation:
+                int orientation = 1;
+                int orientationTag = 274;
+                if (image.PropertyIdList.Contains(orientationTag))
+                {
+                    orientation = (int)image.GetPropertyItem(orientationTag).Value[0];
+                }
+                if (orientation == 6 || orientation == 8)
+                {
+                    image.RotateFlip((orientation == 6) ? RotateFlipType.Rotate90FlipNone : RotateFlipType.Rotate270FlipNone);
+                }
+
                 return ResizeImage(image, width, height, autoScale, position);
+            }
         }
         public static Bitmap ResizeImage(Stream stream, int width, int height, bool autoScale)
         {

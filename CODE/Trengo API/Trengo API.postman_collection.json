@@ -55,6 +55,33 @@
 			"response": []
 		},
 		{
+			"name": "Get Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerURL}}profiles/13529359",
+					"host": [
+						"{{ServerURL}}profiles"
+					],
+					"path": [
+						"13529359"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Webhooks",
 			"request": {
 				"auth": {
@@ -127,6 +154,33 @@
 			"response": []
 		},
 		{
+			"name": "Get Label",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerURL}}labels/1683642",
+					"host": [
+						"{{ServerURL}}labels"
+					],
+					"path": [
+						"1683642"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "Get Ticket Messages",
 			"request": {
 				"auth": {
@@ -173,6 +227,33 @@
 					"raw": "{{ServerURL}}users",
 					"host": [
 						"{{ServerURL}}users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get User",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{ServerURL}}users/709618",
+					"host": [
+						"{{ServerURL}}users"
+					],
+					"path": [
+						"709618"
 					]
 				}
 			},
@@ -230,33 +311,6 @@
 			"response": []
 		},
 		{
-			"name": "Get Profile",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{Token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{ServerURL}}profiles/13529359",
-					"host": [
-						"{{ServerURL}}profiles"
-					],
-					"path": [
-						"13529359"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "Get Webhook",
 			"request": {
 				"auth": {
@@ -278,60 +332,6 @@
 					],
 					"path": [
 						"28279"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get Label",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{Token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{ServerURL}}labels/1683642",
-					"host": [
-						"{{ServerURL}}labels"
-					],
-					"path": [
-						"1683642"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "Get User",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{Token}}",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{ServerURL}}users/709618",
-					"host": [
-						"{{ServerURL}}users"
-					],
-					"path": [
-						"709618"
 					]
 				}
 			},
@@ -563,7 +563,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"identifier\": \"972545614020\",  \r\n  \"name\": \"test-api\"\r\n}",
+					"raw": "{\r\n  \"identifier\": \"97222222222\",  \r\n  \"name\": \"test-api\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -657,12 +657,12 @@
 					}
 				},
 				"url": {
-					"raw": "{{ServerURL}}contacts/460022113/custom_fields",
+					"raw": "{{ServerURL}}contacts/461520480/custom_fields",
 					"host": [
 						"{{ServerURL}}contacts"
 					],
 					"path": [
-						"460022113",
+						"461520480",
 						"custom_fields"
 					]
 				}
@@ -770,7 +770,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"api-label-1\",  \r\n    \"color\": \"red\"\r\n}",
+					"raw": "{\r\n    \"name\": \"NoSubscription\",  \r\n    \"color\": \"red\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -820,6 +820,49 @@
 					"raw": "{{ServerURL}}profiles",
 					"host": [
 						"{{ServerURL}}profiles"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Attach Contact To Profile",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"contact_id\": 463100171,\r\n    \"type\": \"EMAIL\" // EMAIL, CHAT, WHATSAPP, WA_BUSINESS, FACEBOOK, TELEGRAM, TWITTER, SMS, VOIP, WECHAT, CUSTOM, INSTAGRAM, GBM\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{ServerURL}}profiles/13714855/contacts",
+					"host": [
+						"{{ServerURL}}profiles"
+					],
+					"path": [
+						"13714855",
+						"contacts"
 					]
 				}
 			},

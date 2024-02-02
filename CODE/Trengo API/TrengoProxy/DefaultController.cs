@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
@@ -66,8 +67,10 @@ namespace TrengoProxy.Controllers
 
                 step = 2;
 
+                /*
                 if (!HookData.IsNewsletterEnabled)
                     throw new Exception("Newsletter flag is disabled!");
+                */
 
                 step = 3;
             
@@ -81,7 +84,8 @@ namespace TrengoProxy.Controllers
 
                 /// 1306497 = wa_business
                 const int WA_BUSINESS_CHANNEL = 1306497;
-                
+                const int KONIMBO_PROFILE = 13714855;
+
                 var contactRequest = new CreateContactRequest(HookData.PhoneFormatted, HookData.Order.Name, WA_BUSINESS_CHANNEL);
                 var contactId = await manager.CreateContact(contactRequest);
 
@@ -117,19 +121,28 @@ namespace TrengoProxy.Controllers
                 var contactNoteId = await manager.CreateContactNote(contactNoteRequest);
 
                 step = 10;
+                
+                var profileRequest = new SetContactProfileRequest(contactId, KONIMBO_PROFILE);
+                var profileSuccess = await manager.SetContactProfile(profileRequest);
+
+                step = 11;
 
                 var ticketRequest = new CreateTicketRequest(contactId, WA_BUSINESS_CHANNEL, $"KONIMBO INCOMING ORDER #{orderId}");
                 var ticketId = await manager.CreateTicket(ticketRequest);
 
-                step = 11;
+                step = 12;
 
                 /// 1683642 = Urgent
                 /// 1701915 = Konimbo
+                /// 1708877 = NoSubscription
+
+                if(!HookData.IsNewsletterEnabled)
+                    await manager.LabelATicket(new LabelATicketRequest(ticketId, 1708877));                
 
                 var ticketLabelRequest = new LabelATicketRequest(ticketId, 1701915); 
                 var ticketLabelSuccess = await manager.LabelATicket(ticketLabelRequest);
 
-                step = 12;
+                step = 13;
 
                 var ticketMessageRequest = new CreateTicketMessageRequest(ticketId, HookData.ToString(), true);
                 var ticketMessageId = await manager.CreateTicketMessage(ticketMessageRequest);
@@ -148,6 +161,8 @@ namespace TrengoProxy.Controllers
                     customField4Id,
                     contactNoteRequest,
                     contactNoteId,
+                    profileRequest,
+                    profileSuccess,
                     ticketRequest,
                     ticketId,
                     ticketLabelRequest,
@@ -162,7 +177,7 @@ namespace TrengoProxy.Controllers
                 }
                 catch { }
 
-                step = 13;
+                step = 14;
 
                 return Request.CreateResponse(HttpStatusCode.OK, result);
             }

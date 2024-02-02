@@ -81,7 +81,7 @@ namespace TrengoProxy
                 step = 2;
 
                 var body = HttpUtility.UrlDecode(bodyEncoded);
-                ///File.AppendAllText($"{AppDomain.CurrentDomain.BaseDirectory}Payloads\\Exceptions.txt", $"{body}{Environment.NewLine}");
+                /// File.AppendAllText($"{AppDomain.CurrentDomain.BaseDirectory}Payloads\\Exceptions.txt", $"{body}{Environment.NewLine}");
 
                 step = 3;
 

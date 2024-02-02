@@ -552,6 +552,23 @@ namespace TrengoApi
             return response.Model.Id;
         }
 
+        public async Task<bool> SetContactProfile(SetContactProfileRequest Request)
+        {
+            var response = await this.HttpService.POST_ASYNC<SetContactProfileRequest>(
+                $"{this.Config.ApiUrl}profiles/{Request.ProfileId}/contacts",
+                Request,
+                null,
+                new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/json",
+                    ["Authorization"] = $"Bearer {Config.ApiKey}"
+                }
+            );
+
+            return response.Success;
+        }
+
         public async Task<bool> LabelATicket(LabelATicketRequest Request)
         {
             var response = await this.HttpService.POST_ASYNC<LabelATicketRequest, Label>(
