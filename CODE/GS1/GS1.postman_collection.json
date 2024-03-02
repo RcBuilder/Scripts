@@ -1,0 +1,362 @@
+{
+	"info": {
+		"_postman_id": "ff7033e5-d3f5-4d8b-a69e-42cc0723ec94",
+		"name": "GS1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "768979"
+	},
+	"item": [
+		{
+			"name": "Get Messages By Date Range",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "username",
+							"value": "{{ApiUserName}}",
+							"type": "string"
+						},
+						{
+							"key": "password",
+							"value": "{{ApiPassword}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{ServerURL}}/messages_queue/get_by_date/from/2024-01-01/to/2024-02-01",
+					"host": [
+						"{{ServerURL}}"
+					],
+					"path": [
+						"messages_queue",
+						"get_by_date",
+						"from",
+						"2024-01-01",
+						"to",
+						"2024-02-01"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get UnRead Messages",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{ApiPassword}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{ApiUserName}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{ServerURL}}/messages_queue/get",
+					"host": [
+						"{{ServerURL}}"
+					],
+					"path": [
+						"messages_queue",
+						"get"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Products All Fields",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{ApiPassword}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{ApiUserName}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{ServerURL}}/product/fieldInfo.json?field=All",
+					"host": [
+						"{{ServerURL}}"
+					],
+					"path": [
+						"product",
+						"fieldInfo.json"
+					],
+					"query": [
+						{
+							"key": "field",
+							"value": "All"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Products Specific Field",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{ApiPassword}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{ApiUserName}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{ServerURL}}/product/fieldInfo.json?field=modification_timestamp",
+					"host": [
+						"{{ServerURL}}"
+					],
+					"path": [
+						"product",
+						"fieldInfo.json"
+					],
+					"query": [
+						{
+							"key": "field",
+							"value": "modification_timestamp"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Product Details",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{ApiPassword}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{ApiUserName}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{ServerURL}}/product/7290117860540.json?hq=1",
+					"host": [
+						"{{ServerURL}}"
+					],
+					"path": [
+						"product",
+						"7290117860540.json"
+					],
+					"query": [
+						{
+							"key": "hq",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Product Specific Media (as zip file)",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{ApiPassword}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{ApiUserName}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{ServerURL}}/product/7290117860540/files?media=886102&hq=1",
+					"host": [
+						"{{ServerURL}}"
+					],
+					"path": [
+						"product",
+						"7290117860540",
+						"files"
+					],
+					"query": [
+						{
+							"key": "media",
+							"value": "886102"
+						},
+						{
+							"key": "hq",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Product ALL Media (as zip file)",
+			"request": {
+				"auth": {
+					"type": "basic",
+					"basic": [
+						{
+							"key": "password",
+							"value": "{{ApiPassword}}",
+							"type": "string"
+						},
+						{
+							"key": "username",
+							"value": "{{ApiUserName}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{ServerURL}}/product/7290117860540/files?media=all&hq=1",
+					"host": [
+						"{{ServerURL}}"
+					],
+					"path": [
+						"product",
+						"7290117860540",
+						"files"
+					],
+					"query": [
+						{
+							"key": "media",
+							"value": "all"
+						},
+						{
+							"key": "hq",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

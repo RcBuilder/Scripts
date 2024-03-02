@@ -17,6 +17,145 @@ using static TwilioBLL.TwilioEntities;
 namespace TwilioBLL
 {
     /*
+        --TEMP-- 
+
+        
+        - open a new twilio account 
+        - set 2FA (two-factor-authentication)
+        - Messaging > Senders > whatsapp senders > Get Started
+        - upgrade account (to use whatsapp)
+        - Upload ID (Passport, Identity or Driving License)
+        - check email to provide more details about the business and the using of twilio services
+        - Billing > Payment Settings > set credit card & auto-charge
+        - Phone Numbers > Active Numbers > Bug number
+        - Click on the purchased number > Configue > set Hooks
+          tip: Messaging > Try it out > Send SMS (via dashboard for testing purposes)
+          tip: within the number we can find tabs 'Calls Log' and 'Messages Log' to monitor all messages (incoming & outgoing)
+        - Messaging > Senders > whatsapp senders > Get Started
+        - choose 'Twilio phone number' or Buy a new one 
+        - (screen) Link WhatsApp Business Account with your number
+ 
+
+
+        https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile
+
+        SANDBOX:
+        - Messagin > Try it out > Send a WA message >
+          https://console.twilio.com/us1/develop/sms/try-it-out/whatsapp-learn
+        - Connect to sandbox
+          send a whatsapp message as stated on your dashboard 
+          join <sandbox-name>  (e.g: join tank-over)
+        - send a sample message from twilio sandbox to your registered number 
+        - complete the process
+
+        note!
+        to add a webhook to the sandbox server, use the 'Sandbox Settings' tab
+          
+
+
+        API keys & tokens:
+        https://console.twilio.com/us1/account/keys-credentials/api-keys
+        1. Live credentials
+        2. Test credentials
+
+        ---
+        [add notes to TwilioBLL]
+    */
+
+    /*
+        // in twilio manager
+        public static HttpContent getMessageXML(string body)
+        {
+            var msg_response = new MessagingResponse();
+            msg_response.Message(body);
+            return new StringContent(msg_response.ToString(), System.Text.Encoding.UTF8, "application/xml");
+        }
+        
+        // sample usage (mvc-controller)
+        public async Task<HttpResponseMessage> WhatsAppHook(HttpRequestMessage request)
+        {
+            var content = await request.Content.ReadAsStringAsync();
+            NameValueCollection formData = HttpUtility.ParseQueryString(content);
+
+            var senderNumber = (new Regex(@"whatsapp:(.+)")).Match(HttpUtility.UrlDecode(formData["From"])).Groups[1].Value;
+
+            var restaurantId = -1;
+            try
+            {
+                var searchNumber = senderNumber.Replace("+972", "0");
+                restaurantId = (await new RestaurantsBLL().GetByPhoneNumber(searchNumber)).Details.Id;
+            }
+            catch(Exception) { }
+            
+            var messageBody = HttpUtility.UrlDecode(formData["Body"]).Trim();
+
+            ...
+            ...
+      
+            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.OK);
+
+            bool reply_with_response = true;
+
+            if (reply_with_response)
+            {
+                // return TwiML(replyBody);
+                response.Content = TwilioManager.getMessageXML(replyBody);
+            }
+            else
+            {
+                var twilioPhone = HttpUtility.UrlDecode(formData["To"]);
+                if (!ConfigSingleton.Instance.TwilioPhoneNumber.Equals(twilioPhone, StringComparison.OrdinalIgnoreCase)) 
+                    throw new Exception("Unexpected Twilio phone number.");
+
+                var recipientPhone = senderNumber;
+                SMSManager.SendSMS(recipientPhone, replyBody);
+            }
+
+            return response;
+        }
+    */
+
+    /*
+        Source:
+        https://www.twilio.com/docs/verify/whatsapp 
+
+        Verify Service:
+        https://www.twilio.com/docs/verify/api/service
+
+        Using:
+        var verification = VerificationResource.Create(
+            to: "+15017122661",
+            channel: "whatsapp",
+            pathServiceSid: "VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        ); 
+
+        Sample Output:
+        {
+          "sid": "VEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+          "service_sid": "VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+          "account_sid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+          "to": "+15017122661",
+          "channel": "whatsapp",
+          "status": "pending",
+          "valid": false,
+          "date_created": "2015-07-30T20:00:00Z",
+          "date_updated": "2015-07-30T20:00:00Z",
+          "lookup": {},
+          "amount": null,
+          "payee": null,
+          "send_code_attempts": [
+            {
+              "time": "2015-07-30T20:00:00Z",
+              "channel": "whatsapp",
+              "attempt_sid": "VLXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+            }
+          ],
+          "sna": null,
+          "url": "https://verify.twilio.com/v2/Services/VAXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/Verifications/VEXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+        }
+    */
+
+    /*
         Reference
         ---------          
         -- Messages --
@@ -1021,8 +1160,6 @@ namespace TwilioBLL
        */
         public string MakeACallExtended(string sTwilioPhone, string sToPhone, string sTwimlXML, bool useMachineDetection = false)
         {
-
-
             var call = CallResource.Create(
                 twiml: new Twilio.Types.Twiml(sTwimlXML), // as inline xml
 
@@ -1034,9 +1171,9 @@ namespace TwilioBLL
                 from: new Twilio.Types.PhoneNumber(sTwilioPhone),
                 to: new Twilio.Types.PhoneNumber(sToPhone)
 
-            /// status callback
-            /// https://support.twilio.com/hc/en-us/articles/223132547-What-are-the-Possible-Call-Statuses-and-What-do-They-Mean-
-            /// statusCallback: new Uri("https://webhook.site/dae1c747-f7f7-405c-9941-bf49bf76ad00")  
+                /// status callback
+                /// https://support.twilio.com/hc/en-us/articles/223132547-What-are-the-Possible-Call-Statuses-and-What-do-They-Mean-
+                /// statusCallback: new Uri("https://webhook.site/dae1c747-f7f7-405c-9941-bf49bf76ad00")  
             );
 
             return call.Sid;

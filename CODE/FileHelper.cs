@@ -96,9 +96,10 @@ namespace Common
             if (file == null || file.ContentLength == 0) return string.Empty;
 
             var uploadedFileName = GenerateFileName(file, true);
-            file.SaveAs(uploadedFileName);
+            if (!string.IsNullOrWhiteSpace(overrideFileName)) uploadedFileName = overrideFileName;
+            file.SaveAs(string.Concat(folder, uploadedFileName));
 
-            return SaveUploadedImageWithResize(uploadedFileName, folder, width, height, autoScale, useGuidName, overrideFileName);
+            return SaveUploadedImageWithResize(uploadedFileName, folder, width, height, autoScale, useGuidName, uploadedFileName);
         }
         public static string SaveUploadedImageWithResize(string file, string folder, int width, int height, bool autoScale, bool useGuidName = false, string overrideFileName = null)
         {
@@ -147,7 +148,7 @@ namespace Common
         #endregion
 
         #region ExtractPosterFromVideo
-        public static string ExtractPosterFromVideo(string videoPath, int secondInVideo, string folderPath = null, string overrideFileName = null)
+        public static string ExtractPosterFromVideo(string videoPath, int secondInVideo = -1, string folderPath = null, string overrideFileName = null)
         {
             if (string.IsNullOrWhiteSpace(videoPath)) 
                 return string.Empty;
@@ -160,15 +161,26 @@ namespace Common
 
             if (folderPath == null)
                 folderPath = videoNameParts.Folder; // relative path
-            
+
+            if (secondInVideo == -1)
+            {
+                // half duration
+                var ffProbe = new NReco.VideoInfo.FFProbe();
+                ffProbe.ToolPath = Path.GetDirectoryName(Helper.FFMPEG_PATH);
+                var videoInfo = ffProbe.GetMediaInfo(videoPath);
+                double videoDuration = videoInfo.Duration.TotalSeconds;
+                secondInVideo = (int)videoDuration / 2;
+            }
+
+
             var frameName = $"{videoNameParts.Name}-frame-{secondInVideo}s";
             if (!string.IsNullOrWhiteSpace(overrideFileName)) frameName = overrideFileName;
 
             var framePath = $"{folderPath}{frameName}.bmp";
 
-            // > Install-Package NReco.VideoConverter
+            // > Install-Package NReco.VideoConverter and NReco.VideoInfo.LT
             var ffMpeg = new NReco.VideoConverter.FFMpegConverter();
-            ffMpeg.GetVideoThumbnail(videoPath, framePath, 10);
+            ffMpeg.GetVideoThumbnail(videoPath, framePath, secondInVideo);
             return framePath;            
         }
         #endregion

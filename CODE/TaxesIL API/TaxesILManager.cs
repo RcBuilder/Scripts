@@ -185,6 +185,7 @@ using System.Diagnostics;
       response_type=code
       client_id=<client-id>
       scope=<scope>
+      redirect_uri=<redirect_uri>
 
     -
 

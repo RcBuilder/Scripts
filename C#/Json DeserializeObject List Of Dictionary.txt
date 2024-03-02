@@ -1,0 +1,50 @@
+Json DeserializeObject List Of Dictionary
+-----------------------------------------
+
+var strJSON = $@"[
+    {{
+        ""id"": ""5788790"",
+        ""price"": ""999.0"",
+        ""code"": ""123456""
+    }},
+    {{
+        ""id"": ""5788791"",
+        ""price"": ""999.0"",
+        ""code"": """"
+    }}
+]";
+
+var result = JsonConvert.DeserializeObject<IEnumerable<Dictionary<string, string>>>(strJSON);	
+Console.WriteLine(result); 
+
+
+--
+
+[
+    {
+        "id": "5788790",
+        "price": "999.0",
+        "code": "123456"
+    },
+    {
+        "id": "5788791",
+        "price": "999.0",
+        "code": ""
+    }
+]
+
+
+--
+
+[
+    {
+        "id": "5788790",
+        "price": "999.0",
+        "code": "123456"
+    },
+    {
+        "id": "5788791",
+        "price": "999.0",
+        "code": ""
+    }
+]

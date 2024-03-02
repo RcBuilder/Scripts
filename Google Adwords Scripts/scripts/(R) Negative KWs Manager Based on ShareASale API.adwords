@@ -6,7 +6,10 @@ var CONFIG = {
   action: 'keywords'
 };
 
-var LABEL_SKIP_CAMPAIGN = 'SKIP';
+/// skipList [(<merchantId, note>)]
+var skipList = [];
+skipList['122663'] = 'PP 122663';
+skipList['2000'] = 'Company-2';
 
 var HTTP_OPTIONS = {
   'method' : 'GET',
@@ -15,6 +18,31 @@ var HTTP_OPTIONS = {
     'x-ShareASale-Authentication': ''
   }
 };
+
+/*  
+  Logger.log(skipList[0][0]); 
+  return;
+  
+  --
+
+  var mccSkipLabel = AdsManagerApp.accountLabels().withCondition('Name = "SKIP"').get().next();
+  Logger.log(mccSkipLabel.getName());        
+  Logger.log(mccSkipLabel.getResourceName());
+  
+  --
+
+  var campaign = AdWordsApp.campaigns().withIds([20267664201]).get().next();
+  Logger.log('%s',campaign.getName());
+
+  var labels = campaign.labels().get();
+  Logger.log(labels.totalNumEntities());
+  while(labels.hasNext()){
+    var label = labels.next();
+    Logger.log('%s',label.getName());
+  }
+  
+  return;        LABEL_SKIP_CAMPAIGN
+*/
 
 function main(){
   var arr = LoadDataFromShareasale(); 
@@ -60,6 +88,7 @@ function ProcessAccount(accountId, arr) {
   
   var campaigns = AdsApp.campaigns()
   .withCondition('Status IN [PAUSED,ENABLED]')  
+  ///.withCondition('Name = "Nyxigaming [BB-Nein] DSA, CTM, (2. Kamp. / Original Kamp. SAS 84) - PP 119501"')
   ///.withCondition('LabelNames CONTAINS_NONE ["' + LABEL_SKIP_CAMPAIGN + '"]')
   .get();
   
@@ -67,17 +96,18 @@ function ProcessAccount(accountId, arr) {
     var campaign = campaigns.next();
     Logger.log('[campaign] %s', campaign.getName());
     
-    if(isLabelExists(campaign, LABEL_SKIP_CAMPAIGN)){
-      Logger.log('campaign labeled as "to skip"');
-      continue;
-    }
-    
-    var merchant = ExtractCampaignMerchant(campaign.getName());    
-    
+    var merchant = ExtractCampaignMerchant(campaign.getName()); 
     if(merchant == null) {
-      Logger.log('no merchant has found within the campaign name');
+      ///Logger.log('no merchant has found within the campaign name');
       continue;
     }    
+    
+    var campaignId = campaign.getId().toString();        
+    var skip = skipList[merchant] || null;
+    if(skip){
+      Logger.log('campaign labeled as "to skip" with note "%s"', skipList[merchant]);
+      continue;
+    }
     
     Logger.log('%s: %s', merchant, groups[merchant]);
     
@@ -89,11 +119,12 @@ function ProcessAccount(accountId, arr) {
   }
 }
 
-function isLabelExists(campaign, labelName){  
-	return campaign.labels()
+function isLabelExists(campaign, labelName){    
+	var exists = campaign.labels()
       .withCondition('Name = "' + labelName + '"')      
       .get()
-      .hasNext();
+      .hasNext();  
+  return exists;
 }
 
 /*

@@ -118,6 +118,7 @@
 
 * VPC = Virtual Private Cloud
 * WAF = Web Application Firewall
+* GIS = Geographic Information System
 
 (marketing)
 * CPC = Cost per Click

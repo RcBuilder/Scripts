@@ -1,0 +1,100 @@
+Model Binding to a List MVC 4
+-----------------------------
+
+namespace WEB.Models
+{
+    public class PurchaseOrderDTO {
+        public List<InventoryItemDTO> Items { get; set; }
+        public PurchaseOrderDTO() { }
+        public PurchaseOrderDTO(IEnumerable<InventoryPO> Inventories) {
+            this.Items = new List<InventoryItemDTO>();
+            Inventories?.ToList().ForEach((i) => {
+                this.Items.Add(new InventoryItemDTO(i));
+            });
+        }
+    }
+
+    public class InventoryItemDTO
+    { 
+        public Inventory Inventory { get; set; }
+        public float Quantity { get; set; }
+        public int SupplierId { get; set; }
+
+        public InventoryItemDTO() { }
+        public InventoryItemDTO(InventoryPO Inventory) : this(Inventory, 0, 0) { }
+        public InventoryItemDTO(InventoryPO Inventory, float Quantity, int SupplierId) {
+            this.Inventory = Inventory;
+            this.Quantity = Quantity;
+            this.SupplierId = SupplierId;
+        }
+    }
+}
+
+--
+
+[HttpGet]
+public async Task<ActionResult> PurchaseOrder()
+{
+    var restaurantId = SessionsManager.GetAccountId(System.Web.HttpContext.Current);
+    var inventories = await new InventoryBLL().GetByRestaurant(restaurantId);
+    ViewBag.SuppliersDDL = await DropDownLists.GetSuppliers("בחר ספק");                        
+    return View(new PurchaseOrderDTO(inventories));            
+}
+
+[HttpPost]
+public async Task<ActionResult> PurchaseOrder(PurchaseOrderDTO Model)
+{
+	...
+	...
+}
+
+--
+
+@model WEB.Models.PurchaseOrderDTO
+
+@using (@Html.BeginForm("PurchaseOrder", "Admin", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="table-wrapper table-po">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>מוצר</th>
+                    <th>מלאי קיים</th>
+                    <th>מלאי להזמנה</th>
+                    <th>ספק</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (var i = 0; i < Model.Items.Count(); ++i)
+                {                        
+                    <tr>
+                        <td>
+                            @Model.Items[i].Inventory.Id
+                        </td>
+                        <td>
+                            @Model.Items[i].Inventory.Name
+                            @Html.HiddenFor(m => m.Items[i].Inventory.Id)
+                        </td>
+                        <td>
+                            @Model.Items[i].Inventory.Stock
+                            <small>@Model.Items[i].Inventory.UnitType.ToName()</small>
+                        </td>
+                        <td>
+                            @Html.TextBoxFor(m => m.Items[i].Quantity, new { style = "width:40px" })
+                        </td>
+                        <td>
+                            @Html.DropDownListFor(m => m.Items[i].SupplierId, (IEnumerable<SelectListItem>)ViewBag.SuppliersDDL, new { @class = "input-1" })
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+        <br />
+        <div class="validation-summary">
+            @Html.ValidationSummary(false)
+        </div>
+        <button type="submit" class="button-base">בצע</button>
+    </div>
+}

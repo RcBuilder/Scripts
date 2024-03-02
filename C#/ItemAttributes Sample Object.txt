@@ -1,0 +1,52 @@
+ItemAttributes Sample Object
+----------------------------
+
+void Main()
+{
+	var itemAttributes = new ItemAttributes();
+	itemAttributes.Data.Add("K1", "ABC");
+	itemAttributes.Data.Add("K2", 123);
+	itemAttributes.Data.Add("K3", 99.90);
+	itemAttributes.Data.Add("K4", ("A", "B", "C"));
+	itemAttributes.Data.Add("K5", new List<int> { 10, 20, 30 });
+	itemAttributes.Data.Add("K6", new SomeClass { Id = 1001, Name = "Item-1001" });
+	
+	/// Console.WriteLine(itemAttributes);	
+	Console.WriteLine(itemAttributes.sAttributes);
+	Console.WriteLine(itemAttributes.Find("K1"));
+	Console.WriteLine(itemAttributes.Find<int>("K2"));
+	Console.WriteLine(itemAttributes.Find<float>("K3"));
+	Console.WriteLine(itemAttributes.Find<(string, string, string)>("K4"));
+	Console.WriteLine(itemAttributes.Find<List<int>>("K5"));
+	Console.WriteLine(itemAttributes.Find<SomeClass>("K6"));
+}
+
+public class SomeClass { 
+	public int Id { get; set; }
+	public string Name { get; set; }
+}
+
+public class ItemAttributes {
+    public Dictionary<string, object> Data { get; set; } = new Dictionary<string, object>();
+
+	public string Find(string Key) {
+        return this.Find<string>(Key);
+    }
+    public T Find<T>(string Key)
+    {
+        if (!this.Data.ContainsKey(Key)) return default;		
+        return (T)Convert.ChangeType(this.Data[Key], typeof(T));
+    }
+
+    public IEnumerable<string> Attributes {
+        get {
+            return this.Data?.Keys;
+        }
+    }
+
+    public string sAttributes {
+        get {
+            return string.Join(",", this.Attributes);
+        }
+    }
+}

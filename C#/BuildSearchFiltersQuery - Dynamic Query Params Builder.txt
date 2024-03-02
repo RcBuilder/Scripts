@@ -1,0 +1,123 @@
+BuildSearchFiltersQuery - Dynamic Query Params Builder
+------------------------------------------------------
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	created_at_min = DateTime.Now,
+	created_at_max = DateTime.Now.AddDays(14)
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	updated_at_min = DateTime.Now,
+	updated_at_max = DateTime.Now.AddDays(14)
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	min_price = 90,
+	max_price = 350
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	min_price = 90		
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{		
+	max_price = 350
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	group_value_id = 1035
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	visible = true
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	tag_id = 5050
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	store_category_id = 12
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	sort_by = "min_price",
+	sort_order = "asc"
+}));
+	
+Console.WriteLine(BuildSearchFiltersQuery(new SearchItemsRequest{
+	created_at_min = DateTime.Now,
+	created_at_max = DateTime.Now.AddDays(14),
+	min_price = 90,
+	max_price = 350,
+	group_value_id = 1035,		
+	tag_id = 5050,
+	store_category_id = 12,
+	sort_by = "min_price",
+	sort_order = "asc"
+}));
+	
+---
+
+[OUTPUT]
+		
+created_at_min=17/02/2024 17:47:31&created_at_max=02/03/2024 17:47:31
+updated_at_min=17/02/2024 17:47:31&updated_at_max=02/03/2024 17:47:31
+min_price=90&max_price=350
+min_price=90&max_price=3.402823E+38
+min_price=0&max_price=350
+group_value_id=1035
+visible=True
+tag_id=5050
+store_category_id=12
+sort_by=min_price&sort_order=asc
+created_at_min=17/02/2024 17:47:31&created_at_max=02/03/2024 17:47:31&min_price=90&max_price=350&group_value_id=1035&tag_id=5050&store_category_id=12&sort_by=min_price&sort_order=asc
+
+---
+
+public class SearchItemsRequest
+{
+    public DateTime? created_at_min { get; set; }    // date (e.g: created_at_min=2017-01-01T09:00:00Z)
+    public DateTime? created_at_max { get; set; }
+    public DateTime? updated_at_min { get; set; }
+    public DateTime? updated_at_max { get; set; }
+    public float? min_price { get; set; }
+    public float? max_price { get; set; }
+    public int? group_value_id { get; set; }
+    public bool? visible { get; set; }
+    public int? tag_id { get; set; }
+    public int? store_category_id { get; set; }
+    public string sort_by { get; set; }     // field name (e.g: sort_by=price, sort_by=updated_at..)
+    public string sort_order { get; set; }  // desc or asc
+}
+
+string BuildSearchFiltersQuery(SearchItemsRequest Request) {
+    string FormatDate(DateTime Date) {
+        return Date.ToString("yyyy-MM-ddThh:mm:ssZ");
+    }
+
+    var searchFilters = new List<string>();
+
+    if (Request.created_at_min.HasValue || Request.created_at_max.HasValue)
+    {
+        searchFilters.Add($"created_at_min={FormatDate(Request.created_at_min ?? DateTime.MinValue)}");
+        searchFilters.Add($"created_at_max={FormatDate(Request.created_at_max ?? DateTime.MaxValue)}");
+    }
+    if (Request.updated_at_min.HasValue || Request.updated_at_max.HasValue)
+    {
+        searchFilters.Add($"updated_at_min={FormatDate(Request.updated_at_min ?? DateTime.MinValue)}");
+        searchFilters.Add($"updated_at_max={FormatDate(Request.updated_at_max ?? DateTime.MaxValue)}");
+    }
+    if (Request.min_price.HasValue || Request.max_price.HasValue)
+    {
+        searchFilters.Add($"min_price={(Request.min_price ?? 0)}");
+        searchFilters.Add($"max_price={(Request.max_price ?? float.MaxValue)}");
+    }
+    if (Request.group_value_id.HasValue) searchFilters.Add($"group_value_id={Request.group_value_id}");
+    if (Request.visible.HasValue) searchFilters.Add($"visible={Request.visible}");
+    if (Request.tag_id.HasValue) searchFilters.Add($"tag_id={Request.tag_id}");
+    if (Request.store_category_id.HasValue) searchFilters.Add($"store_category_id={Request.store_category_id}");
+    if (!string.IsNullOrEmpty(Request.sort_by)) searchFilters.Add($"sort_by={Request.sort_by}");
+    if (!string.IsNullOrEmpty(Request.sort_order)) searchFilters.Add($"sort_order={Request.sort_order}");
+
+    return string.Join("&", searchFilters);
+} 

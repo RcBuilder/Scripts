@@ -1,0 +1,29 @@
+C# Distinct Comparer - IEqualityComparer T
+------------------------------------------
+
+var unique = images.Distinct(new ItemImageComparer()); // x => x.id && x.url
+
+-
+
+public class ItemImageComparer : IEqualityComparer<ItemImage>
+{
+    public bool Equals(ItemImage x, ItemImage y)
+    {
+        return x.id == y.id && x.url == y.url;
+    }
+
+    public int GetHashCode(ItemImage obj)
+    {
+        return obj == null ? 0 : (obj.id ?? 0).GetHashCode() ^ (obj.url ?? "").GetHashCode();
+    }
+}
+
+-
+
+public class ItemImage
+{
+    public int? id { get; set; }
+    public string url { get; set; }
+    public int? position { get; set; }
+    public string alt { get; set; }
+}

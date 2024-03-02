@@ -46,6 +46,7 @@ using HtmlAgilityPack;
     ---------------
     - see 'CODE > GmailServiceManager.cs'
     - see 'Creative > Mailer'
+    - see 'XENA > GmailBot'
 
     ISSUES
     ------
@@ -131,6 +132,71 @@ using HtmlAgilityPack;
     var messages = await gmailServiceManager.GetEmails(true);
     foreach (var m in messages)
         Console.WriteLine(m.Subject);    
+
+
+    SAMPLE BOT
+    ----------
+    using Gmail;
+    using System.Timers;
+    -
+    new ProcessTimer().Start();
+    -
+    public class ProcessTimer {
+        private Timer timer1;
+        private bool IsRunning;            
+        private const int MINUTE = 1000 * 60 * 1;
+
+        public ProcessTimer() {
+            this.timer1 = new Timer();
+            this.timer1.Interval = MINUTE * 1;
+            this.timer1.Elapsed += async (sender, e) => {
+                try {
+                    if (this.IsRunning) return;
+                    this.IsRunning = true;
+                    await GetEmailsFromPrimeAccount();
+                }
+                catch (Exception ex) {
+                    Console.WriteLine($"[ERROR] {ex.Message}");
+                }
+                finally {
+                    this.IsRunning = false;
+                }                    
+            };
+        }
+
+        public void Start() {
+            this.timer1.Enabled = true;
+        }
+        public void Stop() {
+            this.timer1.Enabled = false;
+        }
+    }
+
+    private static async Task GetEmailsFromPrimeAccount() {
+        var gmailServiceManager = new GmailServiceManagerSync();
+        var documentsDetails = new DocumentsDetailsBl();
+
+        var messages = await gmailServiceManager.GetEmails(true);
+        if (messages == null) return;
+
+        foreach (var m in messages) {
+            var match = Regex.Match(m.Body.Trim(), @"(?<=status\s+ of \s+) \d+", RegexOptions.IgnoreCase | RegexOptions.IgnorePatternWhitespace);
+            if (match != null && match.Success) {
+                var fileNumber = Convert.ToInt32(match.Value);
+                var fileStatus = documentsDetails.GetDocumentById(fileNumber);
+                await SendEmailStatus(gmailServiceManager, fileStatus, m.From, fileNumber);
+                Console.WriteLine($"#{fileNumber} = {((EnumProcessStatus)fileStatus)}");
+            }
+        }
+    }
+
+    private static async Task SendEmailStatus(GmailServiceManagerSync gmailServiceManager, int Status, string From, int FileNumber) {
+        await gmailServiceManager.SendEmail(new GmailServiceEntitiesSync.EmailDataRequest {
+            Subject = "the status of file number " + FileNumber.ToString(),
+            Body = "the status of file number " + FileNumber.ToString() + " is " + (EnumProcessStatus)Status,
+            To = From,
+        });
+    }
 */
 
 namespace Gmail
