@@ -12,22 +12,83 @@ using System.Diagnostics;
 using System.Text;
 using static GS1.GS1Entities;
 using FieldInfo = GS1.GS1Entities.FieldInfo;
+using System.Drawing;
 
 /*
- 
-    /// TODO ->> ToDocument
-
-    -- TEMP --
-
-    field-types:
-    * Text (type #1)
-    * Yes/No (type #2)  
-    * Select (type #3)
-    * MultiSelect (type #4)
-    * Date (type #12)     
+    REFERENCE
+    ---------    
+    see 'application users - retailer api requests-2.pdf'
     
 
-    field-types (samples):    
+    PROCESS
+    -------
+    (steps)    
+    1. get messages (from unread queue or by custom search) 
+    2. get each message type (e.g: New_Publish)
+    3. extract the GTIN from the field 'message_identifier' 
+       GET {{ServerURL}}/messages_queue/get_by_date/from/2024-01-01/to/2024-02-01
+
+       e.g: 
+       Update_Product = 7290016867008        
+       New_Publish = IL_7290452900000_7290117860540_1663237481362 (OR 7290117860540)
+    4. use the GTIN value to pull the product details  
+       GET {{ServerURL}}product/7290117860540.json?hq=1
+
+
+    API BASE URL
+    ------------
+    https://retailer.gs1ildigital.org/external
+    
+
+    MESSAGE TYPES
+    -------------
+    1. Update_Product                    // update an existing product
+    2. New_Publish                       // publish of a new product
+    3. Hand_Shake / Hand_Shake_Reject    // connection-request supplier-retailer
+    
+    notes!
+    - message_identifier = product code 
+      ** for New_Publish type, we can be use the full code or only the GTIN part
+      ** e.g IL_7290197900006_7290011923327_1705566520542 -> IL_<GLN>_<GTIN>_1705566520542 
+    - from_Gln = Supplier Id
+    - to_Gln = Retailer Id (YOU)
+
+    // message-types (samples)
+    {
+        "message_type": "Update_Product",
+        "message_identifier": "7290016867008",
+        "message_subject": "עדכון עבור מוצר שוחרר על ידי הספק",
+        "message_content": "",
+        "message_creation_date": "2024-01-10 11:29:56",
+        "instance_from": "gs1-supplier-be",
+        "instance_to": "gs1-retailer-be",
+        "gln_from": "7290934800002",
+        "gln_to": "7290388300004",
+        "important": "0"
+    },
+    {
+        "message_type": "New_Publish",
+        "message_identifier": "IL_7290197900006_7290011923327_1705566520542",
+        "message_subject": "מוצר חדש הופץ עבורך",
+        "message_content": "",
+        "message_creation_date": "2024-01-18 08:54:24",
+        "instance_from": "gs1-supplier-be",
+        "instance_to": "gs1-retailer-be",
+        "gln_from": "7290197900006",
+        "gln_to": "7290388300004",
+        "important": "0"
+    }
+
+
+    FIELD TYPES
+    -----------    
+    1. Text (type #1)
+    2. Yes/No (type #2)  
+    3. Select (type #3)
+    4. MultiSelect (type #4)
+    5. Date (type #12)  
+
+    // field-types (samples)
     {
         "id": "1",
         "name": "product_code",
@@ -97,62 +158,25 @@ using FieldInfo = GS1.GS1Entities.FieldInfo;
         "field_type_name": "Date"
     }
 
-    message-types:
-    * Update_Product                    // update an existing product
-    * New_Publish                       // publish of a new product
-    * Hand_Shake / Hand_Shake_Reject    // connection-request supplier-retailer
+
+    POSTMAN
+    -------
+    - see 'GS1.postman_collection.json'    
+
+
+    IMPLEMENTATIONS
+    ---------------
+    - see 'GS1 > PROJECT > GS1Manager'        
+    - see 'Scripts > CODE > GS1 > GS1Manager'        
+
     
-    notes!
-    * message_identifier = product code 
-      ** for New_Publish type, we can be use the full code or only the GTIN part
-      ** e.g IL_7290197900006_7290011923327_1705566520542 -> IL_<GLN>_<GTIN>_1705566520542 
-    * from_Gln = Supplier Id
-    * to_Gln = Retailer Id (YOU)
-
-    message-types (samples):
-    {
-        "message_type": "Update_Product",
-        "message_identifier": "7290016867008",
-        "message_subject": "עדכון עבור מוצר שוחרר על ידי הספק",
-        "message_content": "",
-        "message_creation_date": "2024-01-10 11:29:56",
-        "instance_from": "gs1-supplier-be",
-        "instance_to": "gs1-retailer-be",
-        "gln_from": "7290934800002",
-        "gln_to": "7290388300004",
-        "important": "0"
-    },
-    {
-        "message_type": "New_Publish",
-        "message_identifier": "IL_7290197900006_7290011923327_1705566520542",
-        "message_subject": "מוצר חדש הופץ עבורך",
-        "message_content": "",
-        "message_creation_date": "2024-01-18 08:54:24",
-        "instance_from": "gs1-supplier-be",
-        "instance_to": "gs1-retailer-be",
-        "gln_from": "7290197900006",
-        "gln_to": "7290388300004",
-        "important": "0"
-    }
-
-    process (steps):
-    1. get messages (from unread queue or by custom search) 
-    2. get each message type (e.g: New_Publish)
-    3. extract the GTIN from the field 'message_identifier' 
-       GET {{ServerURL}}/messages_queue/get_by_date/from/2024-01-01/to/2024-02-01
-
-       e.g: 
-       Update_Product = 7290016867008        
-       New_Publish = IL_7290452900000_7290117860540_1663237481362 (OR 7290117860540)
-    4. use the GTIN value to pull the product details  
-       GET {{ServerURL}}product/7290117860540.json?hq=1
+    RESEARCH
+    --------
+    - see 'Scripts > CODE > GS1'
 
 
-    -
-
-    // TODO ->> complete all services
-    [Services]
-
+    cURL
+    ----        
     get messages by date:
     https://retailer.gs1ildigital.org/external/messages_queue/get_by_date/from/yyyy-mm-dd/to/yyyy-mm-dd
 
@@ -211,66 +235,6 @@ using FieldInfo = GS1.GS1Entities.FieldInfo;
         }
     ]
 
-
-
-    --------------------------------------------------------------------------------
-    TODO ->> Document
-
-
-    REFERENCE
-    ---------    
-
-
-    SUPPORT
-    -------
-    
-
-    SANDBOX USERS
-    -------------
-    
-
-    DEMO (SOURCES)
-    --------------
-    
-
-    PROCESS
-    -------
-    (steps)    
-    
-
-    API BASE URL
-    ------------
-    * SANDBOX 
-      
-            
-    * PROD
-      
-
-    SERVICE TYPES
-    -------------
-    *     
-
-
-    POSTMAN
-    -------
-    - see 'xxxxxx.json'
-    - see 'xxxxxx.json' 
-
-
-    IMPLEMENTATIONS
-    ---------------
-    - see 'CODE > xxx.cs'    
-
-    
-    RESEARCH
-    --------
-    - see 'Scripts > Konimbo'
-
-
-    cURL
-    ----        
-
-
     USING
     -----
     var gs1Manager = new GS1Manager(new GS1Entities.GS1Config
@@ -316,11 +280,22 @@ using FieldInfo = GS1.GS1Entities.FieldInfo;
     -
 
     var product = await gs1Manager.GetProductDetails("7290016867008");                         
-    Console.WriteLine($"{product?.product_info?.Main_Fields?.GTIN} | {product?.product_info?.Main_Fields?.Trade_Item_Description}");            
+    Console.WriteLine($"{product?.product_info?.Main_Fields?.GTIN} | {product?.product_info?.Main_Fields?.Trade_Item_Description}");      
+    
+    -
+
+    var assetPath = await gs1Manager.DownloadProductMediaAsset("7290016867008", "226879", "7290016867008_S1_15.jpg");
+    Console.WriteLine(assetPath);
+    var image = Image.FromFile(assetPath);
+    image.Save(assetPath.Replace(".jpg", "_COPY.jpg"));
+    Console.WriteLine($"image {image.Size.Width}x{image.Size.Height}");
 
     -
 
+    var filePath = await gs1Manager.DownloadProductMediaAssetsAsZip("7290016867008", "7290016867008_Assets.zip");
+    Console.WriteLine(filePath);
 
+    -
 */
 
 namespace GS1
@@ -332,6 +307,7 @@ namespace GS1
             public string ServerURL { get; set; }
             public string ApiUserName { get; set; }
             public string ApiPassword { get; set; }
+            public string AssetsTempFolder { get; set; }
         }
 
         public class APIException : Exception
@@ -365,8 +341,7 @@ namespace GS1
             public T Message { get; set; }
         }
 
-        /// TODO ->> Complete + Fields Names + Extended
-        /// TODO ->> APIException
+        /// TODO ->> Complete + Fields Names + Extended        
         public class FieldInfo
         {            
             public string id { get; set; }
@@ -960,7 +935,7 @@ namespace GS1
             public SystemFeatures System_Features { get; set; }
             public AdditionalFeatures Additional_Features { get; set; }
             public InternalSystemFields Internal_System_Fields { get; set; }
-            public NutritionalValues Nutritional_Values { get; set; }
+            ///public NutritionalValues Nutritional_Values { get; set; }  // TODO->> causes json ex
         }
 
         public class ProductShelfLife
@@ -1006,14 +981,6 @@ namespace GS1
         {
             public string value { get; set; }
             public string code { get; set; }
-        }
-
-        public class Product
-        {
-            public ProductInfo product_info { get; set; }
-            public List<List<object>> private_data { get; set; }
-            public List<MediaAsset> media_assets { get; set; }
-            public List<object> multi_pack { get; set; }
         }
 
         public class Row
@@ -1122,6 +1089,14 @@ namespace GS1
             public string code { get; set; }
         }
         #endregion
+        
+        public class Product
+        {
+            public ProductInfo product_info { get; set; }
+            ///public List<List<object>> private_data { get; set; }
+            public List<MediaAsset> media_assets { get; set; }
+            ///public List<object> multi_pack { get; set; }
+        }
     }
 
     public interface IGS1Manager
@@ -1131,7 +1106,11 @@ namespace GS1
         Task<IEnumerable<Message>> GetUnReadMessages();
         Task<IEnumerable<Message>> GetMessagesByDateRange(DateTime DateFrom);
         Task<IEnumerable<Message>> GetMessagesByDateRange(DateTime DateFrom, DateTime DateTo);
-        Task<Product> GetProductDetails(string GTIN);                
+        Task<Product> GetProductDetails(string GTIN);
+        Task<string> DownloadProductMediaAsset(string GTIN, string AssetId, string AssetName);
+        Task<string> DownloadProductMediaAsset(string GTIN, string AssetId, string AssetName, string AssetsTempFolder);
+        Task<string> DownloadProductMediaAssetsAsZip(string GTIN, string AssetsDestZipPath);
+        Task<string> DownloadProductMediaAssetsAsZip(string GTIN, string AssetsDestZipPath, string AssetsTempFolder);
     }
 
     public class GS1Manager : IGS1Manager
@@ -1143,6 +1122,9 @@ namespace GS1
         {
             this.Config = Config;
             this.HttpService = new HttpServiceHelper();
+
+            if (string.IsNullOrEmpty(this.Config.AssetsTempFolder))
+                this.Config.AssetsTempFolder = $"{AppDomain.CurrentDomain.BaseDirectory}TEMP\\";
         }
 
         public async Task<IEnumerable<FieldInfo>> GetProductFields() {
@@ -1203,10 +1185,8 @@ namespace GS1
 
             // handle no messages response
             var message = this.ParseMessageResponse(response.Content);
-            if (!string.IsNullOrEmpty(message)) {
-                Debug.WriteLine(message);
-                return null;
-            }
+            if (!string.IsNullOrEmpty(message))
+                throw new APIException(this.ParseError(response.Content));            
 
             return response.Model;
         }
@@ -1231,13 +1211,14 @@ namespace GS1
             // response.StatusCode: Unauthorized (401)
             if (!response.Success)
                 throw new APIException(this.ParseError(response.Content));
-
+            
             // handle no messages response
             var message = this.ParseMessageResponse(response.Content);
-            if (string.IsNullOrEmpty(message))
-            {
-                Debug.WriteLine(message);
-                return null;
+            if (!string.IsNullOrEmpty(message)) {
+                if (message.Contains("No inbox Messages")) {
+                    response.Model = null;
+                }
+                else throw new APIException(this.ParseError(response.Content));
             }
 
             return response.Model;
@@ -1258,16 +1239,69 @@ namespace GS1
             // response.StatusCode: Unauthorized (401)
             if (!response.Success)
                 throw new APIException(this.ParseError(response.Content));
-
+            
             // handle no messages response
             var message = this.ParseMessageResponse(response.Content);
             if (!string.IsNullOrEmpty(message))
-            {
-                Debug.WriteLine(message);
-                return null;
-            }
+                throw new APIException(this.ParseError(response.Content));
 
             return response.Model?.FirstOrDefault();
+        }
+
+        public async Task<string> DownloadProductMediaAsset(string GTIN, string AssetId, string AssetName) {
+            return await this.DownloadProductMediaAsset(GTIN, AssetId, AssetName, this.Config.AssetsTempFolder);
+        }
+        public async Task<string> DownloadProductMediaAsset(string GTIN, string AssetId, string AssetName, string AssetsTempFolder)
+        {
+            if (!Directory.Exists(AssetsTempFolder))
+                Directory.CreateDirectory(AssetsTempFolder);
+
+            var assetDestPath = $"{AssetsTempFolder}{AssetName}";
+            var response = await this.HttpService.DOWNLOAD_DATA_ASYNC(
+                $"{this.Config.ServerURL}/product/{GTIN}/files?media={AssetId}&hq=1",
+                assetDestPath,
+                null,
+                new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/json",
+                    ["Authorization"] = $"Basic {Convert.ToBase64String(Encoding.Default.GetBytes($"{this.Config.ApiUserName}:{this.Config.ApiPassword}"))}"
+                }
+            );
+
+            // response.StatusCode: Unauthorized (401)
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            return assetDestPath;
+        }
+
+        public async Task<string> DownloadProductMediaAssetsAsZip(string GTIN, string ZipName) {
+            return await this.DownloadProductMediaAssetsAsZip(GTIN, ZipName, this.Config.AssetsTempFolder);
+        }
+        public async Task<string> DownloadProductMediaAssetsAsZip(string GTIN, string ZipName, string AssetsTempFolder)
+        {
+            if (!Directory.Exists(AssetsTempFolder))
+                Directory.CreateDirectory(AssetsTempFolder);
+
+            var assetsDestZipPath = $"{AssetsTempFolder}{ZipName}";
+            var response = await this.HttpService.DOWNLOAD_DATA_ASYNC(
+                $"{this.Config.ServerURL}/product/{GTIN}/files?media=all&hq=1",
+                assetsDestZipPath,
+                null,
+                new Dictionary<string, string>
+                {
+                    ["Accept"] = "application/json",
+                    ["Content-Type"] = "application/json",
+                    ["Authorization"] = $"Basic {Convert.ToBase64String(Encoding.Default.GetBytes($"{this.Config.ApiUserName}:{this.Config.ApiPassword}"))}"
+                }
+            );
+
+            // response.StatusCode: Unauthorized (401)
+            if (!response.Success)
+                throw new APIException(this.ParseError(response.Content));
+
+            return assetsDestZipPath;
         }
 
         // ---
@@ -1287,94 +1321,66 @@ namespace GS1
 
         private APIErrorResponse ParseError(string ErrorRaw)
         {
-            // TODO ->> Update comment
             /*
                 // schema
                 <Http-Error>|<Request-Error>
 
-                -
-
-                // sample
-                {
-                    "error": true,
-                    "message": "No authorized user available. You don't have permissions to access / on this request.",
-                    "code": 401
-                }
-
-                -
-
+                ---
+                
                 // schema types
                 {
                     "error": true,
                     "message": "No authorized user available. You don't have permissions to access / on this request.",
                     "code": 401
-                }
+                }            
 
-                [{"msg":"No un-Read Messages in inbox for GLN 7290388300004"}]
+                -
 
+                [{
+                    "msg":"No un-Read Messages in inbox for GLN 7290388300004"
+                }]
+
+                -
+
+                Cannot deserialize the current JSON array (e.g. [1,2,3]) into type 'GS1.GS1Entities+NutritionalValues' because the type requires a JSON object (e.g. {"name":"value"}) to deserialize correctly.
+                To fix this error either change the JSON to a JSON object (e.g. {"name":"value"}) or change the deserialized type to an array or a type that implements a collection interface (e.g. ICollection, IList) like List<T> that can be deserialized from a JSON array. JsonArrayAttribute can also be added to the type to force it to deserialize from a JSON array.
+                Path '[0].product_info.Nutritional_Values', line 1, position 8859.
             */
             var errorRawParts = ErrorRaw.Split('|');
-            var httpError = errorRawParts[0];
-            var requestError = errorRawParts[1];
+            string httpError = "000", requestError = "UNKNOWN";
+            if (errorRawParts.Count() == 1)                
+                requestError = errorRawParts[0];            
+            else
+            {
+                httpError = errorRawParts[0];
+                requestError = errorRawParts[1];
+            }
 
             var result = new APIErrorResponse {
                 Message = httpError?.Trim()                
             };
 
             // parse by Schema type
-            if (requestError.Contains("error_description"))
+            if (requestError.Contains("error") && requestError.Contains("code"))
             {
                 var errorSchema = new
                 {
-                    error = string.Empty,
-                    error_description = string.Empty
+                    error = true,
+                    message = string.Empty,
+                    code = 0
                 };
 
                 var exData = JsonConvert.DeserializeAnonymousType(requestError, errorSchema);
                 result.InnerMessage = (
-                    exData?.error?.Trim() ?? string.Empty,
-                    exData?.error_description?.Trim() ?? string.Empty
+                    exData?.code.ToString(),
+                    exData?.message?.Trim() ?? string.Empty
                 );
             }
-            else if(requestError.Contains("Error_Id")) {
-                var itemSchema = new
-                {
-                    value = string.Empty,
-                    msg = string.Empty,
-                    param = string.Empty
-                };
-
-                var messageSchema = new
-                {                    
-                    errors = new[] { itemSchema }
-                };
-
-                var errorSchema = new
-                {
-                    Message = messageSchema
-                };
-
-                var exData = JsonConvert.DeserializeAnonymousType(requestError, errorSchema);
-                result.InnerMessage = (
-                    exData?.Message?.errors.FirstOrDefault().msg?.Trim() ?? string.Empty,
-                    exData?.Message?.errors.FirstOrDefault().param?.Trim() ?? string.Empty
-                );
-            }
-            else if (requestError.Contains("httpCode")) 
-            {
-                var errorSchema = new
-                {
-                    httpCode = 0,
-                    httpMessage = string.Empty,
-                    moreInformation = string.Empty
-                };
-
-                var exData = JsonConvert.DeserializeAnonymousType(requestError, errorSchema);
-                result.InnerMessage = (
-                    $"{exData?.httpMessage?.Trim() ?? string.Empty} ({exData?.httpCode ?? -1})",
-                    exData?.moreInformation?.Trim() ?? string.Empty
-                );
-            }
+            else if(requestError.Contains("msg")) {
+                var msg = this.ParseMessageResponse(requestError);
+                result.InnerMessage = (msg, msg);
+            }            
+            else result.InnerMessage = (requestError, string.Empty);
 
             return result;
         }

@@ -22,6 +22,8 @@ namespace Helpers
         (bool Success, HttpStatusCode StatusCode, string Content) POST_DATA(string url, IEnumerable<string> payload, string querystring = null, Dictionary<string, string> headers = null);
         (bool Success, HttpStatusCode StatusCode, string Content, TResult Model) POST_DATA<TResult>(string url, IEnumerable<string> payload, string querystring = null, Dictionary<string, string> headers = null);
 
+        (bool Success, HttpStatusCode StatusCode, string Content) DOWNLOAD_DATA(string url, string destFilePath, string querystring = null, Dictionary<string, string> headers = null);
+
         (bool Success, HttpStatusCode StatusCode, string Content) PUT_DATA(string url, Dictionary<string, string> payload, string querystring = null, Dictionary<string, string> headers = null);
         (bool Success, HttpStatusCode StatusCode, string Content) PUT_DATA(string url, IEnumerable<string> payload, string querystring = null, Dictionary<string, string> headers = null);
         (bool Success, HttpStatusCode StatusCode, string Content) DELETE_DATA(string url, Dictionary<string, string> payload, string querystring = null, Dictionary<string, string> headers = null);
@@ -45,6 +47,8 @@ namespace Helpers
         Task<(bool Success, HttpStatusCode StatusCode, string Content)> POST_DATA_ASYNC(string url, Dictionary<string, string> payload, string querystring = null, Dictionary<string, string> headers = null);
         Task<(bool Success, HttpStatusCode StatusCode, string Content)> POST_DATA_ASYNC(string url, IEnumerable<string> payload, string querystring = null, Dictionary<string, string> headers = null);
         Task<(bool Success, HttpStatusCode StatusCode, string Content, TResult Model)> POST_DATA_ASYNC<TResult>(string url, IEnumerable<string> payload, string querystring = null, Dictionary<string, string> headers = null);
+
+        Task<(bool Success, HttpStatusCode StatusCode, string Content)> DOWNLOAD_DATA_ASYNC(string url, string destFilePath, string querystring = null, Dictionary<string, string> headers = null);
 
         Task<(bool Success, HttpStatusCode StatusCode, string Content)> PUT_DATA_ASYNC(string url, Dictionary<string, string> payload, string querystring = null, Dictionary<string, string> headers = null);
         Task<(bool Success, HttpStatusCode StatusCode, string Content)> PUT_DATA_ASYNC(string url, IEnumerable<string> payload, string querystring = null, Dictionary<string, string> headers = null);

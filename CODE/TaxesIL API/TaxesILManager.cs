@@ -15,12 +15,91 @@ using System.Web;
 using System.Diagnostics;
 
 /*
+    // TODO ->> Implement Multi-invoices service
+    Dear Developers,
+    We hope this message finds you well. We are writing to inform you of an upcoming change regarding the API endpoint address for our services at the Israel Tax Authority.
+    Effective immediately, we are migrating to a new API endpoint address to enhance the efficiency and security of our services. The new API endpoint address will be as follows:
+    OLD API Endpoint Address: https://ita-api.taxes.gov.il/shaam/tsandbox/Invoices/v1/MultiApproval
+    New API Endpoint Address: https://ita-api.taxes.gov.il/shaam/tsandbox/Multi-invoices/v1/MultiApproval
+    Please note that while we are implementing this change, the old API endpoint address will continue to function as usual. However, we strongly encourage you to update your systems and applications to start using the new API endpoint address as soon as possible to ensure uninterrupted access to our services.
+    It is important to emphasize that the old API endpoint address will remain operational until April 13, 2024. After this date, it will be deprecated, and all requests made to the old address will no longer be serviced.
+    We understand that this change may require adjustments on your end, and we are committed to providing any assistance you may need during this transition period. If you encounter any issues or have any questions regarding the migration process, please do not hesitate to reach out to our support team at [Insert Contact Information].
+    We appreciate your cooperation and understanding as we work to improve our services. Thank you for your continued partnership with the Israel Tax Authority.
+    Warm regards
+
+    -
+
+    POST {{ServerURL}}/Multi-invoices/v1/MultiApproval
+    {
+      "Vat_Number": 777777715,
+      "Union_Vat_Number": 125847553,
+      "Invoices_Amount": 1,
+      "Invoices_Payment_Amount": 500,
+      "Invoices_Vat_Amount": 85,
+      "Invoices_List": [
+        {
+          "Invoice_ID": "987654321",
+          "Invoice_Type": 305,
+          "Vat_Number": 777777715,
+          "Union_Vat_Number": 125847553,
+          "Invoice_Reference_Number": "975626515",
+          "Customer_VAT_Number": 18,
+          "Customer_Name": "שם הלקוח",
+          "Invoice_Date": "2023-04-08",
+          "Invoice_Issuance_Date": "2023-04-08",
+          "Branch_ID": "533",
+          "Accounting_Software_Number": 36955574,
+          "Client_Software_Key": "76857",
+          "Amount_Before_Discount": 552.75,
+          "Discount": 52.75,
+          "Payment_Amount": 500,
+          "VAT_Amount": 85,
+          "Payment_Amount_Including_VAT": 585,
+          "Invoice_Note": "הערות",
+          "Action": 0,
+          "Vehicle_License_Number": 584752145,
+          "Phone_Of_Driver": "0505674235",
+          "Arrival_Date": "2023-02-26",
+          "Estimated_Arrival_Time": "13:25",
+          "Transition_Location": 12,
+          "Delivery_Address": "כתובת אספקה",
+          "Additional_Information": 0,
+          "Items": [
+            {
+              "Index": 7446,
+              "Catalog_ID": "5569875437",
+              "Category": 15,
+              "Description": "תיאור הפריט",
+              "Measure_Unit_Description": "קילו",
+              "Quantity": 100.5,
+              "Price_Per_Unit": 5.5,
+              "Discount": 52.75,
+              "Total_Amount": 500,
+              "VAT_Rate": 17,
+              "VAT_Amount": 85
+            }
+          ]
+        }
+      ]
+    }
+
+    ------------------------------------------------------------------------------------
+
+
+
     REFERENCE
     ---------
-    https://openapi-portal.taxes.gov.il/sandbox/product
-    https://openapi-portal.taxes.gov.il/sandbox/product/2927/api/1533#/Invoices_v1/overview
+    https://openapi-portal.taxes.gov.il/sandbox
+    https://openapi-portal.taxes.gov.il/sandbox/product    
     https://openapi-portal.taxes.gov.il/sandbox/product/1776/api/199#/longtimeacces_100/overview
+    https://openapi-portal.taxes.gov.il/sandbox/product/12366/api/6990#/Invoices_v1/overview
+    https://openapi-portal.taxes.gov.il/sandbox/product/12366/api/12360#/multiinvoices_v1/operation/%2FMultiApproval/post
 
+    https://openapi-portal.taxes.gov.il/shaam/production
+    https://openapi-portal.taxes.gov.il/shaam/production/product
+    https://openapi-portal.taxes.gov.il/shaam/production/forum/3
+    https://openapi-portal.taxes.gov.il/sandbox/sites/sandbox.openapi-portal.taxes.gov.il/files/inline-files/portal%20user%20guide.pdf
+    https://www.gov.il/BlobFolder/service/connect-to-shaam/he/Service_Pages_shaam_connection-work-process-software-houses.pdf
 
     SUPPORT
     -------
@@ -57,12 +136,13 @@ using System.Diagnostics;
     5. ENABLE SERVICES FOR API APP    
 
     note! 
-    need to register to both SANDBOX and PROD portals
+    need to register to both SANDBOX and PROD portals (with different emails)
 
     CLIENT REGISTRATION
     -------------------
     https://secapp.taxes.gov.il/srRishum/main/openPage
     https://www.gov.il/he/service/connect-to-shaam
+    https://openapi-portal.taxes.gov.il/sandbox/sites/sandbox.openapi-portal.taxes.gov.il/files/inline-files/portal%20user%20guide.pdf
 
     * register & wait for approval 
     * login the portal
@@ -185,7 +265,6 @@ using System.Diagnostics;
       response_type=code
       client_id=<client-id>
       scope=<scope>
-      redirect_uri=<redirect_uri>
 
     -
 
@@ -435,7 +514,7 @@ namespace TaxesIL
             public int LicenseNumber { get; set; }
 
             [JsonProperty(PropertyName = "Phone_Of_Driver")]
-            public string PhoneOfDriver { get; set; }
+            public string PhoneOfDriver { get; set; } = "0";
 
             [JsonProperty(PropertyName = "Arrival_Date")]
             public string ArrivalDate { get; set; }
@@ -516,6 +595,7 @@ namespace TaxesIL
 
         Task<Invoice> GetInvoiceDetails(GetInvoiceDetailsRequest Request);
         Task<CreateInvoiceResponse> CreateInvoice(Invoice Request);
+        Task<IEnumerable<CreateInvoiceResponse>> CreateInvoices(IEnumerable<Invoice> Request);
         Task<string> HealthCheck();
     }
 
@@ -555,7 +635,8 @@ namespace TaxesIL
         // redirects the user to the oAuth process 
         // authorization_code
         public void RequestAuthorizaionCode(HttpContext Context) {
-            Context.Response.Redirect(this.OAuthURL, true);
+	    Context.Response.Redirect(this.OAuthURL, false);
+            Context.ApplicationInstance.CompleteRequest();
         }
 
         // launches a browser and set an http-listener to monitor the callback response
@@ -642,6 +723,13 @@ namespace TaxesIL
             return true;
         }
 
+        public bool SetTokensData(string RefreshToken, string AccessToken)
+        {
+            this.Config.AccessToken = AccessToken;
+            this.Config.RefreshToken = RefreshToken;
+            return true;
+        }
+
         public async Task<bool> RefreshToken()
         {
             /// if (string.IsNullOrEmpty(this.Config.RefreshToken))
@@ -708,6 +796,7 @@ namespace TaxesIL
 
         public async Task<CreateInvoiceResponse> CreateInvoice(Invoice Request) 
         {
+            this.NullToEmpty(Request);
             var response = await this.HttpService.POST_ASYNC<Invoice, CreateInvoiceResponse>(
                 $"{this.Config.ServerURL}/Invoices/v1/Approval",
                 Request,
@@ -742,6 +831,10 @@ namespace TaxesIL
                 throw new APIException(this.ParseError(response.Content));
 
             return response.Model;
+        }
+
+        public async Task<IEnumerable<CreateInvoiceResponse>> CreateInvoices(IEnumerable<Invoice> Request) {
+            throw new NotImplementedException();
         }
 
         public async Task<string> HealthCheck() 
@@ -894,6 +987,16 @@ namespace TaxesIL
 
             // raise an event
             this.OnTokensUpdated(new TokensUpdatedEventArgs(this.Config.ApiKey, this.Config.RefreshToken, this.Config.AccessToken));
+        }
+
+        private void NullToEmpty<T>(T obj)
+        {
+            if (obj == null) return;
+
+            foreach (var propertyInfo in obj.GetType().GetProperties())
+                if (propertyInfo.PropertyType == typeof(string))
+                    if (propertyInfo.GetValue(obj, null) == null)
+                        propertyInfo.SetValue(obj, string.Empty, null);
         }
     }
 }

@@ -1,0 +1,10 @@
+UniqueId based on DateTime Now
+------------------------------
+
+sample:
+Console.WriteLine(DateTime.Now.ToString("yyyyMMddHHmmss"));
+Console.WriteLine(DateTime.Now.Ticks.ToString());
+-
+output:
+20240328171907
+638472431477246031

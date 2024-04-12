@@ -1,0 +1,12 @@
+MVC ModelState.IsValid Error List
+---------------------------------
+
+if (!ModelState.IsValid){
+                    var errorMessages = ModelState.Values
+                        .SelectMany(v => v.Errors)
+                        .Select(e => e.ErrorMessage)
+                        .ToList();
+
+                    var errorMessage = string.Join("; ", errorMessages);
+                    throw new Exception($"Invalid Model! {errorMessage}");
+}

@@ -38,7 +38,7 @@
 					}
 				],
 				"url": {
-					"raw": "{{ServerURL}}/messages_queue/get_by_date/from/2024-01-01/to/2024-02-01",
+					"raw": "{{ServerURL}}/messages_queue/get_by_date/from/2024-03-25/to/2024-03-26",
 					"host": [
 						"{{ServerURL}}"
 					],
@@ -46,9 +46,9 @@
 						"messages_queue",
 						"get_by_date",
 						"from",
-						"2024-01-01",
+						"2024-03-25",
 						"to",
-						"2024-02-01"
+						"2024-03-26"
 					]
 				}
 			},
@@ -230,13 +230,13 @@
 					}
 				],
 				"url": {
-					"raw": "{{ServerURL}}/product/7290117860540.json?hq=1",
+					"raw": "{{ServerURL}}/product/7290117264393.json?hq=1",
 					"host": [
 						"{{ServerURL}}"
 					],
 					"path": [
 						"product",
-						"7290117860540.json"
+						"7290117264393.json"
 					],
 					"query": [
 						{
@@ -249,7 +249,7 @@
 			"response": []
 		},
 		{
-			"name": "Get Product Specific Media (as zip file)",
+			"name": "Get Product Specific Media (as media file)",
 			"request": {
 				"auth": {
 					"type": "basic",
@@ -280,19 +280,19 @@
 					}
 				],
 				"url": {
-					"raw": "{{ServerURL}}/product/7290117860540/files?media=886102&hq=1",
+					"raw": "{{ServerURL}}/product/7290016867008/files?media=226880&hq=1",
 					"host": [
 						"{{ServerURL}}"
 					],
 					"path": [
 						"product",
-						"7290117860540",
+						"7290016867008",
 						"files"
 					],
 					"query": [
 						{
 							"key": "media",
-							"value": "886102"
+							"value": "226880"
 						},
 						{
 							"key": "hq",

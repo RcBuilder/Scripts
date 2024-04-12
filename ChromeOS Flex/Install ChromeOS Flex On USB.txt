@@ -1,0 +1,109 @@
+Install ChromeOS Flex On USB
+----------------------------
+Operating System By Google. the same OS drives the Chromebooks.  
+Linux-based, uses Web-browsers as it's main user-interface. 
+The flex version derives from the chromeOS but intended for personal PCs. 
+
+-
+
+Make an Old PC New Again!
+ChromeOS Flex can be easily installed on any machine and replace its existing OS (Windows, Mac or Linux)
+this OS requires low hardware resources so it can be used to revive an old PC into a working machine!
+
+-
+
+Limitations:
+- No Playstore
+- No Android Apps 
+
+Min System Requirements: 
+- Intel or AMD x86-64-bit CPU
+- 4GB RAM 
+- 16GB HD Space 
+- Access to BIOS
+
+-
+
+Create an Installer:
+ChromeOS Flex Installer can be generated on USB or SD card with min of 8GB space. 
+
+(steps) Create from product model
+1. go to 'Chrome Web Store' > Chromebook Recovery Utility > add Chrome Extension > launch it
+   https://chromewebstore.google.com/detail/chromebook-recovery-utili/pocpnlppkickgojjlmhdmidojbmbodfm
+2. launch the extension > a popup will open > Get started > Select a model from a list
+   - manufacturer = Google Chrome OS Flex 
+   - product = Chrome OS Flex   
+3. choose the source to copy the sys files for the installation (USB/SD) > Create
+
+
+// TODO ->> Does NOT work! to check
+(steps) Create from external image
+1. go to 'Chrome Web Store' > Chromebook Recovery Utility > add Chrome Extension > launch it
+   https://chromewebstore.google.com/detail/chromebook-recovery-utili/pocpnlppkickgojjlmhdmidojbmbodfm
+2. launch the extension > a popup will open > Get started > Select a model from a list
+   - Settings > Use Local image 
+   - select required image (see 'ChromeOS Flex Images')
+3. choose the source to copy the sys files for the installation (USB/SD) > Create
+
+
+(steps) Install from USB
+1. connect the Installer (USB or SD Card) into the target machine
+2. go to the BIOS BOOT menu and set the 1st boot device to be the USB port
+   (e.g: F12 for DELL and Lenovo, F2 for Intel, F9 for HP...)
+3. once set, restart the PC to launch it from the installer.
+4. once launched, click on 'Get started' button > choose the installation type
+   - Install CloudReady 2.0 > 
+     install the ChromeOS on the machine. this option replaces the existing OS. 
+     the installation process will perform a format and wipe-up all existing files.
+
+   - Try it first >
+     use ChromeOS directly from the Installer port. this option uses the Installer to launch the ChromeOS 
+     so it won't affect any of the files existing on the machine. 
+     use this option to experience ChromeOS before making it permanent
+
+note! 
+to delete an installer from a USB, use the 'Chromebook Recovery Utility' extension   
+Settings > Erase Recovery media
+
+-
+
+Installation:
+use the Installer to setup ChromeOS on any machine. 
+to install the ChromeOS, we need to connect the USB into the target machine and BOOT from it. 
+
+-
+
+ChromeOS Flex Images:
+see 'D:\Install\ChromeOS Flex Images'
+
+- Chromeos_rammus_recovery.img.bin
+  for Intel processor 1st gen -> 9th gen
+
+- Chromeos_volteer_recovery.img.bin
+  for Intel processor 10th & 11th gen
+
+- Chromeos_zork_recovery.img.bin
+  for AMD processor Ryzen
+
+note! 
+once downloaded, we need to add manually the suffix .bin 
+(e.g: Chromeos_rammus_recovery.img.bin)
+
+// web links
+https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbVBMZFlzVEFDdGRnNEtEQWNEb24xMkJEa252d3xBQ3Jtc0ttRFlCN2c0cmN5cGhkTVp4VVRvU2xFTnBkYl9zb1FEVTVwR2ZwaVRYRU1hRDk5V0FtQWExQk0xaFp1SWszUXdoTG1Na0R4UjFmbDQzckNPRHM2X0RVLXJxckZDR3ZyaEFWRTNEZFhRZGhuRlJxdkhWdw&q=https%3A%2F%2Fteraboxapp.com%2Fs%2F1sl9W3V598EsBPo9pljhBcg&v=ukssJNk0JuY
+https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbF9OdVlLUXFrRHBnRzJhdnpqUWRuVTZiZlZJZ3xBQ3Jtc0tua3Zud0VqZVN0VF9KSkFRX0IwWWRnakFwTU1GZlJJME1RN3FvbFBFMlljcU0tM0t0YWVoajZoSGZ5aVR3SmxYX1VPOWJRRlI1T0JoeUpPX3VjMk04cVRZY2xRSkFjWEtZYm13OVlUNkFtejA4RkZqbw&q=https%3A%2F%2Fteraboxapp.com%2Fs%2F1fiAcrx-LUPDUV9RZzcNfZQ&v=ukssJNk0JuY
+https://www.youtube.com/redirect?event=video_description&redir_token=QUFFLUhqbVdpR3B5WTNDakE1eGU2ek9qM0g3ckZDU1BLZ3xBQ3Jtc0trWHFwc1ZhOFhGRFUtbkNDSWpBRlp6SUR0Z3lRR1h0UUx0N1NyN1AxdFRCZlZYWEpfYjlwT3M3NlhVM1I2TzEyRGNETUZ3eEtacF9mSWNwYW9XQWZ2TTBnaEVCR1ZneXBBQjYwTnl6aFV6aUNFbkxGZw&q=https%3A%2F%2Fteraboxapp.com%2Fs%2F1PqwVNlOI5Y-avp4SZejsGg&v=ukssJNk0JuY
+
+-
+
+References:
+https://www.youtube.com/watch?v=c9oxk9W7FkU
+https://www.youtube.com/watch?v=ukssJNk0JuY
+
+-
+
+Shortcuts:
+CTRL + ALT + T 	// terminal
+
+-
+

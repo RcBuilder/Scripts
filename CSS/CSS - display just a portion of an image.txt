@@ -1,0 +1,19 @@
+CSS - display just a portion of an image
+----------------------------------------
+.container {
+  position: relative;
+}
+#clip {
+  position: absolute;
+  clip: rect(0, 100px, 200px, 0);
+  /* clip: shape(top, right, bottom, left); NB 'rect' is the only available option */
+}
+
+-
+
+<div class="container">
+  <img src="http://lorempixel.com/200/200/nightlife/3" />
+</div>
+<div class="container">
+  <img id="clip" src="http://lorempixel.com/200/200/nightlife/3" />
+</div>

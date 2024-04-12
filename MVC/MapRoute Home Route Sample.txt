@@ -1,0 +1,33 @@
+MapRoute Home Route Sample
+--------------------------
+
+public class RouteConfig
+    {
+        public static void RegisterRoutes(RouteCollection routes)
+        {
+            routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
+            routes.RouteExistingFiles = true;
+
+            /*
+            routes.MapRoute(
+               name: "Home",
+               url: "{action}",
+               defaults: new { controller = "Home" },
+               constraints: new { controller = "Home", action = "faq|contact|aboutUs|policy|freeCall" }
+           );
+           */
+
+            routes.MapRoute(
+                name: "Home",
+                url: "{action}",
+                defaults: new { controller = "Home" },
+                constraints: new { controller = "Home", action = "Chipsy" }                
+            );
+
+            routes.MapRoute(
+                name: "Default",
+                url: "{controller}/{action}/{id}",
+                defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }
+            );
+        }
+    }

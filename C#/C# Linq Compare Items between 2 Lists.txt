@@ -1,0 +1,35 @@
+C# Linq Compare Items between 2 Lists
+-------------------------------------
+in our sample, this technique should prevent the update of images if there were no change. 
+
+-
+
+if (media != null && media.Count > 0) {
+
+                    var onlyImages = media.Where(x => !x.filename.EndsWith(".zip")).GroupBy(x => x.filename_display).Select(g => g.OrderBy(x => x.file_size).FirstOrDefault()); // only images!
+                    var hasImageUpdates = onlyImages
+                        .Select(img => $"{img.filename_display}.{img.file_extension}")
+                        .Intersect(konimboItemImages.Select(img => img.alt))
+                        .Count() != onlyImages.Count();
+
+
+                    if (hasImageUpdates) {
+                        konimboItemImages.Clear();
+                        foreach (var asset in onlyImages) {
+                            var assetIndex = 0;
+                            var localMediaPath = await gs1Manager.DownloadProductMediaAsset(productGTIN, asset.id, asset.filename, @"C:\inetpub\wwwroot\temp\");
+                            var imageName = $"{asset.filename_display}.{asset.file_extension}";
+                            var httpMediaPath = $"https://memo-events.co.il/temp/{imageName}";
+
+                            konimboItemImages.Add(new ItemImage
+                            {                                
+                                alt = imageName,
+                                position = assetIndex++,  // asset.arc_position_number
+                                url = httpMediaPath
+                            });
+                        }
+
+                        Console.WriteLine($"konimbo: UPDATE Assets for Item #{konimboItemDetails?.id}");
+                        await konimboManager.UpdateItemImages(productGTIN, new ItemImagesWrapper(konimboItemImages));
+                    }
+                }

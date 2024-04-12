@@ -12,6 +12,7 @@ https://api.h-erp.co.il/docs/api
 https://api.h-erp.co.il/docs/setupcust/
 https://api.h-erp.co.il/docs/importintro
 https://api.h-erp.co.il/docs/exportintro
+https://api.h-erp.co.il/docs/heshin/
 
 https://h-erp.co.il/wp-content/uploads/2021/03/Hconnect-Documentation4.pdf
 https://h-erp.co.il/wp-content/uploads/2021/05/API-%D7%97%D7%95%D7%91%D7%A8%D7%AA-%D7%97%D7%93%D7%A9%D7%94-%D7%9E%D7%9E%D7%A9%D7%A7_-011-3.pdf

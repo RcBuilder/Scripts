@@ -112,9 +112,10 @@ function ProcessAccount(accountId, arr) {
     Logger.log('%s: %s', merchant, groups[merchant]);
     
     for(i in groups[merchant]){
-      var kw = '[' + groups[merchant][i] + ']';
-      Logger.log('adding %s as negative kw', kw);
-      campaign.createNegativeKeyword(kw);
+      var kw = groups[merchant][i];
+      var kwCleared = '[' + ClearKeyword(kw) + ']';      
+      Logger.log('adding (%s) as negative kw -> %s', kw, kwCleared);
+      campaign.createNegativeKeyword(kwCleared);
     }
   }
 }
@@ -232,4 +233,25 @@ function BytesToHex(bytes) {
     }
   }
   return hex.join("");
+}
+
+function ClearKeyword(keyword) {
+    var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']', '|', '>', '/','?','`'];
+    var maxWordsAllowed = 10;
+      
+    // non allowed characters
+    // [error] Keywords cannot contain non-standard characters like: ! @ % , *
+    for(i in specialCharacters)
+    {
+		var c = specialCharacters[i];
+		if(keyword.indexOf(c) == -1) continue;
+		keyword = keyword.split(c).join(''); // replace all
+    }      
+      
+    // two many words
+    // [error] Keywords cannot contain more than 10 words
+    if(keyword.split(' ').length > maxWordsAllowed)
+    keyword = keyword.split(' ').slice(0, 9).join(' '); // remove words
+        
+    return keyword;
 }

@@ -1,0 +1,20 @@
+Console Hebrew Encoding 
+-----------------------
+Console.OutputEncoding = Encoding.GetEncoding("Windows-1255");
+Console.WriteLine(new String("אבגד".Reverse().ToArray()));
+Console.ReadKey();
+
+
+--
+
+static class HebrewConsole
+    {
+        public static void WriteLine(string value) {
+            const string ENCODING = "Windows-1255";
+
+            if(Console.OutputEncoding.EncodingName != ENCODING)
+                Console.OutputEncoding = Encoding.GetEncoding(ENCODING);
+
+            Console.WriteLine(new String(value?.Reverse().ToArray()));
+        }   
+    }

@@ -1,0 +1,26 @@
+css watermark
+-------------
+
+// full page 
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: url('./watermark.png');
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+--
+
+// any div
+// load watermark30.png to photo-editor and set it as 30% opacity
+.watermark {
+    background-image: url(../images/watermark30.png);
+    background-position: bottom right;
+    background-size: 50%;
+    background-repeat: no-repeat;
+}

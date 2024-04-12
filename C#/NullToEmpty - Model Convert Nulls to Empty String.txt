@@ -1,0 +1,59 @@
+Model Convert Nulls to Empty String
+-----------------------------------
+void Main()
+{	
+	var model1 = new Model1();
+	Console.WriteLine(model1);
+	
+	NullToEmpty(model1);	
+	Console.WriteLine(model1);
+	
+	model1 = new Model1{
+		P1 = "1",
+		P2 = "2"
+	};	
+	Console.WriteLine(model1);
+	
+	NullToEmpty(model1);	
+	Console.WriteLine(model1);
+}
+
+class Model1{
+	public string P1 { get;set; }
+	public string P2 { get;set; }
+	public string P3 { get;set; }
+	public string P4 { get;set; }
+	public string P5 { get;set; }
+}
+
+void NullToEmpty<T>(T obj) {
+    if (obj == null) return;
+
+    foreach (var propertyInfo in obj.GetType().GetProperties())
+        if (propertyInfo.PropertyType == typeof(string))
+            if (propertyInfo.GetValue(obj, null) == null)
+                propertyInfo.SetValue(obj, string.Empty, null);
+}
+
+
+-
+
+public CreateInvoiceResponse CreateInvoice(Invoice Request) 
+{
+    this.NullToEmpty(Request);  // clear nulls
+
+    var response = this.HttpService.POST<Invoice, CreateInvoiceResponse>(
+        $"{this.Config.ServerURL}/Invoices/v1/Approval",
+        Request,
+        null,
+        new Dictionary<string, string>
+        {
+            ["Accept"] = "application/json",
+            ["Content-Type"] = "application/json",
+            ["Authorization"] = $"Bearer {this.Config.AccessToken}"
+        }
+    );
+
+	....
+	....
+}

@@ -1,0 +1,130 @@
+const CONFIG = {  
+  // TODAY, YESTERDAY, LAST_7_DAYS, THIS_WEEK_SUN_TODAY, LAST_WEEK, LAST_14_DAYS, LAST_30_DAYS, LAST_BUSINESS_WEEK, LAST_WEEK_SUN_SAT, THIS_MONTH, LAST_MONTH, ALL_TIME
+  dateRange: 'LAST_7_DAYS',
+  excludedCampaigns: ['119168', '122663', '126377'], // PP 126377
+  excludedAccounts: ['490-500-0843', '374-739-1800'],
+  
+  // adgroupMaxCpcLimit: <adgroupId: maxCpc>
+  adgroupMaxCpcLimit: {    
+    'default': 10,
+    '56315734253': 2
+  },  
+  increaseCpcValue: 0.01,
+  maxClicksValue: 0
+};
+
+function main() 
+{
+  ///var a = ExtractCampaignMerchant('Jovs - PP 126377 - [BB-Nein] DSA').toString();  
+  ///Logger.log(CONFIG.excludedCampaigns.indexOf(a));
+  ///return;
+  
+  ///ProcessAccount(AdsApp.currentAccount().getCustomerId());
+  
+  var accounts = MccApp.accounts().get();  
+    while(accounts.hasNext()) {
+      var account = accounts.next();
+      Logger.log('### account: %s ###', account.getName());  
+      
+      try{                 
+        MccApp.select(account);
+        ProcessAccount(account.getCustomerId());
+      }
+      catch(ex){
+        Logger.log('exception occured: %s', ex.message);
+      }
+      
+      Logger.log('--------------------------');
+    }      
+}
+
+function ProcessAccount(accountId) {        
+  Logger.log('[account] #%s', accountId);
+  
+  if(CONFIG.excludedAccounts.indexOf(accountId) > -1)
+  {
+    Logger.log('excluded account - skip...')
+    return;
+  }
+  
+  var campaigns = AdsApp.campaigns()
+    .withCondition('metrics.impressions > 0')
+    .withCondition(`metrics.clicks <= ${CONFIG.maxClicksValue}`)    
+    .withCondition('campaign.status IN (ENABLED)')    
+    .forDateRange(CONFIG.dateRange)
+    ///.withLimit(10)
+    .get();
+  
+  while (campaigns.hasNext()) {
+    var campaign = campaigns.next();
+    var stats = campaign.getStatsFor(CONFIG.dateRange);
+          
+    Logger.log('campaign: #%s. %s [%s clicks, %s impressions]', campaign.getId(), campaign.getName(), stats.getClicks(), stats.getImpressions());    
+   
+    var merchantId = ExtractCampaignMerchant(campaign.getName()).toString();  
+    if(CONFIG.excludedCampaigns.indexOf(merchantId) > -1)
+    {
+      Logger.log('excluded campaign - skip...')
+      continue;
+    }
+    
+    /*
+    // MANUAL_CPC, MANUAL_CPM, TARGET_CPA, TARGET_SPEND, TARGET_ROAS, MAXIMIZE_CONVERSIONS, MAXIMIZE_CONVERSION_VALUE, TARGET_IMPRESSION_SHARE
+    var strategy = campaign.getBiddingStrategyType();
+    if(strategy == 'MANUAL_CPC')
+    {
+      // campaign.bidding().setCpcBidCeiling(newCpc);  
+      // ex: <campaignName> employs a MANUAL_CPC bidding strategy. This type of bidding strategy does not support cpc bid ceiling
+      Logger.log('campaign uses MANUAL_CPC bidding strategy - skip...');
+      continue;
+    }
+    */
+    
+    SetCampaignMaxCpc(campaign);
+  }  
+} 
+
+function SetCampaignMaxCpc(campaign) {
+    var adgroups = campaign.adGroups()
+      .withCondition('ad_group.status IN (ENABLED)')
+      .get();
+    
+    while (adgroups.hasNext()) {
+      var adgroup = adgroups.next();
+      var adgroupId = adgroup.getId().toString(); 
+      var stats = adgroup.getStatsFor(CONFIG.dateRange);      
+                
+      var adgroupMaxCpcLimit = CONFIG.adgroupMaxCpcLimit[adgroupId] || CONFIG.adgroupMaxCpcLimit['default'];      
+      Logger.log('adgroup: #%s. %s [%s clicks, %s impressions] | adgroupMaxCpcLimit: %s', adgroupId, adgroup.getName(), stats.getClicks(), stats.getImpressions(), adgroupMaxCpcLimit);  
+      
+      var currentCpc = adgroup.bidding().getCpc();
+      var newCpc = currentCpc + CONFIG.increaseCpcValue;
+      
+      if(newCpc <= adgroupMaxCpcLimit) {          
+        Logger.log('%s -> %s', currentCpc, newCpc);
+        adgroup.bidding().setCpc(newCpc);               
+      }                  
+    }    
+  }
+  
+  function ExtractCampaignMerchant(campaignName){
+    /*
+      PP <Merchant-Id>
+      PP\s+\d{1,}
+      -
+      Allpowers EU - PP 133922 - [BB-Nein] DSA, CTM, neu ab 30.11.2023
+      Kimchichicbeauty - PP 122663 - [BB-Nein] DSA, CTM
+      Zendure EU - PP 124057 - [BB-Ja] DSA
+      Casabrews - PP 135225 - [BB-Nein] DSA, CTM, Gab mal 10% PPS, jetzt noch 5%. 09.01.2024
+      Fibreheat - PP 98302 - [BB-Nein] DSA, CTM
+      Explorescientific - PP 102148 - [BB-Ja] DSA, CTM
+      Suncentauto - PP 127047 - [BB-Nein] DSA, CTM
+      Formovie - PP 130703 - [BB-Nein] DSA, CTM
+      -
+      Lorem Ipsum DE - PP 124057 - [BB-Ja] DSA
+      Merchant-Id = 124057
+    */
+
+    var pattern = /(?<=PP\s+)\d{1,}/
+    return pattern.exec(campaignName);
+  }

@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json; // Install-Package Newtonsoft.Json -Version 13.0.3
+using Newtonsoft.Json.Linq;
 
 namespace Helpers
 {
@@ -202,21 +202,23 @@ namespace Helpers
             try
             {
                 var response = this.GET(url, querystring, headers);
+                return (response.Success, response.StatusCode, response.Content, response.Success && IsValidJson(response.Content) ? JsonConvert.DeserializeObject<TResult>(response.Content) : default(TResult));
 
-                var model = default(TResult);
-                if (response.Success)
-                    model = JsonConvert.DeserializeObject<TResult>(response.Content);
-                else if (response.Content.Contains("{"))
-                {
-                    try
+                /*
+                    var model = default(TResult);
+                    if (response.Success)
+                        model = JsonConvert.DeserializeObject<TResult>(response.Content);
+                    else if (response.Content.Contains("{"))
                     {
-                        var json = response.Content.Substring(response.Content.IndexOf("{"));
-                        model = JsonConvert.DeserializeObject<TResult>(json);
+                        try
+                        {
+                            var json = response.Content.Substring(response.Content.IndexOf("{"));
+                            model = JsonConvert.DeserializeObject<TResult>(json);
+                        }
+                        catch { }
                     }
-                    catch { }
-                }
-
-                return (response.Success, response.StatusCode, response.Content, model);
+                    return (response.Success, response.StatusCode, response.Content, model);
+                */
             }
             catch (Exception ex)
             {
@@ -261,6 +263,10 @@ namespace Helpers
 
         public (bool Success, HttpStatusCode StatusCode, string Content, TResult Model) POST_DATA<TResult>(string url, IEnumerable<string> payload, string querystring = null, Dictionary<string, string> headers = null) {
             return UPLOAD<string, TResult>(url, string.Join("&", payload), "DATA", querystring, headers, "POST");
+        }
+
+        public (bool Success, HttpStatusCode StatusCode, string Content) DOWNLOAD_DATA(string url, string destFilePath, string querystring = null, Dictionary<string, string> headers = null) {
+            return DOWNLOAD(url, destFilePath, querystring, headers);
         }
 
         public (bool Success, HttpStatusCode StatusCode, string Content) PUT_DATA(string url, Dictionary<string, string> payload, string querystring = null, Dictionary<string, string> headers = null)
@@ -334,25 +340,59 @@ namespace Helpers
             try
             {
                 var response = this.UPLOAD<TPayload>(url, payload, payloadMode, querystring, headers, method);
+                return (response.Success, response.StatusCode, response.Content, response.Success && IsValidJson(response.Content) ? JsonConvert.DeserializeObject<TResult>(response.Content) : default(TResult));
 
-                var model = default(TResult);
-                if (response.Success)
-                    model = JsonConvert.DeserializeObject<TResult>(response.Content);
-                else if (response.Content.Contains("{"))
-                {
-                    try
+                /*
+                    var model = default(TResult);
+                    if (response.Success)
+                        model = JsonConvert.DeserializeObject<TResult>(response.Content);
+                    else if (response.Content.Contains("{"))
                     {
-                        var json = response.Content.Substring(response.Content.IndexOf("{"));
-                        model = JsonConvert.DeserializeObject<TResult>(json);
+                        try
+                        {
+                            var json = response.Content.Substring(response.Content.IndexOf("{"));
+                            model = JsonConvert.DeserializeObject<TResult>(json);
+                        }
+                        catch { }
                     }
-                    catch { }
-                }
-
-                return (response.Success, response.StatusCode, response.Content, model);
+                    return (response.Success, response.StatusCode, response.Content, model);
+                */
             }
             catch (Exception ex)
             {
                 return (false, ERROR, ex.Message, default(TResult));
+            }
+        }
+
+        protected (bool Success, HttpStatusCode StatusCode, string Content) DOWNLOAD(string url, string destFilePath, string querystring = null, Dictionary<string, string> headers = null)
+        {            
+            try
+            {
+                client.Headers.Clear();
+                if (headers != null)
+                    foreach (var header in headers)
+                        client.Headers.Add(header.Key, header.Value);
+                    
+                if (!string.IsNullOrEmpty(querystring))
+                    url = string.Concat(url, "?", querystring);
+
+                client.DownloadFile(url, destFilePath);
+                return (true, OK, destFilePath);
+            }
+            catch (WebException ex)
+            {
+                var webRespEX = ((HttpWebResponse)ex.Response);
+                var statusCode = webRespEX?.StatusCode ?? ERROR;
+
+                var stream = ex?.Response?.GetResponseStream();
+                if (stream == null) return (false, statusCode, $"{ex.Message}");
+
+                using (var reader = new StreamReader(stream))
+                    return (false, statusCode, $"{ex.Message} | {reader.ReadToEnd()}");                
+            }
+            catch (Exception ex)
+            {
+                return (false, ERROR, ex.Message);
             }
         }
 
@@ -394,7 +434,7 @@ namespace Helpers
             try
             {
                 var response = await this.GET_ASYNC(url, querystring, headers);
-                return (response.Success, response.StatusCode, response.Content, response.Success ? JsonConvert.DeserializeObject<T>(response.Content) : default(T));
+                return (response.Success, response.StatusCode, response.Content, response.Success && IsValidJson(response.Content) ? JsonConvert.DeserializeObject<T>(response.Content) : default(T));
             }
             catch (Exception ex)
             {
@@ -444,6 +484,10 @@ namespace Helpers
         public async Task<(bool Success, HttpStatusCode StatusCode, string Content, TResult Model)> POST_DATA_ASYNC<TResult>(string url, IEnumerable<string> payload, string querystring = null, Dictionary<string, string> headers = null)
         {
             return await UPLOAD_ASYNC<string, TResult>(url, string.Join("&", payload), "DATA", querystring, headers, "POST");
+        }
+
+        public async Task<(bool Success, HttpStatusCode StatusCode, string Content)> DOWNLOAD_DATA_ASYNC(string url, string destFilePath, string querystring = null, Dictionary<string, string> headers = null) {
+            return await DOWNLOAD_ASYNC(url, destFilePath, querystring, headers);
         }
 
         public async Task<(bool Success, HttpStatusCode StatusCode, string Content)> PUT_DATA_ASYNC(string url, Dictionary<string, string> payload, string querystring = null, Dictionary<string, string> headers = null)
@@ -520,25 +564,59 @@ namespace Helpers
             try
             {
                 var response = await this.UPLOAD_ASYNC<TPayload>(url, payload, payloadMode, querystring, headers, method);
+                return (response.Success, response.StatusCode, response.Content, response.Success && IsValidJson(response.Content) ? JsonConvert.DeserializeObject<TResult>(response.Content) : default(TResult));
 
-                var model = default(TResult);
-                if (response.Success)
-                    model = JsonConvert.DeserializeObject<TResult>(response.Content);
-                else if (response.Content.Contains("{"))
-                {
-                    try
+                /*
+                    var model = default(TResult);
+                    if (response.Success)
+                        model = JsonConvert.DeserializeObject<TResult>(response.Content);
+                    else if (response.Content.Contains("{"))
                     {
-                        var json = response.Content.Substring(response.Content.IndexOf("{"));
-                        model = JsonConvert.DeserializeObject<TResult>(json);
+                        try
+                        {
+                            var json = response.Content.Substring(response.Content.IndexOf("{"));
+                            model = JsonConvert.DeserializeObject<TResult>(json);
+                        }
+                        catch { }
                     }
-                    catch { }
-                }
-
-                return (response.Success, response.StatusCode, response.Content, model);
+                    return (response.Success, response.StatusCode, response.Content, model);
+                */
             }
             catch (Exception ex)
             {
                 return (false, ERROR, ex.Message, default(TResult));
+            }
+        }
+
+        protected async Task<(bool Success, HttpStatusCode StatusCode, string Content)> DOWNLOAD_ASYNC(string url, string destFilePath, string querystring = null, Dictionary<string, string> headers = null)
+        {
+            try
+            {
+                client.Headers.Clear();
+                if (headers != null)
+                    foreach (var header in headers)
+                        client.Headers.Add(header.Key, header.Value);
+
+                if (!string.IsNullOrEmpty(querystring))
+                    url = string.Concat(url, "?", querystring);
+
+                await client.DownloadFileTaskAsync(new Uri(url), destFilePath);
+                return (true, OK, destFilePath);
+            }
+            catch (WebException ex)
+            {
+                var webRespEX = ((HttpWebResponse)ex.Response);
+                var statusCode = webRespEX?.StatusCode ?? ERROR;
+
+                var stream = ex?.Response?.GetResponseStream();
+                if (stream == null) return (false, statusCode, $"{ex.Message}");
+
+                using (var reader = new StreamReader(stream))
+                    return (false, statusCode, $"{ex.Message} | {reader.ReadToEnd()}");
+            }
+            catch (Exception ex)
+            {
+                return (false, ERROR, ex.Message);
             }
         }
 
@@ -569,6 +647,36 @@ namespace Helpers
                     return response.StatusCode == HttpStatusCode.OK;
             }
             catch { return false; }
+        }
+
+        private static bool IsValidJson(string strInput)
+        {
+            if (string.IsNullOrWhiteSpace(strInput)) { return false; }
+            strInput = strInput.Trim();
+            if ((strInput.StartsWith("{") && strInput.EndsWith("}")) || //For object
+                (strInput.StartsWith("[") && strInput.EndsWith("]"))) //For array
+            {
+                try
+                {
+                    var obj = JToken.Parse(strInput);
+                    return true;
+                }
+                catch (JsonReaderException jex)
+                {
+                    //Exception in parsing json
+                    Console.WriteLine(jex.Message);
+                    return false;
+                }
+                catch (Exception ex) //some other exception
+                {
+                    Console.WriteLine(ex.ToString());
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
     }
 }
