@@ -209,8 +209,8 @@ function collect_R2()
   function getCredentials() {
     return {
       clientId: '761895952535-d9bgpplek32ma3q2fck9be0jnt36nfkv.apps.googleusercontent.com',
-      clientSecret: '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',
-      refreshToken: '1//05ZIlb8PwMdjYCgYIARAAGAUSNwF-L9IrYnPLqqj6qW7FqtSqQHftO6jq682VM76UG63rzsS_Woj2Lh4bloLbGsioUl801f2Km-8'
+      clientSecret: 'xxxxxxxxxxxxxxxxxxxxxxx',
+      refreshToken: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
     };
   }
 
