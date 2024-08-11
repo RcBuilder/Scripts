@@ -1,0 +1,24 @@
+javascript - GroupByKey
+-----------------------
+function GroupByKey2(mat){
+  return mat.reduce((groups, row) => {
+    var key1 = row[0].toString();
+    var key2 = row[1].toString();        
+    var key3 = row[2].toString();  
+    /// console.log(row);
+    groups[key2] = (groups[key2] || []);
+    groups[key2].push(key1);
+    
+    return groups;
+  }, {})
+}
+
+var mat = [    
+    ['A', 'Cat1', 100], 
+    ['B', 'Cat1', 200],
+    ['C', 'Cat2', 300],
+    ['D', 'Cat2', 400],
+];
+
+var groups = GroupByKey2(mat);
+console.log(groups['Cat1']); // [ 'A', 'B' ]

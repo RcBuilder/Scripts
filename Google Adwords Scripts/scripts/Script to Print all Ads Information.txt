@@ -1,0 +1,81 @@
+function main() {
+    // Retrieve all campaigns
+    var campaigns = AdsApp.campaigns().get();
+
+    while (campaigns.hasNext()) {
+        var campaign = campaigns.next();
+        var campaignId = campaign.getId();
+        var campaignName = campaign.getName();
+
+        // Retrieve all ad groups within the campaign
+        var adGroups = campaign.adGroups().get();
+
+        while (adGroups.hasNext()) {
+            var adGroup = adGroups.next();
+            var adGroupId = adGroup.getId();
+            var adGroupName = adGroup.getName();
+
+            // Retrieve all ads within the ad group
+            var ads = adGroup.ads().get();
+
+            while (ads.hasNext()) {
+                var ad = ads.next();
+                var adId = ad.getId();
+                var keywordStats = ad.getStatsFor("LAST_30_DAYS");
+                var clicks = keywordStats.getClicks();
+                var impressions = keywordStats.getImpressions();
+                var ctr = keywordStats.getCtr();
+                var averageCpc = keywordStats.getAverageCpc();
+                var cost = keywordStats.getCost();
+                var conversions = keywordStats.getConversions();
+                var cpa = keywordStats.getAverageCpa();
+                var revenue = keywordStats.getConversionValue();
+                var roi = ((revenue - cost) / cost) * 100;
+
+                // Retrieve keyword information
+                var keywordInfo = ad.keywords().get();
+
+                while (keywordInfo.hasNext()) {
+                    var keyword = keywordInfo.next();
+                    var keywordId = keyword.getId();
+                    var keywordText = keyword.getText();
+                    var qualityScore = keyword.getQualityScore();
+                    var bidMatchType = keyword.getMatchType().toString();
+
+                    // Print all information
+                    AdsApp.log(
+                        "Account ID: " + AdsApp.currentAccount().getCustomerId() + "\n" +
+                        "Date: " + new Date().toLocaleDateString() + "\n" +
+                        "Source: " + "Bing" + "\n" +
+                        "Campaign ID: " + campaignId + "\n" +
+                        "Campaign: " + campaignName + "\n" +
+                        "Ad Group ID: " + adGroupId + "\n" +
+                        "Ad Group: " + adGroupName + "\n" +
+                        "Ad ID: " + adId + "\n" +
+                        "Keyword ID: " + keywordId + "\n" +
+                        "Keyword: " + keywordText + "\n" +
+                        "Bid Match Type: " + bidMatchType + "\n" +
+                        "Keywords Quality Score: " + qualityScore + "\n" +
+                        "CPC (Cost per Click): " + averageCpc + "\n" +
+                        "Device: " + "All Devices" + "\n" + // Device level data requires more detailed handling
+                        "Device Model: " + "All Models" + "\n" + // Device model data requires more detailed handling
+                        "Network: " + "All Networks" + "\n" + // Network data requires more detailed handling
+                        "Click: " + clicks + "\n" +
+                        "Impression: " + impressions + "\n" +
+                        "CTR (Click Through Rate): " + ctr + "%" + "\n" +
+                        "Location ID or Country and State: " + "N/A" + "\n" + // Location data requires more detailed handling
+                        "Impression Share: " + "N/A" + "\n" + // Impression share data requires more detailed handling
+                        "Top Impression Share: " + "N/A" + "\n" + // Top impression share data requires more detailed handling
+                        "Absolute Impression Share: " + "N/A" + "\n" + // Absolute impression share data requires more detailed handling
+                        "Click Share: " + "N/A" + "\n" + // Click share data requires more detailed handling
+                        "Conversions: " + conversions + "\n" +
+                        "CPA (Cost per Acquisition): " + cpa + "\n" +
+                        "Spend: " + cost + "\n" +
+                        "Revenue: " + revenue + "\n" +
+                        "ROI: " + roi + "%" + "\n"
+                    );
+                }
+            }
+        }
+    }
+}

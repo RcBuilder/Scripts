@@ -1,0 +1,32 @@
+RegEx - Inject Space between Number & Character
+-----------------------------------------------
+
+/// ([a-zA-Z]+ (?=\d+) | \d+ (?=[a-zA-Z]+))
+/// $1_
+
+/// IN:  T590 ULTRABOOK I5 8G SSD256 WIN10P 3Y
+/// OUT: T_590 ULTRABOOK I_5 8_G SSD_256 WIN_10_P 3_Y
+
+var input = "T590 ULTRABOOK I5 8G SSD256 WIN10P 3Y";
+var pattern = @"([a-zA-Z]+ (?=\d+) | \d+ (?=[a-zA-Z]+))";
+var replace = "$1_";
+var result = Regex.Replace(input, pattern, replace, RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
+Console.WriteLine(result);  
+
+
+---
+
+public static string FixManagerPreview(string value) {
+            /// ([a-zA-Z]+ (?=\d+) | \d+ (?=[a-zA-Z]+))
+            /// $1_
+
+            /// IN:  T590 ULTRABOOK I5 8G SSD256 WIN10P 3Y
+            /// OUT: T_590 ULTRABOOK I_5 8_G SSD_256 WIN_10_P 3_Y
+
+            /// var value = "T590 ULTRABOOK I5 8G SSD256 WIN10P 3Y";
+            var pattern = @"([a-zA-Z]+ (?=\d+) | \d+ (?=[a-zA-Z]+))";
+            var replace = "$1_";
+            var result = Regex.Replace(value, pattern, replace, RegexOptions.IgnorePatternWhitespace | RegexOptions.IgnoreCase);
+            /// Console.WriteLine(result);
+            return result;
+        }

@@ -1,0 +1,318 @@
+{
+	"info": {
+		"_postman_id": "a268572e-8997-45bb-beb5-4d35fa23844d",
+		"name": "ShareASale",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "768979"
+	},
+	"item": [
+		{
+			"name": "Keywords Report",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-ShareASale-Date",
+						"value": "Wed, 03 Jul 2024 07:32:18 GMT"
+					},
+					{
+						"key": "x-ShareASale-Authentication",
+						"value": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+					}
+				],
+				"url": {
+					"raw": "https://api.shareasale.com/x.cfm?affiliateID={{affiliateID}}&version={{version}}&token={{token}}&action=keywords",
+					"protocol": "https",
+					"host": [
+						"api",
+						"shareasale",
+						"com"
+					],
+					"path": [
+						"x.cfm"
+					],
+					"query": [
+						{
+							"key": "affiliateID",
+							"value": "{{affiliateID}}"
+						},
+						{
+							"key": "version",
+							"value": "{{version}}"
+						},
+						{
+							"key": "token",
+							"value": "{{token}}"
+						},
+						{
+							"key": "action",
+							"value": "keywords"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantSearch Report",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-ShareASale-Date",
+						"value": "Fri, 05 Jul 2024 12:07:36 GMT"
+					},
+					{
+						"key": "x-ShareASale-Authentication",
+						"value": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+					}
+				],
+				"url": {
+					"raw": "https://api.shareasale.com/x.cfm?affiliateID={{affiliateID}}&version={{version}}&token={{token}}&action=merchantSearch&activatedSince=01/01/2024&notjoined=1",
+					"protocol": "https",
+					"host": [
+						"api",
+						"shareasale",
+						"com"
+					],
+					"path": [
+						"x.cfm"
+					],
+					"query": [
+						{
+							"key": "affiliateID",
+							"value": "{{affiliateID}}"
+						},
+						{
+							"key": "version",
+							"value": "{{version}}"
+						},
+						{
+							"key": "token",
+							"value": "{{token}}"
+						},
+						{
+							"key": "action",
+							"value": "merchantSearch"
+						},
+						{
+							"key": "activatedSince",
+							"value": "01/01/2024"
+						},
+						{
+							"key": "notjoined",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantStatus Report",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-ShareASale-Date",
+						"value": "Sat, 11 May 2024 10:30:33 GMT"
+					},
+					{
+						"key": "x-ShareASale-Authentication",
+						"value": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+					}
+				],
+				"url": {
+					"raw": "https://api.shareasale.com/x.cfm?affiliateID={{affiliateID}}&version={{version}}&token={{token}}&action=merchantStatus",
+					"protocol": "https",
+					"host": [
+						"api",
+						"shareasale",
+						"com"
+					],
+					"path": [
+						"x.cfm"
+					],
+					"query": [
+						{
+							"key": "affiliateID",
+							"value": "{{affiliateID}}"
+						},
+						{
+							"key": "version",
+							"value": "{{version}}"
+						},
+						{
+							"key": "token",
+							"value": "{{token}}"
+						},
+						{
+							"key": "action",
+							"value": "merchantStatus"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "MerchantApplication",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-ShareASale-Date",
+						"value": "Thu, 04 Jul 2024 12:41:04 GMT"
+					},
+					{
+						"key": "x-ShareASale-Authentication",
+						"value": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+					}
+				],
+				"url": {
+					"raw": "https://api.shareasale.com/x.cfm?affiliateID={{affiliateID}}&version={{version}}&token={{token}}&action=merchantApplication&merchantId=155264",
+					"protocol": "https",
+					"host": [
+						"api",
+						"shareasale",
+						"com"
+					],
+					"path": [
+						"x.cfm"
+					],
+					"query": [
+						{
+							"key": "affiliateID",
+							"value": "{{affiliateID}}"
+						},
+						{
+							"key": "version",
+							"value": "{{version}}"
+						},
+						{
+							"key": "token",
+							"value": "{{token}}"
+						},
+						{
+							"key": "action",
+							"value": "merchantApplication"
+						},
+						{
+							"key": "format",
+							"value": "csv",
+							"disabled": true
+						},
+						{
+							"key": "merchantId",
+							"value": "155264"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "merchantTermsAndBio Report",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-ShareASale-Date",
+						"value": "Thu, 04 Jul 2024 12:40:17 GMT"
+					},
+					{
+						"key": "x-ShareASale-Authentication",
+						"value": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+					}
+				],
+				"url": {
+					"raw": "https://api.shareasale.com/x.cfm?affiliateID={{affiliateID}}&version={{version}}&token={{token}}&action=merchantTermsAndBio&merchantId=145082",
+					"protocol": "https",
+					"host": [
+						"api",
+						"shareasale",
+						"com"
+					],
+					"path": [
+						"x.cfm"
+					],
+					"query": [
+						{
+							"key": "affiliateID",
+							"value": "{{affiliateID}}"
+						},
+						{
+							"key": "version",
+							"value": "{{version}}"
+						},
+						{
+							"key": "token",
+							"value": "{{token}}"
+						},
+						{
+							"key": "action",
+							"value": "merchantTermsAndBio"
+						},
+						{
+							"key": "merchantId",
+							"value": "145082"
+						},
+						{
+							"key": "format",
+							"value": "csv",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Activity Report",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "x-ShareASale-Date",
+						"value": "Sat, 11 May 2024 10:29:27 GMT"
+					},
+					{
+						"key": "x-ShareASale-Authentication",
+						"value": "xxxxxxxxxxxxxxxxxxxxxxxxx"
+					}
+				],
+				"url": {
+					"raw": "https://api.shareasale.com/x.cfm?affiliateID={{affiliateID}}&version={{version}}&token={{token}}&action=activity",
+					"protocol": "https",
+					"host": [
+						"api",
+						"shareasale",
+						"com"
+					],
+					"path": [
+						"x.cfm"
+					],
+					"query": [
+						{
+							"key": "affiliateID",
+							"value": "{{affiliateID}}"
+						},
+						{
+							"key": "version",
+							"value": "{{version}}"
+						},
+						{
+							"key": "token",
+							"value": "{{token}}"
+						},
+						{
+							"key": "action",
+							"value": "activity"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

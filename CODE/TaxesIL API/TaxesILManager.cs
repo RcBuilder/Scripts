@@ -108,6 +108,9 @@ using System.Diagnostics;
     lakohot-bt@taxes.gov.il
     itaOpenApiSupport@taxes.gov.il
 
+    // developers support
+    APIsupport@taxes.gov.il
+    02-5688444
 
     SANDBOX USERS
     -------------
@@ -205,19 +208,23 @@ using System.Diagnostics;
       https://openapi-portal.taxes.gov.il/shaam/production
 
     note! 
-    must be registered to the sandbox prior the prod.  
+    must be registered to the sandbox prior the prod. can use the same email.
 
     API BASE URL
     ------------
     * SANDBOX 
       https://openapi.taxes.gov.il/shaam/tsandbox   // deprecated on 01.01.2024
       https://ita-api.taxes.gov.il/shaam/tsandbox   // new
+      https://ita-api.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/token  // new
       https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2
+      https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/authorize
             
     * PROD
       https://openapi.taxes.gov.il/shaam/production     // deprecated on 01.01.2024
       https://ita-api.taxes.gov.il/shaam/production     // new
-      https://openapi.taxes.gov.il/shaam/production/longtimetoken/oauth2
+      https://ita-api.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/token  // new
+      https://openapi.taxes.gov.il/shaam/production/longtimetoken/oauth2      
+      https://openapi.taxes.gov.il/shaam/production/longtimetoken/authorize
 
     note! 
     oauth2 uses the old base url, the rest of the services will use the new updated url
@@ -241,6 +248,21 @@ using System.Diagnostics;
     --------------
     https://github.com/ISRTaxesOpenAPI/nodeJSExample
     https://github.com/ISRTaxesOpenAPI/-postmanExample
+
+
+    REFORM
+    ------
+    Since the 01 of May 2024, Use this service to broadcast ANY invoice and invoice-receipt in real-time to the taxes authority!
+    document types to send: invoice and invoice-receipt. should be applied only to invoices with VAT.
+    exempt-dealers businesses don't need to implement it cause no VAT is involved.
+    the first limit is for invoices over 25K, shortly this limit will be lowered.
+    every business must give permissions its taxes account in order to broadcast data on his behalf. (using oAuth process)
+    for every document sent to the taxes authority, an allocation-number is provided. this number represents the validity of the transaction!
+    each refresh-token is valid for up to 3 months and needs to be regenerated before its expiry.
+
+    more info:
+    - watch 'tax-authority-intro.mp4'
+    - https://app.greeninvoice.co.il/settings/tax-authority    
 
 
     IMPLEMENTATIONS
@@ -270,7 +292,7 @@ using System.Diagnostics;
 
     * TOKEN:
     
-      POST https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/token
+      POST https://ita-api.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2/token
       H Authorization: basic base64(clientid:clientsecret)
       H Content-type: application/x-www-form-urlencoded
       
@@ -484,17 +506,17 @@ namespace TaxesIL
             public string InvoiceIssuanceDate { get; set; }
 
             [JsonProperty(PropertyName = "Amount_Before_Discount")]
-            public float AmountBeforeDiscount { get; set; }
-            public float Discount { get; set; }
+            public decimal AmountBeforeDiscount { get; set; }
+            public decimal Discount { get; set; }
 
             [JsonProperty(PropertyName = "Payment_Amount")]
-            public float PaymentAmount { get; set; }
+            public decimal PaymentAmount { get; set; }
 
             [JsonProperty(PropertyName = "VAT_Amount")]
-            public float VATAmount { get; set; }
+            public decimal VATAmount { get; set; }
 
             [JsonProperty(PropertyName = "Payment_Amount_Including_VAT")]
-            public float PaymentAmountIncludingVAT { get; set; }
+            public decimal PaymentAmountIncludingVAT { get; set; }
 
             [JsonProperty(PropertyName = "Invoice_Note")]
             public string InvoiceNote { get; set; }
@@ -545,16 +567,16 @@ namespace TaxesIL
 
             [JsonProperty(PropertyName = "Price_Per_Unit")]
             public float UnitPrice { get; set; }
-            public float Discount { get; set; }
+            public decimal Discount { get; set; }
 
             [JsonProperty(PropertyName = "Total_Amount")]
-            public float Total { get; set; }
+            public decimal Total { get; set; }
 
             [JsonProperty(PropertyName = "VAT_Rate")]
             public int VATRate { get; set; }
 
             [JsonProperty(PropertyName = "VAT_Amount")]
-            public float VATAmount { get; set; }
+            public decimal VATAmount { get; set; }
         }
 
         public class GetInvoiceDetailsRequest
@@ -574,7 +596,7 @@ namespace TaxesIL
         public class CreateInvoiceResponse
         {            
             public int Status { get; set; }            
-            public string Message { get; set; }
+            public dynamic Message { get; set; }
 
             [JsonProperty(PropertyName = "Confirmation_Number")]
             public string Confirmation { get; set; }
@@ -635,7 +657,7 @@ namespace TaxesIL
         // redirects the user to the oAuth process 
         // authorization_code
         public void RequestAuthorizaionCode(HttpContext Context) {
-	    Context.Response.Redirect(this.OAuthURL, false);
+            Context.Response.Redirect(this.OAuthURL, false);
             Context.ApplicationInstance.CompleteRequest();
         }
 
@@ -887,7 +909,7 @@ namespace TaxesIL
 
                 -
 
-                // schema types
+                // schema types                
                 {
                     "httpCode": "401",
                     "httpMessage": "Unauthorized",
@@ -897,6 +919,12 @@ namespace TaxesIL
                 {
                     "error": "invalid_request",
                     "error_description": "Redirect URI specified in the request is not configured in the client subscription"
+                }
+
+                {
+                    "Status": 406,
+                    "Message": "Not Acceptable",
+                    "Error_Id": "71523446191"
                 }
 
                 {
@@ -914,13 +942,28 @@ namespace TaxesIL
                   "Error_Id": "04565273934"
                 }
 
+                {
+                  "Status": 200,
+                  "Message": {
+                    "errors": [
+                      {
+                        "code": 432,
+                        "message": "Customer VAT Number is incorrect",
+                        "param": "Customer_VAT_Number",
+                        "location": "validation"
+                      }
+                    ]
+                  },
+                  "Confirmation_Number": 0
+                }
             */
             var errorRawParts = ErrorRaw.Split('|');
             var httpError = errorRawParts[0];
-            var requestError = errorRawParts[1];
+            var requestError = errorRawParts.Length > 1 ? errorRawParts[1] : errorRawParts[0];
 
-            var result = new APIErrorResponse {
-                Message = httpError?.Trim()                
+            var result = new APIErrorResponse
+            {
+                Message = httpError?.Trim()
             };
 
             // parse by Schema type
@@ -938,31 +981,50 @@ namespace TaxesIL
                     exData?.error_description?.Trim() ?? string.Empty
                 );
             }
-            else if(requestError.Contains("Error_Id")) {
+            else if (requestError.Contains("Error_Id"))
+            {
+                // Single Message (Singular)
+                var errorSchema = new
+                {
+                    Message = string.Empty
+                };
+
+                var exData = JsonConvert.DeserializeAnonymousType(requestError, errorSchema);
+                result.InnerMessage = (
+                    exData?.Message?.Trim() ?? string.Empty,
+                    exData?.Message?.Trim() ?? string.Empty
+                );
+            }
+            else if (requestError.Contains("errors"))
+            {
+                // Array of Messages (Plural)
                 var itemSchema = new
                 {
                     value = string.Empty,
                     msg = string.Empty,
+                    message = string.Empty,
                     param = string.Empty
                 };
 
-                var messageSchema = new
-                {                    
+                var messageSchemaErrors = new
+                {
                     errors = new[] { itemSchema }
                 };
 
                 var errorSchema = new
                 {
-                    Message = messageSchema
+                    Message = messageSchemaErrors
                 };
 
                 var exData = JsonConvert.DeserializeAnonymousType(requestError, errorSchema);
+
+                var message = exData?.Message?.errors.FirstOrDefault().msg?.Trim() ?? exData?.Message?.errors.FirstOrDefault().message?.Trim() ?? string.Empty;
                 result.InnerMessage = (
-                    exData?.Message?.errors.FirstOrDefault().msg?.Trim() ?? string.Empty,
+                    message,
                     exData?.Message?.errors.FirstOrDefault().param?.Trim() ?? string.Empty
                 );
             }
-            else if (requestError.Contains("httpCode")) 
+            else if (requestError.Contains("httpCode"))
             {
                 var errorSchema = new
                 {

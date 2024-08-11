@@ -1,8 +1,8 @@
 var CONFIG = {
   affiliateid: 651616,
   version: 2.4,
-  token: '15naoSnxOuDSfPGO',
-  secret: 'RXa4et2h4VFdml5jMMc5pv3z1TVeio7n',
+  token: 'xxxxxxxxxxxx',
+  secret: 'xxxxxxxxxxxxxxxxxxxx',
   action: 'keywords'
 };
   

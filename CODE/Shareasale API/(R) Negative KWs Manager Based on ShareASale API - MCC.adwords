@@ -1,0 +1,276 @@
+var CONFIG = {
+  affiliateid: 651616,
+  version: 2.4,
+  token: 'xxxxxxxxxxxx',
+  secret: 'xxxxxxxxxxxxxxxxxxxx',
+  action: 'keywords'
+};
+  
+/// skipList [(<merchantId, note>)]
+var skipList = [];
+skipList['000000'] = 'Test';
+skipList['122663'] = 'PP 122663';
+skipList['2000'] = 'Company-2';
+
+var HTTP_OPTIONS = {
+  'method' : 'GET',
+  'headers': {
+    'x-ShareASale-Date': '',
+    'x-ShareASale-Authentication': ''
+  }
+};
+
+/*  
+  Logger.log(skipList[0][0]); 
+  return;
+  
+  --
+
+  var mccSkipLabel = AdsManagerApp.accountLabels().withCondition('Name = "SKIP"').get().next();
+  Logger.log(mccSkipLabel.getName());        
+  Logger.log(mccSkipLabel.getResourceName());
+  
+  --
+
+  var campaign = AdWordsApp.campaigns().withIds([20267664201]).get().next();
+  Logger.log('%s',campaign.getName());
+
+  var labels = campaign.labels().get();
+  Logger.log(labels.totalNumEntities());
+  while(labels.hasNext()){
+    var label = labels.next();
+    Logger.log('%s',label.getName());
+  }
+  
+  return;        LABEL_SKIP_CAMPAIGN
+*/
+
+function main(){
+  var arr = LoadDataFromShareasale(); 
+  
+  ///var accounts = MccApp.accounts().withIds([1998567429]).get();  
+  var accounts = MccApp.accounts().get();  
+    while(accounts.hasNext())
+    {
+      var account = accounts.next();
+
+      Logger.log('### account: %s ###', account.getName());  
+      
+      try{                 
+        MccApp.select(account);
+        ProcessAccount(account.getCustomerId(), arr);
+      }
+      catch(ex){
+        Logger.log('exception occured: %s', ex.message);
+      }
+      
+      Logger.log('--------------------------');
+    }   
+}
+
+function LoadDataFromShareasale(){
+  var url = 'https://api.shareasale.com/x.cfm?affiliateID={0}&token={1}&version={2}&action={3}'
+    .replace('{0}', CONFIG.affiliateid)
+    .replace('{1}', CONFIG.token)
+    .replace('{2}', CONFIG.version)
+    .replace('{3}', CONFIG.action);      
+  Logger.log(url);
+    
+  var utcNow = new Date().toISOString();
+  console.log(utcNow);
+  HTTP_OPTIONS.headers['x-ShareASale-Date'] = utcNow;
+      
+  var hash = Sha256Hash(CONFIG.token + ':' + utcNow + ':' + CONFIG.action + ':' + CONFIG.secret);
+  console.log(hash);
+  HTTP_OPTIONS.headers['x-ShareASale-Authentication'] = hash;
+  
+  var report = UrlFetchApp.fetch(url, HTTP_OPTIONS).getContentText();   
+  ///Logger.log(report);   
+  
+  var arr = CSVtoArray(report);
+  /// Logger.log(arr[0]);     
+  Logger.log('%s rows have imported from ShareASale', arr.length.toFixed(0));     
+  
+  ///Logger.log(arr.shift()); // arr.shift() take 1st element - header row
+  ///Logger.log(arr.slice(1,5)); // take 1-5 elements
+  ///Logger.log(arr.slice(1));   // take all elements from index 1 (remove first element)
+  
+  return arr;
+} 
+
+function ProcessAccount(accountId, arr) {        
+  Logger.log('[account] #%s', accountId);
+     
+  var groups = GroupByMerchant(arr.slice(1));  
+  Logger.log('%s groups found', Object.keys(groups).length.toFixed(0));     
+  /// Logger.log(groups['128383']);
+  
+  var campaigns = AdsApp.campaigns()
+  .withCondition('Status IN [PAUSED,ENABLED]')  
+  ///.withCondition('Name = "Nyxigaming [BB-Nein] DSA, CTM, (2. Kamp. / Original Kamp. SAS 84) - PP 119501"')
+  ///.withCondition('LabelNames CONTAINS_NONE ["' + LABEL_SKIP_CAMPAIGN + '"]')
+  .get();
+  
+  while(campaigns.hasNext()){
+    var campaign = campaigns.next();
+    Logger.log('[campaign] %s', campaign.getName());
+    
+    var merchant = ExtractCampaignMerchant(campaign.getName()); 
+    if(merchant == null) {
+      ///Logger.log('no merchant has found within the campaign name');
+      continue;
+    }    
+    
+    var campaignId = campaign.getId().toString();        
+    var skip = skipList[merchant] || null;
+    if(skip){
+      Logger.log('campaign labeled as "to skip" with note "%s"', skipList[merchant]);
+      continue;
+    }
+    
+    Logger.log('%s: %s', merchant, groups[merchant]);
+    
+    for(i in groups[merchant]){
+      var kw = groups[merchant][i];
+      var kwCleared = '[' + ClearKeyword(kw) + ']';      
+      Logger.log('adding (%s) as negative kw -> %s', kw, kwCleared);
+      campaign.createNegativeKeyword(kwCleared);
+    }
+  }
+}
+
+function isLabelExists(campaign, labelName){    
+	var exists = campaign.labels()
+      .withCondition('Name = "' + labelName + '"')      
+      .get()
+      .hasNext();  
+  return exists;
+}
+
+/*
+  KEYWORDID|KEYWORD|MERCHANTID|NOTES|BID_LIMIT|ALLOWED|DATE_UPDATED
+  105628|All-In-One kit|128383|||No|2023-02-21 01:50:30.133
+  105627|lawnmower parts|128383|||No|2023-02-21 01:44:14.45
+  105626|chainsaw parts|128383|||No|2023-02-21 01:44:07.607
+  105623|small engine repair|128383|||No|2023-02-21 01:41:39.877
+  105620|chainsaw repair|128383|||No|2023-02-21 01:40:01.52
+*/
+function CSVtoArray(data, fieldSep, newLine) {
+  fieldSep = fieldSep || '|';
+  newLine = newLine || '\n';
+  const nSep = '\x1D'; const nSepRe = new RegExp(nSep, 'g');
+  const qSep = '\x1E'; const qSepRe = new RegExp(qSep, 'g');
+  const cSep = '\x1F'; const cSepRe = new RegExp(cSep, 'g');
+  const fieldRe = new RegExp('(^|[' + fieldSep + '\\n])"([^"]*(?:""[^"]*)*)"(?=($|[' + fieldSep + '\\n]))', 'g');
+  return data
+    .replace(/\r/g, '')
+    .replace(/\n+$/, '')
+    .replace(fieldRe, (match, p1, p2) => {
+      return p1 + p2.replace(/\n/g, nSep).replace(/""/g, qSep).replace(/,/g, cSep)
+    })
+    .split(/\n/)
+    .map(line => {
+      return line
+        .split(fieldSep)
+        .map(cell => cell.replace(nSepRe, newLine).replace(qSepRe, '"').replace(cSepRe, ','))
+    });
+}
+
+function ExtractCampaignMerchant(campaignName){
+  /*
+    PP <Merchant-Id>
+    PP\s+\d{1,}
+    -
+    Allpowers EU - PP 133922 - [BB-Nein] DSA, CTM, neu ab 30.11.2023
+    Kimchichicbeauty - PP 122663 - [BB-Nein] DSA, CTM
+    Zendure EU - PP 124057 - [BB-Ja] DSA
+    Casabrews - PP 135225 - [BB-Nein] DSA, CTM, Gab mal 10% PPS, jetzt noch 5%. 09.01.2024
+    Fibreheat - PP 98302 - [BB-Nein] DSA, CTM
+    Explorescientific - PP 102148 - [BB-Ja] DSA, CTM
+    Suncentauto - PP 127047 - [BB-Nein] DSA, CTM
+    Formovie - PP 130703 - [BB-Nein] DSA, CTM
+    -
+    Lorem Ipsum DE - PP 124057 - [BB-Ja] DSA
+    Merchant-Id = 124057
+  */
+  
+  var pattern = /(?<=PP\s+)\d{1,}/
+  return pattern.exec(campaignName);
+}
+
+/*
+  var groups = GroupByMerchant(arr.slice(1,5));
+  Logger.log(Object.keys(groups));    
+  
+  var groups = GroupByMerchant(arr.slice(1));
+  Logger.log(groups['128383']);
+  --
+  [
+    [115884, double stitch home, 146386, , , No, 2024-01-22 02:53:39.14], 
+    [102381, Megawheels, 118234, Publishers are prohibited to bid, , No, 2024-01-19 02:19:11.22], 
+    [81591, narwal, 108494, Affiliates may not bid on any PPC platform, , No, 2024-01-18 22:35:08.073], 
+    [115832, flash forge, 116595, , , , 2024-01-18 02:10:06.727]
+  ]
+*/
+function GroupByMerchant(arr){
+  return arr.reduce((groups, row) => {
+    var keyword = row[1].toString();
+    var merchant = row[2].toString();        
+    var allowed = row[5].toString().toUpperCase();  
+    
+    if(allowed == 'YES') {
+      ///Logger.log('keyword  %s has marked as allowed "%s" -> skip', keyword, allowed);  
+    }
+    else {
+      groups[merchant] = (groups[merchant] || []);
+      groups[merchant].push(keyword);
+    }
+    
+    return groups;
+  }, {})
+}
+
+function Sha256Hash(value) {
+  return BytesToHex(
+    Utilities.computeDigest(
+      Utilities.DigestAlgorithm.SHA_256, value));
+}
+
+function BytesToHex(bytes) {
+  let hex = [];
+  for (let i = 0; i < bytes.length; i++) {
+    let b = parseInt(bytes[i]);
+    if (b < 0) {
+      c = (256+b).toString(16);
+    } else {
+      c = b.toString(16);
+    }
+    if (c.length == 1) {
+      hex.push("0" + c);
+    } else {
+      hex.push(c);
+    }
+  }
+  return hex.join("");
+}
+
+function ClearKeyword(keyword) {
+    var specialCharacters = ['!','@','%',',','*','(',')','.','&quot;','&','`',';','\'','-','"','+','[',']', '|', '>', '/','?','`'];
+    var maxWordsAllowed = 10;
+      
+    // non allowed characters
+    // [error] Keywords cannot contain non-standard characters like: ! @ % , *
+    for(i in specialCharacters)
+    {
+		var c = specialCharacters[i];
+		if(keyword.indexOf(c) == -1) continue;
+		keyword = keyword.split(c).join(''); // replace all
+    }      
+      
+    // two many words
+    // [error] Keywords cannot contain more than 10 words
+    if(keyword.split(' ').length > maxWordsAllowed)
+    keyword = keyword.split(' ').slice(0, 9).join(' '); // remove words
+        
+    return keyword;
+}

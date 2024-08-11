@@ -1,0 +1,82 @@
+function LoadDataFromShareasale(){
+  var url = 'https://api.shareasale.com/x.cfm?affiliateID={0}&token={1}&version={2}&action={3}'
+    .replace('{0}', CONFIG.affiliateid)
+    .replace('{1}', CONFIG.token)
+    .replace('{2}', CONFIG.version)
+    .replace('{3}', CONFIG.action);      
+  Logger.log(url);
+    
+  var utcNow = new Date().toISOString();
+  console.log(utcNow);
+  HTTP_OPTIONS.headers['x-ShareASale-Date'] = utcNow;
+      
+  var hash = Sha256Hash(CONFIG.token + ':' + utcNow + ':' + CONFIG.action + ':' + CONFIG.secret);
+  console.log(hash);
+  HTTP_OPTIONS.headers['x-ShareASale-Authentication'] = hash;
+  
+  var report = UrlFetchApp.fetch(url, HTTP_OPTIONS).getContentText();   
+  ///Logger.log(report);   
+  
+  var arr = CSVtoArray(report);
+  /// Logger.log(arr[0]);     
+  Logger.log('%s rows have imported from ShareASale', arr.length.toFixed(0));     
+  
+  ///Logger.log(arr.shift()); // arr.shift() take 1st element - header row
+  ///Logger.log(arr.slice(1,5)); // take 1-5 elements
+  ///Logger.log(arr.slice(1));   // take all elements from index 1 (remove first element)
+  
+  return arr;
+} 
+
+/*
+  KEYWORDID|KEYWORD|MERCHANTID|NOTES|BID_LIMIT|ALLOWED|DATE_UPDATED
+  105628|All-In-One kit|128383|||No|2023-02-21 01:50:30.133
+  105627|lawnmower parts|128383|||No|2023-02-21 01:44:14.45
+  105626|chainsaw parts|128383|||No|2023-02-21 01:44:07.607
+  105623|small engine repair|128383|||No|2023-02-21 01:41:39.877
+  105620|chainsaw repair|128383|||No|2023-02-21 01:40:01.52
+*/
+function CSVtoArray(data, fieldSep, newLine) {
+  fieldSep = fieldSep || '|';
+  newLine = newLine || '\n';
+  const nSep = '\x1D'; const nSepRe = new RegExp(nSep, 'g');
+  const qSep = '\x1E'; const qSepRe = new RegExp(qSep, 'g');
+  const cSep = '\x1F'; const cSepRe = new RegExp(cSep, 'g');
+  const fieldRe = new RegExp('(^|[' + fieldSep + '\\n])"([^"]*(?:""[^"]*)*)"(?=($|[' + fieldSep + '\\n]))', 'g');
+  return data
+    .replace(/\r/g, '')
+    .replace(/\n+$/, '')
+    .replace(fieldRe, (match, p1, p2) => {
+      return p1 + p2.replace(/\n/g, nSep).replace(/""/g, qSep).replace(/,/g, cSep)
+    })
+    .split(/\n/)
+    .map(line => {
+      return line
+        .split(fieldSep)
+        .map(cell => cell.replace(nSepRe, newLine).replace(qSepRe, '"').replace(cSepRe, ','))
+    });
+}
+
+function Sha256Hash(value) {
+  return BytesToHex(
+    Utilities.computeDigest(
+      Utilities.DigestAlgorithm.SHA_256, value));
+}
+
+function BytesToHex(bytes) {
+  let hex = [];
+  for (let i = 0; i < bytes.length; i++) {
+    let b = parseInt(bytes[i]);
+    if (b < 0) {
+      c = (256+b).toString(16);
+    } else {
+      c = b.toString(16);
+    }
+    if (c.length == 1) {
+      hex.push("0" + c);
+    } else {
+      hex.push(c);
+    }
+  }
+  return hex.join("");
+}

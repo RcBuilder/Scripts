@@ -11,6 +11,8 @@ https://learn.microsoft.com/en-us/advertising/scripts/get-started
 https://learn.microsoft.com/en-us/advertising/scripts/
 https://learn.microsoft.com/en-us/advertising/scripts/examples/
 
+https://www.youtube.com/watch?v=_oPgQQSMVl0
+
 -
 
 Ad customizer Feeds & Attributes:
@@ -47,7 +49,19 @@ for(var i in attributes)
 
 // --------------------------------
 TODO ->> 
+Create account:
+- prod: https://ads.microsoft.com/
+- sandbox: https://sandbox.bingads.microsoft.com/
 
+sandbox:
+https://sandbox.bingads.microsoft.com/
+
+prod:
+https://ads.microsoft.com/
+
+import:
+(tab) Import > From Google Ads > LogIn OAuth > Choose account to import 
+repeat this process to import more data
 
 
 

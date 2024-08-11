@@ -320,7 +320,7 @@ of course
 i write great automation scripts for adwords. the scripts can do almost ANY action  you can do manually. 
 the scripts have access to lots of 3rd party services (by google and others) and we can use it to generate reports, maintain an adwords account, send mails, read feeds and do some logic based on them and more and more ... 
 
-an example for a script can be a monitor script which checks for broken ad final url and notifies the account owner before it uses all its budget. 
+an example for a script can be a monitor script that checks for broken ad final URL and notifies the account owner before it uses all its budget. 
 another good example can be adding a NON PROFIT searches to a negative Keywords,
 and there's lots more ...  
 

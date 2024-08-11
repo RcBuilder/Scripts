@@ -1,0 +1,295 @@
+var MODE = 2; // 1 for all-time data, 2 for yesterday, 3 = only create table
+
+var YEARS = 30;
+var PROJECT_ID = 'PROJECT_ID'; // Replace with your GCP project ID
+var DATASET_ID = 'DATASET_ID'; // Replace with your BigQuery dataset ID
+var TABLE_ID = ''; // keep empty, will be updated in the script 
+
+var BULK_SIZE = 2000;
+
+var testMode = 0;  // 1 = ON, 0 = OFF
+
+function main() {  
+    /*
+    pushDataToBigQueryRecursive([
+      'A', 'B', 'C', 'D', 'E', 'F'
+    ]);
+  
+    return
+    */
+  
+  
+    var currentAcount = AdWordsApp.currentAccount();
+    var accountName = currentAcount.getCustomerId();
+    TABLE_ID = accountName;
+    Logger.log("Account ID (Table ID): " + TABLE_ID); 
+    
+    var dateRange = getDateRange();
+    var dateRangeArr = dateRange.split(','); 
+    var dateFilter = '';
+  
+    if(MODE == 3){
+      checkAndCreateTable(); 
+      return;
+    }
+    
+    if(MODE == 1) {
+      dateFilter = `BETWEEN ${dateRangeArr[0]} AND ${dateRangeArr[1]}`;
+    } else {
+      dateFilter = 'DURING YESTERDAY';
+    }
+      
+    var report = fetchReport(dateFilter);  
+  
+    if(testMode == '1')
+      return;
+      
+    var tableReady = checkAndCreateTable(); 
+    if (!tableReady) {
+        Logger.log("Unable to proceed: Table is not ready.");
+        return;
+    }
+
+    if (!report.rows().hasNext()) {
+        Logger.log("Report has no rows");
+    } else {
+        Logger.log("Report has rows, preparing to push");
+        var rows = getRowsFromReport(report);
+        pushDataToBigQueryRecursive(rows);
+    }
+}
+
+function fetchReport(dateFilter) {
+    var reportConfig = {};    
+
+    var reportQuery = 
+        'SELECT ' +
+        'campaign.id, campaign.name, ad_group.id, ad_group.name, ' +
+        'ad_group_criterion.criterion_id, ad_group_criterion.keyword.text, ' +
+        'customer.descriptive_name, segments.date, segments.device , ' +
+        'metrics.impressions, metrics.clicks, metrics.conversions, metrics.ctr, ' +
+        'metrics.cost_per_conversion, metrics.cost_micros, metrics.average_cost, ' +
+        'metrics.conversions_value, metrics.average_cpc, ' +
+        'metrics.search_impression_share, ad_group_criterion.keyword.match_type, ' +
+        'metrics.search_absolute_top_impression_share, metrics.search_click_share, ' +
+        'metrics.search_top_impression_share, ad_group_criterion.quality_info.quality_score, ' +
+        'ad_group_criterion.quality_info.post_click_quality_score, ad_group_criterion.quality_info.creative_quality_score, ' +
+        'ad_group_criterion.quality_info.search_predicted_ctr ' +
+        'FROM keyword_view ' +
+        'WHERE campaign.status = ENABLED ' + 
+        'AND ad_group_criterion.status = ENABLED ' +  
+        'AND ad_group_criterion.negative = FALSE ' + 
+        'AND ad_group.status = ENABLED ' +
+        'AND segments.date ' + dateFilter;
+         //+ ' ' +   'LIMIT 100'; // TEMPORARY - TO DELETE
+    
+  
+    Logger.log(reportQuery);
+  
+    var report = AdWordsApp.report(reportQuery, reportConfig);    
+    return report;
+}
+
+function getRowsFromReport(report) {
+    var rows = [];
+    var reportRows = report.rows();
+    while (reportRows.hasNext()) {
+        var row = reportRows.next();
+        rows.push({
+        campaignId: row['campaign.id'],
+        campaignName: row['campaign.name'],
+        adGroupId: row['ad_group.id'],
+        adGroupName: row['ad_group.name'],
+        keywordId: row['ad_group_criterion.criterion_id'],
+        keyword: row['ad_group_criterion.keyword.text'],
+        accountName: row['customer.descriptive_name'],
+        date: row['segments.date'],
+        device: row['segments.device'],
+        impressions: parseInt(row['metrics.impressions']) || 0,
+        clicks: parseInt(row['metrics.clicks']) || 0,
+        conversions: parseFloat(row['metrics.conversions']) || 0,
+        cost: (parseFloat(row['metrics.cost_micros']) / 1000000).toFixed(2),
+        conversionValue: parseFloat(row['metrics.conversions_value']) || 0,
+        searchImpressionShare: parseFloat(row['metrics.search_impression_share']) || 0,
+        keywordMatchType: row['ad_group_criterion.keyword.match_type'],
+        searchAbsoluteTopImpressionShare: parseFloat(row['metrics.search_absolute_top_impression_share']) || 0,
+        searchClickShare: parseFloat(row['metrics.search_click_share']) || 0,
+        searchTopImpressionShare: parseFloat(row['metrics.search_top_impression_share']) || 0,
+        historicalQualityScore: row['ad_group_criterion.quality_info.quality_score'] || 0,
+        landingPageExp: row['ad_group_criterion.quality_info.post_click_quality_score'] || 0,
+        adRelevance: row['ad_group_criterion.quality_info.creative_quality_score'] || 0,
+        expectedCtr: row['ad_group_criterion.quality_info.search_predicted_ctr'] || 0
+        });
+    }
+    return rows;
+}
+
+function checkAndCreateTable() {
+    try {
+        var tables = BigQuery.Tables.list(PROJECT_ID, DATASET_ID);
+        
+        if (!tables || !tables.tables) {
+            Logger.log("No tables found or unexpected response structure. Creating new table...");
+            return createTable();
+        }
+        
+        var tableExists = tables.tables.some(function(table) {
+            return table.tableReference.tableId === TABLE_ID;
+        });
+
+        if (!tableExists) {
+            Logger.log("Table does not exist. Creating table...");
+            return createTable();
+        } else {
+            Logger.log("Table already exists.");
+            return true;
+        }
+    } catch (e) {
+        Logger.log("Error checking/creating table: " + e.toString());
+        return false;
+    }
+}
+
+function createTable() {
+    var table = {
+        tableReference: {
+            projectId: PROJECT_ID,
+            datasetId: DATASET_ID,
+            tableId: TABLE_ID
+        },
+        schema: {
+            fields: [
+                {name: 'date', type: 'STRING'},
+                {name: 'accountName', type: 'STRING'},
+                {name: 'campaignId', type: 'STRING'},
+                {name: 'campaignName', type: 'STRING'},
+                {name: 'adGroupId', type: 'STRING'},
+                {name: 'adGroupName', type: 'STRING'},
+                {name: 'keywordId', type: 'STRING'},
+                {name: 'keyword', type: 'STRING'},
+                {name: 'keywordMatchType', type: 'STRING'},
+                {name: 'device', type: 'STRING'},
+                {name: 'impressions', type: 'INTEGER'},
+                {name: 'clicks', type: 'INTEGER'},
+                {name: 'cost', type: 'FLOAT'},
+                {name: 'conversionValue', type: 'FLOAT'},
+                {name: 'conversions', type: 'FLOAT'},
+                {name: 'searchImpressionShare', type: 'FLOAT'},
+                {name: 'searchTopImpressionShare', type: 'FLOAT'},
+                {name: 'searchAbsoluteTopImpressionShare', type: 'FLOAT'},
+                {name: 'searchClickShare', type: 'FLOAT'},
+                {name: 'historicalQualityScore', type: 'STRING'},
+                {name: 'expectedCtr', type: 'STRING'},
+                {name: 'landingPageExp', type: 'STRING'},
+                {name: 'adRelevance', type: 'STRING'}
+
+            ]
+        }
+    };
+    
+    try {
+        BigQuery.Tables.insert(table, PROJECT_ID, DATASET_ID);
+        Logger.log("Table created successfully.");
+        return true;
+    } catch (e) {
+        Logger.log("Error creating table: " + e.toString());
+        return false;
+    }
+}
+
+
+function pushDataToBigQueryRecursive(rows) {  
+  /*
+  rows = [
+    { A: 'A1', B: 'B1', C: 'C1' },
+    { A: 'A2', B: 'B2', C: 'C2' },
+    { A: 'A3', B: 'B3', C: 'C3' },
+    { A: 'A4', B: 'B4', C: 'C4' },
+    { A: 'A5', B: 'B5', C: 'C5' },
+    { A: 'A6', B: 'B6', C: 'C6' },
+    { A: 'A7', B: 'B7', C: 'C7' },
+    { A: 'A8', B: 'B8', C: 'C8' },
+    { A: 'A9', B: 'B9', C: 'C9' },
+  ];
+  */
+  
+  Logger.log("PROJECT_ID: " + PROJECT_ID);
+  Logger.log("DATASET_ID: " + DATASET_ID);
+  Logger.log("TABLE_ID: " + TABLE_ID);
+  
+  var index = 1;
+  /*
+  do
+  {               
+    pushDataToBigQuery(rows, index++);  
+    Logger.log('---------------------');
+  }    
+  while(index <= 3)  
+  */
+
+  do
+  {               
+    var temp = rows.slice(0, BULK_SIZE);
+    pushDataToBigQuery(temp, index++);      
+    Logger.log(temp);
+    rows = rows.slice(BULK_SIZE);
+    Logger.log(rows);
+
+    Logger.log('---------------------');
+  }    
+  while(rows.length > 0)
+  /**/
+}
+
+function pushDataToBigQuery(rows, index) {    
+    if (rows.length === 0) {
+        Logger.log("No data to push");
+        return;
+    }
+
+    Logger.log('Attempting to push %s rows to BigQuery (index: %s)', rows.length, index);    
+
+    var data = [];
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        data.push({            
+            json: row
+        });
+    }
+  
+    var request = {      
+      'skipInvalidRows': false,
+      'ignoreUnknownValues': false,      
+      'rows': data
+    };
+
+    try {
+        var response = BigQuery.Tabledata.insertAll(request, PROJECT_ID, DATASET_ID, TABLE_ID);
+        Logger.log(response);
+        
+      
+        if (response.insertErrors && response.insertErrors.length > 0) {
+            Logger.log("Insert errors: " + JSON.stringify(response.insertErrors));
+        } else {
+            Logger.log("Data successfully inserted to BigQuery");
+        }
+    } catch (e) {
+        Logger.log("Error inserting data: " + e.toString());
+    }
+}
+
+function getDateRange() {
+  var endDate = new Date();
+  endDate.setDate(endDate.getDate() - 1);  // This sets the end date to yesterday
+  var startDate = new Date();
+  startDate.setFullYear(startDate.getFullYear() - YEARS);
+  return formatDate(startDate) + ',' + formatDate(endDate);  
+}
+
+function formatDate(date) {
+    var year = date.getFullYear();
+    var month = ('0' + (date.getMonth() + 1)).slice(-2);
+    var day = ('0' + date.getDate()).slice(-2);
+    
+    return year + month + day;
+}

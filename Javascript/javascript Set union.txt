@@ -1,0 +1,17 @@
+javascript Set union
+--------------------
+
+var set = new Set();  
+var yearsToScan = [2024, 2023, 2022];  
+  
+for(i in yearsToScan)
+   set = set.union(new Set(Fun1(yearsToScan[i]) || [])); 
+Logger.log(set.size)
+
+--
+
+function Fun1(){
+  ...
+  ...
+  return arr;
+}

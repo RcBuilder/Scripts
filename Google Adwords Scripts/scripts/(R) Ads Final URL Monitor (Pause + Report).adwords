@@ -9,7 +9,7 @@ function main(){
   .withCondition('AdGroupStatus = ENABLED')
   .withCondition('Status = ENABLED')
   .withCondition('Type NOT_IN [CALL_ONLY_AD]') // IMAGE_AD, MOBILE_AD, MOBILE_IMAGE_AD, PRODUCT_AD, RICH_MEDIA_AD, TEMPLATE_AD, TEXT_AD, CALL_ONLY_AD
-  .withLimit(4)
+  //.withLimit(4)
   .get();
   
   Logger.log('%s ads found.', ads.totalNumEntities());

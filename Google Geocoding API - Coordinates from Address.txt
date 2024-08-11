@@ -1,0 +1,24 @@
+Google Geocoding API - Coordinates from Address 
+-----------------------------------------------
+
+// Install-Package Geocoding.Google
+using Geocoding;
+using Geocoding.Google;
+
+string customer_longitude = "", customer_latitude = "";
+
+try {                
+	var geocoder = new GoogleGeocoder { 
+		ApiKey = ConfigurationManager.AppSettings["GoogleApiKey"].Trim()
+	};
+
+	var addresses = await geocoder.GeocodeAsync(HookData.Order.ExtraInfo.Address);
+	// Console.WriteLine("Formatted: " + addresses.First().FormattedAddress); 
+	// Console.WriteLine("Coordinates: " + addresses.First().Coordinates.Latitude + ", " + addresses.First().Coordinates.Longitude); 
+
+	customer_latitude = addresses.First().Coordinates.Latitude.ToString();
+	customer_longitude = addresses.First().Coordinates.Longitude.ToString();
+}
+catch{}
+
+

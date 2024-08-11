@@ -1,0 +1,369 @@
+/*
+  Possible "approved" status:
+  -	Declined
+  -	Pending
+  -	Yes
+
+  Possible "program status"
+  -	Closed
+  -	TemporarilyOffline
+  -	Lowfunds
+  -	Online
+*/
+
+
+var CONFIG = {
+  affiliateid: 651616,
+  version: 2.4,
+  token: 'xxxxxxxxxxxx',
+  secret: 'xxxxxxxxxxxxxxxxxxxx',
+  action: 'merchantStatus'
+};
+  
+/// skipList [(<merchantId, note>)]
+var skipList = [];
+skipList['000000ABCDE'] = 'Test';
+
+var HTTP_OPTIONS = {
+  'method' : 'GET',
+  'headers': {
+    'x-ShareASale-Date': '',
+    'x-ShareASale-Authentication': ''
+  }
+};
+
+function main(){
+  var arr = LoadDataFromShareasale(); 
+  
+  /*
+  Logger.log(arr[0]); // header
+  Logger.log('#%s = %s', arr[1][0], arr[1][3]);  // #54060 = TemporarilyOffline
+  Logger.log('#%s = %s', arr[1][0], arr[1][8]);  // #54060 = Declined
+  return; 
+  */
+  
+  var accounts = MccApp.accounts().withIds([1998567429]).get();  
+  ///var accounts = MccApp.accounts().get();  
+    while(accounts.hasNext())
+    {
+      var account = accounts.next();
+
+      Logger.log('### account: %s ###', account.getName());  
+      
+      try{                 
+        MccApp.select(account);
+        ProcessAccount(account.getCustomerId(), arr);
+      }
+      catch(ex){
+        Logger.log('exception occured: %s', ex.message);
+      }
+      
+      Logger.log('--------------------------');
+    }   
+}
+
+function LoadDataFromShareasale(){
+  var url = 'https://api.shareasale.com/x.cfm?affiliateID={0}&token={1}&version={2}&action={3}'
+    .replace('{0}', CONFIG.affiliateid)
+    .replace('{1}', CONFIG.token)
+    .replace('{2}', CONFIG.version)
+    .replace('{3}', CONFIG.action);      
+  Logger.log(url);
+    
+  var utcNow = new Date().toISOString();
+  console.log(utcNow);
+  HTTP_OPTIONS.headers['x-ShareASale-Date'] = utcNow;
+      
+  var hash = Sha256Hash(CONFIG.token + ':' + utcNow + ':' + CONFIG.action + ':' + CONFIG.secret);
+  console.log(hash);
+  HTTP_OPTIONS.headers['x-ShareASale-Authentication'] = hash;
+  
+  var report = UrlFetchApp.fetch(url, HTTP_OPTIONS).getContentText();   
+  ///Logger.log(report);   
+  
+  var arr = CSVtoArray(report);
+  /// Logger.log(arr[0]);     
+  Logger.log('%s rows have imported from ShareASale', arr.length.toFixed(0));     
+  
+  ///Logger.log(arr.shift()); // arr.shift() take 1st element - header row
+  ///Logger.log(arr.slice(1,5)); // take 1-5 elements
+  ///Logger.log(arr.slice(1));   // take all elements from index 1 (remove first element)
+  
+  return arr;
+} 
+
+function ProcessAccount(accountId, arr) {        
+  Logger.log('[account] #%s', accountId);
+     
+  var groups = GroupByMerchant(arr.slice(1));  
+  Logger.log('%s groups found', Object.keys(groups).length.toFixed(0));     
+  /// Logger.log(groups['128383']);
+  
+  var campaigns = AdsApp.campaigns()
+  .withCondition('Status IN [PAUSED,ENABLED]')  
+  ///.withCondition('Name = "Nyxigaming [BB-Nein] DSA, CTM, (2. Kamp. / Original Kamp. SAS 84) - PP 119501"')
+  ///.withCondition('LabelNames CONTAINS_NONE ["' + LABEL_SKIP_CAMPAIGN + '"]')
+  .get();
+  
+  while(campaigns.hasNext()){
+    var campaign = campaigns.next();
+    Logger.log('[campaign] %s', campaign.getName());
+    
+    var merchant = ExtractCampaignMerchant(campaign.getName()); 
+    if(merchant == null) {
+      ///Logger.log('no merchant has found within the campaign name');
+      continue;
+    }    
+    
+    var campaignId = campaign.getId().toString();        
+    var skip = skipList[merchant] || null;
+    if(skip){
+      Logger.log('campaign labeled as "to skip" with note "%s"', skipList[merchant]);
+      continue;
+    }
+    
+    Logger.log('%s: %s', merchant, groups[merchant]);
+        
+    /*
+      HandleApproved()
+      HandleApprovedClosed()
+      HandleApprovedTemporarilyOffline()
+      HandleApprovedLowfunds()
+      HandleApprovedOnline()
+      HandleDeclined()
+      HandlePending()
+    */
+    
+    for(i in groups[merchant]){
+      // { approvedStatus, programStatus }
+      var merchantRow = groups[merchant][0];
+      Logger.log(merchantRow);
+      
+      switch(merchantRow.approvedStatus){
+        case 'YES': 
+          HandleApproved(campaign, merchantRow.programStatus);
+          break;
+        case 'PENDING': 
+          HandlePending(campaign);
+          break;
+        case 'DECLINED':                    
+          HandleDeclined(campaign);
+          break;
+        default: ;
+          break;      
+      }      
+    }
+  }
+}
+
+function isLabelExists(campaign, labelName){    
+	var exists = campaign.labels()
+      .withCondition('Name = "' + labelName + '"')      
+      .get()
+      .hasNext();  
+  return exists;
+}
+
+function HandleApproved(campaign, programStatus){ 
+  Logger.log('HandleApproved: -> %s', programStatus);
+  
+  switch(programStatus){
+    case 'CLOSED':           
+      HandleApprovedClosed(campaign);
+      break;
+    case 'TEMPORARILYOFFLINE': 
+      HandleApprovedTemporarilyOffline(campaign);
+      break;
+    case 'LOWFUNDS':                    
+      HandleApprovedLowfunds(campaign);
+      break;
+    case 'ONLINE':                    
+      HandleApprovedOnline(campaign);
+      break;
+    default: ;
+      break;      
+  }    
+}
+
+function HandleApprovedClosed(campaign){
+  Logger.log("HandleApprovedClosed");
+  
+  // [enabled]
+  // pause the enabled Google Ads campaign. (And add the word “closed” at the end from the campaign name).
+  if(campaign.isEnabled())
+  {
+    campaign.pause();
+    campaign.setName(campaign.getName() + '_Closed');
+  }
+  
+  // [paused]
+  // no further action.
+}
+function HandleApprovedTemporarilyOffline(campaign){
+  Logger.log("HandleApprovedTemporarilyOffline");
+  
+  // [enabled]
+  // pause the enabled Google Ads campaign. (And add the word “Offline” at the end from the campaign name).
+  if(campaign.isEnabled())
+  {
+    campaign.pause();
+    campaign.setName(campaign.getName() + '_Offline');
+  }
+  
+  // [paused]
+  // no further action.
+}
+function HandleApprovedLowfunds(campaign){
+  Logger.log("HandleApprovedLowfunds");
+  
+  // [enabled]
+  // no further action.
+  
+  // [paused]
+  // Enable the campaign. (And remove the word “Declined” or “Pending Approval” or “Offline from the campaign name)
+  if(campaign.isPaused())
+  {
+    campaign.enable();
+    campaign.setName(ClearCampaignName(campaign));
+  }
+}
+function HandleApprovedOnline(campaign){
+  Logger.log("HandleApprovedOnline");
+  
+  // [enabled]
+  // no further action.
+  
+  // [paused]
+  // Enable the campaign. (And remove the word “Declined” or “Pending Approval” or “Offline from the campaign name)
+  if(campaign.isPaused())
+  {
+    campaign.enable();
+    campaign.setName(ClearCampaignName(campaign));
+  }  
+}
+function HandleDeclined(campaign){
+  Logger.log("HandleDeclined");
+  
+  // [enabled]
+  // pause the campaign. (And add the word “Declined” at the end from the campaign name).    
+  if(campaign.isEnabled())
+  {
+    campaign.pause();
+    campaign.setName(campaign.getName() + '_Declined');
+  }
+  
+  // [paused]
+  // no further action.
+}
+function HandlePending(campaign){
+  Logger.log("HandlePending");
+  
+  // [enabled]
+  // pause the campaign. (And add the words “Pending Approval” at the end from the campaign name).  
+  if(campaign.isEnabled())
+  {
+    campaign.pause();
+    campaign.setName(campaign.getName() + '_Pending Approval');
+  }
+  
+  // [paused]
+  // no further action.
+}
+
+/*
+  54060| Animal Trackers Club LLC|AnimalTrackersClub.com|TemporarilyOffline|Games/Toys|$6|||Declined|https://www.shareasale.com/r.cfm?b=620184&u=651616&m=54060||||||||        
+  77719| EXPERIENCIAS XCARET WEB SAPI DE CV|hotelxcaret.com|Online|Travel|6%|||Declined|https://www.shareasale.com/r.cfm?b=1141199&u=651616&m=77719||||||2021-05-12 19:44:00||
+  96959| Freethink Media, Inc.|bigthinkedge.com|Closed|Education|50%|||Yes|https://www.shareasale.com/r.cfm?b=1532337&u=651616&m=96959||||||||
+  88344| Gpfilter(Glacialpurefilters)|gpfilter.com|Online|Home & Garden|10%|||Yes|https://www.shareasale.com/r.cfm?b=1346381&u=651616&m=88344||||||2019-04-14 00:05:21||US
+*/
+function CSVtoArray(data, fieldSep, newLine) {
+  fieldSep = fieldSep || '|';
+  newLine = newLine || '\n';
+  const nSep = '\x1D'; const nSepRe = new RegExp(nSep, 'g');
+  const qSep = '\x1E'; const qSepRe = new RegExp(qSep, 'g');
+  const cSep = '\x1F'; const cSepRe = new RegExp(cSep, 'g');
+  const fieldRe = new RegExp('(^|[' + fieldSep + '\\n])"([^"]*(?:""[^"]*)*)"(?=($|[' + fieldSep + '\\n]))', 'g');
+  return data
+    .replace(/\r/g, '')
+    .replace(/\n+$/, '')
+    .replace(fieldRe, (match, p1, p2) => {
+      return p1 + p2.replace(/\n/g, nSep).replace(/""/g, qSep).replace(/,/g, cSep)
+    })
+    .split(/\n/)
+    .map(line => {
+      return line
+        .split(fieldSep)
+        .map(cell => cell.replace(nSepRe, newLine).replace(qSepRe, '"').replace(cSepRe, ','))
+    });
+}
+function ClearCampaignName(campaign){
+  return campaign.getName().replace('_Offline', '').replace('_Pending Approval', '').replace('_Declined', '')
+}
+function ExtractCampaignMerchant(campaignName){
+  /*
+    PP <Merchant-Id>
+    PP\s+\d{1,}
+    -
+    Allpowers EU - PP 133922 - [BB-Nein] DSA, CTM, neu ab 30.11.2023
+    Kimchichicbeauty - PP 122663 - [BB-Nein] DSA, CTM
+    Zendure EU - PP 124057 - [BB-Ja] DSA
+    Casabrews - PP 135225 - [BB-Nein] DSA, CTM, Gab mal 10% PPS, jetzt noch 5%. 09.01.2024
+    Fibreheat - PP 98302 - [BB-Nein] DSA, CTM
+    Explorescientific - PP 102148 - [BB-Ja] DSA, CTM
+    Suncentauto - PP 127047 - [BB-Nein] DSA, CTM
+    Formovie - PP 130703 - [BB-Nein] DSA, CTM
+    -
+    Lorem Ipsum DE - PP 124057 - [BB-Ja] DSA
+    Merchant-Id = 124057
+  */
+  
+  var pattern = /(?<=PP\s+)\d{1,}/
+  return pattern.exec(campaignName);
+}
+
+/*
+  var groups = GroupByMerchant(arr.slice(1,5));
+  Logger.log(Object.keys(groups));    
+  
+  var groups = GroupByMerchant(arr.slice(1));
+  Logger.log(groups['128383']);
+*/
+function GroupByMerchant(arr){
+  return arr.reduce((groups, row) => {    
+    var merchant = row[0].toString();        
+    var programStatus = row[3].toString().toUpperCase();  // e.g: TemporarilyOffline
+    var approvedStatus = row[8].toString().toUpperCase(); // e.g: Declined 
+        
+    groups[merchant] = (groups[merchant] || []);
+    groups[merchant].push({
+      programStatus,
+      approvedStatus
+    });
+    
+    return groups;
+  }, {})
+}
+
+function Sha256Hash(value) {
+  return BytesToHex(
+    Utilities.computeDigest(
+      Utilities.DigestAlgorithm.SHA_256, value));
+}
+
+function BytesToHex(bytes) {
+  let hex = [];
+  for (let i = 0; i < bytes.length; i++) {
+    let b = parseInt(bytes[i]);
+    if (b < 0) {
+      c = (256+b).toString(16);
+    } else {
+      c = b.toString(16);
+    }
+    if (c.length == 1) {
+      hex.push("0" + c);
+    } else {
+      hex.push(c);
+    }
+  }
+  return hex.join("");
+}

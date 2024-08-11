@@ -1,0 +1,31 @@
+javascript push data as chunks/ bulk update 
+-------------------------------------------
+var BULK_SIZE = 2;
+
+function main(){ 
+  pushDataToBigQueryRecursive([
+    'A', 'B', 'C', 'D', 'E', 'F'
+  ]);
+}
+
+function pushDataToBigQueryRecursive(rows) {  
+  do
+  {    
+    var temp = rows.slice(0, BULK_SIZE);
+    ///pushDataToBigQuery(temp);      
+    Logger.log('before: %s', temp);
+    rows = rows.slice(BULK_SIZE);
+    Logger.log('after: %s', rows);
+  }    
+  while(rows.length > 0)
+}
+
+--
+
+output: 
+before: [A, B]
+after: [C, D, E, F]
+before: [C, D]
+after: [E, F]
+before: [E, F]
+after: []

@@ -14,7 +14,11 @@ namespace Cardcom
         http://kb.cardcom.co.il/article/AA-00240/0
         http://kb.cardcom.co.il/article/AA-00253/0/
         http://kb.cardcom.co.il/article/AA-00444/0/
-        
+        https://secure.cardcom.solutions/swagger/index.html?url=/swagger/v11/swagger.json
+
+        WP Plugin:
+        https://support.cardcom.solutions/hc/he/articles/360007128393-%D7%97%D7%99%D7%91%D7%95%D7%A8-%D7%94%D7%A1%D7%9C%D7%99%D7%A7%D7%94-%D7%9C%D7%97%D7%A0%D7%95%D7%AA-%D7%95%D7%95%D7%A8%D7%93%D7%A4%D7%A8%D7%A1-Wordpress-Woocommerce-Payment-WOO        
+
         IPN:
         - terminalnumber
         - lowprofilecode

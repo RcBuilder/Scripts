@@ -1,0 +1,19 @@
+js - iterator to array 
+----------------------
+
+function main() {
+  var campaigns = toArray(AdWordsApp.campaigns().get());  
+  var campaignsP = toArray(AdWordsApp.performanceMaxCampaigns().get());  
+    
+  var join = [...campaigns, ...campaignsP];
+  Logger.log('campaigns: %s | campaigns-P-Max: %s | joined: %s', campaigns.length ,campaignsP.length, join.length);
+  
+  for(i in join)
+    Logger.log(join[i].getName());
+}
+              
+function toArray(itr) {
+  var arr = [];
+  while(itr.hasNext()) arr.push(itr.next());
+  return arr;
+}              

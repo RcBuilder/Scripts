@@ -1,0 +1,87 @@
+var CONFIG = {
+  affiliateid: 651616,
+  version: 2.4,
+  token: 'xxxxxxxxxxxxxxxxxx',
+  secret: 'xxxxxxxxxxxxxxxxxxxxxxxxx'  
+};
+
+var shareASale = {  
+    loadNonApplicantMerchants: function(year /*yyyy*/){    
+      Logger.log('getting data for %s...', year);
+
+      var action = 'merchantSearch';
+      var url = 'https://api.shareasale.com/x.cfm?affiliateID={0}&token={1}&version={2}&action={3}&activatedSince=01/01/{4}&notjoined=1'
+        .replace('{0}', CONFIG.affiliateid)
+        .replace('{1}', CONFIG.token)
+        .replace('{2}', CONFIG.version)
+        .replace('{3}', action)
+        .replace('{4}', year);      
+      Logger.log(url);
+
+      this.calculate(action);
+
+      var report = UrlFetchApp.fetch(url, HTTP_OPTIONS).getContentText();   
+      Logger.log(report);   
+
+      var arr = CSVtoArray(report);
+      /// Logger.log(arr[0]);     
+      Logger.log('%s rows have imported from ShareASale', arr.length.toFixed(0));     
+
+      ///Logger.log(arr.shift()); // arr.shift() take 1st element - header row
+      ///Logger.log(arr.slice(1,5)); // take 1-5 elements
+      ///Logger.log(arr.slice(1));   // take all elements from index 1 (remove first element)
+
+      return arr;
+    },
+    applyMerchant: function(merchant /*yyyy*/){    
+      Logger.log('apply merchant %s...', merchant);
+
+      var action = 'merchantApplication';
+      var url = 'https://api.shareasale.com/x.cfm?affiliateID={0}&token={1}&version={2}&action={3}&merchantId={4}'
+        .replace('{0}', CONFIG.affiliateid)
+        .replace('{1}', CONFIG.token)
+        .replace('{2}', CONFIG.version)
+        .replace('{3}', action)
+        .replace('{4}', merchant);      
+      Logger.log(url);
+
+      this.calculate(action);
+
+      var report = UrlFetchApp.fetch(url, HTTP_OPTIONS).getContentText();   
+      ///Logger.log(report);   
+
+      var arr = CSVtoArray(report);
+      /// Logger.log(arr[0]);     
+      Logger.log('%s rows have imported from ShareASale', arr.length.toFixed(0));     
+
+      ///Logger.log(arr.shift()); // arr.shift() take 1st element - header row
+      ///Logger.log(arr.slice(1,5)); // take 1-5 elements
+      ///Logger.log(arr.slice(1));   // take all elements from index 1 (remove first element)
+
+      return arr;
+    },
+    calculate: function(action){
+      var utcNow = new Date().toISOString();
+      console.log(utcNow);
+      HTTP_OPTIONS.headers['x-ShareASale-Date'] = utcNow;
+
+      var hash = Sha256Hash(CONFIG.token + ':' + utcNow + ':' + action + ':' + CONFIG.secret);
+      console.log(hash);
+      HTTP_OPTIONS.headers['x-ShareASale-Authentication'] = hash;
+      
+      return ({utcNow, hash});
+    }
+};
+
+function main(){
+  var dataSet = new Set();  
+  var yearsToScan = [2024, 2023, 2022];  
+  
+  for(i in yearsToScan)
+    dataSet = dataSet.union(new Set(shareASale.loadNonApplicantMerchants(yearsToScan[i]) || [])); 
+  
+  Logger.log(`${dataSet.size} rows collected.`);  
+  /// Logger.log(set.entries().next().value)
+  
+  ProcessAccount(AdsApp.currentAccount().getCustomerId(), [...dataSet]);
+}

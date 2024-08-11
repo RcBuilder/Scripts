@@ -1,0 +1,10 @@
+CSS ul list-style-position inside
+---------------------------------
+fixing the list indentation to be inside the ul borders 
+
+ul{
+    width: unset;
+    list-style: disc;        
+    list-style-position: inside;
+    margin-block-start: 1em;
+}

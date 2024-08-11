@@ -53,13 +53,25 @@ namespace GS1SyncService
             */
 
             Console.WriteLine("fetching data from GS1 provider...");
-            var messages = await gs1Manager.GetMessagesByDateRange(DateTime.Now.AddDays(-GS1_MESSAGES_NUM_DAYS_TO_FETCH));
-            if (messages != null)
-            {                
-                Console.WriteLine($"{messages.Count()} messages:");
-                Logger.WriteInfo("GetMessagesByDateRange", $"{messages.Count()} messages");
 
-                foreach (var message in messages) {                    
+            
+            /*   
+            // Test 
+            var messages = await gs1Manager.GetMessagesByDateRange(DateTime.Parse("2023-05-15"), DateTime.Parse("2023-05-15"));
+            messages = messages.Where(x => x.message_identifier.Contains("7290011498993"));
+            */
+
+            var messages = await gs1Manager.GetMessagesByDateRange(DateTime.Now.AddDays(-GS1_MESSAGES_NUM_DAYS_TO_FETCH));
+
+            if (messages != null)
+            {
+                var ignoreTypes = new List<string> { "Termination_Of_Product_Supply", "Hand_Shake_Accept" }; // Update_Product | New_Publish | Termination_Of_Product_Supply | Hand_Shake_Accept
+                var filtered = messages.Where(x => !ignoreTypes.Contains(x.message_type)).ToList();
+
+                Console.WriteLine($"{filtered.Count} ({messages.Count()}) messages:");
+                Logger.WriteInfo("GetMessagesByDateRange", $"{filtered.Count} ({messages.Count()}) messages:");
+
+                foreach (var message in filtered) {                    
                     Console.WriteLine($"{message.message_type} | #{message.message_identifier}");
                     await ProcessProduct(message, gs1Manager, konimboManager);
                 }
@@ -74,13 +86,20 @@ namespace GS1SyncService
             try
             {
                 var product = await gs1Manager.GetProductDetails(message.message_identifier);
+                if (product == null)
+                {
+                    var extructed = gs1Manager.ExtractGTINFromMessageId(message.message_identifier);
+                    Console.WriteLine($"Extract GTIN: IN = {message.message_identifier}, OUT = {extructed}");
+                    product = await gs1Manager.GetProductDetails(extructed);
+                }
+
                 var productGTIN = product?.product_info?.Main_Fields?.GTIN;
-                Console.WriteLine($"gs1: {productGTIN} | {product?.product_info?.Main_Fields?.Trade_Item_Description?.Trim()}");                
+                Console.WriteLine($"gs1: {productGTIN} | {product?.product_info?.Main_Fields?.Trade_Item_Description?.Trim()}");
 
                 // note! in konimbo for this client there's a config change to pull items by code (instead of id)
                 // therefore, use GetItem(GTIN) instead of GetItemByCode(GTIN)
                 var konimboItem = await konimboManager.GetItem(productGTIN);
-
+                return false;
                 /*
                 if (konimboItem == null) 
                 {

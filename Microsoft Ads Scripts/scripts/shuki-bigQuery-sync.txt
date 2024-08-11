@@ -1,0 +1,433 @@
+var MODE = 2; // 1 = SINCE_YEAR {{YEAR}} | 2 = YESTERDAY
+var YEAR = 2024;
+
+function main() 
+{
+  /*
+    var date = new Date(YEAR, 7, 1);
+    var today = new Date();
+    today.setDate(today.getDate() - 1);     
+    Logger.log(today.toString());
+
+    var daysLeftTillNow = Math.ceil((today.getTime() - date.getTime()) / (1000 * 3600 * 24));
+    Logger.log(daysLeftTillNow);
+    return
+  */
+
+  try 
+  {
+    const startTime = new Date();
+    // Logger.log(`Start time: ${startTime.toISOString()}`);
+
+    const credentials = getCredentials();
+    const spreadsheetId = '1rySyEUTaJOuG_rKY98RX_DnLQdRHpU2EwR8p1x2Vrz4';
+
+    Logger.log("Starting data collection.");
+    const collectedData = main2();
+    Logger.log("Data collection completed.");
+    
+    if (isArrayAndHasLength(collectedData)) {
+      const dataToWrite = convertDataToSheetFormat(collectedData);
+      Logger.log("Convert data to sheet completed.");
+      const sheetsApi = GoogleApis.createSheetsService(credentials);
+      Logger.log("Google API sheet completed.");
+      const chunkSize = 9000;
+      if (MODE === 1) {
+        // Clear the sheet and write data in MODE 1
+        clearSheet(sheetsApi, spreadsheetId);
+        let chunk = dataToWrite.splice(0, chunkSize);
+          var updateResponse = sheetsApi.spreadsheets.values.batchUpdate({
+            spreadsheetId: spreadsheetId
+          }, {
+            data: [
+              { range: 'A1:' + getColumnLetter(chunk[0].length) + chunk.length, values: chunk }
+            ],
+            valueInputOption: 'USER_ENTERED',
+            includeValuesInResponse: true
+          });
+        while (dataToWrite.length > 0) {
+          // Slice off a chunk of data
+          chunk = dataToWrite.splice(0, chunkSize);
+          var appendResponse = sheetsApi.spreadsheets.values.append({
+            spreadsheetId: spreadsheetId,
+            range: 'A1', // Adjust the range as needed
+            valueInputOption: 'USER_ENTERED',
+            insertDataOption: 'INSERT_ROWS'
+          }, {
+            values: chunk
+          });
+        }
+        Logger.log(`Updated ${updateResponse.totalUpdatedCells} cells`);
+      } else if (MODE === 2) {
+        // Append data without header in MODE 2
+        var dataToAppend = dataToWrite.slice(1); // Remove header row
+        let counter = 0;
+        while (dataToAppend.length > 0) {
+          let chunk = dataToAppend.splice(0, chunkSize);
+          var appendResponse = sheetsApi.spreadsheets.values.append({
+            spreadsheetId: spreadsheetId,
+            range: 'A1', // Adjust the range as needed
+            valueInputOption: 'USER_ENTERED',
+            insertDataOption: 'INSERT_ROWS'
+          }, {
+            values: chunk
+          });
+          counter += appendResponse.result.updates.updatedCells;
+        }
+        Logger.log(`Appended ${counter} cells`);
+      }
+    } else {
+      Logger.log("No data collected to write to the spreadsheet.");
+    }
+
+    const endTime = new Date();
+    // Logger.log(`End time: ${endTime.toISOString()}`);
+
+    const deltaTime = endTime - startTime; 
+    Logger.log(`main Time taken: ${deltaTime} milliseconds`); // Time in milliseconds
+  } catch (error) {
+    Logger.log(`Error in main function: ${error}`);
+  }
+}
+
+// added by RcBuilder @ 05.08.24
+function collect_R1(){
+    var collectedData = [];
+    var date = new Date(YEAR, 0, 1);
+    /* 
+      account_id
+      customer_descriptive_name 
+      date
+      source
+      campaign_id
+      campaign_name
+      ad_group_id
+      ad_group_name
+      keyword_id
+      keyword_text
+      match_type
+      quality_score
+      impressions
+      clicks
+      conversions
+      cost
+      conversion_value
+      top_impression_rate: stats
+      absolute_impression_rate        
+    */
+    
+    var yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);     
+
+    var daysLeftTillNow = Math.ceil((yesterday.getTime() - date.getTime()) / (1000 * 3600 * 24));
+    while(/*date.getFullYear() == YEAR &&*/ daysLeftTillNow > 0){
+
+      ///var sm = (m.toString().length == 1) ? '0' + m : m.toString();
+      ///var sd = (d.toString().length == 1) ? '0' + d : d.toString();
+      ///var sDate = ''.concat(year_to_get,sm,sd);
+      ///sDate = sDate + ',' + sDate;
+
+      collect_R_Keywords(collectedData, date);
+      date.setDate(date.getDate() + 1);     
+      daysLeftTillNow--;    
+    }
+
+    Logger.log(collectedData.length);
+    /// Logger.log(JSON.stringify(collectedData[0]));
+    return collectedData;
+}
+
+function collect_R2()
+  {
+    Logger.log('collect_R2');
+    var collectedData = [];
+    
+    var yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);     
+
+    collect_R_Keywords(collectedData, yesterday);
+
+    Logger.log(collectedData.length);        
+    return collectedData;
+  }
+
+  function collect_R_Keywords(collectedData, date)
+  {
+    var innerDate = {year: date.getFullYear(), month: date.getMonth()+1, day: date.getDate()}
+
+    var keywords = AdsApp.keywords()
+    .withCondition("Status = ENABLED")
+    .withCondition("CampaignStatus = ENABLED")
+    .withCondition("AdGroupStatus = ENABLED")      
+    .forDateRange(innerDate, innerDate)      
+    .get();
+  
+    Logger.log(keywords.totalNumEntities() + ' keywords found' + ' (' + JSON.stringify(innerDate) + ')');
+    while (keywords.hasNext()) {
+      var keyword = keywords.next();
+      var stats = keyword.getStats();
+      ///Logger.log('[keyword] ' + keyword.getText());
+
+      if(!stats) continue;
+      /// Logger.log('[stats] ' + stats.getImpressions());
+
+      var adGroup = keyword.getAdGroup();
+      var campaign = keyword.getCampaign();
+      /// Logger.log('[campaign] ' + campaign.getName());   
+
+      collectedData.push({
+          account_id: AdsApp.currentAccount().getCustomerId(),
+          customer_descriptive_name: AdsApp.currentAccount().getName(),
+          date: date.toISOString().split('T')[0],
+          source: 'bing ads',
+          campaign_id: campaign.getId(),
+          campaign_name: campaign.getName(),
+          ad_group_id: adGroup.getId(),
+          ad_group_name: adGroup.getName(),
+          keyword_id: keyword.getId(),
+          keyword_text: keyword.getText(),
+          match_type: keyword.getMatchType(),
+          quality_score: keyword.getQualityScore(),
+          impressions: stats ? stats.getImpressions() : null,
+          clicks: stats ? stats.getClicks() : null,
+          conversions: stats ? stats.getConversions() : null,
+          cost: stats ? stats.getCost() : null,
+          conversion_value: stats ? stats.getRevenue() : null,
+          top_impression_rate: stats ? stats.getTopImpressionRate() : null,
+          absolute_impression_rate: stats ? stats.getAbsoluteTopImpressionRate() : null
+      });    
+    }
+}
+
+  function clearSheet(sheetsApi, spreadsheetId) {
+    sheetsApi.spreadsheets.values.clear({
+      spreadsheetId: spreadsheetId,
+      range: 'A1:ZZ1000000' // Adjust range as needed
+    });
+  }
+
+  function getCredentials() {
+    return {
+      clientId: '761895952535-d9bgpplek32ma3q2fck9be0jnt36nfkv.apps.googleusercontent.com',
+      clientSecret: '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',
+      refreshToken: '1//05ZIlb8PwMdjYCgYIARAAGAUSNwF-L9IrYnPLqqj6qW7FqtSqQHftO6jq682VM76UG63rzsS_Woj2Lh4bloLbGsioUl801f2Km-8'
+    };
+  }
+
+  function main2() {
+    const startTime = new Date();
+    // Logger.log(`Start time: ${startTime.toISOString()}`);    
+    Logger.log("start");
+
+    var runYesterday = (MODE === 2);
+
+    var collectedData = runYesterday ? collect_R2() : collect_R1(); /// collectCampaignData();  
+    if (isArrayAndHasLength(collectedData)) {
+      Logger.log("Data collected to push to BigQuery.");
+    } else {
+      Logger.log("No data collected to push to BigQuery.");
+    }
+
+    const endTime = new Date();
+    // Logger.log(`End time: ${endTime.toISOString()}`);    
+    const deltaTime = endTime - startTime; 
+    Logger.log(`main2 Time taken: ${deltaTime} milliseconds`); // Time in milliseconds
+
+    return collectedData;
+  }
+
+  function isArrayAndHasLength(data) {
+    return data && typeof data === 'object' && typeof data.length === 'number' && data.length > 0;
+  }
+
+  function convertDataToSheetFormat(collectedData) {
+    if (collectedData.length === 0) {
+      return [];
+    }
+    
+    // Extract columns from the keys of the first object
+    var columns = Object.keys(collectedData[0]);
+    var dataToWrite = [columns];
+    
+    // Extract values for each row
+    collectedData.forEach(row => {
+      var rowData = columns.map(column => row[column]);
+      dataToWrite.push(rowData);
+    });
+    
+    return dataToWrite;
+  }
+
+  function getColumnLetter(colIndex) {
+    let columnLetter = '';
+    let tempIndex = colIndex;
+    
+    while (tempIndex > 0) {
+      let mod = (tempIndex - 1) % 26;
+      columnLetter = String.fromCharCode(65 + mod) + columnLetter;
+      tempIndex = Math.floor((tempIndex - mod) / 26);
+    }
+    
+    return columnLetter;
+  }
+   
+  var GoogleApis;
+  (function (GoogleApis) {
+    function createSheetsService(credentials) {
+      return createService("https://sheets.googleapis.com/$discovery/rest?version=v4", credentials);
+    }
+    GoogleApis.createSheetsService = createSheetsService;
+   
+    function createGmailService(credentials) {
+      return createService("https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest", credentials);
+    }
+    GoogleApis.createGmailService = createGmailService;
+   
+    function createService(url, credentials) {
+      var content = UrlFetchApp.fetch(url).getContentText();
+      var discovery = JSON.parse(content);
+      var baseUrl = discovery['rootUrl'] + discovery['servicePath'];
+      var accessToken = getAccessToken(credentials);
+      var service = build(discovery, {}, baseUrl, accessToken);
+      return service;
+    }
+   
+    function createNewMethod(method, baseUrl, accessToken) {
+      return (urlParams, body) => {
+        var urlPath = method.path;
+        var queryArguments = [];
+        for (var name in urlParams) {
+          var paramConfg = method.parameters[name];
+          if (!paramConfg) {
+            throw `Unexpected url parameter ${name}`;
+          }
+          switch (paramConfg.location) {
+            case 'path':
+              urlPath = urlPath.replace(`{${name}}`, urlParams[name]);
+              break;
+            case 'query':
+              queryArguments.push(`${name}=${urlParams[name]}`);
+              break;
+            default:
+              throw `Unknown location ${paramConfg.location} for url parameter ${name}`;
+          }
+        }
+        var url = baseUrl + urlPath;
+        if (queryArguments.length > 0) {
+          url += '?' + queryArguments.join('&');
+        }
+        var httpResponse = UrlFetchApp.fetch(url, {
+          contentType: 'application/json',
+          method: method.httpMethod,
+          payload: JSON.stringify(body),
+          headers: { Authorization: `Bearer ${accessToken}` },
+          muteHttpExceptions: true
+        });
+        var responseContent = httpResponse.getContentText();
+        var responseCode = httpResponse.getResponseCode();
+        var parsedResult;
+        try {
+          parsedResult = JSON.parse(responseContent);
+        } catch (e) {
+          parsedResult = false;
+        }
+        var response = new Response(parsedResult, responseContent, responseCode);
+        if (responseCode >= 200 && responseCode <= 299) {
+          return response;
+        }
+        throw response;
+      }
+    }
+   
+    function Response(result, body, status) {
+      this.result = result;
+      this.body = body;
+      this.status = status;
+    }
+    Response.prototype.toString = function () {
+      return this.body;
+    }
+   
+    function build(discovery, collection, baseUrl, accessToken) {
+      for (var name in discovery.resources) {
+        var resource = discovery.resources[name];
+        collection[name] = build(resource, {}, baseUrl, accessToken);
+      }
+      for (var name in discovery.methods) {
+        var method = discovery.methods[name];
+        collection[name] = createNewMethod(method, baseUrl, accessToken);
+      }
+      return collection;
+    }
+   
+    function getAccessToken(credentials) {
+      if (credentials.accessToken) {
+        return credentials.accessToken;
+      }
+      var tokenResponse = UrlFetchApp.fetch('https://www.googleapis.com/oauth2/v4/token', {
+        method: 'post',
+        contentType: 'application/x-www-form-urlencoded',
+        muteHttpExceptions: true,
+        payload: {
+          client_id: credentials.clientId,
+          client_secret: credentials.clientSecret,
+          refresh_token: credentials.refreshToken,
+          grant_type: 'refresh_token'
+        }
+      });    
+      var responseCode = tokenResponse.getResponseCode(); 
+      var responseText = tokenResponse.getContentText(); 
+      if (responseCode >= 200 && responseCode <= 299) {
+        var accessToken = JSON.parse(responseText)['access_token'];
+        return accessToken;
+      }    
+      throw responseText;  
+    }
+  })(GoogleApis || (GoogleApis = {}));
+   
+  class Base64 {
+    static encode(input) {
+      const keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+      let output = "";
+      let chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+      var i = 0;
+      input = this.utf8Encode(input);
+      while (i < input.length) {
+        chr1 = input.charCodeAt(i++);
+        chr2 = input.charCodeAt(i++);
+        chr3 = input.charCodeAt(i++);
+        enc1 = chr1 >> 2;
+        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+        enc4 = chr3 & 63;
+        if (isNaN(chr2)) {
+          enc3 = enc4 = 64;
+        }
+        else if (isNaN(chr3)) {
+          enc4 = 64;
+        }
+        output = output + keyStr.charAt(enc1) + keyStr.charAt(enc2) + keyStr.charAt(enc3) + keyStr.charAt(enc4);
+      }
+      return output.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    }
+    static utf8Encode(input) {
+      input = input.replace(/\r\n/g, "\n");
+      var utftext = "";
+      for (var n = 0; n < input.length; n++) {
+        var c = input.charCodeAt(n);
+        if (c < 128) {
+          utftext += String.fromCharCode(c);
+        }
+        else if ((c > 127) && (c < 2048)) {
+          utftext += String.fromCharCode((c >> 6) | 192);
+          utftext += String.fromCharCode((c & 63) | 128);
+        }
+        else {
+          utftext += String.fromCharCode((c >> 12) | 224);
+          utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+          utftext += String.fromCharCode((c & 63) | 128);
+        }
+      }
+      return utftext;
+    }
+  }

@@ -1,0 +1,66 @@
+Shareasale Reports
+==================
+
+CONFIG
+------
+var CONFIG = {
+  affiliateid: 651616,
+  version: 2.4,
+  token: 'xxxxxxxxxxxxx',
+  secret: 'xxxxxxxxxxxxxxxxxx',
+  action: 'keywords'
+};
+
+CODE
+----
+function LoadDataFromShareasale(){
+  var url = 'https://api.shareasale.com/x.cfm?affiliateID={0}&token={1}&version={2}&action={3}'
+    .replace('{0}', CONFIG.affiliateid)
+    .replace('{1}', CONFIG.token)
+    .replace('{2}', CONFIG.version)
+    .replace('{3}', CONFIG.action);      
+  Logger.log(url);
+    
+  var utcNow = new Date().toISOString();
+  console.log(utcNow);
+  HTTP_OPTIONS.headers['x-ShareASale-Date'] = utcNow;
+      
+  var hash = Sha256Hash(CONFIG.token + ':' + utcNow + ':' + CONFIG.action + ':' + CONFIG.secret);
+  console.log(hash);
+  HTTP_OPTIONS.headers['x-ShareASale-Authentication'] = hash;
+  
+  var report = UrlFetchApp.fetch(url, HTTP_OPTIONS).getContentText();   
+  ///Logger.log(report);   
+  
+  var arr = CSVtoArray(report);
+  /// Logger.log(arr[0]);     
+  Logger.log('%s rows have imported from ShareASale', arr.length.toFixed(0));     
+  
+  ///Logger.log(arr.shift()); // arr.shift() take 1st element - header row
+  ///Logger.log(arr.slice(1,5)); // take 1-5 elements
+  ///Logger.log(arr.slice(1));   // take all elements from index 1 (remove first element)
+  
+  return arr;
+} 
+
+var arr = LoadDataFromShareasale(); 
+
+Sha256Hash
+----------
+hash = Sha256Hash(token + ':' + utcNow + ':' + action + ':' + secret);
+
+Online:
+https://passwordsgenerator.net/sha256-hash-generator/
+xxxxxxxxxxxx:2024-04-21T09:24:49.774Z:keywords:xxxxxxxxxxxxxxxxxx
+
+Schema
+------
+GET https://api.shareasale.com/x.cfm?affiliateID={aId}&version={ver}&action={action}&token={token}
+H: x-ShareASale-Authentication = {hash}
+H: x-ShareASale-Date = {utcNow}
+
+Using
+-----
+GET https://api.shareasale.com/x.cfm?affiliateID=651616&version=2.4&action=keywords&token=xxxxxxxxxx
+H: x-ShareASale-Authentication = 7F684AEBD86566A0D0CBC5E5E249770FA9D281F2EBEEF4E9A5B6D2D03592A364
+H: x-ShareASale-Date = 2024-04-21T09:24:49.774Z

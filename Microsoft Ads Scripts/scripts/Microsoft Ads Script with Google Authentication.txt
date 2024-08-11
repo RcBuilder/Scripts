@@ -1,0 +1,84 @@
+function main() {
+    // Define Google OAuth2 credentials
+    var CLIENT_ID = 'YOUR_GOOGLE_CLIENT_ID';
+    var CLIENT_SECRET = 'YOUR_GOOGLE_CLIENT_SECRET';
+    var REDIRECT_URI = 'YOUR_REDIRECT_URI';
+    var REFRESH_TOKEN = 'YOUR_REFRESH_TOKEN';
+
+    // Set up the OAuth2 service
+    var service = getOAuthService();
+    
+    if (service.hasAccess()) {
+        // Access Google Ads API
+        var url = 'https://googleads.googleapis.com/v10/customers/YOUR_CUSTOMER_ID/googleAds:search';
+        var query = {
+            query: `
+                SELECT
+                    campaign.id,
+                    campaign.name,
+                    ad_group.id,
+                    ad_group.name,
+                    ad_group_criterion.keyword.text,
+                    ad_group_criterion.keyword.match_type,
+                    metrics.clicks,
+                    metrics.impressions,
+                    metrics.ctr,
+                    metrics.average_cpc,
+                    metrics.cost_micros,
+                    metrics.conversions,
+                    metrics.conversion_value
+                FROM
+                    keyword_view
+                WHERE
+                    segments.date DURING LAST_30_DAYS
+            `
+        };
+
+        var response = UrlFetchApp.fetch(url, {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + service.getAccessToken(),
+                'Content-Type': 'application/json'
+            },
+            payload: JSON.stringify(query)
+        });
+
+        var data = JSON.parse(response.getContentText());
+        var results = data.results;
+        for (var i = 0; i < results.length; i++) {
+            var row = results[i];
+            AdsApp.log(
+                "Campaign ID: " + row.campaign.id + "\n" +
+                "Campaign: " + row.campaign.name + "\n" +
+                "Ad Group ID: " + row.ad_group.id + "\n" +
+                "Ad Group: " + row.ad_group.name + "\n" +
+                "Keyword: " + row.ad_group_criterion.keyword.text + "\n" +
+                "Match Type: " + row.ad_group_criterion.keyword.match_type + "\n" +
+                "Clicks: " + row.metrics.clicks + "\n" +
+                "Impressions: " + row.metrics.impressions + "\n" +
+                "CTR: " + row.metrics.ctr + "%" + "\n" +
+                "Average CPC: " + row.metrics.average_cpc + "\n" +
+                "Cost: " + row.metrics.cost_micros / 1e6 + "\n" +
+                "Conversions: " + row.metrics.conversions + "\n" +
+                "Conversion Value: " + row.metrics.conversion_value
+            );
+        }
+    } else {
+        // Generate the authorization URL and log it for manual authorization
+        var authorizationUrl = service.getAuthorizationUrl();
+        AdsApp.log('Authorize this script by visiting the URL: ' + authorizationUrl);
+    }
+}
+
+// Function to set up the OAuth2 service
+function getOAuthService() {
+    return OAuth2.createService('google-ads')
+        .setAuthorizationBaseUrl('https://accounts.google.com/o/oauth2/auth')
+        .setTokenUrl('https://accounts.google.com/o/oauth2/token')
+        .setClientId(CLIENT_ID)
+        .setClientSecret(CLIENT_SECRET)
+        .setRedirectUri(REDIRECT_URI)
+        .setPropertyStore(PropertiesService.getUserProperties())
+        .setScope('https://www.googleapis.com/auth/adwords')
+        .setTokenFormat(OAuth2.TOKEN_FORMAT.JSON);
+}

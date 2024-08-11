@@ -1237,8 +1237,13 @@ namespace GS1
             );
 
             // response.StatusCode: Unauthorized (401)
+            // response.StatusCode: NotFound (404)
             if (!response.Success)
+            {
+                if (response.StatusCode == HttpStatusCode.NotFound) 
+                    return null;
                 throw new APIException(this.ParseError(response.Content));
+            }
             
             // handle no messages response
             var message = this.ParseMessageResponse(response.Content);
@@ -1302,6 +1307,15 @@ namespace GS1
                 throw new APIException(this.ParseError(response.Content));
 
             return assetsDestZipPath;
+        }
+
+        public string ExtractGTINFromMessageId(string MessageId) {
+            try {
+                return MessageId.Split('_')[2];
+            }
+            catch {
+                return MessageId;
+            }
         }
 
         // ---

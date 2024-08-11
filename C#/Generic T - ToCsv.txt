@@ -1,0 +1,60 @@
+Generic T - ToCsv
+=================
+
+void Main()
+{
+	var model = new List<SomeModel>{
+		new SomeModel(1, "Roby"),
+		new SomeModel(2, "Avi"),
+		new SomeModel(3, "Shirly")
+	};
+	
+	var strCSV = ToCsv(",", model); 
+	Console.WriteLine(strCSV);
+}
+
+---
+
+class SomeModel{
+	public int Id { get; set; }
+	public string Name { get; set; }	
+	
+	public SomeModel(int Id, string Name) {
+		this.Id = Id;
+		this.Name = Name;
+	}
+}
+
+---
+
+string ToCsv<T>(string separator, IEnumerable<T> list)
+{
+    Type type = typeof(T);
+    PropertyInfo[] fields = type.GetProperties();
+
+    var header = String.Join(separator, fields.Select(f => f.Name).ToArray());
+
+    var sbCsvRows = new StringBuilder();
+    sbCsvRows.AppendLine(header);
+
+    foreach (var item in list)
+        sbCsvRows.AppendLine(ToCsvFields(separator, fields, item));
+
+    return sbCsvRows.ToString();
+}
+
+string ToCsvFields(string separator, PropertyInfo[] fields, object item)
+{
+    var sbCsvLine = new StringBuilder();
+
+    foreach (var field in fields) {
+        if (sbCsvLine.Length > 0)
+            sbCsvLine.Append(separator);
+
+        var value = field.GetValue(item);
+        if (value != null)
+            sbCsvLine.Append(value.ToString());
+    }
+
+    return sbCsvLine.ToString();
+}
