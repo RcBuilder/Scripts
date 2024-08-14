@@ -1,10 +1,10 @@
 {
   "type": "service_account",
   "project_id": "api-project-635489688114",
-  "private_key_id": "ca4f84xxxxxxxxxxxxxxxbcc96",
+  "private_key_id": "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
   "private_key": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   "client_email": "speech-to-text@api-project-635489688114.iam.gserviceaccount.com",
-  "client_id": "105131986637897000948",
+  "client_id": "xxxxxxxxxxxxx948",
   "auth_uri": "https://accounts.google.com/o/oauth2/auth",
   "token_uri": "https://oauth2.googleapis.com/token",
   "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
