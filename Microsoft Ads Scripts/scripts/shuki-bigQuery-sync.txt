@@ -209,7 +209,7 @@ function collect_R2()
   function getCredentials() {
     return {
       clientId: '761895952xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-      clientSecret: 'xxxxxxxxxxxxxxxxxxxxxxx',
+      clientSecret: '',
       refreshToken: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'
     };
   }
