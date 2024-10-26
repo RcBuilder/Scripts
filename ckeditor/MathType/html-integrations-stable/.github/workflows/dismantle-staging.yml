@@ -1,0 +1,46 @@
+# Dismantles the demos from the staging environment when the corresponding branch is deleted
+#
+# Jobs:
+# - TODO
+#
+name: Dismantle staging
+
+# Controls when the action will run
+on: delete
+
+# Array of jobs to run in this workflow
+jobs:
+  delete:
+    if: github.event.ref_type == 'branch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete S3 files
+        run: |
+          echo "Clean up for branch ${{ github.event.ref }}"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: eu-west-2
+
+      - name: Delete this branch's demos in the S3 bucket
+        run: |
+          aws s3 rm s3://wiris-integrations-staging-html/${{ github.event.ref }} --recursive
+
+      - name: Remove branch from the list of branches
+        run: |
+          BRANCHES=branches
+          # Copy list of branches from S3 to local
+          aws s3 cp "s3://wiris-integrations-staging-html/${BRANCHES}" "${BRANCHES}"
+          # Check if branch name is in the file
+          if grep -q -F "${{ matrix.branch }}" "${BRANCHES}"; then
+            # Update local list of branches
+            sed -i '/^${{ github.event.ref }}$/d' "${BRANCHES}"
+            # Upload updated file
+            aws s3 cp "${BRANCHES}" "s3://wiris-integrations-staging-html/${BRANCHES}"
+          fi
+
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id $(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items!=null] | [?contains(Aliases.Items, 'integrations.wiris.kitchen')].Id | [0]" --output text) --paths '/*'

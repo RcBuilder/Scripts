@@ -1,0 +1,9 @@
+ASSEMBLY_PATH
+-------------
+Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location
+
+-
+
+/// protected static readonly string ASSEMBLY_PATH = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)}";
+protected static readonly string ASSEMBLY_PATH = $"{Path.GetDirectoryName(Assembly.GetExecutingAssembly().GetName().CodeBase)}".TrimStart("file:\\".ToCharArray());
+protected static readonly string CREDENTIALS_FILE_PATH = $"{ASSEMBLY_PATH}\\tests-343908-4bda2659831b.json";  

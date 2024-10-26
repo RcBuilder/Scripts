@@ -1,0 +1,215 @@
+# Deploys the demos in a staging environment
+#
+# Jobs:
+# - Prepare: determines the names of the branches that the current commit is HEAD of
+# - Deploy staging: compiles and copies all the demos to the corresponding branch folder in S3
+#
+name: Deploy staging
+
+# Controls when the action will run
+on: push
+
+# Array of jobs to run in this workflow
+jobs:
+  prepare:
+    name: Prepare the workflow
+    runs-on: ubuntu-latest
+    outputs:
+      branches: ${{ steps.get_branches.outputs.branches }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: eu-west-2
+
+      - name: Get branch names
+        id: get_branches
+        run: |
+          BRANCHES_ARRAY=$(git branch --points-at HEAD | tr -d "* " | jq -R -s -c 'split("\n")[:-1]')
+          echo "branches=${BRANCHES_ARRAY}" >> $GITHUB_OUTPUT
+          echo "${BRANCHES_ARRAY}"
+
+  clean-staging:
+    name: Clean the previous staging environments
+    runs-on: ubuntu-latest
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: ${{ fromJson(needs.prepare.outputs.branches) }}
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: eu-west-2
+
+      - name: Clean previous deployment of this branch
+        run: aws s3 rm s3://wiris-integrations-staging-html/${{ matrix.branch }} --recursive
+
+  deploy-staging-common:
+    name: Deploy the staging environment (common elements)
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+      - clean-staging
+    strategy:
+      fail-fast: true
+      matrix:
+        branch: ${{ fromJson(needs.prepare.outputs.branches) }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: eu-west-2
+
+      - name: Upload the common files
+        run: |
+          # Replace token %BRANCH% with branch name in staging/branch
+          find staging/branch -type f -exec sed -i 's/%BRANCH%/${{ matrix.branch }}/g' {} \;
+          aws s3 cp staging/branch s3://wiris-integrations-staging-html/${{ matrix.branch }} --recursive
+          aws s3 cp staging/root s3://wiris-integrations-staging-html/ --recursive
+
+      - name: Add branch to the list of branches
+        run: |
+          BRANCHES=branches
+
+          # Check if the remote list of branches exists
+          aws s3api head-object --bucket wiris-integrations-staging-html --key branches || NOT_EXIST=true
+          if [ $NOT_EXIST ]; then
+            # Create empty list of branches
+            touch "${BRANCHES}"
+          else
+            # Copy list of branches from S3 to local
+            aws s3 cp "s3://wiris-integrations-staging-html/${BRANCHES}" "${BRANCHES}"
+          fi
+
+          # Check if branch name is already in the file
+          if ! grep -q -F "${{ matrix.branch }}" "${BRANCHES}"; then
+            # Update local list of branches
+            echo ${{ matrix.branch }} >> "${BRANCHES}"
+            # Upload updated file
+            aws s3 cp "${BRANCHES}" "s3://wiris-integrations-staging-html/${BRANCHES}"
+          fi
+
+  deploy-staging:
+    name: Deploy the staging environment
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+      - clean-staging
+      - deploy-staging-common
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: ${{ fromJson(needs.prepare.outputs.branches) }}
+        editor: ["ckeditor4", "ckeditor5", "froala", "generic", "tinymce5", "tinymce6", "viewer"]
+        framework: ["html", "vue"]
+        exclude:
+          - framework: vue
+            editor: viewer
+          - framework: vue
+            editor: tinymce6
+          - framework: vue
+            editor: tinymce5
+          - framework: vue
+            editor: generic
+          - framework: vue
+            editor: froala
+          - framework: vue
+            editor: ckeditor4
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: eu-west-2
+
+      - name: Build the demos
+        env:
+          CKEDITOR4_API_KEY: ${{ secrets.CKEDITOR4_API_KEY }}
+          FROALA_API_KEY: ${{ secrets.FROALA_API_KEY }}
+          NODE_OPTIONS: "--openssl-legacy-provider"
+        run: |
+          unset NODE_OPTIONS
+          npm set "//registry.npmjs.org/:_authToken" ${{ secrets.NPM_TOKEN }}
+          yarn
+          yarn nx build ${{ matrix.editor }}
+          yarn nx build ${{ matrix.framework }}-${{ matrix.editor }}
+
+      - name: Deploy the demos to S3 bucket
+        run: |
+          case "${{ matrix.framework }}" in
+            html)
+
+              # First, copy the entry point index.html
+              aws s3 cp demos/html/${{ matrix.editor }}/index.html s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/index.html
+
+              # Then, for every specific editor copy all the resources that are loaded at runtime
+
+              # For all demos copy dist
+              aws s3 cp demos/html/${{ matrix.editor }}/dist s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/dist --recursive
+
+              if [ "${{ matrix.editor }}" = "ckeditor4" ]; then
+                aws s3 cp demos/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-ckeditor4/icons/chem.png s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-ckeditor4/icons/chem.png
+                aws s3 cp demos/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-ckeditor4/icons/formula.png s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-ckeditor4/icons/formula.png
+                aws s3 cp demos/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-ckeditor4/plugin.js s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-ckeditor4/plugin.js
+              fi
+              if [ "${{ matrix.editor }}" = "froala" ]; then
+                aws s3 cp demos/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-froala/wiris.js s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-froala/wiris.js
+              fi
+              if [ "${{ matrix.editor }}" = "generic" ]; then
+                aws s3 cp demos/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-generic/wirisplugin-generic.js  s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-generic/wirisplugin-generic.js
+              fi
+              if [ "${{ matrix.editor }}" = "tinymce5" ]; then
+                aws s3 cp demos/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-tinymce5/plugin.min.js  s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-tinymce5/plugin.min.js
+              fi
+              if [ "${{ matrix.editor }}" = "tinymce6" ]; then
+                aws s3 cp demos/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-tinymce6/plugin.min.js  s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-tinymce6/plugin.min.js
+              fi
+              if [ "${{ matrix.editor }}" = "viewer" ]; then
+                aws s3 cp demos/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-viewer/dist/WIRISplugins.js s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-viewer/dist/WIRISplugins.js
+                aws s3 cp demos/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-viewer/package.json s3://wiris-integrations-staging-html/${{ matrix.branch }}/html/${{ matrix.editor }}/node_modules/@wiris/mathtype-viewer/package.json
+              fi
+              ;;
+            vue)
+              aws s3 cp demos/vue/${{ matrix.editor }}/dist s3://wiris-integrations-staging-html/${{ matrix.branch }}/vue/${{ matrix.editor }} --recursive
+          esac
+
+  invalidate-cache:
+    name: Invalidate the CloudFront cache
+    runs-on: ubuntu-latest
+    needs:
+      - prepare
+      - clean-staging
+      - deploy-staging-common
+      - deploy-staging
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_STAGING }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_STAGING }}
+          aws-region: eu-west-2
+
+      - name: Invalidate the CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id $(aws cloudfront list-distributions --query "DistributionList.Items[?Aliases.Items!=null] | [?contains(Aliases.Items, 'integrations.wiris.kitchen')].Id | [0]" --output text) --paths '/*'

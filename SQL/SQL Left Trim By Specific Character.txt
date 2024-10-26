@@ -1,0 +1,3 @@
+SQL Left Trim By Specific Character
+-----------------------------------
+SELECT STUFF('00017220PCC000', 1, (PATINDEX('%[^0]%', '00017220PCC000') - 1), '')  -- 17220PCC000

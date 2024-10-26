@@ -1,0 +1,63 @@
+Authorization Filter - ApiKey
+-----------------------------
+
+H: x-api-key: 1234  
+
+---
+
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
+    public class AuthorizePriorityRequestAttribute : AuthorizationFilterAttribute
+    {
+        public override void OnAuthorization(HttpActionContext context)
+        {
+            try
+            {
+                // [AllowAnonymous]
+                if (context.ActionDescriptor.GetCustomAttributes<AllowAnonymousAttribute>().Any())
+                {
+                    base.OnAuthorization(context);
+                    return;
+                }
+
+                var xApiKey = context.Request.Headers.GetValues("x-api-key")?.FirstOrDefault()?.Trim();
+                if (xApiKey == null)
+                    throw new HttpException((int)HttpStatusCode.Unauthorized, "No x-api-key Header");
+
+                var configApiKey = ConfigurationManager.AppSettings["ProxyApiKey"].Trim();
+                if (xApiKey != configApiKey)
+                    throw new HttpException((int)HttpStatusCode.Unauthorized, "Unauthorized Access");
+
+                base.OnAuthorization(context);
+            }
+            catch (HttpException ex)
+            {
+                context.Response = new HttpResponseMessage((HttpStatusCode)ex.GetHttpCode())
+                {
+                    Content = new StringContent(ex.Message)
+                };
+            }
+            catch (Exception ex)
+            {
+                context.Response = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+                {
+                    Content = new StringContent(ex.Message)
+                };
+            }
+        }
+    }
+
+
+using
+-----
+
+public class HomeController : ApiController
+{
+	[AuthorizePriorityRequest]
+        [HttpPost]
+        [Route("api/test")]
+        public async Task<HttpResponseMessage> Test() { ... }    
+}
+
+
+GET api/test
+x-api-key: 1234

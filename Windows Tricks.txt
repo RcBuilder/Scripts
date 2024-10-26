@@ -1,0 +1,1 @@
+* WINDOWS + R > shell:appsfolder  // installed apps on this pc

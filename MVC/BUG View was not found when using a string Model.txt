@@ -1,0 +1,62 @@
+BUG View was not found when using a string Model
+------------------------------------------------
+
+public ActionResult Courses1() {
+	return View("Courses", "Courses1");
+}
+
+
+The view 'Courses' or its master was not found or no view engine supports the searched locations. The following locations were searched:
+~/Areas/Default/Views/Lp/Courses.aspx
+~/Areas/Default/Views/Lp/Courses.ascx
+~/Areas/Default/Views/Shared/Courses.aspx
+~/Areas/Default/Views/Shared/Courses.ascx
+~/Views/Lp/Courses.aspx
+~/Views/Lp/Courses.ascx
+~/Views/Shared/Courses.aspx
+~/Views/Shared/Courses.ascx
+~/Areas/Default/Views/Lp/Courses3.master
+~/Areas/Default/Views/Shared/Courses3.master
+~/Views/Lp/Courses3.master
+~/Views/Shared/Courses3.master
+~/Areas/Default/Views/Lp/Courses3.cshtml
+~/Areas/Default/Views/Lp/Courses3.vbhtml
+~/Areas/Default/Views/Shared/Courses3.cshtml
+~/Areas/Default/Views/Shared/Courses3.vbhtml
+~/Views/Lp/Courses3.cshtml
+~/Views/Lp/Courses3.vbhtml
+~/Views/Shared/Courses3.cshtml
+~/Views/Shared/Courses3.vbhtml
+
+---
+
+to fix the above issue, just use the correct overload by casting the 
+string model as object! to prevent the system to think the 2nd parameter (which represents the model) 
+to be the master name which is also a string and uses the same signature!
+once we change it into object, it'll use the corrent overload
+
+---
+
+public ActionResult Courses1() {
+            return View("Courses", (object)"Courses1");
+        }
+        public ActionResult Courses2() {
+            return View("Courses", (object)"Courses2");
+        }
+        public ActionResult Courses3() {
+            return View("Courses", (object)"Courses3");
+        }     
+
+-
+
+@model string
+@switch (Model)
+{
+    default:
+    case "Courses1": @Html.Partial("Partial/Courses1");
+        break;
+    case "Courses2": @Html.Partial("Partial/Courses2");
+        break;
+    case "Courses3": @Html.Partial("Partial/Courses3");
+        break;    
+}

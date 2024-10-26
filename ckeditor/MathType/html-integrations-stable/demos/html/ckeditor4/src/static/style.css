@@ -1,0 +1,38 @@
+body {
+  background-color: #e4e6e7;
+}
+
+.cke {
+  background-color: #fff !important;
+  border: 1px solid rgb(201, 201, 201) !important;
+  border-radius: 10px !important;
+  margin: 0 auto !important;
+  max-width: 750px !important;
+  min-height: 300px !important;
+  width: 75% !important;
+}
+
+#cke_1_contents {
+  min-height: 250px;
+}
+
+.cke:hover {
+  box-shadow: 0 0 10px #7af78f;
+}
+
+.cke_inner {
+  border-radius: 10px;
+}
+
+#cke_1_top,
+#cke_8,
+#cke_1_toolbox,
+#cke_editor_arialbl {
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+}
+
+#cke_1_bottom {
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+}

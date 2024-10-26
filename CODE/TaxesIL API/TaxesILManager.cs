@@ -101,6 +101,8 @@ using System.Diagnostics;
     https://openapi-portal.taxes.gov.il/sandbox/sites/sandbox.openapi-portal.taxes.gov.il/files/inline-files/portal%20user%20guide.pdf
     https://www.gov.il/BlobFolder/service/connect-to-shaam/he/Service_Pages_shaam_connection-work-process-software-houses.pdf
 
+    https://www.gov.il/he/pages/israel-invoice-160723    
+
     SUPPORT
     -------
     OpenAPI@taxes.gov.il
@@ -371,10 +373,10 @@ using System.Diagnostics;
         UpdateTaxesConfig(Config);
     };
 
-    var healthResult = await taxesILManager.HealthCheck();
-    Console.WriteLine(healthResult); // OK
+    var healthResult = await taxesILManager.HealthCheck();          
+    Console.WriteLine($"Succes = {healthResult.Succes} | {healthResult.Details}"); // (bool, string) - OK, TOKEN_EXPIRED, ERROR...
 
-    if (healthResult != "OK") {
+    if (!healthResult.Succes) {
         var code = taxesILManager.RequestAuthorizaionCode(9999);
         await taxesILManager.Authorize(code);
     }
@@ -442,6 +444,12 @@ namespace TaxesIL
         {
             public string Message { get; set; }
             public (string Error, string Details) InnerMessage { get; set; }
+
+            public bool IsRefreashTokenExpired {
+                get {
+                    return this.InnerMessage.Details?.Contains("refresh_token expired") ?? false;
+                }
+            }
 
             public override string ToString()
             {
@@ -618,7 +626,7 @@ namespace TaxesIL
         Task<Invoice> GetInvoiceDetails(GetInvoiceDetailsRequest Request);
         Task<CreateInvoiceResponse> CreateInvoice(Invoice Request);
         Task<IEnumerable<CreateInvoiceResponse>> CreateInvoices(IEnumerable<Invoice> Request);
-        Task<string> HealthCheck();
+        Task<(bool Succes, string Details)> HealthCheck();
     }
 
     public class TaxesILManager : ITaxesILManager
@@ -859,7 +867,7 @@ namespace TaxesIL
             throw new NotImplementedException();
         }
 
-        public async Task<string> HealthCheck() 
+        public async Task<(bool Succes, string Details)> HealthCheck() 
         {            
             var response = await this.HttpService.GET_ASYNC(
                 $"{this.Config.ServerURL}/Invoices/v1/Health",
@@ -872,9 +880,17 @@ namespace TaxesIL
             );
 
             // Unauthorized (401) - refresh token and try again
+            // "OK" \ "TOKEN_EXPIRED" \ "ERROR | {MESSAGE}"
             if (!response.Success && response.StatusCode == HttpStatusCode.Unauthorized && !string.IsNullOrWhiteSpace(this.Config.RefreshToken))
             {
-                await this.RefreshToken();
+                try {
+                    await this.RefreshToken();
+                }
+                catch (APIException Ex) {
+                    if (Ex.ErrorResponse.IsRefreashTokenExpired)
+                        return (false, "TOKEN_EXPIRED");
+                    return (false, Ex.ErrorResponse.InnerMessage.Details);
+                }
 
                 response = await this.HttpService.GET_ASYNC(
                     $"{this.Config.ServerURL}/Invoices/v1/Health",
@@ -887,8 +903,8 @@ namespace TaxesIL
             }
 
             if (!response.Success)
-                return $"ERROR | {this.ParseError(response.Content).InnerMessage.Error}";
-            return "OK";
+                return (false, this.ParseError(response.Content).InnerMessage.Error);
+            return (true, "OK");
         }
 
         // ---
@@ -919,6 +935,11 @@ namespace TaxesIL
                 {
                     "error": "invalid_request",
                     "error_description": "Redirect URI specified in the request is not configured in the client subscription"
+                }
+
+                {                    
+                    "error": "invalid_grant",
+                    "error_description": "*[e00a251f6f158679906c9de216ab1eb9] refresh_token expired*"
                 }
 
                 {

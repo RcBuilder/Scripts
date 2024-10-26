@@ -1,0 +1,81 @@
+CKEditor Sample Usage MVC
+-------------------------
+
+// Layout
+<script src="~/ckeditor/ckeditor.js" type="text/javascript"></script>
+<script src="~/ckfinder/ckfinder.js" type="text/javascript"></script>
+
+@RenderSection("SCRIPTS_LOADED", required: false)
+
+---
+
+// Page
+@section SCRIPTS_LOADED {
+    <script type="text/javascript">
+        function InitCKEDITOR() {
+            var editor = CKEDITOR.replace('Body', {
+                filebrowserBrowseUrl: '',
+                filebrowserImageUploadUrl: '/Manager/UploadMedia',
+                filebrowserUploadUrl: '/Manager/UploadMedia',
+                height: 500
+            });
+            CKFinder.setupCKEditor(editor);
+        }
+
+        InitCKEDITOR();
+
+        CKEDITOR.on('dialogDefinition', function (ev) {
+
+            var dialogName = ev.data.name;
+            var dialogDefinition = ev.data.definition;
+
+            if (dialogName == 'image') {
+                var onOk = dialogDefinition.onOk;
+
+                dialogDefinition.onOk = function (e) {
+                    var width = this.getContentElement('info', 'txtWidth');
+                    width.setValue('100%');
+
+                    var height = this.getContentElement('info', 'txtHeight');
+                    height.setValue('');
+
+                    onOk && onOk.apply(this, e);
+                };
+            }
+        });
+    </script>
+}
+
+@Html.TextAreaFor(m => m.Body, new { id = "Body", rows = 5, columns = 120, @class = "form-control" })    
+
+---
+
+// Config
+// http://docs.ckeditor.com/#!/api/CKEDITOR.config
+CKEDITOR.editorConfig = function (config) {
+    config.toolbar = [
+        { name: 'paragraph', items: ['Cut', 'Copy', 'Paste', 'PasteText', 'PasteFromWord', '-', 'Undo', 'Redo'] },
+        ['JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+        ['BidiLtr', 'BidiRtl'],
+        ['Bold', '-', 'Italic', '-', 'Underline', '-', 'Strike'],
+        ['NumberedList', '-', 'BulletedList'],
+        ['FontSize', 'Format'],
+        ['TextColor', '-', 'BGColor'],
+        '/',
+        ['Link', '-', 'Anchor', '-', 'Image', '-', 'Flash', '-', 'Table', '-', 'Smiley', '-', 'SpecialChar'],
+        ['Youtube', 'Mathjax'],
+        ['Preview', '-', 'Templates', '-', 'Print'],
+        ['Source'],
+        ['Image'],
+        ['Video'],
+        ['Html5video']
+    ];
+
+    config.extraPlugins = 'youtube,mathjax,video,html5video,justify,bidi';
+    config.youtube_responsive = true;
+    config.youtube_disabled_fields = ['txtEmbed', 'txtWidth', 'txtHeight', 'chkRelated', 'chkOlderCode', 'chkPrivacy', 'chkAutoplay']; // lilo: doesn't work
+    config.width = '80%';
+
+    // mathjax plugin
+    config.mathJaxLib = 'https://cdn.mathjax.org/mathjax/2.6-latest/MathJax.js?config=TeX-AMS_HTML';
+};
