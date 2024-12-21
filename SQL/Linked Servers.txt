@@ -1,0 +1,19 @@
+*** Linked Servers ****
+***********************
+
+Server Objects > Linked Servers > Right Click > New 
+- General (tab) 
+--- Linked server = Name of server (e.g: SQL6030)
+--- choose "Other data source" option, set Provider to "OLE DB Provider for SQL Server"
+
+- Security (tab) 
+--- choose "Be made using this security context" option, set Remote login & password
+
+- Options (tab) 
+--- Enable "RPC Out" & "Use Remote Collation"
+
+
+-----------------------------
+
+Using:
+SELECT * FROM [SQL6030].[db_a673d8_danielbikes].[dbo].[Orders] 

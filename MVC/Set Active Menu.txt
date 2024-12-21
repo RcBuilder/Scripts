@@ -1,0 +1,17 @@
+Set Active Menu
+---------------
+
+// LAYOUT
+@section SCRIPTS_LOADED{}
+
+// PAGE
+@section SCRIPTS_LOADED {
+    <script>
+        setActiveMenu(4);
+    </script>
+}
+
+// JS 
+function setActiveMenu(index) {
+    $('#sidebar > ul.nav > li').removeClass('selected').eq(index).addClass('selected');
+}

@@ -1,0 +1,26 @@
+javascript Date functions
+-------------------------
+
+function checkSameMonth() {
+            return new Date(switchDateFormatEN2HE($('#sDate').val())).getMonth() == new Date(switchDateFormatEN2HE($('#eDate').val())).getMonth();
+        }
+
+        // e.g: '01/29/2024'
+        function switchDateFormatEN2HE(sDate) {
+            try {
+                const datePart = sDate.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+                const day = datePart[1];
+                // month goes from 0 to 11
+                const month = datePart[2] - 1;
+                const year = datePart[3];
+
+                const localTime = new Date(sDate.replace('at ', '') + ' GMT+0530');
+                localTime.setFullYear(year);
+                localTime.setMonth(month);
+                localTime.setDate(day);
+
+                return localTime;
+            } catch (e) {
+                return sDate;
+            }
+        }

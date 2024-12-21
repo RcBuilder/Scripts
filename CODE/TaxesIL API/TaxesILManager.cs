@@ -15,6 +15,17 @@ using System.Web;
 using System.Diagnostics;
 
 /*
+ 
+    Upgrade to V2 Requirement (exp.01/2025)
+    1. ID_INVOICE Required
+    2. Change in URL - v2 instead of v1
+    3. Extra Properties - Invoice model
+    4. one of UserId OR UserName is required!
+    5. AccountingSoftwareNumber is required!
+    6.
+
+    -
+
     // TODO ->> Implement Multi-invoices service
     Dear Developers,
     We hope this message finds you well. We are writing to inform you of an upcoming change regarding the API endpoint address for our services at the Israel Tax Authority.
@@ -83,6 +94,62 @@ using System.Diagnostics;
       ]
     }
 
+    -
+    
+    // Invoices-v2-portal-sample
+    // https://openapi-portal.taxes.gov.il/sandbox/product/19465/api/18168#/Invoices_v2/operation/%2FInvoices%2Fv2%2FApproval/post
+    POST {{ServerURL}}/Invoices/v2/Approval
+    {
+      "invoice_id": "987654321",
+      "invoice_type": 305,
+      "vat_number": 777777715,
+      "union_vat_number": 125847553,
+      "authorized_company": 18,
+      "user_id": 18,
+      "user_name": "שם משתמש",
+      "invoice_reference_number": "975626515",
+      "customer_vat_number": 18,
+      "customer_name": "Curtis Wells",
+      "customer_country_code": "UKR",
+      "invoice_date": "2024-11-24",
+      "invoice_issuance_date": "2024-11-24",
+      "branch_id": "533",
+      "accounting_software_number": 987654321,
+      "client_software_key": "76857",
+      "amount_before_discount": 552.75,
+      "discount": 52.75,
+      "payment_amount": 500,
+      "vat_amount": 85,
+      "payment_amount_including_vat": 585,
+      "invoice_note": "הערות",
+      "action": 0,
+      "vehicle_license_number": 584752145,
+      "phone_of_driver": "0505674235",
+      "arrival_date": "2024-11-24",
+      "estimated_arrival_time": "13:25",
+      "transition_location": 12,
+      "delivery_address": "כתובת אספקה",
+      "additional_information": 0,
+      "additional_information_1": "0",
+      "additional_information_2": "0",
+      "additional_information_3": 0,
+      "items": [
+        {
+          "index": 999999,
+          "catalog_id": "5569875437",
+          "category": 15,
+          "description": "תיאור הפריט",
+          "measure_unit_description": "קילו",
+          "quantity": 100.5,
+          "price_per_unit": 5.5,
+          "discount": 52.75,
+          "total_amount": 500,
+          "vat_rate": 17,
+          "vat_amount": 85
+        }
+      ]
+    }
+
     ------------------------------------------------------------------------------------
 
 
@@ -101,7 +168,8 @@ using System.Diagnostics;
     https://openapi-portal.taxes.gov.il/sandbox/sites/sandbox.openapi-portal.taxes.gov.il/files/inline-files/portal%20user%20guide.pdf
     https://www.gov.il/BlobFolder/service/connect-to-shaam/he/Service_Pages_shaam_connection-work-process-software-houses.pdf
 
-    https://www.gov.il/he/pages/israel-invoice-160723    
+    https://www.gov.il/he/pages/israel-invoice-160723  
+    https://www.gov.il/he/pages/pa181224-1
 
     SUPPORT
     -------
@@ -374,9 +442,9 @@ using System.Diagnostics;
     };
 
     var healthResult = await taxesILManager.HealthCheck();          
-    Console.WriteLine($"Succes = {healthResult.Succes} | {healthResult.Details}"); // (bool, string) - OK, TOKEN_EXPIRED, ERROR...
+    Console.WriteLine($"Success = {healthResult.Success} | {healthResult.Details}"); // (bool, string) - OK, TOKEN_EXPIRED, ERROR...
 
-    if (!healthResult.Succes) {
+    if (!healthResult.Success) {
         var code = taxesILManager.RequestAuthorizaionCode(9999);
         await taxesILManager.Authorize(code);
     }
@@ -486,104 +554,133 @@ namespace TaxesIL
 
         public class Invoice : CreateInvoiceRequest
         {
-            [JsonProperty(PropertyName = "Invoice_ID")]
+            [JsonProperty(PropertyName = "invoice_id")]
             public string InvoiceId { get; set; }
 
-            [JsonProperty(PropertyName = "Invoice_Type")]
+            [JsonProperty(PropertyName = "invoice_type")]
             public int InvoiceType { get; set; }
 
-            [JsonProperty(PropertyName = "Vat_Number")]
+            [JsonProperty(PropertyName = "vat_number")]
             public int VatNumber { get; set; }
 
-            [JsonProperty(PropertyName = "Union_Vat_Number")]
+            [JsonProperty(PropertyName = "union_vat_number")]
             public int UnionVatNumber { get; set; }
 
-            [JsonProperty(PropertyName = "Invoice_Reference_Number")]
+            [JsonProperty(PropertyName = "authorized_company")]
+            public int AuthorizedCompany { get; set; }
+
+            [JsonProperty(PropertyName = "user_id")]
+            public int UserId { get; set; }
+
+            [JsonProperty(PropertyName = "user_name")]
+            public string UserName { get; set; }
+
+            [JsonProperty(PropertyName = "invoice_reference_number")]
             public string ReferenceNumber { get; set; }
 
-            [JsonProperty(PropertyName = "Customer_VAT_Number")]
+            [JsonProperty(PropertyName = "customer_vat_number")]
             public int CustomerVATNumber { get; set; }
 
-            [JsonProperty(PropertyName = "Customer_Name")]
+            [JsonProperty(PropertyName = "customer_name")]
             public string CustomerName { get; set; }
 
-            [JsonProperty(PropertyName = "Invoice_Date")]
+            [JsonProperty(PropertyName = "customer_country_code")]
+            public string CustomerCountryCode { get; set; }
+            
+            [JsonProperty(PropertyName = "invoice_date")]
             public string InvoiceDate { get; set; }
 
-            [JsonProperty(PropertyName = "Invoice_Issuance_Date")]
+            [JsonProperty(PropertyName = "invoice_issuance_date")]
             public string InvoiceIssuanceDate { get; set; }
 
-            [JsonProperty(PropertyName = "Amount_Before_Discount")]
-            public decimal AmountBeforeDiscount { get; set; }
-            public decimal Discount { get; set; }
-
-            [JsonProperty(PropertyName = "Payment_Amount")]
-            public decimal PaymentAmount { get; set; }
-
-            [JsonProperty(PropertyName = "VAT_Amount")]
-            public decimal VATAmount { get; set; }
-
-            [JsonProperty(PropertyName = "Payment_Amount_Including_VAT")]
-            public decimal PaymentAmountIncludingVAT { get; set; }
-
-            [JsonProperty(PropertyName = "Invoice_Note")]
-            public string InvoiceNote { get; set; }
-
-            [JsonProperty(PropertyName = "Branch_ID")]
+            [JsonProperty(PropertyName = "branch_id")]
             public string BranchId { get; set; }
 
-            [JsonProperty(PropertyName = "Accounting_Software_Number")]
+            [JsonProperty(PropertyName = "accounting_software_number")]
             public int AccountingSoftwareNumber { get; set; }
 
-            [JsonProperty(PropertyName = "Client_Software_Key")]
-            public string ClientSoftwareKey { get; set; }        
-            
+            [JsonProperty(PropertyName = "client_software_key")]
+            public string ClientSoftwareKey { get; set; }
+
+            [JsonProperty(PropertyName = "amount_before_discount")]
+            public decimal AmountBeforeDiscount { get; set; }
+
+            [JsonProperty(PropertyName = "discount")]
+            public decimal Discount { get; set; }
+
+            [JsonProperty(PropertyName = "payment_amount")]
+            public decimal PaymentAmount { get; set; }
+
+            [JsonProperty(PropertyName = "vat_amount")]
+            public decimal VATAmount { get; set; }
+
+            [JsonProperty(PropertyName = "payment_amount_including_vat")]
+            public decimal PaymentAmountIncludingVAT { get; set; }
+
+            [JsonProperty(PropertyName = "invoice_note")]
+            public string InvoiceNote { get; set; }
+
+            [JsonProperty(PropertyName = "action")]
             public int Action { get; set; }
 
-            [JsonProperty(PropertyName = "Vehicle_License_Number")]
+            [JsonProperty(PropertyName = "vehicle_license_number")]
             public int LicenseNumber { get; set; }
 
-            [JsonProperty(PropertyName = "Phone_Of_Driver")]
+            [JsonProperty(PropertyName = "phone_of_driver")]
             public string PhoneOfDriver { get; set; } = "0";
 
-            [JsonProperty(PropertyName = "Arrival_Date")]
+            [JsonProperty(PropertyName = "arrival_date")]
             public string ArrivalDate { get; set; }
 
-            [JsonProperty(PropertyName = "Estimated_Arrival_Time")]
+            [JsonProperty(PropertyName = "estimated_arrival_time")]
             public string EstimatedArrivalTime { get; set; }
 
-            [JsonProperty(PropertyName = "Transition_Location")]
+            [JsonProperty(PropertyName = "transition_location")]
             public int TransitionLocation { get; set; }
 
-            [JsonProperty(PropertyName = "Delivery_Address")]
+            [JsonProperty(PropertyName = "delivery_address")]
             public string DeliveryAddress { get; set; }
-            public List<InvoiceItem> Items { get; set; }
+
+            [JsonProperty(PropertyName = "additional_information")]
+            public int Notes { get; set; }
+
+            [JsonProperty(PropertyName = "items")]
+            public List<InvoiceItem> Items { get; set; }            
         }
 
         public class InvoiceItem
         {
+            [JsonProperty(PropertyName = "index")]
             public int Index { get; set; }
 
-            [JsonProperty(PropertyName = "Catalog_ID")]
+            [JsonProperty(PropertyName = "catalog_id")]
             public string CatalogId { get; set; }
+
+            [JsonProperty(PropertyName = "category")]
             public int Category { get; set; } = 1; // Must be > 0 
+
+            [JsonProperty(PropertyName = "description")]
             public string Description { get; set; } = "";  // null not allowed 
 
-            [JsonProperty(PropertyName = "Measure_Unit_Description")]
+            [JsonProperty(PropertyName = "measure_unit_description")]
             public string MeasureUnitDescription { get; set; } = "";  // null not allowed 
+
+            [JsonProperty(PropertyName = "quantity")]
             public float Quantity { get; set; }
 
-            [JsonProperty(PropertyName = "Price_Per_Unit")]
+            [JsonProperty(PropertyName = "price_per_unit")]
             public float UnitPrice { get; set; }
+
+            [JsonProperty(PropertyName = "discount")]
             public decimal Discount { get; set; }
 
-            [JsonProperty(PropertyName = "Total_Amount")]
+            [JsonProperty(PropertyName = "total_amount")]
             public decimal Total { get; set; }
 
-            [JsonProperty(PropertyName = "VAT_Rate")]
+            [JsonProperty(PropertyName = "vat_rate")]
             public int VATRate { get; set; }
 
-            [JsonProperty(PropertyName = "VAT_Amount")]
+            [JsonProperty(PropertyName = "vat_amount")]
             public decimal VATAmount { get; set; }
         }
 
@@ -626,7 +723,7 @@ namespace TaxesIL
         Task<Invoice> GetInvoiceDetails(GetInvoiceDetailsRequest Request);
         Task<CreateInvoiceResponse> CreateInvoice(Invoice Request);
         Task<IEnumerable<CreateInvoiceResponse>> CreateInvoices(IEnumerable<Invoice> Request);
-        Task<(bool Succes, string Details)> HealthCheck();
+        Task<(bool Success, string Details)> HealthCheck();
     }
 
     public class TaxesILManager : ITaxesILManager
@@ -828,7 +925,7 @@ namespace TaxesIL
         {
             this.NullToEmpty(Request);
             var response = await this.HttpService.POST_ASYNC<Invoice, CreateInvoiceResponse>(
-                $"{this.Config.ServerURL}/Invoices/v1/Approval",
+                $"{this.Config.ServerURL}/Invoices/v2/Approval",
                 Request,
                 null,
                 new Dictionary<string, string>
@@ -845,7 +942,7 @@ namespace TaxesIL
                 await this.RefreshToken();
 
                 response = await this.HttpService.POST_ASYNC<Invoice, CreateInvoiceResponse>(
-                    $"{this.Config.ServerURL}/Invoices/v1/Approval",
+                    $"{this.Config.ServerURL}/Invoices/v2/Approval",
                     Request,
                     null,
                     new Dictionary<string, string>
@@ -867,7 +964,7 @@ namespace TaxesIL
             throw new NotImplementedException();
         }
 
-        public async Task<(bool Succes, string Details)> HealthCheck() 
+        public async Task<(bool Success, string Details)> HealthCheck() 
         {            
             var response = await this.HttpService.GET_ASYNC(
                 $"{this.Config.ServerURL}/Invoices/v1/Health",

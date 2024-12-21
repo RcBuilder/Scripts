@@ -1,0 +1,46 @@
+Json Unexpected token - bugFix
+------------------------------
+
+error:
+Error reading string. Unexpected token: StartObject. Path 'data_record_json', line 1, position 281.
+
+-
+
+var sJSON = "{\"id\":\"13233647\",\"created_at\":\"2024-11-20T09:44:46+02:00\",\"updated_at\":\"2024-11-20T11:19:05+02:00\",\"email\":\"rcbuilder@konimbo.co.il\",\"newsletter\":\"true\",\"full_address\":\"היוצרים 3 כפר סבא\",\"mobile_phone\":\"0955555552\",\"full_name\":\"רובי בדיקה\",\"discount_title\":\"\",\"data_record_json\":{},\"data_record_var\":{}}";
+var customer = JsonConvert.DeserializeObject<Customer>(sJSON);
+Console.WriteLine(customer);
+return;
+
+- 
+
+public class CustomerBase {
+    public string id { get; set; }
+    public string full_name { get; set; }
+    public string email { get; set; }
+    public string mobile_phone { get; set; }
+    public string full_address { get; set; }
+    public string newsletter { get; set; }
+    public string discount_title { get; set; }
+    public string data_record_json { get; set; }
+}
+
+public class Customer : CustomerBase
+{                        
+    public string created_at { get; set; }
+    public string updated_at { get; set; }            
+}
+
+- 
+
+[SOLUTION]
+
+// wrap the data_record_json with a property and serialize the value as string
+protected string _data_record_json { get; set; }
+    public object data_record_json { 
+        set {            
+            this._data_record_json = JsonConvert.SerializeObject(value);
+        }
+        get {
+            return this._data_record_json;
+        }
+    }

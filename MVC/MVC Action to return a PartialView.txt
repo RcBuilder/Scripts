@@ -1,0 +1,31 @@
+MVC Action to return a PartialView
+----------------------------------
+
+[HttpPost]
+public ActionResult Diameters(DiametersModel prop)
+{
+	return PartialView("_Diameters", prop);
+}
+
+--
+
+// _Diameters.cshtml
+...
+...
+
+
+--
+
+// Js
+$.ajax({
+                        url: langURL + '/Catalogue/Diameters',
+                        type: 'POST',
+                        dataType: 'html',
+                        async: false,
+                        data: {
+                            prop: result
+                        },
+                        success: function (res) {
+                            $(".dim_filter_dims").html(res);
+                        }
+                    });
