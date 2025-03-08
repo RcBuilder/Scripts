@@ -22,7 +22,9 @@ function main() {
     var accountName = currentAcount.getCustomerId();
     TABLE_ID = accountName;
     Logger.log("Account ID (Table ID): " + TABLE_ID); 
-    
+    return;  
+  
+  
     if(MODE == 3){
       checkAndCreateTable(); 
       return;

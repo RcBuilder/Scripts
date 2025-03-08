@@ -89,3 +89,6 @@ vs code extension
 vs 2019
 -
 https://www.youtube.com/watch?v=MwZwr5Tvyxo&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH
+-
+Python extension for Visual Studio Code:
+https://marketplace.visualstudio.com/items?itemName=ms-python.python

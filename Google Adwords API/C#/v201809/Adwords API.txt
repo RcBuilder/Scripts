@@ -402,6 +402,7 @@ userReport.getReport(<version>, params, (error, report) => { ... });
 
 implementation:
 see 'NodeJS/code/adwords.js'
+see 'ResultsFirst/GoogleAdwordsAPI'
 
 using example:
 see 'NodeJS/'

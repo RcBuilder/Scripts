@@ -2,3 +2,4 @@ DOS Commands
 ------------
 listening ports:
 > netstat -aon | find /i "listening"
+> netstat -an | find "80"

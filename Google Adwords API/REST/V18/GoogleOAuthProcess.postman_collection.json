@@ -1,0 +1,154 @@
+{
+	"info": {
+		"_postman_id": "0f3b1590-13b9-495d-bfae-7054f8725207",
+		"name": "GoogleOAuthProcess",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "768979"
+	},
+	"item": [
+		{
+			"name": "GetTokens",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "code",
+							"value": "4/0ASVgi3LTW5rFxTnxo7khmCp1OMZfDGzUcG6B67tKDx6A-99aLUneBFceZJQIN-RIdXMAag",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{ClientId}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{ClientSecret}}",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{RedirectUri}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "authorization_code",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://oauth2.googleapis.com/token",
+					"protocol": "https",
+					"host": [
+						"oauth2",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "RefreshTokens",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/x-www-form-urlencoded",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "refresh_token",
+							"value": "{{RefreshToken}}",
+							"type": "text"
+						},
+						{
+							"key": "client_id",
+							"value": "{{ClientId}}",
+							"type": "text"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{ClientSecret}}",
+							"type": "text"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{RedirectUri}}",
+							"type": "text"
+						},
+						{
+							"key": "grant_type",
+							"value": "refresh_token",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://oauth2.googleapis.com/token",
+					"protocol": "https",
+					"host": [
+						"oauth2",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetAuthCode",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Server}}?client_id={{ClientId}}&redirect_uri={{RedirectUri}}&response_type=code&scope=https://www.googleapis.com/auth/adwords",
+					"host": [
+						"{{Server}}"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{ClientId}}"
+						},
+						{
+							"key": "redirect_uri",
+							"value": "{{RedirectUri}}"
+						},
+						{
+							"key": "response_type",
+							"value": "code"
+						},
+						{
+							"key": "scope",
+							"value": "https://www.googleapis.com/auth/adwords"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

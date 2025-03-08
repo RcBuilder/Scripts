@@ -1,0 +1,8 @@
+PMT fn (Payment) - חישוב הלוואות - Sheets
+------------------------------------
+[B10] Loan Amount = ₪1,200,000.00
+[B11] Yearly Interest Rate = 4%
+[B12] Loan Period In Years = 30
+[B13] index (MADAD) = 1%
+[B14] Monthly Payment = ₪5,728.98 /// =PMT(B11/12, B12*12,-B10)
+

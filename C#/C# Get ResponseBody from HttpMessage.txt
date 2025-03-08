@@ -1,0 +1,6 @@
+C# Get ResponseBody from HttpMessage
+------------------------------------
+var response = client.GetStringAsync(...);
+response.EnsureSuccessStatusCode();
+var responseBody = await response.Content.ReadAsStringAsync();
+this.listBox1.Items.Add(responseBody);

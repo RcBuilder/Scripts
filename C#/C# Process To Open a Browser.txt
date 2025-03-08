@@ -1,0 +1,6 @@
+C# Process To Open a Browser
+----------------------------
+var authUrl = $"https://accounts.google.com/o/oauth2/auth?client_id={Config.ClientId}&redirect_uri={"urn:ietf:wg:oauth:2.0:oob"}&response_type=code&scope={"https://www.googleapis.com/auth/adwords"}";            
+Process.Start(new ProcessStartInfo(authUrl) { UseShellExecute = true });           
+Console.Write("Enter the authorization code: ");
+var authCode = Console.ReadLine();

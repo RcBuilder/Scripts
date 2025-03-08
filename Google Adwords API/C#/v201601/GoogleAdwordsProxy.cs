@@ -93,9 +93,9 @@ namespace GoogleAdwordsAPI
         <!-- OAuth2 -->
         <add key="AuthorizationMethod" value="OAuth2" />
         <add key="OAuth2Mode" value="APPLICATION" />
-        <add key='OAuth2ClientId' value='xxxxxxxxxxxxx-crhp3ci2q5afvfe0serntuvkgfo17t88.apps.googleusercontent.com' />
-        <add key='OAuth2ClientSecret' value='xxxxxxxxxxxxxxxxxxxxxxxxx' />
-        <add key='OAuth2RefreshToken' value='xxxxxxxxxxxxxxxxxxxxxxxxxx' />
+        <add key='OAuth2ClientId' value='1077252635708-crhp3ci2q5afvfe0serntuvkgfo17t88.apps.googleusercontent.com' />
+        <add key='OAuth2ClientSecret' value='YhOt7UKVYpmB-nMmFayKknjO' />
+        <add key='OAuth2RefreshToken' value='1/gkvTzzciCJ2qvK3Ok_AgCMZqg_o5lx0cF34xm30gve4' />
       </AdWordsApi>
 
       note! e.g credentials belongs to yosibaryosefmcc@gmail.com account 
@@ -2461,7 +2461,8 @@ namespace GoogleAdwordsAPI
 
             // errors: 
             // https://support.google.com/adwords/answer/6335679?hl=en
-            // https://developers.google.com/adwords/api/docs/reference/v201708/AdGroupAdService.MediaBundleError.Reason
+            // https://support.google.com/adspolicy/answer/176031?hl=en#414
+            // https://developers.google.com/adwords/api/docs/reference/v201708/AdGroupAdService.MediaBundleError.Reason            
             var adGroupAdReturnValue1 = service.mutate(operations);
             return adGroupAdReturnValue1.value.First().ad.id;           
         }

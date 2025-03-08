@@ -1,0 +1,213 @@
+var MODE = 2; // 1 = SINCE_YEAR {{YEAR}} | 2 = YESTERDAY
+var DAYS_SKIP = 0;
+var DAYS_BACK = 95;
+var DATE_START = new Date(2022, 0, 1);
+var DATE_END = new Date(2022, 11, 31);
+
+var DATA_SET_ID = "bing_ads";
+var URL = "http://rcbuilder-004-site5.ktempurl.com/bqrelay/save";
+
+function generate_dummy_data(){
+    var result = [];
+	for(var i = 0; i < 1000; i++)
+		result.push({
+		  "account_id": "135098934",
+		  "customer_descriptive_name": "Top10BestMattresses.co.uk",
+		  "date": "2024-12-26",
+		  "source": "bing ads",
+		  "campaign_id": "555032674",
+		  "campaign_name": "UK_DSKP&Tablet_Main_Home_Generic-tCPA-Experiment",
+		  "ad_group_id": "1241349689578959",
+		  "ad_group_name": "Brand Names",
+		  "keyword_id": "77584687162672",
+		  "keyword_text": "[sonno mattress]",
+		  "match_type": "EXACT",
+		  "quality_score": "10",
+		  "impressions": 2,
+		  "clicks": 0,
+		  "conversions": 0,
+		  "cost": 0.0,
+		  "conversion_value": 0.0,
+		  "top_impression_rate": 50.0,
+		  "absolute_impression_rate": 0.0
+		});
+
+	return result;
+}
+
+function collect_data(collectedData) {
+	if (isArrayAndHasLength(collectedData)) {
+		Logger.log("Size: " + collectedData.length);
+		var payload = {
+			data: collectedData,
+            action: "INSERT", // eAction { INSERT, DELETE, CREATE }
+			datasetId: DATA_SET_ID,
+			dataSourceName: collectedData[0].account_id,
+            "skipInfo": {
+        		"skip": DAYS_SKIP,
+			    "back": DAYS_BACK
+			},
+		};
+		var options = {
+			method: "post",
+			payload: JSON.stringify(payload),
+			contentType: "application/json",
+			headers: {
+			   'x-api-key' : 'xxxxxxxxxxxxxxxxx',
+			   'cache-control': 'no-cache'
+			}
+		};
+		var response = UrlFetchApp.fetch(URL, options);
+
+		Logger.log("Response code: " + response.getResponseCode());
+		Logger.log("Response body: " + response.getContentText());
+	} else {
+		Logger.log("No data collected to write to the spreadsheet.");
+	}
+}
+
+function main() {
+	try {
+		const startTime = new Date();
+
+		Logger.log("Starting data collection.");
+		main2();
+		Logger.log("Data collection completed.");
+
+		const endTime = new Date();
+
+		const deltaTime = endTime - startTime;
+		Logger.log(`main Time taken: ${deltaTime} milliseconds`); // Time in milliseconds
+	} catch (error) {
+		Logger.log(`Error in main function: ${error}`);
+	}
+}
+
+function collect_R1() {
+	Logger.log("collect_R1");
+
+	var collectedData = [];
+
+	var daysLeftTillNow = Math.ceil((DATE_END.getTime() - DATE_START.getTime()) / (1000 * 3600 * 24));
+	while (daysLeftTillNow >= 0) {
+		var data = collect_R_Keywords(DATE_START);
+		collectedData.push(data);
+		DATE_START.setDate(DATE_START.getDate() + 1);
+		Logger.log(`${DATE_START.toISOString()} : ${data.length}`);
+		daysLeftTillNow--;
+	}
+
+	Logger.log("Total Data loaded: " + collectedData.length);
+	collect_data(collectedData);
+}
+
+function collect_R2() {
+	Logger.log("collect_R2");
+
+	var start = new Date();
+	start.setDate(start.getDate() - DAYS_BACK);
+	for (let i = 0; i < DAYS_BACK - DAYS_SKIP; i++) {
+		collect_R_Keywords(start);
+		start.setDate(start.getDate() + 1);
+	}
+}
+
+function collect_R3() {
+	Logger.log("collect_R3");
+
+	let collectedData = [];
+
+	var start = new Date();
+	start.setDate(start.getDate() - DAYS_BACK);
+	for (let i = 0; i < DAYS_BACK - DAYS_SKIP; i++) {
+		var data = collect_R_Keywords(start);
+		collectedData.push(data);
+		start.setDate(start.getDate() + 1);
+		Logger.log(`${start.toISOString()} : ${data.length}`);
+	}
+	
+	Logger.log("Total Data loaded: " + collectedData.length);
+	collect_data(collectedData);
+}
+
+function collect_R_Keywords(date) {
+	var innerDate = {
+		year: date.getFullYear(),
+		month: date.getMonth() + 1,
+		day: date.getDate(),
+	};
+
+	var keywords = AdsApp.keywords()
+		.withCondition("Status = ENABLED")
+		.withCondition("CampaignStatus = ENABLED")
+		.withCondition("AdGroupStatus = ENABLED")
+		.forDateRange(innerDate, innerDate)
+		.get();
+
+	Logger.log(`${keywords.totalNumEntities()} keywords found (${JSON.stringify(innerDate)})`);	 
+
+	let collectedData = [];
+
+	while (keywords.hasNext()) {
+		var keyword = keywords.next();
+		var stats = keyword.getStats();
+
+		if (!stats) continue;
+
+		var adGroup = keyword.getAdGroup();
+		var campaign = keyword.getCampaign();
+
+		collectedData.push({
+			account_id: AdsApp.currentAccount().getAccountId(),
+			customer_descriptive_name: AdsApp.currentAccount().getName(),
+			date: date.toISOString().split("T")[0],
+			source: "bing ads",
+			campaign_id: campaign.getId(),
+			campaign_name: campaign.getName(),
+			ad_group_id: adGroup.getId(),
+			ad_group_name: adGroup.getName(),
+			keyword_id: keyword.getId(),
+			keyword_text: keyword.getText(),
+			match_type: keyword.getMatchType(),
+			quality_score: keyword.getQualityScore(),
+			impressions: stats ? stats.getImpressions() : null,
+			clicks: stats ? stats.getClicks() : null,
+			conversions: stats ? stats.getConversions() : null,
+			cost: stats ? stats.getCost() : null,
+			conversion_value: stats ? stats.getRevenue() : null,
+			top_impression_rate: stats ? stats.getTopImpressionRate() : null,
+			absolute_impression_rate: stats ? stats.getAbsoluteTopImpressionRate() : null,
+		});
+	}
+
+	/// collect_data(collectedData);
+	return collectedData;
+}
+
+function main2() {
+	const startTime = new Date();
+	// Logger.log(`Start time: ${startTime.toISOString()}`);
+	Logger.log("start");
+
+	if (MODE === 2) {
+		/// collect_data(generate_dummy_data());
+		collect_R3();
+	} else {
+		/// collectCampaignData();
+		collect_R1(); 
+	}
+
+	const endTime = new Date();
+	// Logger.log(`End time: ${endTime.toISOString()}`);
+	const deltaTime = endTime - startTime;
+	Logger.log(`main2 Time taken: ${deltaTime} milliseconds`); // Time in milliseconds
+}
+
+function isArrayAndHasLength(data) {
+	return (
+		data &&
+		typeof data === "object" &&
+		typeof data.length === "number" &&
+		data.length > 0
+	);
+}

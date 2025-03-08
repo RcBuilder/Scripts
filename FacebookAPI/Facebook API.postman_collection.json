@@ -1,0 +1,133 @@
+{
+	"info": {
+		"_postman_id": "115bf36a-40c0-4b69-b75b-435051adf0c9",
+		"name": "Facebook API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "768979"
+	},
+	"item": [
+		{
+			"name": "Get App AccessToken",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{GraphServer}}oauth/access_token?client_id={{AppClientId}}&client_secret={{AppClientSecret}}&grant_type=client_credentials",
+					"host": [
+						"{{GraphServer}}oauth"
+					],
+					"path": [
+						"access_token"
+					],
+					"query": [
+						{
+							"key": "client_id",
+							"value": "{{AppClientId}}"
+						},
+						{
+							"key": "client_secret",
+							"value": "{{AppClientSecret}}"
+						},
+						{
+							"key": "grant_type",
+							"value": "client_credentials"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Campaign",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{AccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "name",
+							"value": "Test-API-Campaign-1",
+							"type": "text"
+						},
+						{
+							"key": "objective",
+							"value": "OUTCOME_SALES",
+							"type": "text"
+						},
+						{
+							"key": "status",
+							"value": "PAUSED",
+							"type": "text"
+						},
+						{
+							"key": "daily_budget",
+							"value": "1",
+							"type": "text"
+						},
+						{
+							"key": "special_ad_categories",
+							"value": "NONE",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{GraphServer}}{{Version}}/{{AdAccountId}}/campaigns",
+					"host": [
+						"{{GraphServer}}{{Version}}"
+					],
+					"path": [
+						"{{AdAccountId}}",
+						"campaigns"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Campaigns",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{AccessToken}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{GraphServer}}{{Version}}/act_{{AdAccountId}}/campaigns?fields=id,name,status,objective,daily_budget,lifetime_budget,start_time,stop_time",
+					"host": [
+						"{{GraphServer}}{{Version}}"
+					],
+					"path": [
+						"act_{{AdAccountId}}",
+						"campaigns"
+					],
+					"query": [
+						{
+							"key": "fields",
+							"value": "id,name,status,objective,daily_budget,lifetime_budget,start_time,stop_time"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

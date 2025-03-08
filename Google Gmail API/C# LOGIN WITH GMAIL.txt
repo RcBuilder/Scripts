@@ -1,0 +1,44 @@
+C# LOGIN WITH GMAIL
+-------------------
+<add key="GoogleClientId" value="9629422....com" />
+<add key="GoogleClientSecret" value="GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+<add key="GoogleCallbackURL" value="http://localhost:56790/Home/ExternalLoginCallback" />
+
+-
+
+[HttpGet]
+public ActionResult GoogleLogin()
+{
+	var ClientId = ConfigurationManager.AppSettings["GoogleClientId"].Trim();            
+	var GoogleCallbackURL = ConfigurationManager.AppSettings["GoogleCallbackURL"].Trim();
+
+	var redirectUrl = $"https://accounts.google.com/o/oauth2/auth?client_id={ClientId}&redirect_uri={Uri.EscapeDataString(GoogleCallbackURL)}&response_type=code&scope=email";
+	return Redirect(redirectUrl);
+}
+
+[AllowAnonymous]
+[HttpGet]
+public async Task<ActionResult> ExternalLoginCallback(string code)
+{
+    Debug.WriteLine("In ExternalLoginCallback...");
+
+    var ClientId = ConfigurationManager.AppSettings["GoogleClientId"].Trim();
+    var ClientSecret = ConfigurationManager.AppSettings["GoogleClientSecret"].Trim();
+    var GoogleCallbackURL = ConfigurationManager.AppSettings["GoogleCallbackURL"].Trim();
+
+    var tokenResponse = await new GoogleAuthorizationCodeFlow(
+        new GoogleAuthorizationCodeFlow.Initializer
+        {
+            ClientSecrets = new ClientSecrets { ClientId = ClientId, ClientSecret = ClientSecret }
+        }).ExchangeCodeForTokenAsync("user", code, GoogleCallbackURL, CancellationToken.None);
+
+    var service = new Oauth2Service(new BaseClientService.Initializer
+    {
+        HttpClientInitializer = GoogleCredential.FromAccessToken(tokenResponse.AccessToken)
+    });
+
+    var userInfo = await service.Userinfo.Get().ExecuteAsync();
+    FormsAuthentication.SetAuthCookie(userInfo.Email, false);
+
+    return RedirectToAction("Index", "Home");
+}

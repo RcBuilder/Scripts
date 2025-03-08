@@ -1,0 +1,74 @@
+GoogleAuthorizationCodeFlow - Google OAuth SDK
+----------------------------------------------
+
+DataStores:
+1. var DataStore = new DatabaseDataStore(ConfigSingleton.Instance.ConnStr);  // CUSTOM
+2. var DataStore = new FileDataStore($"{AppContext.BaseDirectory}", true);   // FILE-PATH
+3. var DataStore = new NullDataStore();  // NO STORAGE (In-Memory)
+
+-
+
+[AllowAnonymous]
+        public ActionResult GoogleLogin()
+        {
+            var ClientId = ConfigurationManager.AppSettings["GoogleClientId"].Trim();            
+            var GoogleCallbackURL = ConfigurationManager.AppSettings["GoogleCallbackURL"].Trim();
+
+            var redirectUrl = $"https://accounts.google.com/o/oauth2/auth?client_id={ClientId}&redirect_uri={Uri.EscapeDataString(GoogleCallbackURL)}&response_type=code&scope=email";
+            return Redirect(redirectUrl);
+        }
+
+[AllowAnonymous]
+        [HttpGet]
+        public async Task<ActionResult> ExternalLoginCallback(string code)
+        {            
+            try
+            {
+                var ClientId = ConfigSingleton.Instance.GoogleClientId;
+                var ClientSecret = ConfigSingleton.Instance.GoogleClientSecret;
+                var GoogleCallbackURL = ConfigSingleton.Instance.GoogleCallbackURL;
+
+                var tokenResponse = await new GoogleAuthorizationCodeFlow(
+                    new GoogleAuthorizationCodeFlow.Initializer
+                    {
+                        ClientSecrets = new ClientSecrets
+                        {
+                            ClientId = ClientId,
+                            ClientSecret = ClientSecret
+                        }                        
+                    }).ExchangeCodeForTokenAsync("user", code, GoogleCallbackURL, CancellationToken.None);
+
+                var service = new Oauth2Service(new BaseClientService.Initializer
+                {
+                    HttpClientInitializer = GoogleCredential.FromAccessToken(tokenResponse.AccessToken)
+                });
+
+                var userInfo = await service.Userinfo.Get().ExecuteAsync();
+
+                var DataStore = new DatabaseDataStore(ConfigSingleton.Instance.ConnStr);  // CUSTOM
+                ///var DataStore = new FileDataStore($"{AppContext.BaseDirectory}", true);   // FILE-PATH
+                ///var DataStore = new NullDataStore();    // NO STORAGE (In-Memory)
+                await DataStore.StoreAsync(userInfo.Email, tokenResponse); 
+
+                SessionsManager.SetAdmin(System.Web.HttpContext.Current, new FialkovDigital.Entities.User { 
+                    Email = userInfo.Email                    
+                });
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex) {
+                FileIO.AppendAllText($"{AppContext.BaseDirectory}\\errors.txt", $"{ex.Message} (step {step})\n\r");
+                throw;
+            }
+        }
+
+- 
+
+custom data store implementation:
+see 'DatabaseDataStore'
+
+implementations
+see 'Projects\Fialkov Digital'
+
+login with gmail implementation
+see 'Scripts\Google Gmail API'
