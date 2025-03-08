@@ -63,6 +63,7 @@ https://flask.palletsprojects.com/en/stable/
   OR 
   use .env file 
 > flask run 
+<<<<<<< HEAD
 
 use .env file:
 FLASK_APP = flaskSample.py
@@ -72,6 +73,17 @@ FLASK_RUN_PORT = 8000
 tutorials:
 https://www.youtube.com/watch?v=gFL5_LBeKlM
 
+=======
+
+use .env file:
+FLASK_APP = flaskSample.py
+FLASK_ENV = development
+FLASK_RUN_PORT = 8000
+
+tutorials:
+https://www.youtube.com/watch?v=gFL5_LBeKlM
+
+>>>>>>> 735e1193b66818bc6f11fec0cd09c08cb30f9af0
 bug:
 ImportError: cannot import name 'Flask' from partially initialized module 'flaskSample' (most likely due to a circular import) (E:\Scripts\Python\flaskSample.py)
 DO NOT USE FLEX naming as part of your python file name
@@ -89,6 +101,9 @@ vs code extension
 vs 2019
 -
 https://www.youtube.com/watch?v=MwZwr5Tvyxo&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUxCYH
+<<<<<<< HEAD
 -
 Python extension for Visual Studio Code:
 https://marketplace.visualstudio.com/items?itemName=ms-python.python
+=======
+>>>>>>> 735e1193b66818bc6f11fec0cd09c08cb30f9af0
