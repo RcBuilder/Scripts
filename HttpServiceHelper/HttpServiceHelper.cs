@@ -340,7 +340,7 @@ namespace Helpers
             try
             {
                 var response = this.UPLOAD<TPayload>(url, payload, payloadMode, querystring, headers, method);
-                return (response.Success, response.StatusCode, response.Content, response.Success && IsValidJson(response.Content) ? JsonConvert.DeserializeObject<TResult>(response.Content) : default(TResult));
+                return (response.Success, response.StatusCode, response.Content, response.Success && (typeof(TResult).FullName == "System.String" || IsValidJson(response.Content)) ? JsonConvert.DeserializeObject<TResult>(response.Content) : default(TResult));
 
                 /*
                     var model = default(TResult);

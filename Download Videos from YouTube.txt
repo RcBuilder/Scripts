@@ -1,0 +1,12 @@
+Download Videos from YouTube
+----------------------------
+
+(steps)
+1. open youtube and choose a video 
+2. change the domain name to "yout.com" (remove "ube" suffix) > Enter
+3. choose output format > click on "format shift" button
+
+-OR- 
+
+go to 
+https://yout.com and use the search-box

@@ -1,0 +1,110 @@
+C# PerformanceTest with HttpClient
+----------------------------------
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading.Tasks;
+using Entities;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+
+namespace Tests
+{
+    class Program
+    {
+        private const string SERVER_URL = "http://localhost:26700";  
+        private static readonly Random RANDOM = new Random();
+
+        static async Task Main(string[] args)
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+            var result = await PerformanceTest1(5000);
+            sw.Stop();
+            Console.WriteLine($"PerformanceTest1: {result}");
+            Console.WriteLine($"{sw.Elapsed.TotalSeconds} sec");
+
+            Console.ReadKey();
+        }
+
+        static async Task<string> PerformanceTest1(int NumOfRows = 10) {
+
+            var jsonSettings = new JsonSerializerSettings
+            {
+                ContractResolver = new CamelCasePropertyNamesContractResolver(),
+                NullValueHandling = NullValueHandling.Ignore,
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            };
+
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.BaseAddress = new Uri(SERVER_URL);
+                    httpClient.DefaultRequestHeaders.Add("Accept", "application/json");                    
+                    httpClient.DefaultRequestHeaders.Add("x-api-key", "2fegr3wfdW5F2aA9TRmeP54c");
+                    httpClient.Timeout = TimeSpan.FromMinutes(10);
+
+                    var request = new SaveDataRequest
+                    {
+                        DatasetId = "Test1",
+                        DataSourceName = "TestTable2",
+                        SkipInfo = new SkipInfo { 
+                            Skip = 0, 
+                            Back = 400 
+                        },
+                        Action = eAction.INSERT,
+                        Data = Enumerable.Range(0, NumOfRows).Select(_ => new DataRow {
+                            account_id = "000000000",
+                            customer_descriptive_name = "Sample Customer Account",
+                            date = $"2024-{RANDOM.Next(1, 12).ToString().PadLeft(2, '0')}-{RANDOM.Next(1, 25).ToString().PadLeft(2, '0')}",
+                            source = "Tests",
+                            campaign_id = "987654321",
+                            campaign_name = "Performance Test 1",
+                            ad_group_id = "456789123",
+                            ad_group_name = "Womens Shoes",
+                            keyword_id = "789123456",
+                            keyword_text = "running shoes women",
+                            match_type = "BROAD",
+                            quality_score = "8",
+                            impressions = RANDOM.Next(5000),
+                            clicks = RANDOM.Next(500),
+                            conversions = RANDOM.Next(50),
+                            cost = (float)RANDOM.Next(10000),
+                            conversion_value = RANDOM.Next(450),
+                            top_impression_rate = 0.65F,
+                            absolute_impression_rate = 0.35F
+                        }).ToList()
+                    };
+
+                    Console.WriteLine($"{request.Data.Count} Random Rows have been Generated");
+
+                    var sRequest = JsonConvert.SerializeObject(request, jsonSettings);
+                    var payload = new StringContent(sRequest, Encoding.UTF8, "application/json");
+                    var response = await httpClient.PostAsync("/bqrelay/save", payload);
+
+                    response.EnsureSuccessStatusCode();
+
+                    var responseContent = await response.Content.ReadAsStringAsync();
+                    return responseContent;
+                }
+            }
+            catch (HttpRequestException ex) {
+                Console.WriteLine($"[ERROR] -HttpRequestException- {ex.Message}");
+            }
+            catch (JsonException ex) {
+                Console.WriteLine($"[ERROR] -JsonException- {ex.Message}");
+            }
+            catch (Exception ex) {
+                Console.WriteLine($"[ERROR] -Exception- {ex.Message}");
+            }
+
+            return null;
+        }
+    }
+}

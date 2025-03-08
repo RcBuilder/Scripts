@@ -1,0 +1,23 @@
+SQL CTE & COUNT-OVER Sample
+---------------------------
+;WITH CTE(G, G2, CNT, CNT2) AS (
+	SELECT	G,
+			REPLACE(G, ' ', ''),
+			COUNT(*) OVER (PARTITION BY G) AS CNT,
+			COUNT(*) OVER (PARTITION BY REPLACE(G, ' ', '')) AS CNT2	
+	FROM [dbo].[GurFilters] 
+	WHERE (G IS NOT NULL AND G <> '')
+GROUP BY G
+)
+SELECT * FROM CTE WHERE CNT <> CNT2
+
+;WITH CTE(F, F2, CNT, CNT2) AS (
+	SELECT	F,
+			REPLACE(F, ' ', ''),
+			COUNT(*) OVER (PARTITION BY F) AS CNT,
+			COUNT(*) OVER (PARTITION BY REPLACE(F, ' ', '')) AS CNT2	
+	FROM [dbo].[GurFilters] 
+	WHERE (F IS NOT NULL AND F <> '')
+GROUP BY F
+)
+SELECT * FROM CTE WHERE CNT <> CNT2

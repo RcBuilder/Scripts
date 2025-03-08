@@ -10,8 +10,10 @@ https://learn.microsoft.com/en-us/advertising/guides/
 https://learn.microsoft.com/en-us/advertising/scripts/get-started
 https://learn.microsoft.com/en-us/advertising/scripts/
 https://learn.microsoft.com/en-us/advertising/scripts/examples/
+https://learn.microsoft.com/en-us/advertising/scripts/concepts/urlfetch-limits
 
 https://www.youtube.com/watch?v=_oPgQQSMVl0
+https://learn.microsoft.com/en-us/advertising/guides/get-started-csharp?view=bingads-13
 
 -
 

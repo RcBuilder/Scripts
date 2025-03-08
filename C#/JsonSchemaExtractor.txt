@@ -1,0 +1,43 @@
+JsonSchemaExtractor
+-------------------
+extract schema from json string dynamic
+
+--
+
+using Newtonsoft.Json.Linq;
+
+var json = @"{ 'name': 'John', 'age': 30, 'hobbies': ['reading'] }";
+var schema = JsonSchemaExtractor.GetSchema(json);
+
+// Output: name: String, age: Integer, hobbies[]: String
+foreach (var item in schema)
+    Console.WriteLine($"{item.Key}: {item.Value}");
+
+--
+
+public static class JsonSchemaExtractor
+{
+    public static Dictionary<string, string> GetSchema(string json)
+    {
+        var schema = new Dictionary<string, string>();
+        ParseJson(JToken.Parse(json), "", schema);
+        return schema;
+    }
+
+    private static void ParseJson(JToken token, string path, Dictionary<string, string> schema)
+    {
+        if (token is JObject obj)
+        {
+            foreach (var prop in obj.Properties())
+                ParseJson(prop.Value, string.IsNullOrEmpty(path) ? prop.Name : $"{path}.{prop.Name}", schema);
+        }
+        else if (token is JArray arr && arr.Any())
+        {
+            ParseJson(arr.First(), $"{path}[]", schema);
+        }
+        else
+        {
+            schema[path] = token.Type.ToString();
+        }
+    }
+}

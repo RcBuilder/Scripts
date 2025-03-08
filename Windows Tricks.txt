@@ -1,0 +1,2 @@
+* WINDOWS + R > shell:appsfolder  // installed apps on this pc
+* Run > dxdiag  		  // system details (ram, cpu, monitors etc.)

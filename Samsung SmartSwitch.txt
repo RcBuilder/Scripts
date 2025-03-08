@@ -1,0 +1,11 @@
+Samsung SmartSwitch - Copy Device Content
+-----------------------------------------
+Transfer your data from your old android to your new Galaxy
+https://www.youtube.com/watch?v=nsEwoo29lX0
+
+(steps)
+1. Connect Devices - launch SmartSwitch in both source and destination devices 
+   -  in the old device > tap 'Send data'
+   -  in the new device > tap 'Receive data' > choose 'Galaxy' or 'Android'
+2. Choose transfer type - Wifi or Cable
+3. in the old device > Select Data to transfer > Transfer

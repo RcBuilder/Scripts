@@ -1,0 +1,194 @@
+var EMAIL = ''; // 'RcBuilder@walla.com';
+var CLICKS = 3;
+var ROAS = 0.2;  //  ROAS = Return on Ad Spend (conversion value per cost)
+var CREATE = false;
+
+function main() {
+  var htmlService = HTMLBuilderService();
+  
+  var date = new Date(); 
+  date.setDate(date.getDate() - 1);  // yesterday
+  
+  /*  
+    detail_placement_view.display_name, 
+    detail_placement_view.target_url, 
+    detail_placement_view.group_placement_target_url, 
+    segments.ad_network_type,
+    metrics.cost_micros, 
+    metrics.clicks, 
+    metrics.conversions_value, 
+    campaign.id, 
+    ad_group.id
+  */
+  var report = AdWordsApp.report(
+  'SELECT detail_placement_view.display_name, detail_placement_view.target_url, detail_placement_view.group_placement_target_url, segments.ad_network_type, metrics.cost_micros, metrics.conversions, metrics.clicks, metrics.conversions_value, campaign.id, ad_group.id ' +
+  'FROM detail_placement_view ' +
+  'WHERE metrics.clicks > ' + CLICKS + ' ' +
+  'AND campaign.name LIKE "FD%" ' + // Corrected operator
+  'AND metrics.impressions > 0 ' + // Filter out zero impressions
+  'AND segments.ad_network_type = "CONTENT" ' + // Filter for Display network
+  'AND segments.date BETWEEN 20240101 AND ' + dateFormat(date));
+  
+  /*  
+  'SELECT Url, DisplayName, Cost, ConversionValue, CampaignId, AdGroupId ' +
+  'FROM URL_PERFORMANCE_REPORT ' +
+  'WHERE Clicks > ' + CLICKS + ' ' + 
+  'AND Network = DISPLAY ' +    
+  'DURING 20000101,' + dateFormat(date), reportConfig); 
+  */  
+  
+  ///var report = new UrlPerformanceReportMock();
+  var rows = report.rows(date);
+  
+  Logger.log('%s rows found', rows.totalNumEntities());
+  
+  var TEMPLATE = '<tr>' +
+                    '<td>{0}</td>' +
+                    '<td>{1}</td>' +
+                    '<td>{2}</td>' +
+                    '<td>{3}</td>' +
+                    '<td>{4}</td>' +                    
+                  '</tr>';
+                    
+  htmlService.add('<table cellspacing="3" cellpadding="3" border="1">');
+  htmlService.add('<tr>' +
+                    '<th>Name</th>' +
+                    '<th>Campaign</th>' +
+                    '<th>AdGroup</th>' +
+                    '<th>Clicks</th>' +
+                    '<th>Roas</th>' +                    
+                  '</tr>');
+  
+  var sitesToExclude = [];
+  var matches = 0;  
+  while (rows.hasNext()) {
+    var row = rows.next();
+        
+    var clicks = row["metrics.clicks"];
+    var cost = row["metrics.cost_micros"] / 1000000;
+    var conversionValue = row["metrics.conversions_value"];     
+    var roas = (cost > 0 ? conversionValue / cost : 0).toFixed(2);
+    
+    var placementUrl = row['detail_placement_view.target_url'];
+    var displayName = row['detail_placement_view.display_name'];        
+    
+    var adGroupId = parseInt(row["ad_group.id"]);
+    var campaignId = parseInt(row["campaign.id"]);    
+    
+    var adGroup = AdWordsApp.adGroups().withIds([adGroupId]).get().next();      
+    var campaign = AdWordsApp.campaigns().withIds([campaignId]).get().next();           
+    /// Logger.log('[campaign] %s', campaign.getName());
+    
+    /*
+    if(campaign.getName().indexOf('FD -') != 0)
+    {
+      Logger.log('Not an FD campaign');
+      continue;  // skip               
+    }
+    */
+    
+    Logger.log('[%s] clicks: %s, roas: %s', displayName, clicks, roas);       
+        
+    var domain = ExtractDomain(placementUrl);    
+    if (roas >= ROAS/* || sitesToExclude.includes(domain)*/) 
+    {            
+      /// sitesToExclude.push(domain);       
+      continue;  // skip    
+    }
+    
+    Logger.log('>>>to exclude: %s', displayName, placementUrl);
+    
+    matches++;
+    
+    if(placementUrl == '') {
+      Logger.log('Empty placementUrl');
+      continue;
+    }      
+    
+    var row = TEMPLATE
+    .replace('{0}', displayName)
+    .replace('{1}', campaign.getName())
+    .replace('{2}', adGroup.getName())
+    .replace('{3}', clicks)
+    .replace('{4}', roas)                   
+    
+    if(CREATE)
+    {
+      Logger.log('>>>excluding placement %s!', placementUrl);
+      var result = campaign.display().newPlacementBuilder().withUrl(placementUrl).exclude();       
+    }
+        
+    htmlService.add(row);    
+  }
+  htmlService.add('</table>');
+  if(matches > 0 && EMAIL != ''){    
+    Logger.log('email has been sent to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Non Converting Placements', '', { 
+      htmlBody: htmlService.get() 
+    });
+  }
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}
+
+function dateFormat(date){
+  /// Utilities.formatDate(date, "GMT", "yyyyMMdd");
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth() + 1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}
+
+function ExtractDomain(url){
+  // Extract domain from URL      
+  var domain = url.replace(/^https?:\/\//, '')   // Remove protocol
+    .replace(/^www\./, '')          // Remove www
+    .split('/')[0];   
+  return domain;
+}
+
+function UrlPerformanceReportMock(){
+	this.rows = function(){
+    	return new UrlPerformanceReportRowsMock();
+    }  
+}
+
+function UrlPerformanceReportRowsMock() {
+  var i = 0;    
+  
+  // item: { Cost, ConversionValue, Urlת DisplayName, AdGroupId, CampaignId }
+  var arr = [
+    { Cost: 100, ConversionValue: 30, Url: 'http://sample1.com/page1', DisplayName: 'Page1', AdGroupId: 171691422418, CampaignId: 21917725578 },
+    { Cost: 200, ConversionValue: 50, Url: 'http://sample2.com/page2', DisplayName: 'Page2', AdGroupId: 171691422418, CampaignId: 21917725578 },
+    { Cost: 300, ConversionValue: 30, Url: 'http://sample3.com/page3', DisplayName: 'Page3', AdGroupId: 171691422418, CampaignId: 21917725578 },
+    { Cost: 400, ConversionValue: 120, Url: 'http://sample4.com/page4', DisplayName: 'Page4', AdGroupId: 171691422418, CampaignId: 21917725578 },
+    { Cost: 500, ConversionValue: 40, Url: 'http://sample5.com/page5', DisplayName: 'Page5', AdGroupId: 171691422418, CampaignId: 21917725578 }
+  ];
+
+  this.next = function(){
+    return arr[i++];      
+  };
+
+  this.hasNext = function(){
+    return arr.length > i;
+  };
+  
+  this.totalNumEntities = function(){
+    return arr.length - 1;
+  };
+} 

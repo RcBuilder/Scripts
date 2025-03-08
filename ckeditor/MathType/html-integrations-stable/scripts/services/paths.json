@@ -1,0 +1,72 @@
+{
+  "devkit": {
+    "path": "./packages/devkit/",
+    "demo": false,
+    "port": ""
+  },
+  "mathCKEditor4": {
+    "path": "./packages/ckeditor4/",
+    "demo": false,
+    "port": ""
+  },
+  "mathCKEditor5": {
+    "path": "./packages/ckeditor5/",
+    "demo": false,
+    "port": ""
+  },
+  "mathFroala": {
+    "path": "./packages/froala/",
+    "demo": false,
+    "port": ""
+  },
+  "mathGeneric": {
+    "path": "./packages/generic/",
+    "demo": false,
+    "port": ""
+  },
+  "mathTinyMCE5": {
+    "path": "./packages/tinymce5/",
+    "demo": false,
+    "port": ""
+  },
+  "mathTinyMCE6": {
+    "path": "./packages/tinymce6/",
+    "demo": false,
+    "port": ""
+  },
+  "vueCKEditor5": {
+    "path": "./demos/vue/ckeditor5/",
+    "demo": true,
+    "port": "5173"
+  },
+  "htmlCKEditor4": {
+    "path": "./demos/html/ckeditor4/",
+    "demo": true,
+    "port": "8001"
+  },
+  "htmlCKEditor5": {
+    "path": "./demos/html/ckeditor5/",
+    "demo": true,
+    "port": "8002"
+  },
+  "htmlFroala": {
+    "path": "./demos/html/froala/",
+    "demo": true,
+    "port": "8004"
+  },
+  "htmlGeneric": {
+    "path": "./demos/html/generic/",
+    "demo": true,
+    "port": "8007"
+  },
+  "htmlTinyMCE5": {
+    "path": "./demos/html/tinymce5/",
+    "demo": true,
+    "port": "8006"
+  },
+  "htmlTinyMCE6": {
+    "path": "./demos/html/tinymce6/",
+    "demo": true,
+    "port": "8008"
+  }
+}

@@ -1,0 +1,57 @@
+Basic Login Sample 
+------------------
+<httpRuntime targetFramework="4.7.2" />
+    <sessionState timeout="525600" />
+    <authentication mode="Forms">
+        <forms loginUrl="~/Home/Login" />
+    </authentication>
+  </system.web>
+
+<appSettings> 
+  <add key="Username" value="john@doe.com" />
+  <add key="Password" value="1234" />
+</appSettings>
+
+-
+
+[AllowAnonymous]
+        public async Task<ActionResult> Login()
+        {
+            string Username = TempData["Username"] as string;
+            string ReturnUrl = TempData["ReturnUrl"] as string;
+
+            return View(new UserLoginDTO
+            {
+                Username = Username,
+                ReturnUrl = ReturnUrl?.Trim()
+            });
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<ActionResult> Login(UserLoginDTO login)
+        {
+            if (!ModelState.IsValid)
+            {
+                login.ReturnUrl = Request.QueryString["ReturnUrl"]?.Trim();
+                return View(login);
+            }
+
+            var user = await new UsersBLL().Login(login.Username, login.Password);
+
+            if (user == null)
+            {
+                ModelState.AddModelError("", "שם משתמש או הסיסמה שגויים.");
+                return View(login);
+            }
+
+            SessionsManager.SetUser(System.Web.HttpContext.Current, user);
+
+            return Redirect((string)TempData["ReturnUrl"] ?? login.ReturnUrl ?? "/");
+        }
+
+        public async Task<ActionResult> Logout()
+        {
+            SessionsManager.ClearUser(System.Web.HttpContext.Current);
+            return RedirectToAction("Login");
+        }

@@ -1,0 +1,290 @@
+USING CKEDITOR-5
+----------------
+
+References:
+https://ckeditor.com/docs/
+https://ckeditor.com/docs/ckeditor5/latest/
+https://ckeditor.com/docs/ckeditor5/latest/installation/
+https://ckeditor.com/docs/ckeditor5/latest/installation/getting-started/configuration.html
+https://ckeditor.com/docs/ckeditor5/latest/features/index.html
+
+Toolbar Items:
+https://github.com/ckeditor/ckeditor5/blob/master/docs/features/toolbar.md
+https://ckeditor.com/docs/ckeditor5/latest/framework/architecture/ui-components.html
+https://ckeditor.com/cke4/addon/uploadfile
+https://ckeditor.com/docs/ckeditor5/latest/features/basic-styles.html
+https://ckeditor.com/docs/ckeditor5/latest/features/images/images-installation.html
+https://ckeditor.com/docs/ckeditor5/latest/features/images/images-styles.html#presentational-example
+https://ckeditor.com/docs/ckeditor5/latest/features/tables/tables.html#basic-table-features
+https://ckeditor.com/docs/ckeditor5/latest/features/tables/tables.html#demo
+
+Builder:
+https://ckeditor.com/ckeditor-5/builder/
+
+Builds:
+https://ckeditor.com/docs/ckeditor5/latest/installation/getting-started/predefined-builds.html
+https://ckeditor.com/docs/ckeditor5/latest/installation/getting-started/predefined-builds.html#list-of-plugins-included-in-the-ckeditor-5-predefined-builds
+https://ckeditor.com/ckeditor-5/download/?null-addons=
+https://ckeditor.com/ckeditor-5/online-builder/
+
+// predefined-builds
+* ClassicEditor		// Classic editor
+* InlineEditor		// Inline editor
+* BalloonEditor		// Balloon editor
+* BalloonEditor		// Balloon block editor
+* DecoupledEditor	// Document editor
+* MultiRootEditor	// Multi-root editor
+
+// custom build
+* CKSource.Editor	// Custom editor
+
+Download:
+https://ckeditor.com/ckeditor-5/download/#zip
+https://ckeditor.com/ckeditor-5/download/#cdn
+https://ckeditor.com/ckeditor-5/download/#npm
+
+// using npm
+> npm install ckeditor5
+
+// using cdn
+<link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.1.0/ckeditor5.css" />
+<script type="importmap">
+{
+        "imports": {
+            "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.1.0/ckeditor5.js",
+            "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.1.0/"
+        }
+}
+</script>
+
+// using local copy
+<link rel="stylesheet" href="~/ckeditor5/ckeditor5.css" />    
+<script type="importmap">
+{
+        "imports": {
+            "ckeditor5": "/ckeditor5/ckeditor5.js",
+            "ckeditor5/": "/ckeditor5/"            
+        }
+}
+</script>    
+
+-
+
+Downloaded builds:
+located in 'D:\Install\ckeditor'
+note! use 'ckeditor5-41.2.1-cy0hk81fa5qa_custom_build.zip'
+
+Implementations:
+see 'SimanTovElectronics'
+
+-
+
+Simple upload adapter:
+// upload images to your server using the XMLHttpRequest API with a minimal editor configuration
+https://ckeditor.com/docs/ckeditor5/latest/features/images/image-upload/simple-upload-adapter.html
+
+// usage sample
+[MyAuthorize(Roles = "Admin")]
+public class ServicesController : Controller {        
+    [HttpPost]        
+    public JsonResult Ck5Upload() {
+            var file = Request.Files[0];
+            var isValidImage = BLL.Courses.CheckImage(file);
+            
+            var ImageName = string.Empty;
+            if (isValidImage) ImageName = BLL.Services.SaveMediaFile(file);            
+            return Json(new {
+                url = $"{BLL.Config.SiteURL}Resources/Ck5Uploads/{ImageName}"
+            });
+    }        
+}
+
+<script type="module">        
+	const modules = [];
+        import {
+            ClassicEditor,
+            Essentials,	    
+	    ImageInsert,      
+            SimpleUploadAdapter,            
+        } from 'ckeditor5';
+        
+        ClassicEditor.create(document.querySelector( '#editor' ), {
+            plugins: [ 
+                Essentials,                
+                ImageInsert,
+                SimpleUploadAdapter                              
+            ],
+            toolbar: [
+                'insertImage', 'insertImageViaUrl'
+            ],
+            simpleUpload: {
+                uploadUrl: '/Admin/Services/Ck5Upload'
+            },
+            image: {                
+                toolbar: [
+                    'imageStyle:alignBlockLeft', 'imageStyle:block', 'imageStyle:alignBlockRight', '|',
+                    'toggleImageCaption', 'imageTextAlternative', '|', 
+                    'linkImage'
+                ],
+                insert: {            
+                    type: 'auto'
+                }
+            }            
+        })
+        .then((editor) => {
+            window.editor = editor;
+        })
+        .catch((error) => {
+            console.error(error.stack);
+        });
+</script>
+
+-
+
+Usage Sample:
+<div class="page-padding">
+    <h3>Ck5</h3>
+    <div class="row">
+        @using (@Html.BeginForm("Ck5", "Test", FormMethod.Post, new { @class = "wpcf7" }))
+         {
+            <textarea name="editorContent" id="editor">
+                @ViewBag.HTMLBody
+            </textarea>                      
+            <br />
+            <input type="submit" value="SAVE" />
+         }
+    </div>
+</div>
+
+@section SCRIPTS_LOADED{    
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.1.0/ckeditor5.css" />
+    <script type="importmap">
+    {
+        "imports": {
+            "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.1.0/ckeditor5.js",
+            "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.1.0/"
+        }
+    }
+    </script>
+    
+    <script type="module">        
+        /// Mathjax
+        const modules = [];
+        import {
+            ClassicEditor,
+            Essentials,
+            Bold,
+            Italic,
+            Underline,
+            Strikethrough,
+            Font,
+            Paragraph,
+            Code,
+            List,
+            Highlight,
+            Heading,
+            Link,
+            CodeBlock,
+            Image,
+            ImageCaption,
+            ImageResize,
+            ImageStyle,
+            ImageToolbar,
+            LinkImage,
+            ImageInsert,
+            SimpleUploadAdapter,
+            SourceEditing,
+            Alignment,
+            Table, 
+            TableToolbar,
+            MediaEmbed,
+            SpecialCharacters, 
+            SpecialCharactersEssentials,
+            PageBreak,
+            HtmlEmbed                     
+        } from 'ckeditor5';
+        
+        ClassicEditor.create(document.querySelector( '#editor' ), {
+            plugins: [ 
+                Essentials,
+                Bold,
+                Italic,
+                Underline,
+                Strikethrough,
+                Font,
+                Paragraph,
+                Code,
+                List,
+                Highlight,
+                Heading,
+                Link,
+                CodeBlock,
+                Image,
+                ImageCaption,
+                ImageResize,
+                ImageStyle,
+                ImageToolbar,
+                LinkImage,
+                ImageInsert,
+                SimpleUploadAdapter,
+                SourceEditing,
+                Alignment,
+                Table,
+                TableToolbar,
+                MediaEmbed,
+                SpecialCharacters,
+                SpecialCharactersEssentials,
+                PageBreak,
+                HtmlEmbed                
+            ],
+            toolbar: [
+                'undo', 'redo', '|', 'bold', 'italic', 'underline', 'strikethrough', 'alignment', '|', 
+                'bulletedList', 'numberedList', '|',
+                'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                'highlight', 'code', '|',
+                'link', 'insertImage', 'insertImageViaUrl', 'insertTable', '|',
+                'mediaEmbed', 'specialCharacters', 'pageBreak', 'htmlEmbed', '|',                
+                'sourceEditing', 'codeBlock'
+            ],
+            simpleUpload: {
+                uploadUrl: '/Admin/Services/Ck5Upload'
+            },
+            image: {                
+                toolbar: [
+                    'imageStyle:alignBlockLeft', 'imageStyle:block', 'imageStyle:alignBlockRight', '|',
+                    'toggleImageCaption', 'imageTextAlternative', '|', 
+                    'linkImage'
+                ],
+                insert: {            
+                    type: 'auto'
+                }
+            },
+            table: {
+                contentToolbar: [ 
+                    'tableColumn', 'tableRow', 'mergeTableCells' 
+                ]
+            },
+            mediaEmbed: {},
+            math: {
+                engine: 'mathjax',
+                outputType: 'script',
+                forceOutputType: false,
+                enablePreview: true
+            }
+        })
+        .then((editor) => {
+            window.editor = editor;
+        })
+        .catch((error) => {
+            console.error(error.stack);
+        });
+    </script>
+}
+
+
+--------------------------------------------------
+TODO ->> 
+
+https://www.npmjs.com/package/@wiris/mathtype-ckeditor5
+<script src="https://www.wiris.net/demo/plugins/app/WIRISplugins.js?viewer=image"></script>
+

@@ -1,0 +1,408 @@
+*******************
+*** Adwords API ***
+*******************
+
+about
+-----
+allows us to communicate with google adwords (the advertising platform).
+
+Auth
+----
+there are two ways to use authorization with adwords: 
+1. using oauth redirect url
+   use this option to generate token dynamically per client. 
+   for those cases when we need to fetch data from the user account (reference to the user account).
+   to get data from user account on-the-fly by access_token.
+
+   (process)
+   the user is being redirected to a generated auth-url >  
+   the user gives permissions > 
+   the user then return to an "after auth" endpoint with a code > 
+   an access_token and refresh_token are extracted from the code > 
+   an adwords-user is created using the access_token.   
+
+2. using api key-secret pair 
+   use this option to generate a constant client id and secret for a specific account (also MCC).
+   for those cases when we need to fetch data from our account (reference to the company account).
+   to get data from our account by id and secret pair.
+
+   a client_key and client_secret are generated once in the developer console.
+   an adwords-user is created using the client_key and client_secret.
+   
+3. use 'OAuthTokenGenerator' utility 
+
+   (steps)
+   - go to the developer console 
+     https://console.developers.google.com/apis/dashboard
+   - Enable 'Adwords API' (aka 'Google Ads API')	
+   - (credentials) Create > OAuth > Desktop > Create
+   - (oauth consent screen) Publish app 
+   - open OAuthTokenGenerator utility > provide clientId + Secret > ok
+   - copy the result and paste it into the adwords project web.config file
+
+-
+
+see samples at 'AdwordsUser'
+
+AdwordsUser
+-----------
+use adwords-user to get services.
+
+init a user:
+an adwords-user requires 'developerToken' and 'access_token' 
+for specific account, set the 'clientCustomerId' property (optional)
+
+get service:
+let service = user.getService(<serviceName>, <version>);
+
+samples (node):
+// using access_token
+let user = new AdwordsUser({
+	developerToken: <developerToken>,
+	userAgent: <userAgent>,          
+	clientCustomerId: <accountId>,
+	access_token: <token>
+});
+
+// using client key and secret
+let user = new AdwordsUser({
+    developerToken: <developerToken>,
+	userAgent: <userAgent>,       
+    clientCustomerId: <accountId>,
+    client_id: <clientId>,
+    client_secret: <clientSecret>,
+    refresh_token: <refreshToken>
+});
+
+Services
+--------
+https://developers.google.com/adwords/api/docs/reference/v201809/CampaignService
+https://developers.google.com/adwords/api/docs/appendix/selectorfields
+
+methods:
+- get 			// get data
+- mutate 		// delete, update or create data
+- mutateLabel   // add or remove labels
+- query			// get data using AWQL
+
+note:
+some services has extra methods (e.g: 'CustomerService' has 'getCustomers')
+
+modes:
+1. using objects:
+   when using objects, set the 'fields', 'predicates', 'ordering' and 'paging' properties
+
+2. using AWQL:
+   when using AWQL, populate the 'query' property with the query to execute 
+   and use the service 'query' method instead of the 'get' method.
+   also see 'AWQL'
+
+sample (node):
+let campaignService = user.getService('CampaignService', 'v201809');
+let selector = {
+    fields: ['Id', 'Name'],                                        
+    predicates: [{
+        field: 'Status',
+        operator: 'IN',
+        values: ['ENABLED', 'PAUSED']
+    }],      
+    ordering: [{
+        field: 'Name',
+        sortOrder: 'ASCENDING'
+    }],
+    paging: {
+        startIndex: 0,
+        numberResults: 50
+    }                    
+};
+
+let params = { serviceSelector: selector };
+campaignService.get(params, (error, result) => {
+	if (error) {
+		console.log(error.message);
+		return;
+	}
+
+	// { totalNumEntries: int, entries: [ANY]}
+	console.log(`found ${result.totalNumEntries} campaigns`);  
+	let campaigns = (result.entries || []).map(c => {
+        return {
+            id: c.id,
+            name: c.name
+        }
+    });
+});
+
+Reports
+-------
+https://developers.google.com/adwords/api/docs/guides/reporting
+https://developers.google.com/adwords/api/docs/appendix/reports
+
+methods:
+getReport(<version>, <params>, <callback>);
+
+params:
+- reportName: string
+- reportType: string		// see 'https://developers.google.com/adwords/api/docs/appendix/reports'
+- fields: [string]
+- filters: [{field, operator, values}]
+- query: string				// for AWQL
+- format: string
+- dateRangeType: string		// see dateRange
+- additionalHeaders: object
+
+modes:
+1. using objects:
+   when using objects, set the 'fields', 'filters' and 'dateRangeType' properties
+
+2. using AWQL:
+   when using AWQL, populate the 'query' property with the query to execute.
+   also see 'AWQL'
+
+sample (node):
+let params = {
+    reportName: 'CampaignsWithStats',
+    reportType: 'CAMPAIGN_PERFORMANCE_REPORT',
+    fields: ['CampaignId', 'CampaignName', 'Impressions', 'Clicks', 'Cost'],
+    filters: [
+        {
+            field: 'CampaignStatus',
+            operator: 'IN',
+            values: ['ENABLED', 'PAUSED']
+        }
+    ],                    
+    format: 'CSV',
+	dateRangeType = 'ALL_TIME',	  // see 'dateRange'
+    additionalHeaders: {
+        skipReportHeader: true,
+        skipReportSummary: true
+    }
+};
+
+userReport.getReport('v201809', params, (error, report) => { 
+	if (error) {
+		console.log(error.message);
+		return;
+	}
+
+	// parse csv
+	let rows = report.split('\n');
+    let campaigns = (rows || []).map(row => {
+        let cols = row.split(',');
+
+        return {
+            id: cols[0],
+            name: cols[1],
+            metrics: {
+                impressions: cols[2],
+                clicks: cols[3],
+                cost: cols[4]
+            }
+        }
+    });
+
+	console.log(campaigns);
+}
+
+AWQL
+----
+AWQL = AdWords Query Language
+https://developers.google.com/adwords/api/docs/guides/awql
+
+1. using reports:
+   the params should contains a 'query' property with the query to execute.
+
+2. using services
+   use <service>.query method instead of <service>.get.
+   pass the query to execute in a 'query' property of the params object.
+
+
+differences:
+(reports)
+let params = { query, format };
+userReport.getReport('v201809', params, (error, report) => { ... });
+- VS -
+let params = { reportName, reportType, fields, filters, format, dateRangeType };
+userReport.getReport('v201809', params, (error, report) => { ... });
+
+-
+
+(services)
+let params = { query };
+<service>.query(params, (error, result) => { ... }); 
+- VS -
+let selector = { fields, predicates, ordering, paging }
+let params = { serviceSelector: selector };
+<service>.get(params, (error, result) => { ... });
+
+
+samples:
+
+(reports)
+let params = {
+    query: `SELECT  CampaignId, CampaignName, Impressions, Clicks, Cost
+            FROM    CAMPAIGN_PERFORMANCE_REPORT 
+            WHERE   CampaignStatus IN [ENABLED, PAUSED]
+            DURING LAST_30_DAYS`,
+    format: 'CSV'
+};
+
+userReport.getReport('v201809', params, (error, report) => { 
+	if (error) {
+		console.log(error.message);
+		return;
+	}
+
+	// parse csv
+	let rows = report.split('\n');
+    let campaigns = (rows || []).map(row => {
+        let cols = row.split(',');
+
+        return {
+            id: cols[0],
+            name: cols[1],
+            metrics: {
+                impressions: cols[2],
+                clicks: cols[3],
+                cost: cols[4]
+            }
+        }
+    });
+
+	console.log(campaigns);
+}
+ 
+-
+
+(services)
+let campaignService = user.getService('CampaignService', 'v201809');
+let params = { 
+	query: 'SELECT Id, Name WHERE Status IN ["ENABLED", "PAUSED"] ORDER BY Name DESC LIMIT 0,50' 
+};
+                                
+campaignService.query(params, (error, result) => {
+	if (error) {
+		console.log(error.message);
+		return;
+	}
+
+	// { totalNumEntries: int, entries: [ANY]}
+	console.log(`found ${result.totalNumEntries} campaigns`);  
+	let campaigns = (result.entries || []).map(c => {
+        return {
+            id: c.id,
+            name: c.name
+        }
+    });
+});
+
+
+dateRange
+---------
+ALL_TIME
+CUSTOM_DATE
+TODAY
+YESTERDAY
+LAST_7_DAYS
+LAST_WEEK
+LAST_BUSINESS_WEEK
+THIS_MONTH
+LAST_MONTH                    
+LAST_14_DAYS
+LAST_30_DAYS
+THIS_WEEK_SUN_TODAY
+THIS_WEEK_MON_TODAY
+LAST_WEEK_SUN_SAT
+
+(services) 
+CUSTOM_DATE -> requires startDate + endDate
+
+(reports)
+CUSTOM_DATE -> yyyyMMdd,yyyyMMdd (e.g: 20200501, 20200531)
+ALL_TIME - not supported (remove the DURING clause to get all)
+
+nodeJs
+------
+sources:
+https://github.com/ChrisAlvares/node-adwords
+
+install:
+> npm install --save node-adwords
+
+syntax:
+[auth]
+const AdwordsAuth = require('node-adwords').AdwordsAuth;
+
+let auth = new AdwordsAuth({
+    client_id: <client_id>,
+    client_secret: <client_secret>
+}, <token_response_url>);
+
+// generate auth url 
+let authURI = auth.generateAuthenticationUrl();
+
+// convert auth-code to tokens
+// tokens: { access_token, refresh_token, scope, token_type, expiry_date }
+auth.getAccessTokenFromAuthorizationCode(code, (error, tokens) => { ... });
+
+-
+
+[services]
+const AdwordsUser = require('node-adwords').AdwordsUser;
+
+let user = new AdwordsUser({
+	developerToken: <developerToken>,
+	client_id: <client_id>,
+        client_secret: <client_secret>,
+	userAgent: <userAgent>,                    
+	access_token: <token>,
+	refresh_token: <refresh_token>
+});
+
+let service = user.getService(<serviceName>, <version>);
+
+-
+
+[reports]
+const AdwordsReport = require('node-adwords').AdwordsReport;
+
+let userReport = new AdwordsReport({
+	developerToken: <developerToken>,
+	client_id: <client_id>,
+        client_secret: <client_secret>,
+	userAgent: <userAgent>,
+	clientCustomerId: <accountId>,  // specific account
+	access_token: <token>,
+	refresh_token: <refresh_token>
+});
+
+// params: { reportName, reportType, fields, filters, format, additionalHeaders }
+let params = { ... };
+userReport.getReport(<version>, params, (error, report) => { ... });
+
+-
+
+[reports AWQL]
+
+const AdwordsReport = require('node-adwords').AdwordsReport;
+
+let userReport = new AdwordsReport({
+	developerToken: <developerToken>,
+	client_id: <client_id>,
+        client_secret: <client_secret>,
+	userAgent: <userAgent>,
+	clientCustomerId: <accountId>,  // specific account
+	access_token: <token>,
+	refresh_token: <refresh_token>
+});
+
+// params: { query, format, additionalHeaders }
+let params = { ... };
+userReport.getReport(<version>, params, (error, report) => { ... });
+
+implementation:
+see 'NodeJS/code/adwords.js'
+see 'ResultsFirst/GoogleAdwordsAPI'
+
+using example:
+see 'NodeJS/'

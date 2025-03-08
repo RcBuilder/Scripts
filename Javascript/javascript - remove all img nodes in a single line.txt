@@ -1,0 +1,3 @@
+javascript - remove all img nodes in a single line
+--------------------------------------------------
+document.querySelectorAll('img').forEach(x => x.parentNode.removeChild(x))

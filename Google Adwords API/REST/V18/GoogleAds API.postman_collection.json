@@ -1,0 +1,48 @@
+{
+	"info": {
+		"_postman_id": "3bd993ab-e097-42e2-acad-0a1cf15b446a",
+		"name": "GoogleAds API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "768979"
+	},
+	"item": [
+		{
+			"name": "CustomersList",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{Token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "developer-token",
+						"value": "{{DeveloperToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": []
+				},
+				"url": {
+					"raw": "{{Server}}customers:listAccessibleCustomers",
+					"host": [
+						"{{Server}}customers"
+					],
+					"port": "listAccessibleCustomers"
+				}
+			},
+			"response": []
+		}
+	]
+}

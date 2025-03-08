@@ -1,0 +1,13 @@
+Create a New RDS (Microsoft SQL Server) on AWS
+----------------------------------------------
+1. Go to AWS RDS Console → Click "Create database".
+2. Select Engine → Choose Microsoft SQL Server.
+3. Choose Deployment Option → Select Standard Or Easy Create.
+4. Set Engine Version → Pick the required SQL Server version.
+5. Instance Class → Choose db.t3.micro (small-scale) or higher.
+6. Storage → Select 20GB+ (GP3 recommended), enable autoscaling if needed.
+7. Credentials → Set Master Username & Password.
+8. Connectivity → Choose VPC, enable Public/Private Access, configure Security Group (allow port 1433). 
+9. Additional Configurations → Set Backup retention, maintenance window, enable Enhanced Monitoring if required.
+10.Create Database → Click "Create Database", wait for status = Available.
+11.Get Endpoint → Find in RDS Console, use for connections.

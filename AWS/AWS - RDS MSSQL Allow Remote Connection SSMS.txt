@@ -1,0 +1,42 @@
+RDS MSSQL Allow Remote Connection SSMS
+--------------------------------------
+
+(steps)
+1. Go to the AWS Management Console
+2. RDS service > Select instance
+3. Connectivity & security (tab) > Security > VPC security group
+4. Inbound rules > Edit inbound rules
+5. Add rule: 
+   Type: MSSQL
+   Protocol: TCP
+   Port range: 1433
+   Source: Anywhere (0.0.0.0/0)
+6. Save
+
+Additionally:
+ensure DB "Publicly accessible" setting is set to "Yes" in the RDS console.
+
+-
+
+modify "Publicly accessible" setting:
+
+(steps)
+1. Go to the AWS Management Console
+2. RDS service > Select instance
+3. Connectivity & security (tab) > Networking > Publicly accessible 
+-
+4. Modify > Connectivity > Additional configuration > Public access
+5. Select "YES" to make it publicly accessible > Continue
+6. Choose Schedule modifications > Apply immediately > Modify DB instance
+
+-
+
+1. Go to the AWS Management Console
+2. ServiceNetwork ACLs service > Select instance
+3. Inbound rules > Edit inbound rules
+4. Add rule: 
+   Number: 1433
+   Type: MSSQL
+   Source: Anywhere (0.0.0.0/0)
+   Allow
+5. Save

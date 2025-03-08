@@ -1,0 +1,24 @@
+MVC4 - Block Access By Custom Rules - Parameter Value Prefix
+------------------------------------------------------------
+public ActionResult Oem_Result(List<string> makats = null)
+{
+            // BLOCK BY '=' PREFIX SIGN
+            if (makats != null)
+            {                                
+                if (makats.Any(m => m.StartsWith("=")))
+                    Response.StatusCode = 500;
+                    Response.StatusDescription = "Server Error";
+
+                    return new ContentResult
+                    {
+                        Content = "Invalid Request! Blocked By WAF",
+                        ContentType = "text/plain"
+                    };
+            }
+
+	...
+	...
+	...
+            
+            return View("Oem_Result", cat);
+}

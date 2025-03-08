@@ -1,0 +1,48 @@
+ConvertColorNameToHex & ConvertHexToColor
+-----------------------------------------
+public string ConvertColorNameToHex(string ColorName)
+        {
+            var colorMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "Black", "#000000" },
+                { "White", "#FFFFFF" },
+                { "Red", "#FF0000" },
+                { "Green", "#00FF00" },
+                { "Blue", "#0000FF" },
+                { "Yellow", "#FFFF00" },
+                { "Cyan", "#00FFFF" },
+                { "Magenta", "#FF00FF" },
+                { "Orange", "#FFA500" },
+                { "Purple", "#800080" },
+                { "Pink", "#FFC0CB" },
+                { "Brown", "#A52A2A" },
+                { "Gray", "#808080" },
+                { "Lime", "#00FF00" },
+                { "Navy", "#000080" },
+                { "Teal", "#008080" },
+                { "Olive", "#808000" },
+                { "Maroon", "#800000" }
+            };
+
+            return colorMap.TryGetValue(ColorName, out string hex) ? hex : throw new ArgumentException("Invalid color name.");
+        }
+
+private Color ConvertHexToColor(string ColorHex)
+        {
+            if (ColorHex.StartsWith("#"))
+                ColorHex = ColorHex.Substring(1);
+
+            if (ColorHex.Length != 6) 
+                throw new ArgumentException("Invalid hex color format.");
+
+            int r = int.Parse(ColorHex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
+            int g = int.Parse(ColorHex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
+            int b = int.Parse(ColorHex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
+
+            return new Color
+            {
+                Red = r / 255f,
+                Green = g / 255f,
+                Blue = b / 255f
+            };
+        }

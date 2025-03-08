@@ -1,2 +1,23 @@
-references:
-see 'Google Spreadsheet'
+
+
+=======================================================
+// TODO ->> 
+
+function myfunction() {
+  return`abcd-${Math.random()}`;
+}
+
+e.g: add to both cell-A4 and cell A5
+[A4] =myfunction() -> abcd-0.5272194520128695 // auto-generated
+[A4] =myfunction() -> abcd-0.6172136152235164 // auto-generated
+
+-
+
+/// PMT fn (Payment) - חישוב הלוואות - Sheets
+[B10] Loan Amount = ₪1,200,000.00
+[B11] Yearly Interest Rate = 4%
+[B12] Loan Period In Years = 30
+[B13] index (MADAD) = 1%
+[B14] Monthly Payment = ₪5,728.98  // =PMT(B11/12, B12*12,-B10)
+
+

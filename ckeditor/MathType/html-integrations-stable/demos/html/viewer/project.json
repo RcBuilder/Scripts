@@ -1,0 +1,54 @@
+{
+  "name": "html-viewer",
+  "$schema": "../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "demos/html/viewer",
+  "targets": {
+    "prestart": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "prestart"
+      }
+    },
+    "prestart-remote": {
+      "executor": "nx:run-script",
+      "options": {
+        "script": "prestart-remote"
+      }
+    },
+    "start": {
+      "executor": "@nx/webpack:dev-server",
+      "dependsOn": ["prestart"],
+      "options": {
+        "buildTarget": "html-viewer:build",
+        "webpackConfig": "demos/html/viewer/webpack.config.js"
+      }
+    },
+    "start-remote": {
+      "executor": "@nx/web:file-server",
+      "dependsOn": ["prestart-remote"],
+      "options": {
+        "buildTarget": "viewer:build"
+      }
+    },
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "dependsOn": ["viewer:build", "prestart"],
+      "options": {
+        "main": "demos/html/viewer/src/app.js",
+        "outputPath": "dist",
+        "tsConfig": "tsconfig.app.json",
+        "generateIndexHtml": false,
+        "index": "demos/html/viewer/index.html",
+        "webpackConfig": "demos/html/viewer/webpack.config.js"
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "options": {
+        "eslintConfig": "./.eslintrc.js",
+        "lintFilePatterns": ["demos/html/viewer/**/*.{ts,tsx,js,jsx}"]
+      },
+      "outputs": ["{options.outputFile}"]
+    }
+  }
+}

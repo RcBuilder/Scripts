@@ -1,0 +1,60 @@
+Set Images render-direction using flex
+--------------------------------------
+
+<div class="container">
+    <div class="news-items-wrapper PV80">
+        @foreach (var item in Model.NewsItems) { 
+        <div class="news-items-container">
+            <div>
+                <h3>
+                    @item.Title
+                </h3>
+                <p>
+                    @item.Text
+                </p>
+            </div>
+            <img src="~/Files/News/@item.FileNameOrDefault" alt="@item.Title" />            
+        </div>
+        }
+    </div>    
+</div>
+
+--
+
+document.addEventListener("DOMContentLoaded", function () {
+        function checkImages() {
+            if (window.innerWidth > 768) {
+                const mainDivs = document.querySelectorAll('.news-items-container');
+                mainDivs.forEach(function (div) {
+                    const img = div.querySelector('img');
+                    if (img) {
+                        function adjustLayout() {
+                            if (img.naturalWidth < img.naturalHeight) 
+                                div.classList.add('row');
+                            else 
+                                div.classList.remove('row');
+                        }
+                        if (img.complete)
+                            adjustLayout(); 
+                        else
+                            img.onload = adjustLayout; 
+                    }
+                });
+            } else {
+                document.querySelectorAll('.news-items-container').forEach(function (div) {
+                    div.classList.remove('row');
+                });
+            }
+        }
+        checkImages();
+        window.addEventListener('resize', checkImages);
+    });
+
+--
+
+.news-items-container {
+    flex-direction: column;
+}
+.news-items-container.row {
+    flex-direction: row-reverse;
+}

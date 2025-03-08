@@ -1,0 +1,12 @@
+js - ExtractDomain - domain from url
+------------------------------------
+function ExtractDomain(url){
+  // Extract domain from URL      
+  var domain = url.replace(/^https?:\/\//, '')   // Remove protocol
+    .replace(/^www\./, '')          // Remove www
+    .split('/')[0];   
+  return domain;
+}
+
+/// 'imdb.com'
+ExtractDomain('https://www.imdb.com/title/tt0251160/?ref_=nv_sr_srsg_0_tt_1_nm_7_in_0_q_john%2520q');

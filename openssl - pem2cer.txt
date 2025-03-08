@@ -1,0 +1,3 @@
+CMD:
+> openssl x509 -outform der -in server.pem -out server.der
+> openssl x509 -inform der -in server.der -out server.cer

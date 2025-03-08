@@ -1,0 +1,36 @@
+CSS blob design
+---------------
+
+.blob {
+    display: inline-block;    
+    border-radius: 20px;
+    padding: 8px;        
+    font-weight: bold;
+}
+.blob-1 {
+    background-color: #55678c;
+    color: #fff;
+    font-size: 20px;
+}
+.blob-2 {
+    background-color: #f9edfc;
+    color: #89943f;
+    font-size: 20px;
+}
+.blob-3 {
+    background-color: #e7e9ef;
+    color: #394e79;
+    font-size: 17px;
+}
+.blob-4 {
+    background-color: #f6e4fa;
+    color: #89943f;
+    font-size: 14px;
+}
+
+-
+
+<div class="blob blob-1 mt-10">בועה-1</div>
+<div class="blob blob-2 mt-10">בועה-2</div>
+<div class="blob blob-3 mt-10">בועה-3</div>
+<div class="blob blob-4 mt-10">בועה-4</div>

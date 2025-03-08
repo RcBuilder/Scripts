@@ -1,0 +1,38 @@
+SQL Custom Table Type With SP Sample
+------------------------------------
+
+-- DROP TYPE MyTableType
+CREATE TYPE MyTableType AS TABLE(
+	[RowIndex] [int] NOT NULL,
+	[Makat] [nvarchar](128) NULL
+)
+
+
+-- DROP PROCEDURE sp_Test_Type
+CREATE PROCEDURE sp_Test_Type
+	@data MyTableType readonly
+AS
+BEGIN
+	SELECT * FROM @data
+END 
+
+--
+
+DECLARE @p AS MyTableType
+INSERT INTO @p VALUES(1, '11-11-11'),(2, '22-22-22'),(3, '33-33-33')
+EXEC sp_Test_Type @p
+
+/*
+RowIndex	Makat
+1		11-11-11
+2		22-22-22
+3		33-33-33
+*/
+
+--
+
+C# CODE:
+DataTable table = new DataTable();
+table.Columns.Add("RowIndex", typeof(int));
+table.Columns.Add("Makat", typeof(string));
+

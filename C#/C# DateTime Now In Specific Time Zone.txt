@@ -1,0 +1,15 @@
+C# DateTime Now In Specific Time Zone
+-------------------------------------
+var usTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Eastern Standard Time");
+var usTime = TimeZoneInfo.ConvertTime(DateTime.Now, usTimeZone);
+
+var usTimeZonePacific = TimeZoneInfo.FindSystemTimeZoneById("Pacific Standard Time");
+var usTimePacific = TimeZoneInfo.ConvertTime(DateTime.Now, usTimeZonePacific);
+
+var ilTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Israel Standard Time");
+var ilTime = TimeZoneInfo.ConvertTime(DateTime.Now, ilTimeZone);
+
+Console.WriteLine(DateTime.Now);
+Console.WriteLine(usTime);
+Console.WriteLine(usTimePacific);
+Console.WriteLine(ilTime);

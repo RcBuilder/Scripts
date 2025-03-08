@@ -1,0 +1,15 @@
+Directory Replace Files Name
+----------------------------
+
+// D:\Disks\Gali Atari
+[SPOTDOWNLOADER.COM] sample1.mp3 > sample1.mp3
+[SPOTDOWNLOADER.COM] sample2.mp3 > sample2.mp3
+[SPOTDOWNLOADER.COM] sample3.mp3 > sample3.mp3
+
+-
+
+var dir = new System.IO.DirectoryInfo(@"D:\Disks\Gali Atari");	
+foreach (FileInfo fi in dir.GetFiles("[SPOTDOWNLOADER.COM] *.mp3")){
+        Console.WriteLine(fi.Name);        
+	File.Move(fi.FullName, fi.FullName.Replace("[SPOTDOWNLOADER.COM]", ""));
+}

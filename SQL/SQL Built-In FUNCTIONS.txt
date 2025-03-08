@@ -90,6 +90,7 @@ select STUFF('Hello World', 7, 5, 'Roby') -- Hello Roby
 
 select STUFF('Hi Roby', 1, 2, 'Bye') -- Bye Roby
 select STUFF('Hi Roby', 4, 0, 'Mr. ') -- Hi Mr. Roby
+SELECT STUFF('00017220PCC000', 1, (PATINDEX('%[^0]%', '00017220PCC000') - 1), '')  -- trim-left char 0 (remove preceding zeros) => 17220PCC000
 
 REPLACE
 -------
@@ -269,6 +270,7 @@ _    // single character
 SELECT PATINDEX('%#_%', 'abc #1 def') -- 5
 SELECT PATINDEX('%[0-9]%', 'text 567 text') -- 6
 SELECT PATINDEX('%[^0-9]%', '12345 text') -- 6
+SELECT PATINDEX('%[^0]%', '00017220PCC000')  -- pattern: first NON zero char index => 4
 
 ASCII
 -----

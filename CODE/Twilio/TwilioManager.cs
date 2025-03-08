@@ -4,21 +4,62 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 
 // Install-Package Twilio
-using Twilio;
 using Twilio.Rest.Api.V2010.Account;
 using Twilio.Rest.Content.V1;
 using Twilio.Rest.Verify.V2;
-using static Twilio.Rest.Api.V2010.Account.Call.FeedbackSummaryResource;
-using static TwilioBLL.TwilioEntities;
+using Twilio.TwiML;
+using static Twilio.TwilioEntities;
 
-namespace TwilioBLL
+namespace Twilio
 {
     /*
         --TEMP-- 
 
+        // TODO ->> async
+        var message = await MessageResource.CreateAsync(....)
+
+        -----
+
+        // https://www.twilio.com/docs/whatsapp/tutorial/send-whatsapp-notification-messages-templates
+        // Twilio Console > Messaging > Content Template Builder > Create New > config your template > send to approval 
+        var messageId = new TwilioManager(
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxx", 
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            .SendWAMessage(
+            "+1 312 544 0555", 
+            "+97254-5614020",
+            "HXxxxxxxxxxxxxxxxxxxxxxxxxxxxx",                
+            "MGxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        );
+
+        -
+
+        var messageId = new TwilioManager(
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxx", 
+            "xxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            .SendWAMessage(
+            "+1 312 544 0555", 
+            "+97254-5614020",
+            "HXxxxxxxxxxxxxxxxxxxxxxxxxxxxx",                
+            "MGxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+            new Dictionary<string, string> { 
+                { "1", "ספק-1" },
+                { "2", "מסעדה-1" },
+                { "3", "תל אביב" },
+                { "4", "שם הפריט: פריט-1, כמות: 35 יחידות" },
+                { "5", "055-5555555" }
+            }
+        );
+
+        Console.WriteLine(messageId);
+        Console.ReadKey();
+        return;
+
+        -----
         
         - open a new twilio account 
         - set 2FA (two-factor-authentication)
@@ -35,7 +76,7 @@ namespace TwilioBLL
         - choose 'Twilio phone number' or Buy a new one 
         - (screen) Link WhatsApp Business Account with your number
  
-
+        -----
 
         https://www.twilio.com/docs/whatsapp/tutorial/connect-number-business-profile
 
@@ -177,8 +218,10 @@ namespace TwilioBLL
         -- Other --
         https://github.com/twilio/twilio-csharp
         https://www.twilio.com/console/phone-numbers        
-        https://www.twilio.com/docs/content/content-types-overview
-
+        https://www.twilio.com/docs/content/content-types-overview        
+        https://www.twilio.com/docs/messaging/api
+        https://www.twilio.com/docs/messaging/api/media-resource
+        https://www.twilio.com/docs/voice/api/recording
 
         Postman
         -------
@@ -992,6 +1035,7 @@ namespace TwilioBLL
     public interface ITwilioManager {
         string SendSMS(string sTwilioPhone, string sToPhone, string Body);
         string SendWAMessage(string sTwilioPhone, string sToPhone, string Body, List<string> Images, string StatusCallbackURL);
+        string SendWAMessage(string sTwilioPhone, string sToPhone, string TemplateId, string MessagingServiceSid, Dictionary<string, string> TemplateVariables);
         string ScheduleWAMessage(string sTwilioPhone, string sToPhone, string Body, string MessagingServiceSid, DateTime SendAt);
         string UnScheduleWAMessage(string Sid);
         bool DeleteMessage(string Sid);
@@ -1070,6 +1114,10 @@ namespace TwilioBLL
             );
 
             return message.Sid;
+        }
+
+        public string SendWAMessage(string sTwilioPhone, string sToPhone, string TemplateId, string MessagingServiceSid, Dictionary<string, string> TemplateVariables = null) {
+            return this.SendContentTemplate(sTwilioPhone, sToPhone, TemplateId, MessagingServiceSid, TemplateVariables);
         }
 
         public string ScheduleWAMessage(string sTwilioPhone, string sToPhone, string Body, string MessagingServiceSid, DateTime SendAt)
@@ -1387,6 +1435,15 @@ namespace TwilioBLL
             {
                 return (false, HttpStatusCode.BadRequest, ex.Message);
             }
+        }
+
+        // -------------
+
+        public static HttpContent GetMessageXML(string body)
+        {
+            var msg_response = new MessagingResponse();
+            msg_response.Message(body);
+            return new StringContent(msg_response.ToString(), System.Text.Encoding.UTF8, "application/xml");
         }
     }
 }

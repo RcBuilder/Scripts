@@ -1,0 +1,13 @@
+Bug:
+Site crashes after several minutes with the following error
+"Error detected by Application Firewall"
+
+Error:
+Error detected by Application Firewall. Please contact support if you have any questions.
+
+Cause:
+hosting firewall issue related
+
+Solution:
+turn off the firewall for this site / all
+https://www.smarterasp.net/support/kb/a1990/error-detected-by-application-firewall.aspx

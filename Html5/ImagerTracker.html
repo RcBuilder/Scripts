@@ -1,0 +1,121 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        body {
+            margin: 50px;
+            text-align: center;
+        }
+        .wrapper {
+            display: flex;
+            gap: 10px;
+            margin: 10px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;            
+        }
+        .wrapper > img {
+            opacity: 1;
+        }
+        .wrapper > img.tracked {            
+            border:solid 1px #000;
+            transition: opacity 0.5s ease 3s;
+            opacity: 0.5;            
+        }
+
+        button {
+            background-color: bisque;
+            border: solid 1px #fb9114;
+            height: 35px;
+            color: #808080;
+            font-weight: bold;     
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <button onclick="Start()">START</button>
+        <button onclick="Stop()">STOP</button>
+    </div>
+    <div class="wrapper">
+        <img src="https://picsum.photos/200/300?v=1" />
+        <img src="https://picsum.photos/200/300?v=2" />
+        <img src="https://picsum.photos/200/300?v=3" />
+        <img src="https://picsum.photos/200/300?v=4" />
+        <img src="https://picsum.photos/200/300?v=5" />
+        <img src="https://picsum.photos/200/300?v=6" />
+        <img src="https://picsum.photos/200/300?v=7" />
+        <img src="https://picsum.photos/200/300?v=8" />
+        <img src="https://picsum.photos/200/300?v=9" />
+        <img src="https://picsum.photos/200/300?v=10" />
+        <img src="https://picsum.photos/200/300?v=11" />
+        <img src="https://picsum.photos/200/300?v=12" />
+    </div>
+
+    <script>
+        /// document.querySelectorAll('img').forEach(x => x.parentNode.removeChild(x))
+        function ImageTracker() {
+            const lstImages = new WeakSet();
+
+            function registerImage(img) {
+                if (lstImages.has(img)) return;
+                console.log(`image: ${img.src}`);
+
+                img.classList.add('tracked');
+                img.offsetWidth;  // bugfix
+                lstImages.add(img);                
+                return img;
+            }
+
+            function registerListener() {
+                new MutationObserver((mutations) => {
+                    mutations.forEach(mutation => {
+                        mutation.addedNodes.forEach(node => {
+                            // img node
+                            if (node.nodeName === 'IMG')
+                                registerImage(node);
+
+                            // search images within the added node
+                            if (node.nodeType === Node.ELEMENT_NODE) {
+                                node.querySelectorAll('img').forEach(registerImage);
+                            }
+                        });
+                    });
+                }).observe(document.body, {
+                    childList: true,
+                    subtree: true
+                });
+            };
+
+
+
+            document.querySelectorAll('img').forEach(registerImage);
+            registerListener();
+
+            return {
+                Nodes: () => Array.from(lstImages),
+                registerImage
+            };
+        };
+
+        function createDynamicImage() {
+            const img = new Image();            
+            img.src = 'https://picsum.photos/200/300?v=' + new Date().getTime();
+            document.querySelector('.wrapper').appendChild(img);
+        }
+
+        var timerId = 0;
+        function Stop() {
+            clearInterval(timerId);
+        }
+        function Start() {
+            timerId = setInterval(createDynamicImage, 2000);
+        }
+
+        ImageTracker(); // init
+    </script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    target-branch: "master"
+    versioning-strategy: increase # Stategy that'll increase the version number in package.json instead of the package-lock.json
+    reviewers:
+      - "wiris/integrations"
+    commit-message:
+      prefix: "npm prod" # Prefix to PR title in updating dependencies
+      prefix-development: "npm dev" # Prefix to PR title in updating devDependencies
+      include: "scope" # It'll include all the reviews and changes proposal
+    labels:
+      - "type:dependencies"
+    ignore:
+      - dependency-name: "@ckeditor/ckeditor5-core"
+      - dependency-name: "@ckeditor/ckeditor5-engine"
+      - dependency-name: "@ckeditor/ckeditor5-widget"
+      - dependency-name: "@ckeditor/ckeditor5-ui"
+      - dependency-name: "@ckeditor/ckeditor5-alignment"
+      - dependency-name: "@ckeditor/ckeditor5-basic-styles"
+      - dependency-name: "@ckeditor/ckeditor5-editor-classic"
+      - dependency-name: "@ckeditor/ckeditor5-essentials"
+      - dependency-name: "@ckeditor/ckeditor5-paragraph"
+      - dependency-name: "@ckeditor/ckeditor5-theme-lark"

@@ -1,0 +1,135 @@
+var EMAIL = ''; // 'RcBuilder@walla.com';
+var CLICKS = 3;
+var CONVERSIONS = 0;
+var CREATE = false;
+
+function main() {
+  var htmlService = HTMLBuilderService();
+  
+  var date = new Date(); 
+  date.setDate(date.getDate() - 1);  // yesterday
+  
+  /*  
+    detail_placement_view.display_name, 
+    detail_placement_view.target_url, 
+    detail_placement_view.group_placement_target_url,     
+    metrics.cost_micros, 
+    metrics.conversions,
+    metrics.clicks, 
+    metrics.conversions_value, 
+    campaign.id, 
+    ad_group.id
+  */
+  var report = AdWordsApp.report(
+  'SELECT detail_placement_view.display_name, detail_placement_view.target_url, detail_placement_view.group_placement_target_url, segments.ad_network_type, metrics.cost_micros, metrics.conversions, metrics.clicks, metrics.conversions_value, campaign.id, ad_group.id ' +
+  'FROM detail_placement_view ' +
+  'WHERE metrics.clicks > ' + CLICKS + ' ' +
+  'AND metrics.conversions = ' + CONVERSIONS + ' ' +
+  'AND campaign.name LIKE "FD%" ' + // Corrected operator
+  'AND metrics.impressions > 0 ' + // Filter out zero impressions
+  'AND segments.ad_network_type = "CONTENT" ' + // Filter for Display network
+  'AND segments.date BETWEEN 20240101 AND ' + dateFormat(date));  
+  
+  /*  
+  'SELECT Url, DisplayName, Clicks, Conversions, CampaignId, AdGroupId ' +
+   'FROM URL_PERFORMANCE_REPORT ' +
+   'WHERE Clicks > ' + CLICKS + ' AND Conversions <= ' + CONVERSIONS + ' ' + 
+   'DURING 20000101,' + dateFormat(date), reportConfig);
+  */  
+  
+  ///var report = new UrlPerformanceReportMock();
+  var rows = report.rows(date);
+  
+  Logger.log('%s rows found', rows.totalNumEntities());
+  
+  var TEMPLATE = '<tr>' +
+                    '<td>{0}</td>' +
+                    '<td>{1}</td>' +
+                    '<td>{2}</td>' +
+                    '<td>{3}</td>' +
+                    '<td>{4}</td>' +                    
+                  '</tr>';
+                    
+  htmlService.add('<table cellspacing="3" cellpadding="3" border="1">');
+  htmlService.add('<tr>' +
+                    '<th>Name</th>' +
+                    '<th>Campaign</th>' +
+                    '<th>AdGroup</th>' +
+                    '<th>clicks</th>' +
+                    '<th>conversions</th>' +                    
+                  '</tr>');
+  
+  var matches = 0;  
+  while (rows.hasNext()) {
+    var row = rows.next();
+        
+    var clicks = row["metrics.clicks"];
+    var conversions = row["metrics.conversions"];     
+        
+    var placementUrl = row['detail_placement_view.target_url'];
+    var displayName = row['detail_placement_view.display_name'];        
+    
+    var adGroupId = parseInt(row["ad_group.id"]);
+    var campaignId = parseInt(row["campaign.id"]);    
+    
+    var adGroup = AdWordsApp.adGroups().withIds([adGroupId]).get().next();      
+    var campaign = AdWordsApp.campaigns().withIds([campaignId]).get().next();               
+    /// Logger.log('[campaign] %s', campaign.getName());        
+           
+    matches++;
+    
+    if(placementUrl == '') {
+      Logger.log('Empty placementUrl');
+      continue;
+    }
+    
+    Logger.log('[%s] clicks: %s conversions: %s', displayName, clicks, conversions);
+    
+    var row = TEMPLATE
+    .replace('{0}', displayName)
+    .replace('{1}', campaign.getName())
+    .replace('{2}', adGroup.getName())
+    .replace('{3}', clicks)
+    .replace('{4}', conversions)    
+            
+    if(CREATE)
+    {
+      Logger.log('>>>excluding placement %s!', placementUrl);
+      var result = campaign.display().newPlacementBuilder().withUrl(placementUrl).exclude();       
+    }
+        
+    htmlService.add(row);    
+  }
+  htmlService.add('</table>');
+  
+  if(matches > 0 && EMAIL != ''){    
+    Logger.log('email has been sent to %s', EMAIL);
+    MailApp.sendEmail(EMAIL, 'Non Converting Placements', '', { 
+      htmlBody: htmlService.get() 
+    });
+  }
+}
+
+var HTMLBuilderService = function(){
+  var _html = '';
+  
+  return {
+    add: function(content){
+      _html += content;
+    },
+    get: function(){
+      return _html;
+    }
+  };
+}
+
+function dateFormat(date){
+  var year = date.getFullYear().toString();
+  var month = (date.getMonth() + 1).toString();
+  var day = date.getDate().toString();
+  
+  if(month.length == 1) month = '0' + month; // return yyyyMMdd
+  if(day.length == 1) day = '0' + day;
+  
+  return year + month + day;
+}

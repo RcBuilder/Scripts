@@ -1,0 +1,34 @@
+{
+  "targetDefaults": {
+    "build": {
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
+    },
+    "lint": {
+      "inputs": ["default", "{workspaceRoot}/.eslintrc.js"],
+      "cache": true
+    },
+    "test": {
+      "inputs": ["default", "^production"],
+      "cache": true
+    },
+    "e2e": {
+      "cache": true
+    }
+  },
+  "extends": "@nx/workspace/presets/core.json",
+  "tasksRunnerOptions": {
+    "default": {
+      "options": {
+        "runtimeCacheInputs": ["echo $SERVICE_PROVIDER_URI", "echo $SERVICE_PROVIDER_SERVER"]
+      }
+    }
+  },
+  "namedInputs": {
+    "default": ["{projectRoot}/**/*", "sharedGlobals"],
+    "sharedGlobals": ["{workspaceRoot}/babel.config.js"],
+    "production": ["default", "!{projectRoot}/.eslintrc.js"]
+  },
+  "nxCloudAccessToken": "MmY2Mjc3ZWYtOTlhZC00Mjg4LWE4MjQtYjU0MGJkYzdlNjk1fHJlYWQtd3JpdGU=",
+  "defaultBase": "main"
+}

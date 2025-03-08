@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>   
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAMPLE CKEDITOR</title>    
+
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/43.2.0/ckeditor5.css">
+</head>
+<body>
+    <div>
+        <textarea id="editor" name="content">Hello CkEditor-5</textarea>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@wiris/mathtype-ckeditor5@7.27.0/dist/mathtype-ckeditor5.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "ckeditor5": "https://cdn.ckeditor.com/ckeditor5/43.2.0/ckeditor5.js",
+                "ckeditor5/": "https://cdn.ckeditor.com/ckeditor5/43.2.0/"
+            }
+        }
+    </script>
+    <script type="module">                
+        const modules = [];
+
+        import {
+            ClassicEditor,
+            Essentials,
+            Bold,
+            Italic,
+            Underline,
+            Strikethrough,
+            Font,
+            Paragraph,
+            Code,
+            List,
+            Highlight,
+            Heading,
+            Link,
+            CodeBlock,
+            Image,
+            ImageCaption,
+            ImageResize,
+            ImageStyle,
+            ImageToolbar,
+            LinkImage,
+            ImageInsert,
+            SimpleUploadAdapter,
+            SourceEditing,
+            Alignment,
+            Table, 
+            TableToolbar,
+            MediaEmbed,
+            SpecialCharacters, 
+            SpecialCharactersEssentials,
+            PageBreak,
+            HtmlEmbed                               
+        } from 'ckeditor5';
+                
+        ClassicEditor.create(document.querySelector('#editor'), {
+            plugins: [ 
+                Essentials,
+                Bold,
+                Italic,
+                Underline,
+                Strikethrough,
+                Font,
+                Paragraph,
+                Code,
+                List,
+                Highlight,
+                Heading,
+                Link,
+                CodeBlock,
+                Image,
+                ImageCaption,
+                ImageResize,
+                ImageStyle,
+                ImageToolbar,
+                LinkImage,
+                ImageInsert,
+                SimpleUploadAdapter,
+                SourceEditing,
+                Alignment,
+                Table,
+                TableToolbar,
+                MediaEmbed,
+                SpecialCharacters,
+                SpecialCharactersEssentials,
+                PageBreak,
+                HtmlEmbed,
+                MathType                                                   
+            ],
+            toolbar: [
+                'undo', 'redo', '|', 'bold', 'italic', 'underline', 'strikethrough', 'alignment', '|', 
+                'bulletedList', 'numberedList', '|',
+                'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                'highlight', 'code', '|',
+                'link', 'insertImage', 'insertImageViaUrl', 'insertTable', '|',
+                'mediaEmbed', 'specialCharacters', 'pageBreak', 'htmlEmbed', '|',                
+                'sourceEditing', 'codeBlock', 'MathType', 'ChemType'
+            ],
+            simpleUpload: {
+                uploadUrl: '/Admin/Services/Ck5Upload'
+            },
+            image: {                
+                toolbar: [
+                    'imageStyle:alignBlockLeft', 'imageStyle:block', 'imageStyle:alignBlockRight', '|',
+                    'toggleImageCaption', 'imageTextAlternative', '|', 
+                    'linkImage'
+                ],
+                insert: {            
+                    type: 'auto'
+                }
+            },
+            table: {
+                contentToolbar: [ 
+                    'tableColumn', 'tableRow', 'mergeTableCells' 
+                ]
+            },
+            mediaEmbed: {},
+            math: {
+                engine: 'mathjax',
+                outputType: 'script',
+                forceOutputType: false,
+                enablePreview: true
+            }
+        })
+        .then((editor) => {
+            window.editor = editor;
+        })
+        .catch((error) => {
+            console.error(error.stack);
+        });
+    </script>
+</body>
+</html>
+
+<!--
+-- IN VIEW --
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"></script>
+<script type="text/javascript">
+    MathJax.Hub.Config({
+        showMathMenu: false,
+        tex2jax: {
+            inlineMath: [['$', '$'], ['\\(', '\\)']],
+            processEscapes: true
+        }
+    });
+</script>
+<div id="content">
+    @Html.Raw(Model.Content)
+</div>
+<script type="text/javascript">
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, "content"]);
+</script>
+-->

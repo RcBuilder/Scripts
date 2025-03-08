@@ -1,0 +1,32 @@
+How to import/export a class in vanilla javascript
+--------------------------------------------------
+// rectangle.js
+export default class Rectangle{
+  constructor(height, width) {
+    this.height = height;
+    this.width = width;
+  }
+}
+
+--
+
+// myRectangle.js
+import Rectangle from './rectangle.js';
+
+export default class MyRectangle extends Rectangle {
+  constructor(height, width) {
+      super(height,width);
+ }
+}
+
+--
+
+// models/script.js
+import MyRectangle from './myRectangle.js'
+
+var rec1 = new MyRectangle(20,40);
+console.log(rec1);
+
+--
+
+<script type="module" src="/models/script.js"></script>
