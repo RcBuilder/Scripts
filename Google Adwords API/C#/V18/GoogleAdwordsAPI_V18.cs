@@ -117,8 +117,8 @@ using Newtonsoft.Json;
     /// https://console.cloud.google.com/apis/credentials?inv=1&invt=Abo4fw&project=fialkovdigitalsandbox
     var googleAdwordsManager = new GoogleAdwordsAPI_V18(new GoogleAdwordsConfig
     {
-        ClientId = "346411181626-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
-        ClientSecret = "GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        ClientId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+        ClientSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
         DeveloperToken = "xxxxxxxxxxxxxxxxx",
         ManagerId = 8702916561,  
         CustomerId = 6948242805, 
