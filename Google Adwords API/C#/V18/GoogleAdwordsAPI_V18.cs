@@ -117,13 +117,13 @@ using Newtonsoft.Json;
     /// https://console.cloud.google.com/apis/credentials?inv=1&invt=Abo4fw&project=fialkovdigitalsandbox
     var googleAdwordsManager = new GoogleAdwordsAPI_V18(new GoogleAdwordsConfig
     {
-        ClientId = "346411181626-f4hk82l4j2us538ih2qditqvr7cbmtof.apps.googleusercontent.com",
-        ClientSecret = "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",
-        DeveloperToken = "ClvVMAi3iZJOPATKDEjqoQ", // RcBuilder-Mcc ClvVMAi3iZJOPATKDEjqoQ | PROD FNT8KLEfa0222_RA0zgUEA
-        ManagerId = 8702916561,  // RcBuilder-Mcc 4592852180 | RcBuilder-Mcc-Test 8702916561 | PROD XXX
-        CustomerId = 6948242805, // RcBuilder 3504403925 | RcBuilder-Test 6948242805 | PROD XXX                
+        ClientId = "346411181626-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+        ClientSecret = "GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        DeveloperToken = "xxxxxxxxxxxxxxxxx",
+        ManagerId = 8702916561,  
+        CustomerId = 6948242805, 
         CredentialsFileName = "fialkovdigitalsandbox-4c892bf0fbeb.json",
-        RefreshToken = "1//03e1V_FTz4yYzCgYIARAAGAMSNwF-L9IruWANXPFncLmMblLpRKvqbYQZwPBPIk1IaUrsMNjtUAfkvOTlJFVsOgS47z62p8q7VcU"
+        RefreshToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
     });
 
     var result = googleAdwordsManager.GetKeywordData("digital marketing");
