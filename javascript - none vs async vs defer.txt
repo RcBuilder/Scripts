@@ -1,0 +1,8 @@
+javascript - none vs async vs defer
+-----------------------------------
+
+<script       src="myscript.js"></script> // 1
+<script async src="myscript.js"></script> // 2
+<script defer src="myscript.js"></script> // 3
+-
+see 'javascript - none vs async vs defer.jpeg' 

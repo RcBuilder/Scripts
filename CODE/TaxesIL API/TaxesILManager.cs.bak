@@ -967,7 +967,7 @@ namespace TaxesIL
         public async Task<(bool Success, string Details)> HealthCheck() 
         {            
             var response = await this.HttpService.GET_ASYNC(
-                $"{this.Config.ServerURL}/Invoices/v1/Health",
+                $"{this.Config.ServerURL}/Invoices/v2/health",
                 null,                
                 new Dictionary<string, string>
                 {
@@ -990,7 +990,7 @@ namespace TaxesIL
                 }
 
                 response = await this.HttpService.GET_ASYNC(
-                    $"{this.Config.ServerURL}/Invoices/v1/Health",
+                    $"{this.Config.ServerURL}/Invoices/v2/health",
                     null,
                     new Dictionary<string, string> {
                         ["Accept"] = "application/json",

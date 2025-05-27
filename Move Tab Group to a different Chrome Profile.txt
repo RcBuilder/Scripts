@@ -1,0 +1,19 @@
+Move Tab Group to a different Chrome Profile
+--------------------------------------------
+
+Chrome Tab Groups: 
+1. Right Click on any Tab  > Add tab to group > New Group 
+2. Drag-Drop other tabs into the created tab group 
+       OR right click on a tab > move to group > select group
+
+Tab Group to Chrome Profile: 
+// Transfer tab groups to specific profiles
+1. open group in a new window
+2. open the destination profile in another window
+3. copy each link manually from the group to the profile window
+4. repeat section 'Chrome Tab Groups' in the new profile  // create the group in the new profile
+5. remove transferred group from the source
+
+Manage Profiles:
+1. Right click on the active profile 
+2. click 'Manage chrome profiles' at the bottom

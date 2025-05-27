@@ -1,0 +1,8 @@
+function JumpTo(anchorName, tunning) {    
+    var top = $('a[name="' + anchorName + '"]').offset().top;
+    $("html:not(:animated), body:not(:animated)").animate({ scrollTop: top + (tunning || 0) }, 1100, null);
+}
+
+--
+
+window.scrollTo({ top: 0, behavior: 'smooth' });

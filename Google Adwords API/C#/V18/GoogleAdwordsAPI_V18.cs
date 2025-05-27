@@ -117,8 +117,8 @@ using Newtonsoft.Json;
     /// https://console.cloud.google.com/apis/credentials?inv=1&invt=Abo4fw&project=fialkovdigitalsandbox
     var googleAdwordsManager = new GoogleAdwordsAPI_V18(new GoogleAdwordsConfig
     {
-        ClientId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
-        ClientSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        ClientId = "346411181626-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com",
+        ClientSecret = "GOCSPX-xxxxxxxxxxxxxxxxxxxxxxxxxxx",
         DeveloperToken = "xxxxxxxxxxxxxxxxx",
         ManagerId = 8702916561,  
         CustomerId = 6948242805, 
@@ -220,7 +220,8 @@ namespace GoogleAdwords
     public interface IGoogleAdwordsAPI
     {
         List<KeywordPlannerData> GetKeywordData(string Keyword, eLanguageId Language, eLocationId Location);
-        List<KeywordPlannerData> GetKeywordDataAndIdeas(string[] Keywords, eLanguageId Language, IEnumerable<eLocationId> Locations);
+        List<KeywordPlannerData> GetKeywordDataAndIdeas(IEnumerable<string> Keywords, eLanguageId Language, eLocationId Location);
+        List<KeywordPlannerData> GetKeywordDataAndIdeas(IEnumerable<string> Keywords, eLanguageId Language, IEnumerable<eLocationId> Locations);
         void PrintCampaigns();
         void CreateCampaign();
         long GetBudgetIdByName(long CustomerId, string BudgetName);
@@ -261,7 +262,15 @@ namespace GoogleAdwords
             );
         }
 
-        public List<KeywordPlannerData> GetKeywordDataAndIdeas(string[] Keywords, eLanguageId Language, IEnumerable<eLocationId> Locations)
+        public List<KeywordPlannerData> GetKeywordDataAndIdeas(IEnumerable<string> Keywords, eLanguageId Language = eLanguageId.English, eLocationId Location = eLocationId.USA) {
+            return this.GetKeywordDataAndIdeas(
+                    Keywords,
+                    Language,
+                    new eLocationId[] { Location }
+                );
+        }
+
+        public List<KeywordPlannerData> GetKeywordDataAndIdeas(IEnumerable<string> Keywords, eLanguageId Language, IEnumerable<eLocationId> Locations)
         {
             var service = this.Service.GetService(Services.V18.KeywordPlanIdeaService);
 

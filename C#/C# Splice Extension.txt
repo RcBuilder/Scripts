@@ -1,0 +1,16 @@
+C# Splice Extension
+-------------------
+public static class Extensions
+    {
+        public static string Splice(this string Value, int StartIndex, int DeleteCount, string NewContent = "")
+        {
+            ///string str = "abcd";
+            ///str = str.Remove(2, 1).Insert(2, "x");
+
+            if (Value == null) return Value;
+            if (StartIndex < 0 || StartIndex > Value.Length) return Value;
+            
+            DeleteCount = Math.Min(DeleteCount, Value.Length - StartIndex);
+            return Value.Remove(StartIndex, DeleteCount).Insert(StartIndex, NewContent);
+        }
+    }

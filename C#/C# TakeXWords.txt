@@ -1,0 +1,10 @@
+C# TakeXWords 
+-------------
+
+/// var text = "This is a long string with many words.";
+        /// var result = TakeXWords(text, 5); // "This is a long string" 
+        public static string TakeXWords(string input, int n)
+        {
+            var words = input.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            return string.Join(" ", words.Take(n));
+        }

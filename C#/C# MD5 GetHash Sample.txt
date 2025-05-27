@@ -1,0 +1,20 @@
+C# MD5 GetHash Sample
+---------------------
+var hash = GetHash(ImageURL);  
+-              
+string GetHash(string Value)
+            {
+                using (var md5 = MD5.Create())
+                {
+                    byte[] inputBytes = Encoding.UTF8.GetBytes(Value.ToLower());
+                    byte[] hashBytes = md5.ComputeHash(inputBytes);
+                    string fullHash = BitConverter.ToString(hashBytes).Replace("-", "").ToLower(); // 32 chars
+                    string shortHash = fullHash.Substring(0, 20); // Take first 20 chars
+                    return $"{shortHash}"; // e.g: "a1b2c3d4e5f6g7h8i9j0"
+                }
+            }
+
+-
+
+note: can also use built-in object base method
+var hash = Math.Abs(ImageURL.GetHashCode());

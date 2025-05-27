@@ -290,3 +290,8 @@ using (var redisClient = new RedisClient(127.0.0.1, 6379))
 // TODO ->> 
 re-arrange the data, split it into Redis mechanism and AWS ElastiCache instance
 in addition, document both StackExchange and ServiceStack clients 
+
+
+
+Tutorilas:
+- https://www.youtube.com/watch?v=LaiQFZ5bXaM

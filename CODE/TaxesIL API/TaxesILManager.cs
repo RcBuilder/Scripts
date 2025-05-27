@@ -26,6 +26,18 @@ using System.Diagnostics;
 
     -
 
+    "TaxesIL": {
+        "ServerURL": "https://ita-api.taxes.gov.il/shaam/tsandbox",
+        "AuthorizeURL": "https://openapi.taxes.gov.il/shaam/tsandbox/longtimetoken/oauth2",
+        "ApiKey": "679xxxxxxxxxxxxxxxxxxxxxxxxx",
+        "ApiSecret": "bfc6cxxxxxxxxxxxxxxxxxxxx",
+        "RedirectURI": "http://localhost:9999",
+        "RefreshToken": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+        "AccessToken": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      }
+
+    -
+
     // TODO ->> Implement Multi-invoices service
     Dear Developers,
     We hope this message finds you well. We are writing to inform you of an upcoming change regarding the API endpoint address for our services at the Israel Tax Authority.
@@ -967,7 +979,7 @@ namespace TaxesIL
         public async Task<(bool Success, string Details)> HealthCheck() 
         {            
             var response = await this.HttpService.GET_ASYNC(
-                $"{this.Config.ServerURL}/Invoices/v1/Health",
+                $"{this.Config.ServerURL}/Invoices/v2/health",
                 null,                
                 new Dictionary<string, string>
                 {
@@ -990,7 +1002,7 @@ namespace TaxesIL
                 }
 
                 response = await this.HttpService.GET_ASYNC(
-                    $"{this.Config.ServerURL}/Invoices/v1/Health",
+                    $"{this.Config.ServerURL}/Invoices/v2/health",
                     null,
                     new Dictionary<string, string> {
                         ["Accept"] = "application/json",

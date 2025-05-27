@@ -3,6 +3,14 @@
 =======================================================
 // TODO ->> 
 
+tests:
+https://docs.google.com/spreadsheets/d/132xEPsKo0rUZ21Aoh0QElNGWtGMwuApih5zpnp9Lp4s/edit?gid=1107474381#gid=1107474381
+
+references:
+https://developers.google.com/apps-script/quickstart/custom-functions
+
+-
+
 function myfunction() {
   return`abcd-${Math.random()}`;
 }

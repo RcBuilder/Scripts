@@ -1,0 +1,100 @@
+PdfImageBinder - Add Image Layer on top of a PDF file
+-----------------------------------------------------
+
+install: 
+> Install-Package iTextSharp
+
+implementations:
+- CreativeSLN > PdfGraphBinder
+
+-
+
+using System;
+using System.IO;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
+
+public static string BASE_FOLDER = $"{AppDomain.CurrentDomain.BaseDirectory}";
+
+static void Main(string[] args)
+        {
+            try
+            {
+                // File paths - replace these with your actual paths
+                var inputPdfPath = $"{BASE_FOLDER}sample.pdf";
+                var imagePath = $"{BASE_FOLDER}sample.png";
+                var outputPdfPath = $"{BASE_FOLDER}sample-with-image.pdf";
+
+                // Check if files exist
+                if (!File.Exists(inputPdfPath))
+                    throw new FileNotFoundException("Input PDF file not found.", inputPdfPath);
+
+                if (!File.Exists(imagePath))
+                    throw new FileNotFoundException("Image file not found.", imagePath);
+
+                // Create a reader for the input PDF
+                var reader = new PdfReader(inputPdfPath);
+
+                // Create a stamper that targets the output PDF
+                using (FileStream fs = new FileStream(outputPdfPath, FileMode.Create, FileAccess.Write))
+                {
+                    var stamper = new PdfStamper(reader, fs);
+
+                    // Get the number of pages in the PDF
+                    var pageCount = reader.NumberOfPages;
+
+                    // Load the image
+                    var image = Image.GetInstance(imagePath);
+
+                    // Set the position and size of the image
+                    // Parameters: left, bottom, right, top (coordinates start from bottom-left corner)
+                    float x = 100; // X position from left
+                    float y = 500; // Y position from bottom
+
+                    // Optional: Scale the image if needed
+                    // image.ScalePercent(50); // Scale to 50% of original size
+                    // or set absolute width/height
+                    // image.ScaleAbsolute(200, 100); // Width: 200, Height: 100
+
+                    // Add the image to a specific page (or loop through all pages)
+                    var targetPage = 1; // First page
+
+                    // Get the content for the target page
+                    var content = stamper.GetOverContent(targetPage);
+
+                    // Set the position of the image
+                    image.SetAbsolutePosition(x, y);
+
+                    // Add the image to the page
+                    content.AddImage(image);
+
+                    // Optionally, add to all pages
+                    /*
+                    for (int i = 1; i <= pageCount; i++)
+                    {
+                        PdfContentByte contentPage = stamper.GetOverContent(i);
+                        image.SetAbsolutePosition(x, y);
+                        contentPage.AddImage(image);
+                    }
+                    */
+
+                    // Close the stamper to apply changes
+                    stamper.Close();
+                }
+
+                // Close the reader
+                reader.Close();
+
+                Console.WriteLine($"Successfully added image to PDF. Output saved to {outputPdfPath}");                
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error occurred: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+            }
+
+            Console.ReadKey();
+        }
+
+
+

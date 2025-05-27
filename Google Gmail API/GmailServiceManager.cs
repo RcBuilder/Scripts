@@ -24,6 +24,13 @@ using HtmlAgilityPack;
     https://developers.google.com/gmail/api/reference/rest
     https://developers.google.com/gmail/api/quickstart/dotnet
     https://mycodebit.com/send-emails-in-asp-net-core-5-using-gmail-api/
+    https://www.emailarchitect.net/easendmail/sdk/html/object_oauth.htm    
+
+    OAuth App Verification:
+    https://support.google.com/cloud/answer/13463073?visit_id=638643195517434577-1133984513&hl=en-GB&rd=1
+    https://support.google.com/cloud/answer/13461325?sjid=4937531940758966623-EU
+    https://support.google.com/cloud/answer/7454865
+    https://stackoverflow.com/questions/31209273/how-do-i-set-return-uri-for-googlewebauthorizationbroker-authorizeasync
 
     SCOPES
     ------
@@ -490,12 +497,21 @@ namespace Gmail
                 var messageRawBody = mimeMessage.ToString();
             */
 
-            using (var mailMessage = new MailMessage()) {
+            using (var mailMessage = new MailMessage()) {                          
+                /// mailMessage.To.Add(new MailAddress(EmailData.To)); // single addressee
+                mailMessage.To.Add(EmailData.To); // supports multiple addressees (splitted by ',')
+
                 mailMessage.Subject = EmailData.Subject ?? "";
                 mailMessage.Body = EmailData.Body ?? "";
+                mailMessage.BodyEncoding = Encoding.UTF8;
                 mailMessage.IsBodyHtml = EmailData.IsBodyHtml;
-                mailMessage.To.Add(new MailAddress(EmailData.To)); // single addressee
-				///mailMessage.To.Add(EmailData.To); // supports multiple addressees (splitted by ',')
+                if (EmailData.IsBodyHtml) {
+                    var htmlView = AlternateView.CreateAlternateViewFromString(EmailData.Body ?? "", Encoding.UTF8, "text/html");
+                    mailMessage.AlternateViews.Add(htmlView);
+                }
+                else {
+                    mailMessage.Body = EmailData.Body ?? "";
+                }
 
                 if (!string.IsNullOrEmpty(EmailData.Bcc))
                     mailMessage.Bcc.Add(new MailAddress(EmailData.Bcc));
@@ -571,6 +587,7 @@ namespace Gmail
             {
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.FromStream(stream).Secrets,
+					/// new ClientSecrets { ClientId = "105720651339-o06qrd6m1umhqc62e5e4f8t2koqcmvec.apps.googleusercontent.com", ClientSecret = "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" },
                     SCOPES,
                     "user",
                     CancellationToken.None,

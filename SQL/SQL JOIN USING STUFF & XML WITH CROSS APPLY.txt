@@ -1,0 +1,48 @@
+SQL JOIN USING STUFF & XML WITH CROSS APPLY
+-------------------------------------------
+
+SELECT	ID, Makat, t1.sOEMs, t2.sMakats
+	FROM	GurFilters 
+	CROSS APPLY (
+		SELECT STUFF(
+		(
+			SELECT	',' + M.Name
+			FROM	GurFilters F WITH(NOLOCK)
+					INNER JOIN
+					FilterConnections C WITH(NOLOCK)
+					ON(F.ID = C.GurID)
+					INNER JOIN
+					ManFilters MF WITH(NOLOCK)
+					ON(MF.ID = C.ManID)
+					INNER JOIN
+					Manufacturers M WITH(NOLOCK)
+					ON(M.ID = MF.ManufacturerID)	
+			WHERE	M.IsMakeOrOther = 1 
+			AND		F.ID = GurFilters.ID
+			GROUP BY ',' + M.Name
+			ORDER BY  ',' + M.Name ASC
+			FOR XML PATH('')
+		), 1, 1, '')
+	) t1(sOEMs)
+	CROSS APPLY (
+		SELECT STUFF(
+		(
+			SELECT	',' + MF.Makat
+			FROM	GurFilters F WITH(NOLOCK)
+					INNER JOIN
+					FilterConnections C WITH(NOLOCK)
+					ON(F.ID = C.GurID)
+					INNER JOIN
+					ManFilters MF WITH(NOLOCK)
+					ON(MF.ID = C.ManID)			
+					INNER JOIN
+					Manufacturers M WITH(NOLOCK)
+					ON(M.ID = MF.ManufacturerID)	
+			WHERE	M.IsMakeOrOther = 1 			
+			AND		F.ID = GurFilters.ID
+			GROUP BY ',' + MF.Makat
+			ORDER BY  ',' + MF.Makat ASC
+			FOR XML PATH('')
+		), 1, 1, '')
+	) t2(sMakats)
+	ORDER BY Makat

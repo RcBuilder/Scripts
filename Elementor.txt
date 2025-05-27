@@ -1,0 +1,19 @@
+Elementor is a popular WordPress page builder plugin that allows users to visually design and customize websites without coding knowledge. 
+It works as an overlay to WordPress, providing a drag-and-drop interface where users can create and edit pages in real-time with a live preview. 
+The Elementor designs are stored in the WordPress database and loaded when visitors access the site. 
+When someone visits your WordPress site with Elementor, they're seeing the rendered result of what you built in the Elementor editor, not the editor itself.
+-
+what is the alternative to build a wordpress website? without elemntor in place?
+
+There are several alternatives to build a WordPress website without using Elementor:
+1. WordPress Block Editor (Gutenberg) - The native editor that comes built-in with WordPress, offering block-based content creation.
+2. Other page builders like Beaver Builder, Divi, or Visual Composer - Similar drag-and-drop functionality as Elementor but with different features and interfaces.
+3. WordPress themes - Many premium themes come with their own customization options and visual builders (like Avada, Astra, or OceanWP).
+4. Custom coding - Using HTML, CSS, PHP, and JavaScript to build custom WordPress themes from scratch or modify existing ones.
+5. Classic WordPress Editor - The traditional TinyMCE editor for those who prefer the older WordPress interface.
+6. Theme builders like GeneratePress or Kadence - Lightweight themes with powerful customization options.
+
+--
+
+WORDPRESS
+https://www.youtube.com/watch?v=E15iQEm9KF8 

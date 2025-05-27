@@ -444,7 +444,7 @@ namespace Helpers
     public class WkHtml2PdfProvider : PdfPuppeteerBrowserProvider, IPdfProvider
     {
         private readonly string UtilityPath = $"{AppDomain.CurrentDomain.BaseDirectory}wkhtmltopdf.exe";
-        private const string GlobalOptions = "--enable-local-file-access --quiet --encoding windows-1255";
+        private const string GlobalOptions = "--enable-local-file-access --quiet"; // --encoding utf-8 | --encoding windows-1255
 
         public Stream Create(IEnumerable<IDrawingElement> Elements, PdfSettings Settings)
         {
@@ -453,6 +453,7 @@ namespace Helpers
 
         public Stream CreateFromHtmlString(string HtmlString)
         {
+            var aa = ProcessManager.InteractAsString(this.UtilityPath, $"{GlobalOptions} - -", HtmlString);
             return ProcessManager.InteractAsStream(this.UtilityPath, $"{GlobalOptions} - -", HtmlString);
         }
 
@@ -465,6 +466,11 @@ namespace Helpers
                 HtmlString = await fs.ReadToEndAsync();
 
             return this.CreateFromHtmlString(HtmlString);
+        }
+
+        public string CopyFromHtmlFile(string HtmlPath, string PdfPath)
+        {
+            return ProcessManager.InteractAsString(this.UtilityPath, $"{GlobalOptions} \"{HtmlPath}\" \"{PdfPath}\"", "");
         }
 
         public Stream CreateFromBitmap(Bitmap Bitmap, eImageMode ImageMode)
@@ -598,7 +604,7 @@ namespace Helpers
             }
 
             public static string InteractAsString(string Command, string Args, string Input)
-            {
+            {                
                 using (var p = new Process())
                 {
                     SetCommonProperties(p);
@@ -607,14 +613,14 @@ namespace Helpers
                     p.Start();
 
                     try
-                    {
+                    {                        
                         using (var stdin = p.StandardInput)
                         {
                             stdin.AutoFlush = true;
                             stdin.Write(Input);
                         };
 
-                        var output = p.StandardOutput.ReadToEnd();
+                        var output = p.StandardOutput.ReadToEnd();                        
                         p.StandardOutput.Close();
 
                         p.WaitForExit();
@@ -632,16 +638,16 @@ namespace Helpers
                     p.StartInfo.FileName = Command;
                     p.StartInfo.Arguments = Args ?? string.Empty;
                     p.Start();
-
+                    
                     try
                     {
                         using (var stdin = p.StandardInput)
-                        {
+                        {                            
                             stdin.AutoFlush = true;
                             stdin.Write(Input);
                         };
 
-                        var ms = new MemoryStream();
+                        var ms = new MemoryStream();                        
                         p.StandardOutput.BaseStream.CopyTo(ms);
                         p.StandardOutput.Close();
 
@@ -663,6 +669,7 @@ namespace Helpers
                 p.StartInfo.RedirectStandardInput = true;
                 p.StartInfo.RedirectStandardOutput = true;
                 p.StartInfo.RedirectStandardError = true;
+                p.StartInfo.StandardOutputEncoding = Encoding.UTF8;
             }
         }
     }

@@ -1,0 +1,69 @@
+CSS Spinner Sample
+------------------
+
+// HTML
+<div class="rc-loader">
+    <span></span>
+</div>
+
+-
+
+// CSS
+.rc-loader.active {
+    display: unset;
+}
+.rc-loader {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: #000;
+    z-index: 999;
+    opacity: 0.8;
+    display: none;
+}
+.rc-loader > span {
+    width: 64px;
+    height: 64px;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-image: linear-gradient(#FFF 16px, transparent 0), linear-gradient(#FF3D00 16px, transparent 0), linear-gradient(#FF3D00 16px, transparent 0), linear-gradient(#FFF 16px, transparent 0);
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+    background-position: left top, left bottom, right top, right bottom;
+    animation: rotate-loader 1s linear infinite;
+}
+
+@keyframes rotate-loader {
+    0% {
+        width: 64px;
+        height: 64px;
+        transform: rotate(0deg)
+    }
+
+    50% {
+        width: 30px;
+        height: 30px;
+        transform: rotate(180deg)
+    }
+
+    100% {
+        width: 64px;
+        height: 64px;
+        transform: rotate(360deg)
+    }
+}
+
+---
+
+function enableSpinner() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    /// this.style.display='none'
+    document.querySelector('.rc-loader').classList.add('active');
+}
+
+onclick="enableSpinner()"

@@ -1,0 +1,7 @@
+SQL Create Login & Grant Access
+-------------------------------
+USE FialkovDigital;
+CREATE LOGIN RcBuilder WITH PASSWORD = 'xxxxxxxxxxxxx';
+CREATE USER RcBuilder FOR LOGIN RcBuilder;
+GRANT SELECT ON dbo.Users TO RcBuilder;
+
