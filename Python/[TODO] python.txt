@@ -90,3 +90,20 @@ https://www.youtube.com/watch?v=MwZwr5Tvyxo&list=PL-osiE80TeTs4UjLw5MM6OjgkjFeUx
 -
 Python extension for Visual Studio Code:
 https://marketplace.visualstudio.com/items?itemName=ms-python.python
+-
+comments:
+# This is a comment
+# This is another comment
+# print("This line won't run")
+
+"""
+This is sometimes used
+as a block comment, but it's actually
+a multi-line string.
+"""
+
+'''
+This is sometimes used
+as a block comment, but it's actually
+a multi-line string.
+'''

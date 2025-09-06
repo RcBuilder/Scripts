@@ -1,0 +1,10 @@
+Chrome App Mode (--app)
+-----------------------
+
+Usage:
+> C:\Program Files (x86)\Google\Chrome\Application\chrome.exe --app=https://mrd0x.com
+> C:\Program Files (x86)\Google\Chrome\Application\chrome.exe --app=D:\index.html
+> C:\Program Files (x86)\Microsoft\Edge\Application>msedge.exe --app=https://mrd0x.com
+
+source:
+https://mrd0x.com/phishing-with-chromium-application-mode/

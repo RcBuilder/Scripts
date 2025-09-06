@@ -1,0 +1,75 @@
+@model List<Entities.Student>
+
+@section SCRIPTS_LOADED{
+    <script type="text/javascript">
+        function reloadWithParam(name, value) {
+            var url = new URL(location.href);
+            url.searchParams.set(name, value);
+            location.href = url;
+        }
+
+        function reloadStudents(checkbox) {
+            reloadWithParam('guests', checkbox.checked);
+        }
+    </script>
+}
+
+<style>
+    td.text-limit {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        word-break: break-word;
+        white-space: normal;
+        vertical-align: top;
+    }
+
+    .features-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 10px;
+        color: red;
+        font-size: 11px;
+        font-weight: bold;
+    }
+
+    input[type="checkbox"] {
+        vertical-align: sub;
+    }
+</style>
+
+<div class="page-padding">
+    <h2>רשימת סטודנטים </h2>
+    <div class="features-row">
+        <div>
+            <input type="checkbox" checked="@(Request.QueryString["guests"] == "true")" onchange="reloadStudents(this)" />
+            <span>הצג אורחים</span>
+        </div>
+        <div>
+            @Model.Count סטודנטים
+        </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>שם</th>
+                <th>דוא"ל</th>
+                <th>סיסמה</th>
+                <th>טלפון</th>
+                <th>עיר</th>
+                <th>מוסד אקדמי</th>
+                <th>קטגוריה</th>
+                <th>ת.הצטרפות</th>
+                <th>מאושר</th>
+                <th>-</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in Model)
+            {
+                @Html.Partial("~/Areas/Admin/Views/Student/Partial/StudentRow.cshtml", student);
+            }
+        </tbody>
+    </table>
+</div>

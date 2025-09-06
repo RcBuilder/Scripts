@@ -1,0 +1,20 @@
+PowerShell Environment Variables 
+--------------------------------
+Windows (PowerShell)
+
+// set a new variable
+> $env:OPENAI_API_KEY="key"
+OR
+System Environment Variables > New > OPENAI_API_KEY
+
+-
+
+// get varialbes
+> Get-ChildItem Env:
+> $env:OPENAI_API_KEY
+> Get-ChildItem Env: | Where-Object { $_.Name -like "*OPENAI*" }
+
+-
+
+// using
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")

@@ -281,6 +281,7 @@ namespace FacebookAPI
     {
         public enum eCampaignStatus { ACTIVE, PAUSED, DELETED, ARCHIVED }
         public enum eAdGroupStatus { ACTIVE, PAUSED, DELETED, ARCHIVED }
+        public enum eAdStatus { ACTIVE, PAUSED, DELETED, ARCHIVED }
 
         public enum eBillingEvents
         {
@@ -403,6 +404,7 @@ namespace FacebookAPI
             public string AdGroupId { get; set; }
             public string AdCreativeId { get; set; }
             public string AdCreativeImageURL { get; set; }
+            public eAdStatus Status { get; set; } = eAdStatus.ACTIVE;
         }
 
         public class AdCreative
@@ -492,7 +494,7 @@ namespace FacebookAPI
         Task<List<FacebookEntities.Ad>> GetAdsByCampaign(string CampaignId, int? RowCount);
         Task<List<FacebookEntities.Ad>> GetAdsByAccount(int? RowCount);        
         Task<FacebookEntities.Ad> GetAd(string Id);
-        Task<List<FacebookEntities.AdArchive>> SearchAdsLibrary(string SearchTerms, int? RowCount = null);
+        Task<List<FacebookEntities.AdArchive>> SearchAdsLibrary(string SearchTerms, int? RowCount, int PageSize);
         Task<FacebookEntities.Targeting> GetTargeting(string AdGroupId);
         Task<string> CreateCampaign(FacebookEntities.Campaign Campaign);
         Task<string> CreateAdGroup(FacebookEntities.AdGroup AdGroup);
@@ -809,80 +811,113 @@ namespace FacebookAPI
                 return null;
             }
         }
-
-        public async Task<List<FacebookEntities.AdArchive>> SearchAdsLibrary(string SearchTerms, int? RowCount = null)
+        
+        public async Task<List<FacebookEntities.AdArchive>> SearchAdsLibrary(string SearchTerms, int? RowCount = null, int PageSize = 500)
         {
             var ads = new List<FacebookEntities.AdArchive>();
+            string afterCursor = null;
+            var totalFetched = 0;            
+            var maxRows = RowCount.HasValue ? RowCount.Value : 10000;  // DEFAULT MAX ROWS
 
             try
             {
                 /// Formal Ads Library Interface:
-                /// https://www.facebook.com/ads/library/?active_status=active&ad_type=political_and_issue_ads&country=IL&is_targeted_country=false&media_type=all
-                
+                /// https://www.facebook.com/ads/library/?active_status=active&ad_type=political_and_issue_ads&country=IL&is_targeted_country=false&media_type=all                
                 /// https://www.facebook.com/ads/library/api/
-                /// id,page_id,page_name,ad_creative_link_descriptions,ad_creative_link_titles,ad_delivery_start_time,ad_delivery_stop_time,ad_snapshot_url,languages,spend,ad_creative_bodies,ad_creative_link_captions
-                var fields = "id,page_id,page_name,ad_creative_link_descriptions,ad_creative_link_titles,ad_delivery_start_time,ad_delivery_stop_time,ad_snapshot_url,languages,spend,ad_creative_bodies,ad_creative_link_captions";
-                var parameters = new Dictionary<string, object> {
-                    { "fields", fields },
-                    { "search_terms", HttpUtility.UrlEncode(SearchTerms) },
-                    { "ad_reached_countries", "['US']" },
-                    { "ad_delivery_date_min", "" },
-                    { "ad_delivery_date_max", "" },
-                    { "ad_type", "" },
-                    /// { "search_type", "KEYWORD_EXACT_PHRASE" },  // KEYWORD_UNORDERED, KEYWORD_EXACT_PHRASE
-                    { "active_status", "ALL" },  // ACTIVE, ALL, INACTIVE
-                    { "limit", RowCount.HasValue ? RowCount.ToString() : "" }  // null = ALL
-                };
-                
-                dynamic result = await _ClientLibrary.GetTaskAsync($"/{_ApiVersion}/ads_archive", parameters);
 
-                foreach (var item in result.data)
+                while (true)
                 {
-                    var bodyList = new List<string>();
-                    foreach (var body in item.ad_creative_bodies)                    
-                        bodyList.Add(body.ToString());                    
+                    /// id,page_id,page_name,ad_creative_link_descriptions,ad_creative_link_titles,ad_delivery_start_time,ad_delivery_stop_time,ad_snapshot_url,languages,spend,ad_creative_bodies,ad_creative_link_captions
+                    var fields = "id,page_id,page_name,ad_creative_link_descriptions,ad_creative_link_titles,ad_delivery_start_time,ad_delivery_stop_time,ad_snapshot_url,languages,spend,ad_creative_bodies,ad_creative_link_captions";
+                    var parameters = new Dictionary<string, object> {
+                        { "fields", fields },
+                        { "search_terms", HttpUtility.UrlEncode(SearchTerms) },
+                        { "ad_reached_countries", "['US']" },
+                        { "ad_delivery_date_min", "" },
+                        { "ad_delivery_date_max", "" },
+                        { "ad_type", "" },
+                        /// { "search_type", "KEYWORD_EXACT_PHRASE" },  // KEYWORD_UNORDERED, KEYWORD_EXACT_PHRASE
+                        { "active_status", "ALL" },  // ACTIVE, ALL, INACTIVE                        
+                        { "limit", Math.Min(PageSize, maxRows - totalFetched).ToString() } // (built-in default is 25)
+                    };
 
-                    var buttonTextList = new List<string>();
-                    foreach (var title in item.ad_creative_link_titles)                    
-                        buttonTextList.Add(title.ToString());                    
+                    if (!string.IsNullOrEmpty(afterCursor)) 
+                        parameters["after"] = afterCursor;
 
-                    var buttonTitleList = new List<string>();
-                    foreach (var caption in item.ad_creative_link_captions)
-                        buttonTitleList.Add(caption.ToString());                    
+                    dynamic result = await _ClientLibrary.GetTaskAsync($"/{_ApiVersion}/ads_archive", parameters);
 
-                    var languagesList = new List<string>();
-                    foreach (var lang in item.languages)
-                        languagesList.Add(lang.ToString());
+                    if (result?.data == null) break;
 
-                    var spendRange = item.spend != null ? $"{item.spend?.lower_bound} - {item.spend.upper_bound}" : "";
-                    
-                    ads.Add(new FacebookEntities.AdArchive
-                    {      
-                        Id = item.id,
-                        PageId = item.page_id,
-                        PageName = item.page_name,
+                    foreach (var item in result.data)
+                    {
+                        if (totalFetched >= maxRows) break;
 
-                        BodyList = bodyList,
-                        ButtonTextList = buttonTextList,
-                        ButtonTitleList = buttonTitleList,                        
-                        SnapshotURL = item.ad_snapshot_url,                        
+                        var bodyList = new List<string>();
+                        if (item.ad_creative_bodies != null)
+                            foreach (var body in item.ad_creative_bodies)
+                                bodyList.Add(body.ToString());
 
-                        CreatedDate = item.ad_creation_time,
-                        StartDate = item.ad_delivery_start_time,
-                        StopDate = item.ad_delivery_stop_time,
+                        var buttonTextList = new List<string>();
+                        if (item.ad_creative_link_titles != null)
+                            foreach (var title in item.ad_creative_link_titles)
+                                buttonTextList.Add(title.ToString());
 
-                        Languages = languagesList,
-                        SpendRange = spendRange
-                    });
-                }
+                        var buttonTitleList = new List<string>();
+                        if (item.ad_creative_link_captions != null)
+                            foreach (var caption in item.ad_creative_link_captions)
+                                buttonTitleList.Add(caption.ToString());
 
-                return ads;
+                        var languagesList = new List<string>();
+                        if (item.languages != null)
+                            foreach (var lang in item.languages)
+                                languagesList.Add(lang.ToString());
+
+                        var spendRange = item.spend != null ? $"{item.spend?.lower_bound} - {item.spend.upper_bound}" : "";
+
+                        ads.Add(new FacebookEntities.AdArchive
+                        {
+                            Id = item.id,
+                            PageId = item.page_id,
+                            PageName = item.page_name,
+
+                            BodyList = bodyList,
+                            ButtonTextList = buttonTextList,
+                            ButtonTitleList = buttonTitleList,
+                            SnapshotURL = item.ad_snapshot_url,
+
+                            CreatedDate = item?.ad_creation_time ?? "",
+                            StartDate = item.ad_delivery_start_time,
+                            StopDate = item.ad_delivery_stop_time,
+
+                            Languages = languagesList,
+                            SpendRange = spendRange
+                        });
+
+                        totalFetched++;
+                        if (totalFetched >= maxRows) break;
+                    }
+
+                    if (totalFetched >= maxRows) break;
+
+                    // paging
+                    /*
+                    paging: {
+                        "cursors": {
+                            "after": "c2NyYXBpbmdfY3Vyc29yOk1UYzBNalUwTWpnMU1qb3lNemMyTURZANE5qWXlOelV3TkRNNQZDZD"
+                        },
+                    "next": "....&after=c2NyYXBpbmdfY3Vyc29yOk1UYzBNalUwTWpnMU1qb3lNemMyTURZANE5qWXlOelV3TkRNNQZDZD"
+                    */
+
+                    afterCursor = result.paging?.cursors?.after;
+                    if (string.IsNullOrEmpty(afterCursor)) break;
+                }          
             }
             catch (FacebookApiException ex)
             {
-                Debug.WriteLine(ex.Message);
-                return ads;
+                Debug.WriteLine(ex.Message);               
             }
+
+            return ads;
         }
 
         public async Task<FacebookEntities.Targeting> GetTargeting(string AdGroupId)
@@ -1012,6 +1047,7 @@ namespace FacebookAPI
                 dynamic result = await _Client.PostTaskAsync($"/{_ApiVersion}/act_{_AccountId}/adsets", parameters);
                 return result.id;
             }
+            ///catch (FacebookApiException ex)
             catch (FacebookApiException ex)
             {
                 Debug.WriteLine(ex.Message);
@@ -1031,7 +1067,7 @@ namespace FacebookAPI
                     {"creative", new {
                         creative_id = Ad.AdCreativeId
                     }},
-                    {"status", "ACTIVE"}
+                    {"status", Ad.Status.ToString()}
                 };
 
                 dynamic result = await _Client.PostTaskAsync($"/{_ApiVersion}/act_{_AccountId}/ads", parameters);
@@ -1123,7 +1159,7 @@ namespace FacebookAPI
 
                 // TODO ->> (OAuthException - #100) Invalid parameter
                 dynamic result = await _Client.PostTaskAsync($"/{_ApiVersion}/act_{_AccountId}/adimages", parameters);
-                return result.id;
+                return result.images[AdImage.Name].hash;
             }
             catch (FacebookApiException ex)
             {
