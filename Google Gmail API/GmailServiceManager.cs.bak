@@ -578,7 +578,7 @@ namespace Gmail
             {
                 credential = await GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.FromStream(stream).Secrets,
-					/// new ClientSecrets { ClientId = "105720651339-o06qrd6m1umhqc62e5e4f8t2koqcmvec.apps.googleusercontent.com", ClientSecret = "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" },
+					/// new ClientSecrets { ClientId = "105720651339-o06xxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com", ClientSecret = "GOCSPX-xxxxxxxxxxxxxxxxxxxxB1" },
                     SCOPES,
                     "user",
                     CancellationToken.None,
